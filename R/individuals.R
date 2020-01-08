@@ -129,6 +129,13 @@ create_variables <- function(parameters) {
     }
   )
 
+  xi_group <- individual::Constant$new(
+    "xi_group",
+    function(n) {
+      discretise(xi_values, n_heterogeneity_groups)
+    }
+  )
+
   mosquito_variety <- individual::Constant$new(
     "variety",
     function(n) {
@@ -151,6 +158,7 @@ create_variables <- function(parameters) {
     iva = iva,
     id = id,
     xi = xi,
+    xi_group = xi_group,
     mosquito_variety = mosquito_variety,
     infection_schedule = infection_schedule,
     asymptomatic_infection_schedule = asymptomatic_infection_schedule,
@@ -168,11 +176,7 @@ create_variables <- function(parameters) {
 create_individuals <- function(states, variables) {
   human <- individual::Individual$new(
     'human',
-<<<<<<< HEAD
     states=list(states$S, states$I, states$D, states$A, states$U),
-=======
-    list(states$S, states$I, states$Treated, states$D, states$A, states$U),
->>>>>>> Model running
     variables = list(
       variables$age,
       variables$last_bitten,
@@ -184,17 +188,8 @@ create_individuals <- function(states, variables) {
       variables$icm,
       variables$ivm,
       variables$infection_schedule,
-<<<<<<< HEAD
-<<<<<<< HEAD
       variables$asymptomatic_infection_schedule,
       variables$is_severe
-=======
-      variables$asymptomatic_infection_schedule
->>>>>>> Model running
-=======
-      variables$asymptomatic_infection_schedule,
-      variables$is_severe
->>>>>>> Fix e2e test
     ),
     constants = list(variables$xi)
   )

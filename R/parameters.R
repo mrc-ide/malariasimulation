@@ -160,12 +160,37 @@ get_parameters <- function() {
     dmin  = 0, #NOTE: what should this be?
     id0   = 1.577533,
     kd    = .476614,
+    # mortality parameters
+    ftv   = .5,
+    mortality_probability_table = rep(.05, 100),
+    v     = .065, # NOTE: there are two definitions of this: one on line 124 and one in the parameters table
+    # carrying capacity parameters
+    K0    = 10,
+    g0    = 2,
+    g1   = .3,
+    g2   = .6,
+    g3   = .9,
+    h1   = .1,
+    h2   = .4,
+    h3   = .7,
+    gamma = 13.25,
+    # larval mortality rates
+    me    = days_per_timestep * .0338,
+    ml    = days_per_timestep * .0348,
     # egg laying parameter
     beta  = days_per_timestep * 21.2,
     human_population = human_population,
     mosquito_limit   = 100 * human_population,
     days_per_timestep  = days_per_timestep
   )
+
+	parameters$R_bar <- mean(vnapply(1:365, function(t) rainfall(
+		t,
+		parameters$timestep_to_day,
+    parameters$g0,
+		c(parameters$g1, parameters$g2, parameters$g3),
+		c(parameters$h1, parameters$h2, parameters$h3)
+	)))
 
   parameters
 }

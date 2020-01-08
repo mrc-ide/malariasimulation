@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • malariasimulation</title>
+<title>Exponentially decaying variables — create_exponential_decay_process • malariasimulation</title>
 
 
 <!-- jquery -->
@@ -35,7 +35,10 @@
 
 
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="Exponentially decaying variables — create_exponential_decay_process" />
+<meta property="og:description" content="create_exponential_decay_process generates a process function
+that reduces the value of a variable at an exponential rate" />
+<meta name="twitter:card" content="summary" />
 
 
 
@@ -54,7 +57,7 @@
   </head>
 
   <body>
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -96,108 +99,45 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>Exponentially decaying variables</h1>
+    
+    <div class="hidden name"><code>create_exponential_decay_process.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    <p>create_exponential_decay_process generates a process function
+that reduces the value of a variable at an exponential rate</p>
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
+    <pre class="usage"><span class='fu'>create_exponential_decay_process</span>(<span class='no'>individual</span>, <span class='no'>variable</span>, <span class='no'>rate</span>)</pre>
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      <tr>
-        
-        <td>
-          <p><code><a href="create_ageing_process.html">create_ageing_process()</a></code> </p>
-        </td>
-        <td><p>Human aging process</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="create_egg_laying_process.html">create_egg_laying_process()</a></code> </p>
-        </td>
-        <td><p>Mosquito births</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="create_exponential_decay_process.html">create_exponential_decay_process()</a></code> </p>
-        </td>
-        <td><p>Exponentially decaying variables</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="create_fixed_probability_state_change_process.html">create_fixed_probability_state_change_process()</a></code> </p>
-        </td>
-        <td><p>Basic state transition</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="create_individuals.html">create_individuals()</a></code> </p>
-        </td>
-        <td><p>Define model individuals</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="create_larval_death_process.html">create_larval_death_process()</a></code> </p>
-        </td>
-        <td><p>Larval deaths</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="create_mortality_process.html">create_mortality_process()</a></code> </p>
-        </td>
-        <td><p>Human mortality process</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="create_processes.html">create_processes()</a></code> </p>
-        </td>
-        <td><p>Define model processes</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="create_states.html">create_states()</a></code> </p>
-        </td>
-        <td><p>Define model states</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="create_variables.html">create_variables()</a></code> </p>
-        </td>
-        <td><p>Define model variables and constants</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="get_parameters.html">get_parameters()</a></code> </p>
-        </td>
-        <td><p>Get model parameters</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="run_simulation.html">run_simulation()</a></code> </p>
-        </td>
-        <td><p>Run the simulation</p></td>
-      </tr>
-    </tbody>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>individual, </th>
+      <td><p>an individual</p></td>
+    </tr>
+    <tr>
+      <th>variable, </th>
+      <td><p>the variable to update</p></td>
+    </tr>
+    <tr>
+      <th>rate, </th>
+      <td><p>the exponential rate</p></td>
+    </tr>
     </table>
-  </div>
 
+
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#section-all-functions">All functions</a></li>
+      <li><a href="#arguments">Arguments</a></li>
     </ul>
+
   </div>
 </div>
 

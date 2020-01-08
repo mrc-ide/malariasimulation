@@ -13,6 +13,12 @@
 create_processes <- function(individuals, states, variables, parameters) {
   list(
     create_ageing_process(individuals$human, variables$age),
+    create_mortality_process(
+      individuals$human,
+      states$D,
+      states$Treated,
+      variables
+    ),
 
     # ======
     # States
@@ -113,6 +119,13 @@ create_processes <- function(individuals, states, variables, parameters) {
       states$P,
       states$Sm,
       .5 * parameters$rpl
+    ),
+    # Death of larvae
+    create_larval_death_process(
+      individuals$mosquito,
+      states$E,
+      states$L,
+      states$Unborn
     ),
     # Death of pupals
     create_fixed_probability_state_change_process(

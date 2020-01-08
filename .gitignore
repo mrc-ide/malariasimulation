@@ -1,0 +1,9 @@
+*.sw*
+.RData
+.rhistory
+malariasimulation.Rcheck
+malariasimulation_*.tar.gz
+.Rd2pdf*
+.Rproj.user
+*.Rproj
+.DS_Store

@@ -1,0 +1,27 @@
+Package: malariasimulation
+Title: An individual based model for malaria
+Version: 0.0.1
+Authors@R: c(
+  person(
+    given = "Giovanni",
+    family = "Charles",
+    role = c('aut', 'cre'),
+    email = 'giovanni.charles@gmail.com'
+  ),
+  person(
+    given = "Imperial College of Science, Technology and Medicine",
+    family = "",
+    role = c('cph'),
+    email = 'giovanni.charles10@imperial.ac.uk'
+  ))
+Description: Specifies the latest and greatest malaria model.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Remotes: mrc-ide/individual
+Imports:
+  individual
+Suggests: 
+  testthat,
+  mockery
+RoxygenNote: 7.0.2

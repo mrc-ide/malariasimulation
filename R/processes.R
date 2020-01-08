@@ -11,7 +11,6 @@
 #' @param variables, a list of variables and constants in the model
 #' @param parameters, a list of model parameters
 create_processes <- function(individuals, states, variables, parameters) {
-
   list(
     create_ageing_process(individuals$human, variables$age),
 
@@ -47,6 +46,27 @@ create_processes <- function(individuals, states, variables, parameters) {
       states$S,
       parameters$ru
     ),
+    # Treatment Recovery
+    create_treatment_recovery_process(
+      individuals$human,
+      states$Treated,
+      states$S,
+      variables$is_severe
+    ),
+
+    # ========
+    # Immunity
+    # ========
+
+    # Maternal immunity
+    create_exponential_decay_process(individuals$human, variables$icm, parameters$rm),
+    create_exponential_decay_process(individuals$human, variables$ivm, parameters$rvm),
+    # Blood immunity
+    create_exponential_decay_process(individuals$human, variables$ib, parameters$rb),
+    # Acquired immunity
+    create_exponential_decay_process(individuals$human, variables$ica, parameters$rc),
+    create_exponential_decay_process(individuals$human, variables$iva, parameters$rva),
+    create_exponential_decay_process(individuals$human, variables$id, parameters$rd),
 
     # ===============
     # Mosquito States
@@ -99,6 +119,36 @@ create_processes <- function(individuals, states, variables, parameters) {
       states$Im,
       states$Unborn,
       parameters$mum
+    ),
+
+    ## =========
+    ## Infection
+    ## =========
+    ## Mosquitos move from Sm -> Im
+    ## NOTE: In the future this will be combined with the infection process
+    ## below so that we can model mosquitos individually
+    create_mosquito_infection_process(
+      individuals$mosquito,
+      individuals$human,
+      states,
+      variables
+    ),
+
+    ## schedule infections for humans and set last_bitten and last_infected
+    create_infection_process(
+      individuals$human,
+      individuals$mosquito,
+      states,
+      variables
+    ),
+
+    ## update states after a latent period
+    create_infection_scheduler(
+      individuals$human,
+      states$A,
+      states$I,
+      variables$infection_schedule,
+      variables$asymptomatic_infection_schedule
     )
   )
 }
@@ -124,6 +174,21 @@ create_fixed_probability_state_change_process <- function(i, from, to, rate) {
       bernoulli(length(source_individuals), rate)
     ]
     individual::StateUpdate$new(i, to, target_individuals)
+  }
+}
+
+#' @title Exponentially decaying variables
+#' @description
+#' create_exponential_decay_process generates a process function
+#' that reduces the value of a variable at an exponential rate
+#'
+#' @param individual, an individual
+#' @param variable, the variable to update
+#' @param rate, the exponential rate
+create_exponential_decay_process <- function(individual, variable, rate) {
+  function(simulation_frame, timestep, parameters) {
+    i <- simulation_frame$get_variable(individual, variable)
+    individual::VariableUpdate$new(individual, variable, i - rate * i)
   }
 }
 

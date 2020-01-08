@@ -59,9 +59,86 @@ create_variables <- function(parameters) {
 
   # Define variables
   age <- individual::Variable$new("age", function(size) initial_age)
+  last_bitten <- individual::Variable$new("last_bitten", function(size) { rep(-1, size) })
+  last_infected <- individual::Variable$new("last_infected", function(size) { rep(-1, size) })
+  infection_schedule <- individual::Variable$new(
+    "infection_schedule",
+    function(size) { rep(-1, size) }
+  )
+  asymptomatic_infection_schedule <- individual::Variable$new(
+    "asymptomatic_infection_schedule",
+    function(size) { rep(-1, size) }
+  )
+  is_severe <- individual::Variable$new(
+    "is_severe",
+    function(size) { rep(0, size) }
+  )
 
+  # Maternal immunity
+  icm <- individual::Variable$new(
+    "ICM",
+    function(size) {
+      first_immunity <- 1
+      t <- initial_age * 365 / parameters$days_per_timestep
+      first_immunity * exp(-(t * parameters$rm))
+    }
+  )
+
+  ivm <- individual::Variable$new(
+    "IVM",
+    function(size) {
+      first_immunity <- 1
+      t <- initial_age * 365 / parameters$days_per_timestep
+      first_immunity * exp(-(t * parameters$rm))
+    }
+  )
+
+  # Pre-erythoctic immunity
+  ib  <- individual::Variable$new("IB", function(size) { rep(0, size) })
+  # Acquired immunity to clinical disease
+  ica <- individual::Variable$new("ICA", function(size) { rep(0, size) })
+  # Acquired immunity to severe disease
+  iva <- individual::Variable$new("IVA", function(size) { rep(0, size) })
+  # Acquired immunity to detectability
+  id <- individual::Variable$new("ID", function(size) { rep(0, size) })
+
+  # is_severe, 1 iff the individual is currently affected by severe disease
+  is_severe <- individual::Variable$new("is_severe", function(size) { rep(0, size) })
+
+  xi_values <- rlnorm(parameters$human_population, -parameters$sigma_squared/2,parameters$sigma_squared)
+  xi <- individual::Constant$new(
+    "xi",
+    function(n) {
+      xi_values
+    }
+  )
+
+  mosquito_variety <- individual::Constant$new(
+    "variety",
+    function(n) {
+      p <- runif(n)
+      v <- rep(0, n)
+      v[which(p > .5)] <- 1
+      v[which(p > .2 & p < .5)] <- 2
+      v[which(p < .2)] <- 3
+      v
+    }
+  )
   list(
-    age = age
+    age = age,
+    last_bitten = last_bitten,
+    last_infected = last_infected,
+    icm = icm,
+    ivm = ivm,
+    ib = ib,
+    ica = ica,
+    iva = iva,
+    id = id,
+    xi = xi,
+    mosquito_variety = mosquito_variety,
+    infection_schedule = infection_schedule,
+    asymptomatic_infection_schedule = asymptomatic_infection_schedule,
+    is_severe = is_severe
   )
 }
 
@@ -76,12 +153,26 @@ create_individuals <- function(states, variables) {
   human <- individual::Individual$new(
     'human',
     states=list(states$S, states$I, states$D, states$A, states$U),
-    variables = list(variables$age)
+    variables = list(
+      variables$age,
+      variables$last_bitten,
+      variables$last_infected,
+      variables$ib,
+      variables$ica,
+      variables$iva,
+      variables$id,
+      variables$icm,
+      variables$ivm,
+      variables$infection_schedule,
+      variables$asymptomatic_infection_schedule
+    ),
+    constants = list(variables$xi)
   )
 
   mosquito <- individual::Individual$new(
     'mosquito',
-    states=list(states$E, states$L, states$P, states$Sm, states$Im, states$Unborn)
+    states=list(states$E, states$L, states$P, states$Sm, states$Im, states$Unborn),
+    constants = list(variables$mosquito_variety)
   )
 
   list(human = human, mosquito = mosquito)

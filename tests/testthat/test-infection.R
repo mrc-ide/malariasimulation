@@ -161,7 +161,7 @@ test_that('asymptomatic_infectivity returns the correct values', {
     cd    = 0.068,
     gamma1= 1.82425,
     fd0   = 0.007055,
-    ad    = 21.9 * 365 * days_per_timestep,
+    ad    = 21.9 * 365 / days_per_timestep,
     gammad= 4.8183,
     d1    = 1,
     dmin  = 0.161, #NOTE: what should this be?

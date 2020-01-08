@@ -46,7 +46,7 @@ create_variables <- function(parameters) {
   xi <- Constant$new(
     "xi",
     function(n) {
-      rlnorm(n, -parameters$sigma**2/2,parameters$sigma**2)
+      rlnorm(n, -parameters$sigma_squared/2,parameters$sigma_squared)
     }
   )
 

@@ -23,6 +23,10 @@ get_parameters <- function() {
     ub    = 1 / 7.19919,
     uc    = 1 / 67.6952,
     a0    = 8 * 365 * timestep_to_day,
+    theta0  = .0749886,
+    theta1  = .0001191,
+    ic0     = 18.02366,
+    rho     = .85,
     sigma_squared   = 1.67,
     timestep_to_day = 1
   )

@@ -3,11 +3,12 @@
 # =========
 
 infection_process <- function(simulation_frame, timestep, parameters) {
-  source_humans <- simulation_frame$get_state(human, S, U, A)
+  source_humans <- simulation_frame$get_state(human, S, U, A, D)
   source_mosquitos <- simulation_frame$get_state(mosquito, Im)
+  age <- simulation_frame$get_variable(human, age)
 
   lambda <- force_of_infection(
-    simulation_frame$get_variable(human, age)[source_humans],
+    age[source_humans],
     simulation_frame$get_constant(human, xi)[source_humans],
     simulation_frame$get_constant(mosquito, mosquito_variety)[source_mosquitos],
     simulation_frame$get_variable(human, ib)[source_humans],
@@ -16,17 +17,41 @@ infection_process <- function(simulation_frame, timestep, parameters) {
 
   infected_humans <- source_humans[runif(length(source_humans), 0, 1) > lambda]
 
-  phi <- immunity(
+  phi <- clinical_immunity(
     simulation_frame$get_variable(human, ica)[infected_humans],
     simulation_frame$get_variable(human, icm)[infected_humans],
     parameters
   )
 
-  symptomatic <- runif(length(infected_humans), 0, 1) > phi
+  theta <- severe_immunity(
+    age[infected_humans],
+    simulation_frame$get_variable(human, ica)[infected_humans],
+    simulation_frame$get_variable(human, icm)[infected_humans],
+    parameters
+  )
+
+  develop_clinical <- runif(length(infected_humans), 0, 1) > phi
+  develop_severe <- runif(length(infected_humans), 0, 1) > theta
+  symptomatic <- develop_severe | develop_clinical
+
+  next_infection <- schedule_infection(
+    simulation_frame$get_variable(human, infection_schedule),
+    infected_humans[symptomatic],
+    timestep + parameters$de
+  )
+  next_asymptomatic_infection <- schedule_infection(
+    simulation_frame$get_variable(human, asymptomatic_infection_schedule),
+    infected_humans[!symptomatic],
+    timestep + parameters$de
+  )
 
   list(
-    StateUpdate$new(human, I, infected_humans[symptomatic]),
-    StateUpdate$new(human, A, infected_humans[!symptomatic]),
+    VariableUpdate$new(human, infection_schedule, next_infection),
+    VariableUpdate$new(
+      human,
+      asymptomatic_infection_schedule,
+      next_asymptomatic_infection
+    ),
     VariableUpdate$new(
       human,
       last_bitten,
@@ -39,6 +64,19 @@ infection_process <- function(simulation_frame, timestep, parameters) {
       timestep,
       infected_humans[symptomatic]
     )
+  )
+}
+
+scheduled_infections <- function(simulation_frame, timestep, parameters) {
+  infection    <- which(
+    simulation_frame$get_variable(human, infection_schedule) == timestep
+  )
+  asymptomatic <- which(
+    simulation_frame$get_variable(human, asymptomatic_infection_schedule) == timestep
+  )
+  list(
+    StateUpdate$new(human, I, infection),
+    StateUpdate$new(human, A, asymptomatic)
   )
 }
 
@@ -100,15 +138,24 @@ force_of_infection <- function(
 }
 
 # Implemented from Winskill 2017 - Supplementary Information page 4
-# Calculate acquired immunity from last_bitten
-# Calculate and maternal immunity from age
-# Then calculate immunity using parameters
-immunity <- function(acquired_immunity, maternal_immunity, parameters) {
-  parameters$theta0 * (
-    parameters$theta1 +
-      (1 - parameters$theta1) /
+clinical_immunity <- function(acquired_immunity, maternal_immunity, parameters) {
+  parameters$phi0 * (
+    parameters$phi1 +
+      (1 - parameters$phi1) /
       1 + ((acquired_immunity + maternal_immunity) / parameters$ic0)
       ** parameters$kc
+  )
+}
+
+# Implemented from Winskill 2017 - Supplementary Information page 5
+severe_immunity <- function(age, acquired_immunity, maternal_immunity, parameters) {
+  fv <- 1 - (1 - parameters$fv0) / (
+    1 + (age / parameters$av) ** parameters$gammav
+  )
+  parameters$theta0 * (parameters$theta1 + (1 - parameters$theta1) / (
+    1 + fv * (
+      (acquired_immunity+maternal_immunity) / parameters$iv0) ** parameters$kv
+    )
   )
 }
 
@@ -169,4 +216,14 @@ create_infectivity_frame <- function(human_age, human_xi, subset_to_param) {
       }
     )
   )
+}
+
+schedule_infection <- function(current_schedule, subset, next_event) {
+  new_schedule <- current_schedule
+  new_schedule[intersect(subset, which(new_schedule == -1))] <- next_event
+  new_schedule[intersect(subset, which(new_schedule != -1))] <- pmin(
+    new_schedule[subset],
+    next_event
+  )
+  new_schedule
 }

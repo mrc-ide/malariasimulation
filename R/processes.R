@@ -62,9 +62,11 @@ create_processes <- function(individuals, states, variables, parameters) {
     ## below so that we can model mosquitos individually
     mosquito_infection_process,
 
-    ## Mosquito bites move humans from S, U, A -> I; S, U, A -> A
-    ## and has a side effect of boosting immunity
-    infection_process
+    ## schedule infections for humans and set last_bitten and last_infected
+    infection_process,
+
+    ## update states after a latent period
+    scheduled_infections
   )
 
   lapply(

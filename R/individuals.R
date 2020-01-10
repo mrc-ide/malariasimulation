@@ -27,6 +27,14 @@ create_variables <- function(parameters) {
   age <- Variable$new("age", function(size) initial_age)
   last_bitten <- Variable$new("last_bitten", function(size) { rep(-1, size) })
   last_infected <- Variable$new("last_infected", function(size) { rep(-1, size) })
+  infection_schedule <- Variable$new(
+    "infection_schedule",
+    function(size) { rep(-1, size) }
+  )
+  asymptomatic_infection_schedule <- Variable$new(
+    "asymptomatic_infection_schedule",
+    function(size) { rep(-1, size) }
+  )
 
   # Maternal immunity
   icm <- Variable$new(
@@ -69,7 +77,9 @@ create_variables <- function(parameters) {
     ib = ib,
     ica = ica,
     xi = xi,
-    mosquito_variety = mosquito_variety
+    mosquito_variety = mosquito_variety,
+    infection_schedule = infection_schedule,
+    asymptomatic_infection_schedule = asymptomatic_infection_schedule
   )
 }
 
@@ -81,7 +91,16 @@ create_individuals <- function(states, variables) {
   human <- Individual$new(
     'human',
     list(S, I, Treated, D, A, U),
-    variables = list(age, last_bitten, last_infected, ib, ica, icm),
+    variables = list(
+      age,
+      last_bitten,
+      last_infected,
+      ib,
+      ica,
+      icm,
+      infection_schedule,
+      asymptomatic_infection_schedule
+    ),
     constants = list(xi)
   )
 

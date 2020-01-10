@@ -29,18 +29,38 @@ test_that('force_of_infection returns correct values', {
   )
 })
 
-test_that('immunity returns correct values', {
+test_that('clinical immunity returns correct values', {
   acquired_immunity <-  c(0., 1., 6.)
   maternal_immunity <-  c(.97, .5, .3)
   parameters <- list(
-    theta0  = .0749886,
-    theta1  = .0001191,
+    phi0  = .0749886,
+    phi1  = .0001191,
     ic0     = 18.02366,
     kc      = 2.36949
   )
   expect_equal(
-    immunity(acquired_immunity, maternal_immunity, parameters),
+    clinical_immunity(acquired_immunity, maternal_immunity, parameters),
     c(.0751, .0752, .0812),
+    tolerance=1e-4
+  )
+})
+
+test_that('severe immunity returns correct values', {
+  acquired_immunity <-  c(0., 1., 6.)
+  maternal_immunity <-  c(.97, .5, .3)
+  age <- c(0, 5, 30)
+  parameters <- list(
+    theta0  = .0749886,
+    theta1  = .0001191,
+    kv      = 2.00048,
+    fv0     = 0.141195,
+    av      = 2493.41,
+    gammav  = 2.91282,
+    iv0     = 1.09629
+  )
+  expect_equal(
+    severe_immunity(age, acquired_immunity, maternal_immunity, parameters),
+    c(0.0675, 0.0593, 0.0132),
     tolerance=1e-4
   )
 })
@@ -84,5 +104,15 @@ test_that('mosquito_force_of_infection returns correct values', {
     mosquito_force_of_infection(v, human_frame, parameters),
     c(.426, .426, .426, .343, .436, .436),
     tolerance=1e-3
+  )
+})
+
+test_that('schedule_infection sets the earliest next infection', {
+  current_schedule <- c(-1, 4, 6, 9, -1, 3)
+  subset <- c(1, 2, 4)
+  next_event <- 5
+  expect_equal(
+    schedule_infection(current_schedule, subset, next_event),
+    c(5, 4, 6, 5, -1, 3)
   )
 })

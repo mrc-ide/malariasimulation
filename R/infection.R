@@ -5,28 +5,35 @@
 infection_process <- function(simulation_frame, timestep, parameters) {
   source_humans <- simulation_frame$get_state(human, S, U, A, D)
   source_mosquitos <- simulation_frame$get_state(mosquito, Im)
-  age <- simulation_frame$get_variable(human, age)
+  age_value <- simulation_frame$get_variable(human, age)
+  ib_value <- simulation_frame$get_variable(human, ib)[source_humans]
 
-  lambda <- force_of_infection(
-    age[source_humans],
+  epsilon <- probability_bitten(
+    age_value[source_humans],
     simulation_frame$get_constant(human, xi)[source_humans],
     simulation_frame$get_constant(mosquito, mosquito_variety)[source_mosquitos],
-    simulation_frame$get_variable(human, ib)[source_humans],
     parameters
   )
 
-  infected_humans <- source_humans[runif(length(source_humans), 0, 1) > lambda]
+  bitten_humans <- source_humans[runif(length(source_humans), 0, 1) > epsilon]
+
+  b <- blood_immunity(ib_value[bitten_humans], parameters)
+
+  bitten_infected_humans <- bitten_humans[runif(length(bitten_humans), 0, 1) > b]
+
+  ica_infected_value <- simulation_frame$get_variable(human, ica)[infected_humans]
+  iva_infected_value <- simulation_frame$get_variable(human, iva)[infected_humans]
 
   phi <- clinical_immunity(
-    simulation_frame$get_variable(human, ica)[infected_humans],
+    ica_infected_value,
     simulation_frame$get_variable(human, icm)[infected_humans],
     parameters
   )
 
   theta <- severe_immunity(
-    age[infected_humans],
-    simulation_frame$get_variable(human, ica)[infected_humans],
-    simulation_frame$get_variable(human, icm)[infected_humans],
+    age_value[infected_humans],
+    iva_infected_value,
+    simulation_frame$get_variable(human, ivm)[infected_humans],
     parameters
   )
 
@@ -35,35 +42,63 @@ infection_process <- function(simulation_frame, timestep, parameters) {
   symptomatic <- develop_severe | develop_clinical
 
   next_infection <- schedule_infection(
-    simulation_frame$get_variable(human, infection_schedule),
-    infected_humans[symptomatic],
-    timestep + parameters$de
-  )
-  next_asymptomatic_infection <- schedule_infection(
-    simulation_frame$get_variable(human, asymptomatic_infection_schedule),
-    infected_humans[!symptomatic],
+    simulation_frame$get_variable(human, infection_schedule)[infected_humans],
+    symptomatic,
     timestep + parameters$de
   )
 
+  next_asymptomatic_infection <- schedule_infection(
+    simulation_frame$get_variable(
+      human,
+      asymptomatic_infection_schedule
+    )[infected_humans],
+    !symptomatic,
+    timestep + parameters$de
+  )
+
+  last_infected_value <- simulation_frame$get_variable(last_infected)[infected_humans]
+  new_ica <- boost_acquired_immunity(
+    ica_infected_value,
+    last_infected_value,
+    timestep,
+    parameters$uc
+  )
+
+  new_iva <- boost_acquired_immunity(
+    iva_infected_value,
+    last_infected_value,
+    timestep,
+    parameters$uv
+  )
+
+  new_ib <- boost_acquired_immunity(
+    ib_value[bitten_humans],
+    simulation_frame$get_variable(last_bitten)[bitten_humans],
+    timestep,
+    parameters$ub
+  )
+
   list(
-    VariableUpdate$new(human, infection_schedule, next_infection),
+    # Boost immunity
+    VariableUpdate$new(human, ica, new_ica, infected_humans),
+    VariableUpdate$new(human, iva, new_iva, infected_humans),
+    VariableUpdate$new(human, ib, new_ib, bitten_humans),
+    # Schedule infection states
     VariableUpdate$new(
       human,
-      asymptomatic_infection_schedule,
-      next_asymptomatic_infection
-    ),
-    VariableUpdate$new(
-      human,
-      last_bitten,
-      timestep,
+      infection_schedule,
+      next_infection,
       infected_humans
     ),
     VariableUpdate$new(
       human,
-      last_infected,
-      timestep,
-      infected_humans[symptomatic]
-    )
+      asymptomatic_infection_schedule,
+      next_asymptomatic_infection,
+      infected_humans
+    ),
+    # Record last bitten/infected
+    VariableUpdate$new(human, last_bitten, timestep, bitten_humans),
+    VariableUpdate$new(human, last_infected, timestep, bitten_infected_humans)
   )
 }
 
@@ -111,15 +146,10 @@ mosquito_infection_process <- function(simulation_frame, timestep, parameters) {
 # =================
 
 # Implemented from Winskill 2017 - Supplementary Information page 3
-# Calculate the unique biting rate (psi) from age
-# Calculate the mean EIR (epsilon0) from time
-# Sample the relative biting rate (xi) from a normal distribution
-# Calculate immunity level (b)
-force_of_infection <- function(
+probability_bitten <- function(
   age,
   xi,
   infectious_variants,
-  ib,
   parameters
   ) {
 
@@ -133,8 +163,7 @@ force_of_infection <- function(
   )
 
   epsilon0 <- .pi * sum(infectious_blood_meal_rate * infectious_count$Freq)
-  b <- infection_probability(ib, parameters)
-  epsilon0 * xi * b * psi
+  epsilon0 * xi * psi
 }
 
 # Implemented from Winskill 2017 - Supplementary Information page 4
@@ -142,8 +171,11 @@ clinical_immunity <- function(acquired_immunity, maternal_immunity, parameters) 
   parameters$phi0 * (
     parameters$phi1 +
       (1 - parameters$phi1) /
-      1 + ((acquired_immunity + maternal_immunity) / parameters$ic0)
-      ** parameters$kc
+      (
+        1 + (
+          (acquired_immunity + maternal_immunity) / parameters$ic0
+        ) ** parameters$kc
+      )
   )
 }
 
@@ -169,9 +201,13 @@ relative_biting_rate <- function(n, parameters) {
   rlnorm(n, -parameters$sigma**2/2, parameters$sigma**2)
 }
 
-infection_probability <- function(ib, parameters) {
-  parameters$b0 + (parameters$b1 - parameters$b0) /
-    (1 + (ib / parameters$ib0)**parameters$kb)
+# Implemented from Winskill 2017 - Supplementary Information page 4
+blood_immunity <- function(ib, parameters) {
+  parameters$b0 * (
+    parameters$b1 +
+      (1 - parameters$b1) /
+      (1 + (ib / parameters$ib0) ** parameters$kb)
+  )
 }
 
 human_pi <- function(xi, psi) {
@@ -226,4 +262,10 @@ schedule_infection <- function(current_schedule, subset, next_event) {
     next_event
   )
   new_schedule
+}
+
+boost_acquired_immunity <- function(level, last_boosted, timestep, delay) {
+  to_boost <- (timestep - last_boosted) > delay
+  level[to_boost] <- level[to_boost] + 1
+  level
 }

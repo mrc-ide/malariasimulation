@@ -15,21 +15,14 @@ create_processes <- function(individuals, states, variables, parameters) {
   env <- environment()
   list2env(individuals, env)
   list2env(states, env)
+  list2env(variables, env)
 
   processes <- list(
-    # ===============
-    # Human Processes
-    # ===============
-
     ageing_process,
 
-    # ========
-    # Immunity
-    # ========
-    maternal_immunity_process,
-    preerythoctic_immunity_process,
-    acquired_immunity_process,
-
+    # ======
+    # States
+    # ======
     # Untreated Progression
     create_fixed_probability_state_change_process(human, I, D, 1 - parameters$ft),
     # Treatment
@@ -43,9 +36,21 @@ create_processes <- function(individuals, states, variables, parameters) {
     # Treatment Recovery
     create_fixed_probability_state_change_process(human, Treated, S, parameters$rt),
 
-    # ==================
-    # Mosquito Processes
-    # ==================
+    # ========
+    # Immunity
+    # ========
+    # Maternal immunity
+    create_exponential_decay_process(human, icm, parameters$rm),
+    create_exponential_decay_process(human, ivm, parameters$rvm),
+    # Blood immunity
+    create_exponential_decay_process(human, ib, parameters$rb),
+    # Acquired immunity
+    create_exponential_decay_process(human, ica, parameters$rc),
+    create_exponential_decay_process(human, iva, parameters$rva),
+
+    # ===============
+    # Mosquito States
+    # ===============
 
     # Larval growth
     create_fixed_probability_state_change_process(mosquito, E, L, parameters$rel),
@@ -94,5 +99,12 @@ create_fixed_probability_state_change_process <- function(i, from, to, rate) {
       runif(length(source_individuals), 0, 1) > rate
     ]
     StateUpdate$new(i, to, target_individuals)
+  }
+}
+
+create_exponential_decay_process <- function(individual, variable, rate) {
+  function(simulation_frame, timestep, parameters) {
+    i <- simulation_frame$get_variable(individual, variable)
+    VariableUpdate$new(individual, variable, i - rate * i)
   }
 }

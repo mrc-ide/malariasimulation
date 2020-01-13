@@ -1,36 +1,49 @@
-test_that('force_of_infection returns correct values', {
+test_that('probability_bitten returns correct values', {
   age <- c(0, 5, 30)
   xi <-  c(1.8, 2., .5)
-  ib <-  c(0., 1., 6.)
   infectious_variants <- c(rep(1, 3), rep(3, 2))
 
   timestep_to_day <- 1
   parameters <- list(
     rho   = .85,
     a0    = 8 * 365 * timestep_to_day,
-    b0    = 0.590076,
-    b1    = 0.5,
-    ib0   = 43.8787,
-    kb    = 2.15506,
     av1   = .92,
     av2   = .74,
     av3   = .94
   )
   expect_equal(
-    force_of_infection(
+    probability_bitten(
       age,
       xi,
       infectious_variants,
-      ib,
       parameters
     ),
-    c(.2369, .2982, .0205),
+    c(.4739, .5964, .0409),
     tolerance=1e-4
   )
 })
 
+test_that('blood_immunity returns correct values', {
+  ib <-  c(0., 1., 10.)
+
+  parameters <- list(
+    b0    = 0.590076,
+    b1    = 0.5,
+    ib0   = 43.8787,
+    kb    = 2.15506
+  )
+  expect_equal(
+    blood_immunity(
+      ib,
+      parameters
+    ),
+    c(.590, .590, .578),
+    tolerance=1e-3
+  )
+})
+
 test_that('clinical immunity returns correct values', {
-  acquired_immunity <-  c(0., 1., 6.)
+  acquired_immunity <-  c(0., 1., 10.)
   maternal_immunity <-  c(.97, .5, .3)
   parameters <- list(
     phi0  = .0749886,
@@ -40,7 +53,7 @@ test_that('clinical immunity returns correct values', {
   )
   expect_equal(
     clinical_immunity(acquired_immunity, maternal_immunity, parameters),
-    c(.0751, .0752, .0812),
+    c(.0749, .0748, .0593),
     tolerance=1e-4
   )
 })
@@ -114,5 +127,16 @@ test_that('schedule_infection sets the earliest next infection', {
   expect_equal(
     schedule_infection(current_schedule, subset, next_event),
     c(5, 4, 6, 5, -1, 3)
+  )
+})
+
+test_that('boost_acquired_immunity respects the delay period', {
+  level <- c(2.4, 1.2, 0., 4.)
+  last_boosted <- c(11, 5, 1, 13)
+  timestep <- 15
+  delay <- 4
+  expect_equal(
+    boost_acquired_immunity(level, last_boosted, timestep, delay),
+    c(2.4, 2.2, 1., 4.)
   )
 })

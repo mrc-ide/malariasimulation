@@ -48,8 +48,12 @@ create_variables <- function(parameters) {
 
   # Pre-erythoctic immunity
   ib  <- Variable$new("IB", function(size) { rep(0, size) })
-  # Acquired immunity to severe disease
+  # Acquired immunity to clinical disease
   ica <- Variable$new("ICA", function(size) { rep(0, size) })
+  # Acquired immunity to severe disease
+  iva <- Variable$new("IVA", function(size) { rep(0, size) })
+  # Acquired immunity to detectability
+  id <- Variable$new("ID", function(size) { rep(0, size) })
 
   xi <- Constant$new(
     "xi",
@@ -76,6 +80,8 @@ create_variables <- function(parameters) {
     icm = icm,
     ib = ib,
     ica = ica,
+    iva = iva,
+    id = id,
     xi = xi,
     mosquito_variety = mosquito_variety,
     infection_schedule = infection_schedule,
@@ -97,6 +103,8 @@ create_individuals <- function(states, variables) {
       last_infected,
       ib,
       ica,
+      iva,
+      id,
       icm,
       infection_schedule,
       asymptomatic_infection_schedule

@@ -140,3 +140,26 @@ test_that('boost_acquired_immunity respects the delay period', {
     c(2.4, 2.2, 1., 4.)
   )
 })
+
+test_that('asymptomatic_infectivity returns the correct values', {
+  age <- c(0, 5, 30, 6)
+  immunity <- c(2.4, 1.2, 0., 4.)
+  timestep_to_day <- 1
+  parameters <- list(
+    cu    = 0.00062,
+    cd    = 0.068,
+    gamma1= 1.82425,
+    fd0   = 0.007055,
+    ad    = 21.9 * 365 * timestep_to_day,
+    gammad= 4.8183,
+    d1    = 1,
+    dmin  = 0.161, #NOTE: what should this be?
+    id0   = 1.577533,
+    kd    = .476614
+  )
+  expect_equal(
+    asymptomatic_infectivity(age, immunity, parameters),
+    c(.207, .208, .208, .207),
+    tolerance=1e-3
+  )
+})

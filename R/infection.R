@@ -71,6 +71,13 @@ infection_process <- function(simulation_frame, timestep, parameters) {
     parameters$uv
   )
 
+  new_id <- boost_acquired_immunity(
+    simulation_frame$get_variable(id)[infected_humans],
+    last_infected_value,
+    timestep,
+    parameters$ud
+  )
+
   new_ib <- boost_acquired_immunity(
     ib_value[bitten_humans],
     simulation_frame$get_variable(last_bitten)[bitten_humans],
@@ -82,6 +89,7 @@ infection_process <- function(simulation_frame, timestep, parameters) {
     # Boost immunity
     VariableUpdate$new(human, ica, new_ica, infected_humans),
     VariableUpdate$new(human, iva, new_iva, infected_humans),
+    VariableUpdate$new(human, id, new_id, infected_humans),
     VariableUpdate$new(human, ib, new_ib, bitten_humans),
     # Schedule infection states
     VariableUpdate$new(
@@ -118,14 +126,23 @@ scheduled_infections <- function(simulation_frame, timestep, parameters) {
 mosquito_infection_process <- function(simulation_frame, timestep, parameters) {
   source_mosquitos <- simulation_frame$get_state(mosquito, Sm)
 
+  age_value <- simulation_frame$get_variable(human, age)
+  asymptomatic <- simulation_frame$get_state(human, A)
+
+  a_infectivity <- asymptomatic_infectivity(
+    age_value[asymptomatic],
+    simulation_frame$get_variable(human, id)[asymptomatic],
+    parameters
+  )
+
   # Create a dataframe frame with human age, xi and infectivity
   infectivity_frame <- create_infectivity_frame(
-    simulation_frame$get_variable(human, age),
+    age_value,
     simulation_frame$get_constant(human, xi),
     list(
       list(simulation_frame$get_state(human, D), parameters$cd),
       list(simulation_frame$get_state(human, Treated), parameters$ct),
-      list(simulation_frame$get_state(human, A), parameters$ca),
+      list(asymptomatic, a_infectivity),
       list(simulation_frame$get_state(human, U), parameters$cu)
     )
   )
@@ -189,6 +206,19 @@ severe_immunity <- function(age, acquired_immunity, maternal_immunity, parameter
       (acquired_immunity+maternal_immunity) / parameters$iv0) ** parameters$kv
     )
   )
+}
+
+# Implemented from Winskill 2017 - Supplementary Information page 5
+# NOTE: I believe there is a typo on equation (9) and there should be a + 1 on
+# the denominator
+asymptomatic_infectivity <- function(age, immunity, parameters) {
+  fd <- 1 - (1 - parameters$fd0) / (
+    1 + (age / parameters$ad) ** parameters$gammad
+  )
+  q <- parameters$d1 + (1 - parameters$dmin) / (
+    1 + fd * ((1 + immunity) / parameters$id0) ** parameters$kd
+  )
+  parameters$cu + (parameters$cd + parameters$cu) * q ** parameters$gamma1
 }
 
 # Unique biting rate (psi) for a human of a given age

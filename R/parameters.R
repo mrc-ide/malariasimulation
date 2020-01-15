@@ -22,9 +22,11 @@ get_parameters <- function() {
     rb    = 1 / (10 * 365 * timestep_to_day),
     rc    = 1 / (30 * 365 * timestep_to_day),
     rva   = 1 / (30 * 365 * timestep_to_day),
+    rd    = 1 / (10 * 365 * timestep_to_day),
     ub    = 1 / 7.19919,
     uc    = 1 / 67.6952,
     uv    = 1 / 11.4321,
+    ud    = 1 / 9.44512,
     a0    = 8 * 365 * timestep_to_day,
     phi0  = .0749886,
     phi1  = .0001191,
@@ -38,6 +40,13 @@ get_parameters <- function() {
     av      = 2493.41,
     gammav  = 2.91282,
     de      = 12 * timestep_to_day,
+    fd0   = 0.007055,
+    ad    = 21.9 * 365 * timestep_to_day,
+    gammad= 4.8183,
+    d1    = 0.160527,
+    dmin  = 0, #NOTE: what should this be?
+    id0   = 1.577533,
+    kd    = .476614,
     timestep_to_day = 1
   )
 }

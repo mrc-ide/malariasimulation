@@ -47,6 +47,7 @@ create_processes <- function(individuals, states, variables, parameters) {
     # Acquired immunity
     create_exponential_decay_process(human, ica, parameters$rc),
     create_exponential_decay_process(human, iva, parameters$rva),
+    create_exponential_decay_process(human, id, parameters$rd),
 
     # ===============
     # Mosquito States

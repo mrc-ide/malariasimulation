@@ -47,6 +47,10 @@ get_parameters <- function() {
     dmin  = 0, #NOTE: what should this be?
     id0   = 1.577533,
     kd    = .476614,
-    timestep_to_day = 1
+    ftv   = .5,
+    pcm   = .774368,
+    pvm   = .195768,
+    v     = .065, # NOTE: there are two definitions of this: one on line 124 and one in the parameters table
+    timestep_to_day = timestep_to_day
   )
 }

@@ -19,10 +19,12 @@ create_processes <- function(individuals, states, variables, parameters) {
 
   processes <- list(
     ageing_process,
+    mortality_process,
 
     # ======
     # States
     # ======
+
     # Untreated Progression
     create_fixed_probability_state_change_process(human, I, D, 1 - parameters$ft),
     # Treatment
@@ -34,11 +36,12 @@ create_processes <- function(individuals, states, variables, parameters) {
     # Subpatient Recovery
     create_fixed_probability_state_change_process(human, U, S, parameters$ru),
     # Treatment Recovery
-    create_fixed_probability_state_change_process(human, Treated, S, parameters$rt),
+    treatment_recovery_process
 
     # ========
     # Immunity
     # ========
+
     # Maternal immunity
     create_exponential_decay_process(human, icm, parameters$rm),
     create_exponential_decay_process(human, ivm, parameters$rvm),

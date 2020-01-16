@@ -1,6 +1,7 @@
 # Define population sizes
 human_population <- 100 * 1000
 mosquito_population <- 100 * human_population
+n_heterogeneity_groups <- 5
 
 create_states <- function() {
   list(
@@ -46,6 +47,15 @@ create_variables <- function(parameters) {
     }
   )
 
+  ivm <- Variable$new(
+    "IVM",
+    function(size) {
+      first_immunity <- 1
+      t <- initial_age * 365 * parameters$timestep_to_day
+      first_immunity * exp(-(t * parameters$rm))
+    }
+  )
+
   # Pre-erythoctic immunity
   ib  <- Variable$new("IB", function(size) { rep(0, size) })
   # Acquired immunity to clinical disease
@@ -55,10 +65,21 @@ create_variables <- function(parameters) {
   # Acquired immunity to detectability
   id <- Variable$new("ID", function(size) { rep(0, size) })
 
+  # is_severe, 1 iff the individual is currently affected by severe disease
+  is_severe <- Variable$new("is_severe", function(size) { rep(0, size) })
+
+  xi_values <- rlnorm(n, -parameters$sigma_squared/2,parameters$sigma_squared)
   xi <- Constant$new(
     "xi",
     function(n) {
-      rlnorm(n, -parameters$sigma_squared/2,parameters$sigma_squared)
+      xi_values
+    }
+  )
+
+  xi_group <- Constant$new(
+    "xi_group",
+    function(n) {
+      discretise(xi_values, n_heterogeneity_groups)
     }
   )
 
@@ -119,4 +140,14 @@ create_individuals <- function(states, variables) {
   )
 
   list(human = human, mosquito = mosquito)
+}
+
+discretise <- function(values, n_groups) {
+  as.numeric(cut(
+    values,
+    seq(min(values), max(values), length.out=n_groups + 1),
+    include.lowest = TRUE,
+    right = FALSE,
+    labels = seq_len(n_groups)
+  ))
 }

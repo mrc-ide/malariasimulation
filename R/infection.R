@@ -19,7 +19,7 @@ infection_process <- function(simulation_frame, timestep, parameters) {
 
   b <- blood_immunity(ib_value[bitten_humans], parameters)
 
-  bitten_infected_humans <- bitten_humans[runif(length(bitten_humans), 0, 1) > b]
+  infected_humans <- bitten_humans[runif(length(bitten_humans), 0, 1) > b]
 
   ica_infected_value <- simulation_frame$get_variable(human, ica)[infected_humans]
   iva_infected_value <- simulation_frame$get_variable(human, iva)[infected_humans]
@@ -104,9 +104,21 @@ infection_process <- function(simulation_frame, timestep, parameters) {
       next_asymptomatic_infection,
       infected_humans
     ),
-    # Record last bitten/infected
+    # Record last bitten/infected/is_severe
     VariableUpdate$new(human, last_bitten, timestep, bitten_humans),
-    VariableUpdate$new(human, last_infected, timestep, bitten_infected_humans)
+    VariableUpdate$new(human, last_infected, timestep, infected_humans),
+    VariableUpdate$new(human, is_severe, 1, infected_humans[develop_severe])
+  )
+}
+
+treatment_recovery_process <- function(simulation_frame, timestep, parameters) {
+  source_individuals <- simulation_frame$get_state(human, Treated)
+  target_individuals <- source_individuals[
+    runif(length(source_individuals), 0, 1) > parameters$rt
+  ]
+  list(
+    StateUpdate$new(human, S, target_individuals),
+    VariableUpdate$new(human, is_severe, 0, target_individuals)
   )
 }
 

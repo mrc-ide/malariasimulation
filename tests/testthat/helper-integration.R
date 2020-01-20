@@ -1,16 +1,5 @@
 
-create_default_model <- function(parameters = NULL) {
-  list(
-    states = create_states(),
-    variables = create_variables(parameters)
-
-  )
-}
-
-bind_process_to_default_model <- function(process, parameters = NULL) {
-  if (is.null(parameters)) {
-    parameters <- get_parameters()
-  }
+bind_process_to_default_model <- function(process, parameters) {
   states <- create_states()
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables)
@@ -37,7 +26,7 @@ expect_has_update <- function(update_list, update) {
   has <- FALSE
 
   for (u in update_list) {
-    if (update$equals(u)) {
+    if (updates_equal(update, u)) {
       has <- TRUE
     }
   }
@@ -47,31 +36,33 @@ expect_has_update <- function(update_list, update) {
   }
 }
 
-individual::StateUpdate$set('public', 'equals', function(other) {
-  all(
-    inherits(other, 'StateUpdate'),
-    self$individual$name == other$individual$name,
-    self$state$name == other$state$name,
-    all.equal(self$index, other$index)
-  )
-}, overwrite = TRUE)
-
-individual::VariableUpdate$set('public', 'equals', function(other) {
+updates_equal <- function(self, other) {
+  if (inherits(self, 'StateUpdate')) {
+    return(all(
+      inherits(other, 'StateUpdate'),
+      self$individual$name == other$individual$name,
+      self$state$name == other$state$name,
+      all.equal(self$index, other$index) == TRUE
+    ))
+  }
   all(
     inherits(other, 'VariableUpdate'),
     self$individual$name == other$individual$name,
     self$variable$name == other$variable$name,
-    all.equal(self$value, other$value),
-    all.equal(self$index, other$index)
+    all.equal(self$value, other$value) == TRUE,
+    all.equal(self$index, other$index) == TRUE
   )
-}, overwrite = TRUE)
+}
 
 mock_simulation_frame <- function(values) {
   list(
-    get_state <- function(individual, ...) {
-      c(vnapply(list(...), function(state) values[[individual$name]][[state$name]]))
+    get_state = function(individual, ...) {
+      unlist(lapply(
+        list(...),
+        function(state) values[[individual$name]][[state$name]]
+      ))
     },
-    get_variable <- function(individual, variable) {
+    get_variable = function(individual, variable) {
       values[[individual$name]][[variable$name]]
     }
   )

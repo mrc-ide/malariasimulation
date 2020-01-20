@@ -1,3 +1,4 @@
+
 test_that('egg_laying_process fails when there are not enough individuals', {
   parameters <- get_parameters()
   bind_process_to_default_model(egg_laying_process, parameters)
@@ -43,8 +44,11 @@ test_that('egg_laying_process creates the correct number of larvae', {
       )
     )
   )
-  updates <- egg_laying_process(simulation_frame, 1, parameters)
-  expect_has_update(individual::StateUpdate$new(mosquito, E, seq_len(10000) + 2000))
+  update <- egg_laying_process(simulation_frame, 1, parameters)
+  expect_equal(update$individual$name, 'mosquito')
+  expect_equal(update$state$name, 'E')
+  expect_equal(length(update$index), 10000)
+  expect(all(update$index >= 2000 && update$index < 100000 + 2000), 'incorrect range')
 })
 
 test_that('larval_death_process works with no larvae', {

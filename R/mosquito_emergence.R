@@ -3,6 +3,9 @@ egg_laying_process <- function(simulation_frame, timestep, parameters) {
   unborn <- simulation_frame$get_state(mosquito, Unborn)
   if (length(m) > 0) {
     n_eggs <- parameters$beta * length(m)
+    if (n_eggs > length(unborn)) {
+      stop('Run out of mosquitos')
+    }
     return(individual::StateUpdate$new(mosquito, E, unborn[seq_len(n_eggs)]))
   }
 }

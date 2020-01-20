@@ -70,21 +70,21 @@ create_variables <- function(parameters) {
   is_severe <- individual::Variable$new("is_severe", function(size) { rep(0, size) })
 
   xi_values <- rlnorm(human_population, -parameters$sigma_squared/2,parameters$sigma_squared)
-  xi <- Constant$new(
+  xi <- individual::Constant$new(
     "xi",
     function(n) {
       xi_values
     }
   )
 
-  xi_group <- Constant$new(
+  xi_group <- individual::Constant$new(
     "xi_group",
     function(n) {
       discretise(xi_values, n_heterogeneity_groups)
     }
   )
 
-  mosquito_variety <- Constant$new(
+  mosquito_variety <- individual::Constant$new(
     "variety",
     function(n) {
       p <- runif(n)
@@ -116,7 +116,7 @@ create_individuals <- function(states, variables) {
   list2env(states, env)
   list2env(variables, env)
 
-  human <- Individual$new(
+  human <- individual::Individual$new(
     'human',
     list(S, I, Treated, D, A, U),
     variables = list(
@@ -134,7 +134,7 @@ create_individuals <- function(states, variables) {
     constants = list(xi)
   )
 
-  mosquito <- Individual$new(
+  mosquito <- individual::Individual$new(
     'mosquito',
     list(E, L, P, Sm, Im),
     constants = list(mosquito_variety)

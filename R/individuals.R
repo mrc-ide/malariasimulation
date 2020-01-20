@@ -26,20 +26,20 @@ create_variables <- function(parameters) {
   initial_age <- trunc(rexp(human_population, rate=1/10))
 
   # Define variables
-  age <- Variable$new("age", function(size) initial_age)
-  last_bitten <- Variable$new("last_bitten", function(size) { rep(-1, size) })
-  last_infected <- Variable$new("last_infected", function(size) { rep(-1, size) })
-  infection_schedule <- Variable$new(
+  age <- individual::Variable$new("age", function(size) initial_age)
+  last_bitten <- individual::Variable$new("last_bitten", function(size) { rep(-1, size) })
+  last_infected <- individual::Variable$new("last_infected", function(size) { rep(-1, size) })
+  infection_schedule <- individual::Variable$new(
     "infection_schedule",
     function(size) { rep(-1, size) }
   )
-  asymptomatic_infection_schedule <- Variable$new(
+  asymptomatic_infection_schedule <- individual::Variable$new(
     "asymptomatic_infection_schedule",
     function(size) { rep(-1, size) }
   )
 
   # Maternal immunity
-  icm <- Variable$new(
+  icm <- individual::Variable$new(
     "ICM",
     function(size) {
       first_immunity <- 1
@@ -48,7 +48,7 @@ create_variables <- function(parameters) {
     }
   )
 
-  ivm <- Variable$new(
+  ivm <- individual::Variable$new(
     "IVM",
     function(size) {
       first_immunity <- 1
@@ -58,18 +58,18 @@ create_variables <- function(parameters) {
   )
 
   # Pre-erythoctic immunity
-  ib  <- Variable$new("IB", function(size) { rep(0, size) })
+  ib  <- individual::Variable$new("IB", function(size) { rep(0, size) })
   # Acquired immunity to clinical disease
-  ica <- Variable$new("ICA", function(size) { rep(0, size) })
+  ica <- individual::Variable$new("ICA", function(size) { rep(0, size) })
   # Acquired immunity to severe disease
-  iva <- Variable$new("IVA", function(size) { rep(0, size) })
+  iva <- individual::Variable$new("IVA", function(size) { rep(0, size) })
   # Acquired immunity to detectability
-  id <- Variable$new("ID", function(size) { rep(0, size) })
+  id <- individual::Variable$new("ID", function(size) { rep(0, size) })
 
   # is_severe, 1 iff the individual is currently affected by severe disease
-  is_severe <- Variable$new("is_severe", function(size) { rep(0, size) })
+  is_severe <- individual::Variable$new("is_severe", function(size) { rep(0, size) })
 
-  xi_values <- rlnorm(n, -parameters$sigma_squared/2,parameters$sigma_squared)
+  xi_values <- rlnorm(human_population, -parameters$sigma_squared/2,parameters$sigma_squared)
   xi <- Constant$new(
     "xi",
     function(n) {

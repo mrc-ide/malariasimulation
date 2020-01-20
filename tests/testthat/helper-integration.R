@@ -37,7 +37,7 @@ expect_has_update <- function(update_list, update) {
   has <- FALSE
 
   for (u in update_list) {
-    if (update$deep_equals(u)) {
+    if (update$equals(u)) {
       has <- TRUE
     }
   }
@@ -47,16 +47,16 @@ expect_has_update <- function(update_list, update) {
   }
 }
 
-individual::StateUpdate$set('public', 'deep_equals', function(other) {
+individual::StateUpdate$set('public', 'equals', function(other) {
   all(
     inherits(other, 'StateUpdate'),
     self$individual$name == other$individual$name,
     self$state$name == other$state$name,
     all.equal(self$index, other$index)
   )
-})
+}, overwrite = TRUE)
 
-individual::VariableUpdate$set('public', 'deep_equals', function(other) {
+individual::VariableUpdate$set('public', 'equals', function(other) {
   all(
     inherits(other, 'VariableUpdate'),
     self$individual$name == other$individual$name,
@@ -64,7 +64,7 @@ individual::VariableUpdate$set('public', 'deep_equals', function(other) {
     all.equal(self$value, other$value),
     all.equal(self$index, other$index)
   )
-})
+}, overwrite = TRUE)
 
 mock_simulation_frame <- function(values) {
   list(

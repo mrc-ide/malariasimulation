@@ -6,19 +6,19 @@ n_heterogeneity_groups <- 5
 create_states <- function() {
   list(
     # Human states
-    S       = State$new("S", human_population),
-    I       = State$new("I", 0),
-    Treated = State$new("T", 0),
-    D       = State$new("D", 0),
-    A       = State$new("A", 0),
-    U       = State$new("U", 0),
+    S       = individual::State$new("S", human_population),
+    I       = individual::State$new("I", 0),
+    Treated = individual::State$new("T", 0),
+    D       = individual::State$new("D", 0),
+    A       = individual::State$new("A", 0),
+    U       = individual::State$new("U", 0),
     # Mosquito states
-    E       = State$new("E", 0),
-    L       = State$new("L", 0),
-    P       = State$new("P", 0),
-    Sm      = State$new("Sm", 0, mosquito_limit %/% 2),
-    Im      = State$new("Im", 0),
-    Unborn  = State$new("Unborn", mosquito_limit %/% 2)
+    E       = individual::State$new("E", 0),
+    L       = individual::State$new("L", 0),
+    P       = individual::State$new("P", 0),
+    Sm      = individual::State$new("Sm", mosquito_limit %/% 2),
+    Im      = individual::State$new("Im", 0),
+    Unborn  = individual::State$new("Unborn", mosquito_limit %/% 2)
   )
 }
 

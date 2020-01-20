@@ -98,21 +98,21 @@ create_fixed_probability_state_change_process <- function(i, from, to, rate) {
     target_individuals <- source_individuals[
       runif(length(source_individuals), 0, 1) > rate
     ]
-    StateUpdate$new(i, to, target_individuals)
+    individual::StateUpdate$new(i, to, target_individuals)
   }
 }
 
 create_exponential_decay_process <- function(individual, variable, rate) {
   function(simulation_frame, timestep, parameters) {
     i <- simulation_frame$get_variable(individual, variable)
-    VariableUpdate$new(individual, variable, i - rate * i)
+    individual::VariableUpdate$new(individual, variable, i - rate * i)
   }
 }
 
 ageing_process <- function(simulation_frame, timestep, parameters) {
   if (timestep %% (365*parameters$timestep_to_day) == 0) {
     return(
-      VariableUpdate$new(
+      individual::VariableUpdate$new(
         human,
         age,
         simulation_frame$get_variable(human, age) + 1

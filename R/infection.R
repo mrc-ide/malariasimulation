@@ -87,27 +87,27 @@ infection_process <- function(simulation_frame, timestep, parameters) {
 
   list(
     # Boost immunity
-    VariableUpdate$new(human, ica, new_ica, infected_humans),
-    VariableUpdate$new(human, iva, new_iva, infected_humans),
-    VariableUpdate$new(human, id, new_id, infected_humans),
-    VariableUpdate$new(human, ib, new_ib, bitten_humans),
+    individual::VariableUpdate$new(human, ica, new_ica, infected_humans),
+    individual::VariableUpdate$new(human, iva, new_iva, infected_humans),
+    individual::VariableUpdate$new(human, id, new_id, infected_humans),
+    individual::VariableUpdate$new(human, ib, new_ib, bitten_humans),
     # Schedule infection states
-    VariableUpdate$new(
+    individual::VariableUpdate$new(
       human,
       infection_schedule,
       next_infection,
       infected_humans
     ),
-    VariableUpdate$new(
+    individual::VariableUpdate$new(
       human,
       asymptomatic_infection_schedule,
       next_asymptomatic_infection,
       infected_humans
     ),
     # Record last bitten/infected/is_severe
-    VariableUpdate$new(human, last_bitten, timestep, bitten_humans),
-    VariableUpdate$new(human, last_infected, timestep, infected_humans),
-    VariableUpdate$new(human, is_severe, 1, infected_humans[develop_severe])
+    individual::VariableUpdate$new(human, last_bitten, timestep, bitten_humans),
+    individual::VariableUpdate$new(human, last_infected, timestep, infected_humans),
+    individual::VariableUpdate$new(human, is_severe, 1, infected_humans[develop_severe])
   )
 }
 
@@ -117,8 +117,8 @@ treatment_recovery_process <- function(simulation_frame, timestep, parameters) {
     runif(length(source_individuals), 0, 1) > parameters$rt
   ]
   list(
-    StateUpdate$new(human, S, target_individuals),
-    VariableUpdate$new(human, is_severe, 0, target_individuals)
+    individual::StateUpdate$new(human, S, target_individuals),
+    individual::VariableUpdate$new(human, is_severe, 0, target_individuals)
   )
 }
 
@@ -130,8 +130,8 @@ scheduled_infections <- function(simulation_frame, timestep, parameters) {
     simulation_frame$get_variable(human, asymptomatic_infection_schedule) == timestep
   )
   list(
-    StateUpdate$new(human, I, infection),
-    StateUpdate$new(human, A, asymptomatic)
+    individual::StateUpdate$new(human, I, infection),
+    individual::StateUpdate$new(human, A, asymptomatic)
   )
 }
 
@@ -167,7 +167,7 @@ mosquito_infection_process <- function(simulation_frame, timestep, parameters) {
   infected = source_mosquitos[
     runif(length(source_mosquitos), 0, 1) > lambda
   ]
-  StateUpdate$new(mosquito, Im, infected)
+  individual::StateUpdate$new(mosquito, Im, infected)
 }
 
 # =================

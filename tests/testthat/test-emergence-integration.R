@@ -44,7 +44,7 @@ test_that('egg_laying_process creates the correct number of larvae', {
     )
   )
   updates <- egg_laying_process(simulation_frame, 1, parameters)
-  expect_has_update(StateUpdate$new(mosquito, E, seq_len(10000) + 2000))
+  expect_has_update(individual::StateUpdate$new(mosquito, E, seq_len(10000) + 2000))
 })
 
 test_that('larval_death_process works with no larvae', {

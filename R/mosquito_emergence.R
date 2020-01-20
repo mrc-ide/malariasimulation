@@ -3,7 +3,7 @@ egg_laying_process <- function(simulation_frame, timestep, parameters) {
   unborn <- simulation_frame$get_state(mosquito, Unborn)
   if (length(m) > 0) {
     n_eggs <- parameters$beta * length(m)
-    return(StateUpdate$new(mosquito, E, unborn[seq_len(n_eggs)]))
+    return(individual::StateUpdate$new(mosquito, E, unborn[seq_len(n_eggs)]))
   }
 }
 
@@ -21,8 +21,8 @@ larval_death_process <- function(simulation_frame, timestep, parameters) {
     runif(length(late_larval), 0, 1) < parameters$ml * late_regulation
   ]
   list(
-    StateUpdate$new(mosquito, Unborn, early_larval_deaths),
-    StateUpdate$new(mosquito, Unborn, late_larval_deaths)
+    individual::StateUpdate$new(mosquito, Unborn, early_larval_deaths),
+    individual::StateUpdate$new(mosquito, Unborn, late_larval_deaths)
   )
 }
 

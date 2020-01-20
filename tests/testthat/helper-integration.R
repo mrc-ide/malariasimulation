@@ -37,7 +37,7 @@ expect_has_update <- function(update_list, update) {
   has <- FALSE
 
   for (u in update_list) {
-    if (update$equals(u)) {
+    if (update$deep_equals(u)) {
       has <- TRUE
     }
   }
@@ -47,7 +47,7 @@ expect_has_update <- function(update_list, update) {
   }
 }
 
-StateUpdate$set('equals', function(other) {
+individual::StateUpdate$set('public', 'deep_equals', function(other) {
   all(
     inherits(other, 'StateUpdate'),
     self$individual$name == other$individual$name,
@@ -56,7 +56,7 @@ StateUpdate$set('equals', function(other) {
   )
 })
 
-VariableUpdate$set('equals', function(other) {
+individual::VariableUpdate$set('public', 'deep_equals', function(other) {
   all(
     inherits(other, 'VariableUpdate'),
     self$individual$name == other$individual$name,

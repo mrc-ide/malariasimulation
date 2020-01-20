@@ -40,18 +40,18 @@ mortality_process <- function(simulation_frame, timestep, parameters) {
   )
 
   list(
-    VariableUpdate$new(human, age, 0, died),
-    VariableUpdate$new(human, last_bitten, -1, died),
-    VariableUpdate$new(human, last_infected, -1, died),
-    VariableUpdate$new(human, infection_schedule, -1, died),
-    VariableUpdate$new(human, asymptomatic_infection_schedule, -1, died),
-    VariableUpdate$new(human, icm, birth_icm, died),
-    VariableUpdate$new(human, ivm, birth_ivm, died),
-    VariableUpdate$new(human, ib, -1, died),
-    VariableUpdate$new(human, ica, -1, died),
-    VariableUpdate$new(human, iva, -1, died),
-    VariableUpdate$new(human, id, -1, died),
-    VariableUpdate$new(human, is_severe, 0, died)
+    individual::VariableUpdate$new(human, age, 0, died),
+    individual::VariableUpdate$new(human, last_bitten, -1, died),
+    individual::VariableUpdate$new(human, last_infected, -1, died),
+    individual::VariableUpdate$new(human, infection_schedule, -1, died),
+    individual::VariableUpdate$new(human, asymptomatic_infection_schedule, -1, died),
+    individual::VariableUpdate$new(human, icm, birth_icm, died),
+    individual::VariableUpdate$new(human, ivm, birth_ivm, died),
+    individual::VariableUpdate$new(human, ib, -1, died),
+    individual::VariableUpdate$new(human, ica, -1, died),
+    individual::VariableUpdate$new(human, iva, -1, died),
+    individual::VariableUpdate$new(human, id, -1, died),
+    individual::VariableUpdate$new(human, is_severe, 0, died)
   )
 }
 

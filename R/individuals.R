@@ -1,6 +1,6 @@
 # Define population sizes
 human_population <- 100 * 1000
-mosquito_population <- 100 * human_population
+mosquito_limit <- 100 * human_population
 n_heterogeneity_groups <- 5
 
 create_states <- function() {
@@ -13,11 +13,12 @@ create_states <- function() {
     A       = State$new("A", 0),
     U       = State$new("U", 0),
     # Mosquito states
-    E       = State$new("E", mosquito_population),
+    E       = State$new("E", 0),
     L       = State$new("L", 0),
     P       = State$new("P", 0),
-    Sm      = State$new("Sm", 0),
-    Im      = State$new("Im", 0)
+    Sm      = State$new("Sm", 0, mosquito_limit %/% 2),
+    Im      = State$new("Im", 0),
+    Unborn  = State$new("Unborn", mosquito_limit %/% 2)
   )
 }
 

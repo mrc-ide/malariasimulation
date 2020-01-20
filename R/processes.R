@@ -1,14 +1,3 @@
-ageing_process <- function(simulation_frame, timestep, parameters) {
-  if (timestep %% (365*parameters$timestep_to_day) == 0) {
-    return(
-      VariableUpdate$new(
-        human,
-        age,
-        simulation_frame$get_variable(human, age) + 1
-      )
-    )
-  }
-}
 
 create_processes <- function(individuals, states, variables, parameters) {
   
@@ -36,7 +25,7 @@ create_processes <- function(individuals, states, variables, parameters) {
     # Subpatient Recovery
     create_fixed_probability_state_change_process(human, U, S, parameters$ru),
     # Treatment Recovery
-    treatment_recovery_process
+    treatment_recovery_process,
 
     # ========
     # Immunity
@@ -55,13 +44,21 @@ create_processes <- function(individuals, states, variables, parameters) {
     # ===============
     # Mosquito States
     # ===============
-
+    # Eggs laid
+    egg_laying_process,
     # Larval growth
     create_fixed_probability_state_change_process(mosquito, E, L, parameters$rel),
     # Pupal stage
     create_fixed_probability_state_change_process(mosquito, L, P, parameters$rl),
     # Susceptable Female Development
-    create_fixed_probability_state_change_process(mosquito, P, Sm, parameters$rpl),
+    create_fixed_probability_state_change_process(mosquito, P, Sm, .5 * parameters$rpl),
+    # Death of larvae
+    larval_death_process,
+    # Death of pupals
+    create_fixed_probability_state_change_process(mosquito, P, Unborn, .5 * parameters$mup),
+    # Natural death of females
+    create_fixed_probability_state_change_process(mosquito, Sm, Unborn, parameters$mum),
+    create_fixed_probability_state_change_process(mosquito, Im, Unborn, parameters$mum),
 
     ## =========
     ## Infection
@@ -87,7 +84,6 @@ create_processes <- function(individuals, states, variables, parameters) {
 # =================
 # Utility functions
 # =================
-
 bind_process_to_model <- function(process, individuals, states, variables) {
   env <- environment(process)
   list2env(individuals, env)
@@ -110,5 +106,17 @@ create_exponential_decay_process <- function(individual, variable, rate) {
   function(simulation_frame, timestep, parameters) {
     i <- simulation_frame$get_variable(individual, variable)
     VariableUpdate$new(individual, variable, i - rate * i)
+  }
+}
+
+ageing_process <- function(simulation_frame, timestep, parameters) {
+  if (timestep %% (365*parameters$timestep_to_day) == 0) {
+    return(
+      VariableUpdate$new(
+        human,
+        age,
+        simulation_frame$get_variable(human, age) + 1
+      )
+    )
   }
 }

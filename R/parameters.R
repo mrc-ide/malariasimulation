@@ -9,7 +9,7 @@ get_parameters <- function() {
     ra    = 1/195,
     ru    = 1/110,
     rt    = 1/5,
-    ft    = 1/2,
+    ft    = 1/2, # NOTE: set from sitefile
     av1   = .92,
     av2   = .74,
     av3   = .94,
@@ -51,6 +51,21 @@ get_parameters <- function() {
     pcm   = .774368,
     pvm   = .195768,
     v     = .065, # NOTE: there are two definitions of this: one on line 124 and one in the parameters table
+    rel   = 1 / (6.64 * timestep_to_day),
+    rl    = 1 / (3.72 * timestep_to_day),
+    rpl   = 1 / (.643 * timestep_to_day),
+    beta  = 21.2,
+    K0    = 1, #NOTE: find a decent value
+    g0    = 1, #NOTE: find a decent value
+    g_1   = 1, #NOTE: find a decent value
+    g_2   = 1, #NOTE: find a decent value
+    g_3   = 1, #NOTE: find a decent value
+    h_1   = 1, #NOTE: find a decent value
+    h_2   = 1, #NOTE: find a decent value
+    h_3   = 1, #NOTE: find a decent value
+    mup   = .249,
+    mum   = .249, #NOTE: set from sitefile
+    gamma = 13.25,
     timestep_to_day = timestep_to_day
   )
 }

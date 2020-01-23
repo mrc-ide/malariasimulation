@@ -14,6 +14,12 @@ mock_returns <- function(returns) {
   }
 }
 
+mock_random <- function(boundary, pass) {
+  boundary[pass] <- boundary + .1
+  boundary[!pass] <- boundary - .1
+  boundary
+}
+
 expect_any <- function(X, FUN) {
   for (x in X) {
     if (FUN(x) == TRUE) {
@@ -75,12 +81,16 @@ updates_equal <- function(self, other) {
 mock_simulation_frame <- function(values) {
   list(
     get_state = function(individual, ...) {
-      unlist(lapply(
-        list(...),
-        function(state) values[[individual$name]][[state$name]]
-      ))
+      subset <- c()
+      for (state in list(...)) {
+        subset <- c(subset, values[[individual$name]][[state$name]])
+      }
+      subset
     },
     get_variable = function(individual, variable) {
+      values[[individual$name]][[variable$name]]
+    },
+    get_constant = function(individual, variable) {
       values[[individual$name]][[variable$name]]
     }
   )

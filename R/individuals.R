@@ -37,6 +37,10 @@ create_variables <- function(parameters) {
     "asymptomatic_infection_schedule",
     function(size) { rep(-1, size) }
   )
+  is_severe <- individual::Variable$new(
+    "is_severe",
+    function(size) { rep(0, size) }
+  )
 
   # Maternal immunity
   icm <- individual::Variable$new(
@@ -100,6 +104,7 @@ create_variables <- function(parameters) {
     last_bitten = last_bitten,
     last_infected = last_infected,
     icm = icm,
+    ivm = ivm,
     ib = ib,
     ica = ica,
     iva = iva,
@@ -107,7 +112,8 @@ create_variables <- function(parameters) {
     xi = xi,
     mosquito_variety = mosquito_variety,
     infection_schedule = infection_schedule,
-    asymptomatic_infection_schedule = asymptomatic_infection_schedule
+    asymptomatic_infection_schedule = asymptomatic_infection_schedule,
+    is_severe = is_severe
   )
 }
 

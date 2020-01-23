@@ -4,6 +4,10 @@
 
 infection_process <- function(simulation_frame, timestep, parameters) {
   source_humans <- simulation_frame$get_state(human, S, U, A, D)
+  next_infection <- simulation_frame$get_variable(human, infection_schedule)
+  next_asymptomatic_infection <- simulation_frame$get_variable(human, infection_schedule)
+
+  # Calculate EIR
   source_mosquitos <- simulation_frame$get_state(mosquito, Im)
   age_value <- simulation_frame$get_variable(human, age)
   ib_value <- simulation_frame$get_variable(human, ib)[source_humans]
@@ -17,6 +21,7 @@ infection_process <- function(simulation_frame, timestep, parameters) {
 
   bitten_humans <- source_humans[runif(length(source_humans), 0, 1) > epsilon]
 
+  # Calculate Infected
   b <- blood_immunity(ib_value[bitten_humans], parameters)
 
   infected_humans <- bitten_humans[runif(length(bitten_humans), 0, 1) > b]
@@ -41,56 +46,72 @@ infection_process <- function(simulation_frame, timestep, parameters) {
   develop_severe <- runif(length(infected_humans), 0, 1) > theta
   symptomatic <- develop_severe | develop_clinical
 
-  next_infection <- schedule_infection(
-    simulation_frame$get_variable(human, infection_schedule)[infected_humans],
-    symptomatic,
-    timestep + parameters$de
-  )
-
-  next_asymptomatic_infection <- schedule_infection(
-    simulation_frame$get_variable(
-      human,
-      asymptomatic_infection_schedule
-    )[infected_humans],
-    !symptomatic,
-    timestep + parameters$de
-  )
-
-  last_infected_value <- simulation_frame$get_variable(last_infected)[infected_humans]
-  new_ica <- boost_acquired_immunity(
-    ica_infected_value,
-    last_infected_value,
+  # Exclude humans already scheduled for infection
+  to_infect <- remove_scheduled(
+    infected_humans[symptomatic],
     timestep,
-    parameters$uc
+    next_infection,
+    next_asymptomatic_infection
   )
 
-  new_iva <- boost_acquired_immunity(
-    iva_infected_value,
-    last_infected_value,
+  to_infect_asym <- remove_scheduled(
+    infected_humans[!symptomatic],
     timestep,
-    parameters$uv
+    next_infection,
+    next_asymptomatic_infection
   )
 
-  new_id <- boost_acquired_immunity(
-    simulation_frame$get_variable(id)[infected_humans],
-    last_infected_value,
-    timestep,
-    parameters$ud
-  )
+  next_infection[to_infect] <- timestep + parameters$de
+  next_asymptomatic_infection[to_infect_asym] <- timestep + parameters$de
 
-  new_ib <- boost_acquired_immunity(
-    ib_value[bitten_humans],
-    simulation_frame$get_variable(last_bitten)[bitten_humans],
-    timestep,
-    parameters$ub
-  )
+  last_infected_value <- simulation_frame$get_variable(human, last_infected)[infected_humans]
 
   list(
     # Boost immunity
-    individual::VariableUpdate$new(human, ica, new_ica, infected_humans),
-    individual::VariableUpdate$new(human, iva, new_iva, infected_humans),
-    individual::VariableUpdate$new(human, id, new_id, infected_humans),
-    individual::VariableUpdate$new(human, ib, new_ib, bitten_humans),
+    individual::VariableUpdate$new(
+      human,
+      ica,
+      boost_acquired_immunity(
+        ica_infected_value,
+        last_infected_value,
+        timestep,
+        parameters$uc
+      ),
+      infected_humans
+    ),
+    individual::VariableUpdate$new(
+      human,
+      iva,
+      boost_acquired_immunity(
+        iva_infected_value,
+        last_infected_value,
+        timestep,
+        parameters$uv
+      ),
+      infected_humans
+    ),
+    individual::VariableUpdate$new(
+      human,
+      id,
+      boost_acquired_immunity(
+        simulation_frame$get_variable(human, id)[infected_humans],
+        last_infected_value,
+        timestep,
+        parameters$ud
+      ),
+      infected_humans
+    ),
+    individual::VariableUpdate$new(
+      human,
+      ib,
+      boost_acquired_immunity(
+        ib_value[bitten_humans],
+        simulation_frame$get_variable(human, last_bitten)[bitten_humans],
+        timestep,
+        parameters$ub
+      ),
+      bitten_humans
+    ),
     # Schedule infection states
     individual::VariableUpdate$new(
       human,
@@ -215,7 +236,7 @@ severe_immunity <- function(age, acquired_immunity, maternal_immunity, parameter
   )
   parameters$theta0 * (parameters$theta1 + (1 - parameters$theta1) / (
     1 + fv * (
-      (acquired_immunity+maternal_immunity) / parameters$iv0) ** parameters$kv
+      (acquired_immunity + maternal_immunity) / parameters$iv0) ** parameters$kv
     )
   )
 }
@@ -296,14 +317,12 @@ create_infectivity_frame <- function(human_age, human_xi, subset_to_param) {
   )
 }
 
-schedule_infection <- function(current_schedule, subset, next_event) {
-  new_schedule <- current_schedule
-  new_schedule[intersect(subset, which(new_schedule == -1))] <- next_event
-  new_schedule[intersect(subset, which(new_schedule != -1))] <- pmin(
-    new_schedule[subset],
-    next_event
-  )
-  new_schedule
+remove_scheduled <- function(subset, timestep, ...) {
+  schedules <- list(...)
+  for (schedule in schedules) {
+    subset <- setdiff(subset, which(schedule > timestep))
+  }
+  subset
 }
 
 boost_acquired_immunity <- function(level, last_boosted, timestep, delay) {

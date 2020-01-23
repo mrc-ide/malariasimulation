@@ -23,19 +23,30 @@ larval_death_process <- function(simulation_frame, timestep, parameters) {
   late_larval_deaths <- late_larval[
     runif(length(late_larval), 0, 1) < parameters$ml * late_regulation
   ]
-  list(
-    individual::StateUpdate$new(mosquito, Unborn, early_larval_deaths),
-    individual::StateUpdate$new(mosquito, Unborn, late_larval_deaths)
+  individual::StateUpdate$new(
+    mosquito,
+    Unborn,
+    c(early_larval_deaths, late_larval_deaths)
   )
 }
 
 carrying_capacity <- function(timestep, parameters) {
-  rainfall <- parameters$g0 + sum(vnapply(seq_len(3), function(i) {
-    parameters[[
-      'g_' + i
-    ]] * cos(2 * pi * timestep * i) + parameters[[
-      'h_' + i
-    ]] * sin(2 * pi * timestep * i)
+  r <- rainfall(
+    timestep,
+    parameters$timestep_to_day,
+    parameters$g0,
+    c(parameters$g1, parameters$g2, parameters$g3),
+    c(parameters$h1, parameters$h2, parameters$h3)
+  )
+  parameters$K0 * r / parameters$R_bar
+}
+
+rainfall <- function(t, timestep_to_day, g0, g, h) {
+  g0 + sum(vnapply(seq_len(3), function(i) {
+    g[i] * cos(
+      2 * pi * t * timestep_to_day / 365 * i
+    ) + h[i] * sin(
+      2 * pi * t * timestep_to_day/365 * i
+    )
   }))
-  parameters$K0 * rainfall / parameters$R_bar
 }

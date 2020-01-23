@@ -1,2 +1,39 @@
 test_that('carrying_capacity is calculated correctly', {
+  parameters <- list(
+    K0    = 10,
+    g0    = 2,
+    g1   = .3,
+    g2   = .6,
+    g3   = .9,
+    h1   = .1,
+    h2   = .4,
+    h3   = .7,
+    R_bar= 2,
+    timestep_to_day = 1
+  )
+  expect_equal(
+    carrying_capacity(100, parameters),
+    5.63,
+    tolerance=1e-2
+  )
+})
+
+test_that('carrying_capacity is takes into account the timescale', {
+  parameters <- list(
+    K0    = 10,
+    g0    = 2,
+    g1   = .3,
+    g2   = .6,
+    g3   = .9,
+    h1   = .1,
+    h2   = .4,
+    h3   = .7,
+    R_bar= 2,
+    timestep_to_day = 5
+  )
+  expect_equal(
+    carrying_capacity(100, parameters),
+    12.8,
+    tolerance = 1e-1
+  )
 })

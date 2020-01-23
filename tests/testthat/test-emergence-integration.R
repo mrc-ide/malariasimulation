@@ -52,7 +52,50 @@ test_that('egg_laying_process creates the correct number of larvae', {
 })
 
 test_that('larval_death_process works with no larvae', {
+  parameters <- get_parameters()
+  bind_process_to_default_model(egg_laying_process, parameters)
+  simulation_frame <- mock_simulation_frame(
+    list(
+      mosquito = list(
+        E = c(),
+        L = c(),
+        Unborn = seq_len(100)
+      )
+    )
+  )
+  update <- larval_death_process(simulation_frame, 100, parameters)
+  expect_equal(update$individual$name, 'mosquito')
+  expect_equal(update$state$name, 'Unborn')
+  expect_equal(length(update$index), 0)
 })
 
 test_that('larval_death_process kills the expected larvae', {
+  parameters <- get_parameters()
+  bind_process_to_default_model(egg_laying_process, parameters)
+  simulation_frame <- mock_simulation_frame(
+    list(
+      mosquito = list(
+        E = c(1, 2, 3, 4),
+        L = c(5, 6, 7, 8),
+        Unborn = seq_len(100) + 8
+      )
+    )
+  )
+
+  k <- 5.627152
+  early_boundary <- parameters$me * (1 + 8 / k)
+  late_boundary <- parameters$ml * (1 + parameters$gamma * 8 / k)
+
+  mockery::stub(
+    larval_death_process,
+    'runif',
+    mock_returns(list(
+      c(early_boundary + .1, early_boundary + .1, early_boundary - .1, early_boundary - .1),
+      c(late_boundary + .1, late_boundary - .1, late_boundary + .1, late_boundary - .1)
+    ))
+  )
+  update <- larval_death_process(simulation_frame, 100, parameters)
+  expect_equal(update$individual$name, 'mosquito')
+  expect_equal(update$state$name, 'Unborn')
+  expect_setequal(update$index, c(3, 4, 6, 8))
 })

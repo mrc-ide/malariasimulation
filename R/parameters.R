@@ -1,6 +1,6 @@
 get_parameters <- function() {
   timestep_to_day <- 1
-  list(
+  parameters <- list(
     b0    = 0.590076,
     b1    = 0.5,
     ib0   = 43.8787,
@@ -55,17 +55,29 @@ get_parameters <- function() {
     rl    = 1 / (3.72 * timestep_to_day),
     rpl   = 1 / (.643 * timestep_to_day),
     beta  = 21.2,
-    K0    = 1, #NOTE: find a decent value
-    g0    = 1, #NOTE: find a decent value
-    g_1   = 1, #NOTE: find a decent value
-    g_2   = 1, #NOTE: find a decent value
-    g_3   = 1, #NOTE: find a decent value
-    h_1   = 1, #NOTE: find a decent value
-    h_2   = 1, #NOTE: find a decent value
-    h_3   = 1, #NOTE: find a decent value
+    K0    = 10,
+    g0    = 2,
+    g1   = .3,
+    g2   = .6,
+    g3   = .9,
+    h1   = .1,
+    h2   = .4,
+    h3   = .7,
     mup   = .249,
     mum   = .249, #NOTE: set from sitefile
+    me    = .0338,
+    ml    = .0348,
     gamma = 13.25,
     timestep_to_day = timestep_to_day
   )
+
+	parameters$R_bar <- mean(vnapply(1:365, function(t) rainfall(
+		t,
+		parameters$timestep_to_day,
+    parameters$g0,
+		c(parameters$g1, parameters$g2, parameters$g3),
+		c(parameters$h1, parameters$h2, parameters$h3)
+	)))
+
+  parameters
 }

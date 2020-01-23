@@ -8,10 +8,28 @@ bind_process_to_default_model <- function(process, parameters) {
 
 mock_returns <- function(returns) {
   call <- 0
-  function() {
+  function(...) {
     call <<- call + 1
     returns[[call]]
   }
+}
+
+expect_any <- function(X, FUN) {
+  for (x in X) {
+    if (FUN(x) == TRUE) {
+      return(TRUE)
+    }
+  }
+  stop('No match')
+}
+
+expect_all <- function(X, FUN) {
+  for (x in X) {
+    if (FUN(x) == TRUE) {
+      stop('Mismatch')
+    }
+  }
+  return(TRUE)
 }
 
 expect_has_update <- function(update_list, update) {

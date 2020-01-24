@@ -61,10 +61,10 @@ infection_process <- function(simulation_frame, timestep, parameters) {
     next_asymptomatic_infection
   )
 
-  next_infection[to_infect] <- timestep + parameters$de
-  next_asymptomatic_infection[to_infect_asym] <- timestep + parameters$de
-
-  last_infected_value <- simulation_frame$get_variable(human, last_infected)[infected_humans]
+  last_infected_value <- simulation_frame$get_variable(
+    human,
+    last_infected
+  )[infected_humans]
 
   list(
     # Boost immunity
@@ -116,14 +116,14 @@ infection_process <- function(simulation_frame, timestep, parameters) {
     individual::VariableUpdate$new(
       human,
       infection_schedule,
-      next_infection,
-      infected_humans
+      timestep + parameters$de,
+      to_infect
     ),
     individual::VariableUpdate$new(
       human,
       asymptomatic_infection_schedule,
-      next_asymptomatic_infection,
-      infected_humans
+      timestep + parameters$de,
+      to_infect_asym
     ),
     # Record last bitten/infected/is_severe
     individual::VariableUpdate$new(human, last_bitten, timestep, bitten_humans),
@@ -320,13 +320,13 @@ create_infectivity_frame <- function(human_age, human_xi, subset_to_param) {
 remove_scheduled <- function(subset, timestep, ...) {
   schedules <- list(...)
   for (schedule in schedules) {
-    subset <- setdiff(subset, which(schedule > timestep))
+    subset <- setdiff(subset, which(schedule >= timestep))
   }
-  subset
+  if (length(subset) == 0) c() else subset
 }
 
 boost_acquired_immunity <- function(level, last_boosted, timestep, delay) {
-  to_boost <- (timestep - last_boosted) > delay
+  to_boost <- (timestep - last_boosted) > delay | (last_boosted == -1)
   level[to_boost] <- level[to_boost] + 1
   level
 }

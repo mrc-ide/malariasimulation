@@ -120,13 +120,13 @@ test_that('mosquito_force_of_infection returns correct values', {
   )
 })
 
-test_that('schedule_infection sets the earliest next infection', {
-  current_schedule <- c(-1, 4, 6, 9, -1, 3)
+test_that('remove_scheduled removes indecies of already scheduled infections', {
   subset <- c(1, 2, 4)
-  next_event <- 5
+  current_schedule <- c(-1, 4, 6, 9, -1, 3)
+  timestep <- 5
   expect_equal(
-    schedule_infection(current_schedule, subset, next_event),
-    c(5, 4, 6, 5, -1, 3)
+    remove_scheduled(subset, timestep, current_schedule),
+    c(1, 2)
   )
 })
 
@@ -138,6 +138,17 @@ test_that('boost_acquired_immunity respects the delay period', {
   expect_equal(
     boost_acquired_immunity(level, last_boosted, timestep, delay),
     c(2.4, 2.2, 1., 4.)
+  )
+})
+
+test_that('boost_acquired_immunity works with when never boosted', {
+  level <- c(2.4, 1.2, 0., 4.)
+  last_boosted <- c(2, 5, 1, -1)
+  timestep <- 6
+  delay <- 10
+  expect_equal(
+    boost_acquired_immunity(level, last_boosted, timestep, delay),
+    c(2.4, 1.2, 0., 5.)
   )
 })
 

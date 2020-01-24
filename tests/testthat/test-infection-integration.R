@@ -10,20 +10,21 @@ test_that('human infection_process creates the correct updates', {
         A = c(3),
         D = c(4),
         age = c(20, 24, 5, 39),
-        ib = c(.2, .3, .5, .9),
+        IB = c(.2, .3, .5, .9),
         xi = c(.2, .3, .5, .9),
-        ica = c(.2, .3, .5, .9),
-        iva = c(.2, .3, .5, .9),
-        icm = c(.2, .3, .5, .9),
-        ivm = c(.2, .3, .5, .9),
-        infection_schedule = c(-1, 6, 3, 7),
+        ICA = c(.2, .3, .5, .9),
+        IVA = c(.2, .3, .5, .9),
+        ICM = c(.2, .3, .5, .9),
+        IVM = c(.2, .3, .5, .9),
+        infection_schedule = c(-1, 1, 3, 7),
         asymptomatic_infection_schedule = c(5, -1, -1, -1),
         last_infected = c(-1, -1, 1, -1),
-        id = c(.2, .3, .5, .9)
+        last_bitten = c(-1, 1, 1, -1),
+        ID = c(.2, .3, .5, .9)
       ),
       mosquito = list(
         Im = 1:100,
-        mosquito_variety = c(rep(1, 25), rep(2, 25), rep(3, 50))
+        variety = c(rep(1, 25), rep(2, 25), rep(3, 50))
       )
     )
   )
@@ -42,9 +43,67 @@ test_that('human infection_process creates the correct updates', {
       mock_random(theta, c(FALSE, TRUE))
     ))
   )
-  updates <- infection_process(simulation_frame, 1, parameters)
-  for (update in updates) {
-    print(update$variable$name)
-    print(update$index)
-  }
+  updates <- infection_process(simulation_frame, 5, parameters)
+  expect_any(updates, function(update) {
+    all(
+      update$variable$name == 'ICA',
+      all.equal(update$value, c(1.2, 1.3)) == TRUE,
+      all.equal(update$index, c(1, 2)) == TRUE
+    )
+  })
+  expect_any(updates, function(update) {
+    all(
+      update$variable$name == 'IVA',
+      all.equal(update$value, c(1.2, 1.3)) == TRUE,
+      all.equal(update$index, c(1, 2)) == TRUE
+    )
+  })
+  expect_any(updates, function(update) {
+    all(
+      update$variable$name == 'ID',
+      all.equal(update$value, c(1.2, 1.3)) == TRUE,
+      all.equal(update$index, c(1, 2)) == TRUE
+    )
+  })
+  expect_any(updates, function(update) {
+    all(
+      update$variable$name == 'IB',
+      all.equal(update$value, c(1.2, .3, .5)) == TRUE,
+      all.equal(update$index, c(1, 2, 3)) == TRUE
+    )
+  })
+  expect_any(updates, function(update) {
+    all(
+      update$variable$name == 'infection_schedule',
+      update$value == 5 + parameters$de,
+      all.equal(update$index, c(1, 2)) == TRUE
+    )
+  })
+  expect_any(updates, function(update) {
+    all(
+      update$variable$name == 'asymptomatic_infection_schedule',
+      all.equal(update$index, c()) == TRUE
+    )
+  })
+  expect_any(updates, function(update) {
+    all(
+      update$variable$name == 'last_bitten',
+      update$value == 5,
+      all.equal(update$index, c(1, 2, 3))
+    )
+  })
+  expect_any(updates, function(update) {
+    all(
+      update$variable$name == 'last_infected',
+      update$value == 5,
+      all.equal(update$index, c(1, 2))
+    )
+  })
+  expect_any(updates, function(update) {
+    all(
+      update$variable$name == 'is_severe',
+      update$value == 1,
+      all.equal(update$index, c(2))
+    )
+  })
 })

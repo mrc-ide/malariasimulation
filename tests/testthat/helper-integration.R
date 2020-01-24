@@ -15,27 +15,20 @@ mock_returns <- function(returns) {
 }
 
 mock_random <- function(boundary, pass) {
-  boundary[pass] <- boundary + .1
-  boundary[!pass] <- boundary - .1
-  boundary
+  rand <- boundary
+  rand[pass] <- boundary[pass] + .1
+  rand[!pass] <- boundary[!pass] - .1
+  rand
 }
 
 expect_any <- function(X, FUN) {
   for (x in X) {
     if (FUN(x) == TRUE) {
-      return(TRUE)
+      expect(TRUE, 'match found')
+      return()
     }
   }
-  stop('No match')
-}
-
-expect_all <- function(X, FUN) {
-  for (x in X) {
-    if (FUN(x) == TRUE) {
-      stop('Mismatch')
-    }
-  }
-  return(TRUE)
+  expect(FALSE, 'No match')
 }
 
 expect_has_update <- function(update_list, update) {

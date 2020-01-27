@@ -3,6 +3,9 @@ human_population <- 100 * 1000
 mosquito_limit <- 100 * human_population
 n_heterogeneity_groups <- 5
 
+#' @description
+#'
+#' create_states creates the human and mosquito states for the model
 create_states <- function() {
   list(
     # Human states
@@ -22,6 +25,14 @@ create_states <- function() {
   )
 }
 
+#' @description
+#'
+#' create_variables creates the human and mosquito variables and constants for
+#' the model. Variables are used to track real data for each individual over
+#' time, they are read and updated by processes. Constants remain fixed for each
+#' individual over the whole simulation.
+#'
+#' @param parameters, model parameters created by `get_parameters`
 create_variables <- function(parameters) {
   initial_age <- trunc(rexp(human_population, rate=1/10))
 
@@ -118,6 +129,13 @@ create_variables <- function(parameters) {
   )
 }
 
+#' @description
+#'
+#' create_individuals declares the individuals to simulate. It assigns the
+#' relevant states and variables to each individual.
+#'
+#' @param states, available states to assign
+#' @param variables, available variables and constants to assign
 create_individuals <- function(states, variables) {
   env <- environment()
   list2env(states, env)
@@ -148,14 +166,4 @@ create_individuals <- function(states, variables) {
   )
 
   list(human = human, mosquito = mosquito)
-}
-
-discretise <- function(values, n_groups) {
-  as.numeric(cut(
-    values,
-    seq(min(values), max(values), length.out=n_groups + 1),
-    include.lowest = TRUE,
-    right = FALSE,
-    labels = seq_len(n_groups)
-  ))
 }

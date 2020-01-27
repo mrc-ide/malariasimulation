@@ -1,4 +1,12 @@
-
+#' @description
+#'
+#' This is the process for human mortality, it defines which humans die from
+#' natural causes and severe infection and replaces dead individuals with
+#' newborns.
+#'
+#' @param simulation_frame, the current state of the simulation
+#' @param timestep, the current timestep
+#' @param parameters, the model parameters
 mortality_process <- function(simulation_frame, timestep, parameters) {
   age_value <- simulation_frame$get_variable(human, age)
 

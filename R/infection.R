@@ -1,7 +1,12 @@
-# =========
-# Processes
-# =========
 
+#' @description
+#'
+#' This is the process of infection for humans. It results in human future state
+#' changes for infected humans and boosts in immunity.
+#'
+#' @param simulation_frame, the current state of the simulation
+#' @param timestep, the current timestep
+#' @param parameters, the model parameters
 infection_process <- function(simulation_frame, timestep, parameters) {
   source_humans <- simulation_frame$get_state(human, S, U, A, D)
   next_infection <- simulation_frame$get_variable(human, infection_schedule)
@@ -156,6 +161,17 @@ scheduled_infections <- function(simulation_frame, timestep, parameters) {
   )
 }
 
+#' @description
+#'
+#' This is the process of infection for mosquitos. It results in a state
+#' transition from Sm to Im for infected mosquitos.
+#'
+#' NOTE: this process will become obsolete when the model is reformulated to
+#' model individual mosquitos biting individual humans.
+#'
+#' @param simulation_frame, the current state of the simulation
+#' @param timestep, the current timestep
+#' @param parameters, the model parameters
 mosquito_infection_process <- function(simulation_frame, timestep, parameters) {
   source_mosquitos <- simulation_frame$get_state(mosquito, Sm)
 

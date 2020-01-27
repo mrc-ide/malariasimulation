@@ -1,4 +1,16 @@
 
+#' @description
+#'
+#' create_processes, defines the functions which describe how each individual's
+#' states and variables change over time.
+#'
+#' It lists processes from `infection.R`, `mosquito_emergence.R` and
+#' `mortality.R`; and then exposes them to the model through
+#' `bind_process_to_model`
+#' @param individuals, a list of individuals in the model
+#' @param states, a list of states in the model
+#' @param variables, a list of variables and constants in the model
+#' @param parameters, a list of model parameters
 create_processes <- function(individuals, states, variables, parameters) {
   
   env <- environment()
@@ -84,6 +96,15 @@ create_processes <- function(individuals, states, variables, parameters) {
 # =================
 # Utility functions
 # =================
+
+#' @description
+#'
+#' bind_process_to_model adds individuals, states and variables to a process
+#' functions's environment so that it can specify model updates at each timestep
+#'
+#' @param individuals, a list of individuals in the model
+#' @param states, a list of states in the model
+#' @param variables, a list of variables and constants in the model
 bind_process_to_model <- function(process, individuals, states, variables) {
   env <- environment(process)
   list2env(individuals, env)
@@ -92,16 +113,33 @@ bind_process_to_model <- function(process, individuals, states, variables) {
   process
 }
 
+#' @description
+#'
+#' create_fixed_probability_state_change_process generates a process function
+#' that moves individuals from one state to another at a constant rate
+#'
+#' @param i, an individual
+#' @param from, the source state
+#' @param to, the target state
+#' @param rate, the rate at which state transitions occur
 create_fixed_probability_state_change_process <- function(i, from, to, rate) {
   function (simulation_frame, timestep, parameters) {
     source_individuals <- simulation_frame$get_state(i, from)
     target_individuals <- source_individuals[
-      runif(length(source_individuals), 0, 1) > rate
+      bernoulli(length(source_individuals), rate)
     ]
     individual::StateUpdate$new(i, to, target_individuals)
   }
 }
 
+#' @description
+#'
+#' create_exponential_decay_process generates a process function
+#' that reduces the value of a variable at an exponential rate
+#'
+#' @param i, an individual
+#' @param variable, the variable to update
+#' @param rate, the exponential rate
 create_exponential_decay_process <- function(individual, variable, rate) {
   function(simulation_frame, timestep, parameters) {
     i <- simulation_frame$get_variable(individual, variable)
@@ -109,6 +147,14 @@ create_exponential_decay_process <- function(individual, variable, rate) {
   }
 }
 
+#' @description
+#'
+#' This is the process for aging, it will update every human's age every 365
+#' timesteps.
+#'
+#' @param simulation_frame, the current state of the simulation
+#' @param timestep, the current timestep
+#' @param parameters, the model parameters
 ageing_process <- function(simulation_frame, timestep, parameters) {
   if (timestep %% (365*parameters$timestep_to_day) == 0) {
     return(

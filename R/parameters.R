@@ -1,3 +1,10 @@
+#' @description
+#'
+#' get_paramaters creates a list of parameters for use in the model. These
+#' parameters are passed to process functions
+#'
+#' NOTE: this function is likely to be extended to read in command line / config
+#' file parameters
 get_parameters <- function() {
   timestep_to_day <- 1
   parameters <- list(

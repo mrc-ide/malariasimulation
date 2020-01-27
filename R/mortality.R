@@ -8,34 +8,28 @@ mortality_process <- function(simulation_frame, timestep, parameters) {
   )
 
   severe_deaths <- died_from_severe(
-    simulation_frame$get_variable(human, is_severe) == 1,
-    simulation_frame$get_state(D),
-    simulation_frame$get_state(Treated),
+    which(simulation_frame$get_variable(human, is_severe) == 1),
+    simulation_frame$get_state(human, D),
+    simulation_frame$get_state(human, Treated),
     parameters$ftv,
     parameters$v
   )
 
   died <- c(natural_deaths, severe_deaths)
 
+  # workaround index by numeric(0) bug
+  if (length(died) == 0) {
+    died <- NULL
+  }
+
   # Calculate new maternal immunities
   groups <- simulation_frame$get_variable(human, xi_group)
   sampleable <- age_value >= 15 | age_value <= 35
   icm_values <- simulation_frame$get_variable(human, icm)
   ivm_values <- simulation_frame$get_variable(human, ivm)
-  birth_icm <- sample_maternal_immunity(
-    icm_values,
-    sampleable,
-    died,
-    groups,
-    parameters$pm
-  )
-  birth_ivm <- sample_maternal_immunity(
-    ivm_values,
-    sampleable,
-    died,
-    groups,
-    parameters$pm
-  )
+  mothers <- sample_mothers(sampleable, died, groups)
+  birth_icm <- icm_values[mothers] * parameters$pm
+  birth_ivm <- ivm_values[mothers] * parameters$pm
 
   list(
     individual::VariableUpdate$new(human, age, 0, died),
@@ -54,23 +48,25 @@ mortality_process <- function(simulation_frame, timestep, parameters) {
 }
 
 died_from_severe <- function(severe, untreated, treated, ftv, v) {
-  unsuccessful_treatment <- runif(length(treated, 0, 1) > ftv)
-  at_risk <- c(untreated, treated[unsuccessful_treatment])
-  died <- runif(length(at_risk, 0, 1) > v)
-  severe[at_risk[died]]
+  unsuccessful_treatment <- treated[bernoulli(length(treated), ftv)]
+  at_risk <- intersect(
+    severe,
+    c(untreated, treated[unsuccessful_treatment])
+  )
+  at_risk[bernoulli(length(at_risk), v)]
 }
 
 died_naturally <- function(age, table) {
   age[age > 100] <- 100
   probability <- table[age]
-  runif(length(age, 0, 1) > probability)
+  which(bernoulli(length(age), probability))
 }
 
-sample_maternal_immunity <- function(immunity, sampleable, died, groups, pm) {
+sample_mothers <- function(sampleable, died, groups) {
   vnapply(
     groups[died],
     function(source_group) {
-      sample(immunity[sampleable & (groups == source_group)], 1)[[1]]
+      sample(which(sampleable & (groups == source_group)), 1)[[1]]
     }
-  ) * pm
+  )
 }

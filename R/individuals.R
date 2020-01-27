@@ -8,7 +8,7 @@ create_states <- function() {
     # Human states
     S       = individual::State$new("S", human_population),
     I       = individual::State$new("I", 0),
-    Treated = individual::State$new("T", 0),
+    Treated = individual::State$new("Treated", 0),
     D       = individual::State$new("D", 0),
     A       = individual::State$new("A", 0),
     U       = individual::State$new("U", 0),
@@ -110,6 +110,7 @@ create_variables <- function(parameters) {
     iva = iva,
     id = id,
     xi = xi,
+    xi_group = xi_group,
     mosquito_variety = mosquito_variety,
     infection_schedule = infection_schedule,
     asymptomatic_infection_schedule = asymptomatic_infection_schedule,

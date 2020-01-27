@@ -19,12 +19,12 @@ infection_process <- function(simulation_frame, timestep, parameters) {
     parameters
   )
 
-  bitten_humans <- source_humans[uniform_gt(length(source_humans), epsilon)]
+  bitten_humans <- source_humans[bernoulli(length(source_humans), epsilon)]
 
   # Calculate Infected
   b <- blood_immunity(ib_value[bitten_humans], parameters)
 
-  infected_humans <- bitten_humans[uniform_gt(length(bitten_humans), b)]
+  infected_humans <- bitten_humans[bernoulli(length(bitten_humans), b)]
 
   ica_infected_value <- simulation_frame$get_variable(human, ica)[infected_humans]
   iva_infected_value <- simulation_frame$get_variable(human, iva)[infected_humans]
@@ -42,8 +42,8 @@ infection_process <- function(simulation_frame, timestep, parameters) {
     parameters
   )
 
-  develop_clinical <- uniform_gt(length(infected_humans), phi)
-  develop_severe <- uniform_gt(length(infected_humans), theta)
+  develop_clinical <- bernoulli(length(infected_humans), phi)
+  develop_severe <- bernoulli(length(infected_humans), theta)
   symptomatic <- develop_severe | develop_clinical
 
   # Exclude humans already scheduled for infection
@@ -187,7 +187,7 @@ mosquito_infection_process <- function(simulation_frame, timestep, parameters) {
   )
 
   infected = source_mosquitos[
-    uniform_gt(length(source_mosquitos), lambda)
+    bernoulli(length(source_mosquitos), lambda)
   ]
   individual::StateUpdate$new(mosquito, Im, infected)
 }

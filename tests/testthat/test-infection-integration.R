@@ -31,7 +31,7 @@ test_that('human infection_process creates the correct updates', {
 
   mockery::stub(
     infection_process,
-    'uniform_gt',
+    'bernoulli',
     mock_returns(list(
       c(TRUE, TRUE, TRUE, FALSE),
       c(TRUE, TRUE, FALSE),
@@ -127,7 +127,7 @@ test_that('mosquito_infection_process creates the correct updates', {
 
   mockery::stub(
     mosquito_infection_process,
-    'uniform_gt',
+    'bernoulli',
     mock_returns(list(
       c(TRUE, TRUE, TRUE, FALSE)
     ))

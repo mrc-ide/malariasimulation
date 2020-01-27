@@ -84,7 +84,7 @@ test_that('larval_death_process kills the expected larvae', {
 
   mocked <- mockery::stub(
     larval_death_process,
-    'uniform_gt',
+    'bernoulli',
     mock_returns(list(
       c(TRUE, TRUE, FALSE, FALSE),
       c(TRUE, FALSE, TRUE, FALSE)

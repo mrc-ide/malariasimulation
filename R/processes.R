@@ -1,6 +1,4 @@
 
-#' @description
-#'
 #' create_processes, defines the functions which describe how each individual's
 #' states and variables change over time.
 #'
@@ -97,8 +95,6 @@ create_processes <- function(individuals, states, variables, parameters) {
 # Utility functions
 # =================
 
-#' @description
-#'
 #' bind_process_to_model adds individuals, states and variables to a process
 #' functions's environment so that it can specify model updates at each timestep
 #'
@@ -113,8 +109,6 @@ bind_process_to_model <- function(process, individuals, states, variables) {
   process
 }
 
-#' @description
-#'
 #' create_fixed_probability_state_change_process generates a process function
 #' that moves individuals from one state to another at a constant rate
 #'
@@ -132,8 +126,6 @@ create_fixed_probability_state_change_process <- function(i, from, to, rate) {
   }
 }
 
-#' @description
-#'
 #' create_exponential_decay_process generates a process function
 #' that reduces the value of a variable at an exponential rate
 #'
@@ -147,8 +139,6 @@ create_exponential_decay_process <- function(individual, variable, rate) {
   }
 }
 
-#' @description
-#'
 #' This is the process for aging, it will update every human's age every 365
 #' timesteps.
 #'

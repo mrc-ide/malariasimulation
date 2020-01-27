@@ -1,5 +1,3 @@
-#' @description
-#'
 #' get_paramaters creates a list of parameters for use in the model. These
 #' parameters are passed to process functions
 #'

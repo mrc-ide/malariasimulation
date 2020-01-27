@@ -1,5 +1,3 @@
-#' @description
-#' 
 #' run_simulation puts together the model components and runs the malaria
 #' simulation. This currently returns a 2D vector (number of humans * timesteps)
 #' representing the state of each human at each timestep of the simulation

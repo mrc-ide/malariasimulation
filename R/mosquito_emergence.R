@@ -1,5 +1,3 @@
-#' @description
-#'
 #' This is the process for mosquito birth, it defines how many new early stage
 #' larvae are created on each timestep.
 #'
@@ -18,8 +16,6 @@ egg_laying_process <- function(simulation_frame, timestep, parameters) {
   }
 }
 
-#' @description
-#'
 #' This process defines how many early and late stage larvae die due to
 #' seasonal carrying capacity.
 #'

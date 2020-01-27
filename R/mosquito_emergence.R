@@ -18,10 +18,10 @@ larval_death_process <- function(simulation_frame, timestep, parameters) {
   early_regulation <- 1 + n / k
   late_regulation <- 1 + parameters$gamma * n / k
   early_larval_deaths <- early_larval[
-    runif(length(early_larval), 0, 1) < parameters$me * early_regulation
+    uniform_gt(length(early_larval), parameters$me * early_regulation)
   ]
   late_larval_deaths <- late_larval[
-    runif(length(late_larval), 0, 1) < parameters$ml * late_regulation
+    uniform_gt(length(late_larval), parameters$ml * late_regulation)
   ]
   individual::StateUpdate$new(
     mosquito,

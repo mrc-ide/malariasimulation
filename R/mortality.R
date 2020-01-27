@@ -1,12 +1,10 @@
-# mortality probability for each age
-mortality_probability_table <- rep(.05, 100)
 
 mortality_process <- function(simulation_frame, timestep, parameters) {
   age_value <- simulation_frame$get_variable(human, age)
 
   natural_deaths <- died_naturally(
     age_value,
-    mortality_probability_table
+    parameters$mortality_probability_table
   )
 
   severe_deaths <- died_from_severe(

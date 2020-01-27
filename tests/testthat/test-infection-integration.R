@@ -29,18 +29,14 @@ test_that('human infection_process creates the correct updates', {
     )
   )
 
-  epsilon <- c(0.2872749, 0.6559928, 1.6966581, 6.2333683)
-  b <- c(0.5900733, 0.59006960, 0.59006960)
-  phi <- c(0.07497956, 0.07496497)
-  theta <- c(0.07360586, 0.07194696)
   mockery::stub(
     infection_process,
-    'runif',
+    'uniform_gt',
     mock_returns(list(
-      mock_random(epsilon, c(TRUE, TRUE, TRUE, FALSE)),
-      mock_random(b, c(TRUE, TRUE, FALSE)),
-      mock_random(phi, c(TRUE, FALSE)),
-      mock_random(theta, c(FALSE, TRUE))
+      c(TRUE, TRUE, TRUE, FALSE),
+      c(TRUE, TRUE, FALSE),
+      c(TRUE, FALSE),
+      c(FALSE, TRUE)
     ))
   )
   updates <- infection_process(simulation_frame, 5, parameters)
@@ -106,4 +102,40 @@ test_that('human infection_process creates the correct updates', {
       all.equal(update$index, c(2))
     )
   })
+})
+
+test_that('mosquito_infection_process creates the correct updates', {
+  parameters <- get_parameters()
+  bind_process_to_default_model(mosquito_infection_process, parameters)
+  simulation_frame <- mock_simulation_frame(
+    list(
+      human = list(
+        Treated = c(1),
+        U = c(2),
+        A = c(3),
+        D = c(4),
+        age = c(20, 24, 5, 39),
+        xi = c(.2, .3, .5, .9),
+        ID = c(.2, .3, .5, .9)
+      ),
+      mosquito = list(
+        Sm = c(1, 2, 3, 4),
+        variety = c(1, 2, 3, 3)
+      )
+    )
+  )
+
+  mockery::stub(
+    mosquito_infection_process,
+    'uniform_gt',
+    mock_returns(list(
+      c(TRUE, TRUE, TRUE, FALSE)
+    ))
+  )
+
+  update <- mosquito_infection_process(simulation_frame, 5, parameters)
+
+  expect_equal(update$individual$name, 'mosquito')
+  expect_equal(update$state$name, 'Im')
+  expect_equal(update$index, c(1, 2, 3))
 })

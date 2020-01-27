@@ -82,20 +82,17 @@ test_that('larval_death_process kills the expected larvae', {
     )
   )
 
-  k <- 5.627152
-  early_boundary <- parameters$me * (1 + 8 / k)
-  late_boundary <- parameters$ml * (1 + parameters$gamma * 8 / k)
-
-  mockery::stub(
+  mocked <- mockery::stub(
     larval_death_process,
-    'runif',
+    'uniform_gt',
     mock_returns(list(
-      c(early_boundary + .1, early_boundary + .1, early_boundary - .1, early_boundary - .1),
-      c(late_boundary + .1, late_boundary - .1, late_boundary + .1, late_boundary - .1)
+      c(TRUE, TRUE, FALSE, FALSE),
+      c(TRUE, FALSE, TRUE, FALSE)
     ))
   )
+
   update <- larval_death_process(simulation_frame, 100, parameters)
   expect_equal(update$individual$name, 'mosquito')
   expect_equal(update$state$name, 'Unborn')
-  expect_setequal(update$index, c(3, 4, 6, 8))
+  expect_setequal(update$index, c(1, 2, 5, 7))
 })

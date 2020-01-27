@@ -70,6 +70,7 @@ get_parameters <- function() {
     me    = .0338,
     ml    = .0348,
     gamma = 13.25,
+    mortality_probability_table = rep(.05, 100),
     timestep_to_day = timestep_to_day
   )
 

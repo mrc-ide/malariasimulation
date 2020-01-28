@@ -2,8 +2,7 @@
 % Please edit documentation in R/individuals.R
 \name{create_individuals}
 \alias{create_individuals}
-\title{create_individuals declares the individuals to simulate. It assigns the
-relevant states and variables to each individual.}
+\title{Define model individuals}
 \usage{
 create_individuals(states, variables)
 }

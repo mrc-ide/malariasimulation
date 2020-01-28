@@ -1,3 +1,5 @@
+#' @title Human mortality process
+#' @description
 #' This is the process for human mortality, it defines which humans die from
 #' natural causes and severe infection and replaces dead individuals with
 #' newborns.

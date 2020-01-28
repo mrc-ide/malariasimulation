@@ -2,10 +2,7 @@
 % Please edit documentation in R/individuals.R
 \name{create_variables}
 \alias{create_variables}
-\title{create_variables creates the human and mosquito variables and constants for
-the model. Variables are used to track real data for each individual over
-time, they are read and updated by processes. Constants remain fixed for each
-individual over the whole simulation.}
+\title{Define model variables and constants}
 \usage{
 create_variables(parameters)
 }

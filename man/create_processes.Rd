@@ -2,8 +2,7 @@
 % Please edit documentation in R/processes.R
 \name{create_processes}
 \alias{create_processes}
-\title{create_processes, defines the functions which describe how each individual's
-states and variables change over time.}
+\title{Define model processes}
 \usage{
 create_processes(individuals, states, variables, parameters)
 }
@@ -17,6 +16,9 @@ create_processes(individuals, states, variables, parameters)
 \item{parameters, }{a list of model parameters}
 }
 \description{
+create_processes, defines the functions which describe how each individual's
+states and variables change over time.
+
 It lists processes from `infection.R`, `mosquito_emergence.R` and
 `mortality.R`; and then exposes them to the model through
 `bind_process_to_model`

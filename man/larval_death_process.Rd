@@ -2,8 +2,7 @@
 % Please edit documentation in R/mosquito_emergence.R
 \name{larval_death_process}
 \alias{larval_death_process}
-\title{This process defines how many early and late stage larvae die due to
-seasonal carrying capacity.}
+\title{Larval deaths}
 \usage{
 larval_death_process(simulation_frame, timestep, parameters)
 }

@@ -1,4 +1,5 @@
-
+#' @title Infection process
+#' @description
 #' This is the process of infection for humans. It results in human future state
 #' changes for infected humans and boosts in immunity.
 #'
@@ -159,6 +160,8 @@ scheduled_infections <- function(simulation_frame, timestep, parameters) {
   )
 }
 
+#' @title Mosquito infection process
+#' @description
 #' This is the process of infection for mosquitos. It results in a state
 #' transition from Sm to Im for infected mosquitos.
 #'

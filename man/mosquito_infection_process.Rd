@@ -2,8 +2,7 @@
 % Please edit documentation in R/infection.R
 \name{mosquito_infection_process}
 \alias{mosquito_infection_process}
-\title{This is the process of infection for mosquitos. It results in a state
-transition from Sm to Im for infected mosquitos.}
+\title{Mosquito infection process}
 \usage{
 mosquito_infection_process(simulation_frame, timestep, parameters)
 }
@@ -15,6 +14,9 @@ mosquito_infection_process(simulation_frame, timestep, parameters)
 \item{parameters, }{the model parameters}
 }
 \description{
+This is the process of infection for mosquitos. It results in a state
+transition from Sm to Im for infected mosquitos.
+
 NOTE: this process will become obsolete when the model is reformulated to
 model individual mosquitos biting individual humans.
 }

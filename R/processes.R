@@ -1,4 +1,5 @@
-
+#' @title Define model processes
+#' @description
 #' create_processes, defines the functions which describe how each individual's
 #' states and variables change over time.
 #'

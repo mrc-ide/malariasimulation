@@ -2,7 +2,7 @@
 % Please edit documentation in R/individuals.R
 \name{create_states}
 \alias{create_states}
-\title{create_states creates the human and mosquito states for the model}
+\title{Define model states}
 \usage{
 create_states()
 }

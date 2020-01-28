@@ -149,81 +149,67 @@ that moves individuals from one state to another at a constant rate</p></td>
         <td>
           <p><code><a href="create_individuals.html">create_individuals()</a></code> </p>
         </td>
-        <td><p>create_individuals declares the individuals to simulate. It assigns the
-relevant states and variables to each individual.</p></td>
+        <td><p>Define model individuals</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="create_processes.html">create_processes()</a></code> </p>
         </td>
-        <td><p>create_processes, defines the functions which describe how each individual's
-states and variables change over time.</p></td>
+        <td><p>Define model processes</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="create_states.html">create_states()</a></code> </p>
         </td>
-        <td><p>create_states creates the human and mosquito states for the model</p></td>
+        <td><p>Define model states</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="create_variables.html">create_variables()</a></code> </p>
         </td>
-        <td><p>create_variables creates the human and mosquito variables and constants for
-the model. Variables are used to track real data for each individual over
-time, they are read and updated by processes. Constants remain fixed for each
-individual over the whole simulation.</p></td>
+        <td><p>Define model variables and constants</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="egg_laying_process.html">egg_laying_process()</a></code> </p>
         </td>
-        <td><p>This is the process for mosquito birth, it defines how many new early stage
-larvae are created on each timestep.</p></td>
+        <td><p>Mosquito births</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="get_parameters.html">get_parameters()</a></code> </p>
         </td>
-        <td><p>get_paramaters creates a list of parameters for use in the model. These
-parameters are passed to process functions</p></td>
+        <td><p>Get model parameters</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="infection_process.html">infection_process()</a></code> </p>
         </td>
-        <td><p>This is the process of infection for humans. It results in human future state
-changes for infected humans and boosts in immunity.</p></td>
+        <td><p>Infection process</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="larval_death_process.html">larval_death_process()</a></code> </p>
         </td>
-        <td><p>This process defines how many early and late stage larvae die due to
-seasonal carrying capacity.</p></td>
+        <td><p>Larval deaths</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="mortality_process.html">mortality_process()</a></code> </p>
         </td>
-        <td><p>This is the process for human mortality, it defines which humans die from
-natural causes and severe infection and replaces dead individuals with
-newborns.</p></td>
+        <td><p>Human mortality process</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="mosquito_infection_process.html">mosquito_infection_process()</a></code> </p>
         </td>
-        <td><p>This is the process of infection for mosquitos. It results in a state
-transition from Sm to Im for infected mosquitos.</p></td>
+        <td><p>Mosquito infection process</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="run_simulation.html">run_simulation()</a></code> </p>
         </td>
-        <td><p>run_simulation puts together the model components and runs the malaria
-simulation. This currently returns a 2D vector (number of humans * timesteps)
-representing the state of each human at each timestep of the simulation</p></td>
+        <td><p>Run the simulation</p></td>
       </tr>
     </tbody>
     </table>

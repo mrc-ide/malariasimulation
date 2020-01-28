@@ -2,9 +2,7 @@
 % Please edit documentation in R/mortality.R
 \name{mortality_process}
 \alias{mortality_process}
-\title{This is the process for human mortality, it defines which humans die from
-natural causes and severe infection and replaces dead individuals with
-newborns.}
+\title{Human mortality process}
 \usage{
 mortality_process(simulation_frame, timestep, parameters)
 }

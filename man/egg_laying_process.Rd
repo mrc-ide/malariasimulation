@@ -2,8 +2,7 @@
 % Please edit documentation in R/mosquito_emergence.R
 \name{egg_laying_process}
 \alias{egg_laying_process}
-\title{This is the process for mosquito birth, it defines how many new early stage
-larvae are created on each timestep.}
+\title{Mosquito births}
 \usage{
 egg_laying_process(simulation_frame, timestep, parameters)
 }

@@ -2,12 +2,16 @@
 % Please edit documentation in R/parameters.R
 \name{get_parameters}
 \alias{get_parameters}
-\title{get_paramaters creates a list of parameters for use in the model. These
-parameters are passed to process functions}
+\title{Get model parameters}
 \usage{
 get_parameters()
 }
 \description{
+get_paramaters creates a list of parameters for use in the model. These
+parameters are passed to process functions. These parameters are explained in
+"The US President's Malaria Initiative, Plasmodium falciparum transmission
+and mortality: A modelling study."
+
 NOTE: this function is likely to be extended to read in command line / config
 file parameters
 }

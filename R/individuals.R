@@ -3,6 +3,8 @@ human_population <- 100 * 1000
 mosquito_limit <- 100 * human_population
 n_heterogeneity_groups <- 5
 
+#' @title Define model states
+#' @description
 #' create_states creates the human and mosquito states for the model
 create_states <- function() {
   list(
@@ -23,6 +25,8 @@ create_states <- function() {
   )
 }
 
+#' @title Define model variables and constants
+#' @description
 #' create_variables creates the human and mosquito variables and constants for
 #' the model. Variables are used to track real data for each individual over
 #' time, they are read and updated by processes. Constants remain fixed for each
@@ -125,6 +129,8 @@ create_variables <- function(parameters) {
   )
 }
 
+#' @title Define model individuals
+#' @description
 #' create_individuals declares the individuals to simulate. It assigns the
 #' relevant states and variables to each individual.
 #'

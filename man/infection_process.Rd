@@ -2,8 +2,7 @@
 % Please edit documentation in R/infection.R
 \name{infection_process}
 \alias{infection_process}
-\title{This is the process of infection for humans. It results in human future state
-changes for infected humans and boosts in immunity.}
+\title{Infection process}
 \usage{
 infection_process(simulation_frame, timestep, parameters)
 }

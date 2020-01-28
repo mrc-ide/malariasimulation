@@ -1,7 +1,17 @@
 
 test_that('egg_laying_process fails when there are not enough individuals', {
   parameters <- get_parameters()
-  bind_process_to_default_model(egg_laying_process, parameters)
+  states <- create_states()
+  variables <- create_variables(parameters)
+  individuals <- create_individuals(states, variables)
+  egg_laying_process <- create_egg_laying_process(
+    individuals$mosquito,
+    states$Sm,
+    states$Im,
+    states$Unborn,
+    states$E
+  )
+
   simulation_frame <- mock_simulation_frame(
     list(
       mosquito = list(
@@ -34,7 +44,17 @@ test_that('egg_laying_process fails when there are not enough individuals', {
 test_that('egg_laying_process creates the correct number of larvae', {
   parameters <- get_parameters()
   parameters$beta <- 5
-  bind_process_to_default_model(egg_laying_process, parameters)
+  states <- create_states()
+  variables <- create_variables(parameters)
+  individuals <- create_individuals(states, variables)
+  egg_laying_process <- create_egg_laying_process(
+    individuals$mosquito,
+    states$Sm,
+    states$Im,
+    states$Unborn,
+    states$E
+  )
+
   simulation_frame <- mock_simulation_frame(
     list(
       mosquito = list(
@@ -53,7 +73,15 @@ test_that('egg_laying_process creates the correct number of larvae', {
 
 test_that('larval_death_process works with no larvae', {
   parameters <- get_parameters()
-  bind_process_to_default_model(egg_laying_process, parameters)
+  states <- create_states()
+  variables <- create_variables(parameters)
+  individuals <- create_individuals(states, variables)
+  larval_death_process <- create_larval_death_process(
+    individuals$mosquito,
+    states$E,
+    states$L,
+    states$Unborn
+  )
   simulation_frame <- mock_simulation_frame(
     list(
       mosquito = list(
@@ -71,7 +99,15 @@ test_that('larval_death_process works with no larvae', {
 
 test_that('larval_death_process kills the expected larvae', {
   parameters <- get_parameters()
-  bind_process_to_default_model(egg_laying_process, parameters)
+  states <- create_states()
+  variables <- create_variables(parameters)
+  individuals <- create_individuals(states, variables)
+  larval_death_process <- create_larval_death_process(
+    individuals$mosquito,
+    states$E,
+    states$L,
+    states$Unborn
+  )
   simulation_frame <- mock_simulation_frame(
     list(
       mosquito = list(

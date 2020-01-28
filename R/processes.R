@@ -12,64 +12,147 @@
 #' @param parameters, a list of model parameters
 create_processes <- function(individuals, states, variables, parameters) {
   
-  env <- environment()
-  list2env(individuals, env)
-  list2env(states, env)
-  list2env(variables, env)
-
-  processes <- list(
-    ageing_process,
-    mortality_process,
+  list(
+    create_ageing_process(individuals$human, variables$age),
+    create_mortality_process(
+      individuals$human,
+      states$D,
+      states$Treated,
+      variables$age,
+      variables$is_severe,
+      variables$xi_group,
+      variables$icm,
+      variables$ivm,
+      variables$last_bitten,
+      variables$last_infected,
+      variables$infection_schedule,
+      variables$asymptomatic_infection_schedule,
+      variables$ib,
+      variables$ica,
+      variables$iva,
+      variables$id
+    ),
 
     # ======
     # States
     # ======
 
     # Untreated Progression
-    create_fixed_probability_state_change_process(human, I, D, 1 - parameters$ft),
+    create_fixed_probability_state_change_process(
+      individuals$human,
+      states$I,
+      states$D,
+      1 - parameters$ft
+    ),
     # Treatment
-    create_fixed_probability_state_change_process(human, I, Treated, parameters$ft),
+    create_fixed_probability_state_change_process(
+      individuals$human,
+      states$I,
+      states$Treated,
+      parameters$ft
+    ),
     # Asymptomatic Progression
-    create_fixed_probability_state_change_process(human, D, A, parameters$rd),
+    create_fixed_probability_state_change_process(
+      individuals$human,
+      states$D,
+      states$A,
+      parameters$rd
+    ),
     # Subpatient Progression
-    create_fixed_probability_state_change_process(human, A, U, parameters$ra),
+    create_fixed_probability_state_change_process(
+      individuals$human,
+      states$A,
+      states$U,
+      parameters$ra
+    ),
     # Subpatient Recovery
-    create_fixed_probability_state_change_process(human, U, S, parameters$ru),
+    create_fixed_probability_state_change_process(
+      individuals$human,
+      states$U,
+      states$S,
+      parameters$ru
+    ),
     # Treatment Recovery
-    treatment_recovery_process,
+    create_treatment_recovery_process(
+      individuals$human,
+      states$Treated,
+      states$S,
+      variables$is_severe
+    ),
 
     # ========
     # Immunity
     # ========
 
     # Maternal immunity
-    create_exponential_decay_process(human, icm, parameters$rm),
-    create_exponential_decay_process(human, ivm, parameters$rvm),
+    create_exponential_decay_process(individuals$human, variables$icm, parameters$rm),
+    create_exponential_decay_process(individuals$human, variables$ivm, parameters$rvm),
     # Blood immunity
-    create_exponential_decay_process(human, ib, parameters$rb),
+    create_exponential_decay_process(individuals$human, variables$ib, parameters$rb),
     # Acquired immunity
-    create_exponential_decay_process(human, ica, parameters$rc),
-    create_exponential_decay_process(human, iva, parameters$rva),
-    create_exponential_decay_process(human, id, parameters$rd),
+    create_exponential_decay_process(individuals$human, variables$ica, parameters$rc),
+    create_exponential_decay_process(individuals$human, variables$iva, parameters$rva),
+    create_exponential_decay_process(individuals$human, variables$id, parameters$rd),
 
     # ===============
     # Mosquito States
     # ===============
     # Eggs laid
-    egg_laying_process,
+    create_egg_laying_process(
+      individuals$mosquito,
+      states$Sm,
+      states$Im,
+      states$Unborn,
+      states$E
+    ),
     # Larval growth
-    create_fixed_probability_state_change_process(mosquito, E, L, parameters$rel),
+    create_fixed_probability_state_change_process(
+      individuals$mosquito,
+      states$E,
+      states$L,
+      parameters$rel
+    ),
     # Pupal stage
-    create_fixed_probability_state_change_process(mosquito, L, P, parameters$rl),
+    create_fixed_probability_state_change_process(
+      individuals$mosquito,
+      states$L,
+      states$P,
+      parameters$rl
+    ),
     # Susceptable Female Development
-    create_fixed_probability_state_change_process(mosquito, P, Sm, .5 * parameters$rpl),
+    create_fixed_probability_state_change_process(
+      individuals$mosquito,
+      states$P,
+      states$Sm,
+      .5 * parameters$rpl
+    ),
     # Death of larvae
-    larval_death_process,
+    create_larval_death_process(
+      individuals$mosquito,
+      states$E,
+      states$L,
+      states$Unborn
+    ),
     # Death of pupals
-    create_fixed_probability_state_change_process(mosquito, P, Unborn, .5 * parameters$mup),
+    create_fixed_probability_state_change_process(
+      individuals$mosquito,
+      states$P,
+      states$Unborn,
+      .5 * parameters$mup
+    ),
     # Natural death of females
-    create_fixed_probability_state_change_process(mosquito, Sm, Unborn, parameters$mum),
-    create_fixed_probability_state_change_process(mosquito, Im, Unborn, parameters$mum),
+    create_fixed_probability_state_change_process(
+      individuals$mosquito,
+      states$Sm,
+      states$Unborn,
+      parameters$mum
+    ),
+    create_fixed_probability_state_change_process(
+      individuals$mosquito,
+      states$Im,
+      states$Unborn,
+      parameters$mum
+    ),
 
     ## =========
     ## Infection
@@ -77,18 +160,54 @@ create_processes <- function(individuals, states, variables, parameters) {
     ## Mosquitos move from Sm -> Im
     ## NOTE: In the future this will be combined with the infection process
     ## below so that we can model mosquitos individually
-    mosquito_infection_process,
+    create_mosquito_infection_process(
+      individuals$mosquito,
+      individuals$human,
+      states$Sm,
+      states$A,
+      states$D,
+      states$U,
+      states$Im,
+      states$Treated,
+      variables$age,
+      variables$id,
+      variables$xi,
+      variables$mosquito_variety
+    ),
 
     ## schedule infections for humans and set last_bitten and last_infected
-    infection_process,
+    create_infection_process(
+      individuals$human,
+      individuals$mosquito,
+      states$S,
+      states$U,
+      states$A,
+      states$D,
+      states$Im,
+      variables$infection_schedule,
+      variables$asymptomatic_infection_schedule,
+      variables$age,
+      variables$ib,
+      variables$id,
+      variables$xi,
+      variables$mosquito_variety,
+      variables$ica,
+      variables$iva,
+      variables$icm,
+      variables$ivm,
+      variables$last_infected,
+      variables$last_bitten,
+      variables$is_severe
+    ),
 
     ## update states after a latent period
-    scheduled_infections
-  )
-
-  lapply(
-    processes,
-    function(p) { bind_process_to_model(p, individuals, states, variables) }
+    create_infection_scheduler(
+      individuals$human,
+      states$A,
+      states$I,
+      variables$infection_schedule,
+      variables$asymptomatic_infection_schedule
+    )
   )
 }
 
@@ -96,20 +215,8 @@ create_processes <- function(individuals, states, variables, parameters) {
 # Utility functions
 # =================
 
-#' bind_process_to_model adds individuals, states and variables to a process
-#' functions's environment so that it can specify model updates at each timestep
-#'
-#' @param individuals, a list of individuals in the model
-#' @param states, a list of states in the model
-#' @param variables, a list of variables and constants in the model
-bind_process_to_model <- function(process, individuals, states, variables) {
-  env <- environment(process)
-  list2env(individuals, env)
-  list2env(states, env)
-  list2env(variables, env)
-  process
-}
-
+#' @title Basic state transition
+#' @description
 #' create_fixed_probability_state_change_process generates a process function
 #' that moves individuals from one state to another at a constant rate
 #'
@@ -127,6 +234,8 @@ create_fixed_probability_state_change_process <- function(i, from, to, rate) {
   }
 }
 
+#' @title Exponentially decaying variables
+#' @description
 #' create_exponential_decay_process generates a process function
 #' that reduces the value of a variable at an exponential rate
 #'
@@ -140,20 +249,23 @@ create_exponential_decay_process <- function(individual, variable, rate) {
   }
 }
 
+#' @title Human aging process
+#' @description
 #' This is the process for aging, it will update every human's age every 365
 #' timesteps.
 #'
-#' @param simulation_frame, the current state of the simulation
-#' @param timestep, the current timestep
-#' @param parameters, the model parameters
-ageing_process <- function(simulation_frame, timestep, parameters) {
-  if (timestep %% (365*parameters$timestep_to_day) == 0) {
-    return(
-      individual::VariableUpdate$new(
-        human,
-        age,
-        simulation_frame$get_variable(human, age) + 1
+#' @param human, the human individual
+#' @param age, the age variable
+create_ageing_process <- function(human, age) {
+  function(simulation_frame, timestep, parameters) {
+    if (timestep %% (365*parameters$timestep_to_day) == 0) {
+      return(
+        individual::VariableUpdate$new(
+          human,
+          age,
+          simulation_frame$get_variable(human, age) + 1
+        )
       )
-    )
+    }
   }
 }

@@ -1,11 +1,4 @@
 
-bind_process_to_default_model <- function(process, parameters) {
-  states <- create_states()
-  variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables)
-  bind_process_to_model(process, individuals, states, variables)
-}
-
 mock_returns <- function(returns) {
   call <- 0
   function(...) {

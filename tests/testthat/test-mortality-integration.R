@@ -1,6 +1,46 @@
 test_that('mortality_process resets humans correctly', {
   parameters <- get_parameters()
-  bind_process_to_default_model(mortality_process, parameters)
+  states <- create_states()
+  variables <- create_variables(parameters)
+  individuals <- create_individuals(states, variables)
+
+  mockery::stub(
+    create_mortality_process,
+    'bernoulli',
+    mock_returns(list(
+      c(FALSE, FALSE, FALSE, TRUE),
+      c(TRUE),
+      c(FALSE, TRUE)
+    )),
+    depth = 3
+  )
+
+  mockery::stub(
+    create_mortality_process,
+    'sample',
+    mock_returns(list(c(1), c(4))),
+    depth = 3
+  )
+
+  mortality_process <- create_mortality_process(
+    individuals$human,
+    states$D,
+    states$Treated,
+    variables$age,
+    variables$is_severe,
+    variables$xi_group,
+    variables$icm,
+    variables$ivm,
+    variables$last_bitten,
+    variables$last_infected,
+    variables$infection_schedule,
+    variables$asymptomatic_infection_schedule,
+    variables$ib,
+    variables$ica,
+    variables$iva,
+    variables$id
+  )
+
   simulation_frame <- mock_simulation_frame(
     list(
       human = list(
@@ -13,24 +53,6 @@ test_that('mortality_process resets humans correctly', {
         IVM = c(1, 2, 3, 4)
       )
     )
-  )
-
-  mockery::stub(
-    mortality_process,
-    'bernoulli',
-    mock_returns(list(
-      c(FALSE, FALSE, FALSE, TRUE),
-      c(TRUE),
-      c(FALSE, TRUE)
-    )),
-    depth = 2
-  )
-
-  mockery::stub(
-    mortality_process,
-    'sample',
-    mock_returns(list(c(1), c(4))),
-    depth = 2
   )
 
   updates <- mortality_process(simulation_frame, 1, parameters)

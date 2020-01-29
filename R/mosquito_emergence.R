@@ -16,7 +16,9 @@ create_egg_laying_process <- function(mosquito, Sm, Im, Unborn, E) {
       if (n_eggs > length(unborn)) {
         stop('Run out of mosquitos')
       }
-      return(individual::StateUpdate$new(mosquito, E, unborn[seq_len(n_eggs)]))
+      if (n_eggs >= 1) {
+        return(individual::StateUpdate$new(mosquito, E, unborn[seq_len(n_eggs)]))
+      }
     }
   }
 }

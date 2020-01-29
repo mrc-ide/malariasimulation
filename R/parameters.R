@@ -19,6 +19,7 @@ get_parameters <- function() {
     rpl   = 1 / (.643 * timestep_to_day),
     mup   = .249,
     mum   = .249, #NOTE: set from sitefile
+    beta  = 21.2,
     timestep_to_day = timestep_to_day
   )
 

@@ -18,9 +18,9 @@ create_states <- function() {
     E       = individual::State$new("E", 0),
     L       = individual::State$new("L", 0),
     P       = individual::State$new("P", 0),
-    Sm      = individual::State$new("Sm", mosquito_limit %/% 2),
+    Sm      = individual::State$new("Sm", 1),
     Im      = individual::State$new("Im", 0),
-    Unborn  = individual::State$new("Unborn", mosquito_limit %/% 2)
+    Unborn  = individual::State$new("Unborn", mosquito_limit - 1)
   )
 }
 
@@ -59,7 +59,7 @@ create_individuals <- function(states, variables) {
 
   mosquito <- individual::Individual$new(
     'mosquito',
-    states=list(states$E, states$L, states$P, states$Sm, states$Im)
+    states=list(states$E, states$L, states$P, states$Sm, states$Im, states$Unborn)
   )
 
   list(human = human, mosquito = mosquito)

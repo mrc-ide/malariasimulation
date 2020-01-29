@@ -185,11 +185,16 @@ create_individuals <- function(states, variables) {
       variables$ivm,
       variables$infection_schedule,
 <<<<<<< HEAD
+<<<<<<< HEAD
       variables$asymptomatic_infection_schedule,
       variables$is_severe
 =======
       variables$asymptomatic_infection_schedule
 >>>>>>> Model running
+=======
+      variables$asymptomatic_infection_schedule,
+      variables$is_severe
+>>>>>>> Fix e2e test
     ),
     constants = list(variables$xi)
   )

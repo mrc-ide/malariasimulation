@@ -3,34 +3,17 @@
 #' This is the process for human mortality, it defines which humans die from
 #' natural causes and severe infection and replaces dead individuals with
 #' newborns.
-create_mortality_process <- function(
-  human,
-  D,
-  Treated,
-  age,
-  is_severe,
-  xi_group,
-  icm,
-  ivm,
-  last_bitten,
-  last_infected,
-  infection_schedule,
-  asymptomatic_infection_schedule,
-  ib,
-  ica,
-  iva,
-  id
-  ) {
+create_mortality_process <- function(human, D, Treated, variables) {
   function(simulation_frame, timestep, parameters) {
-    age_value <- simulation_frame$get_variable(human, age)
+    age <- simulation_frame$get_variable(human, variables$age)
 
     natural_deaths <- died_naturally(
-      age_value,
+      age,
       parameters$mortality_probability_table
     )
 
     severe_deaths <- died_from_severe(
-      which(simulation_frame$get_variable(human, is_severe) == 1),
+      which(simulation_frame$get_variable(human, variables$is_severe) == 1),
       simulation_frame$get_state(human, D),
       simulation_frame$get_state(human, Treated),
       parameters$ftv,
@@ -45,27 +28,27 @@ create_mortality_process <- function(
     }
 
     # Calculate new maternal immunities
-    groups <- simulation_frame$get_variable(human, xi_group)
-    sampleable <- age_value >= 15 | age_value <= 35
-    icm_values <- simulation_frame$get_variable(human, icm)
-    ivm_values <- simulation_frame$get_variable(human, ivm)
+    groups <- simulation_frame$get_variable(human, variables$xi_group)
+    sampleable <- age >= 15 | age <= 35
+    icm <- simulation_frame$get_variable(human, variables$icm)
+    ivm <- simulation_frame$get_variable(human, variables$ivm)
     mothers <- sample_mothers(sampleable, died, groups)
-    birth_icm <- icm_values[mothers] * parameters$pm
-    birth_ivm <- ivm_values[mothers] * parameters$pm
+    birth_icm <- icm[mothers] * parameters$pm
+    birth_ivm <- ivm[mothers] * parameters$pm
 
     list(
-      individual::VariableUpdate$new(human, age, 0, died),
-      individual::VariableUpdate$new(human, last_bitten, -1, died),
-      individual::VariableUpdate$new(human, last_infected, -1, died),
-      individual::VariableUpdate$new(human, infection_schedule, -1, died),
-      individual::VariableUpdate$new(human, asymptomatic_infection_schedule, -1, died),
-      individual::VariableUpdate$new(human, icm, birth_icm, died),
-      individual::VariableUpdate$new(human, ivm, birth_ivm, died),
-      individual::VariableUpdate$new(human, ib, -1, died),
-      individual::VariableUpdate$new(human, ica, -1, died),
-      individual::VariableUpdate$new(human, iva, -1, died),
-      individual::VariableUpdate$new(human, id, -1, died),
-      individual::VariableUpdate$new(human, is_severe, 0, died)
+      individual::VariableUpdate$new(human, variables$age, 0, died),
+      individual::VariableUpdate$new(human, variables$last_bitten, -1, died),
+      individual::VariableUpdate$new(human, variables$last_infected, -1, died),
+      individual::VariableUpdate$new(human, variables$infection_schedule, -1, died),
+      individual::VariableUpdate$new(human, variables$asymptomatic_infection_schedule, -1, died),
+      individual::VariableUpdate$new(human, variables$icm, birth_icm, died),
+      individual::VariableUpdate$new(human, variables$ivm, birth_ivm, died),
+      individual::VariableUpdate$new(human, variables$ib, -1, died),
+      individual::VariableUpdate$new(human, variables$ica, -1, died),
+      individual::VariableUpdate$new(human, variables$iva, -1, died),
+      individual::VariableUpdate$new(human, variables$id, -1, died),
+      individual::VariableUpdate$new(human, variables$is_severe, 0, died)
     )
   }
 }

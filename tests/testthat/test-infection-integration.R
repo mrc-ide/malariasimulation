@@ -8,26 +8,10 @@ test_that('human infection_process creates the correct updates', {
   infection_process <- create_infection_process(
     individuals$human,
     individuals$mosquito,
-    states$S,
-    states$U,
-    states$A,
-    states$D,
-    states$Im,
-    variables$infection_schedule,
-    variables$asymptomatic_infection_schedule,
-    variables$age,
-    variables$ib,
-    variables$id,
-    variables$xi,
-    variables$mosquito_variety,
-    variables$ica,
-    variables$iva,
-    variables$icm,
-    variables$ivm,
-    variables$last_infected,
-    variables$last_bitten,
-    variables$is_severe
+    states,
+    variables
   )
+
   simulation_frame <- mock_simulation_frame(
     list(
       human = list(
@@ -140,16 +124,8 @@ test_that('mosquito_infection_process creates the correct updates', {
   mosquito_infection_process <- create_mosquito_infection_process(
     individuals$mosquito,
     individuals$human,
-    states$Sm,
-    states$A,
-    states$D,
-    states$U,
-    states$Im,
-    states$Treated,
-    variables$age,
-    variables$id,
-    variables$xi,
-    variables$mosquito_variety
+    states,
+    variables
   )
   simulation_frame <- mock_simulation_frame(
     list(

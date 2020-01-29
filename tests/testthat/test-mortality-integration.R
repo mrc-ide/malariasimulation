@@ -26,19 +26,7 @@ test_that('mortality_process resets humans correctly', {
     individuals$human,
     states$D,
     states$Treated,
-    variables$age,
-    variables$is_severe,
-    variables$xi_group,
-    variables$icm,
-    variables$ivm,
-    variables$last_bitten,
-    variables$last_infected,
-    variables$infection_schedule,
-    variables$asymptomatic_infection_schedule,
-    variables$ib,
-    variables$ica,
-    variables$iva,
-    variables$id
+    variables
   )
 
   simulation_frame <- mock_simulation_frame(

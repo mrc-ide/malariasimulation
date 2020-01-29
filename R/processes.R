@@ -18,19 +18,7 @@ create_processes <- function(individuals, states, variables, parameters) {
       individuals$human,
       states$D,
       states$Treated,
-      variables$age,
-      variables$is_severe,
-      variables$xi_group,
-      variables$icm,
-      variables$ivm,
-      variables$last_bitten,
-      variables$last_infected,
-      variables$infection_schedule,
-      variables$asymptomatic_infection_schedule,
-      variables$ib,
-      variables$ica,
-      variables$iva,
-      variables$id
+      variables
     ),
 
     # ======
@@ -163,41 +151,16 @@ create_processes <- function(individuals, states, variables, parameters) {
     create_mosquito_infection_process(
       individuals$mosquito,
       individuals$human,
-      states$Sm,
-      states$A,
-      states$D,
-      states$U,
-      states$Im,
-      states$Treated,
-      variables$age,
-      variables$id,
-      variables$xi,
-      variables$mosquito_variety
+      states,
+      variables
     ),
 
     ## schedule infections for humans and set last_bitten and last_infected
     create_infection_process(
       individuals$human,
       individuals$mosquito,
-      states$S,
-      states$U,
-      states$A,
-      states$D,
-      states$Im,
-      variables$infection_schedule,
-      variables$asymptomatic_infection_schedule,
-      variables$age,
-      variables$ib,
-      variables$id,
-      variables$xi,
-      variables$mosquito_variety,
-      variables$ica,
-      variables$iva,
-      variables$icm,
-      variables$ivm,
-      variables$last_infected,
-      variables$last_bitten,
-      variables$is_severe
+      states,
+      variables
     ),
 
     ## update states after a latent period

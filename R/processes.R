@@ -11,7 +11,7 @@
 #' @param variables, a list of variables and constants in the model
 #' @param parameters, a list of model parameters
 create_processes <- function(individuals, states, variables, parameters) {
-  
+
   list(
     create_ageing_process(individuals$human, variables$age),
 

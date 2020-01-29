@@ -4,24 +4,6 @@ test_that('mortality_process resets humans correctly', {
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables)
 
-  mockery::stub(
-    create_mortality_process,
-    'bernoulli',
-    mock_returns(list(
-      c(FALSE, FALSE, FALSE, TRUE),
-      c(TRUE),
-      c(FALSE, TRUE)
-    )),
-    depth = 3
-  )
-
-  mockery::stub(
-    create_mortality_process,
-    'sample',
-    mock_returns(list(c(1), c(4))),
-    depth = 3
-  )
-
   mortality_process <- create_mortality_process(
     individuals$human,
     states$D,
@@ -43,7 +25,16 @@ test_that('mortality_process resets humans correctly', {
     )
   )
 
-  updates <- mortality_process(simulation_frame, 1, parameters)
+  # NOTE: `with_mock` preferred here as `stub` suffers from locked binding issues
+  updates <- with_mock(
+    sample = mock_returns(list(c(1), c(4))),
+    'malariasimulation:::bernoulli' = mock_returns(list(
+      c(FALSE, FALSE, FALSE, TRUE),
+      c(TRUE),
+      c(FALSE, TRUE)
+    )),
+    mortality_process(simulation_frame, 1, parameters)
+  )
 
   died <- c(2, 4)
 

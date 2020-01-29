@@ -202,7 +202,7 @@ create_fixed_probability_state_change_process <- function(i, from, to, rate) {
 #' create_exponential_decay_process generates a process function
 #' that reduces the value of a variable at an exponential rate
 #'
-#' @param i, an individual
+#' @param individual, an individual
 #' @param variable, the variable to update
 #' @param rate, the exponential rate
 create_exponential_decay_process <- function(individual, variable, rate) {

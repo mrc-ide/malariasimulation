@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Exponentially decaying variables — create_exponential_decay_process • malariasimulation</title>
+<title>Mosquito infection process — create_mosquito_infection_process • malariasimulation</title>
 
 
 <!-- jquery -->
@@ -35,9 +35,11 @@
 
 
 
-<meta property="og:title" content="Exponentially decaying variables — create_exponential_decay_process" />
-<meta property="og:description" content="create_exponential_decay_process generates a process function
-that reduces the value of a variable at an exponential rate" />
+<meta property="og:title" content="Mosquito infection process — create_mosquito_infection_process" />
+<meta property="og:description" content="This is the process of infection for mosquitos. It results in a state
+transition from Sm to Im for infected mosquitos.
+NOTE: this process will become obsolete when the model is reformulated to
+model individual mosquitos biting individual humans." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -101,32 +103,38 @@ that reduces the value of a variable at an exponential rate" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Exponentially decaying variables</h1>
+    <h1>Mosquito infection process</h1>
     
-    <div class="hidden name"><code>create_exponential_decay_process.Rd</code></div>
+    <div class="hidden name"><code>create_mosquito_infection_process.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>create_exponential_decay_process generates a process function
-that reduces the value of a variable at an exponential rate</p>
+    <p>This is the process of infection for mosquitos. It results in a state
+transition from Sm to Im for infected mosquitos.</p>
+<p>NOTE: this process will become obsolete when the model is reformulated to
+model individual mosquitos biting individual humans.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_exponential_decay_process</span>(<span class='no'>individual</span>, <span class='no'>variable</span>, <span class='no'>rate</span>)</pre>
+    <pre class="usage"><span class='fu'>create_mosquito_infection_process</span>(<span class='no'>mosquito</span>, <span class='no'>human</span>, <span class='no'>states</span>, <span class='no'>variables</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>individual, </th>
-      <td><p>an individual</p></td>
+      <th>mosquito, </th>
+      <td><p>the mosquito individual</p></td>
     </tr>
     <tr>
-      <th>variable, </th>
-      <td><p>the variable to update</p></td>
+      <th>human, </th>
+      <td><p>the human individual</p></td>
     </tr>
     <tr>
-      <th>rate, </th>
-      <td><p>the exponential rate</p></td>
+      <th>states, </th>
+      <td><p>a list of all of the model states</p></td>
+    </tr>
+    <tr>
+      <th>variables, </th>
+      <td><p>a list of all of the model variables and constants</p></td>
     </tr>
     </table>
 

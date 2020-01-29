@@ -2,6 +2,10 @@
 #' @description
 #' This is the process of infection for humans. It results in human future state
 #' changes for infected humans and boosts in immunity.
+#' @param human, the human individual
+#' @param mosquito, the mosquito individual
+#' @param states, a list of all of the model states
+#' @param variables, a list of all of the model variables and constants
 create_infection_process <- function(human, mosquito, states, variables) {
   function(simulation_frame, timestep, parameters) {
     source_humans <- simulation_frame$get_state(
@@ -209,6 +213,10 @@ create_infection_scheduler <- function(human, A, I, infection_schedule, asymptom
 #'
 #' NOTE: this process will become obsolete when the model is reformulated to
 #' model individual mosquitos biting individual humans.
+#' @param mosquito, the mosquito individual
+#' @param human, the human individual
+#' @param states, a list of all of the model states
+#' @param variables, a list of all of the model variables and constants
 create_mosquito_infection_process <- function(
   mosquito,
   human,

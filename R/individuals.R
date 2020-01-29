@@ -137,32 +137,28 @@ create_variables <- function(parameters) {
 #' @param states, available states to assign
 #' @param variables, available variables and constants to assign
 create_individuals <- function(states, variables) {
-  env <- environment()
-  list2env(states, env)
-  list2env(variables, env)
-
   human <- individual::Individual$new(
     'human',
-    list(S, I, Treated, D, A, U),
+    list(states$S, states$I, states$Treated, states$D, states$A, states$U),
     variables = list(
-      age,
-      last_bitten,
-      last_infected,
-      ib,
-      ica,
-      iva,
-      id,
-      icm,
-      infection_schedule,
-      asymptomatic_infection_schedule
+      variables$age,
+      variables$last_bitten,
+      variables$last_infected,
+      variables$ib,
+      variables$ica,
+      variables$iva,
+      variables$id,
+      variables$icm,
+      variables$infection_schedule,
+      variables$asymptomatic_infection_schedule
     ),
-    constants = list(xi)
+    constants = list(variables$xi)
   )
 
   mosquito <- individual::Individual$new(
     'mosquito',
-    list(E, L, P, Sm, Im),
-    constants = list(mosquito_variety)
+    list(states$E, states$L, states$P, states$Sm, states$Im),
+    constants = list(variables$mosquito_variety)
   )
 
   list(human = human, mosquito = mosquito)

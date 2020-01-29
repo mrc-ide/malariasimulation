@@ -2,8 +2,7 @@
 % Please edit documentation in R/processes.R
 \name{create_fixed_probability_state_change_process}
 \alias{create_fixed_probability_state_change_process}
-\title{create_fixed_probability_state_change_process generates a process function
-that moves individuals from one state to another at a constant rate}
+\title{Basic state transition}
 \usage{
 create_fixed_probability_state_change_process(i, from, to, rate)
 }

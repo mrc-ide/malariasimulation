@@ -2,17 +2,16 @@
 % Please edit documentation in R/processes.R
 \name{create_exponential_decay_process}
 \alias{create_exponential_decay_process}
-\title{create_exponential_decay_process generates a process function
-that reduces the value of a variable at an exponential rate}
+\title{Exponentially decaying variables}
 \usage{
 create_exponential_decay_process(individual, variable, rate)
 }
 \arguments{
+\item{individual, }{an individual}
+
 \item{variable, }{the variable to update}
 
 \item{rate, }{the exponential rate}
-
-\item{i, }{an individual}
 }
 \description{
 create_exponential_decay_process generates a process function

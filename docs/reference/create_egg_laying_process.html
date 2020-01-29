@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Exponentially decaying variables — create_exponential_decay_process • malariasimulation</title>
+<title>Mosquito births — create_egg_laying_process • malariasimulation</title>
 
 
 <!-- jquery -->
@@ -35,9 +35,9 @@
 
 
 
-<meta property="og:title" content="Exponentially decaying variables — create_exponential_decay_process" />
-<meta property="og:description" content="create_exponential_decay_process generates a process function
-that reduces the value of a variable at an exponential rate" />
+<meta property="og:title" content="Mosquito births — create_egg_laying_process" />
+<meta property="og:description" content="This is the process for mosquito birth, it defines how many new early stage
+larvae are created on each timestep." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -101,32 +101,40 @@ that reduces the value of a variable at an exponential rate" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Exponentially decaying variables</h1>
+    <h1>Mosquito births</h1>
     
-    <div class="hidden name"><code>create_exponential_decay_process.Rd</code></div>
+    <div class="hidden name"><code>create_egg_laying_process.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>create_exponential_decay_process generates a process function
-that reduces the value of a variable at an exponential rate</p>
+    <p>This is the process for mosquito birth, it defines how many new early stage
+larvae are created on each timestep.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_exponential_decay_process</span>(<span class='no'>individual</span>, <span class='no'>variable</span>, <span class='no'>rate</span>)</pre>
+    <pre class="usage"><span class='fu'>create_egg_laying_process</span>(<span class='no'>mosquito</span>, <span class='no'>Sm</span>, <span class='no'>Im</span>, <span class='no'>Unborn</span>, <span class='no'>E</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>individual, </th>
-      <td><p>an individual</p></td>
+      <th>mosquito, </th>
+      <td><p>the mosquito individual</p></td>
     </tr>
     <tr>
-      <th>variable, </th>
-      <td><p>the variable to update</p></td>
+      <th>Sm, </th>
+      <td><p>the susceptable mosquito state</p></td>
     </tr>
     <tr>
-      <th>rate, </th>
-      <td><p>the exponential rate</p></td>
+      <th>Im, </th>
+      <td><p>the infected mosquito state</p></td>
+    </tr>
+    <tr>
+      <th>Unborn, </th>
+      <td><p>the unborn mosquito state</p></td>
+    </tr>
+    <tr>
+      <th>E, </th>
+      <td><p>the early stage larval state</p></td>
     </tr>
     </table>
 

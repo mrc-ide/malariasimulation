@@ -2,6 +2,11 @@
 #' @description
 #' This is the process for mosquito birth, it defines how many new early stage
 #' larvae are created on each timestep.
+#' @param mosquito, the mosquito individual
+#' @param Sm, the susceptable mosquito state
+#' @param Im, the infected mosquito state
+#' @param Unborn, the unborn mosquito state
+#' @param E, the early stage larval state
 create_egg_laying_process <- function(mosquito, Sm, Im, Unborn, E) {
   function(simulation_frame, timestep, parameters) {
     m <- simulation_frame$get_state(mosquito, Sm, Im)
@@ -20,6 +25,10 @@ create_egg_laying_process <- function(mosquito, Sm, Im, Unborn, E) {
 #' @description
 #' This process defines how many early and late stage larvae die due to
 #' seasonal carrying capacity.
+#' @param mosquito, the mosquito individual
+#' @param E, the early stage larval state
+#' @param L, the late stage larval state
+#' @param Unborn, the unborn mosquito state
 create_larval_death_process <- function(mosquito, E, L, Unborn) {
   function(simulation_frame, timestep, parameters) {
     early_larval <- simulation_frame$get_state(mosquito, E)

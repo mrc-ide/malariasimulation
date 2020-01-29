@@ -1,9 +1,10 @@
 
 mock_returns <- function(returns) {
-  call <- 0
+  state <- new.env()
+  state$call <- 0
   function(...) {
-    call <<- call + 1
-    returns[[call]]
+    state$call <- state$call + 1
+    returns[[state$call]]
   }
 }
 

@@ -121,12 +121,9 @@ create_processes <- function(individuals, states, variables, parameters) {
       parameters$mum
     ),
 
-    ## =========
-    ## Infection
-    ## =========
-    ## Mosquitos move from Sm -> Im
-    ## NOTE: In the future this will be combined with the infection process
-    ## below so that we can model mosquitos individually
+    # =========
+    # Infection
+    # =========
     create_mosquito_infection_process(
       individuals$mosquito,
       individuals$human,
@@ -134,7 +131,7 @@ create_processes <- function(individuals, states, variables, parameters) {
       variables
     ),
 
-    ## schedule infections for humans and set last_bitten and last_infected
+    # schedule infections for humans and set last_bitten and last_infected
     create_infection_process(
       individuals$human,
       individuals$mosquito,
@@ -142,7 +139,7 @@ create_processes <- function(individuals, states, variables, parameters) {
       variables
     ),
 
-    ## update states after a latent period
+    # update states after a latent period
     create_infection_scheduler(
       individuals$human,
       states$A,

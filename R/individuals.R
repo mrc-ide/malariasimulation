@@ -1,7 +1,6 @@
 # Define population sizes
 human_population <- 100 * 1000
 mosquito_limit <- 100 * human_population
-n_heterogeneity_groups <- 5
 
 #' @title Define model states
 #' @description

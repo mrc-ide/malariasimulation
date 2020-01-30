@@ -164,6 +164,8 @@ get_parameters <- function() {
     ftv   = .5,
     mortality_probability_table = rep(.05, 100),
     v     = .065, # NOTE: there are two definitions of this: one on line 124 and one in the parameters table
+    pcm   = .774368,
+    pvm   = .195768,
     # carrying capacity parameters
     K0    = 10,
     g0    = 2,

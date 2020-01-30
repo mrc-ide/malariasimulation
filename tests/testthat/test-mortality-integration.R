@@ -38,6 +38,9 @@ test_that('mortality_process resets humans correctly', {
 
   died <- c(2, 4)
 
+  expect(is.numeric(parameters$pvm), 'Pvm is not set')
+  expect(is.numeric(parameters$pcm), 'Pcm is not set')
+
   expect_any(updates, function(update) {
     all(
       update$variable$name == 'age',

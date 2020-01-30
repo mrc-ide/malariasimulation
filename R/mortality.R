@@ -32,13 +32,13 @@ create_mortality_process <- function(human, D, Treated, variables) {
     }
 
     # Calculate new maternal immunities
-    groups <- simulation_frame$get_variable(human, variables$xi_group)
+    groups <- simulation_frame$get_constant(human, variables$xi_group)
     sampleable <- age >= 15 | age <= 35
     icm <- simulation_frame$get_variable(human, variables$icm)
     ivm <- simulation_frame$get_variable(human, variables$ivm)
     mothers <- sample_mothers(sampleable, died, groups)
-    birth_icm <- icm[mothers] * parameters$pm
-    birth_ivm <- ivm[mothers] * parameters$pm
+    birth_icm <- icm[mothers] * parameters$pcm
+    birth_ivm <- ivm[mothers] * parameters$pvm
 
     list(
       individual::VariableUpdate$new(human, variables$age, 0, died),
@@ -67,8 +67,8 @@ died_from_severe <- function(severe, untreated, treated, ftv, v) {
 }
 
 died_naturally <- function(age, table) {
-  age[age > 100] <- 100
-  probability <- table[age]
+  age[age > 99] <- 99
+  probability <- table[age + 1]
   which(bernoulli(length(age), probability))
 }
 

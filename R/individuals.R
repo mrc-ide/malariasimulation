@@ -191,7 +191,7 @@ create_individuals <- function(states, variables) {
       variables$asymptomatic_infection_schedule,
       variables$is_severe
     ),
-    constants = list(variables$xi)
+    constants = list(variables$xi, variables$xi_group)
   )
 
   mosquito <- individual::Individual$new(

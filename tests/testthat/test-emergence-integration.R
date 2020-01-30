@@ -68,5 +68,5 @@ test_that('egg_laying_process creates the correct number of larvae', {
   expect_equal(update$individual$name, 'mosquito')
   expect_equal(update$state$name, 'E')
   expect_equal(length(update$index), 10000)
-  expect(all(update$index >= 2000 && update$index < 100000 + 2000), 'incorrect range')
+  expect(all(update$index >= 2000 & update$index < 100000 + 2000), 'incorrect range')
 })

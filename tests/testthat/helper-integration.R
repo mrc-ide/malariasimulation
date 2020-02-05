@@ -1,13 +1,4 @@
 
-mock_returns <- function(returns) {
-  state <- new.env()
-  state$call <- 0
-  function(...) {
-    state$call <- state$call + 1
-    returns[[state$call]]
-  }
-}
-
 expect_any <- function(X, FUN) {
   for (x in X) {
     if (FUN(x) == TRUE) {

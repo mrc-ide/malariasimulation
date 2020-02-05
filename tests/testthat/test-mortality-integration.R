@@ -27,12 +27,12 @@ test_that('mortality_process resets humans correctly', {
 
   # NOTE: `with_mock` preferred here as `stub` suffers from locked binding issues
   updates <- with_mock(
-    sample = mock_returns(list(c(1), c(4))),
-    'malariasimulation:::bernoulli' = mock_returns(list(
+    sample = mockery::mock(c(1), c(4)),
+    'malariasimulation:::bernoulli' = mockery::mock(
       c(FALSE, FALSE, FALSE, TRUE),
       c(TRUE),
       c(FALSE, TRUE)
-    )),
+    ),
     mortality_process(simulation_frame, 1, parameters)
   )
 

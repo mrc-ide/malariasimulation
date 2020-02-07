@@ -3,3 +3,6 @@
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
+.travis.yml
+docker
+LICENSE.md

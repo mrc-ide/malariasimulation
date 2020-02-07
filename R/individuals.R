@@ -1,7 +1,7 @@
 #' @title Define model states
 #' @description
 #' create_states creates the human and mosquito states for the model
-#' @param paramteters, the model parameters
+#' @param parameters, the model parameters
 create_states <- function(parameters) {
   list(
     # Human states

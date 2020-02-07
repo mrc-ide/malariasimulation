@@ -7,7 +7,7 @@
 create_states(parameters)
 }
 \arguments{
-\item{paramteters, }{the model parameters}
+\item{parameters, }{the model parameters}
 }
 \description{
 create_states creates the human and mosquito states for the model

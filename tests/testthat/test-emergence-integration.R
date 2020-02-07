@@ -1,7 +1,7 @@
 
 test_that('egg_laying_process fails when there are not enough individuals', {
   parameters <- get_parameters()
-  states <- create_states()
+  states <- create_states(parameters)
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables)
   egg_laying_process <- create_egg_laying_process(
@@ -44,7 +44,7 @@ test_that('egg_laying_process fails when there are not enough individuals', {
 test_that('egg_laying_process creates the correct number of larvae', {
   parameters <- get_parameters()
   parameters$beta <- 5
-  states <- create_states()
+  states <- create_states(parameters)
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables)
   egg_laying_process <- create_egg_laying_process(

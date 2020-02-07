@@ -9,10 +9,12 @@
 #' file parameters
 get_parameters <- function() {
   timestep_to_day <- 1
+  human_population <- 100 * 1000
   parameters <- list(
-    rd    = 1/5,
-    ra    = 1/195,
-    ru    = 1/110,
+    rd    = timestep_to_day / 5,
+    ra    = timestep_to_day / 195,
+    ru    = timestep_to_day / 110,
+    rp    = timestep_to_day / 25,
     ft    = 1/2, # NOTE: set from sitefile
     rel   = 1 / (6.64 * timestep_to_day),
     rl    = 1 / (3.72 * timestep_to_day),
@@ -20,7 +22,9 @@ get_parameters <- function() {
     mup   = .249,
     mum   = .249, #NOTE: set from sitefile
     beta  = 21.2,
-    timestep_to_day = timestep_to_day
+    human_population = human_population,
+    mosquito_limit   = 100 * human_population,
+    timestep_to_day  = timestep_to_day
   )
 
   parameters

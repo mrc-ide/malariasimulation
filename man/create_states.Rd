@@ -4,7 +4,10 @@
 \alias{create_states}
 \title{Define model states}
 \usage{
-create_states()
+create_states(parameters)
+}
+\arguments{
+\item{paramteters, }{the model parameters}
 }
 \description{
 create_states creates the human and mosquito states for the model

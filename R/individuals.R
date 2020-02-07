@@ -1,26 +1,24 @@
-# Define population sizes
-human_population <- 100 * 1000
-mosquito_limit <- 100 * human_population
-
 #' @title Define model states
 #' @description
 #' create_states creates the human and mosquito states for the model
-create_states <- function() {
+#' @param paramteters, the model parameters
+create_states <- function(parameters) {
   list(
     # Human states
-    S       = individual::State$new("S", human_population),
+    S       = individual::State$new("S", parameters$human_population),
     I       = individual::State$new("I", 0),
     Treated = individual::State$new("Treated", 0),
     D       = individual::State$new("D", 0),
     A       = individual::State$new("A", 0),
     U       = individual::State$new("U", 0),
+    P       = individual::State$new("P", 0),
     # Mosquito states
     E       = individual::State$new("E", 0),
     L       = individual::State$new("L", 0),
     P       = individual::State$new("P", 0),
     Sm      = individual::State$new("Sm", 1),
     Im      = individual::State$new("Im", 0),
-    Unborn  = individual::State$new("Unborn", mosquito_limit - 1)
+    Unborn  = individual::State$new("Unborn", parameters$mosquito_limit - 1)
   )
 }
 
@@ -33,7 +31,7 @@ create_states <- function() {
 #'
 #' @param parameters, model parameters created by `get_parameters`
 create_variables <- function(parameters) {
-  initial_age <- trunc(rexp(human_population, rate=1/10))
+  initial_age <- trunc(rexp(parameters$human_population, rate=1/10))
 
   # Define variables
   age <- individual::Variable$new("age", function(size) initial_age)

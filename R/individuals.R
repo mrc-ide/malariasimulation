@@ -7,11 +7,9 @@ create_states <- function(parameters) {
     # Human states
     S       = individual::State$new("S", parameters$human_population),
     I       = individual::State$new("I", 0),
-    Treated = individual::State$new("Treated", 0),
     D       = individual::State$new("D", 0),
     A       = individual::State$new("A", 0),
     U       = individual::State$new("U", 0),
-    P       = individual::State$new("P", 0),
     # Mosquito states
     E       = individual::State$new("E", 0),
     L       = individual::State$new("L", 0),
@@ -51,7 +49,7 @@ create_variables <- function(parameters) {
 create_individuals <- function(states, variables) {
   human <- individual::Individual$new(
     'human',
-    states=list(states$S, states$I, states$Treated, states$D, states$A, states$U),
+    states=list(states$S, states$I, states$D, states$A, states$U),
     variables = list(variables$age)
   )
 

@@ -14,8 +14,6 @@ get_parameters <- function() {
     rd    = timestep_to_day / 5,
     ra    = timestep_to_day / 195,
     ru    = timestep_to_day / 110,
-    rp    = timestep_to_day / 25,
-    ft    = 1/2, # NOTE: set from sitefile
     rel   = 1 / (6.64 * timestep_to_day),
     rl    = 1 / (3.72 * timestep_to_day),
     rpl   = 1 / (.643 * timestep_to_day),

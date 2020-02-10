@@ -26,20 +26,6 @@ create_processes <- function(individuals, states, variables, parameters) {
       states$D,
       1 - parameters$ft
     ),
-    # Treatment
-    create_fixed_probability_state_change_process(
-      individuals$human,
-      states$I,
-      states$Treated,
-      parameters$ft
-    ),
-    # Prophylaxis
-    create_fixed_probability_state_change_process(
-      individuals$human,
-      states$I,
-      states$Treated,
-      parameters$rp
-    ),
     # Asymptomatic Progression
     create_fixed_probability_state_change_process(
       individuals$human,

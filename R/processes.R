@@ -85,7 +85,7 @@ create_processes <- function(individuals, states, variables, parameters) {
       individuals$mosquito,
       states$P,
       states$Unborn,
-      .5 * parameters$mup
+      parameters$mup
     ),
     # Natural death of females
     create_fixed_probability_state_change_process(
@@ -136,7 +136,7 @@ create_fixed_probability_state_change_process <- function(i, from, to, rate) {
 #' @param age, the age variable
 create_ageing_process <- function(human, age) {
   function(simulation_frame, timestep, parameters) {
-    if (timestep %% (365*parameters$timestep_to_day) == 0) {
+    if (timestep %% (365 / parameters$days_per_timestep) == 0) {
       return(
         individual::VariableUpdate$new(
           human,

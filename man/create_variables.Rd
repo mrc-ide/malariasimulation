@@ -7,11 +7,17 @@
 create_variables(parameters)
 }
 \arguments{
-\item{parameters, }{model parameters created by `get_parameters`}
+\item{parameters, }{model parameters created by \code{get_parameters}}
 }
 \description{
 create_variables creates the human and mosquito variables and constants for
 the model. Variables are used to track real data for each individual over
 time, they are read and updated by processes. Constants remain fixed for each
 individual over the whole simulation.
+
+The human variables are defined as:
+\itemize{
+\item age - an integer representing the number of years this individual has been
+alive
+}
 }

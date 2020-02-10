@@ -19,7 +19,7 @@ create_processes(individuals, states, variables, parameters)
 create_processes, defines the functions which describe how each individual's
 states and variables change over time.
 
-It lists processes from `infection.R`, `mosquito_emergence.R` and
-`mortality.R`; and then exposes them to the model through
-`bind_process_to_model`
+It lists processes from \code{infection.R}, \code{mosquito_emergence.R} and
+\code{mortality.R}; and then exposes them to the model through
+\code{bind_process_to_model}
 }

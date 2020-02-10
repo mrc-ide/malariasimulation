@@ -39,7 +39,12 @@
 <meta property="og:description" content="create_variables creates the human and mosquito variables and constants for
 the model. Variables are used to track real data for each individual over
 time, they are read and updated by processes. Constants remain fixed for each
-individual over the whole simulation." />
+individual over the whole simulation.
+The human variables are defined as:
+age - an integer representing the number of years this individual has been
+alive
+
+" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -113,6 +118,11 @@ individual over the whole simulation." />
 the model. Variables are used to track real data for each individual over
 time, they are read and updated by processes. Constants remain fixed for each
 individual over the whole simulation.</p>
+<p>The human variables are defined as:</p><ul>
+<li><p>age - an integer representing the number of years this individual has been
+alive</p></li>
+</ul>
+
     </div>
 
     <pre class="usage"><span class='fu'>create_variables</span>(<span class='no'>parameters</span>)</pre>
@@ -122,7 +132,7 @@ individual over the whole simulation.</p>
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>parameters, </th>
-      <td><p>model parameters created by `get_parameters`</p></td>
+      <td><p>model parameters created by <code>get_parameters</code></p></td>
     </tr>
     </table>
 

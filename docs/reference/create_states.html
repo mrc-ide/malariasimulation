@@ -36,7 +36,27 @@
 
 
 <meta property="og:title" content="Define model states — create_states" />
-<meta property="og:description" content="create_states creates the human and mosquito states for the model" />
+<meta property="og:description" content="create_states creates the human and mosquito states for the model
+The human states are defined as:
+S - Susceptable to infection
+I - Liver-stage Infection, these individuals are waiting to develop to A
+or D levels of infection
+D - Disease individuals exhibit &quot;clinical&quot; or &quot;severe&quot; disease
+A - Asymptomatic individuals no longer exhibit symptoms
+U - Subpatent infectious patients are still infectious to mosquitos
+
+
+The mosquito states are defined as:
+E - Early larval stage
+L - Late larval stage
+P - Pupal
+Sm - Susceptable mosquito
+Im - Infectious mosquito
+Unborn - This is a dummy state to allow for a varying number of mosquitos
+in our model. Individuals enter the Unborn state when they die and leave when
+new larvae emerge
+
+" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -107,6 +127,26 @@
 
     <div class="ref-description">
     <p>create_states creates the human and mosquito states for the model</p>
+<p>The human states are defined as:</p><ul>
+<li><p>S - <strong>S</strong>usceptable to infection</p></li>
+<li><p>I - Liver-stage <strong>I</strong>nfection, these individuals are waiting to develop to A
+or D levels of infection</p></li>
+<li><p>D - <strong>D</strong>isease individuals exhibit "clinical" or "severe" disease</p></li>
+<li><p>A - <strong>A</strong>symptomatic individuals no longer exhibit symptoms</p></li>
+<li><p>U - S<strong>u</strong>bpatent infectious patients are still infectious to mosquitos</p></li>
+</ul>
+
+<p>The mosquito states are defined as:</p><ul>
+<li><p>E - <strong>E</strong>arly larval stage</p></li>
+<li><p>L - <strong>L</strong>ate larval stage</p></li>
+<li><p>P - <strong>P</strong>upal</p></li>
+<li><p>Sm - <strong>S</strong>usceptable <strong>m</strong>osquito</p></li>
+<li><p>Im - <strong>I</strong>nfectious <strong>m</strong>osquito</p></li>
+<li><p>Unborn - This is a dummy state to allow for a varying number of mosquitos
+in our model. Individuals enter the Unborn state when they die and leave when
+new larvae emerge</p></li>
+</ul>
+
     </div>
 
     <pre class="usage"><span class='fu'>create_states</span>(<span class='no'>parameters</span>)</pre>
@@ -115,7 +155,7 @@
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>paramteters, </th>
+      <th>parameters, </th>
       <td><p>the model parameters</p></td>
     </tr>
     </table>

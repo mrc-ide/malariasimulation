@@ -1,6 +1,27 @@
 #' @title Define model states
 #' @description
 #' create_states creates the human and mosquito states for the model
+#' 
+#' The human states are defined as:
+#' 
+#' * S - **S**usceptable to infection
+#' * I - Liver-stage **I**nfection, these individuals are waiting to develop to A
+#' or D levels of infection
+#' * D - **D**isease individuals exhibit "clinical" or "severe" disease
+#' * A - **A**symptomatic individuals no longer exhibit symptoms
+#' * U - S**u**bpatent infectious patients are still infectious to mosquitos
+#'
+#' The mosquito states are defined as:
+#'
+#' * E - **E**arly larval stage
+#' * L - **L**ate larval stage
+#' * P - **P**upal
+#' * Sm - **S**usceptable **m**osquito
+#' * Im - **I**nfectious **m**osquito
+#' * Unborn - This is a dummy state to allow for a varying number of mosquitos
+#' in our model. Individuals enter the Unborn state when they die and leave when
+#' new larvae emerge
+#'
 #' @param parameters, the model parameters
 create_states <- function(parameters) {
   list(
@@ -26,6 +47,11 @@ create_states <- function(parameters) {
 #' the model. Variables are used to track real data for each individual over
 #' time, they are read and updated by processes. Constants remain fixed for each
 #' individual over the whole simulation.
+#'
+#' The human variables are defined as:
+#'
+#' * age - an integer representing the number of years this individual has been
+#' alive
 #'
 #' @param parameters, model parameters created by `get_parameters`
 create_variables <- function(parameters) {

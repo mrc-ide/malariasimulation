@@ -7,11 +7,28 @@
 get_parameters()
 }
 \description{
-get_paramaters creates a list of parameters for use in the model. These
+get_paramaters creates a named list of parameters for use in the model. These
 parameters are passed to process functions. These parameters are explained in
 "The US President's Malaria Initiative, Plasmodium falciparum transmission
 and mortality: A modelling study."
 
 NOTE: this function is likely to be extended to read in command line / config
 file parameters
+
+The parameters are defined as:
+\itemize{
+\item days_per_timestep - the number of days to model per timestep
+\item rd - the rate at which humans move from state D to A
+\item ra - the rate at which humans move from state A to U
+\item ru - the rate at which humans move from state U to S
+\item rel - the rate at which mosquitos move from state E to L
+\item rl - the rate at which mosquitos move from state L to P
+\item rpl - the rate at which mosquitos move from state P to Sm
+\item mup - the rate at which pupal mosquitos die
+\item mum - the rate at which developed mosquitos die
+\item beta - the average number of eggs laid per female mosquito per day
+\item human population - the number of humans to model
+\item mosquito limit - the maximum number of mosquitos to allow for in the
+\item days_per_timestep - the number of days to model per timestep
+}
 }

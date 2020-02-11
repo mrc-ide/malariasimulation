@@ -62,7 +62,6 @@ get_parameters <- function() {
     av3   = .94,
     # infectivity towards mosquitos
     cd    = 0.068,
-    ct    = 0.021896,
     gamma1= 1.82425,
     cu    = 0.00062,
     # unique biting rate

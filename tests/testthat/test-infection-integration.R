@@ -130,8 +130,7 @@ test_that('mosquito_infection_process creates the correct updates', {
   simulation_frame <- mock_simulation_frame(
     list(
       human = list(
-        Treated = c(1),
-        U = c(2),
+        U = c(1, 2),
         A = c(3),
         D = c(4),
         age = c(20, 24, 5, 39),

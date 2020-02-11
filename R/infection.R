@@ -178,19 +178,6 @@ create_infection_process <- function(human, mosquito, states, variables) {
   }
 }
 
-create_treatment_recovery_process <- function(human, Treated, S, is_severe) {
-  function(simulation_frame, timestep, parameters) {
-    source_individuals <- simulation_frame$get_state(human, Treated)
-    target_individuals <- source_individuals[
-      bernoulli(length(source_individuals), parameters$rt)
-    ]
-    list(
-      individual::StateUpdate$new(human, S, target_individuals),
-      individual::VariableUpdate$new(human, is_severe, 0, target_individuals)
-    )
-  }
-}
-
 create_infection_scheduler <- function(human, A, I, infection_schedule, asymptomatic_infection_schedule) {
   function(simulation_frame, timestep, parameters) {
     infection    <- which(
@@ -241,7 +228,6 @@ create_mosquito_infection_process <- function(
       simulation_frame$get_constant(human, variables$xi),
       list(
         list(simulation_frame$get_state(human, states$D), parameters$cd),
-        list(simulation_frame$get_state(human, states$Treated), parameters$ct),
         list(asymptomatic, a_infectivity),
         list(simulation_frame$get_state(human, states$U), parameters$cu)
       )

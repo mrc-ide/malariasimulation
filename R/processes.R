@@ -46,13 +46,6 @@ create_processes <- function(individuals, states, variables, parameters) {
       states$S,
       parameters$ru
     ),
-    # Treatment Recovery
-    create_treatment_recovery_process(
-      individuals$human,
-      states$Treated,
-      states$S,
-      variables$is_severe
-    ),
 
     # ========
     # Immunity

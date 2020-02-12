@@ -67,9 +67,9 @@ carrying_capacity <- function(timestep, parameters) {
 rainfall <- function(t, days_per_timestep, g0, g, h) {
   g0 + sum(vnapply(seq_len(3), function(i) {
     g[i] * cos(
-      2 * pi * t * 365 / days_per_timestep * i
+      2 * pi * t * days_per_timestep / 365 * i
     ) + h[i] * sin(
-      2 * pi * t * 365 / days_per_timestep * i
+      2 * pi * t * days_per_timestep / 365 * i
     )
   }))
 }

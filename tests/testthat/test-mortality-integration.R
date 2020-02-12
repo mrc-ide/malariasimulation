@@ -1,21 +1,19 @@
 test_that('mortality_process resets humans correctly', {
   parameters <- get_parameters()
-  states <- create_states()
+  states <- create_states(parameters)
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables)
 
   mortality_process <- create_mortality_process(
     individuals$human,
     states$D,
-    states$Treated,
     variables
   )
 
   simulation_frame <- mock_simulation_frame(
     list(
       human = list(
-        Treated = c(1),
-        D = c(2),
+        D = c(1, 2),
         age = c(20, 24, 5, 39),
         is_severe = c(1., 1., 0., 0.),
         xi_group = c(1, 1, 2, 2),
@@ -30,7 +28,6 @@ test_that('mortality_process resets humans correctly', {
     sample = mockery::mock(c(1), c(4)),
     'malariasimulation:::bernoulli' = mockery::mock(
       c(FALSE, FALSE, FALSE, TRUE),
-      c(TRUE),
       c(FALSE, TRUE)
     ),
     mortality_process(simulation_frame, 1, parameters)

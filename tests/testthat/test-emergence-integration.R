@@ -73,7 +73,7 @@ test_that('egg_laying_process creates the correct number of larvae', {
 
 test_that('larval_death_process works with no larvae', {
   parameters <- get_parameters()
-  states <- create_states()
+  states <- create_states(parameters)
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables)
   larval_death_process <- create_larval_death_process(
@@ -99,7 +99,7 @@ test_that('larval_death_process works with no larvae', {
 
 test_that('larval_death_process kills the expected larvae', {
   parameters <- get_parameters()
-  states <- create_states()
+  states <- create_states(parameters)
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables)
   larval_death_process <- create_larval_death_process(

@@ -9,7 +9,7 @@ test_that('carrying_capacity is calculated correctly', {
     h2   = .4,
     h3   = .7,
     R_bar= 2,
-    timestep_to_day = 1
+    days_per_timestep = 1
   )
   expect_equal(
     carrying_capacity(100, parameters),
@@ -29,7 +29,7 @@ test_that('carrying_capacity is takes into account the timescale', {
     h2   = .4,
     h3   = .7,
     R_bar= 2,
-    timestep_to_day = 5
+    days_per_timestep = 5
   )
   expect_equal(
     carrying_capacity(100, parameters),
@@ -49,7 +49,7 @@ test_that('carrying_capacity cycles every year', {
     h2   = .4,
     h3   = .7,
     R_bar= 2,
-    timestep_to_day = 1
+    days_per_timestep = 1
   )
 
   time_points <- c(1, 30, 160, 240, 365)

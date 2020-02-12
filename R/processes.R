@@ -16,7 +16,6 @@ create_processes <- function(individuals, states, variables, parameters) {
     create_mortality_process(
       individuals$human,
       states$D,
-      states$Treated,
       variables
     ),
 
@@ -51,13 +50,6 @@ create_processes <- function(individuals, states, variables, parameters) {
       states$U,
       states$S,
       parameters$ru
-    ),
-    # Treatment Recovery
-    create_treatment_recovery_process(
-      individuals$human,
-      states$Treated,
-      states$S,
-      variables$is_severe
     ),
 
     # ========

@@ -56,7 +56,7 @@ create_larval_death_process <- function(mosquito, E, L, Unborn) {
 carrying_capacity <- function(timestep, parameters) {
   r <- rainfall(
     timestep,
-    parameters$timestep_to_day,
+    parameters$days_per_timestep,
     parameters$g0,
     c(parameters$g1, parameters$g2, parameters$g3),
     c(parameters$h1, parameters$h2, parameters$h3)
@@ -64,12 +64,12 @@ carrying_capacity <- function(timestep, parameters) {
   parameters$K0 * r / parameters$R_bar
 }
 
-rainfall <- function(t, timestep_to_day, g0, g, h) {
+rainfall <- function(t, days_per_timestep, g0, g, h) {
   g0 + sum(vnapply(seq_len(3), function(i) {
     g[i] * cos(
-      2 * pi * t * timestep_to_day / 365 * i
+      2 * pi * t * 365 / days_per_timestep * i
     ) + h[i] * sin(
-      2 * pi * t * timestep_to_day/365 * i
+      2 * pi * t * 365 / days_per_timestep * i
     )
   }))
 }

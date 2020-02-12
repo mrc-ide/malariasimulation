@@ -132,7 +132,7 @@ create_variables <- function(parameters) {
   xi_group <- individual::Constant$new(
     "xi_group",
     function(n) {
-      discretise(xi_values, n_heterogeneity_groups)
+      discretise(xi_values, parameters$n_heterogeneity_groups)
     }
   )
 

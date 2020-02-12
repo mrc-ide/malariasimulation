@@ -5,9 +5,8 @@
 #' newborns.
 #' @param human, the human individual
 #' @param D, the diseased state
-#' @param Treated, the treated state
 #' @param variables, the model variables to reset
-create_mortality_process <- function(human, D, Treated, variables) {
+create_mortality_process <- function(human, D, variables) {
   function(simulation_frame, timestep, parameters) {
     age <- simulation_frame$get_variable(human, variables$age)
 
@@ -19,8 +18,6 @@ create_mortality_process <- function(human, D, Treated, variables) {
     severe_deaths <- died_from_severe(
       which(simulation_frame$get_variable(human, variables$is_severe) == 1),
       simulation_frame$get_state(human, D),
-      simulation_frame$get_state(human, Treated),
-      parameters$ftv,
       parameters$v
     )
 
@@ -57,12 +54,8 @@ create_mortality_process <- function(human, D, Treated, variables) {
   }
 }
 
-died_from_severe <- function(severe, untreated, treated, ftv, v) {
-  unsuccessful_treatment <- treated[bernoulli(length(treated), ftv)]
-  at_risk <- intersect(
-    severe,
-    c(untreated, treated[unsuccessful_treatment])
-  )
+died_from_severe <- function(severe, diseased, v) {
+  at_risk <- intersect(severe, diseased)
   at_risk[bernoulli(length(at_risk), v)]
 }
 

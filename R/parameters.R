@@ -109,6 +109,7 @@ get_parameters <- function() {
     mup   = days_per_timestep * .249,
     mum   = days_per_timestep * .249, #NOTE: set from sitefile
     sigma_squared   = 1.67,
+    n_heterogeneity_groups = 5,
     # immunity decay rates
     rm    = days_per_timestep / 67.6952,
     rvm   = days_per_timestep / 76.8365,
@@ -188,7 +189,7 @@ get_parameters <- function() {
 
 	parameters$R_bar <- mean(vnapply(1:365, function(t) rainfall(
 		t,
-		parameters$timestep_to_day,
+		parameters$days_per_timestep,
     parameters$g0,
 		c(parameters$g1, parameters$g2, parameters$g3),
 		c(parameters$h1, parameters$h2, parameters$h3)

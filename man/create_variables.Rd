@@ -36,6 +36,7 @@ severe malaria
 \item IVA  - Acquired immunity to severe disease
 \item ID - Acquired immunity to detectability
 \item xi - Heterogeneity of human individuals
+\item xi_group - Discretised heterogeneity of human individuals
 \item variety - The variety of mosquito, either 1, 2 or 3. These are related to
 blood meal rate parameters av1, av2 and av3
 }

@@ -69,6 +69,7 @@ create_states <- function(parameters) {
 #' * IVA  - Acquired immunity to severe disease
 #' * ID - Acquired immunity to detectability
 #' * xi - Heterogeneity of human individuals
+#' * xi_group - Discretised heterogeneity of human individuals
 #' * variety - The variety of mosquito, either 1, 2 or 3. These are related to
 #' blood meal rate parameters av1, av2 and av3
 #'

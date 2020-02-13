@@ -105,6 +105,28 @@ unique biting rate:
 \item a0 - age dependent biting parameter
 \item rho - age dependent biting parameter
 \item sigma_squared - heterogeneity parameter
+\item n_heterogeneity_groups - number discretised groups for heterogeneity, used
+for sampling mothers
+}
+
+mortality parameters:
+\itemize{
+\item mortality_probability_table - a vector of mortality rates for humans
+between the ages of 0 and 100
+\item v - mortality scaling factor from severe disease
+\item pcm - new-born clinical immunity relative to mother's
+\item pvm - new-born severe immunity relative to mother's
+\item me - early stage larval mortality rate
+\item ml - late stage larval mortality rate
+}
+
+carrying capacity parameters:
+\itemize{
+\item K0 - carrying capacity
+\item g0 to g3 - rainfall shape paramters
+\item h1 to h3 - rainfall shape paramters
+\item gamma - effect of density dependence on late instars relative to early
+instars
 }
 
 miscellaneous:

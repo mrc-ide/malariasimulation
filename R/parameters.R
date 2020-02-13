@@ -88,6 +88,26 @@
 #' * a0 - age dependent biting parameter
 #' * rho - age dependent biting parameter
 #' * sigma_squared - heterogeneity parameter
+#' * n_heterogeneity_groups - number discretised groups for heterogeneity, used
+#' for sampling mothers
+#'
+#' mortality parameters:
+#'
+#' * mortality_probability_table - a vector of mortality rates for humans
+#' between the ages of 0 and 100
+#' * v - mortality scaling factor from severe disease
+#' * pcm - new-born clinical immunity relative to mother's
+#' * pvm - new-born severe immunity relative to mother's
+#' * me - early stage larval mortality rate
+#' * ml - late stage larval mortality rate
+#'
+#' carrying capacity parameters:
+#'
+#' * K0 - carrying capacity
+#' * g0 to g3 - rainfall shape paramters
+#' * h1 to h3 - rainfall shape paramters
+#' * gamma - effect of density dependence on late instars relative to early
+#' instars
 #'
 #' miscellaneous:
 #'
@@ -162,7 +182,6 @@ get_parameters <- function() {
     id0   = 1.577533,
     kd    = .476614,
     # mortality parameters
-    ftv   = .5,
     mortality_probability_table = rep(.05, 100),
     v     = .065, # NOTE: there are two definitions of this: one on line 124 and one in the parameters table
     pcm   = .774368,

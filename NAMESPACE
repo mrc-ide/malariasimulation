@@ -1,2 +1,2 @@
-importFrom("stats", "rexp", "runif")
+importFrom("stats", "rexp", "runif", "rlnorm", "setNames")
 export(run_simulation)

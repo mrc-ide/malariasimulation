@@ -19,5 +19,24 @@ The human variables are defined as:
 \itemize{
 \item age - an integer representing the number of years this individual has been
 alive
+\item last_bitten - the last timestep at which this individual was bitten, used
+for tracking grace periods in the boost of immunity
+\item last_infected - the last timestep at which this individual was infected, used
+for tracking grace periods in the boost of immunity
+\item infection_schedule - the last timestep at which this individual was infected, used
+for scheduling state transitions to I
+\item asymptomatic_infection_schedule - the last timestep at which this
+individual was infected, used for scheduling state transitions to A
+\item is_severe - a binary indicator (0 or 1) for if the individual currently has
+severe malaria
+\item ICM - Maternal immunity to clinical disease
+\item IVM - Maternal immunity to severe disease
+\item IB  - Pre-erythoctic immunity
+\item ICA  - Acquired immunity to clinical disease
+\item IVA  - Acquired immunity to severe disease
+\item ID - Acquired immunity to detectability
+\item xi - Heterogeneity of human individuals
+\item variety - The variety of mosquito, either 1, 2 or 3. These are related to
+blood meal rate parameters av1, av2 and av3
 }
 }

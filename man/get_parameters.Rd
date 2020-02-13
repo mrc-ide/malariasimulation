@@ -15,9 +15,10 @@ and mortality: A modelling study."
 NOTE: this function is likely to be extended to read in command line / config
 file parameters
 
-The parameters are defined as:
+The parameters are defined below.
+
+fixed state transitions:
 \itemize{
-\item days_per_timestep - the number of days to model per timestep
 \item rd - the rate at which humans move from state D to A
 \item ra - the rate at which humans move from state A to U
 \item ru - the rate at which humans move from state U to S
@@ -26,6 +27,89 @@ The parameters are defined as:
 \item rpl - the rate at which mosquitos move from state P to Sm
 \item mup - the rate at which pupal mosquitos die
 \item mum - the rate at which developed mosquitos die
+}
+
+immunity decay rates:
+\itemize{
+\item rm - decay rate for maternal immunity to clinical disease
+\item rvm - decay rate for maternal immunity to severe disease
+\item rb - decay rate for acquired pre-erytrhrocytic immunity
+\item rc - decay rate for acquired immunity to clinical disease
+\item rva - decay rate for acquired immunity to severe disease
+\item rid - decay rate for acquired immunity to detectability
+}
+
+probability of pre-erythrocytic infection:
+\itemize{
+\item b0 - maximum probability due to no immunity
+\item b1 - maximum reduction due to immunity
+\item ib0 - scale parameter
+\item kb - shape parameter
+}
+
+probability of clinical infection:
+\itemize{
+\item phi0 - maximum probability due to no immunity
+\item phi1 - maximum reduction due to immunity
+\item ic0 - scale parameter
+\item kc - shape parameter
+}
+
+probability of severe infection:
+\itemize{
+\item theta0 - maximum probability due to no immunity
+\item theta1 - maximum reduction due to immunity
+\item iv0 - scale parameter
+\item kv - shape parameter
+\item fv0 - age dependent modifier
+\item av - age dependent modifier
+\item gammav - age dependent modifier
+}
+
+immunity reducing probability of detection:
+\itemize{
+\item fd0 - time-scale at which immunity changes with age
+\item ad - scale parameter relating age to immunity
+\item gammad - shape parameter relating age to immunity
+\item d1 - minimum probability due to immunity
+\item dmin - minimum probability due to immunity NOTE: there appears to be a
+mistake here!
+\item id0 - scale parameter
+\item kd - shape parameter
+}
+
+immunity boost grace periods:
+\itemize{
+\item ub - period in which pre-erythrocytic immunity cannot be boosted
+\item uc - period in which clinical immunity cannot be boosted
+\item uv - period in which severe immunity cannot be boosted
+\item ud - period in which immunity to detectability cannot be boosted
+}
+
+blood meal rates:
+\itemize{
+\item av1 - blood meal rate for the first variety of mosquitos
+\item av2 - blood meal rate for the second variety of mosquitos
+\item av3 - blood meal rate for the third variety of mosquitos
+}
+
+infectivity towards mosquitos:
+\itemize{
+\item cd - infectivity of clinically diseased humans towards mosquitos
+\item gamma1- parameter for infectivity of asymptomatic humans
+\item cu - infectivity of sub-patent infection
+}
+
+unique biting rate:
+\itemize{
+\item a0 - age dependent biting parameter
+\item rho - age dependent biting parameter
+\item sigma_squared - heterogeneity parameter
+}
+
+miscellaneous:
+\itemize{
+\item de - delay for infection
 \item beta - the average number of eggs laid per female mosquito per day
 \item human population - the number of humans to model
 \item mosquito limit - the maximum number of mosquitos to allow for in the

@@ -52,6 +52,25 @@ create_states <- function(parameters) {
 #'
 #' * age - an integer representing the number of years this individual has been
 #' alive
+#' * last_bitten - the last timestep at which this individual was bitten, used
+#' for tracking grace periods in the boost of immunity
+#' * last_infected - the last timestep at which this individual was infected, used
+#' for tracking grace periods in the boost of immunity
+#' * infection_schedule - the last timestep at which this individual was infected, used
+#' for scheduling state transitions to I
+#' * asymptomatic_infection_schedule - the last timestep at which this
+#' individual was infected, used for scheduling state transitions to A
+#' * is_severe - a binary indicator (0 or 1) for if the individual currently has
+#' severe malaria
+#' * ICM - Maternal immunity to clinical disease
+#' * IVM - Maternal immunity to severe disease
+#' * IB  - Pre-erythoctic immunity
+#' * ICA  - Acquired immunity to clinical disease
+#' * IVA  - Acquired immunity to severe disease
+#' * ID - Acquired immunity to detectability
+#' * xi - Heterogeneity of human individuals
+#' * variety - The variety of mosquito, either 1, 2 or 3. These are related to
+#' blood meal rate parameters av1, av2 and av3
 #'
 #' @param parameters, model parameters created by `get_parameters`
 create_variables <- function(parameters) {
@@ -101,9 +120,6 @@ create_variables <- function(parameters) {
   iva <- individual::Variable$new("IVA", function(size) { rep(0, size) })
   # Acquired immunity to detectability
   id <- individual::Variable$new("ID", function(size) { rep(0, size) })
-
-  # is_severe, 1 iff the individual is currently affected by severe disease
-  is_severe <- individual::Variable$new("is_severe", function(size) { rep(0, size) })
 
   xi_values <- rlnorm(parameters$human_population, -parameters$sigma_squared/2,parameters$sigma_squared)
   xi <- individual::Constant$new(

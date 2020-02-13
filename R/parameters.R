@@ -8,9 +8,10 @@
 #' NOTE: this function is likely to be extended to read in command line / config
 #' file parameters
 #'
-#' The parameters are defined as:
-#' 
-#' * days_per_timestep - the number of days to model per timestep
+#' The parameters are defined below.
+#'
+#' fixed state transitions:
+#'
 #' * rd - the rate at which humans move from state D to A
 #' * ra - the rate at which humans move from state A to U
 #' * ru - the rate at which humans move from state U to S
@@ -19,16 +20,86 @@
 #' * rpl - the rate at which mosquitos move from state P to Sm
 #' * mup - the rate at which pupal mosquitos die
 #' * mum - the rate at which developed mosquitos die
+#'
+#' immunity decay rates:
+#'
+#' * rm - decay rate for maternal immunity to clinical disease
+#' * rvm - decay rate for maternal immunity to severe disease
+#' * rb - decay rate for acquired pre-erytrhrocytic immunity
+#' * rc - decay rate for acquired immunity to clinical disease
+#' * rva - decay rate for acquired immunity to severe disease
+#' * rid - decay rate for acquired immunity to detectability
+#'
+#' probability of pre-erythrocytic infection:
+#'
+#' * b0 - maximum probability due to no immunity
+#' * b1 - maximum reduction due to immunity
+#' * ib0 - scale parameter
+#' * kb - shape parameter
+#'
+#' probability of clinical infection:
+#'
+#' * phi0 - maximum probability due to no immunity
+#' * phi1 - maximum reduction due to immunity
+#' * ic0 - scale parameter
+#' * kc - shape parameter
+#'
+#' probability of severe infection:
+#'
+#' * theta0 - maximum probability due to no immunity
+#' * theta1 - maximum reduction due to immunity
+#' * iv0 - scale parameter
+#' * kv - shape parameter
+#' * fv0 - age dependent modifier
+#' * av - age dependent modifier
+#' * gammav - age dependent modifier
+#'
+#' immunity reducing probability of detection:
+#' * fd0 - time-scale at which immunity changes with age
+#' * ad - scale parameter relating age to immunity
+#' * gammad - shape parameter relating age to immunity
+#' * d1 - minimum probability due to immunity
+#' * dmin - minimum probability due to immunity NOTE: there appears to be a
+#' mistake here!
+#' * id0 - scale parameter 
+#' * kd - shape parameter
+#'
+#' immunity boost grace periods:
+#'
+#' * ub - period in which pre-erythrocytic immunity cannot be boosted
+#' * uc - period in which clinical immunity cannot be boosted
+#' * uv - period in which severe immunity cannot be boosted
+#' * ud - period in which immunity to detectability cannot be boosted
+#'
+#' blood meal rates:
+#'
+#' * av1 - blood meal rate for the first variety of mosquitos
+#' * av2 - blood meal rate for the second variety of mosquitos
+#' * av3 - blood meal rate for the third variety of mosquitos
+#'
+#' infectivity towards mosquitos:
+#'
+#' * cd - infectivity of clinically diseased humans towards mosquitos
+#' * gamma1- parameter for infectivity of asymptomatic humans
+#' * cu - infectivity of sub-patent infection
+#'
+#' unique biting rate:
+#'
+#' * a0 - age dependent biting parameter
+#' * rho - age dependent biting parameter
+#' * sigma_squared - heterogeneity parameter
+#'
+#' miscellaneous:
+#'
+#' * de - delay for infection
 #' * beta - the average number of eggs laid per female mosquito per day
 #' * human population - the number of humans to model
 #' * mosquito limit - the maximum number of mosquitos to allow for in the
 #' * days_per_timestep - the number of days to model per timestep
-#TODO: complete documentation
 get_parameters <- function() {
   days_per_timestep <- 1
   human_population <- 100 * 1000
   parameters <- list(
-    # fixed state transitions
     rd    = days_per_timestep / 5,
     ra    = days_per_timestep / 195,
     ru    = days_per_timestep / 110,
@@ -37,7 +108,6 @@ get_parameters <- function() {
     rpl   = days_per_timestep / .643,
     mup   = days_per_timestep * .249,
     mum   = days_per_timestep * .249, #NOTE: set from sitefile
-    # heterogeneity parameter
     sigma_squared   = 1.67,
     # immunity decay rates
     rm    = days_per_timestep / 67.6952,
@@ -45,7 +115,7 @@ get_parameters <- function() {
     rb    = days_per_timestep / (10 * 365),
     rc    = days_per_timestep / (30 * 365),
     rva   = days_per_timestep / (30 * 365),
-    rd    = days_per_timestep / (10 * 365),
+    rid   = days_per_timestep / (10 * 365),
     # blood immunity parameters
     b0    = 0.590076,
     b1    = 0.5,
@@ -82,7 +152,7 @@ get_parameters <- function() {
     iv0     = 1.09629,
     # delay for infection
     de      = 12 / days_per_timestep,
-    # asymptomatic infectivity parameters
+    # asymptomatic immunity parameters
     fd0   = 0.007055,
     ad    = 21.9 * 365 / days_per_timestep,
     gammad= 4.8183,

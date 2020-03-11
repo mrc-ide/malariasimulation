@@ -8,7 +8,7 @@
 #' `bind_process_to_model`
 #' @param individuals, a list of individuals in the model
 #' @param states, a list of states in the model
-#' @param variables, a list of variables and constants in the model
+#' @param variables, a list of variables in the model
 #' @param parameters, a list of model parameters
 create_processes <- function(individuals, states, variables, parameters) {
   list(
@@ -222,7 +222,7 @@ create_ageing_process <- function(human, age) {
         individual::VariableUpdate$new(
           human,
           age,
-          simulation_frame$get_variable(human, age) + 1
+          simulation_frame$get_variable(human, age)[0] + 1
         )
       )
     }

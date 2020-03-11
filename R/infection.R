@@ -5,7 +5,7 @@
 #' @param human, the human individual
 #' @param mosquito, the mosquito individual
 #' @param states, a list of all of the model states
-#' @param variables, a list of all of the model variables and constants
+#' @param variables, a list of all of the model variables
 create_infection_process <- function(human, mosquito, states, variables) {
   function(simulation_frame, timestep, parameters) {
     source_humans <- simulation_frame$get_state(
@@ -31,8 +31,8 @@ create_infection_process <- function(human, mosquito, states, variables) {
 
     epsilon <- probability_bitten(
       age[source_humans],
-      simulation_frame$get_constant(human, variables$xi)[source_humans],
-      simulation_frame$get_constant(
+      simulation_frame$get_variable(human, variables$xi)[source_humans],
+      simulation_frame$get_variable(
         mosquito,
         variables$mosquito_variety
       )[source_mosquitos],
@@ -203,7 +203,7 @@ create_infection_scheduler <- function(human, A, I, infection_schedule, asymptom
 #' @param mosquito, the mosquito individual
 #' @param human, the human individual
 #' @param states, a list of all of the model states
-#' @param variables, a list of all of the model variables and constants
+#' @param variables, a list of all of the model variables
 create_mosquito_infection_process <- function(
   mosquito,
   human,
@@ -225,7 +225,7 @@ create_mosquito_infection_process <- function(
     # Create a dataframe frame with human age, xi and infectivity
     infectivity_frame <- create_infectivity_frame(
       age,
-      simulation_frame$get_constant(human, variables$xi),
+      simulation_frame$get_variable(human, variables$xi),
       list(
         list(simulation_frame$get_state(human, states$D), parameters$cd),
         list(asymptomatic, a_infectivity),
@@ -234,7 +234,7 @@ create_mosquito_infection_process <- function(
     )
 
     lambda <- mosquito_force_of_infection(
-      simulation_frame$get_constant(
+      simulation_frame$get_variable(
         mosquito,
         variables$mosquito_variety
       )[source_mosquitos],

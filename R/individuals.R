@@ -41,12 +41,11 @@ create_states <- function(parameters) {
   )
 }
 
-#' @title Define model variables and constants
+#' @title Define model variables
 #' @description
-#' create_variables creates the human and mosquito variables and constants for
+#' create_variables creates the human and mosquito variables for
 #' the model. Variables are used to track real data for each individual over
-#' time, they are read and updated by processes. Constants remain fixed for each
-#' individual over the whole simulation.
+#' time, they are read and updated by processes
 #'
 #' The human variables are defined as:
 #'
@@ -123,21 +122,21 @@ create_variables <- function(parameters) {
   id <- individual::Variable$new("ID", function(size) { rep(0, size) })
 
   xi_values <- rlnorm(parameters$human_population, -parameters$sigma_squared/2,parameters$sigma_squared)
-  xi <- individual::Constant$new(
+  xi <- individual::Variable$new(
     "xi",
     function(n) {
       xi_values
     }
   )
 
-  xi_group <- individual::Constant$new(
+  xi_group <- individual::Variable$new(
     "xi_group",
     function(n) {
       discretise(xi_values, parameters$n_heterogeneity_groups)
     }
   )
 
-  mosquito_variety <- individual::Constant$new(
+  mosquito_variety <- individual::Variable$new(
     "variety",
     function(n) {
       p <- runif(n)
@@ -173,7 +172,7 @@ create_variables <- function(parameters) {
 #' relevant states and variables to each individual.
 #'
 #' @param states, available states to assign
-#' @param variables, available variables and constants to assign
+#' @param variables, available variables to assign
 create_individuals <- function(states, variables) {
   human <- individual::Individual$new(
     'human',
@@ -190,15 +189,16 @@ create_individuals <- function(states, variables) {
       variables$ivm,
       variables$infection_schedule,
       variables$asymptomatic_infection_schedule,
-      variables$is_severe
-    ),
-    constants = list(variables$xi, variables$xi_group)
+      variables$is_severe,
+      variables$xi,
+      variables$xi_group
+    )
   )
 
   mosquito <- individual::Individual$new(
     'mosquito',
     states=list(states$E, states$L, states$P, states$Sm, states$Im, states$Unborn),
-    constants = list(variables$mosquito_variety)
+    variables = list(variables$mosquito_variety)
   )
 
   list(human = human, mosquito = mosquito)

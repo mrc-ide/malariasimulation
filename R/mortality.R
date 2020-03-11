@@ -23,13 +23,8 @@ create_mortality_process <- function(human, D, variables) {
 
     died <- c(natural_deaths, severe_deaths)
 
-    # workaround index by numeric(0) bug
-    if (length(died) == 0) {
-      died <- NULL
-    }
-
     # Calculate new maternal immunities
-    groups <- simulation_frame$get_constant(human, variables$xi_group)
+    groups <- simulation_frame$get_variable(human, variables$xi_group)
     sampleable <- age >= 15 | age <= 35
     icm <- simulation_frame$get_variable(human, variables$icm)
     ivm <- simulation_frame$get_variable(human, variables$ivm)

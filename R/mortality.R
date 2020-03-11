@@ -66,10 +66,14 @@ died_naturally <- function(age, table) {
 }
 
 sample_mothers <- function(sampleable, died, groups) {
+  group_lookup <- list()
+  for (group in unique(groups)) {
+    group_lookup[[group]] <- which(sampleable & (groups == group))
+  }
   vnapply(
     groups[died],
     function(source_group) {
-      sample(which(sampleable & (groups == source_group)), 1)[[1]]
+      sample(group_lookup[[source_group]], 1)[[1]]
     }
   )
 }

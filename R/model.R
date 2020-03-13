@@ -18,7 +18,7 @@ run_simulation <- function(timesteps) {
   individual::simulate(
     individuals = individuals,
     processes = create_processes(individuals, states, variables, parameters),
-    timesteps,
-    parameters
-  )$render(individuals$human)
+    end_timestep = timesteps,
+    parameters = parameters
+  )
 }

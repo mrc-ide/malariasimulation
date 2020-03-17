@@ -10,8 +10,8 @@
 #'
 #' @param timesteps, the number of timesteps to run the simulation for
 #' @export
-run_simulation <- function(timesteps) {
-  parameters <- get_parameters()
+run_simulation <- function(timesteps, overrides = list()) {
+  parameters <- get_parameters(overrides)
   states <- create_states(parameters)
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables)

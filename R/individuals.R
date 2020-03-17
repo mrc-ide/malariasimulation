@@ -24,13 +24,36 @@
 #'
 #' @param parameters, the model parameters
 create_states <- function(parameters) {
+  initial_counts <- vnapply(
+    c(
+      parameters$s_proportion,
+      parameters$d_proportion,
+      parameters$a_proportion,
+      parameters$u_proportion
+    ),
+    function(p) round(parameters$human_population * p)
+  )
+  left_over <- parameters$human_population - sum(initial_counts)
+  initial_counts[[1]] <- initial_counts[[1]] + left_over
   list(
     # Human states
-    S       = individual::State$new("S", parameters$human_population),
-    I       = individual::State$new("I", 0),
-    D       = individual::State$new("D", 0),
-    A       = individual::State$new("A", 0),
-    U       = individual::State$new("U", 0),
+    S = individual::State$new(
+      "S",
+      initial_counts[[1]]
+    ),
+    I = individual::State$new("I", 0),
+    D = individual::State$new(
+      "D",
+      initial_counts[[2]]
+    ),
+    A = individual::State$new(
+      "A",
+      initial_counts[[3]]
+    ),
+    U = individual::State$new(
+      "U",
+      initial_counts[[4]]
+    ),
     # Mosquito states
     E       = individual::State$new("E", 0),
     L       = individual::State$new("L", 0),

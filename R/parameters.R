@@ -109,6 +109,16 @@
 #' * gamma - effect of density dependence on late instars relative to early
 #' instars
 #'
+#' initial state proportions:
+#'
+#' * s_proportion - the proportion of `human_population` that begin as Susceptable
+#' * d_proportion - the proportion of `human_population` that begin with
+#' clinical disease
+#' * a_proportion - the proportion of `human_population` that begin as
+#' Asymptomatic
+#' * u_proportion - the proportion of `human_population` that begin as
+#' Subpatents
+#'
 #' miscellaneous:
 #'
 #' * de - delay for infection
@@ -116,7 +126,7 @@
 #' * human population - the number of humans to model
 #' * mosquito limit - the maximum number of mosquitos to allow for in the
 #' * days_per_timestep - the number of days to model per timestep
-get_parameters <- function() {
+get_parameters <- function(overrides = list()) {
   days_per_timestep <- 1
   human_population <- 100 * 1000
   parameters <- list(
@@ -182,7 +192,7 @@ get_parameters <- function() {
     id0   = 1.577533,
     kd    = .476614,
     # mortality parameters
-    mortality_probability_table = rep(.05, 100),
+    human_death_rate = 0.0001305,
     v     = .065, # NOTE: there are two definitions of this: one on line 124 and one in the parameters table
     pcm   = .774368,
     pvm   = .195768,
@@ -201,11 +211,18 @@ get_parameters <- function() {
     ml    = days_per_timestep * .0348,
     # egg laying parameter
     beta  = days_per_timestep * 21.2,
+    # initial state proportions
+    s_proportion = 0.420433246,
+    d_proportion = 0.007215064,
+    a_proportion = 0.439323667,
+    u_proportion = 0.133028023,
+    # misc
     human_population = human_population,
     mosquito_limit   = 100 * human_population,
     days_per_timestep  = days_per_timestep
   )
 
+  parameters$mortality_probability_table = rep(parameters$human_death_rate, 100)
 	parameters$R_bar <- mean(vnapply(1:365, function(t) rainfall(
 		t,
 		parameters$days_per_timestep,
@@ -213,6 +230,29 @@ get_parameters <- function() {
 		c(parameters$g1, parameters$g2, parameters$g3),
 		c(parameters$h1, parameters$h2, parameters$h3)
 	)))
+
+  # Override paramters with any client specified ones
+  if (!is.list(overrides)) {
+    stop('overrides must be a list')
+  }
+
+  for (name in names(overrides)) {
+    if (!(name %in% names(parameters))) {
+      stop(paste('unknown parameter', name, sep=' '))
+    }
+    parameters[name] <- overrides[[name]]
+  }
+
+  props <- c(
+    parameters$s_proportion,
+    parameters$d_proportion,
+    parameters$a_proportion,
+    parameters$u_proportion
+  )
+
+  if (sum(props) != 1) {
+    stop("Starting proportions do not sum to 1")
+  }
 
   parameters
 }

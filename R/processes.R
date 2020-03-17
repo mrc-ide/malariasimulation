@@ -4,8 +4,7 @@
 #' states and variables change over time.
 #'
 #' It lists processes from `infection.R`, `mosquito_emergence.R` and
-#' `mortality.R`; and then exposes them to the model through
-#' `bind_process_to_model`
+#' `mortality.R`; and then exposes them to the model
 #' @param individuals, a list of individuals in the model
 #' @param states, a list of states in the model
 #' @param variables, a list of variables in the model

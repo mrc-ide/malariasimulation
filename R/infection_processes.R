@@ -207,7 +207,7 @@ create_infection_process <- function(human, mosquito, states, variables) {
   }
 }
 
-create_infection_scheduler <- function(human, A, I, infection_schedule, asymptomatic_infection_schedule) {
+create_infection_scheduler <- function(human, A, D, infection_schedule, asymptomatic_infection_schedule) {
   function(simulation_frame, timestep, parameters) {
     infection    <- which(
       simulation_frame$get_variable(human, infection_schedule) == timestep
@@ -216,7 +216,7 @@ create_infection_scheduler <- function(human, A, I, infection_schedule, asymptom
       simulation_frame$get_variable(human, asymptomatic_infection_schedule) == timestep
     )
     list(
-      individual::StateUpdate$new(human, I, infection),
+      individual::StateUpdate$new(human, D, infection),
       individual::StateUpdate$new(human, A, asymptomatic)
     )
   }

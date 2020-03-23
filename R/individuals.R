@@ -5,7 +5,6 @@
 #' The human states are defined as:
 #' 
 #' * S - **S**usceptable to infection
-#' * I - **I**nfection, these individuals are waiting for treatment before
 #' progressing to the T or D state
 #' * D - **D**isease individuals exhibit "clinical" or "severe" disease
 #' * A - **A**symptomatic individuals no longer exhibit symptoms
@@ -52,7 +51,6 @@ create_states <- function(parameters) {
       "S",
       initial_counts[[1]]
     ),
-    I = individual::State$new("I", 0),
     D = individual::State$new(
       "D",
       initial_counts[[2]]
@@ -211,7 +209,7 @@ create_variables <- function(parameters) {
 create_individuals <- function(states, variables) {
   human <- individual::Individual$new(
     'human',
-    states=list(states$S, states$I, states$D, states$A, states$U),
+    states=list(states$S, states$D, states$A, states$U),
     variables = list(
       variables$age,
       variables$last_bitten,

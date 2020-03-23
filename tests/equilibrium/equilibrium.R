@@ -58,6 +58,5 @@ plot_states(output[c(
   'human_A_count',
   'human_D_count',
   'human_S_count',
-  'human_U_count',
-  'human_I_count'
+  'human_U_count'
 )])

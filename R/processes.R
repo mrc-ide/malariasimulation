@@ -22,13 +22,6 @@ create_processes <- function(individuals, states, variables, parameters) {
     # States
     # ======
 
-    # Untreated Progression
-    create_fixed_probability_state_change_process(
-      individuals$human,
-      states$I,
-      states$D,
-      1
-    ),
     # Asymptomatic Progression
     create_fixed_probability_state_change_process(
       individuals$human,
@@ -147,7 +140,7 @@ create_processes <- function(individuals, states, variables, parameters) {
     create_infection_scheduler(
       individuals$human,
       states$A,
-      states$I,
+      states$D,
       variables$infection_schedule,
       variables$asymptomatic_infection_schedule
     )

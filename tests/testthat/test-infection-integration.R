@@ -43,8 +43,7 @@ test_that('human infection_process creates the correct updates', {
     infection_process,
     'bernoulli',
     mockery::mock(
-      c(TRUE, TRUE, TRUE, FALSE),
-      c(TRUE, TRUE, FALSE),
+      c(FALSE, FALSE, TRUE),
       c(TRUE, FALSE),
       c(FALSE, TRUE)
     )
@@ -55,36 +54,36 @@ test_that('human infection_process creates the correct updates', {
   expect_any(updates, function(update) {
     all(
       update$variable$name == 'ICA',
-      setequal(update$value, c(1.2, 1.3)),
-      setequal(update$index, c(1, 2))
+      setequal(update$value, c(1.3, 0.5)),
+      setequal(update$index, c(2, 3))
     )
   })
   expect_any(updates, function(update) {
     all(
       update$variable$name == 'IVA',
-      setequal(update$value, c(1.2, 1.3)),
-      setequal(update$index, c(1, 2))
+      setequal(update$value, c(1.3, 0.5)),
+      setequal(update$index, c(2, 3))
     )
   })
   expect_any(updates, function(update) {
     all(
       update$variable$name == 'ID',
-      setequal(update$value, c(1.2, 1.3)),
-      setequal(update$index, c(1, 2))
+      setequal(update$value, c(1.3, 0.5)),
+      setequal(update$index, c(2, 3))
     )
   })
   expect_any(updates, function(update) {
     all(
       update$variable$name == 'IB',
-      setequal(update$value, c(1.2, .3, .5)),
-      setequal(update$index, c(1, 2, 3))
+      setequal(update$value, c(.3, .5, 1.9)),
+      setequal(update$index, c(2, 3, 4))
     )
   })
   expect_any(updates, function(update) {
     all(
       update$variable$name == 'infection_schedule',
       update$value == 5 + parameters$de,
-      setequal(update$index, c(2))
+      setequal(update$index, c(2, 3))
     )
   })
   expect_none(updates, function(update) {
@@ -94,21 +93,21 @@ test_that('human infection_process creates the correct updates', {
     all(
       update$variable$name == 'last_bitten',
       update$value == 5,
-      setequal(update$index, c(1, 2, 3))
+      setequal(update$index, c(2, 3, 4))
     )
   })
   expect_any(updates, function(update) {
     all(
       update$variable$name == 'last_infected',
       update$value == 5,
-      setequal(update$index, c(1, 2))
+      setequal(update$index, c(2, 3))
     )
   })
   expect_any(updates, function(update) {
     all(
       update$variable$name == 'is_severe',
       update$value == 1,
-      setequal(update$index, c(2))
+      setequal(update$index, c(3))
     )
   })
 })

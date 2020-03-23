@@ -39,12 +39,18 @@ create_infection_process <- function(human, mosquito, states, variables) {
       parameters
     )
 
-    bitten_humans <- source_humans[bernoulli(length(source_humans), epsilon)]
+    number_of_bites <- round(epsilon)
+    bitten_humans <- source_humans[number_of_bites > 0]
 
     # Calculate Infected
     b <- blood_immunity(ib[bitten_humans], parameters)
 
-    infected_humans <- bitten_humans[bernoulli(length(bitten_humans), b)]
+    infected_humans <- bitten_humans[
+      !bernoulli(
+        length(bitten_humans),
+        (1 - b) * number_of_bites[number_of_bites > 0]
+      )
+    ]
 
     ica <- simulation_frame$get_variable(
       human,
@@ -95,7 +101,7 @@ create_infection_process <- function(human, mosquito, states, variables) {
 
     updates <- list()
 
-    # Updates for bitten
+    # Updates for those who were bitten
     if (length(bitten_humans) > 0) {
       updates <- c(updates, list(
         # Boost immunity

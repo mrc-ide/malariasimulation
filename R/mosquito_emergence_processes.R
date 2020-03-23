@@ -54,14 +54,17 @@ create_larval_death_process <- function(mosquito, E, L, Unborn) {
 }
 
 carrying_capacity <- function(timestep, parameters) {
-  r <- rainfall(
-    timestep,
-    parameters$days_per_timestep,
-    parameters$g0,
-    c(parameters$g1, parameters$g2, parameters$g3),
-    c(parameters$h1, parameters$h2, parameters$h3)
-  )
-  parameters$K0 * r / parameters$R_bar
+  if (parameters$model_seasonality) {
+    r <- rainfall(
+      timestep,
+      parameters$days_per_timestep,
+      parameters$g0,
+      c(parameters$g1, parameters$g2, parameters$g3),
+      c(parameters$h1, parameters$h2, parameters$h3)
+    )
+    return(parameters$K0 * r / parameters$R_bar)
+  }
+  parameters$K0
 }
 
 rainfall <- function(t, days_per_timestep, g0, g, h) {

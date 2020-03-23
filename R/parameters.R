@@ -103,9 +103,10 @@
 #'
 #' carrying capacity parameters:
 #'
+#' * model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall
 #' * K0 - carrying capacity
-#' * g0 to g3 - rainfall shape paramters
-#' * h1 to h3 - rainfall shape paramters
+#' * g0 to g3 - rainfall shape parameters
+#' * h1 to h3 - rainfall shape parameters
 #' * gamma - effect of density dependence on late instars relative to early
 #' instars
 #'
@@ -125,10 +126,15 @@
 #' * beta - the average number of eggs laid per female mosquito per day
 #' * human population - the number of humans to model
 #' * mosquito limit - the maximum number of mosquitos to allow for in the
+#' simulation
+#' * density - the initial number of mosquitos per human
 #' * days_per_timestep - the number of days to model per timestep
 get_parameters <- function(overrides = list()) {
   days_per_timestep <- 1
-  human_population <- 100 * 1000
+  human_population <- 100
+  if ('human_population' %in% names(overrides)) {
+    human_population <- overrides$human_population
+  }
   parameters <- list(
     rd    = days_per_timestep / 5,
     ra    = days_per_timestep / 195,
@@ -197,7 +203,7 @@ get_parameters <- function(overrides = list()) {
     pcm   = .774368,
     pvm   = .195768,
     # carrying capacity parameters
-    K0    = 10,
+    K0    = 100 * human_population,
     g0    = 2,
     g1   = .3,
     g2   = .6,
@@ -206,6 +212,7 @@ get_parameters <- function(overrides = list()) {
     h2   = .4,
     h3   = .7,
     gamma = 13.25,
+    model_seasonality = FALSE,
     # larval mortality rates
     me    = days_per_timestep * .0338,
     ml    = days_per_timestep * .0348,
@@ -218,7 +225,8 @@ get_parameters <- function(overrides = list()) {
     u_proportion = 0.133028023,
     # misc
     human_population = human_population,
-    mosquito_limit   = 100 * human_population,
+    mosquito_limit   = 10000 * human_population,
+    density          = 10,
     days_per_timestep  = days_per_timestep
   )
 
@@ -231,7 +239,7 @@ get_parameters <- function(overrides = list()) {
 		c(parameters$h1, parameters$h2, parameters$h3)
 	)))
 
-  # Override paramters with any client specified ones
+  # Override parameters with any client specified ones
   if (!is.list(overrides)) {
     stop('overrides must be a list')
   }

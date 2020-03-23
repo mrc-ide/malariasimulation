@@ -87,11 +87,8 @@ test_that('human infection_process creates the correct updates', {
       setequal(update$index, c(2))
     )
   })
-  expect_any(updates, function(update) {
-    all(
-      update$variable$name == 'asymptomatic_infection_schedule',
-      setequal(update$index, c())
-    )
+  expect_none(updates, function(update) {
+    update$variable$name == 'asymptomatic_infection_schedule'
   })
   expect_any(updates, function(update) {
     all(

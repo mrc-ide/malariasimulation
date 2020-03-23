@@ -27,7 +27,7 @@ create_processes <- function(individuals, states, variables, parameters) {
       individuals$human,
       states$I,
       states$D,
-      1 - parameters$ft
+      1
     ),
     # Asymptomatic Progression
     create_fixed_probability_state_change_process(
@@ -50,20 +50,6 @@ create_processes <- function(individuals, states, variables, parameters) {
       states$S,
       parameters$ru
     ),
-
-    # ========
-    # Immunity
-    # ========
-
-    # Maternal immunity
-    create_exponential_decay_process(individuals$human, variables$icm, parameters$rm),
-    create_exponential_decay_process(individuals$human, variables$ivm, parameters$rvm),
-    # Blood immunity
-    create_exponential_decay_process(individuals$human, variables$ib, parameters$rb),
-    # Acquired immunity
-    create_exponential_decay_process(individuals$human, variables$ica, parameters$rc),
-    create_exponential_decay_process(individuals$human, variables$iva, parameters$rva),
-    create_exponential_decay_process(individuals$human, variables$id, parameters$rd),
 
     # ========
     # Immunity
@@ -221,7 +207,7 @@ create_ageing_process <- function(human, age) {
         individual::VariableUpdate$new(
           human,
           age,
-          simulation_frame$get_variable(human, age)[0] + 1
+          simulation_frame$get_variable(human, age) + 1
         )
       )
     }

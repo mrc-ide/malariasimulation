@@ -5,8 +5,8 @@
 #' The human states are defined as:
 #' 
 #' * S - **S**usceptable to infection
-#' * I - Liver-stage **I**nfection, these individuals are waiting to develop to A
-#' or D levels of infection
+#' * I - **I**nfection, these individuals are waiting for treatment before
+#' progressing to the T or D state
 #' * D - **D**isease individuals exhibit "clinical" or "severe" disease
 #' * A - **A**symptomatic individuals no longer exhibit symptoms
 #' * U - S**u**bpatent infectious patients are still infectious to mosquitos
@@ -35,6 +35,17 @@ create_states <- function(parameters) {
   )
   left_over <- parameters$human_population - sum(initial_counts)
   initial_counts[[1]] <- initial_counts[[1]] + left_over
+
+  n_Im <- parameters$human_population * parameters$density
+  n_E <- n_Im * parameters$beta
+  n_L <- n_E * (1 - parameters$me)
+  n_P <- n_L * (1 - parameters$ml)
+  n_Unborn <- parameters$mosquito_limit - (n_Im + n_E + n_L + n_P)
+
+  if (n_Unborn < 0) {
+    stop(paste('Mosquito limit not high enough. Short', n_Unborn, sep=' '))
+  }
+
   list(
     # Human states
     S = individual::State$new(
@@ -54,13 +65,14 @@ create_states <- function(parameters) {
       "U",
       initial_counts[[4]]
     ),
+
     # Mosquito states
-    E       = individual::State$new("E", 0),
-    L       = individual::State$new("L", 0),
-    P       = individual::State$new("P", 0),
-    Sm      = individual::State$new("Sm", 1),
-    Im      = individual::State$new("Im", 0),
-    Unborn  = individual::State$new("Unborn", parameters$mosquito_limit - 1)
+    E       = individual::State$new("E", n_E),
+    L       = individual::State$new("L", n_L),
+    P       = individual::State$new("P", n_P),
+    Sm      = individual::State$new("Sm", 0),
+    Im      = individual::State$new("Im", n_Im),
+    Unborn  = individual::State$new("Unborn", n_Unborn)
   )
 }
 

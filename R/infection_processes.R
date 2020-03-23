@@ -27,9 +27,9 @@ create_infection_process <- function(human, mosquito, states, variables) {
     # Calculate EIR
     source_mosquitos <- simulation_frame$get_state(mosquito, states$Im)
     age <- simulation_frame$get_variable(human, variables$age)
-    ib <- simulation_frame$get_variable(human, variables$ib)[source_humans]
+    ib <- simulation_frame$get_variable(human, variables$ib)
 
-    epsilon <- probability_bitten(
+    epsilon <- eir(
       age[source_humans],
       simulation_frame$get_variable(human, variables$xi)[source_humans],
       simulation_frame$get_variable(
@@ -46,25 +46,25 @@ create_infection_process <- function(human, mosquito, states, variables) {
 
     infected_humans <- bitten_humans[bernoulli(length(bitten_humans), b)]
 
-    ica_infected <- simulation_frame$get_variable(
+    ica <- simulation_frame$get_variable(
       human,
       variables$ica
     )[infected_humans]
 
-    iva_infected <- simulation_frame$get_variable(
+    iva <- simulation_frame$get_variable(
       human,
       variables$iva
     )[infected_humans]
 
     phi <- clinical_immunity(
-      ica_infected,
+      ica,
       simulation_frame$get_variable(human, variables$icm)[infected_humans],
       parameters
     )
 
     theta <- severe_immunity(
       age[infected_humans],
-      iva_infected,
+      iva,
       simulation_frame$get_variable(human, variables$ivm)[infected_humans],
       parameters
     )
@@ -77,15 +77,15 @@ create_infection_process <- function(human, mosquito, states, variables) {
     to_infect <- remove_scheduled(
       infected_humans[symptomatic],
       timestep,
-      next_infection,
-      next_asymptomatic_infection
+      next_infection[symptomatic],
+      next_asymptomatic_infection[symptomatic]
     )
 
     to_infect_asym <- remove_scheduled(
       infected_humans[!symptomatic],
       timestep,
-      next_infection,
-      next_asymptomatic_infection
+      next_infection[!symptomatic],
+      next_asymptomatic_infection[!symptomatic]
     )
 
     last_infected <- simulation_frame$get_variable(
@@ -93,88 +93,111 @@ create_infection_process <- function(human, mosquito, states, variables) {
       variables$last_infected
     )[infected_humans]
 
-    list(
-      # Boost immunity
-      individual::VariableUpdate$new(
-        human,
-        variables$ica,
-        boost_acquired_immunity(
-          ica_infected,
-          last_infected,
-          timestep,
-          parameters$uc
+    updates <- list()
+
+    # Updates for bitten
+    if (length(bitten_humans) > 0) {
+      updates <- c(updates, list(
+        # Boost immunity
+        individual::VariableUpdate$new(
+          human,
+          variables$ib,
+          boost_acquired_immunity(
+            ib[bitten_humans],
+            simulation_frame$get_variable(
+              human,
+              variables$last_bitten
+            )[bitten_humans],
+            timestep,
+            parameters$ub
+          ),
+          bitten_humans
         ),
-        infected_humans
-      ),
-      individual::VariableUpdate$new(
-        human,
-        variables$iva,
-        boost_acquired_immunity(
-          iva_infected,
-          last_infected,
+        # record last bitten
+        individual::VariableUpdate$new(
+          human,
+          variables$last_bitten,
           timestep,
-          parameters$uv
-        ),
-        infected_humans
-      ),
-      individual::VariableUpdate$new(
-        human,
-        variables$id,
-        boost_acquired_immunity(
-          simulation_frame$get_variable(human, variables$id)[infected_humans],
-          last_infected,
-          timestep,
-          parameters$ud
-        ),
-        infected_humans
-      ),
-      individual::VariableUpdate$new(
-        human,
-        variables$ib,
-        boost_acquired_immunity(
-          ib[bitten_humans],
-          simulation_frame$get_variable(
+          bitten_humans
+        )
+      ))
+
+      # Updates for those who were infected
+      if (length(infected_humans) > 0) {
+        updates <- c(updates, list(
+          # Boost immunity
+          individual::VariableUpdate$new(
             human,
-            variables$last_bitten
-          )[bitten_humans],
-          timestep,
-          parameters$ub
-        ),
-        bitten_humans
-      ),
-      # Schedule infection states
-      individual::VariableUpdate$new(
-        human,
-        variables$infection_schedule,
-        timestep + parameters$de,
-        to_infect
-      ),
-      individual::VariableUpdate$new(
-        human,
-        variables$asymptomatic_infection_schedule,
-        timestep + parameters$de,
-        to_infect_asym
-      ),
-      # Record last bitten/infected/is_severe
-      individual::VariableUpdate$new(
-        human,
-        variables$last_bitten,
-        timestep,
-        bitten_humans
-      ),
-      individual::VariableUpdate$new(
-        human,
-        variables$last_infected,
-        timestep,
-        infected_humans
-      ),
-      individual::VariableUpdate$new(
-       human,
-       variables$is_severe,
-       1,
-       infected_humans[develop_severe]
-      )
-    )
+            variables$ica,
+            boost_acquired_immunity(
+              ica,
+              last_infected,
+              timestep,
+              parameters$uc
+            ),
+            infected_humans
+          ),
+          individual::VariableUpdate$new(
+            human,
+            variables$iva,
+            boost_acquired_immunity(
+              iva,
+              last_infected,
+              timestep,
+              parameters$uv
+            ),
+            infected_humans
+          ),
+          individual::VariableUpdate$new(
+            human,
+            variables$id,
+            boost_acquired_immunity(
+              simulation_frame$get_variable(human, variables$id)[infected_humans],
+              last_infected,
+              timestep,
+              parameters$ud
+            ),
+            infected_humans
+          ),
+          # record last infected
+          individual::VariableUpdate$new(
+            human,
+            variables$last_infected,
+            timestep,
+            infected_humans
+          )
+        ))
+
+        # Schedule infection states
+        if(length(to_infect) > 0) {
+          updates <- c(updates, individual::VariableUpdate$new(
+            human,
+            variables$infection_schedule,
+            timestep + parameters$de,
+            to_infect
+          ))
+
+          if(length(develop_severe) > 0) {
+            updates <- c(updates, individual::VariableUpdate$new(
+              human,
+              variables$is_severe,
+              1,
+              infected_humans[develop_severe]
+            ))
+          }
+        }
+        if(length(to_infect_asym) > 0) {
+          updates <- c(updates, individual::VariableUpdate$new(
+            human,
+            variables$asymptomatic_infection_schedule,
+            timestep + parameters$de,
+            to_infect_asym
+          ))
+        }
+      }
+    }
+
+    updates
   }
 }
 
@@ -254,7 +277,7 @@ create_mosquito_infection_process <- function(
 # =================
 
 # Implemented from Winskill 2017 - Supplementary Information page 3
-probability_bitten <- function(
+eir <- function(
   age,
   xi,
   infectious_variants,

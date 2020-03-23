@@ -1,4 +1,4 @@
-test_that('probability_bitten returns correct values', {
+test_that('eir returns correct values', {
   age <- c(0, 5, 30)
   xi <-  c(1.8, 2., .5)
   infectious_variants <- c(rep(1, 3), rep(3, 2))
@@ -12,7 +12,7 @@ test_that('probability_bitten returns correct values', {
     av3   = .94
   )
   expect_equal(
-    probability_bitten(
+    eir(
       age,
       xi,
       infectious_variants,
@@ -141,7 +141,7 @@ test_that('boost_acquired_immunity respects the delay period', {
   )
 })
 
-test_that('boost_acquired_immunity works with when never boosted', {
+test_that('boost_acquired_immunity works with individuals who have never been boosted (-1)', {
   level <- c(2.4, 1.2, 0., 4.)
   last_boosted <- c(2, 5, 1, -1)
   timestep <- 6
@@ -149,6 +149,17 @@ test_that('boost_acquired_immunity works with when never boosted', {
   expect_equal(
     boost_acquired_immunity(level, last_boosted, timestep, delay),
     c(2.4, 1.2, 0., 5.)
+  )
+})
+
+test_that('boost_acquired_immunity returns an empty vector for empty cases', {
+  level <- c()
+  last_boosted <- c()
+  timestep <- 6
+  delay <- 10
+  expect_equal(
+    boost_acquired_immunity(level, last_boosted, timestep, delay),
+    c()
   )
 })
 

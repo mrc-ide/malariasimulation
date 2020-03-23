@@ -2,11 +2,21 @@
 expect_any <- function(X, FUN) {
   for (x in X) {
     if (FUN(x) == TRUE) {
-      expect(TRUE, 'match found')
+      expect(TRUE, 'Match found')
       return()
     }
   }
   expect(FALSE, 'No match')
+}
+
+expect_none <- function(X, FUN) {
+  for (x in X) {
+    if (FUN(x) == TRUE) {
+      expect(FALSE, 'Unexpected match found')
+      return()
+    }
+  }
+  expect(TRUE, 'No match found')
 }
 
 mock_simulation_frame <- function(values) {

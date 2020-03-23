@@ -12,7 +12,6 @@ translations = list(
   rU  = 'ru',
   dE  = 'rel',
   cD  = 'cd',
-  cT  = 'ct',
   cU  = 'cu',
   d1  = 'd1',
   dd  = inverse_param('dd', 'rid'),
@@ -33,7 +32,7 @@ translations = list(
   IC0 = 'ic0',
   kc  = 'kc',
   uc  = 'uc',
-  dm  = inverse_param('dm', 'rm'),
+  dm  = inverse_param('dm', 'rm')
 )
 
 translate_jamie <- function(params) {
@@ -42,8 +41,8 @@ translate_jamie <- function(params) {
     if(!name %in% names(translations)) {
       stop(paste('Unknown parameter', name))
     }
-    translation <= translations[[name]]
-    if (is.string(translation)) {
+    translation <- translations[[name]]
+    if (is.character(translation)) {
       translated[[translation]] <- params[[name]]
     }
     if (is.function(translation)) {

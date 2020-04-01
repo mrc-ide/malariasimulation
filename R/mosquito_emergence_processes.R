@@ -8,11 +8,11 @@
 #' @param Unborn, the unborn mosquito state
 #' @param E, the early stage larval state
 create_egg_laying_process <- function(mosquito, Sm, Im, Unborn, E) {
-  function(simulation_frame, timestep, parameters) {
-    m <- simulation_frame$get_state(mosquito, Sm, Im)
-    unborn <- simulation_frame$get_state(mosquito, Unborn)
+  function(api) {
+    m <- api$get_state(mosquito, Sm, Im)
+    unborn <- api$get_state(mosquito, Unborn)
     if (length(m) > 0) {
-      n_eggs <- parameters$beta * length(m)
+      n_eggs <- api$get_parameters()$beta * length(m)
       if (n_eggs > length(unborn)) {
         stop('Run out of mosquitos')
       }
@@ -32,9 +32,11 @@ create_egg_laying_process <- function(mosquito, Sm, Im, Unborn, E) {
 #' @param L, the late stage larval state
 #' @param Unborn, the unborn mosquito state
 create_larval_death_process <- function(mosquito, E, L, Unborn) {
-  function(simulation_frame, timestep, parameters) {
-    early_larval <- simulation_frame$get_state(mosquito, E)
-    late_larval <- simulation_frame$get_state(mosquito, L)
+  function(api) {
+    timestep <- api$get_timestep()
+    parameters <- api$get_parameters()
+    early_larval <- api$get_state(mosquito, E)
+    late_larval <- api$get_state(mosquito, L)
     n <- length(early_larval) + length(late_larval)
     k <- carrying_capacity(timestep, parameters)
     early_regulation <- 1 + n / k

@@ -162,8 +162,8 @@ create_processes <- function(individuals, states, variables, parameters) {
 #' @param rate, the rate at which state transitions occur
 create_fixed_probability_state_change_process <- function(i, from, to, rate) {
   stopifnot(is.numeric(rate))
-  function (simulation_frame, timestep, parameters) {
-    source_individuals <- simulation_frame$get_state(i, from)
+  function (api) {
+    source_individuals <- api$get_state(i, from)
     target_individuals <- source_individuals[
       bernoulli(length(source_individuals), rate)
     ]
@@ -180,8 +180,8 @@ create_fixed_probability_state_change_process <- function(i, from, to, rate) {
 #' @param variable, the variable to update
 #' @param rate, the exponential rate
 create_exponential_decay_process <- function(individual, variable, rate) {
-  function(simulation_frame, timestep, parameters) {
-    i <- simulation_frame$get_variable(individual, variable)
+  function(api) {
+    i <- api$get_variable(individual, variable)
     individual::VariableUpdate$new(individual, variable, i - rate * i)
   }
 }
@@ -194,8 +194,8 @@ create_exponential_decay_process <- function(individual, variable, rate) {
 #' @param human, the human individual
 #' @param age, the age variable
 create_ageing_process <- function(human, age) {
-  function(simulation_frame, timestep, parameters) {
-    if (timestep %% (365 / parameters$days_per_timestep) == 0) {
+  function(api) {
+    if (api$get_timestep() %% (365 / api$get_parameters()$days_per_timestep) == 0) {
       return(
         individual::VariableUpdate$new(
           human,

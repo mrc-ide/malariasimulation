@@ -7,8 +7,9 @@
 #' @param D, the diseased state
 #' @param variables, the model variables to reset
 create_mortality_process <- function(human, D, variables) {
-  function(simulation_frame, timestep, parameters) {
-    age <- simulation_frame$get_variable(human, variables$age)
+  function(api) {
+    parameters <- api$get_parameters()
+    age <- api$get_variable(human, variables$age)
 
     natural_deaths <- died_naturally(
       age,
@@ -16,18 +17,18 @@ create_mortality_process <- function(human, D, variables) {
     )
 
     severe_deaths <- died_from_severe(
-      which(simulation_frame$get_variable(human, variables$is_severe) == 1),
-      simulation_frame$get_state(human, D),
+      which(api$get_variable(human, variables$is_severe) == 1),
+      api$get_state(human, D),
       parameters$v
     )
 
     died <- c(natural_deaths, severe_deaths)
 
     # Calculate new maternal immunities
-    groups <- simulation_frame$get_variable(human, variables$xi_group)
+    groups <- api$get_variable(human, variables$xi_group)
     sampleable <- age >= 15 | age <= 35
-    icm <- simulation_frame$get_variable(human, variables$icm)
-    ivm <- simulation_frame$get_variable(human, variables$ivm)
+    icm <- api$get_variable(human, variables$icm)
+    ivm <- api$get_variable(human, variables$ivm)
     mothers <- sample_mothers(sampleable, died, groups)
     birth_icm <- icm[mothers] * parameters$pcm
     birth_ivm <- ivm[mothers] * parameters$pvm

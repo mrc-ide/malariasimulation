@@ -10,8 +10,8 @@ params <- remove_keys(
   jamie_params,
   c(
     's2',
-    'rT',
-    'rP',
+    'rT', # makes sense
+    'rP', # makes sense
     'tl',
     'g_inf',
     'fd0',
@@ -20,17 +20,39 @@ params <- remove_keys(
     'b1',
     'PM',
     'tau',
-    'mu',
     'f',
     'Q0',
     'cd_w',
     'cd_p',
-    'cT'
+    'cT' # makes sense
   )
 )
 
 simparams <- translate_jamie(params)
 
+output <- run_simulation(300, simparams)
+
+# Estimating EIR of the model
+# Leave a 100 timestep grace period for the EIR to flatten out
+ggplot(
+  output,
+  aes(x = timestep, y = EIR)
+) + geom_line()
+
+EIR <- mean(output$EIR[output$timestep > 100])
+
+print(paste("Estimated equilibrium to be", EIR, sep=" "))
+
+# Calculate equilibrium
+eq <- human_equilibrium(EIR = EIR, ft = 0, p = jamie_params, age = 0:100)
+state_props <- colSums(eq$states[,c('S', 'D', 'A', 'U')])
+
+simparams$s_proportion <- state_props[['S']]
+simparams$d_proportion <- state_props[['D']]
+simparams$a_proportion <- state_props[['A']]
+simparams$u_proportion <- state_props[['U']]
+
+# Run from equilibrium
 output <- run_simulation(300, simparams)
 
 plot_states <- function(output) {
@@ -59,4 +81,9 @@ plot_states(output[c(
   'human_D_count',
   'human_S_count',
   'human_U_count'
+)])
+
+plot_states(output[c(
+  'mosquito_Im_count',
+  'mosquito_Sm_count'
 )])

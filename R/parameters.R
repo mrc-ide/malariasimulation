@@ -258,7 +258,7 @@ get_parameters <- function(overrides = list()) {
     parameters$u_proportion
   )
 
-  if (sum(props) != 1) {
+  if (!all.equal(sum(props), 1)) {
     stop("Starting proportions do not sum to 1")
   }
 

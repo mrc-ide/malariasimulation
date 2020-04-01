@@ -32,7 +32,8 @@ translations = list(
   IC0 = 'ic0',
   kc  = 'kc',
   uc  = 'uc',
-  dm  = inverse_param('dm', 'rm')
+  dm  = inverse_param('dm', 'rm'),
+  mu  = 'mum'
 )
 
 translate_jamie <- function(params) {

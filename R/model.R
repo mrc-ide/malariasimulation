@@ -10,13 +10,21 @@
 #' @param timesteps, the number of timesteps to run the simulation for
 #' @export
 run_simulation <- function(timesteps, overrides = list()) {
+  events <- create_events()
   parameters <- get_parameters(overrides)
   states <- create_states(parameters)
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables)
+  create_event_based_processes(individuals, states, events)
   individual::simulate(
     individuals = individuals,
-    processes = create_processes(individuals, states, variables, parameters),
+    processes = create_processes(
+      individuals,
+      states,
+      variables,
+      events,
+      parameters
+    ),
     end_timestep = timesteps,
     parameters = parameters,
     custom_renderers = create_renderers(individuals, states, variables, parameters)

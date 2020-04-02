@@ -8,14 +8,16 @@
 #' @param individuals, a list of individuals in the model
 #' @param states, a list of states in the model
 #' @param variables, a list of variables in the model
+#' @param events, a list of events in the model
 #' @param parameters, a list of model parameters
-create_processes <- function(individuals, states, variables, parameters) {
+create_processes <- function(individuals, states, variables, events, parameters) {
   list(
     create_ageing_process(individuals$human, variables$age),
     create_mortality_process(
       individuals$human,
       states$D,
-      variables
+      variables,
+      events
     ),
 
     # ======
@@ -130,21 +132,28 @@ create_processes <- function(individuals, states, variables, parameters) {
 
     # schedule infections for humans and set last_bitten and last_infected
     create_infection_process(
-      individuals$human,
-      individuals$mosquito,
+      individuals,
       states,
-      variables
-    ),
-
-    # update states after a latent period
-    create_infection_scheduler(
-      individuals$human,
-      states$A,
-      states$D,
-      variables$infection_schedule,
-      variables$asymptomatic_infection_schedule
+      variables,
+      events
     )
   )
+}
+
+#' @title Define event based processes
+#' @description
+#' defines processes for events that can be scheduled in the future
+#'
+#' @param individuals, a list of individuals in the model
+#' @param states, a list of states in the model
+#' @param events, a list of events in the model
+create_event_based_processes <- function(individuals, states, events) {
+  events$infection$add_listener(function(api, target) {
+    individual::StateUpdate$new(individuals$human, states$D, target)
+  })
+  events$asymptomatic_infection$add_listener(function(api, target) {
+    individual::StateUpdate$new(individuals$human, states$A, target)
+  })
 }
 
 # =================
@@ -200,7 +209,7 @@ create_ageing_process <- function(human, age) {
         individual::VariableUpdate$new(
           human,
           age,
-          simulation_frame$get_variable(human, age) + 1
+          api$get_variable(human, age) + 1
         )
       )
     }

@@ -20,11 +20,12 @@ params <- remove_keys(
     'b1',
     'PM',
     'tau',
+    #'mu', mum
     'f',
     'Q0',
     'cd_w',
     'cd_p',
-    'cT' # makes sense
+    'cT'
   )
 )
 

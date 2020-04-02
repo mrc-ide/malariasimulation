@@ -6,7 +6,7 @@
 #' @param human, the human individual
 #' @param D, the diseased state
 #' @param variables, the model variables to reset
-create_mortality_process <- function(human, D, variables) {
+create_mortality_process <- function(human, D, variables, events) {
   function(api) {
     parameters <- api$get_parameters()
     age <- api$get_variable(human, variables$age)
@@ -33,12 +33,13 @@ create_mortality_process <- function(human, D, variables) {
     birth_icm <- icm[mothers] * parameters$pcm
     birth_ivm <- ivm[mothers] * parameters$pvm
 
+    api$clear_schedule(events$infection, died)
+    api$clear_schedule(events$asymptomatic_infection, died)
+
     list(
       individual::VariableUpdate$new(human, variables$age, 0, died),
       individual::VariableUpdate$new(human, variables$last_bitten, -1, died),
       individual::VariableUpdate$new(human, variables$last_infected, -1, died),
-      individual::VariableUpdate$new(human, variables$infection_schedule, -1, died),
-      individual::VariableUpdate$new(human, variables$asymptomatic_infection_schedule, -1, died),
       individual::VariableUpdate$new(human, variables$icm, birth_icm, died),
       individual::VariableUpdate$new(human, variables$ivm, birth_ivm, died),
       individual::VariableUpdate$new(human, variables$ib, -1, died),

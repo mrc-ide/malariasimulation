@@ -6,7 +6,9 @@
 #' @param mosquito, the mosquito individual
 #' @param states, a list of all of the model states
 #' @param variables, a list of all of the model variables
-create_infection_process <- function(human, mosquito, states, variables) {
+create_infection_process <- function(individuals, states, variables, events) {
+  human <- individuals$human
+  mosquito <- individuals$mosquito
   function(api) {
     parameters <- api$get_parameters()
     timestep <- api$get_timestep()
@@ -16,14 +18,6 @@ create_infection_process <- function(human, mosquito, states, variables) {
       states$U,
       states$A,
       states$D
-    )
-    next_infection <- api$get_variable(
-      human,
-      variables$infection_schedule
-    )
-    next_asymptomatic_infection <- api$get_variable(
-      human,
-      variables$asymptomatic_infection_schedule
     )
 
     # Calculate EIR
@@ -82,18 +76,14 @@ create_infection_process <- function(human, mosquito, states, variables) {
     symptomatic <- develop_severe | develop_clinical
 
     # Exclude humans already scheduled for infection
-    to_infect <- remove_scheduled(
+    to_infect <- setdiff(
       infected_humans[symptomatic],
-      timestep,
-      next_infection[symptomatic],
-      next_asymptomatic_infection[symptomatic]
+      api$get_scheduled(events$infection)
     )
 
-    to_infect_asym <- remove_scheduled(
+    to_infect_asym <- setdiff(
       infected_humans[!symptomatic],
-      timestep,
-      next_infection[!symptomatic],
-      next_asymptomatic_infection[!symptomatic]
+      api$get_scheduled(events$asymptomatic_infection)
     )
 
     last_infected <- api$get_variable(
@@ -178,12 +168,7 @@ create_infection_process <- function(human, mosquito, states, variables) {
 
         # Schedule infection states
         if(length(to_infect) > 0) {
-          updates <- c(updates, individual::VariableUpdate$new(
-            human,
-            variables$infection_schedule,
-            timestep + parameters$de,
-            to_infect
-          ))
+          api$schedule(events$infection, to_infect, parameters$de)
 
           if(length(develop_severe) > 0) {
             updates <- c(updates, individual::VariableUpdate$new(
@@ -195,33 +180,16 @@ create_infection_process <- function(human, mosquito, states, variables) {
           }
         }
         if(length(to_infect_asym) > 0) {
-          updates <- c(updates, individual::VariableUpdate$new(
-            human,
-            variables$asymptomatic_infection_schedule,
-            timestep + parameters$de,
-            to_infect_asym
-          ))
+          api$schedule(
+            events$asymptomatic_infection,
+            to_infect_asym,
+            parameters$de
+          )
         }
       }
     }
 
     updates
-  }
-}
-
-create_infection_scheduler <- function(human, A, D, infection_schedule, asymptomatic_infection_schedule) {
-  function(api) {
-    timestep <- api$get_timestep()
-    infection    <- which(
-      api$get_variable(human, infection_schedule) == timestep
-    )
-    asymptomatic <- which(
-      api$get_variable(human, asymptomatic_infection_schedule) == timestep
-    )
-    list(
-      individual::StateUpdate$new(human, D, infection),
-      individual::StateUpdate$new(human, A, asymptomatic)
-    )
   }
 }
 
@@ -406,14 +374,6 @@ create_infectivity_frame <- function(human_age, human_xi, subset_to_param) {
       }
     )
   )
-}
-
-remove_scheduled <- function(subset, timestep, ...) {
-  schedules <- list(...)
-  for (schedule in schedules) {
-    subset <- setdiff(subset, which(schedule >= timestep))
-  }
-  if (length(subset) == 0) c() else subset
 }
 
 boost_acquired_immunity <- function(level, last_boosted, timestep, delay) {

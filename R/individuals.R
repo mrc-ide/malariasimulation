@@ -88,10 +88,6 @@ create_states <- function(parameters) {
 #' for tracking grace periods in the boost of immunity
 #' * last_infected - the last timestep at which this individual was infected, used
 #' for tracking grace periods in the boost of immunity
-#' * infection_schedule - the last timestep at which this individual was infected, used
-#' for scheduling state transitions to I
-#' * asymptomatic_infection_schedule - the last timestep at which this
-#' individual was infected, used for scheduling state transitions to A
 #' * is_severe - a binary indicator (0 or 1) for if the individual currently has
 #' severe malaria
 #' * ICM - Maternal immunity to clinical disease
@@ -113,14 +109,6 @@ create_variables <- function(parameters) {
   age <- individual::Variable$new("age", function(size) initial_age)
   last_bitten <- individual::Variable$new("last_bitten", function(size) { rep(-1, size) })
   last_infected <- individual::Variable$new("last_infected", function(size) { rep(-1, size) })
-  infection_schedule <- individual::Variable$new(
-    "infection_schedule",
-    function(size) { rep(-1, size) }
-  )
-  asymptomatic_infection_schedule <- individual::Variable$new(
-    "asymptomatic_infection_schedule",
-    function(size) { rep(-1, size) }
-  )
   is_severe <- individual::Variable$new(
     "is_severe",
     function(size) { rep(0, size) }
@@ -193,8 +181,6 @@ create_variables <- function(parameters) {
     xi = xi,
     xi_group = xi_group,
     mosquito_variety = mosquito_variety,
-    infection_schedule = infection_schedule,
-    asymptomatic_infection_schedule = asymptomatic_infection_schedule,
     is_severe = is_severe
   )
 }
@@ -220,8 +206,6 @@ create_individuals <- function(states, variables) {
       variables$id,
       variables$icm,
       variables$ivm,
-      variables$infection_schedule,
-      variables$asymptomatic_infection_schedule,
       variables$is_severe,
       variables$xi,
       variables$xi_group

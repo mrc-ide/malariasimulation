@@ -12,9 +12,9 @@
 #'
 #' fixed state transitions:
 #'
-#' * rd - the rate at which humans move from state D to A
-#' * ra - the rate at which humans move from state A to U
-#' * ru - the rate at which humans move from state U to S
+#' * dd - the delay for humans to move from state D to A
+#' * da - the delay for humans to move from state A to U
+#' * du - the delay for humans to move from state U to S
 #' * rel - the rate at which mosquitos move from state E to L
 #' * rl - the rate at which mosquitos move from state L to P
 #' * rpl - the rate at which mosquitos move from state P to Sm
@@ -136,9 +136,9 @@ get_parameters <- function(overrides = list()) {
     human_population <- overrides$human_population
   }
   parameters <- list(
-    rd    = days_per_timestep / 5,
-    ra    = days_per_timestep / 195,
-    ru    = days_per_timestep / 110,
+    dd    = 5,
+    da    = 195,
+    du    = 110,
     rel   = days_per_timestep / 6.64,
     rl    = days_per_timestep / 3.72,
     rpl   = days_per_timestep / .643,

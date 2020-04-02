@@ -20,32 +20,6 @@ create_processes <- function(individuals, states, variables, events, parameters)
       events
     ),
 
-    # ======
-    # States
-    # ======
-
-    # Asymptomatic Progression
-    create_fixed_probability_state_change_process(
-      individuals$human,
-      states$D,
-      states$A,
-      parameters$rd
-    ),
-    # Subpatient Progression
-    create_fixed_probability_state_change_process(
-      individuals$human,
-      states$A,
-      states$U,
-      parameters$ra
-    ),
-    # Subpatient Recovery
-    create_fixed_probability_state_change_process(
-      individuals$human,
-      states$U,
-      states$S,
-      parameters$ru
-    ),
-
     # ========
     # Immunity
     # ========
@@ -147,12 +121,21 @@ create_processes <- function(individuals, states, variables, events, parameters)
 #' @param individuals, a list of individuals in the model
 #' @param states, a list of states in the model
 #' @param events, a list of events in the model
-create_event_based_processes <- function(individuals, states, events) {
+create_event_based_processes <- function(individuals, states, events, parameters) {
   events$infection$add_listener(function(api, target) {
+    api$schedule(events$asymptomatic_progression, target, parameters$dd)
     individual::StateUpdate$new(individuals$human, states$D, target)
   })
   events$asymptomatic_infection$add_listener(function(api, target) {
+    api$schedule(events$subpatent_progression, target, parameters$da)
     individual::StateUpdate$new(individuals$human, states$A, target)
+  })
+  events$subpatent_progression$add_listener(function(api, target) {
+    api$schedule(events$subpatent_recovery, target, parameters$du)
+    individual::StateUpdate$new(individuals$human, states$U, target)
+  })
+  events$subpatent_recovery$add_listener(function(api, target) {
+    individual::StateUpdate$new(individuals$human, states$S, target)
   })
 }
 

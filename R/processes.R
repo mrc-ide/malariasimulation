@@ -12,7 +12,6 @@
 #' @param parameters, a list of model parameters
 create_processes <- function(individuals, states, variables, events, parameters) {
   list(
-    create_ageing_process(individuals$human, variables$age),
     create_mortality_process(
       individuals$human,
       states$D,
@@ -101,7 +100,17 @@ create_processes <- function(individuals, states, variables, events, parameters)
 #' @param individuals, a list of individuals in the model
 #' @param states, a list of states in the model
 #' @param events, a list of events in the model
-create_event_based_processes <- function(individuals, states, events, parameters) {
+create_event_based_processes <- function(individuals, states, variables, events, parameters) {
+  # Aging
+  events$birthday$add_listener(function(api, target) {
+    api$schedule(events$birthday, target, 365)
+    individual::VariableUpdate$new(
+      individuals$human,
+      variables$age,
+      api$get_variable(individuals$human, variables$age)[target] + 1,
+      target
+    )
+  })
 
   # Disease progression events
   events$infection$add_listener(function(api, target) {
@@ -174,28 +183,5 @@ create_exponential_decay_process <- function(individual, variable, rate) {
   function(api) {
     i <- api$get_variable(individual, variable)
     individual::VariableUpdate$new(individual, variable, i - rate * i)
-  }
-}
-
-#TODO: Schedule the aging process so that it's more granular
-
-#' @title Human aging process
-#' @description
-#' This is the process for aging, it will update every human's age every 365
-#' timesteps.
-#'
-#' @param human, the human individual
-#' @param age, the age variable
-create_ageing_process <- function(human, age) {
-  function(api) {
-    if (api$get_timestep() %% (365 / api$get_parameters()$days_per_timestep) == 0) {
-      return(
-        individual::VariableUpdate$new(
-          human,
-          age,
-          api$get_variable(human, age) + 1
-        )
-      )
-    }
   }
 }

@@ -11,6 +11,11 @@ create_mortality_process <- function(human, D, variables, events) {
     parameters <- api$get_parameters()
     age <- api$get_variable(human, variables$age)
 
+    # If this is the first timestep, we have to kick off the aging event
+    if (api$get_timestep() == 1) {
+      api$schedule(events$birthday, seq_len(parameters$human_population), 365)
+    }
+
     natural_deaths <- died_naturally(
       age,
       parameters$mortality_probability_table
@@ -35,6 +40,8 @@ create_mortality_process <- function(human, D, variables, events) {
 
     api$clear_schedule(events$infection, died)
     api$clear_schedule(events$asymptomatic_infection, died)
+    api$clear_schedule(events$birthday, died)
+    api$schedule(events$birthday, died, 365)
 
     list(
       individual::VariableUpdate$new(human, variables$age, 0, died),

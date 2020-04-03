@@ -34,52 +34,49 @@ create_processes <- function(individuals, states, variables, events, parameters)
     create_exponential_decay_process(individuals$human, variables$iva, parameters$rva),
     create_exponential_decay_process(individuals$human, variables$id, parameters$rid),
 
+    # schedule infections for humans and set last_bitten and last_infected
+    create_infection_process(
+      individuals,
+      states,
+      variables,
+      events
+    ),
+
     # ===============
     # Mosquito States
     # ===============
+    create_mosquito_infection_process(
+      individuals$mosquito,
+      individuals$human,
+      states,
+      variables
+    ),
+
     # Eggs laid
     create_egg_laying_process(
       individuals$mosquito,
-      states$Sm,
-      states$Im,
-      states$Unborn,
-      states$E
+      states,
+      events,
+      parameters
     ),
-    # Larval growth
-    create_fixed_probability_state_change_process(
-      individuals$mosquito,
-      states$E,
-      states$L,
-      parameters$rel
-    ),
-    # Pupal stage
-    create_fixed_probability_state_change_process(
-      individuals$mosquito,
-      states$L,
-      states$P,
-      parameters$rl
-    ),
-    # Susceptable Female Development
-    create_fixed_probability_state_change_process(
-      individuals$mosquito,
-      states$P,
-      states$Sm,
-      .5 * parameters$rpl
-    ),
+
     # Death of larvae
     create_larval_death_process(
       individuals$mosquito,
       states$E,
       states$L,
-      states$Unborn
+      states$Unborn,
+      events
     ),
     # Death of pupals
-    create_fixed_probability_state_change_process(
+    create_pupal_death_process(
       individuals$mosquito,
       states$P,
       states$Unborn,
-      parameters$mup
+      parameters$mup,
+      events
     ),
+
     # Natural death of females
     create_fixed_probability_state_change_process(
       individuals$mosquito,
@@ -92,25 +89,8 @@ create_processes <- function(individuals, states, variables, events, parameters)
       states$Im,
       states$Unborn,
       parameters$mum
-    ),
-
-    # =========
-    # Infection
-    # =========
-    create_mosquito_infection_process(
-      individuals$mosquito,
-      individuals$human,
-      states,
-      variables
-    ),
-
-    # schedule infections for humans and set last_bitten and last_infected
-    create_infection_process(
-      individuals,
-      states,
-      variables,
-      events
     )
+
   )
 }
 
@@ -122,6 +102,8 @@ create_processes <- function(individuals, states, variables, events, parameters)
 #' @param states, a list of states in the model
 #' @param events, a list of events in the model
 create_event_based_processes <- function(individuals, states, events, parameters) {
+
+  # Disease progression events
   events$infection$add_listener(function(api, target) {
     api$schedule(events$asymptomatic_progression, target, parameters$dd)
     individual::StateUpdate$new(individuals$human, states$D, target)
@@ -136,6 +118,23 @@ create_event_based_processes <- function(individuals, states, events, parameters
   })
   events$subpatent_recovery$add_listener(function(api, target) {
     individual::StateUpdate$new(individuals$human, states$S, target)
+  })
+
+  # Mosquito development processes
+  events$larval_growth$add_listener(function(api, target) {
+    api$schedule(events$pupal_development, target, parameters$dl)
+    individual::StateUpdate$new(individuals$mosquito, states$L, target)
+  })
+  events$pupal_development$add_listener(function(api, target) {
+    api$schedule(events$susceptable_development, target, parameters$dpl)
+    individual::StateUpdate$new(individuals$mosquito, states$P, target)
+  })
+  events$susceptable_development$add_listener(function(api, target) {
+    female <- bernoulli(length(target), .5)
+    list(
+      individual::StateUpdate$new(individuals$mosquito, states$Unborn, target[!female]),
+      individual::StateUpdate$new(individuals$mosquito, states$Sm, target[female])
+    )
   })
 }
 
@@ -177,6 +176,8 @@ create_exponential_decay_process <- function(individual, variable, rate) {
     individual::VariableUpdate$new(individual, variable, i - rate * i)
   }
 }
+
+#TODO: Schedule the aging process so that it's more granular
 
 #' @title Human aging process
 #' @description

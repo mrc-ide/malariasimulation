@@ -15,9 +15,9 @@
 #' * dd - the delay for humans to move from state D to A
 #' * da - the delay for humans to move from state A to U
 #' * du - the delay for humans to move from state U to S
-#' * rel - the rate at which mosquitos move from state E to L
-#' * rl - the rate at which mosquitos move from state L to P
-#' * rpl - the rate at which mosquitos move from state P to Sm
+#' * del - the delay for mosquitos to move from state E to L
+#' * dl - the delay for mosquitos to move from state L to P
+#' * dpl - the delay mosquitos to move from state P to Sm
 #' * mup - the rate at which pupal mosquitos die
 #' * mum - the rate at which developed mosquitos die
 #'
@@ -139,9 +139,9 @@ get_parameters <- function(overrides = list()) {
     dd    = 5,
     da    = 195,
     du    = 110,
-    rel   = days_per_timestep / 6.64,
-    rl    = days_per_timestep / 3.72,
-    rpl   = days_per_timestep / .643,
+    del   = round(6.64),
+    dl    = round(3.72),
+    dpl   = round(.643),
     mup   = days_per_timestep * .249,
     mum   = days_per_timestep * .249, #NOTE: set from sitefile
     sigma_squared   = 1.67,
@@ -226,7 +226,7 @@ get_parameters <- function(overrides = list()) {
     # misc
     human_population = human_population,
     mosquito_limit   = 10000 * human_population,
-    density          = 10,
+    density          = 100,
     days_per_timestep  = days_per_timestep
   )
 

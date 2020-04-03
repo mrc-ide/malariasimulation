@@ -2,6 +2,9 @@ library(malariasimulation)
 library(malariaEquilibrium)
 library(ggplot2)
 
+sim_length <- 1000
+burn_in <- 500
+
 remove_keys <- function(x, n) { for (name in n) { x[[name]] <- NULL }; x }
 
 jamie_params <- load_parameter_set("Jamie_parameters.rds")
@@ -25,13 +28,14 @@ params <- remove_keys(
     'Q0',
     'cd_w',
     'cd_p',
-    'cT'
+    'cT',
+    'dE' # not sure if this translation works
   )
 )
 
 simparams <- translate_jamie(params)
 
-output <- run_simulation(300, simparams)
+output <- run_simulation(sim_length, simparams)
 
 # Estimating EIR of the model
 # Leave a 100 timestep grace period for the EIR to flatten out
@@ -40,7 +44,7 @@ ggplot(
   aes(x = timestep, y = EIR)
 ) + geom_line()
 
-EIR <- mean(output$EIR[output$timestep > 100])
+EIR <- mean(output$EIR[output$timestep > burn_in])
 
 print(paste("Estimated equilibrium to be", EIR, sep=" "))
 
@@ -54,7 +58,7 @@ simparams$a_proportion <- state_props[['A']]
 simparams$u_proportion <- state_props[['U']]
 
 # Run from equilibrium
-output <- run_simulation(300, simparams)
+output <- run_simulation(sim_length, simparams)
 
 plot_states <- function(output) {
     # group the state counts into one column
@@ -85,6 +89,9 @@ plot_states(output[c(
 )])
 
 plot_states(output[c(
+  'mosquito_E_count',
+  'mosquito_L_count',
+  'mosquito_P_count',
   'mosquito_Im_count',
   'mosquito_Sm_count'
 )])

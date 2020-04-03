@@ -7,17 +7,19 @@
 #' @param Im, the infected mosquito state
 #' @param Unborn, the unborn mosquito state
 #' @param E, the early stage larval state
-create_egg_laying_process <- function(mosquito, Sm, Im, Unborn, E) {
+create_egg_laying_process <- function(mosquito, states, events, parameters) {
   function(api) {
-    m <- api$get_state(mosquito, Sm, Im)
-    unborn <- api$get_state(mosquito, Unborn)
+    m <- api$get_state(mosquito, states$Sm, states$Im)
+    unborn <- api$get_state(mosquito, states$Unborn)
     if (length(m) > 0) {
-      n_eggs <- api$get_parameters()$beta * length(m)
+      n_eggs <- parameters$beta * length(m)
       if (n_eggs > length(unborn)) {
         stop('Run out of mosquitos')
       }
       if (n_eggs >= 1) {
-        return(individual::StateUpdate$new(mosquito, E, unborn[seq_len(n_eggs)]))
+        target <- seq_len(n_eggs)
+        api$schedule(events$larval_growth, unborn[target], parameters$del)
+        return(individual::StateUpdate$new(mosquito, states$E, unborn[target]))
       }
     }
   }
@@ -31,7 +33,7 @@ create_egg_laying_process <- function(mosquito, Sm, Im, Unborn, E) {
 #' @param E, the early stage larval state
 #' @param L, the late stage larval state
 #' @param Unborn, the unborn mosquito state
-create_larval_death_process <- function(mosquito, E, L, Unborn) {
+create_larval_death_process <- function(mosquito, E, L, Unborn, events) {
   function(api) {
     timestep <- api$get_timestep()
     parameters <- api$get_parameters()
@@ -47,11 +49,24 @@ create_larval_death_process <- function(mosquito, E, L, Unborn) {
     late_larval_deaths <- late_larval[
       bernoulli(length(late_larval), parameters$ml * late_regulation)
     ]
+    api$clear_schedule(events$larval_growth, early_larval_deaths)
+    api$clear_schedule(events$pupal_development, late_larval_deaths)
     individual::StateUpdate$new(
       mosquito,
       Unborn,
       c(early_larval_deaths, late_larval_deaths)
     )
+  }
+}
+
+create_pupal_death_process <- function(mosquito, P, Unborn, rate, events) {
+  function (api) {
+    source_individuals <- api$get_state(mosquito, P)
+    target_individuals <- source_individuals[
+      bernoulli(length(source_individuals), rate)
+    ]
+    api$clear_schedule(events$susceptable_development, target_individuals)
+    individual::StateUpdate$new(mosquito, Unborn, target_individuals)
   }
 }
 

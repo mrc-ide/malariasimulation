@@ -57,6 +57,15 @@ simparams$d_proportion <- state_props[['D']]
 simparams$a_proportion <- state_props[['A']]
 simparams$u_proportion <- state_props[['U']]
 
+# TODO: fix eq immunity exports so that they are not in states
+simparams$init_ica <- mean(eq$states[, 'ICA'])
+simparams$init_iva <- mean(eq$states[, 'ICA'])
+simparams$init_icm <- eq$states[1, 'ICM'] #TODO: fix this
+simparams$init_ivm <- eq$states[1, 'ICM']
+simparams$init_id <- mean(eq$states[, 'ID'])
+simparams$init_ib <- mean(eq$states[, 'IB'])
+
+
 # Run from equilibrium
 output <- run_simulation(sim_length, simparams)
 

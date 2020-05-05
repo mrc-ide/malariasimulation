@@ -120,6 +120,15 @@
 #' * u_proportion - the proportion of `human_population` that begin as
 #' Subpatents
 #'
+#' initial immunity values:
+#'
+#' * init_icm - the immunity from clinical disease at birth
+#' * init_ivm - the immunity from severe disease at birth
+#' * init_ib  - the initial pre-erythrocitic immunity
+#' * init_ica - the initial acquired immunity from clinical disease
+#' * init_iva - the initial acquired immunity from severe disease
+#' * init_id  - the initial acquired immunity to detectability
+#'
 #' miscellaneous:
 #'
 #' * de - delay for infection
@@ -139,9 +148,9 @@ get_parameters <- function(overrides = list()) {
     dd    = 5,
     da    = 195,
     du    = 110,
-    del   = round(6.64),
-    dl    = round(3.72),
-    dpl   = round(.643),
+    del   = 6.64,
+    dl    = 3.72,
+    dpl   = .643,
     mup   = days_per_timestep * .249,
     mum   = days_per_timestep * .249, #NOTE: set from sitefile
     sigma_squared   = 1.67,
@@ -223,6 +232,13 @@ get_parameters <- function(overrides = list()) {
     d_proportion = 0.007215064,
     a_proportion = 0.439323667,
     u_proportion = 0.133028023,
+    # initial immunities
+    init_ica = 3.809137,
+    init_iva = 3.809137,
+    init_icm = 0.2608124,
+    init_ivm = 0.2608124,
+    init_id = 1.948844,
+    init_ib = 3.478036,
     # misc
     human_population = human_population,
     mosquito_limit   = 10000 * human_population,

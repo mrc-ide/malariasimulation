@@ -118,7 +118,7 @@ create_variables <- function(parameters) {
   icm <- individual::Variable$new(
     "ICM",
     function(size) {
-      first_immunity <- 1
+      first_immunity <- parameters$init_icm
       t <- initial_age * 365 / parameters$days_per_timestep
       first_immunity * exp(-(t * parameters$rm))
     }
@@ -127,20 +127,32 @@ create_variables <- function(parameters) {
   ivm <- individual::Variable$new(
     "IVM",
     function(size) {
-      first_immunity <- 1
+      first_immunity <- parameters$init_ivm
       t <- initial_age * 365 / parameters$days_per_timestep
       first_immunity * exp(-(t * parameters$rm))
     }
   )
 
   # Pre-erythoctic immunity
-  ib  <- individual::Variable$new("IB", function(size) { rep(0, size) })
+  ib  <- individual::Variable$new(
+    "IB",
+    function(size) { rep(parameters$init_ib, size) }
+  )
   # Acquired immunity to clinical disease
-  ica <- individual::Variable$new("ICA", function(size) { rep(0, size) })
+  ica <- individual::Variable$new(
+    "ICA",
+    function(size) { rep(parameters$init_ica, size) }
+  )
   # Acquired immunity to severe disease
-  iva <- individual::Variable$new("IVA", function(size) { rep(0, size) })
+  iva <- individual::Variable$new(
+    "IVA",
+    function(size) { rep(parameters$init_iva, size) }
+  )
   # Acquired immunity to detectability
-  id <- individual::Variable$new("ID", function(size) { rep(0, size) })
+  id <- individual::Variable$new(
+     "ID",
+     function(size) { rep(parameters$init_id, size) }
+  )
 
   xi_values <- rlnorm(parameters$human_population, -parameters$sigma_squared/2,parameters$sigma_squared)
   xi <- individual::Variable$new(

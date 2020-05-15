@@ -27,6 +27,7 @@ run_simulation <- function(timesteps, overrides = list()) {
     ),
     end_timestep = timesteps,
     parameters = parameters,
-    custom_renderers = create_renderers(individuals, states, variables, parameters)
+    custom_renderers = create_renderers(individuals, states, variables, parameters),
+    events = events
   )
 }

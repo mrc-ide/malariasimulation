@@ -77,16 +77,16 @@ create_processes <- function(individuals, states, variables, events, parameters)
     ),
 
     # Natural death of females
-    create_fixed_probability_state_change_process(
-      individuals$mosquito,
-      states$Sm,
-      states$Unborn,
+    individual::fixed_probability_state_change_process(
+      individuals$mosquito$name,
+      states$Sm$name,
+      states$Unborn$name,
       parameters$mum
     ),
-    create_fixed_probability_state_change_process(
-      individuals$mosquito,
-      states$Im,
-      states$Unborn,
+    individual::fixed_probability_state_change_process(
+      individuals$mosquito$name,
+      states$Im$name,
+      states$Unborn$name,
       parameters$mum
     )
 
@@ -150,26 +150,6 @@ create_event_based_processes <- function(individuals, states, variables, events,
 # =================
 # Utility functions
 # =================
-
-#' @title Basic state transition
-#' @description
-#' create_fixed_probability_state_change_process generates a process function
-#' that moves individuals from one state to another at a constant rate
-#'
-#' @param i, an individual
-#' @param from, the source state
-#' @param to, the target state
-#' @param rate, the rate at which state transitions occur
-create_fixed_probability_state_change_process <- function(i, from, to, rate) {
-  stopifnot(is.numeric(rate))
-  function (api) {
-    source_individuals <- api$get_state(i, from)
-    target_individuals <- source_individuals[
-      bernoulli(length(source_individuals), rate)
-    ]
-    individual::StateUpdate$new(i, to, target_individuals)
-  }
-}
 
 #' @title Exponentially decaying variables
 #' @description

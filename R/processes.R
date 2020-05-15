@@ -104,7 +104,7 @@ create_event_based_processes <- function(individuals, states, variables, events,
   # Aging
   events$birthday$add_listener(function(api, target) {
     api$schedule(events$birthday, target, 365)
-    individual::VariableUpdate$new(
+    api$queue_variable_update(
       individuals$human,
       variables$age,
       api$get_variable(individuals$human, variables$age)[target] + 1,
@@ -115,35 +115,33 @@ create_event_based_processes <- function(individuals, states, variables, events,
   # Disease progression events
   events$infection$add_listener(function(api, target) {
     api$schedule(events$asymptomatic_progression, target, parameters$dd)
-    individual::StateUpdate$new(individuals$human, states$D, target)
+    api$queue_state_update(individuals$human, states$D, target)
   })
   events$asymptomatic_infection$add_listener(function(api, target) {
     api$schedule(events$subpatent_progression, target, parameters$da)
-    individual::StateUpdate$new(individuals$human, states$A, target)
+    api$queue_state_update(individuals$human, states$A, target)
   })
   events$subpatent_progression$add_listener(function(api, target) {
     api$schedule(events$subpatent_recovery, target, parameters$du)
-    individual::StateUpdate$new(individuals$human, states$U, target)
+    api$queue_state_update(individuals$human, states$U, target)
   })
   events$subpatent_recovery$add_listener(function(api, target) {
-    individual::StateUpdate$new(individuals$human, states$S, target)
+    api$queue_state_update(individuals$human, states$S, target)
   })
 
   # Mosquito development processes
   events$larval_growth$add_listener(function(api, target) {
     api$schedule(events$pupal_development, target, parameters$dl)
-    individual::StateUpdate$new(individuals$mosquito, states$L, target)
+    api$queue_state_update(individuals$mosquito, states$L, target)
   })
   events$pupal_development$add_listener(function(api, target) {
     api$schedule(events$susceptable_development, target, parameters$dpl)
-    individual::StateUpdate$new(individuals$mosquito, states$P, target)
+    api$queue_state_update(individuals$mosquito, states$P, target)
   })
   events$susceptable_development$add_listener(function(api, target) {
     female <- bernoulli(length(target), .5)
-    list(
-      individual::StateUpdate$new(individuals$mosquito, states$Unborn, target[!female]),
-      individual::StateUpdate$new(individuals$mosquito, states$Sm, target[female])
-    )
+    api$queue_state_update(individuals$mosquito, states$Unborn, target[!female])
+    api$queue_state_update(individuals$mosquito, states$Sm, target[female])
   })
 }
 
@@ -162,6 +160,6 @@ create_event_based_processes <- function(individuals, states, variables, events,
 create_exponential_decay_process <- function(individual, variable, rate) {
   function(api) {
     i <- api$get_variable(individual, variable)
-    individual::VariableUpdate$new(individual, variable, i - rate * i)
+    api$queue_variable_update(individual, variable, i - rate * i)
   }
 }

@@ -19,7 +19,7 @@ create_egg_laying_process <- function(mosquito, states, events, parameters) {
       if (n_eggs >= 1) {
         target <- seq_len(n_eggs)
         api$schedule(events$larval_growth, unborn[target], parameters$del)
-        return(individual::StateUpdate$new(mosquito, states$E, unborn[target]))
+        api$queue_state_update(mosquito, states$E, unborn[target])
       }
     }
   }
@@ -51,7 +51,7 @@ create_larval_death_process <- function(mosquito, E, L, Unborn, events) {
     ]
     api$clear_schedule(events$larval_growth, early_larval_deaths)
     api$clear_schedule(events$pupal_development, late_larval_deaths)
-    individual::StateUpdate$new(
+    api$queue_state_update(
       mosquito,
       Unborn,
       c(early_larval_deaths, late_larval_deaths)
@@ -66,7 +66,7 @@ create_pupal_death_process <- function(mosquito, P, Unborn, rate, events) {
       bernoulli(length(source_individuals), rate)
     ]
     api$clear_schedule(events$susceptable_development, target_individuals)
-    individual::StateUpdate$new(mosquito, Unborn, target_individuals)
+    api$queue_state_update(mosquito, Unborn, target_individuals)
   }
 }
 

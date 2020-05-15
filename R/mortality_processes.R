@@ -43,18 +43,16 @@ create_mortality_process <- function(human, D, variables, events) {
     api$clear_schedule(events$birthday, died)
     api$schedule(events$birthday, died, 365)
 
-    list(
-      individual::VariableUpdate$new(human, variables$age, 0, died),
-      individual::VariableUpdate$new(human, variables$last_bitten, -1, died),
-      individual::VariableUpdate$new(human, variables$last_infected, -1, died),
-      individual::VariableUpdate$new(human, variables$icm, birth_icm, died),
-      individual::VariableUpdate$new(human, variables$ivm, birth_ivm, died),
-      individual::VariableUpdate$new(human, variables$ib, -1, died),
-      individual::VariableUpdate$new(human, variables$ica, -1, died),
-      individual::VariableUpdate$new(human, variables$iva, -1, died),
-      individual::VariableUpdate$new(human, variables$id, -1, died),
-      individual::VariableUpdate$new(human, variables$is_severe, 0, died)
-    )
+    api$queue_variable_update(human, variables$age, 0, died)
+    api$queue_variable_update(human, variables$last_bitten, -1, died)
+    api$queue_variable_update(human, variables$last_infected, -1, died)
+    api$queue_variable_update(human, variables$icm, birth_icm, died)
+    api$queue_variable_update(human, variables$ivm, birth_ivm, died)
+    api$queue_variable_update(human, variables$ib, 0, died)
+    api$queue_variable_update(human, variables$ica, 0, died)
+    api$queue_variable_update(human, variables$iva, 0, died)
+    api$queue_variable_update(human, variables$id, 0, died)
+    api$queue_variable_update(human, variables$is_severe, 0, died)
   }
 }
 

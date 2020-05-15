@@ -91,92 +91,86 @@ create_infection_process <- function(individuals, states, variables, events) {
       variables$last_infected
     )[infected_humans]
 
-    updates <- list()
-
     # Updates for those who were bitten
     if (length(bitten_humans) > 0) {
-      updates <- c(updates, list(
-        # Boost immunity
-        individual::VariableUpdate$new(
-          human,
-          variables$ib,
-          boost_acquired_immunity(
-            ib[bitten_humans],
-            api$get_variable(
-              human,
-              variables$last_bitten
-            )[bitten_humans],
-            timestep,
-            parameters$ub
-          ),
-          bitten_humans
-        ),
-        # record last bitten
-        individual::VariableUpdate$new(
-          human,
-          variables$last_bitten,
+      # Boost immunity
+      api$queue_variable_update(
+        human,
+        variables$ib,
+        boost_acquired_immunity(
+          ib[bitten_humans],
+          api$get_variable(
+            human,
+            variables$last_bitten
+          )[bitten_humans],
           timestep,
-          bitten_humans
-        )
-      ))
+          parameters$ub
+        ),
+        bitten_humans
+      )
+      # record last bitten
+      api$queue_variable_update(
+        human,
+        variables$last_bitten,
+        timestep,
+        bitten_humans
+      )
 
       # Updates for those who were infected
       if (length(infected_humans) > 0) {
-        updates <- c(updates, list(
-          # Boost immunity
-          individual::VariableUpdate$new(
-            human,
-            variables$ica,
-            boost_acquired_immunity(
-              ica,
-              last_infected,
-              timestep,
-              parameters$uc
-            ),
-            infected_humans
-          ),
-          individual::VariableUpdate$new(
-            human,
-            variables$iva,
-            boost_acquired_immunity(
-              iva,
-              last_infected,
-              timestep,
-              parameters$uv
-            ),
-            infected_humans
-          ),
-          individual::VariableUpdate$new(
-            human,
-            variables$id,
-            boost_acquired_immunity(
-              api$get_variable(human, variables$id)[infected_humans],
-              last_infected,
-              timestep,
-              parameters$ud
-            ),
-            infected_humans
-          ),
-          # record last infected
-          individual::VariableUpdate$new(
-            human,
-            variables$last_infected,
+        # Boost immunity
+        api$queue_variable_update(
+          human,
+          variables$ica,
+          boost_acquired_immunity(
+            ica,
+            last_infected,
             timestep,
-            infected_humans
-          )
-        ))
+            parameters$uc
+          ),
+          infected_humans
+        )
+        api$queue_variable_update(
+          human,
+          variables$iva,
+          boost_acquired_immunity(
+            iva,
+            last_infected,
+            timestep,
+            parameters$uv
+          ),
+          infected_humans
+        )
+        api$queue_variable_update(
+          human,
+          variables$id,
+          boost_acquired_immunity(
+            api$get_variable(human, variables$id)[infected_humans],
+            last_infected,
+            timestep,
+            parameters$ud
+          ),
+          infected_humans
+        )
+        # record last infected
+        api$queue_variable_update(
+          human,
+          variables$last_infected,
+          timestep,
+          infected_humans
+        )
 
         # Schedule infection states
         if(length(to_infect) > 0) {
           api$schedule(events$infection, to_infect, parameters$de)
 
           if(length(develop_severe) > 0) {
-            updates <- c(updates, individual::VariableUpdate$new(
+            api$queue_variable_update(
               human,
               variables$is_severe,
               1,
               infected_humans[develop_severe]
-            ))
+            )
           }
         }
         if(length(to_infect_asym) > 0) {
@@ -188,8 +182,6 @@ create_infection_process <- function(individuals, states, variables, events) {
         }
       }
     }
-
-    updates
   }
 }
 
@@ -246,7 +238,7 @@ create_mosquito_infection_process <- function(
     infected = source_mosquitos[
       bernoulli(length(source_mosquitos), lambda)
     ]
-    individual::StateUpdate$new(mosquito, states$Im, infected)
+    api$queue_state_update(mosquito, states$Im, infected)
   }
 }
 

@@ -9,7 +9,7 @@ create_individuals(states, variables)
 \arguments{
 \item{states, }{available states to assign}
 
-\item{variables, }{available variables and constants to assign}
+\item{variables, }{available variables to assign}
 }
 \description{
 create_individuals declares the individuals to simulate. It assigns the

@@ -52,11 +52,13 @@ create_processes <- function(individuals, states, variables, events, parameters)
     ),
 
     # Eggs laid
-    create_egg_laying_process(
-      individuals$mosquito,
-      states,
-      events,
-      parameters
+    create_egg_laying_process_cpp(
+      individuals$mosquito$name,
+      states$Sm$name,
+      states$Im$name,
+      states$Unborn$name,
+      states$E$name,
+      events$larval_growth$name
     ),
 
     # Death of larvae

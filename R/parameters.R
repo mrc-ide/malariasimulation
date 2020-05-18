@@ -133,8 +133,8 @@
 #'
 #' * de - delay for infection
 #' * beta - the average number of eggs laid per female mosquito per day
-#' * human population - the number of humans to model
-#' * mosquito limit - the maximum number of mosquitos to allow for in the
+#' * human_population - the number of humans to model
+#' * mosquito_limit - the maximum number of mosquitos to allow for in the
 #' simulation
 #' * density - the initial number of mosquitos per human
 #' * days_per_timestep - the number of days to model per timestep

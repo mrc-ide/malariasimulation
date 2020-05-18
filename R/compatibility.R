@@ -36,6 +36,7 @@ translations = list(
   mu  = 'mum'
 )
 
+#' @export
 translate_jamie <- function(params) {
   translated <- list()
   for (name in names(params)) {

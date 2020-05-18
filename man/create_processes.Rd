@@ -4,14 +4,16 @@
 \alias{create_processes}
 \title{Define model processes}
 \usage{
-create_processes(individuals, states, variables, parameters)
+create_processes(individuals, states, variables, events, parameters)
 }
 \arguments{
 \item{individuals, }{a list of individuals in the model}
 
 \item{states, }{a list of states in the model}
 
-\item{variables, }{a list of variables and constants in the model}
+\item{variables, }{a list of variables in the model}
+
+\item{events, }{a list of events in the model}
 
 \item{parameters, }{a list of model parameters}
 }
@@ -20,6 +22,5 @@ create_processes, defines the functions which describe how each individual's
 states and variables change over time.
 
 It lists processes from \code{infection.R}, \code{mosquito_emergence.R} and
-\code{mortality.R}; and then exposes them to the model through
-\code{bind_process_to_model}
+\code{mortality.R}; and then exposes them to the model
 }

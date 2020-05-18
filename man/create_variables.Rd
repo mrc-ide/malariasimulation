@@ -2,7 +2,7 @@
 % Please edit documentation in R/individuals.R
 \name{create_variables}
 \alias{create_variables}
-\title{Define model variables and constants}
+\title{Define model variables}
 \usage{
 create_variables(parameters)
 }
@@ -10,10 +10,9 @@ create_variables(parameters)
 \item{parameters, }{model parameters created by \code{get_parameters}}
 }
 \description{
-create_variables creates the human and mosquito variables and constants for
+create_variables creates the human and mosquito variables for
 the model. Variables are used to track real data for each individual over
-time, they are read and updated by processes. Constants remain fixed for each
-individual over the whole simulation.
+time, they are read and updated by processes
 
 The human variables are defined as:
 \itemize{
@@ -23,10 +22,6 @@ alive
 for tracking grace periods in the boost of immunity
 \item last_infected - the last timestep at which this individual was infected, used
 for tracking grace periods in the boost of immunity
-\item infection_schedule - the last timestep at which this individual was infected, used
-for scheduling state transitions to I
-\item asymptomatic_infection_schedule - the last timestep at which this
-individual was infected, used for scheduling state transitions to A
 \item is_severe - a binary indicator (0 or 1) for if the individual currently has
 severe malaria
 \item ICM - Maternal immunity to clinical disease

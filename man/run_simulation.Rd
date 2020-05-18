@@ -4,7 +4,7 @@
 \alias{run_simulation}
 \title{Run the simulation}
 \usage{
-run_simulation(timesteps)
+run_simulation(timesteps, overrides = list())
 }
 \arguments{
 \item{timesteps, }{the number of timesteps to run the simulation for}
@@ -12,8 +12,7 @@ run_simulation(timesteps)
 \description{
 The main entrypoint for the simulation. run_simulation puts together the
 model components and runs the malaria simulation. This currently returns a
-2D vector (number of humans * timesteps) representing the state of each
-human at each timestep of the simulation
+dataframe with the number of individuals in each state at each timestep
 
 Warning: the return type of this function is likely to change as we figure
 out what kind of outputs we would like to report from the simulation.

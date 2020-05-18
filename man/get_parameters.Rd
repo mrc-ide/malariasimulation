@@ -4,7 +4,7 @@
 \alias{get_parameters}
 \title{Get model parameters}
 \usage{
-get_parameters()
+get_parameters(overrides = list())
 }
 \description{
 get_paramaters creates a named list of parameters for use in the model. These
@@ -19,12 +19,12 @@ The parameters are defined below.
 
 fixed state transitions:
 \itemize{
-\item rd - the rate at which humans move from state D to A
-\item ra - the rate at which humans move from state A to U
-\item ru - the rate at which humans move from state U to S
-\item rel - the rate at which mosquitos move from state E to L
-\item rl - the rate at which mosquitos move from state L to P
-\item rpl - the rate at which mosquitos move from state P to Sm
+\item dd - the delay for humans to move from state D to A
+\item da - the delay for humans to move from state A to U
+\item du - the delay for humans to move from state U to S
+\item del - the delay for mosquitos to move from state E to L
+\item dl - the delay for mosquitos to move from state L to P
+\item dpl - the delay mosquitos to move from state P to Sm
 \item mup - the rate at which pupal mosquitos die
 \item mum - the rate at which developed mosquitos die
 }
@@ -122,19 +122,43 @@ between the ages of 0 and 100
 
 carrying capacity parameters:
 \itemize{
+\item model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall
 \item K0 - carrying capacity
-\item g0 to g3 - rainfall shape paramters
-\item h1 to h3 - rainfall shape paramters
+\item g0 to g3 - rainfall shape parameters
+\item h1 to h3 - rainfall shape parameters
 \item gamma - effect of density dependence on late instars relative to early
 instars
+}
+
+initial state proportions:
+\itemize{
+\item s_proportion - the proportion of \code{human_population} that begin as Susceptable
+\item d_proportion - the proportion of \code{human_population} that begin with
+clinical disease
+\item a_proportion - the proportion of \code{human_population} that begin as
+Asymptomatic
+\item u_proportion - the proportion of \code{human_population} that begin as
+Subpatents
+}
+
+initial immunity values:
+\itemize{
+\item init_icm - the immunity from clinical disease at birth
+\item init_ivm - the immunity from severe disease at birth
+\item init_ib  - the initial pre-erythrocitic immunity
+\item init_ica - the initial acquired immunity from clinical disease
+\item init_iva - the initial acquired immunity from severe disease
+\item init_id  - the initial acquired immunity to detectability
 }
 
 miscellaneous:
 \itemize{
 \item de - delay for infection
 \item beta - the average number of eggs laid per female mosquito per day
-\item human population - the number of humans to model
-\item mosquito limit - the maximum number of mosquitos to allow for in the
+\item human_population - the number of humans to model
+\item mosquito_limit - the maximum number of mosquitos to allow for in the
+simulation
+\item density - the initial number of mosquitos per human
 \item days_per_timestep - the number of days to model per timestep
 }
 }

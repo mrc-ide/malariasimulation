@@ -20,9 +20,13 @@ Encoding: UTF-8
 LazyData: true
 Remotes: mrc-ide/individual@feat/speed
 Imports:
-  individual
+  individual,
+  Rcpp
 Suggests: 
   testthat,
   mockery
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
 Roxygen: list(markdown = TRUE)
+LinkingTo:
+  Rcpp,
+  individual

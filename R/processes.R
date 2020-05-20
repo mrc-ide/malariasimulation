@@ -125,31 +125,41 @@ create_event_based_processes <- function(individuals, states, variables, events,
   })
 
   # Disease progression events
-  events$infection$add_listener(function(api, target) {
-    api$schedule(events$asymptomatic_progression, target, parameters$dd)
-    api$queue_state_update(individuals$human, states$D, target)
-  })
-  events$asymptomatic_infection$add_listener(function(api, target) {
-    api$schedule(events$subpatent_progression, target, parameters$da)
-    api$queue_state_update(individuals$human, states$A, target)
-  })
-  events$subpatent_progression$add_listener(function(api, target) {
-    api$schedule(events$subpatent_recovery, target, parameters$du)
-    api$queue_state_update(individuals$human, states$U, target)
-  })
-  events$subpatent_recovery$add_listener(function(api, target) {
-    api$queue_state_update(individuals$human, states$S, target)
-  })
+  events$infection$add_listener(
+    individual::update_state_listener(individuals$human$name, states$D$name)
+  )
+  events$infection$add_listener(
+    individual::reschedule_listener(events$asymptomatic_progression$name, parameters$dd)
+  )
+  events$asymptomatic_infection$add_listener(
+    individual::update_state_listener(individuals$human$name, states$A$name)
+  )
+  events$asymptomatic_infection$add_listener(
+    individual::reschedule_listener(events$subpatent_progression$name, parameters$da)
+  )
+  events$subpatent_progression$add_listener(
+    individual::update_state_listener(individuals$human$name, states$U$name)
+  )
+  events$subpatent_progression$add_listener(
+    individual::reschedule_listener(events$subpatent_recovery$name, parameters$du)
+  )
+  events$subpatent_recovery$add_listener(
+    individual::update_state_listener(individuals$human$name, states$S$name)
+  )
 
   # Mosquito development processes
-  events$larval_growth$add_listener(function(api, target) {
-    api$schedule(events$pupal_development, target, parameters$dl)
-    api$queue_state_update(individuals$mosquito, states$L, target)
-  })
-  events$pupal_development$add_listener(function(api, target) {
-    api$schedule(events$susceptable_development, target, parameters$dpl)
-    api$queue_state_update(individuals$mosquito, states$P, target)
-  })
+  events$larval_growth$add_listener(
+    individual::update_state_listener(individuals$mosquito$name, states$L$name)
+  )
+  events$larval_growth$add_listener(
+    individual::reschedule_listener(events$pupal_development$name, parameters$dl)
+  )
+  events$pupal_development$add_listener(
+    individual::update_state_listener(individuals$mosquito$name, states$P$name)
+  )
+  events$pupal_development$add_listener(
+    individual::reschedule_listener(events$susceptable_development$name, parameters$dpl)
+  )
   events$susceptable_development$add_listener(function(api, target) {
     female <- bernoulli(length(target), .5)
     api$queue_state_update(individuals$mosquito, states$Unborn, target[!female])

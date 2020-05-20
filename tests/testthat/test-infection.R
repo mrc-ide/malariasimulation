@@ -120,16 +120,6 @@ test_that('mosquito_force_of_infection returns correct values', {
   )
 })
 
-test_that('remove_scheduled removes indecies of already scheduled infections', {
-  subset <- c(1, 2, 4)
-  current_schedule <- c(-1, 4, 6, 9, -1, 3)
-  timestep <- 5
-  expect_equal(
-    remove_scheduled(subset, timestep, current_schedule),
-    c(1, 2)
-  )
-})
-
 test_that('boost_acquired_immunity respects the delay period', {
   level <- c(2.4, 1.2, 0., 4.)
   last_boosted <- c(11, 5, 1, 13)

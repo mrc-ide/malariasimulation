@@ -1,30 +1,3 @@
-#' @title Mosquito births
-#' @description
-#' This is the process for mosquito birth, it defines how many new early stage
-#' larvae are created on each timestep.
-#' @param mosquito, the mosquito individual
-#' @param Sm, the susceptable mosquito state
-#' @param Im, the infected mosquito state
-#' @param Unborn, the unborn mosquito state
-#' @param E, the early stage larval state
-create_egg_laying_process <- function(mosquito, states, events, parameters) {
-  function(api) {
-    m <- api$get_state(mosquito, states$Sm, states$Im)
-    unborn <- api$get_state(mosquito, states$Unborn)
-    if (length(m) > 0) {
-      n_eggs <- parameters$beta * length(m)
-      if (n_eggs > length(unborn)) {
-        stop('Run out of mosquitos')
-      }
-      if (n_eggs >= 1) {
-        target <- seq_len(n_eggs)
-        api$schedule(events$larval_growth, unborn[target], parameters$del)
-        api$queue_state_update(mosquito, states$E, unborn[target])
-      }
-    }
-  }
-}
-
 #' @title Larval deaths
 #' @description
 #' This process defines how many early and late stage larvae die due to

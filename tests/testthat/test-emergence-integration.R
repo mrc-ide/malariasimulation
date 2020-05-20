@@ -1,5 +1,6 @@
 
 test_that('egg_laying_process fails when there are not enough individuals', {
+  skip("to be translated to cpp")
   parameters <- get_parameters()
   states <- create_states(parameters)
   variables <- create_variables(parameters)
@@ -12,7 +13,7 @@ test_that('egg_laying_process fails when there are not enough individuals', {
     states$E
   )
 
-  simulation_frame <- mock_simulation_frame(
+  api <- mock_api(
     list(
       mosquito = list(
         Sm = seq_len(1000),
@@ -22,11 +23,11 @@ test_that('egg_laying_process fails when there are not enough individuals', {
     )
   )
   expect_error(
-    egg_laying_process(simulation_frame, 1, parameters),
+    egg_laying_process(api),
     '*'
   )
 
-  simulation_frame <- mock_simulation_frame(
+  api <- mock_api(
     list(
       mosquito = list(
         Sm = seq_len(1000),
@@ -36,12 +37,13 @@ test_that('egg_laying_process fails when there are not enough individuals', {
     )
   )
   expect_error(
-    egg_laying_process(simulation_frame, 1, parameters),
+    egg_laying_process(api),
     '*'
   )
 })
 
 test_that('egg_laying_process creates the correct number of larvae', {
+  skip("to be translated to cpp")
   parameters <- get_parameters()
   parameters$beta <- 5
   states <- create_states(parameters)
@@ -55,16 +57,17 @@ test_that('egg_laying_process creates the correct number of larvae', {
     states$E
   )
 
-  simulation_frame <- mock_simulation_frame(
+  api <- mock_api(
     list(
       mosquito = list(
         Sm = seq_len(1000),
         Im = seq_len(1000) + 1000,
         Unborn = seq_len(100000) + 2000
       )
-    )
+    ),
+    parameters = parameters
   )
-  update <- egg_laying_process(simulation_frame, 1, parameters)
+  egg_laying_process(api)
   expect_equal(update$individual$name, 'mosquito')
   expect_equal(update$state$name, 'E')
   expect_equal(length(update$index), 10000)
@@ -73,6 +76,7 @@ test_that('egg_laying_process creates the correct number of larvae', {
 
 test_that('larval_death_process works with no larvae', {
   parameters <- get_parameters()
+  events <- create_events()
   states <- create_states(parameters)
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables)
@@ -80,25 +84,30 @@ test_that('larval_death_process works with no larvae', {
     individuals$mosquito,
     states$E,
     states$L,
-    states$Unborn
+    states$Unborn,
+    events
   )
-  simulation_frame <- mock_simulation_frame(
+  api <- mock_api(
     list(
       mosquito = list(
         E = c(),
         L = c(),
         Unborn = seq_len(100)
       )
-    )
+    ),
+    timestep = 100,
+    parameters = parameters
   )
-  update <- larval_death_process(simulation_frame, 100, parameters)
-  expect_equal(update$individual$name, 'mosquito')
-  expect_equal(update$state$name, 'Unborn')
-  expect_equal(length(update$index), 0)
+  larval_death_process(api)
+  updates <- mockery::mock_args(api$queue_state_update)
+  expect_equal(updates[[1]][[1]]$name, 'mosquito')
+  expect_equal(updates[[1]][[2]]$name, 'Unborn')
+  expect_length(updates[[1]][[3]], 0)
 })
 
 test_that('larval_death_process kills the expected larvae', {
   parameters <- get_parameters()
+  events <- create_events()
   states <- create_states(parameters)
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables)
@@ -106,16 +115,19 @@ test_that('larval_death_process kills the expected larvae', {
     individuals$mosquito,
     states$E,
     states$L,
-    states$Unborn
+    states$Unborn,
+    events
   )
-  simulation_frame <- mock_simulation_frame(
+  api <- mock_api(
     list(
       mosquito = list(
         E = c(1, 2, 3, 4),
         L = c(5, 6, 7, 8),
         Unborn = seq_len(100) + 8
       )
-    )
+    ),
+    timestep = 100,
+    parameters = parameters
   )
 
   mocked <- mockery::stub(
@@ -127,8 +139,9 @@ test_that('larval_death_process kills the expected larvae', {
     )
   )
 
-  update <- larval_death_process(simulation_frame, 100, parameters)
-  expect_equal(update$individual$name, 'mosquito')
-  expect_equal(update$state$name, 'Unborn')
-  expect_setequal(update$index, c(1, 2, 5, 7))
+  larval_death_process(api)
+  updates <- mockery::mock_args(api$queue_state_update)
+  expect_equal(updates[[1]][[1]]$name, 'mosquito')
+  expect_equal(updates[[1]][[2]]$name, 'Unborn')
+  expect_equal(updates[[1]][[3]], c(1, 2, 5, 7))
 })

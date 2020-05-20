@@ -1,5 +1,6 @@
 test_that('mortality_process resets humans correctly', {
   parameters <- get_parameters()
+  events <- create_events()
   states <- create_states(parameters)
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables)
@@ -7,10 +8,11 @@ test_that('mortality_process resets humans correctly', {
   mortality_process <- create_mortality_process(
     individuals$human,
     states$D,
-    variables
+    variables,
+    events
   )
 
-  simulation_frame <- mock_simulation_frame(
+  api <- mock_api(
     list(
       human = list(
         D = c(1, 2),
@@ -20,17 +22,18 @@ test_that('mortality_process resets humans correctly', {
         ICM = c(1, 2, 3, 4),
         IVM = c(1, 2, 3, 4)
       )
-    )
+    ),
+    timestep = 2
   )
 
   # NOTE: `with_mock` preferred here as `stub` suffers from locked binding issues
-  updates <- with_mock(
+  with_mock(
     sample = mockery::mock(c(1), c(4)),
     'malariasimulation:::bernoulli' = mockery::mock(
       c(FALSE, FALSE, FALSE, TRUE),
       c(FALSE, TRUE)
     ),
-    mortality_process(simulation_frame, 1, parameters)
+    mortality_process(api)
   )
 
   died <- c(2, 4)
@@ -38,88 +41,40 @@ test_that('mortality_process resets humans correctly', {
   expect(is.numeric(parameters$pvm), 'Pvm is not set')
   expect(is.numeric(parameters$pcm), 'Pcm is not set')
 
-  expect_any(updates, function(update) {
-    all(
-      update$variable$name == 'age',
-      update$value == 0,
-      setequal(update$index, died)
+  update_args <- mockery::mock_args(api$queue_variable_update)
+  cleared_args <- mockery::mock_args(api$clear_schedule)
+
+  for (update in update_args) {
+    expect_equal(update[[1]]$name, 'human')
+    expect_setequal(update[[4]], died)
+  }
+
+  expect_setequal(
+    vapply(update_args, function(update) update[[2]]$name, character(1)),
+    c(
+      'age',
+      'last_bitten',
+      'last_infected',
+      'ICM',
+      'IVM',
+      'IB',
+      'ICA',
+      'IVA',
+      'ID',
+      'is_severe'
     )
-  })
-  expect_any(updates, function(update) {
-    all(
-      update$variable$name == 'last_bitten',
-      update$value == -1,
-      setequal(update$index, died)
+  )
+
+  expect_setequal(
+    vapply(cleared_args, function(cleared) cleared[[1]]$name, character(1)),
+    c(
+      'infection',
+      'asymptomatic_infection',
+      'asymptomatic_progression',
+      'subpatent_progression',
+      'subpatent_recovery',
+      'birthday'
     )
-  })
-  expect_any(updates, function(update) {
-    all(
-      update$variable$name == 'last_infected',
-      update$value == -1,
-      setequal(update$index, died)
-    )
-  })
-  expect_any(updates, function(update) {
-    all(
-      update$variable$name == 'infection_schedule',
-      update$value == -1,
-      setequal(update$index, died)
-    )
-  })
-  expect_any(updates, function(update) {
-    all(
-      update$variable$name == 'asymptomatic_infection_schedule',
-      update$value == -1,
-      setequal(update$index, died)
-    )
-  })
-  expect_any(updates, function(update) {
-    all(
-      update$variable$name == 'ICM',
-      update$value == c(2 * parameters$pm, 4 * parameters$pm),
-      setequal(update$index, died)
-    )
-  })
-  expect_any(updates, function(update) {
-    all(
-      update$variable$name == 'IVM',
-      update$value == c(2 * parameters$pm, 4 * parameters$pm),
-      setequal(update$index, died)
-    )
-  })
-  expect_any(updates, function(update) {
-    all(
-      update$variable$name == 'IB',
-      update$value == -1,
-      setequal(update$index, died)
-    )
-  })
-  expect_any(updates, function(update) {
-    all(
-      update$variable$name == 'ICA',
-      update$value == -1,
-      setequal(update$index, died)
-    )
-  })
-  expect_any(updates, function(update) {
-    all(
-      update$variable$name == 'IVA',
-      update$value == -1,
-      setequal(update$index, died)
-    )
-  })
-  expect_any(updates, function(update) {
-    all(
-      update$variable$name == 'ID',
-      update$value == -1,
-      setequal(update$index, died)
-    )
-  })
-  expect_any(updates, function(update) {
-    all(
-      update$variable$name == 'is_severe',
-      update$value == 0,
-      setequal(update$index, died)
-    )
-  })
+  )
+
 })

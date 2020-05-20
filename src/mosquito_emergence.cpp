@@ -8,6 +8,15 @@
 #include <Rcpp.h>
 #include <individual.h>
 
+//' @title Mosquito births
+//' @description
+//' This is the process for mosquito birth, it defines how many new early stage
+//' larvae are created on each timestep.
+//' @param mosquito, the mosquito individual
+//' @param Sm, the susceptable mosquito state
+//' @param Im, the infected mosquito state
+//' @param Unborn, the unborn mosquito state
+//' @param E, the early stage larval state
 //[[Rcpp::export]]
 Rcpp::XPtr<process_t> create_egg_laying_process_cpp(
     std::string mosquito,

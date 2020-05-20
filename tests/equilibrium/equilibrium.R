@@ -40,11 +40,11 @@ output <- run_simulation(sim_length, simparams)
 # Estimating EIR of the model
 # Leave a 100 timestep grace period for the EIR to flatten out
 ggplot(
-  output,
-  aes(x = timestep, y = EIR)
+  subset(output, output$timestep > burn_in),
+  aes(x = timestep, y = mean_EIR)
 ) + geom_line()
 
-EIR <- mean(output$EIR[output$timestep > burn_in])
+EIR <- mean(output$mean_EIR[output$timestep > burn_in])
 
 print(paste("Estimated equilibrium to be", EIR, sep=" "))
 
@@ -97,10 +97,7 @@ plot_states(output[c(
   'human_U_count'
 )])
 
-plot_states(output[c(
-  'mosquito_E_count',
-  'mosquito_L_count',
-  'mosquito_P_count',
+plot_states(subset(output, output$timestep > burn_in)[c(
   'mosquito_Im_count',
   'mosquito_Sm_count'
 )])

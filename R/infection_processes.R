@@ -35,6 +35,8 @@ create_infection_process <- function(individuals, states, variables, events) {
       parameters
     )
 
+    api$render("mean_EIR", mean(epsilon))
+
     number_of_bites <- round(epsilon)
     bitten_humans <- source_humans[number_of_bites > 0]
 

@@ -90,6 +90,16 @@ create_processes <- function(individuals, states, variables, events, parameters)
       states$Im$name,
       states$Unborn$name,
       parameters$mum
+    ),
+
+    # Rendering processes
+    individual::state_count_renderer_process(
+      individuals$human$name,
+      c(states$S$name, states$A$name, states$D$name, states$U$name)
+    ),
+    individual::state_count_renderer_process(
+      individuals$mosquito$name,
+      c(states$E$name, states$L$name, states$P$name, states$Sm$name, states$Im$name)
     )
 
   )

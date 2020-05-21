@@ -28,7 +28,10 @@ mock_api <- function(values, parameters = list(), timestep = 1) {
       }
       subset
     },
-    get_variable = function(individual, variable) {
+    get_variable = function(individual, variable, index=NULL) {
+      if (!is.null(index)) {
+        return(values[[individual$name]][[variable$name]][index])
+      }
       values[[individual$name]][[variable$name]]
     },
     queue_state_update = mockery::mock(),

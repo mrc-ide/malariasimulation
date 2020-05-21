@@ -23,15 +23,15 @@ create_infection_process <- function(individuals, states, variables, events) {
     # Calculate EIR
     source_mosquitos <- api$get_state(mosquito, states$Im)
     age <- api$get_variable(human, variables$age)
-    ib <- api$get_variable(human, variables$ib)
 
     epsilon <- eir(
       age[source_humans],
-      api$get_variable(human, variables$xi)[source_humans],
+      api$get_variable(human, variables$xi, source_humans),
       api$get_variable(
         mosquito,
-        variables$mosquito_variety
-      )[source_mosquitos],
+        variables$mosquito_variety,
+        source_mosquitos
+      ),
       parameters
     )
 
@@ -41,7 +41,8 @@ create_infection_process <- function(individuals, states, variables, events) {
     bitten_humans <- source_humans[number_of_bites > 0]
 
     # Calculate Infected
-    b <- blood_immunity(ib[bitten_humans], parameters)
+    ib <- api$get_variable(human, variables$ib, bitten_humans)
+    b <- blood_immunity(ib, parameters)
 
     infected_humans <- bitten_humans[
       !bernoulli(
@@ -52,24 +53,26 @@ create_infection_process <- function(individuals, states, variables, events) {
 
     ica <- api$get_variable(
       human,
-      variables$ica
-    )[infected_humans]
+      variables$ica,
+      infected_humans
+    )
 
     iva <- api$get_variable(
       human,
-      variables$iva
-    )[infected_humans]
+      variables$iva,
+      infected_humans
+    )
 
     phi <- clinical_immunity(
       ica,
-      api$get_variable(human, variables$icm)[infected_humans],
+      api$get_variable(human, variables$icm, infected_humans),
       parameters
     )
 
     theta <- severe_immunity(
       age[infected_humans],
       iva,
-      api$get_variable(human, variables$ivm)[infected_humans],
+      api$get_variable(human, variables$ivm, infected_humans),
       parameters
     )
 
@@ -90,8 +93,9 @@ create_infection_process <- function(individuals, states, variables, events) {
 
     last_infected <- api$get_variable(
       human,
-      variables$last_infected
-    )[infected_humans]
+      variables$last_infected,
+      infected_humans
+    )
 
     # Updates for those who were bitten
     if (length(bitten_humans) > 0) {
@@ -100,7 +104,7 @@ create_infection_process <- function(individuals, states, variables, events) {
         human,
         variables$ib,
         boost_acquired_immunity(
-          ib[bitten_humans],
+          ib,
           api$get_variable(
             human,
             variables$last_bitten
@@ -147,7 +151,7 @@ create_infection_process <- function(individuals, states, variables, events) {
           human,
           variables$id,
           boost_acquired_immunity(
-            api$get_variable(human, variables$id)[infected_humans],
+            api$get_variable(human, variables$id, infected_humans),
             last_infected,
             timestep,
             parameters$ud
@@ -209,31 +213,34 @@ create_mosquito_infection_process <- function(
     source_mosquitos <- api$get_state(mosquito, states$Sm)
 
     age <- api$get_variable(human, variables$age)
-    asymptomatic <- api$get_state(human, states$A)
+    xi  <- api$get_variable(human, variables$xi)
+    a_subset <- api$get_state(human, states$A)
+    d_subset <- api$get_state(human, states$D)
+    u_subset <- api$get_state(human, states$U)
 
     a_infectivity <- asymptomatic_infectivity(
-      age[asymptomatic],
-      api$get_variable(human, variables$id)[asymptomatic],
+      age[a_subset],
+      api$get_variable(human, variables$id, a_subset),
       parameters
     )
 
-    # Create a dataframe frame with human age, xi and infectivity
-    infectivity_frame <- create_infectivity_frame(
-      age,
-      api$get_variable(human, variables$xi),
-      list(
-        list(api$get_state(human, states$D), parameters$cd),
-        list(asymptomatic, a_infectivity),
-        list(api$get_state(human, states$U), parameters$cu)
-      )
+    age_subset <- c(age[d_subset], age[a_subset], age[u_subset])
+    xi_subset  <- c(xi[d_subset], xi[a_subset], xi[u_subset])
+    infectivity<- c(
+      rep(parameters$cd, length(d_subset)),
+      a_infectivity,
+      rep(parameters$cu, length(u_subset))
     )
 
     lambda <- mosquito_force_of_infection(
       api$get_variable(
         mosquito,
-        variables$mosquito_variety
-      )[source_mosquitos],
-      infectivity_frame,
+        variables$mosquito_variety,
+        source_mosquitos
+      ),
+      age_subset,
+      xi_subset,
+      infectivity,
       parameters
     )
 
@@ -331,43 +338,16 @@ human_pi <- function(xi, psi) {
 }
 
 # Implemented from Griffin et al 2010 S1 page 7
-mosquito_force_of_infection <- function(v, human_frame, parameters) {
-  psi <- unique_biting_rate(human_frame$age, parameters)
-  .pi <- human_pi(human_frame$xi, psi)
-  mean_infectivity <- sum(.pi * human_frame$infectivity)
+mosquito_force_of_infection <- function(v, age, xi, infectivity, parameters) {
+  psi <- unique_biting_rate(age, parameters)
+  .pi <- human_pi(xi, psi)
+  mean_infectivity <- sum(.pi * infectivity)
   blood_meal_rate(v, parameters) * mean_infectivity
 }
 
 blood_meal_rate <- function(v, parameters) {
   rates <- c(parameters$av1, parameters$av2, parameters$av3)
   rates[v]
-}
-
-create_infectivity_frame <- function(human_age, human_xi, subset_to_param) {
-  do.call(
-    'rbind',
-    lapply(
-      subset_to_param,
-      function(x) {
-        subset <- x[[1]]
-        if (length(subset) == 0) {
-          return(
-            setNames(
-              data.frame(
-                matrix(ncol = 3, nrow = 0)
-              ),
-              c('age', 'xi', 'infectivity')
-            )
-          )
-        }
-        data.frame(
-          age         = human_age[subset],
-          xi          = human_xi[subset],
-          infectivity = x[[2]]
-        )
-      }
-    )
-  )
 }
 
 boost_acquired_immunity <- function(level, last_boosted, timestep, delay) {

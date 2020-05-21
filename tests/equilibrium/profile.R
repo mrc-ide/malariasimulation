@@ -1,7 +1,7 @@
 library(malariasimulation)
 library(malariaEquilibrium)
 
-sim_length <- 1000
+sim_length <- 5000
 
 remove_keys <- function(x, n) { for (name in n) { x[[name]] <- NULL }; x }
 

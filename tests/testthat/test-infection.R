@@ -78,26 +78,6 @@ test_that('severe immunity returns correct values', {
   )
 })
 
-test_that('create_infectivity_frame constructs the correct dataframe', {
-  age <- c(0, 5, 30)
-  xi <-  c(1.8, 2., .5)
-  subset_to_param <-  list(list(c(1, 2), .5), list(c(3), .2))
-  expect_mapequal(
-    create_infectivity_frame(age, xi, subset_to_param),
-    data.frame(age = c(0, 5, 30), xi = c(1.8, 2., .5), infectivity=c(.5, .5, .2))
-  )
-})
-
-test_that('create_infectivity_frame survives empty subsets', {
-  age <- c(0, 5, 30)
-  xi <-  c(1.8, 2., .5)
-  subset_to_param <-  list(list(c(1,2), .5), list(c(), .2))
-  expect_mapequal(
-    create_infectivity_frame(age, xi, subset_to_param),
-    data.frame(age = c(0, 5), xi = c(1.8, 2.), infectivity=c(.5, .5))
-  )
-})
-
 test_that('mosquito_force_of_infection returns correct values', {
   days_per_timestep <- 1
   parameters <- list(
@@ -107,14 +87,18 @@ test_that('mosquito_force_of_infection returns correct values', {
     rho   = .85,
     a0    = 8 * 365 / days_per_timestep
   )
-  human_frame <- data.frame(
-    age = c(0, 5, 30),
-    xi = c(1.8, 2., .5),
-    infectivity=c(.5, .5, .2)
-  )
+  age <- c(0, 5, 30)
+  xi <- c(1.8, 2., .5)
+  infectivity <- c(.5, .5, .2)
   v <- c(1, 1, 1, 2, 3, 3)
   expect_equal(
-    mosquito_force_of_infection(v, human_frame, parameters),
+    mosquito_force_of_infection(
+      v,
+      age,
+      xi,
+      infectivity,
+      parameters
+    ),
     c(.426, .426, .426, .343, .436, .436),
     tolerance=1e-3
   )

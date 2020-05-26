@@ -2,8 +2,7 @@ library(malariasimulation)
 library(malariaEquilibrium)
 library(ggplot2)
 
-sim_length <- 1000
-burn_in <- 500
+sim_length <- 50 * 365
 
 remove_keys <- function(x, n) { for (name in n) { x[[name]] <- NULL }; x }
 
@@ -38,18 +37,19 @@ simparams <- translate_jamie(params)
 output <- run_simulation(sim_length, simparams)
 
 # Estimating EIR of the model
-# Leave a 100 timestep grace period for the EIR to flatten out
+# Leave a burn in for the EIR to flatten out
 ggplot(
-  subset(output, output$timestep > burn_in),
+  subset(output, output$timestep > (sim_length - 365)),
   aes(x = timestep, y = mean_EIR)
 ) + geom_line()
 
-EIR <- mean(output$mean_EIR[output$timestep > burn_in])
+set.seed(42)
+EIR <- mean(output$mean_EIR[output$timestep > (sim_length - 365)])
 
 print(paste("Estimated equilibrium to be", EIR, sep=" "))
 
 # Calculate equilibrium
-eq <- human_equilibrium(EIR = EIR, ft = 0, p = jamie_params, age = 0:100)
+eq <- human_equilibrium(EIR = EIR*365, ft = 0, p = jamie_params, age = 0:100)
 state_props <- colSums(eq$states[,c('S', 'D', 'A', 'U')])
 
 simparams$s_proportion <- state_props[['S']]
@@ -57,16 +57,8 @@ simparams$d_proportion <- state_props[['D']]
 simparams$a_proportion <- state_props[['A']]
 simparams$u_proportion <- state_props[['U']]
 
-# TODO: fix eq immunity exports so that they are not in states
-simparams$init_ica <- mean(eq$states[, 'ICA'])
-simparams$init_iva <- mean(eq$states[, 'ICA'])
-simparams$init_icm <- eq$states[1, 'ICM'] #TODO: fix this
-simparams$init_ivm <- eq$states[1, 'ICM']
-simparams$init_id <- mean(eq$states[, 'ID'])
-simparams$init_ib <- mean(eq$states[, 'IB'])
-
-
 # Run from equilibrium
+set.seed(42)
 output <- run_simulation(sim_length, simparams)
 
 plot_states <- function(output) {
@@ -101,3 +93,19 @@ plot_states(subset(output, output$timestep > burn_in)[c(
   'mosquito_Im_count',
   'mosquito_Sm_count'
 )])
+
+ggplot(
+  melt(
+    output[c(
+      'timestep',
+      'human_ICA_mean',
+      'human_ICM_mean',
+      'human_IB_mean'
+    )],
+    'timestep'
+  ),
+  aes(x = timestep, y = value, color = variable)
+) + geom_line()
+
+EIR <- mean(output$mean_EIR[output$timestep > (sim_length - 365)])
+print(paste("Actual EIR:", EIR, sep=" "))

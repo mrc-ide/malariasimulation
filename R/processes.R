@@ -100,7 +100,12 @@ create_processes <- function(individuals, states, variables, events, parameters)
     individual::state_count_renderer_process(
       individuals$mosquito$name,
       c(states$E$name, states$L$name, states$P$name, states$Sm$name, states$Im$name)
+    ),
+    individual::variable_mean_renderer_process(
+      individuals$human$name,
+      c(variables$ica$name, variables$icm$name, variables$ib$name)
     )
+
 
   )
 }
@@ -129,21 +134,21 @@ create_event_based_processes <- function(individuals, states, variables, events,
     individual::update_state_listener(individuals$human$name, states$D$name)
   )
   events$infection$add_listener(
-    individual::reschedule_listener(events$asymptomatic_progression$name, parameters$dd)
+    individual::reschedule_listener(events$asymptomatic_infection$name, parameters$dd)
   )
   events$asymptomatic_infection$add_listener(
     individual::update_state_listener(individuals$human$name, states$A$name)
   )
   events$asymptomatic_infection$add_listener(
-    individual::reschedule_listener(events$subpatent_progression$name, parameters$da)
+    individual::reschedule_listener(events$subpatent_infection$name, parameters$da)
   )
-  events$subpatent_progression$add_listener(
+  events$subpatent_infection$add_listener(
     individual::update_state_listener(individuals$human$name, states$U$name)
   )
-  events$subpatent_progression$add_listener(
-    individual::reschedule_listener(events$subpatent_recovery$name, parameters$du)
+  events$subpatent_infection$add_listener(
+    individual::reschedule_listener(events$recovery$name, parameters$du)
   )
-  events$subpatent_recovery$add_listener(
+  events$recovery$add_listener(
     individual::update_state_listener(individuals$human$name, states$S$name)
   )
 

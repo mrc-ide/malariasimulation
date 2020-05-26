@@ -69,26 +69,34 @@ create_infection_process <- function(individuals, states, variables, events) {
       parameters
     )
 
-    theta <- severe_immunity(
-      age[infected_humans],
-      iva,
-      api$get_variable(human, variables$ivm, infected_humans),
-      parameters
-    )
-
     develop_clinical <- bernoulli(length(infected_humans), phi)
-    develop_severe <- bernoulli(length(infected_humans), theta)
-    symptomatic <- develop_severe | develop_clinical
+
+    if (parameters$severe_enabled) {
+      theta <- severe_immunity(
+        age[infected_humans],
+        iva,
+        api$get_variable(human, variables$ivm, infected_humans),
+        parameters
+      )
+      develop_severe <- bernoulli(length(infected_humans), theta)
+      symptomatic <- develop_severe | develop_clinical #NOTE: is this AND or OR?
+    } else {
+      symptomatic <- develop_clinical
+    }
 
     # Exclude humans already scheduled for infection
+    scheduled_for_infection <- union(
+      api$get_scheduled(events$infection),
+      api$get_scheduled(events$asymptomatic_infection)
+    )
     to_infect <- setdiff(
       infected_humans[symptomatic],
-      api$get_scheduled(events$infection)
+      scheduled_for_infection
     )
 
     to_infect_asym <- setdiff(
       infected_humans[!symptomatic],
-      api$get_scheduled(events$asymptomatic_infection)
+      scheduled_for_infection
     )
 
     last_infected <- api$get_variable(
@@ -169,8 +177,16 @@ create_infection_process <- function(individuals, states, variables, events) {
         # Schedule infection states
         if(length(to_infect) > 0) {
           api$schedule(events$infection, to_infect, parameters$de)
+          api$clear_schedule(
+            events$subpatent_infection,
+            to_infect
+          )
+          api$clear_schedule(
+            events$recovery,
+            to_infect
+          )
 
-          if(length(develop_severe) > 0) {
+          if(parameters$severe_enabled && length(develop_severe) > 0) {
             api$queue_variable_update(
               human,
               variables$is_severe,
@@ -184,6 +200,14 @@ create_infection_process <- function(individuals, states, variables, events) {
             events$asymptomatic_infection,
             to_infect_asym,
             parameters$de
+          )
+          api$clear_schedule(
+            events$subpatent_infection,
+            to_infect_asym
+          )
+          api$clear_schedule(
+            events$recovery,
+            to_infect_asym
           )
         }
       }

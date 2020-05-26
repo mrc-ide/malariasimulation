@@ -46,6 +46,7 @@
 #'
 #' probability of severe infection:
 #'
+#' * severe_enabled - whether to model severe disease
 #' * theta0 - maximum probability due to no immunity
 #' * theta1 - maximum reduction due to immunity
 #' * iv0 - scale parameter
@@ -189,6 +190,7 @@ get_parameters <- function(overrides = list()) {
     ic0   = 18.02366,
     kc    = 2.36949,
     # severe disease immunity parameters
+    severe_enabled = 0,
     theta0  = .0749886,
     theta1  = .0001191,
     kv      = 2.00048,
@@ -212,7 +214,7 @@ get_parameters <- function(overrides = list()) {
     pcm   = .774368,
     pvm   = .195768,
     # carrying capacity parameters
-    K0    = 100 * human_population,
+    K0    = 1000 * human_population,
     g0    = 2,
     g1   = .3,
     g2   = .6,

@@ -40,9 +40,8 @@ create_mortality_process <- function(human, D, variables, events) {
 
     api$clear_schedule(events$infection, died)
     api$clear_schedule(events$asymptomatic_infection, died)
-    api$clear_schedule(events$asymptomatic_progression, died)
-    api$clear_schedule(events$subpatent_progression, died)
-    api$clear_schedule(events$subpatent_recovery, died)
+    api$clear_schedule(events$subpatent_infection, died)
+    api$clear_schedule(events$recovery, died)
     api$clear_schedule(events$birthday, died)
     api$schedule(events$birthday, died, 365)
 

@@ -16,8 +16,7 @@ create_infection_process <- function(individuals, states, variables, events) {
       human,
       states$S,
       states$U,
-      states$A,
-      states$D
+      states$A
     )
 
     # Calculate EIR
@@ -37,19 +36,13 @@ create_infection_process <- function(individuals, states, variables, events) {
 
     api$render("mean_EIR", mean(epsilon))
 
-    number_of_bites <- round(epsilon)
-    bitten_humans <- source_humans[number_of_bites > 0]
+    bitten_humans <- source_humans[bernoulli(length(source_humans), epsilon)]
 
     # Calculate Infected
     ib <- api$get_variable(human, variables$ib, bitten_humans)
     b <- blood_immunity(ib, parameters)
 
-    infected_humans <- bitten_humans[
-      !bernoulli(
-        length(bitten_humans),
-        (1 - b) * number_of_bites[number_of_bites > 0]
-      )
-    ]
+    infected_humans <- bitten_humans[!bernoulli(length(bitten_humans), b)]
 
     ica <- api$get_variable(
       human,
@@ -230,7 +223,8 @@ create_mosquito_infection_process <- function(
   mosquito,
   human,
   states,
-  variables
+  variables,
+  mosquito_infection
   ) {
   function(api) {
     parameters <- api$get_parameters()
@@ -271,7 +265,8 @@ create_mosquito_infection_process <- function(
     infected = source_mosquitos[
       bernoulli(length(source_mosquitos), lambda)
     ]
-    api$queue_state_update(mosquito, states$Im, infected)
+    api$queue_state_update(mosquito, states$Pm, infected)
+    api$schedule(mosquito_infection, infected, parameters$dem)
   }
 }
 

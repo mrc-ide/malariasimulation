@@ -48,7 +48,8 @@ create_processes <- function(individuals, states, variables, events, parameters)
       individuals$mosquito,
       individuals$human,
       states,
-      variables
+      variables,
+      events$mosquito_infection
     ),
 
     # Eggs laid
@@ -79,17 +80,11 @@ create_processes <- function(individuals, states, variables, events, parameters)
     ),
 
     # Natural death of females
-    individual::fixed_probability_state_change_process(
-      individuals$mosquito$name,
-      states$Sm$name,
-      states$Unborn$name,
-      parameters$mum
-    ),
-    individual::fixed_probability_state_change_process(
-      individuals$mosquito$name,
-      states$Im$name,
-      states$Unborn$name,
-      parameters$mum
+    create_mosquito_death_process(
+      individuals$mosquito,
+      states,
+      parameters$mup,
+      events
     ),
 
     # Rendering processes
@@ -170,6 +165,9 @@ create_event_based_processes <- function(individuals, states, variables, events,
     api$queue_state_update(individuals$mosquito, states$Unborn, target[!female])
     api$queue_state_update(individuals$mosquito, states$Sm, target[female])
   })
+  events$mosquito_infection$add_listener(
+    individual::update_state_listener(individuals$mosquito$name, states$Im$name)
+  )
 }
 
 # =================

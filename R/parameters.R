@@ -56,6 +56,7 @@
 #' * gammav - age dependent modifier
 #'
 #' immunity reducing probability of detection:
+#'
 #' * fd0 - time-scale at which immunity changes with age
 #' * ad - scale parameter relating age to immunity
 #' * gammad - shape parameter relating age to immunity
@@ -81,7 +82,7 @@
 #' infectivity towards mosquitos:
 #'
 #' * cd - infectivity of clinically diseased humans towards mosquitos
-#' * gamma1- parameter for infectivity of asymptomatic humans
+#' * gamma1 - parameter for infectivity of asymptomatic humans
 #' * cu - infectivity of sub-patent infection
 #'
 #' unique biting rate:
@@ -133,6 +134,7 @@
 #' miscellaneous:
 #'
 #' * de - delay for infection
+#' * dem - delay for infection in mosquitoes
 #' * beta - the average number of eggs laid per female mosquito per day
 #' * human_population - the number of humans to model
 #' * mosquito_limit - the maximum number of mosquitos to allow for in the
@@ -152,17 +154,17 @@ get_parameters <- function(overrides = list()) {
     del   = 6.64,
     dl    = 3.72,
     dpl   = .643,
-    mup   = days_per_timestep * .249,
-    mum   = days_per_timestep * .249, #NOTE: set from sitefile
+    mup   = .249,
+    mum   = .249, #NOTE: set from sitefile
     sigma_squared   = 1.67,
     n_heterogeneity_groups = 5,
     # immunity decay rates
-    rm    = days_per_timestep / 67.6952,
-    rvm   = days_per_timestep / 76.8365,
-    rb    = days_per_timestep / (10 * 365),
-    rc    = days_per_timestep / (30 * 365),
-    rva   = days_per_timestep / (30 * 365),
-    rid   = days_per_timestep / (10 * 365),
+    rm    = 67.6952,
+    rvm   = 76.8365,
+    rb    = 10 * 365,
+    rc    = 30 * 365,
+    rva   = 30 * 365,
+    rid   = 10 * 365,
     # blood immunity parameters
     b0    = 0.590076,
     b1    = 0.5,
@@ -182,7 +184,7 @@ get_parameters <- function(overrides = list()) {
     gamma1= 1.82425,
     cu    = 0.00062,
     # unique biting rate
-    a0    = 8 * 365 / days_per_timestep,
+    a0    = 8 * 365,
     rho   = .85,
     # clinical immunity parameters
     phi0  = .0749886,
@@ -199,10 +201,11 @@ get_parameters <- function(overrides = list()) {
     gammav  = 2.91282,
     iv0     = 1.09629,
     # delay for infection
-    de      = 12 / days_per_timestep,
+    de      = 12,
+    dem     = 10,
     # asymptomatic immunity parameters
     fd0   = 0.007055,
-    ad    = 21.9 * 365 / days_per_timestep,
+    ad    = 21.9 * 365,
     gammad= 4.8183,
     d1    = 0.160527,
     dmin  = 0, #NOTE: what should this be?
@@ -225,10 +228,10 @@ get_parameters <- function(overrides = list()) {
     gamma = 13.25,
     model_seasonality = FALSE,
     # larval mortality rates
-    me    = days_per_timestep * .0338,
-    ml    = days_per_timestep * .0348,
+    me    = .0338,
+    ml    = .0348,
     # egg laying parameter
-    beta  = days_per_timestep * 21.2,
+    beta  = 21.2,
     # initial state proportions
     s_proportion = 0.420433246,
     d_proportion = 0.007215064,

@@ -16,6 +16,7 @@
 #' * L - **L**ate larval stage
 #' * P - **P**upal
 #' * Sm - **S**usceptable **m**osquito
+#' * Pm - Extrinsic Incubation **P**eriod for **m**osquitoes
 #' * Im - **I**nfectious **m**osquito
 #' * Unborn - This is a dummy state to allow for a varying number of mosquitos
 #' in our model. Individuals enter the Unborn state when they die and leave when
@@ -70,6 +71,7 @@ create_states <- function(parameters) {
     P       = individual::State$new("P", n_P),
     Sm      = individual::State$new("Sm", 0),
     Im      = individual::State$new("Im", n_Im),
+    Pm      = individual::State$new("Pm", 0),
     Unborn  = individual::State$new("Unborn", n_Unborn)
   )
 }
@@ -226,7 +228,15 @@ create_individuals <- function(states, variables) {
 
   mosquito <- individual::Individual$new(
     'mosquito',
-    states=list(states$E, states$L, states$P, states$Sm, states$Im, states$Unborn),
+    states=list(
+      states$E,
+      states$L,
+      states$P,
+      states$Sm,
+      states$Pm,
+      states$Im,
+      states$Unborn
+    ),
     variables = list(variables$mosquito_variety)
   )
 

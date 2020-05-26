@@ -1,8 +1,9 @@
 library(malariasimulation)
 library(malariaEquilibrium)
 library(ggplot2)
+library(reshape2)
 
-sim_length <- 50 * 365
+sim_length <- 10 * 365
 
 remove_keys <- function(x, n) { for (name in n) { x[[name]] <- NULL }; x }
 
@@ -22,7 +23,6 @@ params <- remove_keys(
     'b1',
     'PM',
     'tau',
-    #'mu', mum
     'f',
     'Q0',
     'cd_w',
@@ -33,6 +33,9 @@ params <- remove_keys(
 )
 
 simparams <- translate_jamie(params)
+
+#add blood meal rates
+simparams[c('av1', 'av2', 'av3')] <- jamie_params$f * jamie_params$Q0
 
 output <- run_simulation(sim_length, simparams)
 
@@ -89,7 +92,7 @@ plot_states(output[c(
   'human_U_count'
 )])
 
-plot_states(subset(output, output$timestep > burn_in)[c(
+plot_states(subset(output, output$timestep > (sim_length - 365))[c(
   'mosquito_Im_count',
   'mosquito_Sm_count'
 )])
@@ -101,7 +104,7 @@ ggplot(
       'human_ICA_mean',
       'human_ICM_mean',
       'human_IB_mean'
-    )],
+      )],
     'timestep'
   ),
   aes(x = timestep, y = value, color = variable)

@@ -12,6 +12,7 @@ create_events <- function() {
     # Mosquito development events
     larval_growth = individual::Event$new('larval_growth'),
     pupal_development = individual::Event$new('pupal_development'),
-    susceptable_development = individual::Event$new('susceptable_development')
+    susceptable_development = individual::Event$new('susceptable_development'),
+    mosquito_infection = individual::Event$new('mosquito_infection')
   )
 }

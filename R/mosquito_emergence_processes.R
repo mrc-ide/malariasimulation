@@ -43,6 +43,22 @@ create_pupal_death_process <- function(mosquito, P, Unborn, rate, events) {
   }
 }
 
+create_mosquito_death_process <- function(mosquito, states, rate, events) {
+  function (api) {
+    source_individuals <- api$get_state(
+      mosquito,
+      states$Sm,
+      states$Pm,
+      states$Im
+    )
+    target_individuals <- source_individuals[
+      bernoulli(length(source_individuals), rate)
+    ]
+    api$clear_schedule(events$mosquito_infection, target_individuals)
+    api$queue_state_update(mosquito, states$Unborn, target_individuals)
+  }
+}
+
 carrying_capacity <- function(timestep, parameters) {
   if (parameters$model_seasonality) {
     r <- rainfall(

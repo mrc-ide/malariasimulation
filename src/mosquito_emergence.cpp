@@ -51,3 +51,49 @@ Rcpp::XPtr<process_t> create_egg_laying_process_cpp(
     };
     return Rcpp::XPtr<process_t>(new process_t(process));
 }
+
+
+// Seasonality not yet supported
+double carrying_capacity(const size_t timestep, const params_t& parameters) {
+    return parameters.at("K0")[0];
+}
+
+void deaths(const individual_index_t& source, individual_index_t& target, double rate) {
+    auto uniform = Rcpp::runif(source.size());
+    auto i = 0u;
+    for (auto s : source) {
+        if (uniform[i] < rate) {
+            target.insert(s);
+        }
+        ++i;
+    }
+}
+
+//[[Rcpp::export]]
+Rcpp::XPtr<process_t> create_larval_death_process_cpp(
+    std::string mosquito,
+    std::string early_larval_stage,
+    std::string late_larval_stage,
+    std::string unborn,
+    std::string larval_growth_event,
+    std::string pupal_growth_event
+    ) {
+    auto process = [=](ProcessAPI& api) {
+        const auto timestep = api.get_timestep();
+        const auto& parameters = api.get_parameters();
+        const auto& early_larval = api.get_state(mosquito, early_larval_stage);
+        const auto& late_larval = api.get_state(mosquito, late_larval_stage);
+        auto n = early_larval.size() + late_larval.size();
+        auto k = carrying_capacity(timestep, parameters);
+        auto early_regulation = 1 + n / k;
+        auto late_regulation = 1 + parameters.at("gamma")[0] * n / k;
+        auto larval_deaths = individual_index_t();
+        deaths(early_larval, larval_deaths, parameters.at("me")[0] * early_regulation);
+        deaths(late_larval, larval_deaths, parameters.at("ml")[0] * late_regulation);
+        api.clear_schedule(larval_growth_event, larval_deaths);
+        api.clear_schedule(pupal_growth_event, larval_deaths);
+        api.queue_state_update(mosquito, unborn, larval_deaths);
+    };
+    return Rcpp::XPtr<process_t>(new process_t(process));
+}
+

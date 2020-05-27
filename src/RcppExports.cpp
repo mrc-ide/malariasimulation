@@ -22,9 +22,26 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// create_larval_death_process_cpp
+Rcpp::XPtr<process_t> create_larval_death_process_cpp(std::string mosquito, std::string early_larval_stage, std::string late_larval_stage, std::string unborn, std::string larval_growth_event, std::string pupal_growth_event);
+RcppExport SEXP _malariasimulation_create_larval_death_process_cpp(SEXP mosquitoSEXP, SEXP early_larval_stageSEXP, SEXP late_larval_stageSEXP, SEXP unbornSEXP, SEXP larval_growth_eventSEXP, SEXP pupal_growth_eventSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string >::type mosquito(mosquitoSEXP);
+    Rcpp::traits::input_parameter< std::string >::type early_larval_stage(early_larval_stageSEXP);
+    Rcpp::traits::input_parameter< std::string >::type late_larval_stage(late_larval_stageSEXP);
+    Rcpp::traits::input_parameter< std::string >::type unborn(unbornSEXP);
+    Rcpp::traits::input_parameter< std::string >::type larval_growth_event(larval_growth_eventSEXP);
+    Rcpp::traits::input_parameter< std::string >::type pupal_growth_event(pupal_growth_eventSEXP);
+    rcpp_result_gen = Rcpp::wrap(create_larval_death_process_cpp(mosquito, early_larval_stage, late_larval_stage, unborn, larval_growth_event, pupal_growth_event));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_malariasimulation_create_egg_laying_process_cpp", (DL_FUNC) &_malariasimulation_create_egg_laying_process_cpp, 6},
+    {"_malariasimulation_create_larval_death_process_cpp", (DL_FUNC) &_malariasimulation_create_larval_death_process_cpp, 6},
     {NULL, NULL, 0}
 };
 

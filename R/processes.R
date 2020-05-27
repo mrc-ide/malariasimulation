@@ -41,9 +41,9 @@ create_processes <- function(individuals, states, variables, events, parameters)
       events
     ),
 
-    # ===============
-    # Mosquito States
-    # ===============
+    # ==================
+    # Mosquito Processes
+    # ==================
     create_mosquito_infection_process(
       individuals$mosquito,
       individuals$human,
@@ -63,13 +63,15 @@ create_processes <- function(individuals, states, variables, events, parameters)
     ),
 
     # Death of larvae
-    create_larval_death_process(
-      individuals$mosquito,
-      states$E,
-      states$L,
-      states$Unborn,
-      events
+    create_larval_death_process_cpp(
+      individuals$mosquito$name,
+      states$E$name,
+      states$L$name,
+      states$Unborn$name,
+      events$larval_growth$name,
+      events$pupal_development$name
     ),
+
     # Death of pupals
     create_pupal_death_process(
       individuals$mosquito,
@@ -100,8 +102,6 @@ create_processes <- function(individuals, states, variables, events, parameters)
       individuals$human$name,
       c(variables$ica$name, variables$icm$name, variables$ib$name)
     )
-
-
   )
 }
 

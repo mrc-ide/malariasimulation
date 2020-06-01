@@ -57,6 +57,7 @@ probability of clinical infection:
 
 probability of severe infection:
 \itemize{
+\item severe_enabled - whether to model severe disease
 \item theta0 - maximum probability due to no immunity
 \item theta1 - maximum reduction due to immunity
 \item iv0 - scale parameter
@@ -96,7 +97,7 @@ blood meal rates:
 infectivity towards mosquitos:
 \itemize{
 \item cd - infectivity of clinically diseased humans towards mosquitos
-\item gamma1- parameter for infectivity of asymptomatic humans
+\item gamma1 - parameter for infectivity of asymptomatic humans
 \item cu - infectivity of sub-patent infection
 }
 
@@ -154,6 +155,7 @@ initial immunity values:
 miscellaneous:
 \itemize{
 \item de - delay for infection
+\item dem - delay for infection in mosquitoes
 \item beta - the average number of eggs laid per female mosquito per day
 \item human_population - the number of humans to model
 \item mosquito_limit - the maximum number of mosquitos to allow for in the

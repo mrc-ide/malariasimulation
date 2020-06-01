@@ -18,15 +18,25 @@ Description: Specifies the latest and greatest malaria model.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Remotes: mrc-ide/individual@feat/speed
+Remotes:
+  mrc-ide/individual@enh/speedups_v2,
+  mrc-ide/malariaEquilibrium
 Imports:
   individual,
   Rcpp
 Suggests: 
   testthat,
-  mockery
+  mockery,
+  knitr,
+  rmarkdown,
+  reshape2,
+  DiagrammeR,
+  ggplot2,
+  statmod,
+  malariaEquilibrium
 RoxygenNote: 7.1.0
 Roxygen: list(markdown = TRUE)
 LinkingTo:
   Rcpp,
   individual
+VignetteBuilder: knitr

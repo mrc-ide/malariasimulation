@@ -12,13 +12,6 @@
 #' @param parameters, a list of model parameters
 create_processes <- function(individuals, states, variables, events, parameters) {
   list(
-    create_mortality_process(
-      individuals$human,
-      states$D,
-      variables,
-      events
-    ),
-
     # ========
     # Immunity
     # ========
@@ -37,6 +30,13 @@ create_processes <- function(individuals, states, variables, events, parameters)
     create_infection_process(
       individuals,
       states,
+      variables,
+      events
+    ),
+
+    create_mortality_process(
+      individuals$human,
+      states$D,
       variables,
       events
     ),

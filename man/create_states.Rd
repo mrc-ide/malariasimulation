@@ -27,6 +27,7 @@ The mosquito states are defined as:
 \item L - \strong{L}ate larval stage
 \item P - \strong{P}upal
 \item Sm - \strong{S}usceptable \strong{m}osquito
+\item Pm - Extrinsic Incubation \strong{P}eriod for \strong{m}osquitoes
 \item Im - \strong{I}nfectious \strong{m}osquito
 \item Unborn - This is a dummy state to allow for a varying number of mosquitos
 in our model. Individuals enter the Unborn state when they die and leave when

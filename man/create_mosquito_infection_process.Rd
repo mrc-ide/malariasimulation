@@ -4,7 +4,13 @@
 \alias{create_mosquito_infection_process}
 \title{Mosquito infection process}
 \usage{
-create_mosquito_infection_process(mosquito, human, states, variables)
+create_mosquito_infection_process(
+  mosquito,
+  human,
+  states,
+  variables,
+  mosquito_infection
+)
 }
 \arguments{
 \item{mosquito, }{the mosquito individual}

@@ -8,4 +8,4 @@ malariasimulation_*.tar.gz
 *.Rproj
 .DS_Store
 /build/
-inst/doc
+doc

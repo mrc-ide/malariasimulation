@@ -17,14 +17,14 @@ create_processes <- function(individuals, states, variables, events, parameters)
     # ========
 
     # Maternal immunity
-    create_exponential_decay_process(individuals$human, variables$icm, parameters$rm),
-    create_exponential_decay_process(individuals$human, variables$ivm, parameters$rvm),
+    create_exponential_decay_process(individuals$human, variables$icm, 1 / parameters$rm),
+    create_exponential_decay_process(individuals$human, variables$ivm, 1 / parameters$rvm),
     # Blood immunity
-    create_exponential_decay_process(individuals$human, variables$ib, parameters$rb),
+    create_exponential_decay_process(individuals$human, variables$ib, 1 / parameters$rb),
     # Acquired immunity
-    create_exponential_decay_process(individuals$human, variables$ica, parameters$rc),
-    create_exponential_decay_process(individuals$human, variables$iva, parameters$rva),
-    create_exponential_decay_process(individuals$human, variables$id, parameters$rid),
+    create_exponential_decay_process(individuals$human, variables$ica, 1 / parameters$rc),
+    create_exponential_decay_process(individuals$human, variables$iva, 1 / parameters$rva),
+    create_exponential_decay_process(individuals$human, variables$id, 1 / parameters$rid),
 
     # schedule infections for humans and set last_bitten and last_infected
     create_infection_process(
@@ -186,6 +186,6 @@ create_event_based_processes <- function(individuals, states, variables, events,
 create_exponential_decay_process <- function(individual, variable, rate) {
   function(api) {
     i <- api$get_variable(individual, variable)
-    api$queue_variable_update(individual, variable, i - rate * i)
+    api$queue_variable_update(individual, variable, pmax(i - rate * i, 0))
   }
 }

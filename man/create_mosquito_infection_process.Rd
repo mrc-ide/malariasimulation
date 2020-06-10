@@ -13,13 +13,15 @@ create_mosquito_infection_process(
 )
 }
 \arguments{
-\item{mosquito, }{the mosquito individual}
+\item{mosquito}{the mosquito individual}
 
-\item{human, }{the human individual}
+\item{human}{the human individual}
 
-\item{states, }{a list of all of the model states}
+\item{states}{a list of all of the model states}
 
-\item{variables, }{a list of all of the model variables}
+\item{variables}{a list of all of the model variables}
+
+\item{mosquito_infection}{the mosquito infection event}
 }
 \description{
 This is the process of infection for mosquitos. It results in a state

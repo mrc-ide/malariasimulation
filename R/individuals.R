@@ -105,7 +105,7 @@ create_states <- function(parameters) {
 #'
 #' @param parameters, model parameters created by `get_parameters`
 create_variables <- function(parameters) {
-  initial_age <- trunc(rexp(parameters$human_population, rate=1/10))
+  initial_age <- trunc(rexp(parameters$human_population, rate=1/30))
 
   # Define variables
   age <- individual::Variable$new("age", function(size) initial_age)
@@ -249,7 +249,8 @@ create_individuals <- function(states, variables, events) {
     events = list(
       events$larval_growth,
       events$pupal_development,
-      events$susceptable_development
+      events$susceptable_development,
+      events$mosquito_infection
     )
 
   )

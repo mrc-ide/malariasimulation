@@ -58,12 +58,12 @@ double carrying_capacity(const size_t timestep, const params_t& parameters) {
     return parameters.at("K0")[0];
 }
 
-void deaths(const individual_index_t& source, individual_index_t& target, double rate) {
+void deaths(const individual_index_t& source, std::vector<size_t>& target, double rate) {
     auto uniform = Rcpp::runif(source.size());
     auto i = 0u;
     for (auto s : source) {
         if (uniform[i] < rate) {
-            target.insert(s);
+            target.push_back(s);
         }
         ++i;
     }
@@ -87,7 +87,7 @@ Rcpp::XPtr<process_t> create_larval_death_process_cpp(
         auto k = carrying_capacity(timestep, parameters);
         auto early_regulation = 1 + n / k;
         auto late_regulation = 1 + parameters.at("gamma")[0] * n / k;
-        auto larval_deaths = individual_index_t();
+        auto larval_deaths = std::vector<size_t>();
         deaths(early_larval, larval_deaths, parameters.at("me")[0] * early_regulation);
         deaths(late_larval, larval_deaths, parameters.at("ml")[0] * late_regulation);
         api.clear_schedule(larval_growth_event, larval_deaths);

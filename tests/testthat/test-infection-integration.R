@@ -18,10 +18,10 @@ test_that('human infection_process creates the correct updates', {
   api <- mock_api(
     list(
       human = list(
-        S = c(1),
-        U = c(2),
-        A = c(3),
-        D = c(4),
+        S = c(2),
+        U = c(3),
+        A = c(4),
+        D = c(1),
         age = c(20, 24, 5, 39),
         IB = c(.2, .3, .5, .9),
         xi = c(.2, .3, .5, .9),
@@ -46,9 +46,10 @@ test_that('human infection_process creates the correct updates', {
     infection_process,
     'bernoulli',
     mockery::mock(
-      c(FALSE, FALSE, TRUE),
+      c(TRUE, FALSE, TRUE),
       c(TRUE, FALSE),
-      c(FALSE, TRUE)
+      c(FALSE, TRUE),
+      c(FALSE),
     )
   )
 
@@ -58,25 +59,26 @@ test_that('human infection_process creates the correct updates', {
 
   updates <- mockery::mock_args(api$queue_variable_update)
 
-  expect_variable_update(updates[[1]], 'IB', c(.3, .5, 1.9), c(2, 3, 4))
-  expect_variable_update(updates[[2]], 'last_bitten', 5, c(2, 3, 4))
-  expect_variable_update(updates[[3]], 'ICA', c(1.3, 0.5), c(2, 3))
-  expect_variable_update(updates[[4]], 'IVA', c(1.3, 0.5), c(2, 3))
-  expect_variable_update(updates[[5]], 'ID', c(1.3, 0.5), c(2, 3))
-  expect_variable_update(updates[[6]], 'last_infected', 5, c(2, 3))
-  expect_variable_update(updates[[7]], 'is_severe', 1, 3)
+  expect_variable_update(updates[[1]], 'IB', c(.3, 1.9), c(2, 4))
+  expect_variable_update(updates[[2]], 'last_bitten', 5, c(2, 4))
+  expect_variable_update(updates[[3]], 'ICA', 1.9, 4)
+  expect_variable_update(updates[[4]], 'IVA', 1.9, 4)
+  expect_variable_update(updates[[5]], 'ID', 1.9, 4)
+  expect_variable_update(updates[[6]], 'last_infected', 5, 4)
 })
 
 test_that('mosquito_infection_process creates the correct updates', {
   parameters <- get_parameters()
   states <- create_states(parameters)
   variables <- create_variables(parameters)
+  events <- create_events()
   individuals <- create_individuals(states, variables, create_events())
   mosquito_infection_process <- create_mosquito_infection_process(
     individuals$mosquito,
     individuals$human,
     states,
-    variables
+    variables,
+    events$mosquito_infection
   )
   api <- mock_api(
     list(
@@ -107,6 +109,6 @@ test_that('mosquito_infection_process creates the correct updates', {
   updates <- mockery::mock_args(api$queue_state_update)
 
   expect_equal(updates[[1]][[1]]$name, 'mosquito')
-  expect_equal(updates[[1]][[2]]$name, 'Im')
+  expect_equal(updates[[1]][[2]]$name, 'Pm')
   expect_equal(updates[[1]][[3]], c(1, 2, 3))
 })

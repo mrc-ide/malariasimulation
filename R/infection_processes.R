@@ -56,9 +56,10 @@ create_infection_process <- function(individuals, states, variables, events) {
       infected_humans
     )
 
+    icm <- api$get_variable(human, variables$icm, infected_humans)
     phi <- clinical_immunity(
       ica,
-      api$get_variable(human, variables$icm, infected_humans),
+      icm,
       parameters
     )
 
@@ -86,7 +87,6 @@ create_infection_process <- function(individuals, states, variables, events) {
       infected_humans[symptomatic],
       scheduled_for_infection
     )
-
     to_infect_asym <- setdiff(
       infected_humans[!symptomatic],
       scheduled_for_infection
@@ -179,7 +179,7 @@ create_infection_process <- function(individuals, states, variables, events) {
             to_infect
           )
 
-          if(parameters$severe_enabled && length(develop_severe) > 0) {
+          if(parameters$severe_enabled && any(develop_severe)) {
             api$queue_variable_update(
               human,
               variables$is_severe,
@@ -215,10 +215,11 @@ create_infection_process <- function(individuals, states, variables, events) {
 #'
 #' NOTE: this process will become obsolete when the model is reformulated to
 #' model individual mosquitos biting individual humans.
-#' @param mosquito, the mosquito individual
-#' @param human, the human individual
-#' @param states, a list of all of the model states
-#' @param variables, a list of all of the model variables
+#' @param mosquito the mosquito individual
+#' @param human the human individual
+#' @param states a list of all of the model states
+#' @param variables a list of all of the model variables
+#' @param mosquito_infection the mosquito infection event
 create_mosquito_infection_process <- function(
   mosquito,
   human,

@@ -14,7 +14,7 @@ run_simulation <- function(timesteps, overrides = list()) {
   parameters <- get_parameters(overrides)
   states <- create_states(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables)
+  individuals <- create_individuals(states, variables, events)
   create_event_based_processes(individuals, states, variables, events, parameters)
   individual::simulate(
     individuals = individuals,
@@ -26,7 +26,6 @@ run_simulation <- function(timesteps, overrides = list()) {
       parameters
     ),
     end_timestep = timesteps,
-    parameters = parameters,
-    events = events
+    parameters = parameters
   )
 }

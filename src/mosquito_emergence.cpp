@@ -37,12 +37,11 @@ Rcpp::XPtr<process_t> create_egg_laying_process_cpp(
                 Rcpp::stop("Run out of mosquitos");
             }
             if (n_eggs >= 1) {
-                auto target = individual_index_t();
+                auto target = std::vector<size_t>(n_eggs);
                 auto it = u.cbegin();
-                while (n_eggs >= 1) {
-                    target.insert(*it);
+                for (auto i = 0; i < target.size(); ++i) {
+                    target[i] = *it;
                     ++it;
-                    n_eggs -= 1;
                 }
                 api.schedule(larval_growth_event, target, parameters.at("del")[0]);
                 api.queue_state_update(mosquito, early_larval_stage, target);

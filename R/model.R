@@ -7,7 +7,8 @@
 #' Warning: the return type of this function is likely to change as we figure
 #' out what kind of outputs we would like to report from the simulation.
 #'
-#' @param timesteps, the number of timesteps to run the simulation for
+#' @param timesteps the number of timesteps to run the simulation for
+#' @param overrides a named list of parameters to use instead of defaults
 #' @export
 run_simulation <- function(timesteps, overrides = list()) {
   events <- create_events()

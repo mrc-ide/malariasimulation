@@ -4,7 +4,7 @@ test_that('human infection_process creates the correct updates', {
   events <- create_events()
   states <- create_states(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables)
+  individuals <- create_individuals(states, variables, events)
 
   infection_process <- create_infection_process(
     individuals,
@@ -12,6 +12,8 @@ test_that('human infection_process creates the correct updates', {
     variables,
     events
   )
+
+  parameters$severe_enabled = 1
 
   api <- mock_api(
     list(
@@ -69,7 +71,7 @@ test_that('mosquito_infection_process creates the correct updates', {
   parameters <- get_parameters()
   states <- create_states(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables)
+  individuals <- create_individuals(states, variables, create_events())
   mosquito_infection_process <- create_mosquito_infection_process(
     individuals$mosquito,
     individuals$human,

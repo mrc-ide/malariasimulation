@@ -5,11 +5,11 @@
 #'
 #' It lists processes from `infection.R`, `mosquito_emergence.R` and
 #' `mortality.R`; and then exposes them to the model
-#' @param individuals, a list of individuals in the model
-#' @param states, a list of states in the model
-#' @param variables, a list of variables in the model
-#' @param events, a list of events in the model
-#' @param parameters, a list of model parameters
+#' @param individuals a list of individuals in the model
+#' @param states a list of states in the model
+#' @param variables a list of variables in the model
+#' @param events a list of events in the model
+#' @param parameters a list of model parameters
 create_processes <- function(individuals, states, variables, events, parameters) {
   list(
     create_mortality_process(
@@ -111,12 +111,13 @@ create_processes <- function(individuals, states, variables, events, parameters)
 }
 
 #' @title Define event based processes
-#' @description
-#' defines processes for events that can be scheduled in the future
+#' @description defines processes for events that can be scheduled in the future
 #'
-#' @param individuals, a list of individuals in the model
-#' @param states, a list of states in the model
-#' @param events, a list of events in the model
+#' @param individuals a list of individuals in the model
+#' @param states a list of states in the model
+#' @param variables list of variables in the model
+#' @param events a list of events in the model
+#' @param parameters the model parameters
 create_event_based_processes <- function(individuals, states, variables, events, parameters) {
   # Aging
   events$birthday$add_listener(function(api, target) {
@@ -181,9 +182,9 @@ create_event_based_processes <- function(individuals, states, variables, events,
 #' create_exponential_decay_process generates a process function
 #' that reduces the value of a variable at an exponential rate
 #'
-#' @param individual, an individual
-#' @param variable, the variable to update
-#' @param rate, the exponential rate
+#' @param individual an individual
+#' @param variable the variable to update
+#' @param rate the exponential rate
 create_exponential_decay_process <- function(individual, variable, rate) {
   function(api) {
     i <- api$get_variable(individual, variable)

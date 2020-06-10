@@ -7,13 +7,15 @@
 create_larval_death_process(mosquito, E, L, Unborn, events)
 }
 \arguments{
-\item{mosquito, }{the mosquito individual}
+\item{mosquito}{the mosquito individual}
 
-\item{E, }{the early stage larval state}
+\item{E}{the early stage larval state}
 
-\item{L, }{the late stage larval state}
+\item{L}{the late stage larval state}
 
-\item{Unborn, }{the unborn mosquito state}
+\item{Unborn}{the unborn mosquito state}
+
+\item{events}{a list of events in the model}
 }
 \description{
 This process defines how many early and late stage larvae die due to

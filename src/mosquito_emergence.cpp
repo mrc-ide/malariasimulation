@@ -12,11 +12,12 @@
 //' @description
 //' This is the process for mosquito birth, it defines how many new early stage
 //' larvae are created on each timestep.
-//' @param mosquito, the mosquito individual
-//' @param Sm, the susceptable mosquito state
-//' @param Im, the infected mosquito state
-//' @param Unborn, the unborn mosquito state
-//' @param E, the early stage larval state
+//' @param mosquito the mosquito individual
+//' @param susceptable the susceptable mosquito state
+//' @param infected the infected mosquito state
+//' @param unborn the unborn mosquito state
+//' @param early_larval_stage the early stage larval state
+//' @param larval_growth_event the event to transition from early to late larval stage
 //[[Rcpp::export]]
 Rcpp::XPtr<process_t> create_egg_laying_process_cpp(
     std::string mosquito,

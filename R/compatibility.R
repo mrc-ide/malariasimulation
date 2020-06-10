@@ -36,6 +36,9 @@ translations = list(
   mu  = 'mum'
 )
 
+#' @title translate parameter keys from jamie's format to ones compatible
+#' with this IBM 
+#' @param params with keys in the jamie's format
 #' @export
 translate_jamie <- function(params) {
   translated <- list()

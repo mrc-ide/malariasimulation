@@ -5,6 +5,8 @@
 #' "The US President's Malaria Initiative, Plasmodium falciparum transmission
 #' and mortality: A modelling study."
 #'
+#' @param overrides a named list of parameter values to use instead of defaults
+#'
 #' NOTE: this function is likely to be extended to read in command line / config
 #' file parameters
 #'

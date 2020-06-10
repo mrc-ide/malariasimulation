@@ -7,13 +7,13 @@
 create_infection_process(individuals, states, variables, events)
 }
 \arguments{
-\item{states, }{a list of all of the model states}
+\item{individuals}{a list of individuals in the model}
 
-\item{variables, }{a list of all of the model variables}
+\item{states}{a list of all of the model states}
 
-\item{human, }{the human individual}
+\item{variables}{a list of all of the model variables}
 
-\item{mosquito, }{the mosquito individual}
+\item{events}{a list of all of the model events}
 }
 \description{
 This is the process of infection for humans. It results in human future state

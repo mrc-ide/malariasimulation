@@ -7,14 +7,15 @@
 #' Warning: the return type of this function is likely to change as we figure
 #' out what kind of outputs we would like to report from the simulation.
 #'
-#' @param timesteps, the number of timesteps to run the simulation for
+#' @param timesteps the number of timesteps to run the simulation for
+#' @param overrides a named list of parameters to use instead of defaults
 #' @export
 run_simulation <- function(timesteps, overrides = list()) {
   events <- create_events()
   parameters <- get_parameters(overrides)
   states <- create_states(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables)
+  individuals <- create_individuals(states, variables, events)
   create_event_based_processes(individuals, states, variables, events, parameters)
   individual::simulate(
     individuals = individuals,
@@ -26,7 +27,6 @@ run_simulation <- function(timesteps, overrides = list()) {
       parameters
     ),
     end_timestep = timesteps,
-    parameters = parameters,
-    events = events
+    parameters = parameters
   )
 }

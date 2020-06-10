@@ -7,11 +7,13 @@
 create_mortality_process(human, D, variables, events)
 }
 \arguments{
-\item{human, }{the human individual}
+\item{human}{the human individual}
 
-\item{D, }{the diseased state}
+\item{D}{the diseased state}
 
-\item{variables, }{the model variables to reset}
+\item{variables}{the model variables to reset}
+
+\item{events}{the model events to reset}
 }
 \description{
 This is the process for human mortality, it defines which humans die from

@@ -7,15 +7,15 @@
 create_processes(individuals, states, variables, events, parameters)
 }
 \arguments{
-\item{individuals, }{a list of individuals in the model}
+\item{individuals}{a list of individuals in the model}
 
-\item{states, }{a list of states in the model}
+\item{states}{a list of states in the model}
 
-\item{variables, }{a list of variables in the model}
+\item{variables}{a list of variables in the model}
 
-\item{events, }{a list of events in the model}
+\item{events}{a list of events in the model}
 
-\item{parameters, }{a list of model parameters}
+\item{parameters}{a list of model parameters}
 }
 \description{
 create_processes, defines the functions which describe how each individual's

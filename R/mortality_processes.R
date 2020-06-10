@@ -3,9 +3,10 @@
 #' This is the process for human mortality, it defines which humans die from
 #' natural causes and severe infection and replaces dead individuals with
 #' newborns.
-#' @param human, the human individual
-#' @param D, the diseased state
-#' @param variables, the model variables to reset
+#' @param human the human individual
+#' @param D the diseased state
+#' @param variables the model variables to reset
+#' @param events the model events to reset
 create_mortality_process <- function(human, D, variables, events) {
   function(api) {
     parameters <- api$get_parameters()

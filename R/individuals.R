@@ -204,12 +204,13 @@ create_variables <- function(parameters) {
 #' create_individuals declares the individuals to simulate. It assigns the
 #' relevant states and variables to each individual.
 #'
-#' @param states, available states to assign
-#' @param variables, available variables to assign
-create_individuals <- function(states, variables) {
+#' @param states available states to assign
+#' @param variables available variables to assign
+#' @param events available events to assign
+create_individuals <- function(states, variables, events) {
   human <- individual::Individual$new(
     'human',
-    states=list(states$S, states$D, states$A, states$U),
+    states = list(states$S, states$D, states$A, states$U),
     variables = list(
       variables$age,
       variables$last_bitten,
@@ -223,6 +224,13 @@ create_individuals <- function(states, variables) {
       variables$is_severe,
       variables$xi,
       variables$xi_group
+    ),
+    events = list(
+      events$birthday,
+      events$infection,
+      events$asymptomatic_infection,
+      events$subpatent_infection,
+      events$recovery
     )
   )
 
@@ -237,7 +245,13 @@ create_individuals <- function(states, variables) {
       states$Im,
       states$Unborn
     ),
-    variables = list(variables$mosquito_variety)
+    variables = list(variables$mosquito_variety),
+    events = list(
+      events$larval_growth,
+      events$pupal_development,
+      events$susceptable_development
+    )
+
   )
 
   list(human = human, mosquito = mosquito)

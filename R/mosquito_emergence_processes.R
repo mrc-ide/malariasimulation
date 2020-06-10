@@ -2,10 +2,11 @@
 #' @description
 #' This process defines how many early and late stage larvae die due to
 #' seasonal carrying capacity.
-#' @param mosquito, the mosquito individual
-#' @param E, the early stage larval state
-#' @param L, the late stage larval state
-#' @param Unborn, the unborn mosquito state
+#' @param mosquito the mosquito individual
+#' @param E the early stage larval state
+#' @param L the late stage larval state
+#' @param Unborn the unborn mosquito state
+#' @param events a list of events in the model
 create_larval_death_process <- function(mosquito, E, L, Unborn, events) {
   function(api) {
     timestep <- api$get_timestep()

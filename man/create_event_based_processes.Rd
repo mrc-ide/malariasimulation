@@ -13,11 +13,15 @@ create_event_based_processes(
 )
 }
 \arguments{
-\item{individuals, }{a list of individuals in the model}
+\item{individuals}{a list of individuals in the model}
 
-\item{states, }{a list of states in the model}
+\item{states}{a list of states in the model}
 
-\item{events, }{a list of events in the model}
+\item{variables}{list of variables in the model}
+
+\item{events}{a list of events in the model}
+
+\item{parameters}{the model parameters}
 }
 \description{
 defines processes for events that can be scheduled in the future

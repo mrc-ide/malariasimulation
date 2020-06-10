@@ -6,11 +6,8 @@
 \usage{
 get_parameters(overrides = list())
 }
-\description{
-get_paramaters creates a named list of parameters for use in the model. These
-parameters are passed to process functions. These parameters are explained in
-"The US President's Malaria Initiative, Plasmodium falciparum transmission
-and mortality: A modelling study."
+\arguments{
+\item{overrides}{a named list of parameter values to use instead of defaults
 
 NOTE: this function is likely to be extended to read in command line / config
 file parameters
@@ -162,5 +159,11 @@ miscellaneous:
 simulation
 \item density - the initial number of mosquitos per human
 \item days_per_timestep - the number of days to model per timestep
+}}
 }
+\description{
+get_paramaters creates a named list of parameters for use in the model. These
+parameters are passed to process functions. These parameters are explained in
+"The US President's Malaria Initiative, Plasmodium falciparum transmission
+and mortality: A modelling study."
 }

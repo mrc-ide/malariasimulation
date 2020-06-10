@@ -2,10 +2,10 @@
 #' @description
 #' This is the process of infection for humans. It results in human future state
 #' changes for infected humans and boosts in immunity.
-#' @param human, the human individual
-#' @param mosquito, the mosquito individual
-#' @param states, a list of all of the model states
-#' @param variables, a list of all of the model variables
+#' @param individuals a list of individuals in the model
+#' @param states a list of all of the model states
+#' @param variables a list of all of the model variables
+#' @param events a list of all of the model events
 create_infection_process <- function(individuals, states, variables, events) {
   human <- individuals$human
   mosquito <- individuals$mosquito

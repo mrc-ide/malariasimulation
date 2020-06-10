@@ -7,11 +7,11 @@
 create_exponential_decay_process(individual, variable, rate)
 }
 \arguments{
-\item{individual, }{an individual}
+\item{individual}{an individual}
 
-\item{variable, }{the variable to update}
+\item{variable}{the variable to update}
 
-\item{rate, }{the exponential rate}
+\item{rate}{the exponential rate}
 }
 \description{
 create_exponential_decay_process generates a process function

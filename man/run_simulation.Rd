@@ -7,7 +7,9 @@
 run_simulation(timesteps, overrides = list())
 }
 \arguments{
-\item{timesteps, }{the number of timesteps to run the simulation for}
+\item{timesteps}{the number of timesteps to run the simulation for}
+
+\item{overrides}{a named list of parameters to use instead of defaults}
 }
 \description{
 The main entrypoint for the simulation. run_simulation puts together the

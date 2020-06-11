@@ -43,6 +43,7 @@ library('malariasimulation')
 
 output <- run_simulation(100)
 ```
+
 ## Code organisation
 
 *model.R* - is the entry point for the model. It creates the different

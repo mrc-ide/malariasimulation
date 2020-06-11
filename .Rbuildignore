@@ -4,5 +4,6 @@
 ^docs$
 ^pkgdown$
 .travis.yml
+appveyor.yml
 docker
 LICENSE.md

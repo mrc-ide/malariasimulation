@@ -4,31 +4,166 @@
 \alias{get_parameters}
 \title{Get model parameters}
 \usage{
-get_parameters()
+get_parameters(overrides = list())
+}
+\arguments{
+\item{overrides}{a named list of parameter values to use instead of defaults
+
+NOTE: this function is likely to be extended to read in command line / config
+file parameters
+
+The parameters are defined below.
+
+fixed state transitions:
+\itemize{
+\item dd - the delay for humans to move from state D to A
+\item da - the delay for humans to move from state A to U
+\item du - the delay for humans to move from state U to S
+\item del - the delay for mosquitos to move from state E to L
+\item dl - the delay for mosquitos to move from state L to P
+\item dpl - the delay mosquitos to move from state P to Sm
+\item mup - the rate at which pupal mosquitos die
+\item mum - the rate at which developed mosquitos die
+}
+
+immunity decay rates:
+\itemize{
+\item rm - decay rate for maternal immunity to clinical disease
+\item rvm - decay rate for maternal immunity to severe disease
+\item rb - decay rate for acquired pre-erytrhrocytic immunity
+\item rc - decay rate for acquired immunity to clinical disease
+\item rva - decay rate for acquired immunity to severe disease
+\item rid - decay rate for acquired immunity to detectability
+}
+
+probability of pre-erythrocytic infection:
+\itemize{
+\item b0 - maximum probability due to no immunity
+\item b1 - maximum reduction due to immunity
+\item ib0 - scale parameter
+\item kb - shape parameter
+}
+
+probability of clinical infection:
+\itemize{
+\item phi0 - maximum probability due to no immunity
+\item phi1 - maximum reduction due to immunity
+\item ic0 - scale parameter
+\item kc - shape parameter
+}
+
+probability of severe infection:
+\itemize{
+\item severe_enabled - whether to model severe disease
+\item theta0 - maximum probability due to no immunity
+\item theta1 - maximum reduction due to immunity
+\item iv0 - scale parameter
+\item kv - shape parameter
+\item fv0 - age dependent modifier
+\item av - age dependent modifier
+\item gammav - age dependent modifier
+}
+
+immunity reducing probability of detection:
+\itemize{
+\item fd0 - time-scale at which immunity changes with age
+\item ad - scale parameter relating age to immunity
+\item gammad - shape parameter relating age to immunity
+\item d1 - minimum probability due to immunity
+\item dmin - minimum probability due to immunity NOTE: there appears to be a
+mistake here!
+\item id0 - scale parameter
+\item kd - shape parameter
+}
+
+immunity boost grace periods:
+\itemize{
+\item ub - period in which pre-erythrocytic immunity cannot be boosted
+\item uc - period in which clinical immunity cannot be boosted
+\item uv - period in which severe immunity cannot be boosted
+\item ud - period in which immunity to detectability cannot be boosted
+}
+
+blood meal rates:
+\itemize{
+\item av1 - blood meal rate for the first variety of mosquitos
+\item av2 - blood meal rate for the second variety of mosquitos
+\item av3 - blood meal rate for the third variety of mosquitos
+}
+
+infectivity towards mosquitos:
+\itemize{
+\item cd - infectivity of clinically diseased humans towards mosquitos
+\item gamma1 - parameter for infectivity of asymptomatic humans
+\item cu - infectivity of sub-patent infection
+}
+
+unique biting rate:
+\itemize{
+\item a0 - age dependent biting parameter
+\item rho - age dependent biting parameter
+\item sigma_squared - heterogeneity parameter
+\item n_heterogeneity_groups - number discretised groups for heterogeneity, used
+for sampling mothers
+}
+
+mortality parameters:
+\itemize{
+\item mortality_probability_table - a vector of mortality rates for humans
+between the ages of 0 and 100
+\item v - mortality scaling factor from severe disease
+\item pcm - new-born clinical immunity relative to mother's
+\item pvm - new-born severe immunity relative to mother's
+\item me - early stage larval mortality rate
+\item ml - late stage larval mortality rate
+}
+
+carrying capacity parameters:
+\itemize{
+\item model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall
+\item K0 - carrying capacity
+\item g0 to g3 - rainfall shape parameters
+\item h1 to h3 - rainfall shape parameters
+\item gamma - effect of density dependence on late instars relative to early
+instars
+}
+
+initial state proportions:
+\itemize{
+\item s_proportion - the proportion of \code{human_population} that begin as Susceptable
+\item d_proportion - the proportion of \code{human_population} that begin with
+clinical disease
+\item a_proportion - the proportion of \code{human_population} that begin as
+Asymptomatic
+\item u_proportion - the proportion of \code{human_population} that begin as
+Subpatents
+}
+
+initial immunity values:
+\itemize{
+\item init_icm - the immunity from clinical disease at birth
+\item init_ivm - the immunity from severe disease at birth
+\item init_ib  - the initial pre-erythrocitic immunity
+\item init_ica - the initial acquired immunity from clinical disease
+\item init_iva - the initial acquired immunity from severe disease
+\item init_id  - the initial acquired immunity to detectability
+}
+
+miscellaneous:
+\itemize{
+\item de - delay for infection
+\item dem - delay for infection in mosquitoes
+\item beta - the average number of eggs laid per female mosquito per day
+\item human_population - the number of humans to model
+\item mosquito_limit - the maximum number of mosquitos to allow for in the
+simulation
+\item density - the initial number of mosquitos per human
+\item days_per_timestep - the number of days to model per timestep
+}}
 }
 \description{
 get_paramaters creates a named list of parameters for use in the model. These
 parameters are passed to process functions. These parameters are explained in
 "The US President's Malaria Initiative, Plasmodium falciparum transmission
 and mortality: A modelling study."
-
-NOTE: this function is likely to be extended to read in command line / config
-file parameters
-
-The parameters are defined as:
-\itemize{
-\item days_per_timestep - the number of days to model per timestep
-\item rd - the rate at which humans move from state D to A
-\item ra - the rate at which humans move from state A to U
-\item ru - the rate at which humans move from state U to S
-\item rel - the rate at which mosquitos move from state E to L
-\item rl - the rate at which mosquitos move from state L to P
-\item rpl - the rate at which mosquitos move from state P to Sm
-\item mup - the rate at which pupal mosquitos die
-\item mum - the rate at which developed mosquitos die
-\item beta - the average number of eggs laid per female mosquito per day
-\item human population - the number of humans to model
-\item mosquito limit - the maximum number of mosquitos to allow for in the
-\item days_per_timestep - the number of days to model per timestep
-}
 }

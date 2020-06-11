@@ -15,8 +15,7 @@ create_states creates the human and mosquito states for the model
 The human states are defined as:
 \itemize{
 \item S - \strong{S}usceptable to infection
-\item I - Liver-stage \strong{I}nfection, these individuals are waiting to develop to A
-or D levels of infection
+progressing to the T or D state
 \item D - \strong{D}isease individuals exhibit "clinical" or "severe" disease
 \item A - \strong{A}symptomatic individuals no longer exhibit symptoms
 \item U - S\strong{u}bpatent infectious patients are still infectious to mosquitos
@@ -28,6 +27,7 @@ The mosquito states are defined as:
 \item L - \strong{L}ate larval stage
 \item P - \strong{P}upal
 \item Sm - \strong{S}usceptable \strong{m}osquito
+\item Pm - Extrinsic Incubation \strong{P}eriod for \strong{m}osquitoes
 \item Im - \strong{I}nfectious \strong{m}osquito
 \item Unborn - This is a dummy state to allow for a varying number of mosquitos
 in our model. Individuals enter the Unborn state when they die and leave when

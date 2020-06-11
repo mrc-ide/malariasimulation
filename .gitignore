@@ -7,3 +7,5 @@ malariasimulation_*.tar.gz
 .Rproj.user
 *.Rproj
 .DS_Store
+/build/
+doc

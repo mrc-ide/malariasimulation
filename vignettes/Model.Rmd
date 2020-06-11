@@ -1,0 +1,92 @@
+---
+title: "Model Structure"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Model Structure}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(DiagrammeR)
+```
+
+This is an individual based model for P. Falciparum and malaria interventions.
+
+#Human Biology
+
+The human states and variables are documented in "R/individual.R".
+
+The human biological processes are spread out between the following functions:
+
+ 1. 'create_infection_process' (orange)
+ 2. 'create_event_based_process' (green)
+ 3. 'create_mortality_process'(red)
+
+```{r echo=FALSE}
+DiagrammeR::grViz("digraph {
+  graph [layout = dot, rankdir = LR]
+  
+  node [shape = rectangle]        
+  S
+  D
+  A
+  U
+  
+  node [shape = circle]
+  i [label = '']
+  
+  # edge definitions with the node IDs
+  S -> i [color='orange']
+  i -> D [color='orange']
+  i -> A [color='orange']
+  D -> A -> U -> S [color='green']
+  A -> i [color='orange']
+  U -> i [color='orange']
+  U -> S [color='red']
+  A -> S [color='red']
+  D -> S [color='red']
+  }")
+```
+
+The mosquito biological processes are spread out between the following functions:
+
+ 1. 'create_event_based_process' (green)
+ 2. 'create_mosquito_infection_process' (orange)
+ 3. 'create_larval_death_process_cpp'(red)
+ 4. 'create_pupal_death_process' (red)
+ 5. 'create_mosquito_death_process' (red)
+ 6. 'create_egg_laying_process_cpp' (green)
+
+```{r echo=FALSE}
+DiagrammeR::grViz("digraph {
+  graph [layout = dot, rankdir = LR]
+  
+  node [shape = rectangle]        
+  E
+  L
+  P
+  Sm
+  Pm
+  Im
+  Unborn
+  
+  # edge definitions with the node IDs
+  E -> L -> P -> Sm [color='green', label='1']
+  Sm -> Pm -> Im [color='orange', label='2']
+  E -> Unborn [color='red', label='3']
+  L -> Unborn [color='red', label='3']
+  P -> Unborn [color='red', label='4']
+  Sm -> Unborn [color='red', label='5']
+  Pm -> Unborn [color='red', label='5']
+  Im -> Unborn [color='red', label='5']
+  Unborn -> E [color='green', label='6']
+  }")
+```

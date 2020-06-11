@@ -11,6 +11,7 @@ RUN apt-get update && apt-get -y install \
   libxml2-dev \
   libgit2-dev \
   pandoc \
+  pandoc-citeproc \
   time
 
 RUN R -e "install.packages(c('devtools', 'roxygen2', 'testthat', 'pkgdown'))"

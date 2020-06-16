@@ -36,11 +36,8 @@ create_states <- function(parameters) {
   left_over <- parameters$human_population - sum(initial_counts)
   initial_counts[[1]] <- initial_counts[[1]] + left_over
 
-  n_Im <- parameters$human_population * parameters$density
-  n_E <- n_Im * parameters$beta
-  n_L <- n_E * (1 - parameters$me)
-  n_P <- n_L * (1 - parameters$ml)
-  n_Unborn <- parameters$mosquito_limit - (n_Im + n_E + n_L + n_P)
+  mosquito_counts <- initial_mosquito_counts(parameters)
+  n_Unborn <- parameters$mosquito_limit - sum(mosquito_counts)
 
   if (n_Unborn < 0) {
     stop(paste('Mosquito limit not high enough. Short', n_Unborn, sep=' '))
@@ -66,12 +63,12 @@ create_states <- function(parameters) {
     ),
 
     # Mosquito states
-    E       = individual::State$new("E", n_E),
-    L       = individual::State$new("L", n_L),
-    P       = individual::State$new("P", n_P),
-    Sm      = individual::State$new("Sm", 0),
-    Im      = individual::State$new("Im", n_Im),
-    Pm      = individual::State$new("Pm", 0),
+    E       = individual::State$new("E", mosquito_counts[[1]]),
+    L       = individual::State$new("L", mosquito_counts[[2]]),
+    P       = individual::State$new("P", mosquito_counts[[3]]),
+    Sm      = individual::State$new("Sm", mosquito_counts[[4]]),
+    Pm      = individual::State$new("Pm", mosquito_counts[[5]]),
+    Im      = individual::State$new("Im", mosquito_counts[[6]]),
     Unborn  = individual::State$new("Unborn", n_Unborn)
   )
 }

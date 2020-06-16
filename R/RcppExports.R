@@ -19,3 +19,15 @@ create_larval_death_process_cpp <- function(mosquito, early_larval_stage, late_l
     .Call(`_malariasimulation_create_larval_death_process_cpp`, mosquito, early_larval_stage, late_larval_stage, unborn, larval_growth_event, pupal_growth_event)
 }
 
+create_mosquito_model <- function(init, beta, de, mue, K0, gamma, dl, mul, dp, mup, foim, mu, tau) {
+    .Call(`_malariasimulation_create_mosquito_model`, init, beta, de, mue, K0, gamma, dl, mul, dp, mup, foim, mu, tau)
+}
+
+mosquito_model_step <- function(model, foim) {
+    invisible(.Call(`_malariasimulation_mosquito_model_step`, model, foim))
+}
+
+mosquito_model_get_states <- function(model) {
+    .Call(`_malariasimulation_mosquito_model_get_states`, model)
+}
+

@@ -23,7 +23,8 @@ Remotes:
   mrc-ide/malariaEquilibrium
 Imports:
   individual,
-  Rcpp
+  Rcpp,
+  BH
 Suggests: 
   testthat,
   mockery,
@@ -38,5 +39,6 @@ RoxygenNote: 7.1.0
 Roxygen: list(markdown = TRUE)
 LinkingTo:
   Rcpp,
-  individual
+  individual,
+  BH
 VignetteBuilder: knitr

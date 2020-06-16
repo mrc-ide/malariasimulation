@@ -118,10 +118,17 @@ between the ages of 0 and 100
 \item ml - late stage larval mortality rate
 }
 
+vector biology:
+\itemize{
+\item delta - duration of gonotrophic cycle
+\item delta1 - time spent foraging for a blood meal
+\item Q0 - proportion of blood meals taken on humans
+}
+
 carrying capacity parameters:
 \itemize{
 \item model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall
-\item K0 - carrying capacity
+\item K0 - carrying capacity (derived)
 \item g0 to g3 - rainfall shape parameters
 \item h1 to h3 - rainfall shape parameters
 \item gamma - effect of density dependence on late instars relative to early

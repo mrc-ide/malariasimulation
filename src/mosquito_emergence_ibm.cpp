@@ -7,6 +7,7 @@
 
 #include <Rcpp.h>
 #include <individual.h>
+#include "mosquito_biology.h"
 
 //' @title Mosquito births
 //' @description
@@ -52,11 +53,6 @@ Rcpp::XPtr<process_t> create_egg_laying_process_cpp(
     return Rcpp::XPtr<process_t>(new process_t(process));
 }
 
-
-// Seasonality not yet supported
-double carrying_capacity(const size_t timestep, const params_t& parameters) {
-    return parameters.at("K0")[0];
-}
 
 void deaths(const individual_index_t& source, std::vector<size_t>& target, double rate) {
     auto uniform = Rcpp::runif(source.size());

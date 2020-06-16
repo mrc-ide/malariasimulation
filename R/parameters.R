@@ -105,10 +105,16 @@
 #' * me - early stage larval mortality rate
 #' * ml - late stage larval mortality rate
 #'
+#' vector biology:
+#'
+#' * delta - duration of gonotrophic cycle
+#' * delta1 - time spent foraging for a blood meal
+#' * Q0 - proportion of blood meals taken on humans
+#'
 #' carrying capacity parameters:
 #'
 #' * model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall
-#' * K0 - carrying capacity
+#' * K0 - carrying capacity (derived)
 #' * g0 to g3 - rainfall shape parameters
 #' * h1 to h3 - rainfall shape parameters
 #' * gamma - effect of density dependence on late instars relative to early
@@ -219,7 +225,6 @@ get_parameters <- function(overrides = list()) {
     pcm   = .774368,
     pvm   = .195768,
     # carrying capacity parameters
-    K0    = 1000 * human_population,
     g0    = 2,
     g1   = .3,
     g2   = .6,
@@ -232,8 +237,6 @@ get_parameters <- function(overrides = list()) {
     # larval mortality rates
     me    = .0338,
     ml    = .0348,
-    # egg laying parameter
-    beta  = 21.2,
     # initial state proportions
     s_proportion = 0.420433246,
     d_proportion = 0.007215064,
@@ -246,6 +249,11 @@ get_parameters <- function(overrides = list()) {
     init_ivm = 0.2608124,
     init_id = 1.948844,
     init_ib = 3.478036,
+    # vector biology
+    beta  = 21.2,
+    Q0    = 0.94,
+    delta = 3,
+    delta1 = .68,
     # misc
     human_population = human_population,
     mosquito_limit   = 10000 * human_population,
@@ -284,6 +292,8 @@ get_parameters <- function(overrides = list()) {
   if (!all.equal(sum(props), 1)) {
     stop("Starting proportions do not sum to 1")
   }
+
+  parameters$K0 <- calculate_carrying_capacity(parameters)
 
   parameters
 }

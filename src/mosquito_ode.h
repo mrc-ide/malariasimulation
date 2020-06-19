@@ -9,7 +9,7 @@
 #define SRC_MOSQUITO_ODE_H_
 
 // [[Rcpp::depends(BH)]]
-#include <boost/numeric/odeint/stepper/runge_kutta_dopri5.hpp>
+#include <boost/numeric/odeint.hpp>
 #include <array>
 #include <queue>
 #include <cmath>
@@ -43,9 +43,15 @@ struct MosquitoModel {
     const size_t tau; //the delay for infection
     std::queue<double> lagged_incubating; //last tau values for incubating mosquitos
 
-    boost::numeric::odeint::runge_kutta_dopri5<state_t> rk;
+    //solver fields
+    boost::numeric::odeint::dense_output_runge_kutta<
+        boost::numeric::odeint::controlled_runge_kutta<
+            boost::numeric::odeint::runge_kutta_dopri5<state_t>
+        >
+    >rk;
+    const double r_tolerance = 1.0e-6;
+    const double a_tolerance = 1.0e-6;
     integration_function_t ode;
-    state_t inout;
     double t = 0;
     const double dt = 1;
 

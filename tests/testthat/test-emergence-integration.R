@@ -4,7 +4,7 @@ test_that('egg_laying_process fails when there are not enough individuals', {
   parameters <- get_parameters()
   states <- create_states(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events)
+  individuals <- create_individuals(states, variables, events, parameters)
   egg_laying_process <- create_egg_laying_process(
     individuals$mosquito,
     states$Sm,
@@ -48,7 +48,7 @@ test_that('egg_laying_process creates the correct number of larvae', {
   parameters$beta <- 5
   states <- create_states(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events)
+  individuals <- create_individuals(states, variables, events, parameters)
   egg_laying_process <- create_egg_laying_process(
     individuals$mosquito,
     states$Sm,
@@ -79,7 +79,7 @@ test_that('larval_death_process works with no larvae', {
   events <- create_events()
   states <- create_states(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events)
+  individuals <- create_individuals(states, variables, events, parameters)
   larval_death_process <- create_larval_death_process(
     individuals$mosquito,
     states$E,
@@ -110,7 +110,7 @@ test_that('larval_death_process kills the expected larvae', {
   events <- create_events()
   states <- create_states(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events)
+  individuals <- create_individuals(states, variables, events, parameters)
   larval_death_process <- create_larval_death_process(
     individuals$mosquito,
     states$E,

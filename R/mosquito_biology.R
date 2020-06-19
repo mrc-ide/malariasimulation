@@ -4,8 +4,11 @@
 #' population dynamics"
 #' @param parameters model parameters
 #' @param equilibrium foim
-initial_mosquito_counts <- function(parameters, foim = 0) {
-  m <- parameters$human_population * parameters$density
+#' @param m (optional) the total number of female adult mosquitos
+initial_mosquito_counts <- function(parameters, foim = 0, m = NULL) {
+  if (is.null(m)) {
+    m <- parameters$human_population * parameters$density
+  }
   omega <- calculate_omega(parameters)
   n_E <- 2 * omega * parameters$mum * parameters$dl * (
     1. + parameters$dpl * parameters$mup

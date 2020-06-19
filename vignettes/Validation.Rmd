@@ -36,7 +36,7 @@ This involves:
  
 ```{r}
 year <- 365
-sim_length <- 10 * year
+sim_length <- 50 * year
 human_population <- 100
 
 remove_keys <- function(x, n) { for (name in n) { x[[name]] <- NULL }; x }
@@ -69,53 +69,51 @@ params <- remove_keys(
 simparams <- translate_jamie(params)
 simparams[['human_population']] <- human_population
 
-#add blood meal rates
-simparams[c('av1', 'av2', 'av3')] <- jamie_params$f * jamie_params$Q0
+#parameterise single species
+simparams$variety_proportions <- 1
+simparams$blood_meal_rates <- jamie_params$f * jamie_params$Q0
 ```
 
 Next we want to estimate the yearly EIR. This is an input parameter for the equilibrium solution, but for the IBM it's an emergent statistic...
 
 ```{r}
-output <- run_simulation(5 * year, simparams)
 
-# Estimating EIR for the final year of the model
-ggplot(
-  subset(output, output$timestep > (4 * year)),
-  aes(x = timestep, y = mean_EIR)
-) + geom_line()
+estimate_eir <- function() {
+  output <- run_simulation(5 * year, simparams)
+  sum(output$mean_EIR[output$timestep > (4 * year)])
+}
 
-EIR <- sum(output$mean_EIR[output$timestep > (4 * year)])
+EIR <- estimate_eir()
 
 print(paste("Estimated final year EIR to be", EIR, sep=" "))
 ```
 
-Next, we calculate the equilibrium state proportions for each human state:
+We run our IBM model initialised with these state proportions to check for a divergence:
 
 ```{r}
-# Calculate equilibrium
-eq <- human_equilibrium(EIR = EIR, ft = 0, p = jamie_params, age = 0:100)
-state_props <- colSums(eq$states[,c('S', 'D', 'A', 'U')])
-```
 
-We run our IBM model initialised with these state proportions to accelerate its convergence:
+get_state_proportions <- function(EIR) {
+  eq <- human_equilibrium(EIR = EIR, ft = 0, p = jamie_params, age = 0:100)
+  colSums(eq$states[,c('S', 'D', 'A', 'U')])
+}
 
-```{r}
-simparams$s_proportion <- state_props[['S']]
-simparams$d_proportion <- state_props[['D']]
-simparams$a_proportion <- state_props[['A']]
-simparams$u_proportion <- state_props[['U']]
+run_simulation_from_equilibrium <- function(state_props) {
+  simparams$s_proportion <- state_props[['S']]
+  simparams$d_proportion <- state_props[['D']]
+  simparams$a_proportion <- state_props[['A']]
+  simparams$u_proportion <- state_props[['U']]
+  run_simulation(sim_length, simparams)
+}
 
-equilibrium <- data.frame(
-  timestep = seq(sim_length),
-  human_S_count = rep(state_props[['S']] * human_population, sim_length),
-  human_D_count = rep(state_props[['D']] * human_population, sim_length),
-  human_A_count = rep(state_props[['A']] * human_population, sim_length),
-  human_U_count = rep(state_props[['U']] * human_population, sim_length)
-)
-
-print(system.time({output <- run_simulation(sim_length, simparams)}))
-
-ggplot(
+plot_counts_against_equilibrium <- function(output, state_props) {
+  equilibrium <- data.frame(
+    timestep = seq(sim_length),
+    human_S_count = rep(state_props[['S']] * human_population, sim_length),
+    human_D_count = rep(state_props[['D']] * human_population, sim_length),
+    human_A_count = rep(state_props[['A']] * human_population, sim_length),
+    human_U_count = rep(state_props[['U']] * human_population, sim_length)
+  )
+  ggplot(
     melt(output[c(
       'timestep',
       'human_S_count',
@@ -132,4 +130,43 @@ ggplot(
     aes(x = timestep, y = value, group = variable, color = variable),
     linetype = 'dashed'
   )
+}
+
+state_props <- get_state_proportions(EIR)
+print(system.time({output <- run_simulation_from_equilibrium(state_props)}))
+plot_counts_against_equilibrium(output, state_props)
+```
+
+# Vector ODE model
+
+We can do the same validation with the vector ODE model:
+
+```{r}
+
+#use the ode vector model
+simparams$vector_ode <- TRUE
+simparams$density <- 10
+
+EIR <- estimate_eir()
+print(paste("Estimated final year EIR to be", EIR, sep=" "))
+
+state_props <- get_state_proportions(EIR)
+print(system.time({output <- run_simulation_from_equilibrium(state_props)}))
+plot_counts_against_equilibrium(output, state_props)
+```
+
+
+Let's have a look at the mosquitos
+```{r}
+ggplot(
+  melt(
+    output[c(
+      'timestep',
+      names(output)[grepl('mosquito', names(output))]
+    )],
+    'timestep'
+  )
+) + geom_line(
+  aes(x = timestep, y = value, group = variable, color = variable)
+)
 ```

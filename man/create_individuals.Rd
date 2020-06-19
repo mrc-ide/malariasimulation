@@ -4,7 +4,7 @@
 \alias{create_individuals}
 \title{Define model individuals}
 \usage{
-create_individuals(states, variables, events)
+create_individuals(states, variables, events, parameters)
 }
 \arguments{
 \item{states}{available states to assign}

@@ -6,10 +6,15 @@
 #' @param states a list of all of the model states
 #' @param variables a list of all of the model variables
 #' @param events a list of all of the model events
-create_infection_process <- function(individuals, states, variables, events) {
-  human <- individuals$human
-  mosquito <- individuals$mosquito
+create_infection_process <- function(
+  individuals,
+  states,
+  variables,
+  events,
+  odes=NULL
+  ) {
   function(api) {
+    human <- individuals$human
     parameters <- api$get_parameters()
     timestep <- api$get_timestep()
     source_humans <- api$get_state(
@@ -20,17 +25,29 @@ create_infection_process <- function(individuals, states, variables, events) {
     )
 
     # Calculate EIR
-    source_mosquitos <- api$get_state(mosquito, states$Im)
     age <- api$get_variable(human, variables$age)
+
+    if (parameters$vector_ode) {
+      infectivity <- vector_infectivity_ode(
+        odes,
+        parameters
+      )
+    } else {
+      source_mosquitos <- api$get_state(individuals$mosquito, states$Im)
+      infectivity <- vector_infectivity_ibm(
+        api$get_variable(
+          individuals$mosquito,
+          variables$mosquito_variety,
+          source_mosquitos
+        ),
+        parameters
+      )
+    }
 
     epsilon <- eir(
       age[source_humans],
       api$get_variable(human, variables$xi, source_humans),
-      api$get_variable(
-        mosquito,
-        variables$mosquito_variety,
-        source_mosquitos
-      ),
+      infectivity,
       parameters
     )
 
@@ -276,24 +293,45 @@ create_mosquito_infection_process <- function(
 # =================
 
 # Implemented from Winskill 2017 - Supplementary Information page 3
+# and Griffin et al 2010 S1 page 7
 eir <- function(
   age,
   xi,
-  infectious_variants,
+  vector_infectivity,
   parameters
   ) {
 
   psi <- unique_biting_rate(age, parameters)
   .pi <- human_pi(xi, psi)
 
-  infectious_count <- as.data.frame(table(infectious_variants))
-  infectious_blood_meal_rate <- blood_meal_rate(
-    infectious_count$infectious_variants,
-    parameters
-  )
-
-  epsilon0 <- .pi * sum(infectious_blood_meal_rate * infectious_count$Freq)
+  epsilon0 <- .pi * vector_infectivity
   epsilon0 * xi * psi
+}
+
+# Implemented from Griffin et al 2010 S1 page 7
+vector_infectivity_ibm <- function(
+  infectious_variants,
+  parameters
+  ) {
+  sum(vnapply(
+    seq_along(parameters$blood_meal_rate),
+    function(variety) {
+      parameters$blood_meal_rate[[variety]] * sum(infectious_variants == variety)
+    }
+  ))
+}
+
+# Implemented from Griffin et al 2010 S1 page 7
+vector_infectivity_ode <- function(
+  odes,
+  parameters
+  ) {
+  sum(vnapply(
+    odes,
+    function(ode) {
+      mosquito_model_get_states(ode)[[6]] # infected state
+    }
+  ) * parameters$blood_meal_rates)
 }
 
 # Implemented from Winskill 2017 - Supplementary Information page 4
@@ -366,8 +404,7 @@ mosquito_force_of_infection <- function(v, age, xi, infectivity, parameters) {
 }
 
 blood_meal_rate <- function(v, parameters) {
-  rates <- c(parameters$av1, parameters$av2, parameters$av3)
-  rates[v]
+  parameters$blood_meal_rates[v]
 }
 
 boost_acquired_immunity <- function(level, last_boosted, timestep, delay) {

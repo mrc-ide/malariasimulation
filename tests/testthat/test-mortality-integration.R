@@ -3,7 +3,7 @@ test_that('mortality_process resets humans correctly', {
   events <- create_events()
   states <- create_states(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events)
+  individuals <- create_individuals(states, variables, events, parameters)
 
   mortality_process <- create_mortality_process(
     individuals$human,

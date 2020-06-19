@@ -84,13 +84,6 @@ immunity boost grace periods:
 \item ud - period in which immunity to detectability cannot be boosted
 }
 
-blood meal rates:
-\itemize{
-\item av1 - blood meal rate for the first variety of mosquitos
-\item av2 - blood meal rate for the second variety of mosquitos
-\item av3 - blood meal rate for the third variety of mosquitos
-}
-
 infectivity towards mosquitos:
 \itemize{
 \item cd - infectivity of clinically diseased humans towards mosquitos
@@ -116,13 +109,6 @@ between the ages of 0 and 100
 \item pvm - new-born severe immunity relative to mother's
 \item me - early stage larval mortality rate
 \item ml - late stage larval mortality rate
-}
-
-vector biology:
-\itemize{
-\item delta - duration of gonotrophic cycle
-\item delta1 - time spent foraging for a blood meal
-\item Q0 - proportion of blood meals taken on humans
 }
 
 carrying capacity parameters:
@@ -156,16 +142,27 @@ initial immunity values:
 \item init_id  - the initial acquired immunity to detectability
 }
 
-miscellaneous:
+incubation periods:
 \itemize{
 \item de - delay for infection
 \item dem - delay for infection in mosquitoes
+}
+
+vector biology:
+\itemize{
 \item beta - the average number of eggs laid per female mosquito per day
+\item density - the initial number of mosquitos per human
+\item variety_proportions - the relative proportions of each species
+\item blood_meal_rates - the blood meal rates for each species
+}
+
+miscellaneous:
+\itemize{
 \item human_population - the number of humans to model
 \item mosquito_limit - the maximum number of mosquitos to allow for in the
 simulation
-\item density - the initial number of mosquitos per human
 \item days_per_timestep - the number of days to model per timestep
+\item vector_ode - whether to use the ODE model to model mosquitos
 }}
 }
 \description{

@@ -75,12 +75,6 @@
 #' * uv - period in which severe immunity cannot be boosted
 #' * ud - period in which immunity to detectability cannot be boosted
 #'
-#' blood meal rates:
-#'
-#' * av1 - blood meal rate for the first variety of mosquitos
-#' * av2 - blood meal rate for the second variety of mosquitos
-#' * av3 - blood meal rate for the third variety of mosquitos
-#'
 #' infectivity towards mosquitos:
 #'
 #' * cd - infectivity of clinically diseased humans towards mosquitos
@@ -104,12 +98,6 @@
 #' * pvm - new-born severe immunity relative to mother's
 #' * me - early stage larval mortality rate
 #' * ml - late stage larval mortality rate
-#'
-#' vector biology:
-#'
-#' * delta - duration of gonotrophic cycle
-#' * delta1 - time spent foraging for a blood meal
-#' * Q0 - proportion of blood meals taken on humans
 #'
 #' carrying capacity parameters:
 #'
@@ -139,16 +127,25 @@
 #' * init_iva - the initial acquired immunity from severe disease
 #' * init_id  - the initial acquired immunity to detectability
 #'
-#' miscellaneous:
+#' incubation periods:
 #'
 #' * de - delay for infection
 #' * dem - delay for infection in mosquitoes
+#'
+#' vector biology:
+#'
 #' * beta - the average number of eggs laid per female mosquito per day
+#' * density - the initial number of mosquitos per human
+#' * variety_proportions - the relative proportions of each species
+#' * blood_meal_rates - the blood meal rates for each species
+#'
+#' miscellaneous:
+#'
 #' * human_population - the number of humans to model
 #' * mosquito_limit - the maximum number of mosquitos to allow for in the
 #' simulation
-#' * density - the initial number of mosquitos per human
 #' * days_per_timestep - the number of days to model per timestep
+#' * vector_ode - whether to use the ODE model to model mosquitos
 get_parameters <- function(overrides = list()) {
   days_per_timestep <- 1
   human_population <- 100
@@ -183,10 +180,6 @@ get_parameters <- function(overrides = list()) {
     uc    = 67.6952,
     uv    = 11.4321,
     ud    = 9.44512,
-    # blood meal rates
-    av1   = .92,
-    av2   = .74,
-    av3   = .94,
     # infectivity towards mosquitos
     cd    = 0.068,
     gamma1= 1.82425,
@@ -247,17 +240,17 @@ get_parameters <- function(overrides = list()) {
     init_iva = 3.809137,
     init_icm = 0.2608124,
     init_ivm = 0.2608124,
-    init_id = 1.948844,
-    init_ib = 3.478036,
+    init_id  = 1.948844,
+    init_ib  = 3.478036,
     # vector biology
-    beta  = 21.2,
-    Q0    = 0.94,
-    delta = 3,
-    delta1 = .68,
+    beta     = 21.2,
+    density  = 100,
+    variety_proportions = c(.5, .3, .2),
+    blood_meal_rates    = c(.92, .74, .94),
     # misc
     human_population = human_population,
     mosquito_limit   = 10000 * human_population,
-    density          = 100,
+    vector_ode         = FALSE,
     days_per_timestep  = days_per_timestep
   )
 

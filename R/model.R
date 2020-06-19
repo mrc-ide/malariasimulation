@@ -15,8 +15,11 @@ run_simulation <- function(timesteps, overrides = list()) {
   parameters <- get_parameters(overrides)
   states <- create_states(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events)
+  individuals <- create_individuals(states, variables, events, parameters)
   create_event_based_processes(individuals, states, variables, events, parameters)
+  if (parameters$vector_ode) {
+    odes <- parameterise_ode(parameters)
+  }
   individual::simulate(
     individuals = individuals,
     processes = create_processes(
@@ -24,7 +27,8 @@ run_simulation <- function(timesteps, overrides = list()) {
       states,
       variables,
       events,
-      parameters
+      parameters,
+      odes
     ),
     end_timestep = timesteps,
     parameters = parameters

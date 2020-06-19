@@ -10,8 +10,16 @@
 #' @param variables a list of variables in the model
 #' @param events a list of events in the model
 #' @param parameters a list of model parameters
-create_processes <- function(individuals, states, variables, events, parameters) {
-  list(
+#' @param odes a list of vector models (if vector_ode == TRUE)
+create_processes <- function(
+  individuals,
+  states,
+  variables,
+  events,
+  parameters,
+  odes=NULL
+  ) {
+  processes <- list(
     # ========
     # Immunity
     # ========
@@ -31,7 +39,8 @@ create_processes <- function(individuals, states, variables, events, parameters)
       individuals,
       states,
       variables,
-      events
+      events,
+      odes
     ),
 
     create_mortality_process(
@@ -41,68 +50,81 @@ create_processes <- function(individuals, states, variables, events, parameters)
       events
     ),
 
-    # ==================
-    # Mosquito Processes
-    # ==================
-    create_mosquito_infection_process(
-      individuals$mosquito,
-      individuals$human,
-      states,
-      variables,
-      events$mosquito_infection
-    ),
-
-    # Eggs laid
-    create_egg_laying_process_cpp(
-      individuals$mosquito$name,
-      states$Sm$name,
-      states$Im$name,
-      states$Unborn$name,
-      states$E$name,
-      events$larval_growth$name
-    ),
-
-    # Death of larvae
-    create_larval_death_process_cpp(
-      individuals$mosquito$name,
-      states$E$name,
-      states$L$name,
-      states$Unborn$name,
-      events$larval_growth$name,
-      events$pupal_development$name
-    ),
-
-    # Death of pupals
-    create_pupal_death_process(
-      individuals$mosquito,
-      states$P,
-      states$Unborn,
-      parameters$mup,
-      events
-    ),
-
-    # Natural death of females
-    create_mosquito_death_process(
-      individuals$mosquito,
-      states,
-      parameters$mup,
-      events
-    ),
-
     # Rendering processes
     individual::state_count_renderer_process(
       individuals$human$name,
       c(states$S$name, states$A$name, states$D$name, states$U$name)
-    ),
-    individual::state_count_renderer_process(
-      individuals$mosquito$name,
-      c(states$E$name, states$L$name, states$P$name, states$Sm$name, states$Im$name)
     ),
     individual::variable_mean_renderer_process(
       individuals$human$name,
       c(variables$ica$name, variables$icm$name, variables$ib$name)
     )
   )
+
+  if (!parameters$vector_ode) {
+    processes <- c(
+      processes,
+      # ==================
+      # Mosquito Processes
+      # ==================
+      create_mosquito_infection_process(
+        individuals$mosquito,
+        individuals$human,
+        states,
+        variables,
+        events$mosquito_infection
+      ),
+
+      # Eggs laid
+      create_egg_laying_process_cpp(
+        individuals$mosquito$name,
+        states$Sm$name,
+        states$Im$name,
+        states$Unborn$name,
+        states$E$name,
+        events$larval_growth$name
+      ),
+
+      # Death of larvae
+      create_larval_death_process_cpp(
+        individuals$mosquito$name,
+        states$E$name,
+        states$L$name,
+        states$Unborn$name,
+        events$larval_growth$name,
+        events$pupal_development$name
+      ),
+
+      # Death of pupals
+      create_pupal_death_process(
+        individuals$mosquito,
+        states$P,
+        states$Unborn,
+        parameters$mup,
+        events
+      ),
+
+      # Natural death of females
+      create_mosquito_death_process(
+        individuals$mosquito,
+        states,
+        parameters$mup,
+        events
+      ),
+
+      # Rendering processes
+      individual::state_count_renderer_process(
+        individuals$mosquito$name,
+        c(states$E$name, states$L$name, states$P$name, states$Sm$name, states$Im$name)
+      )
+    )
+  } else {
+    processes <- c(
+      processes,
+      create_ode_stepping_process(odes, individuals$human, states, variables),
+      create_ode_rendering_process(odes)
+    )
+  }
 }
 
 #' @title Define event based processes
@@ -148,27 +170,29 @@ create_event_based_processes <- function(individuals, states, variables, events,
     individual::update_state_listener(individuals$human$name, states$S$name)
   )
 
-  # Mosquito development processes
-  events$larval_growth$add_listener(
-    individual::update_state_listener(individuals$mosquito$name, states$L$name)
-  )
-  events$larval_growth$add_listener(
-    individual::reschedule_listener(events$pupal_development$name, parameters$dl)
-  )
-  events$pupal_development$add_listener(
-    individual::update_state_listener(individuals$mosquito$name, states$P$name)
-  )
-  events$pupal_development$add_listener(
-    individual::reschedule_listener(events$susceptable_development$name, parameters$dpl)
-  )
-  events$susceptable_development$add_listener(function(api, target) {
-    female <- bernoulli(length(target), .5)
-    api$queue_state_update(individuals$mosquito, states$Unborn, target[!female])
-    api$queue_state_update(individuals$mosquito, states$Sm, target[female])
-  })
-  events$mosquito_infection$add_listener(
-    individual::update_state_listener(individuals$mosquito$name, states$Im$name)
-  )
+  if (!parameters$vector_ode) {
+    # Mosquito development processes
+    events$larval_growth$add_listener(
+      individual::update_state_listener(individuals$mosquito$name, states$L$name)
+    )
+    events$larval_growth$add_listener(
+      individual::reschedule_listener(events$pupal_development$name, parameters$dl)
+    )
+    events$pupal_development$add_listener(
+      individual::update_state_listener(individuals$mosquito$name, states$P$name)
+    )
+    events$pupal_development$add_listener(
+      individual::reschedule_listener(events$susceptable_development$name, parameters$dpl)
+    )
+    events$susceptable_development$add_listener(function(api, target) {
+      female <- bernoulli(length(target), .5)
+      api$queue_state_update(individuals$mosquito, states$Unborn, target[!female])
+      api$queue_state_update(individuals$mosquito, states$Sm, target[female])
+    })
+    events$mosquito_infection$add_listener(
+      individual::update_state_listener(individuals$mosquito$name, states$Im$name)
+    )
+  }
 }
 
 # =================

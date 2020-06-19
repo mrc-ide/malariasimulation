@@ -4,10 +4,12 @@
 \alias{initial_mosquito_counts}
 \title{Calculate equilibrium solution for vector counts}
 \usage{
-initial_mosquito_counts(parameters, foim = 0)
+initial_mosquito_counts(parameters, foim = 0, m = NULL)
 }
 \arguments{
 \item{parameters}{model parameters}
+
+\item{m}{(optional) the total number of female adult mosquitos}
 
 \item{equilibrium}{foim}
 }

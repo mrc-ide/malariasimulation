@@ -4,7 +4,7 @@
 \alias{create_infection_process}
 \title{Infection process}
 \usage{
-create_infection_process(individuals, states, variables, events)
+create_infection_process(individuals, states, variables, events, odes = NULL)
 }
 \arguments{
 \item{individuals}{a list of individuals in the model}

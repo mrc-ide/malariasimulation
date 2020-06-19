@@ -4,7 +4,7 @@ test_that('human infection_process creates the correct updates', {
   events <- create_events()
   states <- create_states(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events)
+  individuals <- create_individuals(states, variables, events, parameters)
 
   infection_process <- create_infection_process(
     individuals,
@@ -72,7 +72,7 @@ test_that('mosquito_infection_process creates the correct updates', {
   states <- create_states(parameters)
   variables <- create_variables(parameters)
   events <- create_events()
-  individuals <- create_individuals(states, variables, create_events())
+  individuals <- create_individuals(states, variables, create_events(), parameters)
   mosquito_infection_process <- create_mosquito_infection_process(
     individuals$mosquito,
     individuals$human,

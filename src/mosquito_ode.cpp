@@ -62,18 +62,24 @@ MosquitoModel::MosquitoModel(
     for (auto i = 0u; i < tau + 1; ++i) {
         lagged_incubating.push(init[3] * foim);
     }
-    for (auto i = 0u; i < inout.size(); ++i) {
-        inout[i] = init[i];
+    auto in = state_t();
+    for (auto i = 0u; i < in.size(); ++i) {
+        in[i] = init[i];
     }
     ode = create_ode(*this);
+    rk = boost::numeric::odeint::make_dense_output(
+        a_tolerance,
+        r_tolerance,
+        boost::numeric::odeint::runge_kutta_dopri5<state_t>()
+    );
+    rk.initialize(in, 0, 1);
 }
 
 void MosquitoModel::step(double new_foim) {
     foim = new_foim;
-    rk.do_step(ode, inout, t, dt);
-    ++t;
+    rk.do_step(ode);
     lagged_incubating.pop();
-    lagged_incubating.push(inout[3] * foim);
+    lagged_incubating.push(rk.current_state()[3] * foim);
 }
 
 //[[Rcpp::export]]
@@ -117,5 +123,6 @@ void mosquito_model_step(Rcpp::XPtr<MosquitoModel> model, double foim) {
 
 //[[Rcpp::export]]
 std::vector<double> mosquito_model_get_states(Rcpp::XPtr<MosquitoModel> model) {
-    return std::vector<double>(model->inout.cbegin(), model->inout.cend());
+    const auto& state = model->rk.current_state();
+    return std::vector<double>(state.cbegin(), state.cend());
 }

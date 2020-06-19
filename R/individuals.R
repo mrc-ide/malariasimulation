@@ -36,14 +36,7 @@ create_states <- function(parameters) {
   left_over <- parameters$human_population - sum(initial_counts)
   initial_counts[[1]] <- initial_counts[[1]] + left_over
 
-  mosquito_counts <- initial_mosquito_counts(parameters)
-  n_Unborn <- parameters$mosquito_limit - sum(mosquito_counts)
-
-  if (n_Unborn < 0) {
-    stop(paste('Mosquito limit not high enough. Short', n_Unborn, sep=' '))
-  }
-
-  list(
+  states <- list(
     # Human states
     S = individual::State$new(
       "S",
@@ -60,17 +53,29 @@ create_states <- function(parameters) {
     U = individual::State$new(
       "U",
       initial_counts[[4]]
-    ),
-
-    # Mosquito states
-    E       = individual::State$new("E", mosquito_counts[[1]]),
-    L       = individual::State$new("L", mosquito_counts[[2]]),
-    P       = individual::State$new("P", mosquito_counts[[3]]),
-    Sm      = individual::State$new("Sm", mosquito_counts[[4]]),
-    Pm      = individual::State$new("Pm", mosquito_counts[[5]]),
-    Im      = individual::State$new("Im", mosquito_counts[[6]]),
-    Unborn  = individual::State$new("Unborn", n_Unborn)
+    )
   )
+
+  if (!parameters$vector_ode) {
+    mosquito_counts <- initial_mosquito_counts(parameters)
+    n_Unborn <- parameters$mosquito_limit - sum(mosquito_counts)
+
+    if (n_Unborn < 0) {
+      stop(paste('Mosquito limit not high enough. Short', n_Unborn, sep=' '))
+    }
+    states <- c(
+      states,
+      # Mosquito states
+      E       = individual::State$new("E", mosquito_counts[[1]]),
+      L       = individual::State$new("L", mosquito_counts[[2]]),
+      P       = individual::State$new("P", mosquito_counts[[3]]),
+      Sm      = individual::State$new("Sm", mosquito_counts[[4]]),
+      Pm      = individual::State$new("Pm", mosquito_counts[[5]]),
+      Im      = individual::State$new("Im", mosquito_counts[[6]]),
+      Unborn  = individual::State$new("Unborn", n_Unborn)
+    )
+  }
+  states
 }
 
 #' @title Define model variables
@@ -98,7 +103,7 @@ create_states <- function(parameters) {
 #' * xi - Heterogeneity of human individuals
 #' * xi_group - Discretised heterogeneity of human individuals
 #' * variety - The variety of mosquito, either 1, 2 or 3. These are related to
-#' blood meal rate parameters av1, av2 and av3
+#' blood meal rate parameter
 #'
 #' @param parameters, model parameters created by `get_parameters`
 create_variables <- function(parameters) {
@@ -168,18 +173,7 @@ create_variables <- function(parameters) {
     }
   )
 
-  mosquito_variety <- individual::Variable$new(
-    "variety",
-    function(n) {
-      p <- runif(n)
-      v <- rep(0, n)
-      v[which(p > .5)] <- 1
-      v[which(p > .2 & p < .5)] <- 2
-      v[which(p < .2)] <- 3
-      v
-    }
-  )
-  list(
+  variables <- list(
     age = age,
     last_bitten = last_bitten,
     last_infected = last_infected,
@@ -191,9 +185,40 @@ create_variables <- function(parameters) {
     id = id,
     xi = xi,
     xi_group = xi_group,
-    mosquito_variety = mosquito_variety,
     is_severe = is_severe
   )
+
+  if (!parameters$vector_ode) {
+    mosquito_variety <- individual::Variable$new(
+      "variety",
+      function(n) {
+        p <- runif(n)
+        v <- rep(0, n)
+        bottom <- 0
+        for (i in seq_along(parameters$variety_proportions)) {
+          if (i == 1) {
+            match_bottom <- (p >= bottom)
+          } else {
+            match_bottom <- (p > bottom)
+          }
+          if (i == length(parameters$variety_proportions)) {
+            match_top <- (p <= bottom + parameters$variety_proportions[[i]])
+          } else {
+            match_top <- (p < bottom + parameters$variety_proportions[[i]])
+          }
+          v[match_bottom & match_top] <- i
+          bottom <- bottom + parameters$variety_proportions[[i]]
+        }
+        v
+      }
+    )
+
+    variables <- c(
+      variables,
+      mosquito_variety = mosquito_variety
+    )
+  }
+  variables
 }
 
 #' @title Define model individuals
@@ -204,7 +229,7 @@ create_variables <- function(parameters) {
 #' @param states available states to assign
 #' @param variables available variables to assign
 #' @param events available events to assign
-create_individuals <- function(states, variables, events) {
+create_individuals <- function(states, variables, events, parameters) {
   human <- individual::Individual$new(
     'human',
     states = list(states$S, states$D, states$A, states$U),
@@ -231,6 +256,10 @@ create_individuals <- function(states, variables, events) {
     )
   )
 
+  if (parameters$vector_ode) {
+    return(list(human = human))
+  }
+
   mosquito <- individual::Individual$new(
     'mosquito',
     states=list(
@@ -249,7 +278,6 @@ create_individuals <- function(states, variables, events) {
       events$susceptable_development,
       events$mosquito_infection
     )
-
   )
 
   list(human = human, mosquito = mosquito)

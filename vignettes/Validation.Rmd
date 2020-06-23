@@ -136,7 +136,7 @@ And then run our models.
 ```{r}
 #use the ode vector model
 simparams$vector_ode <- TRUE
-simparams$density <- 100
+simparams$density <- 10
 simparams$human_population <- 1000
 EIR <- estimate_eir()
 state_props <- get_state_proportions(EIR)
@@ -163,38 +163,6 @@ ggplot(
 ```
 
 
-Plot EIR vs Prev
-
-```{r}
-#use the ode vector model
-simparams$vector_ode <- TRUE
-simparams$human_population <- 1000
-eirs <- c()
-prevs <- c()
-for (density in c(10, 100, 500, 1000, 5000, 10000)) {
-  simparams$density <- density
-  EIR <- estimate_eir()
-  state_props <- get_state_proportions(EIR)
-  output <- run_simulation_from_equilibrium(state_props)
-  prevs <- c(prevs, mean(tail(output$human_D_count)) / simparams$human_population)
-  eirs <- c(eirs, mean(tail(output$mean_EIR)))
-}
-
-ggplot(data.frame(eir = eirs, prev = prevs)) + geom_point(aes(x = eir, y = prev))
-```
-
-
-```{r}
-ggplot(
-  output[c(
-      'timestep',
-      'mean_EIR'
-    )]
-) + geom_line(
-  aes(x = timestep, y = mean_EIR)
-)
-```
-
 Immunity
 
 ```{r}
@@ -211,6 +179,19 @@ ggplot(
   )
 ) + geom_line(
   aes(x = timestep, y = value, group = variable, color = variable)
+)
+```
+
+EIR
+
+```{r}
+ggplot(
+  output[c(
+      'timestep',
+      'mean_EIR'
+    )]
+) + geom_line(
+  aes(x = timestep, y = mean_EIR)
 )
 ```
 
@@ -232,14 +213,45 @@ ggplot(
 )
 ```
 
+Plot EIR vs Prev
+
+```{r}
+#use the ode vector model
+simparams$vector_ode <- TRUE
+simparams$human_population <- 1000
+eirs <- c()
+prevs <- c()
+for (density in c(10, 100, 500, 1000, 5000, 10000)) {
+  simparams$density <- density
+  EIR <- estimate_eir()
+  state_props <- get_state_proportions(EIR)
+  output <- run_simulation_from_equilibrium(state_props)
+  prevs <- c(prevs, mean(tail(output$human_D_count)) / simparams$human_population)
+  eirs <- c(eirs, mean(tail(output$mean_EIR)))
+}
+
+ggplot(data.frame(eir = eirs, prev = prevs)) + geom_point(aes(x = eir, y = prev))
+```
+
 # Vector IBM model
 
 ```{r}
 simparams$vector_ode <- FALSE
+simparams$human_population <- 1000
+sim_length <- 50 * 365
 EIR <- estimate_eir()
 state_props <- get_state_proportions(EIR)
 print(system.time({output <- run_simulation_from_equilibrium(state_props)}))
 plot_counts_against_equilibrium(output, state_props)
 ```
 
-
+```{r}
+ggplot(
+  output[c(
+      'timestep',
+      'mean_EIR'
+    )]
+) + geom_line(
+  aes(x = timestep, y = mean_EIR)
+)
+```

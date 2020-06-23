@@ -182,7 +182,7 @@ get_parameters <- function(overrides = list()) {
     # infectivity towards mosquitos
     cd    = 0.068,
     gamma1= 1.82425,
-    cu    = 0.00062,
+    cu    = 0.0062,
     # unique biting rate
     a0    = 8 * 365,
     rho   = .85,

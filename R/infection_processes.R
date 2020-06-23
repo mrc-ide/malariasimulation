@@ -249,43 +249,23 @@ create_mosquito_infection_process <- function(
   mosquito_infection
   ) {
   function(api) {
+    lambda <- mosquito_force_of_infection_from_api(
+      human,
+      states,
+      variables,
+      api
+    )
+
     parameters <- api$get_parameters()
     source_mosquitos <- api$get_state(mosquito, states$Sm)
-
-    age <- get_age(api$get_variable(human, variables$birth), api$get_timestep())
-    xi  <- api$get_variable(human, variables$xi)
-    a_subset <- api$get_state(human, states$A)
-    d_subset <- api$get_state(human, states$D)
-    u_subset <- api$get_state(human, states$U)
-
-    a_infectivity <- asymptomatic_infectivity(
-      age[a_subset],
-      api$get_variable(human, variables$id, a_subset),
-      parameters
-    )
-
-    age_subset <- c(age[d_subset], age[a_subset], age[u_subset])
-    xi_subset  <- c(xi[d_subset], xi[a_subset], xi[u_subset])
-    infectivity<- c(
-      rep(parameters$cd, length(d_subset)),
-      a_infectivity,
-      rep(parameters$cu, length(u_subset))
-    )
-
-    lambda <- mosquito_force_of_infection(
-      api$get_variable(
-        mosquito,
-        variables$mosquito_variety,
-        source_mosquitos
-      ),
-      age_subset,
-      xi_subset,
-      infectivity,
-      parameters
+    species <- api$get_variable(
+      mosquito,
+      variables$mosquito_variety,
+      source_mosquitos
     )
 
     infected = source_mosquitos[
-      bernoulli(length(source_mosquitos), lambda)
+      bernoulli(length(source_mosquitos), lambda[species])
     ]
     api$queue_state_update(mosquito, states$Pm, infected)
     api$schedule(mosquito_infection, infected, parameters$dem)
@@ -385,7 +365,7 @@ asymptomatic_infectivity <- function(age, immunity, parameters) {
 
 # Unique biting rate (psi) for a human of a given age
 unique_biting_rate <- function(age, parameters) {
-  1 - parameters$rho * exp(- age / parameters$a0)
+  1 - parameters$rho * exp(- (age/365) / parameters$a0)
 }
 
 # Implemented from Winskill 2017 - Supplementary Information page 4
@@ -401,11 +381,69 @@ human_pi <- function(xi, psi) {
  (xi * psi) / sum(xi * psi)
 }
 
-# Implemented from Griffin et al 2010 S1 page 7
-mosquito_force_of_infection <- function(v, age, xi, infectivity, parameters) {
+#' @title calculate FOIM from API
+#' @param human handle for the human individual
+#' @param states list of available states
+#' @param variables list of available variables
+#' @param api the IBM api
+mosquito_force_of_infection_from_api <- function(
+  human,
+  states,
+  variables,
+  api
+  ) {
+  parameters <- api$get_parameters()
+  age <- get_age(api$get_variable(human, variables$birth), api$get_timestep())
+  xi  <- api$get_variable(human, variables$xi)
+  a_subset <- api$get_state(human, states$A)
+  d_subset <- api$get_state(human, states$D)
+  u_subset <- api$get_state(human, states$U)
+
+  a_infectivity <- asymptomatic_infectivity(
+    age[a_subset],
+    api$get_variable(human, variables$id, a_subset),
+    parameters
+  )
+
+  infectivity<- c(
+    rep(parameters$cd, length(d_subset)),
+    a_infectivity,
+    rep(parameters$cu, length(u_subset))
+  )
+
+  age_subset <- c(age[d_subset], age[a_subset], age[u_subset])
+  xi_subset  <- c(xi[d_subset], xi[a_subset], xi[u_subset])
+
+  mosquito_force_of_infection(
+    seq_along(parameters$blood_meal_rates),
+    age,
+    xi,
+    infectivity,
+    c(d_subset, a_subset, u_subset),
+    parameters
+  )
+}
+
+
+#' @title calculate FOIM
+#' @description  Implemented from Griffin et al 2010 S1 page 7
+#' @param v vector of varieties to calculate for
+#' @param age vector for complete human population
+#' @param xi het vector for complete human population
+#' @param infectious_set the indecies for humans which are infectious
+#' @param infectivity the infectivity for `infectious_set`
+#' @param parameters model parameters
+mosquito_force_of_infection <- function(
+  v,
+  age,
+  xi,
+  infectivity,
+  infectious_set,
+  parameters) {
+
   psi <- unique_biting_rate(age, parameters)
   .pi <- human_pi(xi, psi)
-  mean_infectivity <- sum(.pi * infectivity)
+  mean_infectivity <- sum(.pi[infectious_set] * infectivity)
   blood_meal_rate(v, parameters) * mean_infectivity
 }
 

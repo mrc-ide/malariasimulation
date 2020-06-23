@@ -128,6 +128,7 @@ test_that('mosquito_force_of_infection returns correct values', {
       age,
       xi,
       infectivity,
+      c(1, 2, 3),
       parameters
     ),
     c(.426, .426, .426, .343, .436, .436),

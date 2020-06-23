@@ -38,36 +38,12 @@ create_ode_stepping_process <- function(
   variables
   ) {
   function(api) {
-    parameters <- api$get_parameters()
-    age <- get_age(api$get_variable(human, variables$birth), api$get_timestep())
-    xi  <- api$get_variable(human, variables$xi)
-    a_subset <- api$get_state(human, states$A)
-    d_subset <- api$get_state(human, states$D)
-    u_subset <- api$get_state(human, states$U)
-
-    a_infectivity <- asymptomatic_infectivity(
-      age[a_subset],
-      api$get_variable(human, variables$id, a_subset),
-      parameters
+    lambda <- mosquito_force_of_infection_from_api(
+      human,
+      states,
+      variables,
+      api
     )
-
-    age_subset <- c(age[d_subset], age[a_subset], age[u_subset])
-    xi_subset  <- c(xi[d_subset], xi[a_subset], xi[u_subset])
-
-    infectivity<- c(
-      rep(parameters$cd, length(d_subset)),
-      a_infectivity,
-      rep(parameters$cu, length(u_subset))
-    )
-
-    lambda <- mosquito_force_of_infection(
-      seq_along(parameters$blood_meal_rates),
-      age_subset,
-      xi_subset,
-      infectivity,
-      parameters
-    )
-
     for (species in seq_along(lambda)) {
       api$render(paste0('FOIM_', species), lambda[[species]])
       mosquito_model_step(odes[[species]], lambda[[species]])

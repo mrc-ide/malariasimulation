@@ -39,7 +39,7 @@ create_ode_stepping_process <- function(
   ) {
   function(api) {
     parameters <- api$get_parameters()
-    age <- api$get_variable(human, variables$age)
+    age <- get_age(api$get_variable(human, variables$birth), api$get_timestep())
     xi  <- api$get_variable(human, variables$xi)
     a_subset <- api$get_state(human, states$A)
     d_subset <- api$get_state(human, states$D)
@@ -68,7 +68,8 @@ create_ode_stepping_process <- function(
       parameters
     )
 
-    for (species in lambda) {
+    for (species in seq_along(lambda)) {
+      api$render(paste0('FOIM_', species), lambda[[species]])
       mosquito_model_step(odes[[species]], lambda[[species]])
     }
   }

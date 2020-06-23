@@ -25,7 +25,7 @@ create_infection_process <- function(
     )
 
     # Calculate EIR
-    age <- api$get_variable(human, variables$age)
+    age <- get_age(api$get_variable(human, variables$birth), api$get_timestep())
 
     if (parameters$vector_ode) {
       infectivity <- vector_infectivity_ode(
@@ -45,8 +45,9 @@ create_infection_process <- function(
     }
 
     epsilon <- eir(
-      age[source_humans],
-      api$get_variable(human, variables$xi, source_humans),
+      age,
+      api$get_variable(human, variables$xi),
+      source_humans,
       infectivity,
       parameters
     )
@@ -55,11 +56,14 @@ create_infection_process <- function(
 
     bitten_humans <- source_humans[bernoulli(length(source_humans), epsilon)]
 
+    api$render("num_bitten", length(bitten_humans))
+    api$render("average_age", mean(age)/365)
+
     # Calculate Infected
     ib <- api$get_variable(human, variables$ib, bitten_humans)
     b <- blood_immunity(ib, parameters)
 
-    infected_humans <- bitten_humans[!bernoulli(length(bitten_humans), b)]
+    infected_humans <- bitten_humans[bernoulli(length(bitten_humans), b)]
 
     ica <- api$get_variable(
       human,
@@ -248,7 +252,7 @@ create_mosquito_infection_process <- function(
     parameters <- api$get_parameters()
     source_mosquitos <- api$get_state(mosquito, states$Sm)
 
-    age <- api$get_variable(human, variables$age)
+    age <- get_age(api$get_variable(human, variables$birth), api$get_timestep())
     xi  <- api$get_variable(human, variables$xi)
     a_subset <- api$get_state(human, states$A)
     d_subset <- api$get_state(human, states$D)
@@ -297,6 +301,7 @@ create_mosquito_infection_process <- function(
 eir <- function(
   age,
   xi,
+  source_humans,
   vector_infectivity,
   parameters
   ) {
@@ -304,8 +309,7 @@ eir <- function(
   psi <- unique_biting_rate(age, parameters)
   .pi <- human_pi(xi, psi)
 
-  epsilon0 <- .pi * vector_infectivity
-  epsilon0 * xi * psi
+  .pi[source_humans] * vector_infectivity
 }
 
 # Implemented from Griffin et al 2010 S1 page 7
@@ -360,26 +364,28 @@ severe_immunity <- function(age, acquired_immunity, maternal_immunity, parameter
 }
 
 # Implemented from Winskill 2017 - Supplementary Information page 5
-# NOTE: I believe there is a typo on equation (9) and there should be a + 1 on
-# the denominator
-asymptomatic_infectivity <- function(age, immunity, parameters) {
+# NOTE: I believe there is a typo on equation (9) the + 1 in
+# the denominator is in the wrong place
+# NOTE: Also dmin = d1, according to the equilibrium solution `main.R:132`
+probability_of_detection <- function(age, immunity, parameters) {
   fd <- 1 - (1 - parameters$fd0) / (
-    1 + (age / parameters$ad) ** parameters$gammad
+    1 + (age / (parameters$ad / 365)) ** parameters$gammad
   )
-  q <- parameters$d1 + (1 - parameters$dmin) / (
-    1 + fd * ((1 + immunity) / parameters$id0) ** parameters$kd
+  q <- parameters$d1 + (1 - parameters$d1) / (
+    1 + fd * (immunity / parameters$id0) ** parameters$kd
   )
-  parameters$cu + (parameters$cd + parameters$cu) * q ** parameters$gamma1
+}
+
+# Implemented from Winskill 2017 - Supplementary Information page 6
+# NOTE: there appears to be a typo on line 114, should be (cd - cu)
+asymptomatic_infectivity <- function(age, immunity, parameters) {
+  q <- probability_of_detection(age, immunity, parameters)
+  parameters$cu + (parameters$cd - parameters$cu) * q ** parameters$gamma1
 }
 
 # Unique biting rate (psi) for a human of a given age
 unique_biting_rate <- function(age, parameters) {
   1 - parameters$rho * exp(- age / parameters$a0)
-}
-
-# Relative biting rate (xi) drawn from log normal
-relative_biting_rate <- function(n, parameters) {
-  rlnorm(n, -parameters$sigma**2/2, parameters$sigma**2)
 }
 
 # Implemented from Winskill 2017 - Supplementary Information page 4

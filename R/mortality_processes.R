@@ -10,17 +10,19 @@
 create_mortality_process <- function(human, D, variables, events) {
   function(api) {
     parameters <- api$get_parameters()
-    age <- api$get_variable(human, variables$age)
+    timestep <- api$get_timestep()
+    age <- get_age(
+      api$get_variable(human, variables$birth),
+      timestep
+    ) / 365
 
-    # If this is the first timestep, we have to kick off the aging event
-    if (api$get_timestep() == 1) {
-      api$schedule(events$birthday, seq_len(parameters$human_population), 365)
-    }
-
-    natural_deaths <- died_naturally(
-      age,
-      parameters$mortality_probability_table
+    natural_deaths <- which(
+      bernoulli(
+        parameters$human_population, parameters$mortality_rate
+      )
     )
+    
+    api$render('natural_deaths', length(natural_deaths))
 
     severe_deaths <- died_from_severe(
       which(api$get_variable(human, variables$is_severe) == 1),
@@ -28,34 +30,40 @@ create_mortality_process <- function(human, D, variables, events) {
       parameters$v
     )
 
-    died <- c(natural_deaths, severe_deaths)
+    api$render('severe_deaths', length(severe_deaths))
 
-    # Calculate new maternal immunities
-    groups <- api$get_variable(human, variables$xi_group)
-    sampleable <- age >= 15 | age <= 35
-    icm <- api$get_variable(human, variables$icm)
-    ivm <- api$get_variable(human, variables$ivm)
-    mothers <- sample_mothers(sampleable, died, groups)
-    birth_icm <- icm[mothers] * parameters$pcm
-    birth_ivm <- ivm[mothers] * parameters$pvm
+    died <- union(natural_deaths, severe_deaths)
 
-    api$clear_schedule(events$infection, died)
-    api$clear_schedule(events$asymptomatic_infection, died)
-    api$clear_schedule(events$subpatent_infection, died)
-    api$clear_schedule(events$recovery, died)
-    api$clear_schedule(events$birthday, died)
-    api$schedule(events$birthday, died, 365)
+    api$render('total_deaths', length(died))
+    api$render('death_age', mean(age[died]))
 
-    api$queue_variable_update(human, variables$age, 0, died)
-    api$queue_variable_update(human, variables$last_bitten, -1, died)
-    api$queue_variable_update(human, variables$last_infected, -1, died)
-    api$queue_variable_update(human, variables$icm, birth_icm, died)
-    api$queue_variable_update(human, variables$ivm, birth_ivm, died)
-    api$queue_variable_update(human, variables$ib, 0, died)
-    api$queue_variable_update(human, variables$ica, 0, died)
-    api$queue_variable_update(human, variables$iva, 0, died)
-    api$queue_variable_update(human, variables$id, 0, died)
-    api$queue_variable_update(human, variables$is_severe, 0, died)
+    if (length(died) > 0) {
+      # Calculate new maternal immunities
+      groups <- api$get_variable(human, variables$xi_group)
+      sampleable <- age >= 15 | age <= 35
+      ica <- api$get_variable(human, variables$ica)
+      iva <- api$get_variable(human, variables$iva)
+      mothers <- sample_mothers(sampleable, died, groups)
+      birth_icm <- ica[mothers] * parameters$pcm
+      birth_ivm <- iva[mothers] * parameters$pvm
+
+      api$clear_schedule(events$infection, died)
+      api$clear_schedule(events$asymptomatic_infection, died)
+      api$clear_schedule(events$subpatent_infection, died)
+      api$clear_schedule(events$recovery, died)
+
+      api$queue_variable_update(human, variables$birth, timestep, died)
+      api$queue_variable_update(human, variables$last_bitten, -1, died)
+      api$queue_variable_update(human, variables$last_infected, -1, died)
+      api$queue_variable_update(human, variables$ib, 0, died)
+      api$queue_variable_update(human, variables$ica, 0, died)
+      api$queue_variable_update(human, variables$iva, 0, died)
+      api$queue_variable_update(human, variables$id, 0, died)
+      api$queue_variable_update(human, variables$icm, birth_icm, died)
+      api$queue_variable_update(human, variables$ivm, birth_ivm, died)
+      api$queue_variable_update(human, variables$is_severe, 0, died)
+      # xi and xi group survive rebirth
+    }
   }
 }
 

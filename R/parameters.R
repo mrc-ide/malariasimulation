@@ -91,8 +91,7 @@
 #'
 #' mortality parameters:
 #'
-#' * mortality_probability_table - a vector of mortality rates for humans
-#' between the ages of 0 and 100
+#' * mortality_rate - human mortality rate across age groups
 #' * v - mortality scaling factor from severe disease
 #' * pcm - new-born clinical immunity relative to mother's
 #' * pvm - new-born severe immunity relative to mother's
@@ -176,8 +175,8 @@ get_parameters <- function(overrides = list()) {
     ib0   = 43.8787,
     kb    = 2.15506,
     # immunity boost grace periods
-    ub    = 7.19919,
-    uc    = 67.6952,
+    ub    = 7.2,
+    uc    = 6.06,
     uv    = 11.4321,
     ud    = 9.44512,
     # infectivity towards mosquitos
@@ -209,11 +208,10 @@ get_parameters <- function(overrides = list()) {
     ad    = 21.9 * 365,
     gammad= 4.8183,
     d1    = 0.160527,
-    dmin  = 0, #NOTE: what should this be?
     id0   = 1.577533,
     kd    = .476614,
     # mortality parameters
-    human_death_rate = 0.0001305,
+    average_age = 7663 / days_per_timestep,
     v     = .065, # NOTE: there are two definitions of this: one on line 124 and one in the parameters table
     pcm   = .774368,
     pvm   = .195768,
@@ -236,12 +234,12 @@ get_parameters <- function(overrides = list()) {
     a_proportion = 0.439323667,
     u_proportion = 0.133028023,
     # initial immunities
-    init_ica = 3.809137,
-    init_iva = 3.809137,
-    init_icm = 0.2608124,
-    init_ivm = 0.2608124,
-    init_id  = 1.948844,
-    init_ib  = 3.478036,
+    init_ica = 0,
+    init_iva = 0,
+    init_icm = 10,
+    init_ivm = 10,
+    init_id  = 0,
+    init_ib  = 0,
     # vector biology
     beta     = 21.2,
     density  = 100,
@@ -254,7 +252,10 @@ get_parameters <- function(overrides = list()) {
     days_per_timestep  = days_per_timestep
   )
 
-  parameters$mortality_probability_table = rep(parameters$human_death_rate, 100)
+  parameters$mortality_rate = 1 - exp(
+    -days_per_timestep * (1 / parameters$average_age)
+  )
+
 	parameters$R_bar <- mean(vnapply(1:365, function(t) rainfall(
 		t,
 		parameters$days_per_timestep,

@@ -102,8 +102,7 @@ for sampling mothers
 
 mortality parameters:
 \itemize{
-\item mortality_probability_table - a vector of mortality rates for humans
-between the ages of 0 and 100
+\item mortality_rate - human mortality rate across age groups
 \item v - mortality scaling factor from severe disease
 \item pcm - new-born clinical immunity relative to mother's
 \item pvm - new-born severe immunity relative to mother's

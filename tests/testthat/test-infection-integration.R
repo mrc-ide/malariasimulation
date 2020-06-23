@@ -61,10 +61,10 @@ test_that('human infection_process creates the correct updates', {
 
   expect_variable_update(updates[[1]], 'IB', c(.3, 1.9), c(2, 4))
   expect_variable_update(updates[[2]], 'last_bitten', 5, c(2, 4))
-  expect_variable_update(updates[[3]], 'ICA', 1.9, 4)
-  expect_variable_update(updates[[4]], 'IVA', 1.9, 4)
-  expect_variable_update(updates[[5]], 'ID', 1.9, 4)
-  expect_variable_update(updates[[6]], 'last_infected', 5, 4)
+  expect_variable_update(updates[[3]], 'ICA', 1.3, 2)
+  expect_variable_update(updates[[4]], 'IVA', 1.3, 2)
+  expect_variable_update(updates[[5]], 'ID', 1.3, 2)
+  expect_variable_update(updates[[6]], 'last_infected', 5, 2)
 })
 
 test_that('mosquito_infection_process creates the correct updates', {

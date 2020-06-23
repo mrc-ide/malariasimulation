@@ -86,8 +86,7 @@ create_states <- function(parameters) {
 #'
 #' The human variables are defined as:
 #'
-#' * age - an integer representing the number of years this individual has been
-#' alive
+#' * birth - an integer representing the timestep when this individual was born
 #' * last_bitten - the last timestep at which this individual was bitten, used
 #' for tracking grace periods in the boost of immunity
 #' * last_infected - the last timestep at which this individual was infected, used
@@ -107,10 +106,15 @@ create_states <- function(parameters) {
 #'
 #' @param parameters, model parameters created by `get_parameters`
 create_variables <- function(parameters) {
-  initial_age <- trunc(rexp(parameters$human_population, rate=1/30))
+  initial_age <- trunc(
+    rexp(
+         parameters$human_population,
+         rate=1/(parameters$average_age)
+    )
+  )
 
   # Define variables
-  age <- individual::Variable$new("age", function(size) initial_age)
+  birth <- individual::Variable$new("birth", function(size) -initial_age)
   last_bitten <- individual::Variable$new("last_bitten", function(size) { rep(-1, size) })
   last_infected <- individual::Variable$new("last_infected", function(size) { rep(-1, size) })
   is_severe <- individual::Variable$new(
@@ -158,7 +162,11 @@ create_variables <- function(parameters) {
      function(size) { rep(parameters$init_id, size) }
   )
 
-  xi_values <- rlnorm(parameters$human_population, -parameters$sigma_squared/2,parameters$sigma_squared)
+  xi_values <- exp(rnorm(
+    parameters$human_population,
+    -parameters$sigma_squared/2,
+    sqrt(parameters$sigma_squared)
+  ))
   xi <- individual::Variable$new(
     "xi",
     function(n) {
@@ -174,7 +182,7 @@ create_variables <- function(parameters) {
   )
 
   variables <- list(
-    age = age,
+    birth = birth,
     last_bitten = last_bitten,
     last_infected = last_infected,
     icm = icm,
@@ -234,7 +242,7 @@ create_individuals <- function(states, variables, events, parameters) {
     'human',
     states = list(states$S, states$D, states$A, states$U),
     variables = list(
-      variables$age,
+      variables$birth,
       variables$last_bitten,
       variables$last_infected,
       variables$ib,
@@ -248,7 +256,6 @@ create_individuals <- function(states, variables, events, parameters) {
       variables$xi_group
     ),
     events = list(
-      events$birthday,
       events$infection,
       events$asymptomatic_infection,
       events$subpatent_infection,

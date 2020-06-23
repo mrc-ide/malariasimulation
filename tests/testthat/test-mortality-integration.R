@@ -52,7 +52,7 @@ test_that('mortality_process resets humans correctly', {
   expect_setequal(
     vapply(update_args, function(update) update[[2]]$name, character(1)),
     c(
-      'age',
+      'birth',
       'last_bitten',
       'last_infected',
       'ICM',
@@ -71,8 +71,7 @@ test_that('mortality_process resets humans correctly', {
       'infection',
       'asymptomatic_infection',
       'subpatent_infection',
-      'recovery',
-      'birthday'
+      'recovery'
     )
   )
 

@@ -4,36 +4,41 @@ inverse_param <- function(name, new_name) {
 }
 
 translations = list(
-  eta = 'human_death_rate',
+  eta = inverse_param('eta', 'average_age'),
   rho = 'rho',
   a0  = 'a0',
   rA  = inverse_param('rA', 'da'),
   rD  = inverse_param('rD', 'dd'),
   rU  = inverse_param('rU', 'du'),
-  dE  = 'del',
+  dE  = 'de',
   cD  = 'cd',
   cU  = 'cu',
   d1  = 'd1',
-  dd  = inverse_param('dd', 'rid'),
+  dd  = 'rid',
   ID0 = 'id0',
   kd  = 'kd',
   ud  = 'ud',
   ad0 = 'ad',
   gd  = 'gammad',
   b0  = 'b0',
+  b1  = 'b1',
   d1  = 'd1',
-  db  = inverse_param('db', 'rb'),
+  db  = 'rb',
   IB0 = 'id0',
   kb  = 'kb',
   ub  = 'ub',
   phi0= 'phi0',
   phi1= 'phi1',
-  dc  = inverse_param('dc', 'rc'),
+  dc  = 'rc',
   IC0 = 'ic0',
   kc  = 'kc',
   uc  = 'uc',
-  dm  = inverse_param('dm', 'rm'),
-  mu  = 'mum'
+  dm  = 'rm',
+  mu  = 'mum',
+  s2  = 'sigma_squared',
+  fd0 = 'fd0',
+  g_inf = 'gamma1',
+  PM = 'pcm'
 )
 
 #' @title translate parameter keys from jamie's format to ones compatible

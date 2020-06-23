@@ -11,3 +11,7 @@ discretise <- function(values, n_groups) {
     labels = seq_len(n_groups)
   ))
 }
+
+get_age <- function(birth_timesteps, current_timestep) {
+  current_timestep - birth_timesteps
+}

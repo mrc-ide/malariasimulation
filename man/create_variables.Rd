@@ -16,8 +16,7 @@ time, they are read and updated by processes
 
 The human variables are defined as:
 \itemize{
-\item age - an integer representing the number of years this individual has been
-alive
+\item birth - an integer representing the timestep when this individual was born
 \item last_bitten - the last timestep at which this individual was bitten, used
 for tracking grace periods in the boost of immunity
 \item last_infected - the last timestep at which this individual was infected, used

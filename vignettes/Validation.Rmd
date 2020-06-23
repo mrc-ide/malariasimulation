@@ -15,9 +15,9 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
+suppressPackageStartupMessages(library(ggplot2))
 library(malariasimulation)
 library(malariaEquilibrium)
-library(ggplot2)
 library(reshape2)
 ```
 
@@ -46,23 +46,17 @@ jamie_params <- load_parameter_set("Jamie_parameters.rds")
 params <- remove_keys(
   jamie_params,
   c(
-    's2',
-    'rT', # makes sense
-    'rP', # makes sense
-    'tl',
-    'g_inf',
-    'fd0',
-    'aA',
-    'aU',
-    'b1',
-    'PM',
-    'tau',
-    'f',
-    'Q0',
-    'cd_w',
-    'cd_p',
-    'cT',
-    'dE' # not sure if this translation works
+    'rT', # to be included in treatment validation
+    'rP', # to be included in treatment validation
+    'tl', # unused!
+    'aA', # used for microscopy and pcr calculations
+    'aU', # used for microscopy and pcr calculations
+    'tau',# unused!
+    'f', # used later to calculate blood_meal_rates
+    'Q0', # used later to calculate blood_meal_rates
+    'cd_w', # unused!
+    'cd_p', # unused!
+    'cT' # to be included in treatment validation
   )
 )
 
@@ -79,22 +73,24 @@ Next we want to estimate the yearly EIR. This is an input parameter for the equi
 ```{r}
 
 estimate_eir <- function() {
-  output <- run_simulation(5 * year, simparams)
-  sum(output$mean_EIR[output$timestep > (4 * year)])
+  output <- run_simulation(sim_length, simparams)
+  sum(tail(output$mean_EIR, year))
 }
-
-EIR <- estimate_eir()
-
-print(paste("Estimated final year EIR to be", EIR, sep=" "))
 ```
 
 We run our IBM model initialised with these state proportions to check for a divergence:
+
+Let's first set up some utility functions:
 
 ```{r}
 
 get_state_proportions <- function(EIR) {
   eq <- human_equilibrium(EIR = EIR, ft = 0, p = jamie_params, age = 0:100)
   colSums(eq$states[,c('S', 'D', 'A', 'U')])
+}
+
+get_FOIM <- function(EIR) {
+  human_equilibrium(EIR = EIR, ft = 0, p = jamie_params, age = 0:100)$FOIM
 }
 
 run_simulation_from_equilibrium <- function(state_props) {
@@ -108,10 +104,10 @@ run_simulation_from_equilibrium <- function(state_props) {
 plot_counts_against_equilibrium <- function(output, state_props) {
   equilibrium <- data.frame(
     timestep = seq(sim_length),
-    human_S_count = rep(state_props[['S']] * human_population, sim_length),
-    human_D_count = rep(state_props[['D']] * human_population, sim_length),
-    human_A_count = rep(state_props[['A']] * human_population, sim_length),
-    human_U_count = rep(state_props[['U']] * human_population, sim_length)
+    human_S_count = rep(state_props[['S']] * simparams$human_population, sim_length),
+    human_D_count = rep(state_props[['D']] * simparams$human_population, sim_length),
+    human_A_count = rep(state_props[['A']] * simparams$human_population, sim_length),
+    human_U_count = rep(state_props[['U']] * simparams$human_population, sim_length)
   )
   ggplot(
     melt(output[c(
@@ -131,25 +127,18 @@ plot_counts_against_equilibrium <- function(output, state_props) {
     linetype = 'dashed'
   )
 }
-
-state_props <- get_state_proportions(EIR)
-print(system.time({output <- run_simulation_from_equilibrium(state_props)}))
-plot_counts_against_equilibrium(output, state_props)
 ```
+
+And then run our models.
 
 # Vector ODE model
 
-We can do the same validation with the vector ODE model:
-
 ```{r}
-
 #use the ode vector model
 simparams$vector_ode <- TRUE
-simparams$density <- 10
-
+simparams$density <- 100
+simparams$human_population <- 1000
 EIR <- estimate_eir()
-print(paste("Estimated final year EIR to be", EIR, sep=" "))
-
 state_props <- get_state_proportions(EIR)
 print(system.time({output <- run_simulation_from_equilibrium(state_props)}))
 plot_counts_against_equilibrium(output, state_props)
@@ -157,12 +146,66 @@ plot_counts_against_equilibrium(output, state_props)
 
 
 Let's have a look at the mosquitos
+
+```{r}
+ggplot(
+  output[c(
+      'timestep',
+      'FOIM_1'
+    )]
+) + geom_line(
+  aes(x = timestep, y = FOIM_1)
+) + geom_line(
+    data = data.frame(timestep=seq(sim_length), FOIM=rep(get_FOIM(EIR), sim_length)),
+    aes(x = timestep, y = FOIM),
+    linetype = 'dashed'
+)
+```
+
+
+Plot EIR vs Prev
+
+```{r}
+#use the ode vector model
+simparams$vector_ode <- TRUE
+simparams$human_population <- 1000
+eirs <- c()
+prevs <- c()
+for (density in c(10, 100, 500, 1000, 5000, 10000)) {
+  simparams$density <- density
+  EIR <- estimate_eir()
+  state_props <- get_state_proportions(EIR)
+  output <- run_simulation_from_equilibrium(state_props)
+  prevs <- c(prevs, mean(tail(output$human_D_count)) / simparams$human_population)
+  eirs <- c(eirs, mean(tail(output$mean_EIR)))
+}
+
+ggplot(data.frame(eir = eirs, prev = prevs)) + geom_point(aes(x = eir, y = prev))
+```
+
+
+```{r}
+ggplot(
+  output[c(
+      'timestep',
+      'mean_EIR'
+    )]
+) + geom_line(
+  aes(x = timestep, y = mean_EIR)
+)
+```
+
+Immunity
+
 ```{r}
 ggplot(
   melt(
     output[c(
       'timestep',
-      names(output)[grepl('mosquito', names(output))]
+      'human_ICA_mean',
+      'human_ICM_mean',
+      'human_IB_mean',
+      'human_ID_mean'
     )],
     'timestep'
   )
@@ -170,3 +213,33 @@ ggplot(
   aes(x = timestep, y = value, group = variable, color = variable)
 )
 ```
+
+...the distribution of M
+
+```{r}
+ggplot(
+  melt(
+    output[c(
+      'timestep',
+      'mosquito_Im_counts',
+      'mosquito_Sm_counts',
+      'mosquito_Pm_counts'
+    )],
+    'timestep'
+  )
+) + geom_line(
+  aes(x = timestep, y = value, group = variable, color = variable)
+)
+```
+
+# Vector IBM model
+
+```{r}
+simparams$vector_ode <- FALSE
+EIR <- estimate_eir()
+state_props <- get_state_proportions(EIR)
+print(system.time({output <- run_simulation_from_equilibrium(state_props)}))
+plot_counts_against_equilibrium(output, state_props)
+```
+
+

@@ -47,11 +47,12 @@ test_that('eir returns correct values', {
     eir(
       age,
       xi,
+      c(1, 3),
       infectivity,
       parameters
     ),
-    c(.5186, .6527, .0448),
-    tolerance=1e-4
+    c(1.921, .564),
+    tolerance=1e-3
   )
 })
 
@@ -178,14 +179,13 @@ test_that('asymptomatic_infectivity returns the correct values', {
     fd0   = 0.007055,
     ad    = 21.9 * 365 / days_per_timestep,
     gammad= 4.8183,
-    d1    = 1,
-    dmin  = 0.161, #NOTE: what should this be?
+    d1    = .2,
     id0   = 1.577533,
     kd    = .476614
   )
   expect_equal(
     asymptomatic_infectivity(age, immunity, parameters),
-    c(.207, .208, .208, .207),
+    c(0.06716227, 0.06732774, 0.06800000, 0.06664776),
     tolerance=1e-3
   )
 })

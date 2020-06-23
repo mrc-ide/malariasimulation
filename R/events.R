@@ -1,8 +1,5 @@
 create_events <- function() {
   list(
-    # Human aging
-    birthday = individual::Event$new('birthday'),
-
     # Human infection events
     infection = individual::Event$new('infection'),
     asymptomatic_infection = individual::Event$new('asymptomatic_infection'),

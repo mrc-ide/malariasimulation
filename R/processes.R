@@ -34,6 +34,28 @@ create_processes <- function(
     create_exponential_decay_process(individuals$human, variables$iva, parameters$rva),
     create_exponential_decay_process(individuals$human, variables$id, parameters$rid),
 
+    # =================
+    # State transitions
+    # =================
+    individual::fixed_probability_state_change_process(
+      individuals$human$name,
+      states$D$name,
+      states$A$name,
+      1. - exp(-1./parameters$dd)
+    ),
+    individual::fixed_probability_state_change_process(
+      individuals$human$name,
+      states$A$name,
+      states$U$name,
+      1. - exp(-1./parameters$da)
+    ),
+    individual::fixed_probability_state_change_process(
+      individuals$human$name,
+      states$U$name,
+      states$S$name,
+      1. - exp(-1./parameters$du)
+    ),
+
     # schedule infections for humans and set last_bitten and last_infected
     create_infection_process(
       individuals,
@@ -141,27 +163,8 @@ create_processes <- function(
 #' @param events a list of events in the model
 #' @param parameters the model parameters
 create_event_based_processes <- function(individuals, states, variables, events, parameters) {
-  # Disease progression events
   events$infection$add_listener(
     individual::update_state_listener(individuals$human$name, states$D$name)
-  )
-  events$infection$add_listener(
-    individual::reschedule_listener(events$asymptomatic_infection$name, parameters$dd)
-  )
-  events$asymptomatic_infection$add_listener(
-    individual::update_state_listener(individuals$human$name, states$A$name)
-  )
-  events$asymptomatic_infection$add_listener(
-    individual::reschedule_listener(events$subpatent_infection$name, parameters$da)
-  )
-  events$subpatent_infection$add_listener(
-    individual::update_state_listener(individuals$human$name, states$U$name)
-  )
-  events$subpatent_infection$add_listener(
-    individual::reschedule_listener(events$recovery$name, parameters$du)
-  )
-  events$recovery$add_listener(
-    individual::update_state_listener(individuals$human$name, states$S$name)
   )
 
   if (!parameters$vector_ode) {

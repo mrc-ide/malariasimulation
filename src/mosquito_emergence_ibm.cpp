@@ -18,18 +18,18 @@
 //' @param infected the infected mosquito state
 //' @param unborn the unborn mosquito state
 //' @param early_larval_stage the early stage larval state
-//' @param larval_growth_event the event to transition from early to late larval stage
 //[[Rcpp::export]]
 Rcpp::XPtr<process_t> create_egg_laying_process_cpp(
     std::string mosquito,
     std::string susceptable,
+    std::string incubating,
     std::string infected,
     std::string unborn,
-    std::string early_larval_stage,
-    std::string larval_growth_event
+    std::string early_larval_stage
     ) {
     auto process = [=](ProcessAPI& api) {
         auto n_M = api.get_state(mosquito, susceptable).size() +
+            api.get_state(mosquito, incubating).size() +
             api.get_state(mosquito, infected).size();
         const auto& u = api.get_state(mosquito, unborn);
         const auto& parameters = api.get_parameters();
@@ -45,7 +45,6 @@ Rcpp::XPtr<process_t> create_egg_laying_process_cpp(
                     target[i] = *it;
                     ++it;
                 }
-                api.schedule(larval_growth_event, target, parameters.at("del")[0]);
                 api.queue_state_update(mosquito, early_larval_stage, target);
             }
         }
@@ -70,9 +69,7 @@ Rcpp::XPtr<process_t> create_larval_death_process_cpp(
     std::string mosquito,
     std::string early_larval_stage,
     std::string late_larval_stage,
-    std::string unborn,
-    std::string larval_growth_event,
-    std::string pupal_growth_event
+    std::string unborn
     ) {
     auto process = [=](ProcessAPI& api) {
         const auto timestep = api.get_timestep();
@@ -86,8 +83,6 @@ Rcpp::XPtr<process_t> create_larval_death_process_cpp(
         auto larval_deaths = std::vector<size_t>();
         deaths(early_larval, larval_deaths, parameters.at("me")[0] * early_regulation);
         deaths(late_larval, larval_deaths, parameters.at("ml")[0] * late_regulation);
-        api.clear_schedule(larval_growth_event, larval_deaths);
-        api.clear_schedule(pupal_growth_event, larval_deaths);
         api.queue_state_update(mosquito, unborn, larval_deaths);
     };
     return Rcpp::XPtr<process_t>(new process_t(process));

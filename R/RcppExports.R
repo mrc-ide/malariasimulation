@@ -10,13 +10,12 @@
 #' @param infected the infected mosquito state
 #' @param unborn the unborn mosquito state
 #' @param early_larval_stage the early stage larval state
-#' @param larval_growth_event the event to transition from early to late larval stage
-create_egg_laying_process_cpp <- function(mosquito, susceptable, infected, unborn, early_larval_stage, larval_growth_event) {
-    .Call(`_malariasimulation_create_egg_laying_process_cpp`, mosquito, susceptable, infected, unborn, early_larval_stage, larval_growth_event)
+create_egg_laying_process_cpp <- function(mosquito, susceptable, incubating, infected, unborn, early_larval_stage) {
+    .Call(`_malariasimulation_create_egg_laying_process_cpp`, mosquito, susceptable, incubating, infected, unborn, early_larval_stage)
 }
 
-create_larval_death_process_cpp <- function(mosquito, early_larval_stage, late_larval_stage, unborn, larval_growth_event, pupal_growth_event) {
-    .Call(`_malariasimulation_create_larval_death_process_cpp`, mosquito, early_larval_stage, late_larval_stage, unborn, larval_growth_event, pupal_growth_event)
+create_larval_death_process_cpp <- function(mosquito, early_larval_stage, late_larval_stage, unborn) {
+    .Call(`_malariasimulation_create_larval_death_process_cpp`, mosquito, early_larval_stage, late_larval_stage, unborn)
 }
 
 create_mosquito_model <- function(init, beta, de, mue, K0, gamma, dl, mul, dp, mup, foim, mu, tau) {

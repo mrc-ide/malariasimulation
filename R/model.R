@@ -4,7 +4,7 @@
 #' model components and runs the malaria simulation. This currently returns a
 #' dataframe with the number of individuals in each state at each timestep
 #'
-#' Warning: the return type of this function is likely to change as we figure
+#' Warning: the columns of the output dataframe is likely to change as we figure
 #' out what kind of outputs we would like to report from the simulation.
 #'
 #' @param timesteps the number of timesteps to run the simulation for
@@ -33,4 +33,32 @@ run_simulation <- function(timesteps, overrides = list()) {
     end_timestep = timesteps,
     parameters = parameters
   )
+}
+
+#' @title Run the simulation with repetitions
+#'
+#' @param timesteps the number of timesteps to run the simulation for
+#' @param repetitions n times to run the simulation
+#' @param overrides a named list of parameters to use instead of defaults
+#' @export
+run_simulation_with_repetitions <- function(
+  timesteps,
+  repetitions,
+  overrides = list(),
+  parallel = FALSE
+  ) {
+  if (parallel) {
+    fapply <- parallel::mclapply
+  } else {
+    fapply <- lapply
+  }
+  dfs <- fapply(
+    seq(repetitions),
+    function(repetition) {
+      df <- run_simulation(timesteps, overrides)
+      df$repetition <- repetition
+      df
+    }
+  )
+  do.call("rbind", dfs)
 }

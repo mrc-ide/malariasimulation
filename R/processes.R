@@ -106,10 +106,17 @@ create_processes <- function(
       create_egg_laying_process_cpp(
         individuals$mosquito$name,
         states$Sm$name,
+        states$Pm$name,
         states$Im$name,
         states$Unborn$name,
+        states$E$name
+      ),
+
+      individual::fixed_probability_state_change_process(
+        individuals$mosquito$name,
         states$E$name,
-        events$larval_growth$name
+        states$L$name,
+        1. - exp(-1./parameters$del)
       ),
 
       # Death of larvae
@@ -117,32 +124,62 @@ create_processes <- function(
         individuals$mosquito$name,
         states$E$name,
         states$L$name,
-        states$Unborn$name,
-        events$larval_growth$name,
-        events$pupal_development$name
+        states$Unborn$name
+      ),
+
+      individual::fixed_probability_state_change_process(
+        individuals$mosquito$name,
+        states$L$name,
+        states$P$name,
+        1. - exp(-1./parameters$dl)
+      ),
+
+      individual::fixed_probability_state_change_process(
+        individuals$mosquito$name,
+        states$P$name,
+        states$Sm$name,
+        .5 * (1. - exp(-1./parameters$dpl))
       ),
 
       # Death of pupals
-      create_pupal_death_process(
-        individuals$mosquito,
-        states$P,
-        states$Unborn,
-        parameters$mup,
-        events
+      individual::fixed_probability_state_change_process(
+        individuals$mosquito$name,
+        states$P$name,
+        states$Unborn$name,
+        parameters$mup
       ),
 
       # Natural death of females
-      create_mosquito_death_process(
-        individuals$mosquito,
-        states,
-        parameters$mup,
-        events
+      individual::fixed_probability_state_change_process(
+        individuals$mosquito$name,
+        states$Sm$name,
+        states$Unborn$name,
+        parameters$mum
+      ),
+      individual::fixed_probability_state_change_process(
+        individuals$mosquito$name,
+        states$Pm$name,
+        states$Unborn$name,
+        parameters$mum
+      ),
+      individual::fixed_probability_state_change_process(
+        individuals$mosquito$name,
+        states$Im$name,
+        states$Unborn$name,
+        parameters$mum
       ),
 
       # Rendering processes
       individual::state_count_renderer_process(
         individuals$mosquito$name,
-        c(states$E$name, states$L$name, states$P$name, states$Sm$name, states$Im$name)
+        c(
+          states$E$name,
+          states$L$name,
+          states$P$name,
+          states$Sm$name,
+          states$Pm$name,
+          states$Im$name
+        )
       )
     )
   } else {
@@ -166,26 +203,11 @@ create_event_based_processes <- function(individuals, states, variables, events,
   events$infection$add_listener(
     individual::update_state_listener(individuals$human$name, states$D$name)
   )
+  events$asymptomatic_infection$add_listener(
+    individual::update_state_listener(individuals$human$name, states$A$name)
+  )
 
   if (!parameters$vector_ode) {
-    # Mosquito development processes
-    events$larval_growth$add_listener(
-      individual::update_state_listener(individuals$mosquito$name, states$L$name)
-    )
-    events$larval_growth$add_listener(
-      individual::reschedule_listener(events$pupal_development$name, parameters$dl)
-    )
-    events$pupal_development$add_listener(
-      individual::update_state_listener(individuals$mosquito$name, states$P$name)
-    )
-    events$pupal_development$add_listener(
-      individual::reschedule_listener(events$susceptable_development$name, parameters$dpl)
-    )
-    events$susceptable_development$add_listener(function(api, target) {
-      female <- bernoulli(length(target), .5)
-      api$queue_state_update(individuals$mosquito, states$Unborn, target[!female])
-      api$queue_state_update(individuals$mosquito, states$Sm, target[female])
-    })
     events$mosquito_infection$add_listener(
       individual::update_state_listener(individuals$mosquito$name, states$Im$name)
     )

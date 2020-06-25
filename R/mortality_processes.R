@@ -49,8 +49,6 @@ create_mortality_process <- function(human, D, variables, events) {
 
       api$clear_schedule(events$infection, died)
       api$clear_schedule(events$asymptomatic_infection, died)
-      api$clear_schedule(events$subpatent_infection, died)
-      api$clear_schedule(events$recovery, died)
 
       api$queue_variable_update(human, variables$birth, timestep, died)
       api$queue_variable_update(human, variables$last_bitten, -1, died)

@@ -93,10 +93,7 @@ create_infection_process <- function(
         api$get_variable(human, variables$ivm, infected_humans),
         parameters
       )
-      develop_severe <- bernoulli(length(infected_humans), theta)
-      symptomatic <- develop_severe | develop_clinical #NOTE: is this AND or OR?
-    } else {
-      symptomatic <- develop_clinical
+      develop_severe <- bernoulli(length(develop_clinical), theta)
     }
 
     # Exclude humans already scheduled for infection
@@ -105,11 +102,11 @@ create_infection_process <- function(
       api$get_scheduled(events$asymptomatic_infection)
     )
     to_infect <- setdiff(
-      infected_humans[symptomatic],
+      infected_humans[develop_clinical],
       scheduled_for_infection
     )
     to_infect_asym <- setdiff(
-      infected_humans[!symptomatic],
+      infected_humans[!develop_clinical],
       scheduled_for_infection
     )
 
@@ -191,14 +188,6 @@ create_infection_process <- function(
         # Schedule infection states
         if(length(to_infect) > 0) {
           api$schedule(events$infection, to_infect, parameters$de)
-          api$clear_schedule(
-            events$subpatent_infection,
-            to_infect
-          )
-          api$clear_schedule(
-            events$recovery,
-            to_infect
-          )
 
           if(parameters$severe_enabled && any(develop_severe)) {
             api$queue_variable_update(
@@ -214,14 +203,6 @@ create_infection_process <- function(
             events$asymptomatic_infection,
             to_infect_asym,
             parameters$de
-          )
-          api$clear_schedule(
-            events$subpatent_infection,
-            to_infect_asym
-          )
-          api$clear_schedule(
-            events$recovery,
-            to_infect_asym
           )
         }
       }
@@ -255,6 +236,10 @@ create_mosquito_infection_process <- function(
       variables,
       api
     )
+
+    for (species in seq_along(lambda)) {
+      api$render(paste0('FOIM_', species), lambda[[species]])
+    }
 
     parameters <- api$get_parameters()
     source_mosquitos <- api$get_state(mosquito, states$Sm)
@@ -365,7 +350,7 @@ asymptomatic_infectivity <- function(age, immunity, parameters) {
 
 # Unique biting rate (psi) for a human of a given age
 unique_biting_rate <- function(age, parameters) {
-  1 - parameters$rho * exp(- (age/365) / parameters$a0)
+  1 - parameters$rho * exp(- age / parameters$a0)
 }
 
 # Implemented from Winskill 2017 - Supplementary Information page 4

@@ -33,7 +33,7 @@ test_that('vector infectivity in the ODE returns correct values', {
 })
 
 test_that('eir returns correct values', {
-  age <- c(0, 5, 30)
+  age <- c(0, 5, 30) * 365
   xi <-  c(1.8, 2., .5)
 
   days_per_timestep <- 1
@@ -51,7 +51,7 @@ test_that('eir returns correct values', {
       infectivity,
       parameters
     ),
-    c(1.921, .564),
+    c(.677, 1.229),
     tolerance=1e-3
   )
 })
@@ -118,7 +118,7 @@ test_that('mosquito_force_of_infection returns correct values', {
     rho   = .85,
     a0    = 8 * 365 / days_per_timestep
   )
-  age <- c(0, 5, 30)
+  age <- c(0, 5, 30) * 365
   xi <- c(1.8, 2., .5)
   infectivity <- c(.5, .5, .2)
   v <- c(1, 1, 1, 2, 3, 3)
@@ -131,7 +131,7 @@ test_that('mosquito_force_of_infection returns correct values', {
       c(1, 2, 3),
       parameters
     ),
-    c(.426, .426, .426, .343, .436, .436),
+    c(.387, .387, .387, .311, .395, .395),
     tolerance=1e-3
   )
 })

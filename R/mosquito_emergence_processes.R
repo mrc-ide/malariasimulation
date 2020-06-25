@@ -23,40 +23,11 @@ create_larval_death_process <- function(mosquito, E, L, Unborn, events) {
     late_larval_deaths <- late_larval[
       bernoulli(length(late_larval), parameters$ml * late_regulation)
     ]
-    api$clear_schedule(events$larval_growth, early_larval_deaths)
-    api$clear_schedule(events$pupal_development, late_larval_deaths)
     api$queue_state_update(
       mosquito,
       Unborn,
       c(early_larval_deaths, late_larval_deaths)
     )
-  }
-}
-
-create_pupal_death_process <- function(mosquito, P, Unborn, rate, events) {
-  function (api) {
-    source_individuals <- api$get_state(mosquito, P)
-    target_individuals <- source_individuals[
-      bernoulli(length(source_individuals), rate)
-    ]
-    api$clear_schedule(events$susceptable_development, target_individuals)
-    api$queue_state_update(mosquito, Unborn, target_individuals)
-  }
-}
-
-create_mosquito_death_process <- function(mosquito, states, rate, events) {
-  function (api) {
-    source_individuals <- api$get_state(
-      mosquito,
-      states$Sm,
-      states$Pm,
-      states$Im
-    )
-    target_individuals <- source_individuals[
-      bernoulli(length(source_individuals), rate)
-    ]
-    api$clear_schedule(events$mosquito_infection, target_individuals)
-    api$queue_state_update(mosquito, states$Unborn, target_individuals)
   }
 }
 

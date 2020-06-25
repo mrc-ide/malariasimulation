@@ -236,8 +236,8 @@ get_parameters <- function(overrides = list()) {
     # initial immunities
     init_ica = 0,
     init_iva = 0,
-    init_icm = 10,
-    init_ivm = 10,
+    init_icm = 0,
+    init_ivm = 0,
     init_id  = 0,
     init_ib  = 0,
     # vector biology
@@ -273,7 +273,7 @@ get_parameters <- function(overrides = list()) {
     if (!(name %in% names(parameters))) {
       stop(paste('unknown parameter', name, sep=' '))
     }
-    parameters[name] <- overrides[[name]]
+    parameters[[name]] <- overrides[[name]]
   }
 
   props <- c(
@@ -290,4 +290,18 @@ get_parameters <- function(overrides = list()) {
   parameters$K0 <- calculate_carrying_capacity(parameters)
 
   parameters
+}
+
+#' @title Parameterise equilibrium proportions
+#' @description parameterise equilibrium proportions from a list
+#'
+#' @param state_props the equilibrium proportions in a named list
+#' @param overrides a named list of parameters to use instead of defaults
+#' @export
+parameterise_equilibrium <- function(state_props, overrides) {
+  overrides$s_proportion <- state_props[['S']]
+  overrides$d_proportion <- state_props[['D']]
+  overrides$a_proportion <- state_props[['A']]
+  overrides$u_proportion <- state_props[['U']]
+  overrides
 }

@@ -1,8 +1,8 @@
 ---
-title: "Validation"
+title: "Validation (IBM vector model)"
 output: rmarkdown::pdf_document
 vignette: >
-  %\VignetteIndexEntry{Validation}
+  %\VignetteIndexEntry{ValidationIBM}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -70,7 +70,7 @@ simparams$variety_proportions <- 1
 simparams$blood_meal_rates <- jamie_params$f * jamie_params$Q0
 
 #use the ode vector model
-simparams$vector_ode <- TRUE
+simparams$vector_ode <- FALSE
 ```
 
 Next we want to estimate the yearly EIR. This is an input parameter for the equilibrium solution, but for the IBM it's an emergent statistic...
@@ -105,6 +105,7 @@ outputs <- list()
 densities <- c()
 for (density in c(.5, 1, 5, 10, 50, 100, 500, 1000)) {
   simparams$density <- density
+  simparams$mosquito_limit <- simparams$human_population * density * 1000
   EIR <- estimate_eir()
   if (EIR > 0) {
     densities <- c(density, densities)

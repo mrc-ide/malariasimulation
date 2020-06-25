@@ -1,3 +1,14 @@
+initial_immunity <- function(parameter, age) {
+  if (length(parameter) == 1) {
+    return(rep(parameter, length(age)))
+  } else if (length(parameter) == 100) {
+    age <- trunc(age / 365)
+    age[age > 99] <- 99
+    return(parameter[age + 1])
+  }
+  stop('unsupported param')
+}
+
 #' @title Define model states
 #' @description
 #' create_states creates the human and mosquito states for the model
@@ -144,22 +155,22 @@ create_variables <- function(parameters) {
   # Pre-erythoctic immunity
   ib  <- individual::Variable$new(
     "IB",
-    function(size) { rep(parameters$init_ib, size) }
+    function(size) initial_immunity(parameters$init_ib, initial_age)
   )
   # Acquired immunity to clinical disease
   ica <- individual::Variable$new(
     "ICA",
-    function(size) { rep(parameters$init_ica, size) }
+    function(size) initial_immunity(parameters$init_ica, initial_age)
   )
   # Acquired immunity to severe disease
   iva <- individual::Variable$new(
     "IVA",
-    function(size) { rep(parameters$init_iva, size) }
+    function(size) initial_immunity(parameters$init_iva, initial_age)
   )
   # Acquired immunity to detectability
   id <- individual::Variable$new(
      "ID",
-     function(size) { rep(parameters$init_id, size) }
+    function(size) initial_immunity(parameters$init_id, initial_age)
   )
 
   xi_values <- exp(rnorm(
@@ -257,9 +268,7 @@ create_individuals <- function(states, variables, events, parameters) {
     ),
     events = list(
       events$infection,
-      events$asymptomatic_infection,
-      events$subpatent_infection,
-      events$recovery
+      events$asymptomatic_infection
     )
   )
 
@@ -280,9 +289,6 @@ create_individuals <- function(states, variables, events, parameters) {
     ),
     variables = list(variables$mosquito_variety),
     events = list(
-      events$larval_growth,
-      events$pupal_development,
-      events$susceptable_development,
       events$mosquito_infection
     )
   )

@@ -7,24 +7,24 @@
 using namespace Rcpp;
 
 // create_egg_laying_process_cpp
-Rcpp::XPtr<process_t> create_egg_laying_process_cpp(std::string mosquito, std::string susceptable, std::string infected, std::string unborn, std::string early_larval_stage, std::string larval_growth_event);
-RcppExport SEXP _malariasimulation_create_egg_laying_process_cpp(SEXP mosquitoSEXP, SEXP susceptableSEXP, SEXP infectedSEXP, SEXP unbornSEXP, SEXP early_larval_stageSEXP, SEXP larval_growth_eventSEXP) {
+Rcpp::XPtr<process_t> create_egg_laying_process_cpp(std::string mosquito, std::string susceptable, std::string incubating, std::string infected, std::string unborn, std::string early_larval_stage);
+RcppExport SEXP _malariasimulation_create_egg_laying_process_cpp(SEXP mosquitoSEXP, SEXP susceptableSEXP, SEXP incubatingSEXP, SEXP infectedSEXP, SEXP unbornSEXP, SEXP early_larval_stageSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< std::string >::type mosquito(mosquitoSEXP);
     Rcpp::traits::input_parameter< std::string >::type susceptable(susceptableSEXP);
+    Rcpp::traits::input_parameter< std::string >::type incubating(incubatingSEXP);
     Rcpp::traits::input_parameter< std::string >::type infected(infectedSEXP);
     Rcpp::traits::input_parameter< std::string >::type unborn(unbornSEXP);
     Rcpp::traits::input_parameter< std::string >::type early_larval_stage(early_larval_stageSEXP);
-    Rcpp::traits::input_parameter< std::string >::type larval_growth_event(larval_growth_eventSEXP);
-    rcpp_result_gen = Rcpp::wrap(create_egg_laying_process_cpp(mosquito, susceptable, infected, unborn, early_larval_stage, larval_growth_event));
+    rcpp_result_gen = Rcpp::wrap(create_egg_laying_process_cpp(mosquito, susceptable, incubating, infected, unborn, early_larval_stage));
     return rcpp_result_gen;
 END_RCPP
 }
 // create_larval_death_process_cpp
-Rcpp::XPtr<process_t> create_larval_death_process_cpp(std::string mosquito, std::string early_larval_stage, std::string late_larval_stage, std::string unborn, std::string larval_growth_event, std::string pupal_growth_event);
-RcppExport SEXP _malariasimulation_create_larval_death_process_cpp(SEXP mosquitoSEXP, SEXP early_larval_stageSEXP, SEXP late_larval_stageSEXP, SEXP unbornSEXP, SEXP larval_growth_eventSEXP, SEXP pupal_growth_eventSEXP) {
+Rcpp::XPtr<process_t> create_larval_death_process_cpp(std::string mosquito, std::string early_larval_stage, std::string late_larval_stage, std::string unborn);
+RcppExport SEXP _malariasimulation_create_larval_death_process_cpp(SEXP mosquitoSEXP, SEXP early_larval_stageSEXP, SEXP late_larval_stageSEXP, SEXP unbornSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -32,9 +32,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::string >::type early_larval_stage(early_larval_stageSEXP);
     Rcpp::traits::input_parameter< std::string >::type late_larval_stage(late_larval_stageSEXP);
     Rcpp::traits::input_parameter< std::string >::type unborn(unbornSEXP);
-    Rcpp::traits::input_parameter< std::string >::type larval_growth_event(larval_growth_eventSEXP);
-    Rcpp::traits::input_parameter< std::string >::type pupal_growth_event(pupal_growth_eventSEXP);
-    rcpp_result_gen = Rcpp::wrap(create_larval_death_process_cpp(mosquito, early_larval_stage, late_larval_stage, unborn, larval_growth_event, pupal_growth_event));
+    rcpp_result_gen = Rcpp::wrap(create_larval_death_process_cpp(mosquito, early_larval_stage, late_larval_stage, unborn));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -86,7 +84,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_malariasimulation_create_egg_laying_process_cpp", (DL_FUNC) &_malariasimulation_create_egg_laying_process_cpp, 6},
-    {"_malariasimulation_create_larval_death_process_cpp", (DL_FUNC) &_malariasimulation_create_larval_death_process_cpp, 6},
+    {"_malariasimulation_create_larval_death_process_cpp", (DL_FUNC) &_malariasimulation_create_larval_death_process_cpp, 4},
     {"_malariasimulation_create_mosquito_model", (DL_FUNC) &_malariasimulation_create_mosquito_model, 13},
     {"_malariasimulation_mosquito_model_step", (DL_FUNC) &_malariasimulation_mosquito_model_step, 2},
     {"_malariasimulation_mosquito_model_get_states", (DL_FUNC) &_malariasimulation_mosquito_model_get_states, 1},

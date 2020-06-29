@@ -1,0 +1,36 @@
+---
+title: "Human_Interventions"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Human Interventions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(malariasimulation)
+library(malariaEquilibrium)
+```
+
+# Equilibrium testing
+
+Malaria treatment can be compared to the equilibrium solution.
+
+# Effect on prevalence
+
+Example plots on the effect of various interventions on prevalence:
+
+## SMC
+
+## RTS,S
+
+## TBV
+
+## MDA

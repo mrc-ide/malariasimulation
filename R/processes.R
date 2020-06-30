@@ -67,6 +67,18 @@ create_processes <- function(
       variables$infectivity,
       0
     ),
+    individual::fixed_probability_state_change_process(
+      individuals$human$name,
+      states$Tr$name,
+      states$Ph$name,
+      1. - exp(-1./parameters$dt)
+    ),
+    individual::fixed_probability_state_change_process(
+      individuals$human$name,
+      states$Ph$name,
+      states$S$name,
+      1. - exp(-1./parameters$dph)
+    ),
 
     # schedule infections for humans and set last_boosted_*
     create_infection_process(

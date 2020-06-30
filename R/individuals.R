@@ -20,6 +20,8 @@ initial_immunity <- function(parameter, age) {
 #' * D - **D**isease individuals exhibit "clinical" or "severe" disease
 #' * A - **A**symptomatic individuals no longer exhibit symptoms
 #' * U - S**u**bpatent infectious patients are still infectious to mosquitos
+#' * Tr - Patients under **Tr**eatment
+#' * Ph - Patients in **P**rophylaxis
 #'
 #' The mosquito states are defined as:
 #'
@@ -40,7 +42,9 @@ create_states <- function(parameters) {
       parameters$s_proportion,
       parameters$d_proportion,
       parameters$a_proportion,
-      parameters$u_proportion
+      parameters$u_proportion,
+      parameters$t_proportion,
+      parameters$p_proportion
     ),
     function(p) round(parameters$human_population * p)
   )
@@ -64,6 +68,14 @@ create_states <- function(parameters) {
     U = individual::State$new(
       "U",
       initial_counts[[4]]
+    ),
+    Tr = individual::State$new(
+      "Tr",
+      initial_counts[[5]]
+    ),
+    Ph = individual::State$new(
+      "Ph",
+      initial_counts[[6]]
     )
   )
 
@@ -240,7 +252,7 @@ create_variables <- function(parameters) {
 create_individuals <- function(states, variables, events, parameters) {
   human <- individual::Individual$new(
     'human',
-    states = list(states$S, states$D, states$A, states$U),
+    states = list(states$S, states$D, states$A, states$U, states$Tr, states$Ph),
     variables = list(
       variables$birth,
       variables$last_boosted_ib,

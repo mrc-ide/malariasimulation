@@ -52,6 +52,7 @@ test_that('human infection_process creates the correct updates', {
       c(TRUE),                     # infected
       c(TRUE),                     # clinical
       c(FALSE),                    # severe
+      c(FALSE)                     # treatment
     )
   )
 

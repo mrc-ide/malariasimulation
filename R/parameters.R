@@ -11,6 +11,8 @@
 #' fixed state transitions:
 #'
 #' * dd - the delay for humans to move from state D to A
+#' * dt - the delay for humans to move from state Tr to Ph
+#' * dph- the delay for humans to move from state Ph to S
 #' * da - the delay for humans to move from state A to U
 #' * du - the delay for humans to move from state U to S
 #' * del - the delay for mosquitos to move from state E to L
@@ -50,6 +52,7 @@
 #' * iv0 - scale parameter
 #' * kv - shape parameter
 #' * fv0 - age dependent modifier
+#' * fvt - reduced probability of death due to treatment
 #' * av - age dependent modifier
 #' * gammav - age dependent modifier
 #'
@@ -76,6 +79,7 @@
 #' * cd - infectivity of clinically diseased humans towards mosquitos
 #' * gamma1 - parameter for infectivity of asymptomatic humans
 #' * cu - infectivity of sub-patent infection
+#' * ct - infectivity of treated infection
 #'
 #' unique biting rate:
 #'
@@ -110,7 +114,10 @@
 #' * a_proportion - the proportion of `human_population` that begin as
 #' Asymptomatic
 #' * u_proportion - the proportion of `human_population` that begin as
-#' Subpatents
+#' subpatents
+#' * t_proportion - the proportion of `human_population` that begin treated
+#' * p_proportion - the proportion of `human_population` that begin in
+#' prophylaxis
 #'
 #' initial immunity values:
 #'
@@ -134,6 +141,10 @@
 #' * variety_proportions - the relative proportions of each species
 #' * blood_meal_rates - the blood meal rates for each species
 #'
+#' treatment parameter:
+#'
+#' * ft - probability of seeking treatment if clinically diseased
+#'
 #' miscellaneous:
 #'
 #' * human_population - the number of humans to model
@@ -147,6 +158,8 @@ get_parameters <- function(overrides = list()) {
   days_per_timestep <- 1
   parameters <- list(
     dd    = 5,
+    dt    = 5,
+    dph   = 25,
     da    = 195,
     du    = 110,
     del   = 6.64,
@@ -177,6 +190,7 @@ get_parameters <- function(overrides = list()) {
     cd    = 0.068,
     gamma1= 1.82425,
     cu    = 0.0062,
+    ct    = 0.021896,
     # unique biting rate
     a0    = 8 * 365,
     rho   = .85,
@@ -191,6 +205,7 @@ get_parameters <- function(overrides = list()) {
     theta1  = .0001191,
     kv      = 2.00048,
     fv0     = 0.141195,
+    fvt     = 0.5,
     av      = 2493.41,
     gammav  = 2.91282,
     iv0     = 1.09629,
@@ -227,6 +242,8 @@ get_parameters <- function(overrides = list()) {
     d_proportion = 0.007215064,
     a_proportion = 0.439323667,
     u_proportion = 0.133028023,
+    t_proportion = 0,
+    p_proportion = 0,
     # initial immunities
     init_ica = 0,
     init_iva = 0,
@@ -240,6 +257,8 @@ get_parameters <- function(overrides = list()) {
     init_foim= 0,
     variety_proportions = c(.5, .3, .2),
     blood_meal_rates    = c(.92, .74, .94),
+    # treatment
+    ft = 0,
     # misc
     human_population = 100,
     mosquito_limit   = 100 * 1000,
@@ -267,7 +286,9 @@ get_parameters <- function(overrides = list()) {
     parameters$s_proportion,
     parameters$d_proportion,
     parameters$a_proportion,
-    parameters$u_proportion
+    parameters$u_proportion,
+    parameters$t_proportion,
+    parameters$p_proportion
   )
 
   if (!all.equal(sum(props), 1)) {

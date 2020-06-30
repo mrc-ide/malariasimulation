@@ -55,6 +55,18 @@ create_processes <- function(
       states$S$name,
       1. - exp(-1./parameters$du)
     ),
+    individual::fixed_probability_state_change_process(
+      individuals$human$name,
+      states$Tr$name,
+      states$Ph$name,
+      1. - exp(-1./parameters$dt)
+    ),
+    individual::fixed_probability_state_change_process(
+      individuals$human$name,
+      states$Ph$name,
+      states$S$name,
+      1. - exp(-1./parameters$dph)
+    ),
 
     # schedule infections for humans and set last_boosted_*
     create_infection_process(
@@ -75,7 +87,14 @@ create_processes <- function(
     # Rendering processes
     individual::state_count_renderer_process(
       individuals$human$name,
-      c(states$S$name, states$A$name, states$D$name, states$U$name)
+      c(
+        states$S$name,
+        states$A$name,
+        states$D$name,
+        states$U$name,
+        states$Tr$name,
+        states$Ph$name
+      )
     ),
     individual::variable_mean_renderer_process(
       individuals$human$name,

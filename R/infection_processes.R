@@ -92,13 +92,18 @@ create_infection_process <- function(
       develop_severe <- bernoulli(length(develop_clinical), theta)
     }
 
+    seek_treatment <- bernoulli(
+      length(develop_clinical),
+      parameters$ft
+    )
+
     # Exclude humans already scheduled for infection
     scheduled_for_infection <- union(
       api$get_scheduled(events$infection),
       api$get_scheduled(events$asymptomatic_infection)
     )
     to_infect <- setdiff(
-      infected_humans[develop_clinical],
+      infected_humans[develop_clinical[!seek_treatment]],
       scheduled_for_infection
     )
     to_infect_asym <- setdiff(
@@ -176,6 +181,13 @@ create_infection_process <- function(
         }
       }
     }
+
+    # Update those who seek treatment
+    api$queue_state_update(
+      human,
+      states$Tr,
+      infected_humans[develop_clinical[seek_treatment]]
+    )
   }
 }
 
@@ -344,12 +356,14 @@ mosquito_force_of_infection_from_api <- function(
   variables,
   api
   ) {
+
   parameters <- api$get_parameters()
   age <- get_age(api$get_variable(human, variables$birth), api$get_timestep())
   zeta  <- api$get_variable(human, variables$zeta)
   a_subset <- api$get_state(human, states$A)
   d_subset <- api$get_state(human, states$D)
   u_subset <- api$get_state(human, states$U)
+  t_subset <- api$get_state(human, states$Tr)
 
   a_infectivity <- asymptomatic_infectivity(
     age[a_subset],
@@ -361,6 +375,7 @@ mosquito_force_of_infection_from_api <- function(
   infectivity[d_subset] <- parameters$cd
   infectivity[a_subset] <- a_infectivity
   infectivity[u_subset] <- parameters$cu
+  infectivity[t_subset] <- parameters$ct
 
   mosquito_force_of_infection(
     seq_along(parameters$blood_meal_rates),

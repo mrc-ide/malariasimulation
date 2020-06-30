@@ -34,9 +34,6 @@ create_mortality_process <- function(human, D, variables, events) {
 
     died <- union(natural_deaths, severe_deaths)
 
-    api$render('total_deaths', length(died))
-    api$render('death_age', mean(age[died]))
-
     if (length(died) > 0) {
       # Calculate new maternal immunities
       groups <- api$get_variable(human, variables$xi_group)
@@ -59,7 +56,6 @@ create_mortality_process <- function(human, D, variables, events) {
       api$queue_variable_update(human, variables$id, 0, died)
       api$queue_variable_update(human, variables$icm, birth_icm, died)
       api$queue_variable_update(human, variables$ivm, birth_ivm, died)
-      api$queue_variable_update(human, variables$is_severe, 0, died)
       # xi and xi group survive rebirth
     }
   }
@@ -68,12 +64,6 @@ create_mortality_process <- function(human, D, variables, events) {
 died_from_severe <- function(severe, diseased, v) {
   at_risk <- intersect(severe, diseased)
   at_risk[bernoulli(length(at_risk), v)]
-}
-
-died_naturally <- function(age, table) {
-  age[age > 99] <- 99
-  probability <- table[age + 1]
-  which(bernoulli(length(age), probability))
 }
 
 sample_mothers <- function(sampleable, died, groups) {

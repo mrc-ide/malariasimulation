@@ -138,28 +138,31 @@ eirs <- vapply(
   },
   numeric(1)
 )
+
 prevs <- vapply(
   outputs,
   function(output) {
     mean(vapply(
       seq(repetitions),
       function(r) {
-        mean(tail(
-          subset(output, output$repetition == r)$human_D_count,
-          year
-        )) / simparams$human_population + mean(tail(
-          subset(output, output$repetition == r)$human_A_count,
-          year
-        )) / simparams$human_population
+        mean(
+          tail(
+            subset(output, output$repetition == r)$prev_2_10,
+            year
+          )
+        ) / simparams$human_population
       },
       numeric(1)
     ))
-    
   },
   numeric(1)
 )
 
-ggplot(data.frame(eir = eirs, prev = prevs)) + geom_line(aes(x = eir, y = prev))
+ggplot(
+  data.frame(eir = eirs, prev = prevs)
+) + geom_line(
+  aes(x = eir, y = prev)
+) + scale_x_continuous(trans='log10')
 ```
 
 Plot agreement

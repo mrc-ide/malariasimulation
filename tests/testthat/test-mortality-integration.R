@@ -60,8 +60,7 @@ test_that('mortality_process resets humans correctly', {
       'IB',
       'ICA',
       'IVA',
-      'ID',
-      'is_severe'
+      'ID'
     )
   )
 

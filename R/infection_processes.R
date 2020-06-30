@@ -189,12 +189,14 @@ create_infection_process <- function(
         if(length(to_infect) > 0) {
           api$schedule(events$infection, to_infect, parameters$de)
 
-          if(parameters$severe_enabled && any(develop_severe)) {
+          if(parameters$severe_enabled) {
+            is_severe <- rep(0, length(infected_humans))
+            is_severe[develop_severe] <- 1
             api$queue_variable_update(
               human,
               variables$is_severe,
-              1,
-              infected_humans[develop_severe]
+              is_severe,
+              infected_humans
             )
           }
         }

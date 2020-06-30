@@ -85,6 +85,12 @@ create_processes <- function(
         variables$ib$name,
         variables$id$name
       )
+    ),
+    create_prevelance_renderer(
+      individuals$human,
+      states$D,
+      states$A,
+      variables$birth
     )
   )
 

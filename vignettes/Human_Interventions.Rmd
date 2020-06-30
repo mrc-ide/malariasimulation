@@ -90,7 +90,7 @@ for (density in c(.5, 5)) {
     simparams$ft <- ft
     EIR <- estimate_eir()
     if (EIR > 0) {
-      estimated_eirs <- c(estimated_eirs, EIR)
+      estimated_eirs <- c(EIR, estimated_eirs)
       eq <- get_equilibrium(EIR, ft)
       simparams <- parameterise_equilibrium(get_state_proportions(eq), simparams)
       output <- run_simulation_with_repetitions(
@@ -180,8 +180,6 @@ plot_grid(
 Let's plot the effect of ft on the relationship between EIR and PfPrev2-10:
 
 ```{r}
-
-
 eirs <- vapply(
   outputs,
   function(output) {

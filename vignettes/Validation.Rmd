@@ -107,7 +107,7 @@ for (density in c(.5, 1, 5, 10, 50, 100, 500, 1000)) {
   simparams$density <- density
   EIR <- estimate_eir()
   if (EIR > 0) {
-    densities <- c(density, densities)
+    densities <- c(densities, density)
     estimated_eirs <- c(estimated_eirs, EIR)
     eq <- get_equilibrium(EIR)
     simparams <- parameterise_equilibrium(get_state_proportions(eq), simparams)
@@ -149,8 +149,11 @@ prevs <- vapply(
           tail(
             subset(output, output$repetition == r)$prev_2_10,
             year
+          ) / tail(
+            subset(output, output$repetition == r)$n_2_10,
+            year
           )
-        ) / simparams$human_population
+        )
       },
       numeric(1)
     ))

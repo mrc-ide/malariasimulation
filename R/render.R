@@ -8,5 +8,6 @@ create_prevelance_renderer <- function(human, D, A, birth) {
       intersect(api$get_state(human, A), in_range)
     )
     api$render('prev_2_10', prev)
+    api$render('n_2_10', length(in_range))
   }
 }

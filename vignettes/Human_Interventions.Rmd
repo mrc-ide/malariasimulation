@@ -84,13 +84,13 @@ Then we can run the simulation over a variety of densities and ft:
 estimated_eirs <- c()
 outputs <- list()
 labels <- list()
-for (density in c(.5, 5)) {
+for (density in c(.5, 1, 5, 10, 50, 100, 500, 1000)) {
   for (ft in c(.25, .5, .75)) {
     simparams$density <- density
     simparams$ft <- ft
     EIR <- estimate_eir()
     if (EIR > 0) {
-      estimated_eirs <- c(EIR, estimated_eirs)
+      estimated_eirs <- c(estimated_eirs, EIR)
       eq <- get_equilibrium(EIR, ft)
       simparams <- parameterise_equilibrium(get_state_proportions(eq), simparams)
       output <- run_simulation_with_repetitions(

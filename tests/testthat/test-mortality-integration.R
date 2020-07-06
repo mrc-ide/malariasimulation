@@ -76,7 +76,8 @@ test_that('mortality_process resets humans correctly', {
     vapply(cleared_args, function(cleared) cleared[[1]]$name, character(1)),
     c(
       'infection',
-      'asymptomatic_infection'
+      'asymptomatic_infection',
+      'mda_administer'
     )
   )
 

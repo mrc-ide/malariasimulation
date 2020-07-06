@@ -262,3 +262,17 @@ create_exponential_decay_process <- function(individual, variable, rate) {
     api$queue_variable_update(individual, variable, i * decay_rate)
   }
 }
+
+create_setup_process <- function(events) {
+  function(api) {
+    parameters <- api$get_parameters()
+    for (mda_index in seq_along(parameters$mda_drug)) {
+      api$schedule(
+        events$mda_enrollment,
+        parameters$mda_start[[mda_index]],
+        NULL,
+        mda_index
+      )
+    }
+  }
+}

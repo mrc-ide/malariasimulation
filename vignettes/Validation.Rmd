@@ -103,14 +103,22 @@ And then run our models.
 estimated_eirs <- c()
 outputs <- list()
 densities <- c()
-for (density in c(.5, 1, 5, 10, 50, 100, 500, 1000)) {
+#for (density in c(.5, 1, 5, 10, 50, 100, 500, 1000)) {
+for (density in c(5)) {
   simparams$density <- density
+  simparams$ub <- params$ub - 1
+  simparams$uc <- params$uc - 1
+  simparams$ud <- params$ud - 1
   EIR <- estimate_eir()
   if (EIR > 0) {
     densities <- c(densities, density)
     estimated_eirs <- c(estimated_eirs, EIR)
     eq <- get_equilibrium(EIR)
     simparams <- parameterise_equilibrium(get_state_proportions(eq), simparams)
+    simparams$init_ica <- eq$states[,'ICA']
+    simparams$init_icm <- eq$states[,'ICM']
+    simparams$init_ib <- eq$states[,'IB']
+    simparams$init_id <- eq$states[,'ID']
     output <- run_simulation_with_repetitions(
       sim_length,
       repetitions,
@@ -234,8 +242,23 @@ Immunity
 
 ```{r, fig.height = 12}
 immunity_plots <- lapply(
-  outputs,
-  function(output) {
+  seq_along(outputs),
+  function(i) {
+    output <- outputs[[i]]
+    eq <- get_equilibrium(estimated_eirs[[i]])
+    w <- vapply(
+      seq(100)*365,
+      function(age) (1/simparams$average_age)*exp(-age/simparams$average_age),
+      numeric(1)
+    )
+    equilibrium <- data.frame(
+      timestep = seq(sim_length),
+      human_ICA_mean = rep(weighted.mean(eq$states[, 'ICA'], w), sim_length),
+      human_ICM_mean = rep(weighted.mean(eq$states[, 'ICM'], w), sim_length),
+      human_IB_mean = rep(weighted.mean(eq$states[, 'IB'], w), sim_length),
+      human_ID_mean = rep(weighted.mean(eq$states[, 'ID'], w), sim_length)
+    )
+    
     ggplot(
       melt(
         output[c(
@@ -256,6 +279,10 @@ immunity_plots <- lapply(
         color = variable,
         alpha = 1/repetitions
       )
+    )  + geom_line(
+      data = melt(equilibrium, 'timestep'),
+      aes(x = timestep, y = value, group = variable, color = variable),
+      linetype = 'dashed'
     )
   }
 )

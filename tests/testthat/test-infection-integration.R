@@ -29,8 +29,10 @@ test_that('human infection_process creates the correct updates', {
         IVA = c(.2, .3, .5, .9),
         ICM = c(.2, .3, .5, .9),
         IVM = c(.2, .3, .5, .9),
-        last_infected = c(-1, -1, 1, -1),
-        last_bitten = c(-1, 1, 1, -1),
+        last_boosted_ib = c(-1, -1, 1, -1),
+        last_boosted_ica = c(-1, -1, 1, -1),
+        last_boosted_iva = c(-1, -1, 1, -1),
+        last_boosted_id = c(-1, -1, 1, -1),
         ID = c(.2, .3, .5, .9)
       ),
       mosquito = list(
@@ -59,19 +61,76 @@ test_that('human infection_process creates the correct updates', {
 
   updates <- mockery::mock_args(api$queue_variable_update)
 
-  expect_variable_update(updates[[1]], 'IB', c(.3, 1.9), c(2, 4))
-  expect_variable_update(updates[[2]], 'last_bitten', 5, c(2, 4))
-  expect_variable_update(updates[[3]], 'ICA', 1.3, 2)
-  expect_variable_update(updates[[4]], 'IVA', 1.3, 2)
-  expect_variable_update(updates[[5]], 'ID', 1.3, 2)
-  expect_variable_update(updates[[6]], 'last_infected', 5, 2)
+  mockery::expect_args(
+    api$queue_variable_update,
+    1,
+    individuals$human,
+    variables$ib,
+    c(1.3, 1.9),
+    c(2, 4)
+  )
+  mockery::expect_args(
+    api$queue_variable_update,
+    2,
+    individuals$human,
+    variables$last_boosted_ib,
+    5,
+    c(2, 4)
+  )
+  mockery::expect_args(
+    api$queue_variable_update,
+    3,
+    individuals$human,
+    variables$ica,
+    1.3,
+    2
+  )
+  mockery::expect_args(
+    api$queue_variable_update,
+    4,
+    individuals$human,
+    variables$last_boosted_ica,
+    5,
+    2
+  )
+  mockery::expect_args(
+    api$queue_variable_update,
+    5,
+    individuals$human,
+    variables$iva,
+    1.3,
+    2
+  )
+  mockery::expect_args(
+    api$queue_variable_update,
+    6,
+    individuals$human,
+    variables$last_boosted_iva,
+    5,
+    2
+  )
+  mockery::expect_args(
+    api$queue_variable_update,
+    7,
+    individuals$human,
+    variables$id,
+    1.3,
+    2
+  )
+  mockery::expect_args(
+    api$queue_variable_update,
+    8,
+    individuals$human,
+    variables$last_boosted_id,
+    5,
+    2
+  )
 })
 
 test_that('mosquito_force_of_infection_from_api sets up infectivity correctly', {
   parameters <- get_parameters(list(
     cd = .3,
     cu = .2,
-    ct = .1,
     blood_meal_rates = c(.2, .9)
   ))
   events <- create_events()
@@ -84,7 +143,7 @@ test_that('mosquito_force_of_infection_from_api sets up infectivity correctly', 
       human = list(
         S = c(2),
         U = c(1),
-        Tr = c(3),
+        D = c(3),
         birth = 5 - (c(0, 5, 30) * 365),
         xi = c(1.8, 2., .5)
       )
@@ -120,8 +179,8 @@ test_that('mosquito_force_of_infection_from_api sets up infectivity correctly', 
     c(1, 2),
     c(0, 5 * 365, 30 * 365),
     c(1.8, 2., .5),
-    c(.2, .1),
-    c(1, 3),
+    c(.3, .2),
+    c(3, 1),
     parameters
   )
 })
@@ -131,7 +190,7 @@ test_that('mosquito_infection_process creates the correct updates', {
   states <- create_states(parameters)
   variables <- create_variables(parameters)
   events <- create_events()
-  individuals <- create_individuals(states, variables, create_events(), parameters)
+  individuals <- create_individuals(states, variables, events, parameters)
   mosquito_infection_process <- create_mosquito_infection_process(
     individuals$mosquito,
     individuals$human,
@@ -170,4 +229,156 @@ test_that('mosquito_infection_process creates the correct updates', {
   expect_equal(updates[[1]][[1]]$name, 'mosquito')
   expect_equal(updates[[1]][[2]]$name, 'Pm')
   expect_equal(updates[[1]][[3]], c(1, 2, 3))
+})
+
+test_that('boost_immunity respects the delay period', {
+  parameters <- get_parameters()
+  states <- create_states(parameters)
+  variables <- create_variables(parameters)
+  individuals <- create_individuals(
+    states,
+    variables,
+    create_events(),
+    parameters
+  )
+
+  level <- c(2.4, 1.2, 0., 4.)
+  last_boosted <- c(11, 5, 1, 13)
+  index <- seq(4)
+  timestep <- 15
+  delay <- 4
+
+  api <- mock_api(
+    list(
+      human = list(
+        ID = level,
+        last_boosted_id = last_boosted
+      )
+    )
+  )
+
+  boost_immunity(
+    api,
+    individuals$human,
+    variables$id,
+    index,
+    level,
+    variables$last_boosted_id,
+    timestep,
+    delay
+  )
+
+  mockery::expect_args(
+    api$queue_variable_update,
+    1,
+    individuals$human,
+    variables$id,
+    c(3.4, 2.2, 1),
+    seq(3)
+  )
+
+  mockery::expect_args(
+    api$queue_variable_update,
+    2,
+    individuals$human,
+    variables$last_boosted_id,
+    15,
+    seq(3)
+  )
+})
+
+test_that('boost_immunity respects the delay period', {
+  parameters <- get_parameters()
+  states <- create_states(parameters)
+  variables <- create_variables(parameters)
+  individuals <- create_individuals(
+    states,
+    variables,
+    create_events(),
+    parameters
+  )
+
+  level <- c(2.4, 1.2, 0., 4., 0.)
+  last_boosted <- c(11, 5, 1, 13, -1)
+  index <- seq(5)
+  timestep <- 15
+  delay <- 4
+
+  api <- mock_api(
+    list(
+      human = list(
+        ID = level,
+        last_boosted_id = last_boosted
+      )
+    )
+  )
+
+  boost_immunity(
+    api,
+    individuals$human,
+    variables$id,
+    index,
+    level,
+    variables$last_boosted_id,
+    timestep,
+    delay
+  )
+
+  mockery::expect_args(
+    api$queue_variable_update,
+    1,
+    individuals$human,
+    variables$id,
+    c(3.4, 2.2, 1, 1),
+    c(seq(3), 5)
+  )
+
+  mockery::expect_args(
+    api$queue_variable_update,
+    2,
+    individuals$human,
+    variables$last_boosted_id,
+    15,
+    c(seq(3), 5)
+  )
+})
+
+test_that('boost_immunity does not update when there is no-one to update', {
+  parameters <- get_parameters()
+  states <- create_states(parameters)
+  variables <- create_variables(parameters)
+  individuals <- create_individuals(
+    states,
+    variables,
+    create_events(),
+    parameters
+  )
+
+  level <- c(2.4, 1.2, 0., 4., 0.)
+  last_boosted <- c(12, 14, 14, 13, 13)
+  index <- seq(5)
+  timestep <- 15
+  delay <- 4
+
+  api <- mock_api(
+    list(
+      human = list(
+        ID = level,
+        last_boosted_id = last_boosted
+      )
+    )
+  )
+
+  boost_immunity(
+    api,
+    individuals$human,
+    variables$id,
+    index,
+    level,
+    variables$last_boosted_id,
+    timestep,
+    delay
+  )
+
+  mockery::expect_called(api$queue_variable_update, 0)
 })

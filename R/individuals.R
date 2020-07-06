@@ -98,10 +98,8 @@ create_states <- function(parameters) {
 #' The human variables are defined as:
 #'
 #' * birth - an integer representing the timestep when this individual was born
-#' * last_bitten - the last timestep at which this individual was bitten, used
-#' for tracking grace periods in the boost of immunity
-#' * last_infected - the last timestep at which this individual was infected, used
-#' for tracking grace periods in the boost of immunity
+#' * last_boosted_* - the last timestep at which this individual's immunity was
+#' boosted for tracking grace periods in the boost of immunity
 #' * is_severe - a binary indicator (0 or 1) for if the individual currently has
 #' severe malaria
 #' * ICM - Maternal immunity to clinical disease
@@ -126,8 +124,10 @@ create_variables <- function(parameters) {
 
   # Define variables
   birth <- individual::Variable$new("birth", function(size) -initial_age)
-  last_bitten <- individual::Variable$new("last_bitten", function(size) { rep(-1, size) })
-  last_infected <- individual::Variable$new("last_infected", function(size) { rep(-1, size) })
+  last_boosted_ib <- individual::Variable$new("last_boosted_ib", function(size) { rep(-1, size) })
+  last_boosted_ica <- individual::Variable$new("last_boosted_ica", function(size) { rep(-1, size) })
+  last_boosted_iva <- individual::Variable$new("last_boosted_iva", function(size) { rep(-1, size) })
+  last_boosted_id <- individual::Variable$new("last_boosted_id", function(size) { rep(-1, size) })
   is_severe <- individual::Variable$new(
     "is_severe",
     function(size) { rep(0, size) }
@@ -194,8 +194,10 @@ create_variables <- function(parameters) {
 
   variables <- list(
     birth = birth,
-    last_bitten = last_bitten,
-    last_infected = last_infected,
+    last_boosted_ib = last_boosted_ib,
+    last_boosted_ica = last_boosted_ica,
+    last_boosted_iva = last_boosted_iva,
+    last_boosted_id = last_boosted_id,
     icm = icm,
     ivm = ivm,
     ib = ib,
@@ -254,8 +256,10 @@ create_individuals <- function(states, variables, events, parameters) {
     states = list(states$S, states$D, states$A, states$U),
     variables = list(
       variables$birth,
-      variables$last_bitten,
-      variables$last_infected,
+      variables$last_boosted_ib,
+      variables$last_boosted_ica,
+      variables$last_boosted_iva,
+      variables$last_boosted_id,
       variables$ib,
       variables$ica,
       variables$iva,

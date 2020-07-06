@@ -91,6 +91,11 @@ create_processes <- function(
       states$D,
       states$A,
       variables$birth
+    ),
+    create_ica_dist_renderer(
+      individuals$human,
+      variables$ica,
+      variables$birth
     )
   )
 

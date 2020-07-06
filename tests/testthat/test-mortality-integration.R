@@ -53,8 +53,10 @@ test_that('mortality_process resets humans correctly', {
     vapply(update_args, function(update) update[[2]]$name, character(1)),
     c(
       'birth',
-      'last_bitten',
-      'last_infected',
+      'last_boosted_ib',
+      'last_boosted_ica',
+      'last_boosted_iva',
+      'last_boosted_id',
       'ICM',
       'IVM',
       'IB',

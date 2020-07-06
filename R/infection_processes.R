@@ -110,79 +110,50 @@ create_infection_process <- function(
       scheduled_for_infection
     )
 
-    last_infected <- api$get_variable(
-      human,
-      variables$last_infected,
-      infected_humans
-    )
-
     # Updates for those who were bitten
     if (length(bitten_humans) > 0) {
-      # Boost immunity
-      api$queue_variable_update(
+      boost_immunity(
+        api,
         human,
         variables$ib,
-        boost_acquired_immunity(
-          ib,
-          api$get_variable(
-            human,
-            variables$last_bitten
-          )[bitten_humans],
-          timestep,
-          parameters$ub
-        ),
-        bitten_humans
-      )
-      # record last bitten
-      api$queue_variable_update(
-        human,
-        variables$last_bitten,
+        bitten_humans,
+        ib,
+        variables$last_boosted_ib,
         timestep,
-        bitten_humans
+        parameters$ub
       )
 
       # Updates for those who were infected
       if (length(infected_humans) > 0) {
-        # Boost immunity
-        api$queue_variable_update(
+        boost_immunity(
+          api,
           human,
           variables$ica,
-          boost_acquired_immunity(
-            ica,
-            last_infected,
-            timestep,
-            parameters$uc
-          ),
-          infected_humans
+          infected_humans,
+          ica,
+          variables$last_boosted_ica,
+          timestep,
+          parameters$uc
         )
-        api$queue_variable_update(
+        boost_immunity(
+          api,
           human,
           variables$iva,
-          boost_acquired_immunity(
-            iva,
-            last_infected,
-            timestep,
-            parameters$uv
-          ),
-          infected_humans
+          infected_humans,
+          iva,
+          variables$last_boosted_iva,
+          timestep,
+          parameters$uv
         )
-        api$queue_variable_update(
+        boost_immunity(
+          api,
           human,
           variables$id,
-          boost_acquired_immunity(
-            api$get_variable(human, variables$id, infected_humans),
-            last_infected,
-            timestep,
-            parameters$ud
-          ),
-          infected_humans
-        )
-        # record last infected
-        api$queue_variable_update(
-          human,
-          variables$last_infected,
+          infected_humans,
+          api$get_variable(human, variables$id, infected_humans),
+          variables$last_boosted_id,
           timestep,
-          infected_humans
+          parameters$ud
         )
 
         # Schedule infection states
@@ -438,8 +409,33 @@ blood_meal_rate <- function(v, parameters) {
   parameters$blood_meal_rates[v]
 }
 
-boost_acquired_immunity <- function(level, last_boosted, timestep, delay) {
-  to_boost <- (timestep - last_boosted) > delay | (last_boosted == -1)
-  level[to_boost] <- level[to_boost] + 1
-  level
+boost_immunity <- function(
+  api,
+  human,
+  immunity_variable,
+  exposed_index,
+  exposed_values,
+  last_boosted_variable,
+  timestep,
+  delay
+  ) {
+  # record who can be boosted
+  last_boosted <- api$get_variable(human, last_boosted_variable, exposed_index)
+  to_boost <- (timestep - last_boosted) >= delay | (last_boosted == -1)
+  if (sum(to_boost) > 0) {
+    # boost the variable
+    api$queue_variable_update(
+      human,
+      immunity_variable,
+      exposed_values[to_boost] + 1,
+      exposed_index[to_boost]
+    )
+    # record last boosted
+    api$queue_variable_update(
+      human,
+      last_boosted_variable,
+      timestep,
+      exposed_index[to_boost]
+    )
+  }
 }

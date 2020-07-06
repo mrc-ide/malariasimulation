@@ -136,39 +136,6 @@ test_that('mosquito_force_of_infection returns correct values', {
   )
 })
 
-test_that('boost_acquired_immunity respects the delay period', {
-  level <- c(2.4, 1.2, 0., 4.)
-  last_boosted <- c(11, 5, 1, 13)
-  timestep <- 15
-  delay <- 4
-  expect_equal(
-    boost_acquired_immunity(level, last_boosted, timestep, delay),
-    c(2.4, 2.2, 1., 4.)
-  )
-})
-
-test_that('boost_acquired_immunity works with individuals who have never been boosted (-1)', {
-  level <- c(2.4, 1.2, 0., 4.)
-  last_boosted <- c(2, 5, 1, -1)
-  timestep <- 6
-  delay <- 10
-  expect_equal(
-    boost_acquired_immunity(level, last_boosted, timestep, delay),
-    c(2.4, 1.2, 0., 5.)
-  )
-})
-
-test_that('boost_acquired_immunity returns an empty vector for empty cases', {
-  level <- c()
-  last_boosted <- c()
-  timestep <- 6
-  delay <- 10
-  expect_equal(
-    boost_acquired_immunity(level, last_boosted, timestep, delay),
-    c()
-  )
-})
-
 test_that('asymptomatic_infectivity returns the correct values', {
   age <- c(0, 5, 30, 6)
   immunity <- c(2.4, 1.2, 0., 4.)

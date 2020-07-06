@@ -89,6 +89,8 @@ create_states <- function(parameters) {
 #' * ID - Acquired immunity to detectability
 #' * zeta - Heterogeneity of human individuals
 #' * zeta_group - Discretised heterogeneity of human individuals
+#'
+#' Mosquito variables are: 
 #' * variety - The variety of mosquito, either 1, 2 or 3. These are related to
 #' blood meal rate parameter
 #' * infectivity - The onward infectiousness to mosquitos

@@ -19,6 +19,7 @@ run_simulation <- function(timesteps, parameters = NULL) {
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables, events, parameters)
   create_event_based_processes(individuals, states, variables, events, parameters)
+  attach_mda_listeners(individuals$human, states, variables, events)
   if (parameters$vector_ode) {
     odes <- parameterise_ode(parameters, parameters$init_foim)
   }
@@ -33,7 +34,8 @@ run_simulation <- function(timesteps, parameters = NULL) {
       odes
     ),
     end_timestep = timesteps,
-    parameters = parameters
+    parameters = parameters,
+    initialisation = create_setup_process(events)
   )
 }
 

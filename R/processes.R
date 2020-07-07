@@ -56,7 +56,7 @@ create_processes <- function(
       1. - exp(-1./parameters$du)
     ),
 
-    # schedule infections for humans and set last_bitten and last_infected
+    # schedule infections for humans and set last_boosted_*
     create_infection_process(
       individuals,
       states,
@@ -90,11 +90,6 @@ create_processes <- function(
       individuals$human,
       states$D,
       states$A,
-      variables$birth
-    ),
-    create_ica_dist_renderer(
-      individuals$human,
-      variables$ica,
       variables$birth
     )
   )

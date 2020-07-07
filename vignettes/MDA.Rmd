@@ -1,0 +1,165 @@
+---
+title: "Mass Drug Administration"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Human Interventions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+suppressPackageStartupMessages(library(ggplot2))
+library(malariasimulation)
+library(malariaEquilibrium)
+library(reshape2)
+suppressPackageStartupMessages(library(cowplot))
+```
+
+# Parameterisation
+
+We are going to set the default parameters to run the simulation from equilibrium.
+
+```{r}
+year <- 365
+sim_length <- 50 * year
+human_population <- 1000
+repetitions <- 5
+
+remove_keys <- function(x, n) { for (name in n) { x[[name]] <- NULL }; x }
+
+jamie_params <- load_parameter_set("Jamie_parameters.rds")
+
+params <- remove_keys(
+  jamie_params,
+  c(
+    'tl', # unused!
+    'aA', # used for microscopy and pcr calculations
+    'aU', # used for microscopy and pcr calculations
+    'tau',# unused!
+    'f', # used later to calculate blood_meal_rates
+    'Q0', # used later to calculate blood_meal_rates
+    'cd_w', # unused!
+    'cd_p' # unused!
+  )
+)
+
+simparams <- translate_jamie(params)
+simparams[['human_population']] <- human_population
+
+#parameterise single species
+simparams$variety_proportions <- 1
+simparams$blood_meal_rates <- jamie_params$f * jamie_params$Q0
+
+#use the ode vector model
+simparams$vector_ode <- TRUE
+
+#set a probability of seeking treatment
+simparams$ft <- .5
+
+estimate_eir <- function() {
+  output <- run_simulation(sim_length, simparams)
+  sum(tail(output$mean_EIR, year))
+}
+
+get_equilibrium <- function(EIR, ft = 0) {
+  human_equilibrium(EIR = EIR, ft = ft, p = jamie_params, age = 0:99)
+}
+
+get_state_proportions <- function(eq) colSums(eq$states[,c('S', 'D', 'A', 'U', 'T', 'P')])
+```
+
+Then we can run the simulation for a variety of MDA strategies:
+
+## MDA
+
+This is a dose of SP-AQ to 80% of the population once a year.
+
+```{r}
+EIR <- 5
+mdaparams <- simparams
+eq <- get_equilibrium(EIR, mdaparams$ft)
+
+# Add drug SQ - AP
+mdaparams <- add_drug(mdaparams, .9, .32, 25)
+
+# Add MDA strategy
+mdaparams <- add_mda(
+  mdaparams,
+  1,
+  25 * 365,
+  50 * 365,
+  365,
+  0,
+  200 * 365,
+  .8
+)
+
+mdaparams <- parameterise_equilibrium(get_state_proportions(eq), mdaparams)
+mdaparams$density <- equilibrium_density(parameters, EIR)
+output <- run_simulation_with_repetitions(
+  sim_length,
+  repetitions,
+  mdaparams,
+  parallel=TRUE
+)
+
+cowplot(
+  plot_counts_against_equilibrium(
+    output,
+    simparams$human_population,
+    get_state_proportions(eq)
+  ),
+  plot_pfprev2_10(output)
+)
+```
+
+## SMC
+
+This is a dose of SP-AQ to 90% of .5 - 5 year olds once a year a month before the peak season for mosquitos.
+
+```{r}
+EIR <- 5
+smcparams <- simparams
+eq <- get_equilibrium(EIR, smcparams$ft)
+simparams <- parameterise_equilibrium(get_state_proportions(eq), smcparams)
+simparams$density <- equilibrium_density(parameters, EIR)
+
+# Add drug SQ - AP
+mdaparams <- add_drug(mdaparams, .9, .32, 25)
+
+# Add MDA strategy
+peak <- peak_season(parameters)
+mdaparams <- add_mda(
+  mdaparams,
+  1,
+  25 * 365 + peak - 30,
+  50 * 365,
+  365,
+  2 * 365 - 1,
+  11 * 365,
+  .9
+)
+
+output <- run_simulation_with_repetitions(
+  sim_length,
+  repetitions,
+  simparams,
+  parallel=TRUE
+)
+
+cowplot(
+  plot_counts_against_equilibrium(
+    output,
+    simparams$human_population,
+    get_state_proportions(eq)
+  ),
+  plot_pfprev2_10(output)
+)
+```

@@ -11,13 +11,15 @@
 #' @param events a list of events in the model
 #' @param parameters a list of model parameters
 #' @param odes a list of vector models (if vector_ode == TRUE)
+#' @param mda_events a list of lists of events for each MDA
 create_processes <- function(
   individuals,
   states,
   variables,
   events,
   parameters,
-  odes=NULL
+  odes=NULL,
+  mda_events
   ) {
   processes <- list(
     # ========
@@ -94,7 +96,8 @@ create_processes <- function(
       states$D,
       states$Tr,
       variables,
-      events
+      events,
+      mda_events
     ),
 
     # Rendering processes

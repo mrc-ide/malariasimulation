@@ -250,7 +250,13 @@ create_variables <- function(parameters) {
 #' @param variables available variables to assign
 #' @param events available events to assign
 #' @param parameters model parameters
-create_individuals <- function(states, variables, events, parameters) {
+create_individuals <- function(
+  states,
+  variables,
+  events,
+  parameters,
+  mda_events=NULL
+  ) {
   human <- individual::Individual$new(
     'human',
     states = list(states$S, states$D, states$A, states$U, states$Tr),
@@ -273,9 +279,10 @@ create_individuals <- function(states, variables, events, parameters) {
       variables$drug,
       variables$drug_time
     ),
-    events = list(
+    events = c(
       events$infection,
-      events$asymptomatic_infection
+      events$asymptomatic_infection,
+      unlist(mda_events)
     )
   )
 

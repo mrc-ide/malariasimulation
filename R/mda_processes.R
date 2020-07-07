@@ -3,12 +3,13 @@
 #' @param human the human individual object
 #' @param states the states available in the model
 #' @param variables the variables available in the model
-#' @param events the events available in the model
+#' @param mda_index the index of the MDA to create listeners for
+#' @param mda_events a list of events for the MDA at `mda_index`
 #' @description will create an "enrollment listener" for setting up a target
-#' population for MDAs and an  "administer listener" for modelling the effects
-#' of drugs on the population state
-create_mda_listeners <- function(human, states, variables, events) {
-  mda_administer_listener <- function(api, target, mda_index) {
+#' population for an MDA and an  "administer listener" for modelling the effects
+#' of the drug on the population state
+create_mda_listeners <- function(human, states, variables, mda_index, mda_events) {
+  mda_administer_listener <- function(api, target) {
     parameters <- api$get_parameters()
     successful_treatments <- bernoulli(
       length(target),
@@ -37,15 +38,14 @@ create_mda_listeners <- function(human, states, variables, events) {
     frequency <- parameters$mda_frequency[[mda_index]]
     if (api$get_timestep() + frequency <= parameters$mda_end[[mda_index]]) {
       api$schedule(
-        events$mda_administer,
+        mda_events$mda_administer,
         target,
-        frequency,
-        mda_index
+        frequency
       )
     }
   }
 
-  mda_enrollment_listener <- function(api, target, mda_index) {
+  mda_enrollment_listener <- function(api, target) {
     parameters <- api$get_parameters()
     age <- get_age(
       api$get_variable(human, variables$birth),
@@ -65,8 +65,20 @@ create_mda_listeners <- function(human, states, variables, events) {
   )
 }
 
-attach_mda_listeners <- function(human, states, variables, events) {
-  listeners <- create_mda_listeners(human, states, variables, events)
-  events$mda_enrollment$add_listener(listeners$mda_enrollment_listener)
-  events$mda_administer$add_listener(listeners$mda_administer_listener)
+attach_mda_listeners <- function(human, states, variables, mda_events) {
+  for (mda_index in seq_along(mda_events)) {
+    listeners <- create_mda_listeners(
+      human,
+      states,
+      variables,
+      mda_index,
+      mda_events[[mda_index]]
+    )
+    mda_events[[mda_index]]$mda_enrollment$add_listener(
+      listeners$mda_enrollment_listener
+    )
+    mda_events[[mda_index]]$mda_administer$add_listener(
+      listeners$mda_administer_listener
+    )
+  }
 }

@@ -16,8 +16,15 @@ test_that('mda initialises with full coverage correctly', {
   events <- create_events()
   states <- create_states(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
-  listeners <- create_mda_listeners(individuals$human, states, variables, events)
+  mda_events <- create_mda_events(parameters)
+  individuals <- create_individuals(states, variables, events, parameters, mda_events)
+  listeners <- create_mda_listeners(
+    individuals$human,
+    states,
+    variables,
+    1,
+    mda_events[[1]]
+  )
 
   api <- mock_api(
     list(
@@ -35,7 +42,7 @@ test_that('mda initialises with full coverage correctly', {
 
   m <- mockery::mock()
   mockery::stub(listeners$mda_enrollment_listener, 'mda_administer_listener', m)
-  listeners$mda_enrollment_listener(api, NULL, 1)
+  listeners$mda_enrollment_listener(api, NULL)
 
   mockery::expect_args(
     m,
@@ -60,10 +67,23 @@ test_that('mda moves the diseased and non-diseased population correctly', {
     1 # coverage
   )
   events <- create_events()
+  mda_events <- create_mda_events(parameters)
   states <- create_states(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
-  listeners <- create_mda_listeners(individuals$human, states, variables, events)
+  individuals <- create_individuals(
+    states,
+    variables,
+    events,
+    parameters,
+    mda_events
+  )
+  listeners <- create_mda_listeners(
+    individuals$human,
+    states,
+    variables,
+    1,
+    mda_events[[1]]
+  )
 
   api <- mock_api(
     list(
@@ -79,7 +99,7 @@ test_that('mda moves the diseased and non-diseased population correctly', {
     parameters = parameters
   )
 
-  listeners$mda_administer_listener(api, c(3, 4), 1)
+  listeners$mda_administer_listener(api, c(3, 4))
 
   mockery::expect_args(
     api$queue_state_update,
@@ -100,10 +120,9 @@ test_that('mda moves the diseased and non-diseased population correctly', {
   mockery::expect_args(
     api$schedule,
     1,
-    events$mda_administer,
+    mda_events[[1]]$mda_administer,
     c(3, 4),
-    100,
-    1
+    100
   )
 })
 
@@ -134,8 +153,26 @@ test_that('multiple mdas can be scheduled', {
   events <- create_events()
   states <- create_states(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
-  listeners <- create_mda_listeners(individuals$human, states, variables, events)
+  mda_events <- create_mda_events(parameters)
+  individuals <- create_individuals(
+    states,
+    variables,
+    events,
+    parameters,
+    mda_events
+  )
+  listeners <- lapply(
+    seq_along(mda_events),
+    function(i) {
+      create_mda_listeners(
+        individuals$human,
+        states,
+        variables,
+        i,
+        mda_events[[i]]
+      )
+    }
+  )
 
   api <- mock_api(
     list(
@@ -152,9 +189,18 @@ test_that('multiple mdas can be scheduled', {
   )
 
   bernoulli_mock <- mockery::mock(rep(TRUE, 2), rep(TRUE, 1))
-  mockery::stub(listeners$mda_administer_listener, 'bernoulli', bernoulli_mock)
-  listeners$mda_administer_listener(api, c(3, 4), 1)
-  listeners$mda_administer_listener(api, c(2), 2)
+  mockery::stub(
+    listeners[[1]]$mda_administer_listener,
+    'bernoulli',
+    bernoulli_mock
+  )
+  mockery::stub(
+    listeners[[2]]$mda_administer_listener,
+    'bernoulli',
+    bernoulli_mock
+  )
+  listeners[[1]]$mda_administer_listener(api, c(3, 4))
+  listeners[[2]]$mda_administer_listener(api, c(2))
 
   mockery::expect_args(bernoulli_mock, 1, 2, .7)
   mockery::expect_args(bernoulli_mock, 2, 1, .6)
@@ -162,18 +208,16 @@ test_that('multiple mdas can be scheduled', {
   mockery::expect_args(
     api$schedule,
     1,
-    events$mda_administer,
+    mda_events[[1]]$mda_administer,
     c(3, 4),
-    100,
-    1
+    100
   )
 
   mockery::expect_args(
     api$schedule,
     2,
-    events$mda_administer,
+    mda_events[[2]]$mda_administer,
     2,
-    200,
-    2
+    200
   )
 })

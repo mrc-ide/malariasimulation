@@ -8,7 +8,11 @@
 #' @param Tr the treated state
 #' @param variables the model variables to reset
 #' @param events the model events to reset
+<<<<<<< HEAD
 create_mortality_process <- function(human, D, Tr, variables, events) {
+=======
+create_mortality_process <- function(human, D, variables, events, mda_events) {
+>>>>>>> 8f6c77f... Allow multiple MDAs
   function(api) {
     parameters <- api$get_parameters()
     timestep <- api$get_timestep()
@@ -47,7 +51,9 @@ create_mortality_process <- function(human, D, Tr, variables, events) {
 
       api$clear_schedule(events$infection, died)
       api$clear_schedule(events$asymptomatic_infection, died)
-      api$clear_schedule(events$mda_administer, died)
+      for (mda_event_list in mda_events) {
+        api$clear_schedule(mda_event_list$mda_administer, died)
+      }
 
       api$queue_variable_update(human, variables$birth, timestep, died)
       api$queue_variable_update(human, variables$last_boosted_ib, -1, died)

@@ -130,7 +130,9 @@ create_processes <- function(
         individuals$mosquito$name,
         states$E$name,
         states$L$name,
-        states$Unborn$name
+        states$Unborn$name,
+        calculate_carrying_capacity(parameters),
+        calculate_R_bar(parameters)
       ),
 
       individual::fixed_probability_state_change_process(

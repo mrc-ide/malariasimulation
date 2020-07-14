@@ -91,7 +91,7 @@ for (total_M in total_Ms) {
     total_Ms <- c(total_Ms, total_M)
     estimated_eirs <- c(estimated_eirs, EIR)
     eq <- get_equilibrium(EIR)
-    simparams <- parameterise_equilibrium(simparams, get_state_proportions(eq))
+    simparams <- parameterise_human_equilibrium(simparams, eq)
     output <- run_simulation_with_repetitions(
       sim_length,
       repetitions,
@@ -269,7 +269,7 @@ immunity_plots <- lapply(
 plot_grid(
   plot_grid(
     plotlist = immunity_plots,
-    labels = densities,
+    labels = total_Ms,
     ncol = 2
   ),
   legend,
@@ -303,7 +303,7 @@ eir_plots <- lapply(
 
 plot_grid(
   plotlist = eir_plots,
-  labels = densities,
+  labels = total_Ms,
   ncol = 2
 )
 ```
@@ -334,7 +334,7 @@ foim_plots <- lapply(
 
 plot_grid(
   plotlist = foim_plots,
-  labels = densities,
+  labels = total_Ms,
   ncol = 2
 )
 ```

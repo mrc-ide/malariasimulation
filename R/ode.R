@@ -8,7 +8,7 @@ parameterise_ode <- function(parameters, foim = 0.) {
         parameters$beta,
         parameters$del,
         parameters$me,
-        parameters$K0,
+        calculate_carrying_capacity(parameters),
         parameters$gamma,
         parameters$dl,
         parameters$ml,
@@ -68,7 +68,7 @@ create_ode_rendering_process <- function(odes) {
     }
     for (i in seq_along(mosquito_states)) {
       api$render(
-        paste0('mosquito_', mosquito_states[[i]], '_counts'),
+        paste0('mosquito_', mosquito_states[[i]], '_count'),
         counts[[i]]
       )
     }

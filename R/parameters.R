@@ -6,10 +6,6 @@
 #' and mortality: A modelling study."
 #'
 #' @param overrides a named list of parameter values to use instead of defaults
-#'
-#' NOTE: this function is likely to be extended to read in command line / config
-#' file parameters
-#'
 #' The parameters are defined below.
 #'
 #' fixed state transitions:
@@ -101,7 +97,6 @@
 #' carrying capacity parameters:
 #'
 #' * model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall
-#' * K0 - carrying capacity (derived)
 #' * g0 to g3 - rainfall shape parameters
 #' * h1 to h3 - rainfall shape parameters
 #' * gamma - effect of density dependence on late instars relative to early
@@ -133,8 +128,9 @@
 #'
 #' vector biology:
 #'
-#' * total_M - the initial number of adult mosquitoes
 #' * beta - the average number of eggs laid per female mosquito per day
+#' * total_M - the initial number of adult mosquitos in the simulation
+#' * init_foim - the FOIM used to calculate the equilibrium state for mosquitoes
 #' * variety_proportions - the relative proportions of each species
 #' * blood_meal_rates - the blood meal rates for each species
 #'
@@ -145,13 +141,10 @@
 #' simulation
 #' * days_per_timestep - the number of days to model per timestep
 #' * vector_ode - whether to use the ODE model to model mosquitos
+#'
 #' @export
 get_parameters <- function(overrides = list()) {
   days_per_timestep <- 1
-  human_population <- 100
-  if ('human_population' %in% names(overrides)) {
-    human_population <- overrides$human_population
-  }
   parameters <- list(
     dd    = 5,
     da    = 195,
@@ -244,11 +237,12 @@ get_parameters <- function(overrides = list()) {
     # vector biology
     beta     = 21.2,
     total_M  = 1000,
+    init_foim= 0,
     variety_proportions = c(.5, .3, .2),
     blood_meal_rates    = c(.92, .74, .94),
     # misc
-    human_population = human_population,
-    mosquito_limit   = 10000 * human_population,
+    human_population = 100,
+    mosquito_limit   = 100 * 1000,
     vector_ode         = FALSE,
     days_per_timestep  = days_per_timestep
   )
@@ -256,14 +250,6 @@ get_parameters <- function(overrides = list()) {
   parameters$mortality_rate = 1 - exp(
     -days_per_timestep * (1 / parameters$average_age)
   )
-
-	parameters$R_bar <- mean(vnapply(1:365, function(t) rainfall(
-		t,
-		parameters$days_per_timestep,
-    parameters$g0,
-		c(parameters$g1, parameters$g2, parameters$g3),
-		c(parameters$h1, parameters$h2, parameters$h3)
-	)))
 
   # Override parameters with any client specified ones
   if (!is.list(overrides)) {
@@ -288,21 +274,25 @@ get_parameters <- function(overrides = list()) {
     stop("Starting proportions do not sum to 1")
   }
 
-  parameters$K0 <- calculate_carrying_capacity(parameters)
-
   parameters
 }
 
 #' @title Parameterise equilibrium proportions
 #' @description parameterise equilibrium proportions from a list
 #'
-#' @param parameters a named list of model parameters
-#' @param state_props the equilibrium proportions in a named list
+#' @param eq the equilibrium solution output
+#' @param parameters the model parameters
 #' @export
-parameterise_equilibrium <- function(parameters, state_props) {
+parameterise_human_equilibrium <- function(parameters, eq) {
+  state_props <- colSums(eq$states[,c('S', 'D', 'A', 'U')])
   parameters$s_proportion <- state_props[['S']]
   parameters$d_proportion <- state_props[['D']]
   parameters$a_proportion <- state_props[['A']]
   parameters$u_proportion <- state_props[['U']]
+  parameters$init_ica <- eq$states[,'ICA']
+  parameters$init_icm <- eq$states[,'ICM']
+  parameters$init_ib <- eq$states[,'IB']
+  parameters$init_id <- eq$states[,'ID']
+  parameters$init_foim <- eq$FOIM
   parameters
 }

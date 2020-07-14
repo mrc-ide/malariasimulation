@@ -8,10 +8,6 @@ get_parameters(overrides = list())
 }
 \arguments{
 \item{overrides}{a named list of parameter values to use instead of defaults
-
-NOTE: this function is likely to be extended to read in command line / config
-file parameters
-
 The parameters are defined below.
 
 fixed state transitions:
@@ -113,7 +109,6 @@ mortality parameters:
 carrying capacity parameters:
 \itemize{
 \item model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall
-\item K0 - carrying capacity (derived)
 \item g0 to g3 - rainfall shape parameters
 \item h1 to h3 - rainfall shape parameters
 \item gamma - effect of density dependence on late instars relative to early
@@ -149,8 +144,9 @@ incubation periods:
 
 vector biology:
 \itemize{
-\item total_M - the initial number of adult mosquitoes
 \item beta - the average number of eggs laid per female mosquito per day
+\item total_M - the initial number of adult mosquitos in the simulation
+\item init_foim - the FOIM used to calculate the equilibrium state for mosquitoes
 \item variety_proportions - the relative proportions of each species
 \item blood_meal_rates - the blood meal rates for each species
 }

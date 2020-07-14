@@ -10,6 +10,6 @@
 
 #include <individual.h>
 
-double carrying_capacity(const size_t, const params_t&);
+double carrying_capacity(const size_t, const params_t&, double);
 
 #endif /* SRC_MOSQUITO_BIOLOGY_H_ */

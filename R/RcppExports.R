@@ -14,8 +14,8 @@ create_egg_laying_process_cpp <- function(mosquito, susceptable, incubating, inf
     .Call(`_malariasimulation_create_egg_laying_process_cpp`, mosquito, susceptable, incubating, infected, unborn, early_larval_stage)
 }
 
-create_larval_death_process_cpp <- function(mosquito, early_larval_stage, late_larval_stage, unborn) {
-    .Call(`_malariasimulation_create_larval_death_process_cpp`, mosquito, early_larval_stage, late_larval_stage, unborn)
+create_larval_death_process_cpp <- function(mosquito, early_larval_stage, late_larval_stage, unborn, K0, R_bar) {
+    .Call(`_malariasimulation_create_larval_death_process_cpp`, mosquito, early_larval_stage, late_larval_stage, unborn, K0, R_bar)
 }
 
 create_mosquito_model <- function(init, beta, de, mue, K0, gamma, dl, mul, dp, mup, foim, mu, tau) {

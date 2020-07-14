@@ -23,8 +23,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // create_larval_death_process_cpp
-Rcpp::XPtr<process_t> create_larval_death_process_cpp(std::string mosquito, std::string early_larval_stage, std::string late_larval_stage, std::string unborn);
-RcppExport SEXP _malariasimulation_create_larval_death_process_cpp(SEXP mosquitoSEXP, SEXP early_larval_stageSEXP, SEXP late_larval_stageSEXP, SEXP unbornSEXP) {
+Rcpp::XPtr<process_t> create_larval_death_process_cpp(std::string mosquito, std::string early_larval_stage, std::string late_larval_stage, std::string unborn, double K0, double R_bar);
+RcppExport SEXP _malariasimulation_create_larval_death_process_cpp(SEXP mosquitoSEXP, SEXP early_larval_stageSEXP, SEXP late_larval_stageSEXP, SEXP unbornSEXP, SEXP K0SEXP, SEXP R_barSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -32,7 +32,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::string >::type early_larval_stage(early_larval_stageSEXP);
     Rcpp::traits::input_parameter< std::string >::type late_larval_stage(late_larval_stageSEXP);
     Rcpp::traits::input_parameter< std::string >::type unborn(unbornSEXP);
-    rcpp_result_gen = Rcpp::wrap(create_larval_death_process_cpp(mosquito, early_larval_stage, late_larval_stage, unborn));
+    Rcpp::traits::input_parameter< double >::type K0(K0SEXP);
+    Rcpp::traits::input_parameter< double >::type R_bar(R_barSEXP);
+    rcpp_result_gen = Rcpp::wrap(create_larval_death_process_cpp(mosquito, early_larval_stage, late_larval_stage, unborn, K0, R_bar));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -84,7 +86,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_malariasimulation_create_egg_laying_process_cpp", (DL_FUNC) &_malariasimulation_create_egg_laying_process_cpp, 6},
-    {"_malariasimulation_create_larval_death_process_cpp", (DL_FUNC) &_malariasimulation_create_larval_death_process_cpp, 4},
+    {"_malariasimulation_create_larval_death_process_cpp", (DL_FUNC) &_malariasimulation_create_larval_death_process_cpp, 6},
     {"_malariasimulation_create_mosquito_model", (DL_FUNC) &_malariasimulation_create_mosquito_model, 13},
     {"_malariasimulation_mosquito_model_step", (DL_FUNC) &_malariasimulation_mosquito_model_step, 2},
     {"_malariasimulation_mosquito_model_get_states", (DL_FUNC) &_malariasimulation_mosquito_model_get_states, 1},

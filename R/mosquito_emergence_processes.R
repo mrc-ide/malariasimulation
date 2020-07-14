@@ -7,14 +7,14 @@
 #' @param L the late stage larval state
 #' @param Unborn the unborn mosquito state
 #' @param events a list of events in the model
-create_larval_death_process <- function(mosquito, E, L, Unborn, events) {
+create_larval_death_process <- function(mosquito, E, L, Unborn, events, K0, R_bar) {
   function(api) {
     timestep <- api$get_timestep()
     parameters <- api$get_parameters()
     early_larval <- api$get_state(mosquito, E)
     late_larval <- api$get_state(mosquito, L)
     n <- length(early_larval) + length(late_larval)
-    k <- carrying_capacity(timestep, parameters)
+    k <- carrying_capacity(timestep, parameters, K0, R_bar)
     early_regulation <- 1 + n / k
     late_regulation <- 1 + parameters$gamma * n / k
     early_larval_deaths <- early_larval[
@@ -31,7 +31,7 @@ create_larval_death_process <- function(mosquito, E, L, Unborn, events) {
   }
 }
 
-carrying_capacity <- function(timestep, parameters) {
+carrying_capacity <- function(timestep, parameters, K0, R_bar) {
   if (parameters$model_seasonality) {
     r <- rainfall(
       timestep,
@@ -40,9 +40,9 @@ carrying_capacity <- function(timestep, parameters) {
       c(parameters$g1, parameters$g2, parameters$g3),
       c(parameters$h1, parameters$h2, parameters$h3)
     )
-    return(parameters$K0 * r / parameters$R_bar)
+    return(K0 * r / R_bar)
   }
-  parameters$K0
+  K0
 }
 
 rainfall <- function(t, days_per_timestep, g0, g, h) {

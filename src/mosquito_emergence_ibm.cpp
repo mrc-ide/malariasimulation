@@ -69,7 +69,9 @@ Rcpp::XPtr<process_t> create_larval_death_process_cpp(
     std::string mosquito,
     std::string early_larval_stage,
     std::string late_larval_stage,
-    std::string unborn
+    std::string unborn,
+    double K0,
+    double R_bar
     ) {
     auto process = [=](ProcessAPI& api) {
         const auto timestep = api.get_timestep();
@@ -77,7 +79,7 @@ Rcpp::XPtr<process_t> create_larval_death_process_cpp(
         const auto& early_larval = api.get_state(mosquito, early_larval_stage);
         const auto& late_larval = api.get_state(mosquito, late_larval_stage);
         auto n = early_larval.size() + late_larval.size();
-        auto k = carrying_capacity(timestep, parameters);
+        auto k = carrying_capacity(timestep, parameters, K0);
         auto early_regulation = 1 + n / k;
         auto late_regulation = 1 + parameters.at("gamma")[0] * n / k;
         auto larval_deaths = std::vector<size_t>();

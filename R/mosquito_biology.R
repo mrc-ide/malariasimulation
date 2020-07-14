@@ -84,3 +84,16 @@ calculate_R_bar <- function(parameters) {
 		c(parameters$h1, parameters$h2, parameters$h3)
 	)))
 }
+
+#' @title Calculate equilibrium total_M from parameters
+#'
+#' @param parameters to work from
+#' @param EIR equilibrium to use
+equilibrium_total_M <- function(parameters, EIR) {
+  lifetime <- parameters$init_foim * exp(-parameters$mum * parameters$dem) / (
+    parameters$init_foim + parameters$mum
+  )
+  EIR / sum(
+    parameters$variety_proportions * parameters$blood_meal_rates * lifetime
+  )
+}

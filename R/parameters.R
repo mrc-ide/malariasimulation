@@ -296,3 +296,13 @@ parameterise_human_equilibrium <- function(parameters, eq) {
   parameters$init_foim <- eq$FOIM
   parameters
 }
+
+#' @title Parameterise total_M and carrying capacity for mosquitos from EIR
+#'
+#' @param parameters the parameters to modify
+#' @param EIR to work from
+#' @export
+parameterise_mosquito_equilibrium <- function(parameters, EIR) {
+  parameters$total_M <- equilibrium_total_M(parameters, EIR)
+  parameters
+}

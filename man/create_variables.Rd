@@ -17,10 +17,8 @@ time, they are read and updated by processes
 The human variables are defined as:
 \itemize{
 \item birth - an integer representing the timestep when this individual was born
-\item last_bitten - the last timestep at which this individual was bitten, used
-for tracking grace periods in the boost of immunity
-\item last_infected - the last timestep at which this individual was infected, used
-for tracking grace periods in the boost of immunity
+\item last_boosted_* - the last timestep at which this individual's immunity was
+boosted for tracking grace periods in the boost of immunity
 \item is_severe - a binary indicator (0 or 1) for if the individual currently has
 severe malaria
 \item ICM - Maternal immunity to clinical disease

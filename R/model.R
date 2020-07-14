@@ -8,11 +8,13 @@
 #' out what kind of outputs we would like to report from the simulation.
 #'
 #' @param timesteps the number of timesteps to run the simulation for
-#' @param overrides a named list of parameters to use instead of defaults
+#' @param parameters a named list of model parameters
 #' @export
-run_simulation <- function(timesteps, overrides = list()) {
+run_simulation <- function(timesteps, parameters = NULL) {
   events <- create_events()
-  parameters <- get_parameters(overrides)
+  if (is.null(parameters)) {
+    parameters <- get_parameters()
+  }
   states <- create_states(parameters)
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables, events, parameters)

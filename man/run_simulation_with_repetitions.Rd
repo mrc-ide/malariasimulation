@@ -4,7 +4,12 @@
 \alias{run_simulation_with_repetitions}
 \title{Run the simulation with repetitions}
 \usage{
-run_simulation_with_repetitions(timesteps, repetitions, overrides = list())
+run_simulation_with_repetitions(
+  timesteps,
+  repetitions,
+  overrides = list(),
+  parallel = FALSE
+)
 }
 \arguments{
 \item{timesteps}{the number of timesteps to run the simulation for}

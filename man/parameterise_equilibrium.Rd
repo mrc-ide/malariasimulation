@@ -4,12 +4,12 @@
 \alias{parameterise_equilibrium}
 \title{Parameterise equilibrium proportions}
 \usage{
-parameterise_equilibrium(state_props, overrides)
+parameterise_equilibrium(parameters, state_props)
 }
 \arguments{
-\item{state_props}{the equilibrium proportions in a named list}
+\item{parameters}{a named list of model parameters}
 
-\item{overrides}{a named list of parameters to use instead of defaults}
+\item{state_props}{the equilibrium proportions in a named list}
 }
 \description{
 parameterise equilibrium proportions from a list

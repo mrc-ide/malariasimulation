@@ -2,7 +2,7 @@ parameterise_ode <- function(parameters, foim = 0.) {
   lapply(
     parameters$variety_proportions,
     function(p) {
-      m <- p * parameters$human_population * parameters$density
+      m <- p * parameters$total_M
       create_mosquito_model(
         initial_mosquito_counts(parameters, foim, m),
         parameters$beta,

@@ -133,8 +133,8 @@
 #'
 #' vector biology:
 #'
+#' * total_M - the initial number of adult mosquitoes
 #' * beta - the average number of eggs laid per female mosquito per day
-#' * density - the initial number of mosquitos per human
 #' * variety_proportions - the relative proportions of each species
 #' * blood_meal_rates - the blood meal rates for each species
 #'
@@ -145,6 +145,7 @@
 #' simulation
 #' * days_per_timestep - the number of days to model per timestep
 #' * vector_ode - whether to use the ODE model to model mosquitos
+#' @export
 get_parameters <- function(overrides = list()) {
   days_per_timestep <- 1
   human_population <- 100
@@ -242,7 +243,7 @@ get_parameters <- function(overrides = list()) {
     init_ib  = 0,
     # vector biology
     beta     = 21.2,
-    density  = 100,
+    total_M  = 1000,
     variety_proportions = c(.5, .3, .2),
     blood_meal_rates    = c(.92, .74, .94),
     # misc
@@ -295,13 +296,13 @@ get_parameters <- function(overrides = list()) {
 #' @title Parameterise equilibrium proportions
 #' @description parameterise equilibrium proportions from a list
 #'
+#' @param parameters a named list of model parameters
 #' @param state_props the equilibrium proportions in a named list
-#' @param overrides a named list of parameters to use instead of defaults
 #' @export
-parameterise_equilibrium <- function(state_props, overrides) {
-  overrides$s_proportion <- state_props[['S']]
-  overrides$d_proportion <- state_props[['D']]
-  overrides$a_proportion <- state_props[['A']]
-  overrides$u_proportion <- state_props[['U']]
-  overrides
+parameterise_equilibrium <- function(parameters, state_props) {
+  parameters$s_proportion <- state_props[['S']]
+  parameters$d_proportion <- state_props[['D']]
+  parameters$a_proportion <- state_props[['A']]
+  parameters$u_proportion <- state_props[['U']]
+  parameters
 }

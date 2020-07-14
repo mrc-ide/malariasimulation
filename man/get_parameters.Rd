@@ -149,8 +149,8 @@ incubation periods:
 
 vector biology:
 \itemize{
+\item total_M - the initial number of adult mosquitoes
 \item beta - the average number of eggs laid per female mosquito per day
-\item density - the initial number of mosquitos per human
 \item variety_proportions - the relative proportions of each species
 \item blood_meal_rates - the blood meal rates for each species
 }

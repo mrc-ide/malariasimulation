@@ -41,36 +41,16 @@ sim_length <- 50 * year
 human_population <- 1000
 repetitions <- 5
 
-remove_keys <- function(x, n) { for (name in n) { x[[name]] <- NULL }; x }
+jamie_params <- load_parameter_set()
 
-jamie_params <- load_parameter_set("Jamie_parameters.rds")
-
-params <- remove_keys(
-  jamie_params,
-  c(
-    'rT', # to be included in treatment validation
-    'rP', # to be included in treatment validation
-    'tl', # unused!
-    'aA', # used for microscopy and pcr calculations
-    'aU', # used for microscopy and pcr calculations
-    'tau',# unused!
-    'f', # used later to calculate blood_meal_rates
-    'Q0', # used later to calculate blood_meal_rates
-    'cd_w', # unused!
-    'cd_p', # unused!
-    'cT' # to be included in treatment validation
+simparams <- get_parameters(c(
+  translate_jamie(remove_unused_jamie(jamie_params)),
+  list(
+    human_population = human_population,
+    variety_proportions = 1,
+    vector_ode = TRUE
   )
-)
-
-simparams <- translate_jamie(params)
-simparams[['human_population']] <- human_population
-
-#parameterise single species
-simparams$variety_proportions <- 1
-simparams$blood_meal_rates <- jamie_params$f * jamie_params$Q0
-
-#use the ode vector model
-simparams$vector_ode <- TRUE
+))
 ```
 
 Next we want to estimate the yearly EIR. This is an input parameter for the equilibrium solution, but for the IBM it's an emergent statistic...
@@ -102,23 +82,16 @@ And then run our models.
 ```{r}
 estimated_eirs <- c()
 outputs <- list()
-densities <- c()
+total_Ms <- c(1, 5, 10) * human_population
 #for (density in c(.5, 1, 5, 10, 50, 100, 500, 1000)) {
-for (density in c(5)) {
-  simparams$density <- density
-  simparams$ub <- params$ub - 1
-  simparams$uc <- params$uc - 1
-  simparams$ud <- params$ud - 1
+for (total_M in total_Ms) {
+  simparams$total_M <- total_M
   EIR <- estimate_eir()
   if (EIR > 0) {
-    densities <- c(densities, density)
+    total_Ms <- c(total_Ms, total_M)
     estimated_eirs <- c(estimated_eirs, EIR)
     eq <- get_equilibrium(EIR)
-    simparams <- parameterise_equilibrium(get_state_proportions(eq), simparams)
-    simparams$init_ica <- eq$states[,'ICA']
-    simparams$init_icm <- eq$states[,'ICM']
-    simparams$init_ib <- eq$states[,'IB']
-    simparams$init_id <- eq$states[,'ID']
+    simparams <- parameterise_equilibrium(simparams, get_state_proportions(eq))
     output <- run_simulation_with_repetitions(
       sim_length,
       repetitions,
@@ -230,7 +203,7 @@ agreement_plots <- lapply(
 plot_grid(
   plot_grid(
     plotlist = agreement_plots,
-    labels = densities,
+    labels = total_Ms,
     ncol = 2
   ),
   legend,

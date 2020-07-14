@@ -7,7 +7,7 @@
 #' @param m (optional) the total number of female adult mosquitos
 initial_mosquito_counts <- function(parameters, foim = 0, m = NULL) {
   if (is.null(m)) {
-    m <- parameters$human_population * parameters$density
+    m <- parameters$total_M
   }
   omega <- calculate_omega(parameters)
   n_E <- 2 * omega * parameters$mum * parameters$dl * (
@@ -61,7 +61,7 @@ calculate_omega <- function(parameters) {
 #' population dynamics"
 #' @param parameters model parameters
 calculate_carrying_capacity <- function(parameters) {
-  m <- parameters$human_population * parameters$density
+  m <- parameters$total_M
   omega <- calculate_omega(parameters)
 
   m * 2 * parameters$dl * parameters$mum * (

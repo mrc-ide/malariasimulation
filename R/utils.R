@@ -13,5 +13,9 @@ discretise <- function(values, n_groups) {
 }
 
 get_age <- function(birth_timesteps, current_timestep) {
-  current_timestep - birth_timesteps
+  age <- current_timestep - birth_timesteps
+  age[age >= 100 * 365] <- 99 *365
+  age
 }
+
+remove_keys <- function(x, n) { for (name in n) { x[[name]] <- NULL }; x }

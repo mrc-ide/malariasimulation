@@ -24,7 +24,7 @@ translations = list(
   b1  = 'b1',
   d1  = 'd1',
   db  = 'rb',
-  IB0 = 'id0',
+  IB0 = 'ib0',
   kb  = 'kb',
   ub  = 'ub',
   phi0= 'phi0',
@@ -38,7 +38,8 @@ translations = list(
   s2  = 'sigma_squared',
   fd0 = 'fd0',
   g_inf = 'gamma1',
-  PM = 'pcm'
+  PM = 'pcm',
+  tau = 'dem'
 )
 
 #' @title translate parameter keys from jamie's format to ones compatible
@@ -47,6 +48,11 @@ translations = list(
 #' @export
 translate_jamie <- function(params) {
   translated <- list()
+  if (!(is.null(params$Q0) || is.null(params$f))) {
+    translated$blood_meal_rates <- params$Q0 * params$f
+    params$Q0 <- NULL
+    params$f <- NULL
+  }
   for (name in names(params)) {
     if(!name %in% names(translations)) {
       stop(paste('Unknown parameter', name))
@@ -61,4 +67,24 @@ translate_jamie <- function(params) {
     }
   }
   translated
+}
+
+#' @title remove parameter keys from jamie's format that are not used
+#' in this IBM 
+#' @param params with keys in the jamie's format
+#' @export
+remove_unused_jamie <- function(params) {
+  remove_keys(
+    params,
+    c(
+      'rT', # to be included in treatment validation
+      'rP', # to be included in treatment validation
+      'tl', # unused!
+      'aA', # used for microscopy and pcr calculations
+      'aU', # used for microscopy and pcr calculations
+      'cd_w', # unused!
+      'cd_p', # unused!
+      'cT' # to be included in treatment validation
+    )
+  )
 }

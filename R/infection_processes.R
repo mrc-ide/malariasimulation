@@ -17,12 +17,6 @@ create_infection_process <- function(
     human <- individuals$human
     parameters <- api$get_parameters()
     timestep <- api$get_timestep()
-    source_humans <- api$get_state(
-      human,
-      states$S,
-      states$U,
-      states$A
-    )
 
     # Calculate EIR
     age <- get_age(api$get_variable(human, variables$birth), api$get_timestep())
@@ -47,23 +41,28 @@ create_infection_process <- function(
     epsilon <- eir(
       age,
       api$get_variable(human, variables$xi),
-      source_humans,
       infectivity,
       parameters
     )
 
     api$render("mean_EIR", mean(epsilon))
 
-    bitten_humans <- source_humans[bernoulli(length(source_humans), epsilon)]
+    bitten_humans <- which(bernoulli(length(epsilon), epsilon))
 
     api$render("num_bitten", length(bitten_humans))
     api$render("average_age", mean(age)/365)
 
     # Calculate Infected
-    ib <- api$get_variable(human, variables$ib, bitten_humans)
-    b <- blood_immunity(ib, parameters)
+    ib <- api$get_variable(human, variables$ib)
 
-    infected_humans <- bitten_humans[bernoulli(length(bitten_humans), b)]
+    source_humans <- intersect(
+      api$get_state(human, states$S, states$A, states$U),
+      bitten_humans
+    )
+
+    b <- blood_immunity(ib[source_humans], parameters)
+
+    infected_humans <- source_humans[bernoulli(length(source_humans), b)]
 
     ica <- api$get_variable(
       human,
@@ -78,11 +77,7 @@ create_infection_process <- function(
     )
 
     icm <- api$get_variable(human, variables$icm, infected_humans)
-    phi <- clinical_immunity(
-      ica,
-      icm,
-      parameters
-    )
+    phi <- clinical_immunity(ica, icm, parameters)
 
     develop_clinical <- bernoulli(length(infected_humans), phi)
 
@@ -117,7 +112,7 @@ create_infection_process <- function(
         human,
         variables$ib,
         bitten_humans,
-        ib,
+        ib[bitten_humans],
         variables$last_boosted_ib,
         timestep,
         parameters$ub
@@ -239,15 +234,13 @@ create_mosquito_infection_process <- function(
 eir <- function(
   age,
   xi,
-  source_humans,
   vector_infectivity,
   parameters
   ) {
 
   psi <- unique_biting_rate(age, parameters)
   .pi <- human_pi(xi, psi)
-
-  .pi[source_humans] * vector_infectivity
+  .pi * vector_infectivity
 }
 
 # Implemented from Griffin et al 2010 S1 page 7
@@ -307,9 +300,9 @@ severe_immunity <- function(age, acquired_immunity, maternal_immunity, parameter
 # NOTE: Also dmin = d1, according to the equilibrium solution `main.R:132`
 probability_of_detection <- function(age, immunity, parameters) {
   fd <- 1 - (1 - parameters$fd0) / (
-    1 + (age / (parameters$ad / 365)) ** parameters$gammad
+    1 + (age / parameters$ad) ** parameters$gammad
   )
-  q <- parameters$d1 + (1 - parameters$d1) / (
+  parameters$d1 + (1 - parameters$d1) / (
     1 + fd * (immunity / parameters$id0) ** parameters$kd
   )
 }
@@ -363,21 +356,16 @@ mosquito_force_of_infection_from_api <- function(
     parameters
   )
 
-  infectivity<- c(
-    rep(parameters$cd, length(d_subset)),
-    a_infectivity,
-    rep(parameters$cu, length(u_subset))
-  )
-
-  age_subset <- c(age[d_subset], age[a_subset], age[u_subset])
-  xi_subset  <- c(xi[d_subset], xi[a_subset], xi[u_subset])
+  infectivity <- rep(0, length(age))
+  infectivity[d_subset] <- parameters$cd
+  infectivity[a_subset] <- a_infectivity
+  infectivity[u_subset] <- parameters$cu
 
   mosquito_force_of_infection(
     seq_along(parameters$blood_meal_rates),
     age,
     xi,
     infectivity,
-    c(d_subset, a_subset, u_subset),
     parameters
   )
 }
@@ -389,19 +377,17 @@ mosquito_force_of_infection_from_api <- function(
 #' @param age vector for complete human population
 #' @param xi het vector for complete human population
 #' @param infectious_set the indecies for humans which are infectious
-#' @param infectivity the infectivity for `infectious_set`
 #' @param parameters model parameters
 mosquito_force_of_infection <- function(
   v,
   age,
   xi,
   infectivity,
-  infectious_set,
   parameters) {
 
   psi <- unique_biting_rate(age, parameters)
   .pi <- human_pi(xi, psi)
-  mean_infectivity <- sum(.pi[infectious_set] * infectivity)
+  mean_infectivity <- sum(.pi * infectivity)
   blood_meal_rate(v, parameters) * mean_infectivity
 }
 

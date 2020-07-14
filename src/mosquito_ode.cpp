@@ -59,7 +59,7 @@ MosquitoModel::MosquitoModel(
     mu(mu),
     tau(tau)
     {
-    for (auto i = 0u; i < tau + 1; ++i) {
+    for (auto i = 0u; i < tau; ++i) {
         lagged_incubating.push(init[3] * foim);
     }
     auto in = state_t();

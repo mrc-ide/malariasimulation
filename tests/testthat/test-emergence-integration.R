@@ -85,7 +85,9 @@ test_that('larval_death_process works with no larvae', {
     states$E,
     states$L,
     states$Unborn,
-    events
+    events,
+    calculate_carrying_capacity(parameters),
+    calculate_R_bar(parameters)
   )
   api <- mock_api(
     list(
@@ -116,7 +118,9 @@ test_that('larval_death_process kills the expected larvae', {
     states$E,
     states$L,
     states$Unborn,
-    events
+    events,
+    calculate_carrying_capacity(parameters),
+    calculate_R_bar(parameters)
   )
   api <- mock_api(
     list(

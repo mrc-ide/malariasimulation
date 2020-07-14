@@ -47,11 +47,10 @@ test_that('eir returns correct values', {
     eir(
       age,
       xi,
-      c(1, 3),
       infectivity,
       parameters
     ),
-    c(.677, 1.229),
+    c(.677, 2.733, 1.229),
     tolerance=1e-3
   )
 })
@@ -128,7 +127,6 @@ test_that('mosquito_force_of_infection returns correct values', {
       age,
       xi,
       infectivity,
-      c(1, 2, 3),
       parameters
     ),
     c(.387, .387, .387, .311, .395, .395),

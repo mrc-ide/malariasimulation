@@ -4,14 +4,7 @@
 \alias{mosquito_force_of_infection}
 \title{calculate FOIM}
 \usage{
-mosquito_force_of_infection(
-  v,
-  age,
-  xi,
-  infectivity,
-  infectious_set,
-  parameters
-)
+mosquito_force_of_infection(v, age, xi, infectivity, parameters)
 }
 \arguments{
 \item{v}{vector of varieties to calculate for}
@@ -20,11 +13,9 @@ mosquito_force_of_infection(
 
 \item{xi}{het vector for complete human population}
 
-\item{infectivity}{the infectivity for \code{infectious_set}}
+\item{parameters}{model parameters}
 
 \item{infectious_set}{the indecies for humans which are infectious}
-
-\item{parameters}{model parameters}
 }
 \description{
 Implemented from Griffin et al 2010 S1 page 7

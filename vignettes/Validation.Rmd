@@ -82,8 +82,8 @@ And then run our models.
 ```{r}
 estimated_eirs <- c()
 outputs <- list()
-total_Ms <- c(1, 5, 10) * human_population
-#for (density in c(.5, 1, 5, 10, 50, 100, 500, 1000)) {
+total_Ms <- c(.5, 1, 5, 10, 50, 100, 500, 1000) * human_population
+
 for (total_M in total_Ms) {
   simparams$total_M <- total_M
   EIR <- estimate_eir()

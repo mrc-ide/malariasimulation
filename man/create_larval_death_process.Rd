@@ -4,7 +4,7 @@
 \alias{create_larval_death_process}
 \title{Larval deaths}
 \usage{
-create_larval_death_process(mosquito, E, L, Unborn, events)
+create_larval_death_process(mosquito, E, L, Unborn, events, K0, R_bar)
 }
 \arguments{
 \item{mosquito}{the mosquito individual}

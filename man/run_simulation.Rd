@@ -9,7 +9,7 @@ run_simulation(timesteps, parameters = NULL)
 \arguments{
 \item{timesteps}{the number of timesteps to run the simulation for}
 
-\item{parameters}{a named list of model parameters}
+\item{paramters}{a named list of parameters to use}
 }
 \description{
 The main entrypoint for the simulation. run_simulation puts together the

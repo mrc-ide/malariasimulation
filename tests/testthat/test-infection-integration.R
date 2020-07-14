@@ -22,7 +22,7 @@ test_that('human infection_process creates the correct updates', {
         U = c(3),
         A = c(4),
         D = c(1),
-        age = c(20, 24, 5, 39),
+        birth = -c(20, 24, 5, 39) * 365 + 5,
         IB = c(.2, .3, .5, .9),
         xi = c(.2, .3, .5, .9),
         ICA = c(.2, .3, .5, .9),
@@ -48,10 +48,10 @@ test_that('human infection_process creates the correct updates', {
     infection_process,
     'bernoulli',
     mockery::mock(
-      c(TRUE, FALSE, TRUE),
-      c(TRUE, FALSE),
-      c(FALSE, TRUE),
-      c(FALSE),
+      c(TRUE, FALSE, TRUE, FALSE), # bitten
+      c(TRUE),                     # infected
+      c(TRUE),                     # clinical
+      c(FALSE),                    # severe
     )
   )
 
@@ -59,15 +59,13 @@ test_that('human infection_process creates the correct updates', {
 
   infection_process(api)
 
-  updates <- mockery::mock_args(api$queue_variable_update)
-
   mockery::expect_args(
     api$queue_variable_update,
     1,
     individuals$human,
     variables$ib,
-    c(1.3, 1.9),
-    c(2, 4)
+    1.2,
+    1
   )
   mockery::expect_args(
     api$queue_variable_update,
@@ -75,55 +73,22 @@ test_that('human infection_process creates the correct updates', {
     individuals$human,
     variables$last_boosted_ib,
     5,
-    c(2, 4)
+    1
   )
   mockery::expect_args(
     api$queue_variable_update,
     3,
     individuals$human,
-    variables$ica,
-    1.3,
-    2
+    variables$is_severe,
+    0,
+    3
   )
   mockery::expect_args(
-    api$queue_variable_update,
-    4,
-    individuals$human,
-    variables$last_boosted_ica,
-    5,
-    2
-  )
-  mockery::expect_args(
-    api$queue_variable_update,
-    5,
-    individuals$human,
-    variables$iva,
-    1.3,
-    2
-  )
-  mockery::expect_args(
-    api$queue_variable_update,
-    6,
-    individuals$human,
-    variables$last_boosted_iva,
-    5,
-    2
-  )
-  mockery::expect_args(
-    api$queue_variable_update,
-    7,
-    individuals$human,
-    variables$id,
-    1.3,
-    2
-  )
-  mockery::expect_args(
-    api$queue_variable_update,
-    8,
-    individuals$human,
-    variables$last_boosted_id,
-    5,
-    2
+    api$schedule,
+    1,
+    events$infection,
+    3,
+    12
   )
 })
 
@@ -179,8 +144,7 @@ test_that('mosquito_force_of_infection_from_api sets up infectivity correctly', 
     c(1, 2),
     c(0, 5 * 365, 30 * 365),
     c(1.8, 2., .5),
-    c(.3, .2),
-    c(3, 1),
+    c(.2, 0, .3),
     parameters
   )
 })

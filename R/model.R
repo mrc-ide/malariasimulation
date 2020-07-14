@@ -8,7 +8,7 @@
 #' out what kind of outputs we would like to report from the simulation.
 #'
 #' @param timesteps the number of timesteps to run the simulation for
-#' @param parameters a named list of model parameters
+#' @param paramters a named list of parameters to use
 #' @export
 run_simulation <- function(timesteps, parameters = NULL) {
   events <- create_events()
@@ -20,7 +20,7 @@ run_simulation <- function(timesteps, parameters = NULL) {
   individuals <- create_individuals(states, variables, events, parameters)
   create_event_based_processes(individuals, states, variables, events, parameters)
   if (parameters$vector_ode) {
-    odes <- parameterise_ode(parameters)
+    odes <- parameterise_ode(parameters, parameters$init_foim)
   }
   individual::simulate(
     individuals = individuals,

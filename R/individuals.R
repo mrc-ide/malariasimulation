@@ -68,7 +68,7 @@ create_states <- function(parameters) {
   )
 
   if (!parameters$vector_ode) {
-    mosquito_counts <- initial_mosquito_counts(parameters)
+    mosquito_counts <- initial_mosquito_counts(parameters, parameters$init_foim)
     n_Unborn <- parameters$mosquito_limit - sum(mosquito_counts)
 
     if (n_Unborn < 0) {
@@ -118,7 +118,7 @@ create_variables <- function(parameters) {
   initial_age <- trunc(
     rexp(
          parameters$human_population,
-         rate=1/(parameters$average_age)
+         rate=1/parameters$average_age
     )
   )
 

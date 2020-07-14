@@ -44,11 +44,40 @@ test_that('ODE stays at equilibrium with foim > 0', {
   expect_equal(counts, expected, tolerance=1e-4)
 })
 
+test_that('ODE stays at equilibrium with low foim', {
+  foim <- 0.006780785
+  parameters <- get_parameters(list(
+    total_M = 1249.17,
+    init_foim = foim,
+    variety_proportions = 1
+  ))
+  model <- parameterise_ode(parameters, foim)[[1]]
+  timesteps <- 365 * 10
+
+  counts <- c()
+
+  for (t in seq(timesteps)) {
+    counts <- rbind(counts, c(t, mosquito_model_get_states(model)))
+    mosquito_model_step(model, foim)
+  }
+
+  expected <- c()
+  equilibrium <- initial_mosquito_counts(parameters, foim)
+  for (t in seq(timesteps)) {
+    expected <- rbind(expected, c(t, equilibrium))
+  }
+
+  expect_equal(counts, expected, tolerance=1e-4)
+})
+
+
 test_that('Changing FOIM stabilises', {
   foim_0 <- .1
   foim_1 <- .5
-  parameters <- get_parameters()
-  parameters$variety_proportions <- 1
+  parameters <- get_parameters(list(
+    init_foim = foim_0,
+    variety_proportions = 1
+  ))
   model <- parameterise_ode(parameters, foim_0)[[1]]
   timesteps <- 200
   change <- 50

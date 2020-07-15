@@ -116,8 +116,6 @@
 #' * u_proportion - the proportion of `human_population` that begin as
 #' subpatents
 #' * t_proportion - the proportion of `human_population` that begin treated
-#' * p_proportion - the proportion of `human_population` that begin in
-#' prophylaxis
 #'
 #' initial immunity values:
 #'
@@ -141,9 +139,20 @@
 #' * variety_proportions - the relative proportions of each species
 #' * blood_meal_rates - the blood meal rates for each species
 #'
-#' treatment parameter:
+#' treatment parameters:
+#' I recommend setting these with the convenience functions in
+#' `drug_parameters.R`
 #'
+#' * drug_efficacy - a vector of efficacies for available drugs
+#' * drug_rel_c - a vector of relative onwards infectiousness values for drugs
+#' * drug_prophylaxis_shape - a vector of shape parameters for weibull curves to
+#' model prophylaxis for each drug
+#' * drug_prophylaxis_scale - a vector of scale parameters for weibull curves to
+#' model prophylaxis for each drug
 #' * ft - probability of seeking treatment if clinically diseased
+#' * clinical_treatment_drugs - a vector of drugs that are avaliable for
+#' clinically diseased (these values refer to the index in drug_* parameters)
+#' * clinical_treatment_coverage - a vector of coverage values for each drug
 #'
 #' miscellaneous:
 #'
@@ -243,7 +252,6 @@ get_parameters <- function(overrides = list()) {
     a_proportion = 0.439323667,
     u_proportion = 0.133028023,
     t_proportion = 0,
-    p_proportion = 0,
     # initial immunities
     init_ica = 0,
     init_iva = 0,
@@ -258,6 +266,12 @@ get_parameters <- function(overrides = list()) {
     variety_proportions = c(.5, .3, .2),
     blood_meal_rates    = c(.92, .74, .94),
     # treatment
+    drug_efficacy          = c(),
+    drug_rel_c             = c(),
+    drug_prophilaxis_shape = c(),
+    drug_prophilaxis_scale = c(),
+    clinical_treatment_drugs     = c(),
+    clinical_treatment_coverages = c(),
     ft = 0,
     # misc
     human_population = 100,
@@ -287,8 +301,7 @@ get_parameters <- function(overrides = list()) {
     parameters$d_proportion,
     parameters$a_proportion,
     parameters$u_proportion,
-    parameters$t_proportion,
-    parameters$p_proportion
+    parameters$t_proportion
   )
 
   if (!all.equal(sum(props), 1)) {
@@ -301,8 +314,8 @@ get_parameters <- function(overrides = list()) {
 #' @title Parameterise equilibrium proportions
 #' @description parameterise equilibrium proportions from a list
 #'
-#' @param eq the equilibrium solution output
 #' @param parameters the model parameters
+#' @param eq the equilibrium solution output
 #' @export
 parameterise_human_equilibrium <- function(parameters, eq) {
   state_props <- colSums(eq$states[,c('S', 'D', 'A', 'U')])

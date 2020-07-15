@@ -1,5 +1,5 @@
 
-test_that('human infection_process creates the correct updates', {
+test_that('human infection_process works for non-severe clinical cases', {
   parameters <- get_parameters()
   events <- create_events()
   states <- create_states(parameters)
@@ -29,6 +29,8 @@ test_that('human infection_process creates the correct updates', {
         IVA = c(.2, .3, .5, .9),
         ICM = c(.2, .3, .5, .9),
         IVM = c(.2, .3, .5, .9),
+        infectivity = c(.6, 0, .2, .3),
+        drug = c(0, 0, 0, 0),
         last_boosted_ib = c(-1, -1, 1, -1),
         last_boosted_ica = c(-1, -1, 1, -1),
         last_boosted_iva = c(-1, -1, 1, -1),
@@ -44,21 +46,23 @@ test_that('human infection_process creates the correct updates', {
     parameters = parameters
   )
 
-  mockery::stub(
-    infection_process,
-    'bernoulli',
-    mockery::mock(
-      c(TRUE, FALSE, TRUE, FALSE), # bitten
-      c(TRUE),                     # infected
-      c(TRUE),                     # clinical
-      c(FALSE),                    # severe
-      c(FALSE)                     # treatment
-    )
+  bernoulli_mock <- mockery::mock(
+    c(TRUE, FALSE, TRUE, FALSE), # bitten
+    c(TRUE),                     # infected
+    c(TRUE),                     # clinical
+    c(FALSE),                    # severe
+    c(FALSE),                    # treatment
+    c()                          # treatment successful
   )
 
   api$get_scheduled = mockery::mock(4, 1)
 
-  infection_process(api)
+  with_mock(
+    bernoulli = bernoulli_mock,
+    infection_process(api)
+  )
+
+  mockery::expect_called(bernoulli_mock, 6)
 
   mockery::expect_args(
     api$queue_variable_update,
@@ -81,7 +85,7 @@ test_that('human infection_process creates the correct updates', {
     3,
     individuals$human,
     variables$is_severe,
-    0,
+    FALSE,
     3
   )
   mockery::expect_args(
@@ -92,6 +96,150 @@ test_that('human infection_process creates the correct updates', {
     12
   )
 })
+
+test_that('human infection_process works for treated case', {
+  parameters <- get_parameters()
+  parameters <- set_drugs(parameters, list(AL_params, DHC_PQP_params))
+  parameters <- set_clinical_treatment(parameters, .5, c(1, 2), c(.5, .5))
+  events <- create_events()
+  states <- create_states(parameters)
+  variables <- create_variables(parameters)
+  individuals <- create_individuals(states, variables, events, parameters)
+
+  infection_process <- create_infection_process(
+    individuals,
+    states,
+    variables,
+    events
+  )
+
+  parameters$severe_enabled = 1
+
+  api <- mock_api(
+    list(
+      human = list(
+        S = c(2),
+        U = c(3),
+        A = c(4),
+        D = c(1),
+        birth = -c(20, 24, 5, 39) * 365 + 5,
+        IB = c(.2, .3, .5, .9),
+        xi = c(.2, .3, .5, .9),
+        ICA = c(.2, .3, .5, .9),
+        IVA = c(.2, .3, .5, .9),
+        ICM = c(.2, .3, .5, .9),
+        IVM = c(.2, .3, .5, .9),
+        infectivity = c(.6, 0, .2, .3),
+        drug = c(0, 0, 0, 0),
+        last_boosted_ib = c(-1, -1, 1, -1),
+        last_boosted_ica = c(-1, -1, 1, -1),
+        last_boosted_iva = c(-1, -1, 1, -1),
+        last_boosted_id = c(-1, -1, 1, -1),
+        ID = c(.2, .3, .5, .9)
+      ),
+      mosquito = list(
+        Im = 1:100,
+        variety = c(rep(1, 25), rep(2, 25), rep(3, 50))
+      )
+    ),
+    timestep = 5,
+    parameters = parameters
+  )
+
+  bernoulli_mock <- mockery::mock(
+    c(TRUE, FALSE, TRUE, FALSE), # bitten
+    c(TRUE),                     # infected
+    c(TRUE),                     # clinical
+    c(FALSE),                    # severe
+    c(TRUE),                     # seeks treatment
+    c(TRUE)                      # treatment successful
+  )
+
+  with_mock(
+    bernoulli = bernoulli_mock,
+    sample = mockery::mock(2), # Return DCH drug
+    infection_process(api)
+  )
+
+  api$get_scheduled = mockery::mock(4, 1)
+
+  infection_process(api)
+
+  # expect treated individual to go to Tr state
+  mockery::expect_args(
+    api$queue_state_update,
+    1,
+    individuals$human,
+    states$Tr,
+    3
+  )
+
+  # expect rel_c to be applied correctly
+  mockery::expect_args(
+    api$queue_variable_update,
+    4,
+    individuals$human,
+    variables$infectivity,
+    .2 * 0.09434,
+    3
+  )
+  
+  # expect drug and time to be applied correctly
+  mockery::expect_args(
+    api$queue_variable_update,
+    5,
+    individuals$human,
+    variables$drug,
+    2,
+    3
+  )
+  mockery::expect_args(
+    api$queue_variable_update,
+    6,
+    individuals$human,
+    variables$drug_time,
+    5,
+    3
+  )
+})
+
+test_that('prophylaxis is considered for medicated humans', {
+  parameters <- get_parameters()
+  parameters <- set_drugs(parameters, list(AL_params, DHC_PQP_params))
+  events <- create_events()
+  states <- create_states(parameters)
+  variables <- create_variables(parameters)
+  individuals <- create_individuals(states, variables, events, parameters)
+
+  ib = c(.2, .3, .5, .9)
+  api <- mock_api(
+    list(
+      human = list(
+        D = c(1),
+        S = c(2),
+        U = c(3),
+        A = c(4),
+        drug = c(0, 2, 1, 0),
+        drug_time = c(-1, 49, 40, -1)
+      )
+    ),
+    timestep = 50,
+    parameters = parameters
+  )
+  m <- mockery::mock(TRUE, TRUE, TRUE, TRUE)
+
+  with_mock(
+    bernoulli = m,
+    calculate_infections(api, individuals$human, states, variables, seq(4), ib)
+  )
+
+  expect_equal(
+    mockery::mock_args(m)[[1]][[2]],
+    c(0.590, 0.590, 0.384),
+    tolerance = 1e-3
+  )
+})
+
 
 test_that('mosquito_force_of_infection_from_api sets up infectivity correctly', {
   parameters <- get_parameters(list(

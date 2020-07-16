@@ -4,36 +4,42 @@ inverse_param <- function(name, new_name) {
 }
 
 translations = list(
-  eta = 'human_death_rate',
+  eta = inverse_param('eta', 'average_age'),
   rho = 'rho',
   a0  = 'a0',
   rA  = inverse_param('rA', 'da'),
   rD  = inverse_param('rD', 'dd'),
   rU  = inverse_param('rU', 'du'),
-  dE  = 'del',
+  dE  = 'de',
   cD  = 'cd',
   cU  = 'cu',
   d1  = 'd1',
-  dd  = inverse_param('dd', 'rid'),
+  dd  = 'rid',
   ID0 = 'id0',
   kd  = 'kd',
   ud  = 'ud',
   ad0 = 'ad',
   gd  = 'gammad',
   b0  = 'b0',
+  b1  = 'b1',
   d1  = 'd1',
-  db  = inverse_param('db', 'rb'),
-  IB0 = 'id0',
+  db  = 'rb',
+  IB0 = 'ib0',
   kb  = 'kb',
   ub  = 'ub',
   phi0= 'phi0',
   phi1= 'phi1',
-  dc  = inverse_param('dc', 'rc'),
+  dc  = 'rc',
   IC0 = 'ic0',
   kc  = 'kc',
   uc  = 'uc',
-  dm  = inverse_param('dm', 'rm'),
-  mu  = 'mum'
+  dm  = 'rm',
+  mu  = 'mum',
+  s2  = 'sigma_squared',
+  fd0 = 'fd0',
+  g_inf = 'gamma1',
+  PM = 'pcm',
+  tau = 'dem'
 )
 
 #' @title translate parameter keys from jamie's format to ones compatible
@@ -42,6 +48,11 @@ translations = list(
 #' @export
 translate_jamie <- function(params) {
   translated <- list()
+  if (!(is.null(params$Q0) || is.null(params$f))) {
+    translated$blood_meal_rates <- params$Q0 * params$f
+    params$Q0 <- NULL
+    params$f <- NULL
+  }
   for (name in names(params)) {
     if(!name %in% names(translations)) {
       stop(paste('Unknown parameter', name))
@@ -56,4 +67,24 @@ translate_jamie <- function(params) {
     }
   }
   translated
+}
+
+#' @title remove parameter keys from jamie's format that are not used
+#' in this IBM 
+#' @param params with keys in the jamie's format
+#' @export
+remove_unused_jamie <- function(params) {
+  remove_keys(
+    params,
+    c(
+      'rT', # to be included in treatment validation
+      'rP', # to be included in treatment validation
+      'tl', # unused!
+      'aA', # used for microscopy and pcr calculations
+      'aU', # used for microscopy and pcr calculations
+      'cd_w', # unused!
+      'cd_p', # unused!
+      'cT' # to be included in treatment validation
+    )
+  )
 }

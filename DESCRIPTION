@@ -23,7 +23,9 @@ Remotes:
   mrc-ide/malariaEquilibrium
 Imports:
   individual,
-  Rcpp
+  Rcpp,
+  BH,
+  statmod
 Suggests: 
   testthat,
   mockery,
@@ -31,12 +33,14 @@ Suggests:
   rmarkdown,
   reshape2,
   DiagrammeR,
+  cowplot,
   ggplot2,
-  statmod,
-  malariaEquilibrium
+  malariaEquilibrium,
+  covr
 RoxygenNote: 7.1.0
 Roxygen: list(markdown = TRUE)
 LinkingTo:
   Rcpp,
-  individual
+  individual,
+  BH
 VignetteBuilder: knitr

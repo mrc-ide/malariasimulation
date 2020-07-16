@@ -3,7 +3,7 @@ test_that('mortality_process resets humans correctly', {
   events <- create_events()
   states <- create_states(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events)
+  individuals <- create_individuals(states, variables, events, parameters)
 
   mortality_process <- create_mortality_process(
     individuals$human,
@@ -18,7 +18,7 @@ test_that('mortality_process resets humans correctly', {
         D = c(1, 2),
         age = c(20, 24, 5, 39),
         is_severe = c(1., 1., 0., 0.),
-        xi_group = c(1, 1, 2, 2),
+        zeta_group = c(1, 1, 2, 2),
         ICM = c(1, 2, 3, 4),
         IVM = c(1, 2, 3, 4)
       )
@@ -52,16 +52,17 @@ test_that('mortality_process resets humans correctly', {
   expect_setequal(
     vapply(update_args, function(update) update[[2]]$name, character(1)),
     c(
-      'age',
-      'last_bitten',
-      'last_infected',
+      'birth',
+      'last_boosted_ib',
+      'last_boosted_ica',
+      'last_boosted_iva',
+      'last_boosted_id',
       'ICM',
       'IVM',
       'IB',
       'ICA',
       'IVA',
-      'ID',
-      'is_severe'
+      'ID'
     )
   )
 
@@ -69,10 +70,7 @@ test_that('mortality_process resets humans correctly', {
     vapply(cleared_args, function(cleared) cleared[[1]]$name, character(1)),
     c(
       'infection',
-      'asymptomatic_infection',
-      'subpatent_infection',
-      'recovery',
-      'birthday'
+      'asymptomatic_infection'
     )
   )
 

@@ -7,10 +7,10 @@
 create_egg_laying_process_cpp(
   mosquito,
   susceptable,
+  incubating,
   infected,
   unborn,
-  early_larval_stage,
-  larval_growth_event
+  early_larval_stage
 )
 }
 \arguments{
@@ -18,13 +18,13 @@ create_egg_laying_process_cpp(
 
 \item{susceptable}{the susceptable mosquito state}
 
+\item{incubating}{the incubating mosquito state}
+
 \item{infected}{the infected mosquito state}
 
 \item{unborn}{the unborn mosquito state}
 
 \item{early_larval_stage}{the early stage larval state}
-
-\item{larval_growth_event}{the event to transition from early to late larval stage}
 }
 \description{
 This is the process for mosquito birth, it defines how many new early stage

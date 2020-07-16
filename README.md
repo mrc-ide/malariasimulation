@@ -1,3 +1,5 @@
+[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/mrc-ide/malariasimulation?branch=master&svg=true)](https://ci.appveyor.com/project/mrc-ide/malariasimulation) [![codecov](https://codecov.io/github/mrc-ide/malariasimulation/branch/master/graphs/badge.svg)](https://codecov.io/github/mrc-ide/malariasimulation)
+
 # malariasimulation
 
 Imperial College London's next malaria simulation. The main goals are make an

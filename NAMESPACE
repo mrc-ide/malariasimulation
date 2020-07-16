@@ -2,6 +2,7 @@
 
 export(get_parameters)
 export(parameterise_human_equilibrium)
+export(parameterise_mosquito_equilibrium)
 export(remove_unused_jamie)
 export(run_simulation)
 export(run_simulation_with_repetitions)

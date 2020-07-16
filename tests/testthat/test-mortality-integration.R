@@ -18,7 +18,7 @@ test_that('mortality_process resets humans correctly', {
         D = c(1, 2),
         age = c(20, 24, 5, 39),
         is_severe = c(1., 1., 0., 0.),
-        xi_group = c(1, 1, 2, 2),
+        zeta_group = c(1, 1, 2, 2),
         ICM = c(1, 2, 3, 4),
         IVM = c(1, 2, 3, 4)
       )

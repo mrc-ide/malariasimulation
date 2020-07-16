@@ -36,7 +36,7 @@ create_mortality_process <- function(human, D, variables, events) {
 
     if (length(died) > 0) {
       # Calculate new maternal immunities
-      groups <- api$get_variable(human, variables$xi_group)
+      groups <- api$get_variable(human, variables$zeta_group)
       sampleable <- age >= 15 | age <= 35
       ica <- api$get_variable(human, variables$ica)
       iva <- api$get_variable(human, variables$iva)
@@ -58,7 +58,7 @@ create_mortality_process <- function(human, D, variables, events) {
       api$queue_variable_update(human, variables$id, 0, died)
       api$queue_variable_update(human, variables$icm, birth_icm, died)
       api$queue_variable_update(human, variables$ivm, birth_ivm, died)
-      # xi and xi group survive rebirth
+      # zeta and zeta group survive rebirth
     }
   }
 }

@@ -1,11 +1,3 @@
-test_that('discretise works on linear data', {
-  continuous <- c(.1, .2, .3, .4, .5, .6, .7, .8, .9, 1.)
-  expect_equal(
-    discretise(continuous, 5),
-    c(1, 1, 2, 2, 3, 3, 4, 4, 5, 5)
-  )
-})
-
 test_that('sample_mothers correctly samples mothers from the population', {
   sampleable <- c(TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE)
   groups <- c(1, 1, 1, 2, 2, 3, 3)

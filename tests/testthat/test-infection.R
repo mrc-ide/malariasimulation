@@ -34,7 +34,7 @@ test_that('vector infectivity in the ODE returns correct values', {
 
 test_that('eir returns correct values', {
   age <- c(0, 5, 30) * 365
-  xi <-  c(1.8, 2., .5)
+  zeta <-  c(1.8, 2., .5)
 
   days_per_timestep <- 1
   parameters <- list(
@@ -46,7 +46,7 @@ test_that('eir returns correct values', {
   expect_equal(
     eir(
       age,
-      xi,
+      zeta,
       infectivity,
       parameters
     ),
@@ -118,14 +118,14 @@ test_that('mosquito_force_of_infection returns correct values', {
     a0    = 8 * 365 / days_per_timestep
   )
   age <- c(0, 5, 30) * 365
-  xi <- c(1.8, 2., .5)
+  zeta <- c(1.8, 2., .5)
   infectivity <- c(.5, .5, .2)
   v <- c(1, 1, 1, 2, 3, 3)
   expect_equal(
     mosquito_force_of_infection(
       v,
       age,
-      xi,
+      zeta,
       infectivity,
       parameters
     ),

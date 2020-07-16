@@ -24,7 +24,8 @@ Remotes:
 Imports:
   individual,
   Rcpp,
-  BH
+  BH,
+  statmod
 Suggests: 
   testthat,
   mockery,
@@ -33,7 +34,6 @@ Suggests:
   reshape2,
   DiagrammeR,
   ggplot2,
-  statmod,
   malariaEquilibrium
 RoxygenNote: 7.1.0
 Roxygen: list(markdown = TRUE)

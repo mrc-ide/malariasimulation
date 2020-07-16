@@ -108,8 +108,8 @@ create_states <- function(parameters) {
 #' * ICA  - Acquired immunity to clinical disease
 #' * IVA  - Acquired immunity to severe disease
 #' * ID - Acquired immunity to detectability
-#' * xi - Heterogeneity of human individuals
-#' * xi_group - Discretised heterogeneity of human individuals
+#' * zeta - Heterogeneity of human individuals
+#' * zeta_group - Discretised heterogeneity of human individuals
 #' * variety - The variety of mosquito, either 1, 2 or 3. These are related to
 #' blood meal rate parameter
 #'
@@ -173,22 +173,20 @@ create_variables <- function(parameters) {
     function(size) initial_immunity(parameters$init_id, initial_age)
   )
 
-  xi_values <- exp(rnorm(
-    parameters$human_population,
-    -parameters$sigma_squared/2,
-    sqrt(parameters$sigma_squared)
-  ))
-  xi <- individual::Variable$new(
-    "xi",
+  zeta_norm <- rnorm(parameters$human_population)
+  zeta <- individual::Variable$new(
+    "zeta",
     function(n) {
-      xi_values
+      exp(
+        zeta_norm * sqrt(parameters$sigma_squared) - parameters$sigma_squared/2
+      )
     }
   )
 
-  xi_group <- individual::Variable$new(
-    "xi_group",
+  zeta_group <- individual::Variable$new(
+    "zeta_group",
     function(n) {
-      discretise(xi_values, parameters$n_heterogeneity_groups)
+      discretise_normal(zeta_norm, parameters$n_heterogeneity_groups)
     }
   )
 
@@ -204,8 +202,8 @@ create_variables <- function(parameters) {
     ica = ica,
     iva = iva,
     id = id,
-    xi = xi,
-    xi_group = xi_group,
+    zeta = zeta,
+    zeta_group = zeta_group,
     is_severe = is_severe
   )
 
@@ -255,8 +253,8 @@ create_individuals <- function(states, variables, events, parameters) {
       variables$icm,
       variables$ivm,
       variables$is_severe,
-      variables$xi,
-      variables$xi_group
+      variables$zeta,
+      variables$zeta_group
     ),
     events = list(
       events$infection,

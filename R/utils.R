@@ -2,13 +2,13 @@ vnapply <- function(X, FUN, ...) vapply(X, FUN, ..., numeric(1))
 
 bernoulli <- function(size, p) runif(size, 0, 1) < p
 
-discretise <- function(values, n_groups) {
+discretise_normal <- function(values, n_groups) {
+  quads <- statmod::gauss.quad.prob(n_groups, dist='normal')
   as.numeric(cut(
     values,
-    seq(min(values), max(values), length.out=n_groups + 1),
+    quads$nodes,
     include.lowest = TRUE,
-    right = FALSE,
-    labels = seq_len(n_groups)
+    right = FALSE
   ))
 }
 

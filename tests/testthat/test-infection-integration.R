@@ -24,7 +24,7 @@ test_that('human infection_process creates the correct updates', {
         D = c(1),
         birth = -c(20, 24, 5, 39) * 365 + 5,
         IB = c(.2, .3, .5, .9),
-        xi = c(.2, .3, .5, .9),
+        zeta = c(.2, .3, .5, .9),
         ICA = c(.2, .3, .5, .9),
         IVA = c(.2, .3, .5, .9),
         ICM = c(.2, .3, .5, .9),
@@ -110,7 +110,7 @@ test_that('mosquito_force_of_infection_from_api sets up infectivity correctly', 
         U = c(1),
         D = c(3),
         birth = 5 - (c(0, 5, 30) * 365),
-        xi = c(1.8, 2., .5)
+        zeta = c(1.8, 2., .5)
       )
     ),
     timestep = 5,
@@ -169,7 +169,7 @@ test_that('mosquito_infection_process creates the correct updates', {
         A = c(3),
         D = c(4),
         age = c(20, 24, 5, 39),
-        xi = c(.2, .3, .5, .9),
+        zeta = c(.2, .3, .5, .9),
         ID = c(.2, .3, .5, .9)
       ),
       mosquito = list(

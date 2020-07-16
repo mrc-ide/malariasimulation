@@ -40,7 +40,7 @@ create_infection_process <- function(
 
     epsilon <- eir(
       age,
-      api$get_variable(human, variables$xi),
+      api$get_variable(human, variables$zeta),
       infectivity,
       parameters
     )
@@ -233,13 +233,13 @@ create_mosquito_infection_process <- function(
 # and Griffin et al 2010 S1 page 7
 eir <- function(
   age,
-  xi,
+  zeta,
   vector_infectivity,
   parameters
   ) {
 
   psi <- unique_biting_rate(age, parameters)
-  .pi <- human_pi(xi, psi)
+  .pi <- human_pi(zeta, psi)
   .pi * vector_infectivity
 }
 
@@ -328,8 +328,8 @@ blood_immunity <- function(ib, parameters) {
   )
 }
 
-human_pi <- function(xi, psi) {
- (xi * psi) / sum(xi * psi)
+human_pi <- function(zeta, psi) {
+ (zeta * psi) / sum(zeta * psi)
 }
 
 #' @title calculate FOIM from API
@@ -345,7 +345,7 @@ mosquito_force_of_infection_from_api <- function(
   ) {
   parameters <- api$get_parameters()
   age <- get_age(api$get_variable(human, variables$birth), api$get_timestep())
-  xi  <- api$get_variable(human, variables$xi)
+  zeta  <- api$get_variable(human, variables$zeta)
   a_subset <- api$get_state(human, states$A)
   d_subset <- api$get_state(human, states$D)
   u_subset <- api$get_state(human, states$U)
@@ -364,7 +364,7 @@ mosquito_force_of_infection_from_api <- function(
   mosquito_force_of_infection(
     seq_along(parameters$blood_meal_rates),
     age,
-    xi,
+    zeta,
     infectivity,
     parameters
   )
@@ -375,18 +375,18 @@ mosquito_force_of_infection_from_api <- function(
 #' @description  Implemented from Griffin et al 2010 S1 page 7
 #' @param v vector of varieties to calculate for
 #' @param age vector for complete human population
-#' @param xi het vector for complete human population
+#' @param zeta het vector for complete human population
 #' @param infectious_set the indecies for humans which are infectious
 #' @param parameters model parameters
 mosquito_force_of_infection <- function(
   v,
   age,
-  xi,
+  zeta,
   infectivity,
   parameters) {
 
   psi <- unique_biting_rate(age, parameters)
-  .pi <- human_pi(xi, psi)
+  .pi <- human_pi(zeta, psi)
   mean_infectivity <- sum(.pi * infectivity)
   blood_meal_rate(v, parameters) * mean_infectivity
 }

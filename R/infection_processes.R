@@ -6,43 +6,64 @@
 #' @param states a list of all of the model states
 #' @param variables a list of all of the model variables
 #' @param events a list of all of the model events
-create_infection_process <- function(individuals, states, variables, events) {
-  human <- individuals$human
-  mosquito <- individuals$mosquito
+#' @param odes (optional) a list of mosquito odes for each variety
+create_infection_process <- function(
+  individuals,
+  states,
+  variables,
+  events,
+  odes=NULL
+  ) {
   function(api) {
+    human <- individuals$human
     parameters <- api$get_parameters()
     timestep <- api$get_timestep()
-    source_humans <- api$get_state(
-      human,
-      states$S,
-      states$U,
-      states$A
-    )
 
     # Calculate EIR
-    source_mosquitos <- api$get_state(mosquito, states$Im)
-    age <- api$get_variable(human, variables$age)
+    age <- get_age(api$get_variable(human, variables$birth), api$get_timestep())
+
+    if (parameters$vector_ode) {
+      infectivity <- vector_infectivity_ode(
+        odes,
+        parameters
+      )
+    } else {
+      source_mosquitos <- api$get_state(individuals$mosquito, states$Im)
+      infectivity <- vector_infectivity_ibm(
+        api$get_variable(
+          individuals$mosquito,
+          variables$mosquito_variety,
+          source_mosquitos
+        ),
+        parameters
+      )
+    }
 
     epsilon <- eir(
-      age[source_humans],
-      api$get_variable(human, variables$xi, source_humans),
-      api$get_variable(
-        mosquito,
-        variables$mosquito_variety,
-        source_mosquitos
-      ),
+      age,
+      api$get_variable(human, variables$zeta),
+      infectivity,
       parameters
     )
 
     api$render("mean_EIR", mean(epsilon))
 
-    bitten_humans <- source_humans[bernoulli(length(source_humans), epsilon)]
+    bitten_humans <- which(bernoulli(length(epsilon), epsilon))
+
+    api$render("num_bitten", length(bitten_humans))
+    api$render("average_age", mean(age)/365)
 
     # Calculate Infected
-    ib <- api$get_variable(human, variables$ib, bitten_humans)
-    b <- blood_immunity(ib, parameters)
+    ib <- api$get_variable(human, variables$ib)
 
-    infected_humans <- bitten_humans[!bernoulli(length(bitten_humans), b)]
+    source_humans <- intersect(
+      api$get_state(human, states$S, states$A, states$U),
+      bitten_humans
+    )
+
+    b <- blood_immunity(ib[source_humans], parameters)
+
+    infected_humans <- source_humans[bernoulli(length(source_humans), b)]
 
     ica <- api$get_variable(
       human,
@@ -57,11 +78,7 @@ create_infection_process <- function(individuals, states, variables, events) {
     )
 
     icm <- api$get_variable(human, variables$icm, infected_humans)
-    phi <- clinical_immunity(
-      ica,
-      icm,
-      parameters
-    )
+    phi <- clinical_immunity(ica, icm, parameters)
 
     develop_clinical <- bernoulli(length(infected_humans), phi)
 
@@ -72,10 +89,7 @@ create_infection_process <- function(individuals, states, variables, events) {
         api$get_variable(human, variables$ivm, infected_humans),
         parameters
       )
-      develop_severe <- bernoulli(length(infected_humans), theta)
-      symptomatic <- develop_severe | develop_clinical #NOTE: is this AND or OR?
-    } else {
-      symptomatic <- develop_clinical
+      develop_severe <- bernoulli(length(develop_clinical), theta)
     }
 
     # Exclude humans already scheduled for infection
@@ -84,107 +98,72 @@ create_infection_process <- function(individuals, states, variables, events) {
       api$get_scheduled(events$asymptomatic_infection)
     )
     to_infect <- setdiff(
-      infected_humans[symptomatic],
+      infected_humans[develop_clinical],
       scheduled_for_infection
     )
     to_infect_asym <- setdiff(
-      infected_humans[!symptomatic],
+      infected_humans[!develop_clinical],
       scheduled_for_infection
-    )
-
-    last_infected <- api$get_variable(
-      human,
-      variables$last_infected,
-      infected_humans
     )
 
     # Updates for those who were bitten
     if (length(bitten_humans) > 0) {
-      # Boost immunity
-      api$queue_variable_update(
+      boost_immunity(
+        api,
         human,
         variables$ib,
-        boost_acquired_immunity(
-          ib,
-          api$get_variable(
-            human,
-            variables$last_bitten
-          )[bitten_humans],
-          timestep,
-          parameters$ub
-        ),
-        bitten_humans
-      )
-      # record last bitten
-      api$queue_variable_update(
-        human,
-        variables$last_bitten,
+        bitten_humans,
+        ib[bitten_humans],
+        variables$last_boosted_ib,
         timestep,
-        bitten_humans
+        parameters$ub
       )
 
       # Updates for those who were infected
       if (length(infected_humans) > 0) {
-        # Boost immunity
-        api$queue_variable_update(
+        boost_immunity(
+          api,
           human,
           variables$ica,
-          boost_acquired_immunity(
-            ica,
-            last_infected,
-            timestep,
-            parameters$uc
-          ),
-          infected_humans
+          infected_humans,
+          ica,
+          variables$last_boosted_ica,
+          timestep,
+          parameters$uc
         )
-        api$queue_variable_update(
+        boost_immunity(
+          api,
           human,
           variables$iva,
-          boost_acquired_immunity(
-            iva,
-            last_infected,
-            timestep,
-            parameters$uv
-          ),
-          infected_humans
+          infected_humans,
+          iva,
+          variables$last_boosted_iva,
+          timestep,
+          parameters$uv
         )
-        api$queue_variable_update(
+        boost_immunity(
+          api,
           human,
           variables$id,
-          boost_acquired_immunity(
-            api$get_variable(human, variables$id, infected_humans),
-            last_infected,
-            timestep,
-            parameters$ud
-          ),
-          infected_humans
-        )
-        # record last infected
-        api$queue_variable_update(
-          human,
-          variables$last_infected,
+          infected_humans,
+          api$get_variable(human, variables$id, infected_humans),
+          variables$last_boosted_id,
           timestep,
-          infected_humans
+          parameters$ud
         )
 
         # Schedule infection states
         if(length(to_infect) > 0) {
           api$schedule(events$infection, to_infect, parameters$de)
-          api$clear_schedule(
-            events$subpatent_infection,
-            to_infect
-          )
-          api$clear_schedule(
-            events$recovery,
-            to_infect
-          )
 
-          if(parameters$severe_enabled && any(develop_severe)) {
+          if(parameters$severe_enabled) {
+            is_severe <- rep(0, length(infected_humans))
+            is_severe[develop_severe] <- 1
             api$queue_variable_update(
               human,
               variables$is_severe,
-              1,
-              infected_humans[develop_severe]
+              is_severe,
+              infected_humans
             )
           }
         }
@@ -193,14 +172,6 @@ create_infection_process <- function(individuals, states, variables, events) {
             events$asymptomatic_infection,
             to_infect_asym,
             parameters$de
-          )
-          api$clear_schedule(
-            events$subpatent_infection,
-            to_infect_asym
-          )
-          api$clear_schedule(
-            events$recovery,
-            to_infect_asym
           )
         }
       }
@@ -228,43 +199,27 @@ create_mosquito_infection_process <- function(
   mosquito_infection
   ) {
   function(api) {
+    lambda <- mosquito_force_of_infection_from_api(
+      human,
+      states,
+      variables,
+      api
+    )
+
+    for (species in seq_along(lambda)) {
+      api$render(paste0('FOIM_', species), lambda[[species]])
+    }
+
     parameters <- api$get_parameters()
     source_mosquitos <- api$get_state(mosquito, states$Sm)
-
-    age <- api$get_variable(human, variables$age)
-    xi  <- api$get_variable(human, variables$xi)
-    a_subset <- api$get_state(human, states$A)
-    d_subset <- api$get_state(human, states$D)
-    u_subset <- api$get_state(human, states$U)
-
-    a_infectivity <- asymptomatic_infectivity(
-      age[a_subset],
-      api$get_variable(human, variables$id, a_subset),
-      parameters
-    )
-
-    age_subset <- c(age[d_subset], age[a_subset], age[u_subset])
-    xi_subset  <- c(xi[d_subset], xi[a_subset], xi[u_subset])
-    infectivity<- c(
-      rep(parameters$cd, length(d_subset)),
-      a_infectivity,
-      rep(parameters$cu, length(u_subset))
-    )
-
-    lambda <- mosquito_force_of_infection(
-      api$get_variable(
-        mosquito,
-        variables$mosquito_variety,
-        source_mosquitos
-      ),
-      age_subset,
-      xi_subset,
-      infectivity,
-      parameters
+    species <- api$get_variable(
+      mosquito,
+      variables$mosquito_variety,
+      source_mosquitos
     )
 
     infected = source_mosquitos[
-      bernoulli(length(source_mosquitos), lambda)
+      bernoulli(length(source_mosquitos), lambda[species])
     ]
     api$queue_state_update(mosquito, states$Pm, infected)
     api$schedule(mosquito_infection, infected, parameters$dem)
@@ -276,24 +231,43 @@ create_mosquito_infection_process <- function(
 # =================
 
 # Implemented from Winskill 2017 - Supplementary Information page 3
+# and Griffin et al 2010 S1 page 7
 eir <- function(
   age,
-  xi,
-  infectious_variants,
+  zeta,
+  vector_infectivity,
   parameters
   ) {
 
   psi <- unique_biting_rate(age, parameters)
-  .pi <- human_pi(xi, psi)
+  .pi <- human_pi(zeta, psi)
+  .pi * vector_infectivity
+}
 
-  infectious_count <- as.data.frame(table(infectious_variants))
-  infectious_blood_meal_rate <- blood_meal_rate(
-    infectious_count$infectious_variants,
-    parameters
-  )
+# Implemented from Griffin et al 2010 S1 page 7
+vector_infectivity_ibm <- function(
+  infectious_variants,
+  parameters
+  ) {
+  sum(vnapply(
+    seq_along(parameters$blood_meal_rate),
+    function(variety) {
+      parameters$blood_meal_rate[[variety]] * sum(infectious_variants == variety)
+    }
+  ))
+}
 
-  epsilon0 <- .pi * sum(infectious_blood_meal_rate * infectious_count$Freq)
-  epsilon0 * xi * psi
+# Implemented from Griffin et al 2010 S1 page 7
+vector_infectivity_ode <- function(
+  odes,
+  parameters
+  ) {
+  sum(vnapply(
+    odes,
+    function(ode) {
+      mosquito_model_get_states(ode)[[6]] # infected state
+    }
+  ) * parameters$blood_meal_rates)
 }
 
 # Implemented from Winskill 2017 - Supplementary Information page 4
@@ -322,26 +296,28 @@ severe_immunity <- function(age, acquired_immunity, maternal_immunity, parameter
 }
 
 # Implemented from Winskill 2017 - Supplementary Information page 5
-# NOTE: I believe there is a typo on equation (9) and there should be a + 1 on
-# the denominator
-asymptomatic_infectivity <- function(age, immunity, parameters) {
+# NOTE: I believe there is a typo on equation (9) the + 1 in
+# the denominator is in the wrong place
+# NOTE: Also dmin = d1, according to the equilibrium solution `main.R:132`
+probability_of_detection <- function(age, immunity, parameters) {
   fd <- 1 - (1 - parameters$fd0) / (
     1 + (age / parameters$ad) ** parameters$gammad
   )
-  q <- parameters$d1 + (1 - parameters$dmin) / (
-    1 + fd * ((1 + immunity) / parameters$id0) ** parameters$kd
+  parameters$d1 + (1 - parameters$d1) / (
+    1 + fd * (immunity / parameters$id0) ** parameters$kd
   )
-  parameters$cu + (parameters$cd + parameters$cu) * q ** parameters$gamma1
+}
+
+# Implemented from Winskill 2017 - Supplementary Information page 6
+# NOTE: there appears to be a typo on line 114, should be (cd - cu)
+asymptomatic_infectivity <- function(age, immunity, parameters) {
+  q <- probability_of_detection(age, immunity, parameters)
+  parameters$cu + (parameters$cd - parameters$cu) * q ** parameters$gamma1
 }
 
 # Unique biting rate (psi) for a human of a given age
 unique_biting_rate <- function(age, parameters) {
   1 - parameters$rho * exp(- age / parameters$a0)
-}
-
-# Relative biting rate (xi) drawn from log normal
-relative_biting_rate <- function(n, parameters) {
-  rlnorm(n, -parameters$sigma**2/2, parameters$sigma**2)
 }
 
 # Implemented from Winskill 2017 - Supplementary Information page 4
@@ -353,25 +329,100 @@ blood_immunity <- function(ib, parameters) {
   )
 }
 
-human_pi <- function(xi, psi) {
- (xi * psi) / sum(xi * psi)
+human_pi <- function(zeta, psi) {
+ (zeta * psi) / sum(zeta * psi)
 }
 
-# Implemented from Griffin et al 2010 S1 page 7
-mosquito_force_of_infection <- function(v, age, xi, infectivity, parameters) {
+#' @title calculate FOIM from API
+#' @param human handle for the human individual
+#' @param states list of available states
+#' @param variables list of available variables
+#' @param api the IBM api
+mosquito_force_of_infection_from_api <- function(
+  human,
+  states,
+  variables,
+  api
+  ) {
+  parameters <- api$get_parameters()
+  age <- get_age(api$get_variable(human, variables$birth), api$get_timestep())
+  zeta  <- api$get_variable(human, variables$zeta)
+  a_subset <- api$get_state(human, states$A)
+  d_subset <- api$get_state(human, states$D)
+  u_subset <- api$get_state(human, states$U)
+
+  a_infectivity <- asymptomatic_infectivity(
+    age[a_subset],
+    api$get_variable(human, variables$id, a_subset),
+    parameters
+  )
+
+  infectivity <- rep(0, length(age))
+  infectivity[d_subset] <- parameters$cd
+  infectivity[a_subset] <- a_infectivity
+  infectivity[u_subset] <- parameters$cu
+
+  mosquito_force_of_infection(
+    seq_along(parameters$blood_meal_rates),
+    age,
+    zeta,
+    infectivity,
+    parameters
+  )
+}
+
+
+#' @title calculate FOIM
+#' @description  Implemented from Griffin et al 2010 S1 page 7
+#' @param v vector of varieties to calculate for
+#' @param age vector for complete human population
+#' @param zeta het vector for complete human population
+#' @param infectivity the onwards infectiousness of the population
+#' @param parameters model parameters
+mosquito_force_of_infection <- function(
+  v,
+  age,
+  zeta,
+  infectivity,
+  parameters) {
+
   psi <- unique_biting_rate(age, parameters)
-  .pi <- human_pi(xi, psi)
+  .pi <- human_pi(zeta, psi)
   mean_infectivity <- sum(.pi * infectivity)
   blood_meal_rate(v, parameters) * mean_infectivity
 }
 
 blood_meal_rate <- function(v, parameters) {
-  rates <- c(parameters$av1, parameters$av2, parameters$av3)
-  rates[v]
+  parameters$blood_meal_rates[v]
 }
 
-boost_acquired_immunity <- function(level, last_boosted, timestep, delay) {
-  to_boost <- (timestep - last_boosted) > delay | (last_boosted == -1)
-  level[to_boost] <- level[to_boost] + 1
-  level
+boost_immunity <- function(
+  api,
+  human,
+  immunity_variable,
+  exposed_index,
+  exposed_values,
+  last_boosted_variable,
+  timestep,
+  delay
+  ) {
+  # record who can be boosted
+  last_boosted <- api$get_variable(human, last_boosted_variable, exposed_index)
+  to_boost <- (timestep - last_boosted) >= delay | (last_boosted == -1)
+  if (sum(to_boost) > 0) {
+    # boost the variable
+    api$queue_variable_update(
+      human,
+      immunity_variable,
+      exposed_values[to_boost] + 1,
+      exposed_index[to_boost]
+    )
+    # record last boosted
+    api$queue_variable_update(
+      human,
+      last_boosted_variable,
+      timestep,
+      exposed_index[to_boost]
+    )
+  }
 }

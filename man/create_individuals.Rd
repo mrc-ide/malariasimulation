@@ -4,7 +4,7 @@
 \alias{create_individuals}
 \title{Define model individuals}
 \usage{
-create_individuals(states, variables, events)
+create_individuals(states, variables, events, parameters)
 }
 \arguments{
 \item{states}{available states to assign}
@@ -12,6 +12,8 @@ create_individuals(states, variables, events)
 \item{variables}{available variables to assign}
 
 \item{events}{available events to assign}
+
+\item{parameters}{model parameters}
 }
 \description{
 create_individuals declares the individuals to simulate. It assigns the

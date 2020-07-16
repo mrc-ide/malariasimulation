@@ -6,10 +6,6 @@
 #' and mortality: A modelling study."
 #'
 #' @param overrides a named list of parameter values to use instead of defaults
-#'
-#' NOTE: this function is likely to be extended to read in command line / config
-#' file parameters
-#'
 #' The parameters are defined below.
 #'
 #' fixed state transitions:
@@ -75,12 +71,6 @@
 #' * uv - period in which severe immunity cannot be boosted
 #' * ud - period in which immunity to detectability cannot be boosted
 #'
-#' blood meal rates:
-#'
-#' * av1 - blood meal rate for the first variety of mosquitos
-#' * av2 - blood meal rate for the second variety of mosquitos
-#' * av3 - blood meal rate for the third variety of mosquitos
-#'
 #' infectivity towards mosquitos:
 #'
 #' * cd - infectivity of clinically diseased humans towards mosquitos
@@ -97,8 +87,7 @@
 #'
 #' mortality parameters:
 #'
-#' * mortality_probability_table - a vector of mortality rates for humans
-#' between the ages of 0 and 100
+#' * mortality_rate - human mortality rate across age groups
 #' * v - mortality scaling factor from severe disease
 #' * pcm - new-born clinical immunity relative to mother's
 #' * pvm - new-born severe immunity relative to mother's
@@ -108,7 +97,6 @@
 #' carrying capacity parameters:
 #'
 #' * model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall
-#' * K0 - carrying capacity
 #' * g0 to g3 - rainfall shape parameters
 #' * h1 to h3 - rainfall shape parameters
 #' * gamma - effect of density dependence on late instars relative to early
@@ -133,22 +121,30 @@
 #' * init_iva - the initial acquired immunity from severe disease
 #' * init_id  - the initial acquired immunity to detectability
 #'
-#' miscellaneous:
+#' incubation periods:
 #'
 #' * de - delay for infection
 #' * dem - delay for infection in mosquitoes
+#'
+#' vector biology:
+#'
 #' * beta - the average number of eggs laid per female mosquito per day
+#' * total_M - the initial number of adult mosquitos in the simulation
+#' * init_foim - the FOIM used to calculate the equilibrium state for mosquitoes
+#' * variety_proportions - the relative proportions of each species
+#' * blood_meal_rates - the blood meal rates for each species
+#'
+#' miscellaneous:
+#'
 #' * human_population - the number of humans to model
 #' * mosquito_limit - the maximum number of mosquitos to allow for in the
 #' simulation
-#' * density - the initial number of mosquitos per human
 #' * days_per_timestep - the number of days to model per timestep
+#' * vector_ode - whether to use the ODE model to model mosquitos
+#'
+#' @export
 get_parameters <- function(overrides = list()) {
   days_per_timestep <- 1
-  human_population <- 100
-  if ('human_population' %in% names(overrides)) {
-    human_population <- overrides$human_population
-  }
   parameters <- list(
     dd    = 5,
     da    = 195,
@@ -173,18 +169,14 @@ get_parameters <- function(overrides = list()) {
     ib0   = 43.8787,
     kb    = 2.15506,
     # immunity boost grace periods
-    ub    = 7.19919,
-    uc    = 67.6952,
+    ub    = 7.2,
+    uc    = 6.06,
     uv    = 11.4321,
     ud    = 9.44512,
-    # blood meal rates
-    av1   = .92,
-    av2   = .74,
-    av3   = .94,
     # infectivity towards mosquitos
     cd    = 0.068,
     gamma1= 1.82425,
-    cu    = 0.00062,
+    cu    = 0.0062,
     # unique biting rate
     a0    = 8 * 365,
     rho   = .85,
@@ -210,16 +202,14 @@ get_parameters <- function(overrides = list()) {
     ad    = 21.9 * 365,
     gammad= 4.8183,
     d1    = 0.160527,
-    dmin  = 0, #NOTE: what should this be?
     id0   = 1.577533,
     kd    = .476614,
     # mortality parameters
-    human_death_rate = 0.0001305,
+    average_age = 7663 / days_per_timestep,
     v     = .065, # NOTE: there are two definitions of this: one on line 124 and one in the parameters table
     pcm   = .774368,
     pvm   = .195768,
     # carrying capacity parameters
-    K0    = 1000 * human_population,
     g0    = 2,
     g1   = .3,
     g2   = .6,
@@ -232,35 +222,34 @@ get_parameters <- function(overrides = list()) {
     # larval mortality rates
     me    = .0338,
     ml    = .0348,
-    # egg laying parameter
-    beta  = 21.2,
     # initial state proportions
     s_proportion = 0.420433246,
     d_proportion = 0.007215064,
     a_proportion = 0.439323667,
     u_proportion = 0.133028023,
     # initial immunities
-    init_ica = 3.809137,
-    init_iva = 3.809137,
-    init_icm = 0.2608124,
-    init_ivm = 0.2608124,
-    init_id = 1.948844,
-    init_ib = 3.478036,
+    init_ica = 0,
+    init_iva = 0,
+    init_icm = 0,
+    init_ivm = 0,
+    init_id  = 0,
+    init_ib  = 0,
+    # vector biology
+    beta     = 21.2,
+    total_M  = 1000,
+    init_foim= 0,
+    variety_proportions = c(.5, .3, .2),
+    blood_meal_rates    = c(.92, .74, .94),
     # misc
-    human_population = human_population,
-    mosquito_limit   = 10000 * human_population,
-    density          = 100,
+    human_population = 100,
+    mosquito_limit   = 100 * 1000,
+    vector_ode         = FALSE,
     days_per_timestep  = days_per_timestep
   )
 
-  parameters$mortality_probability_table = rep(parameters$human_death_rate, 100)
-	parameters$R_bar <- mean(vnapply(1:365, function(t) rainfall(
-		t,
-		parameters$days_per_timestep,
-    parameters$g0,
-		c(parameters$g1, parameters$g2, parameters$g3),
-		c(parameters$h1, parameters$h2, parameters$h3)
-	)))
+  parameters$mortality_rate = 1 - exp(
+    -days_per_timestep * (1 / parameters$average_age)
+  )
 
   # Override parameters with any client specified ones
   if (!is.list(overrides)) {
@@ -271,7 +260,7 @@ get_parameters <- function(overrides = list()) {
     if (!(name %in% names(parameters))) {
       stop(paste('unknown parameter', name, sep=' '))
     }
-    parameters[name] <- overrides[[name]]
+    parameters[[name]] <- overrides[[name]]
   }
 
   props <- c(
@@ -285,5 +274,25 @@ get_parameters <- function(overrides = list()) {
     stop("Starting proportions do not sum to 1")
   }
 
+  parameters
+}
+
+#' @title Parameterise equilibrium proportions
+#' @description parameterise equilibrium proportions from a list
+#'
+#' @param eq the equilibrium solution output
+#' @param parameters the model parameters
+#' @export
+parameterise_human_equilibrium <- function(parameters, eq) {
+  state_props <- colSums(eq$states[,c('S', 'D', 'A', 'U')])
+  parameters$s_proportion <- state_props[['S']]
+  parameters$d_proportion <- state_props[['D']]
+  parameters$a_proportion <- state_props[['A']]
+  parameters$u_proportion <- state_props[['U']]
+  parameters$init_ica <- eq$states[,'ICA']
+  parameters$init_icm <- eq$states[,'ICM']
+  parameters$init_ib <- eq$states[,'IB']
+  parameters$init_id <- eq$states[,'ID']
+  parameters$init_foim <- eq$FOIM
   parameters
 }

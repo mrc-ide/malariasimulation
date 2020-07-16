@@ -20,6 +20,7 @@ environment:
   # USE_RTOOLS: true
   R_REMOTES_STANDALONE: true
   R_REMOTES_UPGRADE: 'never'
+  WARNINGS_ARE_ERRORS: true
 
 # Adapt as necessary starting from here
 
@@ -28,6 +29,9 @@ build_script:
 
 test_script:
   - travis-tool.sh run_tests
+
+on_success:
+  - Rscript -e "covr::codecov()"
 
 on_failure:
   - 7z a failure.zip *.Rcheck\*

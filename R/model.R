@@ -4,19 +4,24 @@
 #' model components and runs the malaria simulation. This currently returns a
 #' dataframe with the number of individuals in each state at each timestep
 #'
-#' Warning: the return type of this function is likely to change as we figure
+#' Warning: the columns of the output dataframe is likely to change as we figure
 #' out what kind of outputs we would like to report from the simulation.
 #'
 #' @param timesteps the number of timesteps to run the simulation for
-#' @param overrides a named list of parameters to use instead of defaults
+#' @param parameters a named list of parameters to use
 #' @export
-run_simulation <- function(timesteps, overrides = list()) {
+run_simulation <- function(timesteps, parameters = NULL) {
   events <- create_events()
-  parameters <- get_parameters(overrides)
+  if (is.null(parameters)) {
+    parameters <- get_parameters()
+  }
   states <- create_states(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events)
+  individuals <- create_individuals(states, variables, events, parameters)
   create_event_based_processes(individuals, states, variables, events, parameters)
+  if (parameters$vector_ode) {
+    odes <- parameterise_ode(parameters, parameters$init_foim)
+  }
   individual::simulate(
     individuals = individuals,
     processes = create_processes(
@@ -24,9 +29,39 @@ run_simulation <- function(timesteps, overrides = list()) {
       states,
       variables,
       events,
-      parameters
+      parameters,
+      odes
     ),
     end_timestep = timesteps,
     parameters = parameters
   )
+}
+
+#' @title Run the simulation with repetitions
+#'
+#' @param timesteps the number of timesteps to run the simulation for
+#' @param repetitions n times to run the simulation
+#' @param overrides a named list of parameters to use instead of defaults
+#' @param parallel execute runs in parallel
+#' @export
+run_simulation_with_repetitions <- function(
+  timesteps,
+  repetitions,
+  overrides = list(),
+  parallel = FALSE
+  ) {
+  if (parallel) {
+    fapply <- parallel::mclapply
+  } else {
+    fapply <- lapply
+  }
+  dfs <- fapply(
+    seq(repetitions),
+    function(repetition) {
+      df <- run_simulation(timesteps, overrides)
+      df$repetition <- repetition
+      df
+    }
+  )
+  do.call("rbind", dfs)
 }

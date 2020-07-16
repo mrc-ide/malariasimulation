@@ -4,7 +4,7 @@
 \alias{create_larval_death_process}
 \title{Larval deaths}
 \usage{
-create_larval_death_process(mosquito, E, L, Unborn, events)
+create_larval_death_process(mosquito, E, L, Unborn, events, K0, R_bar)
 }
 \arguments{
 \item{mosquito}{the mosquito individual}
@@ -16,6 +16,10 @@ create_larval_death_process(mosquito, E, L, Unborn, events)
 \item{Unborn}{the unborn mosquito state}
 
 \item{events}{a list of events in the model}
+
+\item{K0}{carrying capacity}
+
+\item{R_bar}{mean rainfall}
 }
 \description{
 This process defines how many early and late stage larvae die due to

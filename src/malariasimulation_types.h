@@ -9,5 +9,6 @@
 #define MALARIASIMULATION_TYPES_H_
 
 #include <individual.h>
+#include "mosquito_ode.h"
 
 #endif /* MALARIASIMULATION_TYPES_H_ */

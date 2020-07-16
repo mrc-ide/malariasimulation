@@ -8,10 +8,6 @@ get_parameters(overrides = list())
 }
 \arguments{
 \item{overrides}{a named list of parameter values to use instead of defaults
-
-NOTE: this function is likely to be extended to read in command line / config
-file parameters
-
 The parameters are defined below.
 
 fixed state transitions:
@@ -84,13 +80,6 @@ immunity boost grace periods:
 \item ud - period in which immunity to detectability cannot be boosted
 }
 
-blood meal rates:
-\itemize{
-\item av1 - blood meal rate for the first variety of mosquitos
-\item av2 - blood meal rate for the second variety of mosquitos
-\item av3 - blood meal rate for the third variety of mosquitos
-}
-
 infectivity towards mosquitos:
 \itemize{
 \item cd - infectivity of clinically diseased humans towards mosquitos
@@ -109,8 +98,7 @@ for sampling mothers
 
 mortality parameters:
 \itemize{
-\item mortality_probability_table - a vector of mortality rates for humans
-between the ages of 0 and 100
+\item mortality_rate - human mortality rate across age groups
 \item v - mortality scaling factor from severe disease
 \item pcm - new-born clinical immunity relative to mother's
 \item pvm - new-born severe immunity relative to mother's
@@ -121,7 +109,6 @@ between the ages of 0 and 100
 carrying capacity parameters:
 \itemize{
 \item model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall
-\item K0 - carrying capacity
 \item g0 to g3 - rainfall shape parameters
 \item h1 to h3 - rainfall shape parameters
 \item gamma - effect of density dependence on late instars relative to early
@@ -149,16 +136,28 @@ initial immunity values:
 \item init_id  - the initial acquired immunity to detectability
 }
 
-miscellaneous:
+incubation periods:
 \itemize{
 \item de - delay for infection
 \item dem - delay for infection in mosquitoes
+}
+
+vector biology:
+\itemize{
 \item beta - the average number of eggs laid per female mosquito per day
+\item total_M - the initial number of adult mosquitos in the simulation
+\item init_foim - the FOIM used to calculate the equilibrium state for mosquitoes
+\item variety_proportions - the relative proportions of each species
+\item blood_meal_rates - the blood meal rates for each species
+}
+
+miscellaneous:
+\itemize{
 \item human_population - the number of humans to model
 \item mosquito_limit - the maximum number of mosquitos to allow for in the
 simulation
-\item density - the initial number of mosquitos per human
 \item days_per_timestep - the number of days to model per timestep
+\item vector_ode - whether to use the ODE model to model mosquitos
 }}
 }
 \description{

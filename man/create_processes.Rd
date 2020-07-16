@@ -4,7 +4,14 @@
 \alias{create_processes}
 \title{Define model processes}
 \usage{
-create_processes(individuals, states, variables, events, parameters)
+create_processes(
+  individuals,
+  states,
+  variables,
+  events,
+  parameters,
+  odes = NULL
+)
 }
 \arguments{
 \item{individuals}{a list of individuals in the model}
@@ -16,6 +23,8 @@ create_processes(individuals, states, variables, events, parameters)
 \item{events}{a list of events in the model}
 
 \item{parameters}{a list of model parameters}
+
+\item{odes}{a list of vector models (if vector_ode == TRUE)}
 }
 \description{
 create_processes, defines the functions which describe how each individual's

@@ -1,8 +1,7 @@
-test_that('discretise works on linear data', {
-  continuous <- c(.1, .2, .3, .4, .5, .6, .7, .8, .9, 1.)
+test_that('discretise normal works outside the boundaries', {
   expect_equal(
-    discretise(continuous, 5),
-    c(1, 1, 2, 2, 3, 3, 4, 4, 5, 5)
+    discretise_normal(c(-100, 2, 100), 5),
+    c(1, 4, 5)
   )
 })
 

@@ -10,28 +10,59 @@
 #' @param variables a list of variables in the model
 #' @param events a list of events in the model
 #' @param parameters a list of model parameters
-create_processes <- function(individuals, states, variables, events, parameters) {
-  list(
+#' @param odes a list of vector models (if vector_ode == TRUE)
+create_processes <- function(
+  individuals,
+  states,
+  variables,
+  events,
+  parameters,
+  odes=NULL
+  ) {
+  processes <- list(
     # ========
     # Immunity
     # ========
 
     # Maternal immunity
-    create_exponential_decay_process(individuals$human, variables$icm, 1 / parameters$rm),
-    create_exponential_decay_process(individuals$human, variables$ivm, 1 / parameters$rvm),
+    create_exponential_decay_process(individuals$human, variables$icm, parameters$rm),
+    create_exponential_decay_process(individuals$human, variables$ivm, parameters$rvm),
     # Blood immunity
-    create_exponential_decay_process(individuals$human, variables$ib, 1 / parameters$rb),
+    create_exponential_decay_process(individuals$human, variables$ib, parameters$rb),
     # Acquired immunity
-    create_exponential_decay_process(individuals$human, variables$ica, 1 / parameters$rc),
-    create_exponential_decay_process(individuals$human, variables$iva, 1 / parameters$rva),
-    create_exponential_decay_process(individuals$human, variables$id, 1 / parameters$rid),
+    create_exponential_decay_process(individuals$human, variables$ica, parameters$rc),
+    create_exponential_decay_process(individuals$human, variables$iva, parameters$rva),
+    create_exponential_decay_process(individuals$human, variables$id, parameters$rid),
 
-    # schedule infections for humans and set last_bitten and last_infected
+    # =================
+    # State transitions
+    # =================
+    individual::fixed_probability_state_change_process(
+      individuals$human$name,
+      states$D$name,
+      states$A$name,
+      1. - exp(-1./parameters$dd)
+    ),
+    individual::fixed_probability_state_change_process(
+      individuals$human$name,
+      states$A$name,
+      states$U$name,
+      1. - exp(-1./parameters$da)
+    ),
+    individual::fixed_probability_state_change_process(
+      individuals$human$name,
+      states$U$name,
+      states$S$name,
+      1. - exp(-1./parameters$du)
+    ),
+
+    # schedule infections for humans and set last_boosted_*
     create_infection_process(
       individuals,
       states,
       variables,
-      events
+      events,
+      odes
     ),
 
     create_mortality_process(
@@ -41,68 +72,131 @@ create_processes <- function(individuals, states, variables, events, parameters)
       events
     ),
 
-    # ==================
-    # Mosquito Processes
-    # ==================
-    create_mosquito_infection_process(
-      individuals$mosquito,
-      individuals$human,
-      states,
-      variables,
-      events$mosquito_infection
-    ),
-
-    # Eggs laid
-    create_egg_laying_process_cpp(
-      individuals$mosquito$name,
-      states$Sm$name,
-      states$Im$name,
-      states$Unborn$name,
-      states$E$name,
-      events$larval_growth$name
-    ),
-
-    # Death of larvae
-    create_larval_death_process_cpp(
-      individuals$mosquito$name,
-      states$E$name,
-      states$L$name,
-      states$Unborn$name,
-      events$larval_growth$name,
-      events$pupal_development$name
-    ),
-
-    # Death of pupals
-    create_pupal_death_process(
-      individuals$mosquito,
-      states$P,
-      states$Unborn,
-      parameters$mup,
-      events
-    ),
-
-    # Natural death of females
-    create_mosquito_death_process(
-      individuals$mosquito,
-      states,
-      parameters$mup,
-      events
-    ),
-
     # Rendering processes
     individual::state_count_renderer_process(
       individuals$human$name,
       c(states$S$name, states$A$name, states$D$name, states$U$name)
     ),
-    individual::state_count_renderer_process(
-      individuals$mosquito$name,
-      c(states$E$name, states$L$name, states$P$name, states$Sm$name, states$Im$name)
-    ),
     individual::variable_mean_renderer_process(
       individuals$human$name,
-      c(variables$ica$name, variables$icm$name, variables$ib$name)
+      c(
+        variables$ica$name,
+        variables$icm$name,
+        variables$ib$name,
+        variables$id$name
+      )
+    ),
+    create_prevelance_renderer(
+      individuals$human,
+      states$D,
+      states$A,
+      variables$birth
     )
   )
+
+  if (!parameters$vector_ode) {
+    processes <- c(
+      processes,
+      # ==================
+      # Mosquito Processes
+      # ==================
+      create_mosquito_infection_process(
+        individuals$mosquito,
+        individuals$human,
+        states,
+        variables,
+        events$mosquito_infection
+      ),
+
+      # Eggs laid
+      create_egg_laying_process_cpp(
+        individuals$mosquito$name,
+        states$Sm$name,
+        states$Pm$name,
+        states$Im$name,
+        states$Unborn$name,
+        states$E$name
+      ),
+
+      individual::fixed_probability_state_change_process(
+        individuals$mosquito$name,
+        states$E$name,
+        states$L$name,
+        1. - exp(-1./parameters$del)
+      ),
+
+      # Death of larvae
+      create_larval_death_process_cpp(
+        individuals$mosquito$name,
+        states$E$name,
+        states$L$name,
+        states$Unborn$name,
+        calculate_carrying_capacity(parameters),
+        calculate_R_bar(parameters)
+      ),
+
+      individual::fixed_probability_state_change_process(
+        individuals$mosquito$name,
+        states$L$name,
+        states$P$name,
+        1. - exp(-1./parameters$dl)
+      ),
+
+      individual::fixed_probability_state_change_process(
+        individuals$mosquito$name,
+        states$P$name,
+        states$Sm$name,
+        .5 * (1. - exp(-1./parameters$dpl))
+      ),
+
+      # Death of pupals
+      individual::fixed_probability_state_change_process(
+        individuals$mosquito$name,
+        states$P$name,
+        states$Unborn$name,
+        parameters$mup
+      ),
+
+      # Natural death of females
+      individual::fixed_probability_state_change_process(
+        individuals$mosquito$name,
+        states$Sm$name,
+        states$Unborn$name,
+        parameters$mum
+      ),
+      individual::fixed_probability_state_change_process(
+        individuals$mosquito$name,
+        states$Pm$name,
+        states$Unborn$name,
+        parameters$mum
+      ),
+      individual::fixed_probability_state_change_process(
+        individuals$mosquito$name,
+        states$Im$name,
+        states$Unborn$name,
+        parameters$mum
+      ),
+
+      # Rendering processes
+      individual::state_count_renderer_process(
+        individuals$mosquito$name,
+        c(
+          states$E$name,
+          states$L$name,
+          states$P$name,
+          states$Sm$name,
+          states$Pm$name,
+          states$Im$name
+        )
+      )
+    )
+  } else {
+    processes <- c(
+      processes,
+      create_ode_stepping_process(odes, individuals$human, states, variables),
+      create_ode_rendering_process(odes)
+    )
+  }
 }
 
 #' @title Define event based processes
@@ -114,61 +208,18 @@ create_processes <- function(individuals, states, variables, events, parameters)
 #' @param events a list of events in the model
 #' @param parameters the model parameters
 create_event_based_processes <- function(individuals, states, variables, events, parameters) {
-  # Aging
-  events$birthday$add_listener(function(api, target) {
-    api$schedule(events$birthday, target, 365)
-    api$queue_variable_update(
-      individuals$human,
-      variables$age,
-      api$get_variable(individuals$human, variables$age)[target] + 1,
-      target
-    )
-  })
-
-  # Disease progression events
   events$infection$add_listener(
     individual::update_state_listener(individuals$human$name, states$D$name)
-  )
-  events$infection$add_listener(
-    individual::reschedule_listener(events$asymptomatic_infection$name, parameters$dd)
   )
   events$asymptomatic_infection$add_listener(
     individual::update_state_listener(individuals$human$name, states$A$name)
   )
-  events$asymptomatic_infection$add_listener(
-    individual::reschedule_listener(events$subpatent_infection$name, parameters$da)
-  )
-  events$subpatent_infection$add_listener(
-    individual::update_state_listener(individuals$human$name, states$U$name)
-  )
-  events$subpatent_infection$add_listener(
-    individual::reschedule_listener(events$recovery$name, parameters$du)
-  )
-  events$recovery$add_listener(
-    individual::update_state_listener(individuals$human$name, states$S$name)
-  )
 
-  # Mosquito development processes
-  events$larval_growth$add_listener(
-    individual::update_state_listener(individuals$mosquito$name, states$L$name)
-  )
-  events$larval_growth$add_listener(
-    individual::reschedule_listener(events$pupal_development$name, parameters$dl)
-  )
-  events$pupal_development$add_listener(
-    individual::update_state_listener(individuals$mosquito$name, states$P$name)
-  )
-  events$pupal_development$add_listener(
-    individual::reschedule_listener(events$susceptable_development$name, parameters$dpl)
-  )
-  events$susceptable_development$add_listener(function(api, target) {
-    female <- bernoulli(length(target), .5)
-    api$queue_state_update(individuals$mosquito, states$Unborn, target[!female])
-    api$queue_state_update(individuals$mosquito, states$Sm, target[female])
-  })
-  events$mosquito_infection$add_listener(
-    individual::update_state_listener(individuals$mosquito$name, states$Im$name)
-  )
+  if (!parameters$vector_ode) {
+    events$mosquito_infection$add_listener(
+      individual::update_state_listener(individuals$mosquito$name, states$Im$name)
+    )
+  }
 }
 
 # =================
@@ -184,8 +235,9 @@ create_event_based_processes <- function(individuals, states, variables, events,
 #' @param variable the variable to update
 #' @param rate the exponential rate
 create_exponential_decay_process <- function(individual, variable, rate) {
+  decay_rate <- exp(-1/rate)
   function(api) {
     i <- api$get_variable(individual, variable)
-    api$queue_variable_update(individual, variable, pmax(i - rate * i, 0))
+    api$queue_variable_update(individual, variable, i * decay_rate)
   }
 }

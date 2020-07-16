@@ -1,1 +1,1 @@
-utils::globalVariables(c("rexp", "rlnorm", "runif"))
+utils::globalVariables(c("rexp", "rnorm", "runif", "stats"))

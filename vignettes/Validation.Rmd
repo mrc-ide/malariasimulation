@@ -1,6 +1,6 @@
 ---
 title: "Validation"
-output: rmarkdown::pdf_document
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Validation}
   %\VignetteEngine{knitr::rmarkdown}

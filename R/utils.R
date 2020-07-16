@@ -4,9 +4,12 @@ bernoulli <- function(size, p) runif(size, 0, 1) < p
 
 discretise_normal <- function(values, n_groups) {
   quads <- statmod::gauss.quad.prob(n_groups, dist='normal')
+  breaks <- quads$nodes
+  breaks[[1]] <- min(min(values), min(breaks))
+  breaks <- c(breaks, max(max(values), max(breaks) + 1))
   as.numeric(cut(
     values,
-    quads$nodes,
+    breaks,
     include.lowest = TRUE,
     right = FALSE
   ))

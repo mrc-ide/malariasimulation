@@ -1,3 +1,10 @@
+test_that('discretise normal works outside the boundaries', {
+  expect_equal(
+    discretise_normal(c(-100, 2, 100), 5),
+    c(1, 4, 5)
+  )
+})
+
 test_that('sample_mothers correctly samples mothers from the population', {
   sampleable <- c(TRUE, TRUE, FALSE, TRUE, TRUE, TRUE, TRUE)
   groups <- c(1, 1, 1, 2, 2, 3, 3)

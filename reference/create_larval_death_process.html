@@ -126,26 +126,38 @@ seasonal carrying capacity." />
 seasonal carrying capacity.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_larval_death_process</span>(<span class='no'>mosquito</span>, <span class='no'>E</span>, <span class='no'>L</span>, <span class='no'>Unborn</span>, <span class='no'>events</span>)</pre>
+    <pre class="usage"><span class='fu'>create_larval_death_process</span>(<span class='no'>mosquito</span>, <span class='no'>E</span>, <span class='no'>L</span>, <span class='no'>Unborn</span>, <span class='no'>events</span>, <span class='no'>K0</span>, <span class='no'>R_bar</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>mosquito, </th>
+      <th>mosquito</th>
       <td><p>the mosquito individual</p></td>
     </tr>
     <tr>
-      <th>E, </th>
+      <th>E</th>
       <td><p>the early stage larval state</p></td>
     </tr>
     <tr>
-      <th>L, </th>
+      <th>L</th>
       <td><p>the late stage larval state</p></td>
     </tr>
     <tr>
-      <th>Unborn, </th>
+      <th>Unborn</th>
       <td><p>the unborn mosquito state</p></td>
+    </tr>
+    <tr>
+      <th>events</th>
+      <td><p>a list of events in the model</p></td>
+    </tr>
+    <tr>
+      <th>K0</th>
+      <td><p>carrying capacity</p></td>
+    </tr>
+    <tr>
+      <th>R_bar</th>
+      <td><p>mean rainfall</p></td>
     </tr>
     </table>
 

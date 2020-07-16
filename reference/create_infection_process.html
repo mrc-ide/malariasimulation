@@ -126,26 +126,30 @@ changes for infected humans and boosts in immunity." />
 changes for infected humans and boosts in immunity.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_infection_process</span>(<span class='no'>individuals</span>, <span class='no'>states</span>, <span class='no'>variables</span>, <span class='no'>events</span>)</pre>
+    <pre class="usage"><span class='fu'>create_infection_process</span>(<span class='no'>individuals</span>, <span class='no'>states</span>, <span class='no'>variables</span>, <span class='no'>events</span>, <span class='kw'>odes</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>states, </th>
+      <th>individuals</th>
+      <td><p>a list of individuals in the model</p></td>
+    </tr>
+    <tr>
+      <th>states</th>
       <td><p>a list of all of the model states</p></td>
     </tr>
     <tr>
-      <th>variables, </th>
+      <th>variables</th>
       <td><p>a list of all of the model variables</p></td>
     </tr>
     <tr>
-      <th>human, </th>
-      <td><p>the human individual</p></td>
+      <th>events</th>
+      <td><p>a list of all of the model events</p></td>
     </tr>
     <tr>
-      <th>mosquito, </th>
-      <td><p>the mosquito individual</p></td>
+      <th>odes</th>
+      <td><p>(optional) a list of mosquito odes for each variety</p></td>
     </tr>
     </table>
 

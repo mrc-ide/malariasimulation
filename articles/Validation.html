@@ -85,14 +85,15 @@
 
     
     
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(malariasimulation)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(ggplot2))
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(malariasimulation)
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(malariaEquilibrium)
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(ggplot2)
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(reshape2)</code></pre></div>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(reshape2)
+<span class="kw"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(cowplot))</code></pre></div>
 <div id="equilibrium-testing" class="section level1">
 <h1 class="hasAnchor">
 <a href="#equilibrium-testing" class="anchor"></a>Equilibrium testing</h1>
-<p>This vignette demonstrates that the IBM is consistent with the independently written <a href="https://github.com/mrc-ide/malariaEquilibrium">equilibrium solution</a>. Using the principle of triangulation, we provide evidence for the validity of this model.</p>
+<p>This vignette demonstrates that the IBM is consistent with the <a href="https://github.com/mrc-ide/malariaEquilibrium">equilibrium solution</a>.</p>
 <div id="parameterising-the-model" class="section level2">
 <h2 class="hasAnchor">
 <a href="#parameterising-the-model" class="anchor"></a>Parameterising the model</h2>
@@ -103,95 +104,278 @@
 <li>removing parameters that are not used in the new model</li>
 </ul>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">year &lt;-<span class="st"> </span><span class="dv">365</span>
-sim_length &lt;-<span class="st"> </span><span class="dv">10</span> *<span class="st"> </span>year
-human_population &lt;-<span class="st"> </span><span class="dv">100</span>
+sim_length &lt;-<span class="st"> </span><span class="dv">50</span> *<span class="st"> </span>year
+human_population &lt;-<span class="st"> </span><span class="dv">1000</span>
+repetitions &lt;-<span class="st"> </span><span class="dv">5</span>
 
-remove_keys &lt;-<span class="st"> </span>function(x, n) { for (name in n) { x[[name]] &lt;-<span class="st"> </span><span class="ot">NULL</span> }; x }
+jamie_params &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/malariaEquilibrium/man/load_parameter_set.html">load_parameter_set</a></span>()
 
-jamie_params &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/malariaEquilibrium/man/load_parameter_set.html">load_parameter_set</a></span>(<span class="st">"Jamie_parameters.rds"</span>)
-
-params &lt;-<span class="st"> </span><span class="kw">remove_keys</span>(
-  jamie_params,
-  <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(
-    <span class="st">'s2'</span>,
-    <span class="st">'rT'</span>, <span class="co"># makes sense</span>
-    <span class="st">'rP'</span>, <span class="co"># makes sense</span>
-    <span class="st">'tl'</span>,
-    <span class="st">'g_inf'</span>,
-    <span class="st">'fd0'</span>,
-    <span class="st">'aA'</span>,
-    <span class="st">'aU'</span>,
-    <span class="st">'b1'</span>,
-    <span class="st">'PM'</span>,
-    <span class="st">'tau'</span>,
-    <span class="st">'f'</span>,
-    <span class="st">'Q0'</span>,
-    <span class="st">'cd_w'</span>,
-    <span class="st">'cd_p'</span>,
-    <span class="st">'cT'</span>,
-    <span class="st">'dE'</span> <span class="co"># not sure if this translation works</span>
+simparams &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/malariasimulation/man/get_parameters.html">get_parameters</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(
+  <span class="kw"><a href="https://rdrr.io/pkg/malariasimulation/man/translate_jamie.html">translate_jamie</a></span>(<span class="kw"><a href="https://rdrr.io/pkg/malariasimulation/man/remove_unused_jamie.html">remove_unused_jamie</a></span>(jamie_params)),
+  <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
+    <span class="dt">human_population =</span> human_population,
+    <span class="dt">variety_proportions =</span> <span class="dv">1</span>,
+    <span class="dt">vector_ode =</span> <span class="ot">TRUE</span>
   )
-)
-
-simparams &lt;-<span class="st"> </span><span class="kw">translate_jamie</span>(params)
-simparams[[<span class="st">'human_population'</span>]] &lt;-<span class="st"> </span>human_population
-
-<span class="co">#add blood meal rates</span>
-simparams[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'av1'</span>, <span class="st">'av2'</span>, <span class="st">'av3'</span>)] &lt;-<span class="st"> </span>jamie_params$f *<span class="st"> </span>jamie_params$Q0</code></pre></div>
+))</code></pre></div>
 <p>Next we want to estimate the yearly EIR. This is an input parameter for the equilibrium solution, but for the IBM it’s an emergent statistic…</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">output &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/malariasimulation/man/run_simulation.html">run_simulation</a></span>(<span class="dv">5</span> *<span class="st"> </span>year, simparams)
-
-<span class="co"># Estimating EIR for the final year of the model</span>
-<span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(
-  <span class="kw"><a href="https://rdrr.io/r/base/subset.html">subset</a></span>(output, output$timestep &gt;<span class="st"> </span>(<span class="dv">4</span> *<span class="st"> </span>year)),
-  <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> timestep, <span class="dt">y =</span> mean_EIR)
-) +<span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>()</code></pre></div>
-<p><img src="Validation_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
-EIR &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(output$mean_EIR[output$timestep &gt;<span class="st"> </span>(<span class="dv">4</span> *<span class="st"> </span>year)])
+estimate_eir &lt;-<span class="st"> </span>function() {
+  output &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/malariasimulation/man/run_simulation.html">run_simulation</a></span>(sim_length, simparams)
+  <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(<span class="kw"><a href="https://rdrr.io/r/utils/head.html">tail</a></span>(output$mean_EIR, year))
+}</code></pre></div>
+<p>We run our IBM model initialised with these state proportions to check for a divergence:</p>
+<p>Let’s first set up some utility functions:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">get_equilibrium &lt;-<span class="st"> </span>function(EIR) {
+  <span class="kw"><a href="https://rdrr.io/pkg/malariaEquilibrium/man/human_equilibrium.html">human_equilibrium</a></span>(<span class="dt">EIR =</span> EIR, <span class="dt">ft =</span> <span class="dv">0</span>, <span class="dt">p =</span> jamie_params, <span class="dt">age =</span> <span class="dv">0</span>:<span class="dv">99</span>)
+}
 
-<span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(<span class="st">"Estimated final year EIR to be"</span>, EIR, <span class="dt">sep=</span><span class="st">" "</span>))
-<span class="co">#&gt; [1] "Estimated final year EIR to be 4.80151395156138"</span></code></pre></div>
-<p>Next, we calculate the equilibrium state proportions for each human state:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Calculate equilibrium</span>
-eq &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/malariaEquilibrium/man/human_equilibrium.html">human_equilibrium</a></span>(<span class="dt">EIR =</span> EIR, <span class="dt">ft =</span> <span class="dv">0</span>, <span class="dt">p =</span> jamie_params, <span class="dt">age =</span> <span class="dv">0</span>:<span class="dv">100</span>)
-state_props &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/colSums.html">colSums</a></span>(eq$states[,<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'S'</span>, <span class="st">'D'</span>, <span class="st">'A'</span>, <span class="st">'U'</span>)])</code></pre></div>
-<p>We run our IBM model initialised with these state proportions to accelerate its convergence:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">simparams$s_proportion &lt;-<span class="st"> </span>state_props[[<span class="st">'S'</span>]]
-simparams$d_proportion &lt;-<span class="st"> </span>state_props[[<span class="st">'D'</span>]]
-simparams$a_proportion &lt;-<span class="st"> </span>state_props[[<span class="st">'A'</span>]]
-simparams$u_proportion &lt;-<span class="st"> </span>state_props[[<span class="st">'U'</span>]]
+get_state_proportions &lt;-<span class="st"> </span>function(eq) <span class="kw"><a href="https://rdrr.io/r/base/colSums.html">colSums</a></span>(eq$states[,<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'S'</span>, <span class="st">'D'</span>, <span class="st">'A'</span>, <span class="st">'U'</span>)])
 
-equilibrium &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(
-  <span class="dt">timestep =</span> <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(sim_length),
-  <span class="dt">human_S_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(state_props[[<span class="st">'S'</span>]] *<span class="st"> </span>human_population, sim_length),
-  <span class="dt">human_D_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(state_props[[<span class="st">'D'</span>]] *<span class="st"> </span>human_population, sim_length),
-  <span class="dt">human_A_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(state_props[[<span class="st">'A'</span>]] *<span class="st"> </span>human_population, sim_length),
-  <span class="dt">human_U_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(state_props[[<span class="st">'U'</span>]] *<span class="st"> </span>human_population, sim_length)
+get_FOIM &lt;-<span class="st"> </span>function(eq) eq$FOIM</code></pre></div>
+<p>And then run our models.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">estimated_eirs &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>()
+outputs &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>()
+total_Ms &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(.<span class="dv">5</span>, <span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">50</span>, <span class="dv">100</span>, <span class="dv">500</span>, <span class="dv">1000</span>) *<span class="st"> </span>human_population
+
+for (total_M in total_Ms) {
+  simparams$total_M &lt;-<span class="st"> </span>total_M
+  EIR &lt;-<span class="st"> </span><span class="kw">estimate_eir</span>()
+  if (EIR &gt;<span class="st"> </span><span class="dv">0</span>) {
+    total_Ms &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(total_Ms, total_M)
+    estimated_eirs &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(estimated_eirs, EIR)
+    eq &lt;-<span class="st"> </span><span class="kw">get_equilibrium</span>(EIR)
+    simparams &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/malariasimulation/man/parameterise_human_equilibrium.html">parameterise_human_equilibrium</a></span>(simparams, eq)
+    output &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/malariasimulation/man/run_simulation_with_repetitions.html">run_simulation_with_repetitions</a></span>(
+      sim_length,
+      repetitions,
+      simparams,
+      <span class="dt">parallel=</span><span class="ot">TRUE</span>
+    )
+    outputs[[<span class="kw"><a href="https://rdrr.io/r/base/length.html">length</a></span>(outputs) +<span class="st"> </span><span class="dv">1</span>]] &lt;-<span class="st"> </span>output
+  }
+}</code></pre></div>
+<p>Plot EIR vs Prev</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eirs &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">vapply</a></span>(
+  outputs,
+  function(output) {
+    <span class="kw"><a href="https://rdrr.io/r/base/mean.html">mean</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/lapply.html">vapply</a></span>(
+      <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(repetitions),
+      function(r) {
+        <span class="kw"><a href="https://rdrr.io/r/base/sum.html">sum</a></span>(<span class="kw"><a href="https://rdrr.io/r/utils/head.html">tail</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/subset.html">subset</a></span>(output, output$repetition ==<span class="st"> </span>r)$mean_EIR, year))
+      },
+      <span class="kw"><a href="https://rdrr.io/r/base/numeric.html">numeric</a></span>(<span class="dv">1</span>)
+    ))
+  },
+  <span class="kw"><a href="https://rdrr.io/r/base/numeric.html">numeric</a></span>(<span class="dv">1</span>)
 )
 
-<span class="kw"><a href="https://rdrr.io/r/base/print.html">print</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span>({output &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/malariasimulation/man/run_simulation.html">run_simulation</a></span>(sim_length, simparams)}))
-<span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt; 482.669   0.572 484.878</span>
+prevs &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">vapply</a></span>(
+  outputs,
+  function(output) {
+    <span class="kw"><a href="https://rdrr.io/r/base/mean.html">mean</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/lapply.html">vapply</a></span>(
+      <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(repetitions),
+      function(r) {
+        <span class="kw"><a href="https://rdrr.io/r/base/mean.html">mean</a></span>(
+          <span class="kw"><a href="https://rdrr.io/r/utils/head.html">tail</a></span>(
+            <span class="kw"><a href="https://rdrr.io/r/base/subset.html">subset</a></span>(output, output$repetition ==<span class="st"> </span>r)$prev_2_10,
+            year
+          ) /<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/utils/head.html">tail</a></span>(
+            <span class="kw"><a href="https://rdrr.io/r/base/subset.html">subset</a></span>(output, output$repetition ==<span class="st"> </span>r)$n_2_10,
+            year
+          )
+        )
+      },
+      <span class="kw"><a href="https://rdrr.io/r/base/numeric.html">numeric</a></span>(<span class="dv">1</span>)
+    ))
+  },
+  <span class="kw"><a href="https://rdrr.io/r/base/numeric.html">numeric</a></span>(<span class="dv">1</span>)
+)
 
 <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(
-    <span class="kw"><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt</a></span>(output[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(
-      <span class="st">'timestep'</span>,
-      <span class="st">'human_S_count'</span>,
-      <span class="st">'human_D_count'</span>,
-      <span class="st">'human_A_count'</span>,
-      <span class="st">'human_U_count'</span>
-    )],
-    <span class="st">'timestep'</span>
-    ),
-  ) +<span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>(
-    <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> timestep, <span class="dt">y =</span> value, <span class="dt">group =</span> variable, <span class="dt">color =</span> variable)
-  ) +<span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>(
-    <span class="dt">data =</span> <span class="kw"><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt</a></span>(equilibrium, <span class="st">'timestep'</span>),
-    <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> timestep, <span class="dt">y =</span> value, <span class="dt">group =</span> variable, <span class="dt">color =</span> variable),
-    <span class="dt">linetype =</span> <span class="st">'dashed'</span>
-  )</code></pre></div>
-<p><img src="Validation_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
+  <span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="dt">eir =</span> eirs, <span class="dt">prev =</span> prevs)
+) +<span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>(
+  <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> eir, <span class="dt">y =</span> prev)
+) +<span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html">scale_x_continuous</a></span>(<span class="dt">trans=</span><span class="st">'log10'</span>)</code></pre></div>
+<p><img src="Validation_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
+<p>Plot agreement</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+agreement_plots &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span>(
+  <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq_along</a></span>(outputs),
+  function(i) {
+    output &lt;-<span class="st"> </span>outputs[[i]]
+    pop_size &lt;-<span class="st"> </span>simparams$human_population
+    state_props &lt;-<span class="st"> </span><span class="kw">get_state_proportions</span>(<span class="kw">get_equilibrium</span>(estimated_eirs[[i]]))
+    equilibrium &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(
+      <span class="dt">timestep =</span> <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(sim_length),
+      <span class="dt">human_S_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(state_props[[<span class="st">'S'</span>]] *<span class="st"> </span>pop_size, sim_length),
+      <span class="dt">human_D_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(state_props[[<span class="st">'D'</span>]] *<span class="st"> </span>pop_size, sim_length),
+      <span class="dt">human_A_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(state_props[[<span class="st">'A'</span>]] *<span class="st"> </span>pop_size, sim_length),
+      <span class="dt">human_U_count =</span> <span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(state_props[[<span class="st">'U'</span>]] *<span class="st"> </span>pop_size, sim_length)
+    )
+    <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(
+      <span class="kw"><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt</a></span>(
+        output[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(
+          <span class="st">'timestep'</span>,
+          <span class="st">'repetition'</span>,
+          <span class="st">'human_S_count'</span>,
+          <span class="st">'human_D_count'</span>,
+          <span class="st">'human_A_count'</span>,
+          <span class="st">'human_U_count'</span>
+        )],
+        <span class="dt">id.vars=</span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'timestep'</span>, <span class="st">'repetition'</span>)
+      )
+    ) +<span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>(
+      <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(
+        <span class="dt">x =</span> timestep,
+        <span class="dt">y =</span> value,
+        <span class="dt">group =</span> <span class="kw"><a href="https://rdrr.io/r/base/interaction.html">interaction</a></span>(variable, repetition),
+        <span class="dt">color =</span> variable,
+        <span class="dt">alpha =</span> <span class="dv">1</span>/repetitions
+      )
+    ) +<span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>(
+      <span class="dt">data =</span> <span class="kw"><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt</a></span>(equilibrium, <span class="st">'timestep'</span>),
+      <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> timestep, <span class="dt">y =</span> value, <span class="dt">group =</span> variable, <span class="dt">color =</span> variable),
+      <span class="dt">linetype =</span> <span class="st">'dashed'</span>
+    )
+  }
+)
+
+<span class="co"># consolidate legends</span>
+legend &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/get_legend.html">get_legend</a></span>(agreement_plots[[<span class="dv">1</span>]])
+agreement_plots &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span>(
+  agreement_plots,
+  function(plot) plot +<span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span>(<span class="dt">legend.position=</span><span class="st">"none"</span>)
+)
+<span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/plot_grid.html">plot_grid</a></span>(
+  <span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/plot_grid.html">plot_grid</a></span>(
+    <span class="dt">plotlist =</span> agreement_plots,
+    <span class="dt">labels =</span> total_Ms,
+    <span class="dt">ncol =</span> <span class="dv">2</span>
+  ),
+  legend,
+  <span class="dt">rel_widths =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1</span>, .<span class="dv">1</span>)
+)</code></pre></div>
+<p><img src="Validation_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
+<p>Immunity</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">immunity_plots &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span>(
+  <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq_along</a></span>(outputs),
+  function(i) {
+    output &lt;-<span class="st"> </span>outputs[[i]]
+    eq &lt;-<span class="st"> </span><span class="kw">get_equilibrium</span>(estimated_eirs[[i]])
+    w &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">vapply</a></span>(
+      <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="dv">100</span>)*<span class="dv">365</span>,
+      function(age) (<span class="dv">1</span>/simparams$average_age)*<span class="kw"><a href="https://rdrr.io/r/base/Log.html">exp</a></span>(-age/simparams$average_age),
+      <span class="kw"><a href="https://rdrr.io/r/base/numeric.html">numeric</a></span>(<span class="dv">1</span>)
+    )
+    equilibrium &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(
+      <span class="dt">timestep =</span> <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(sim_length),
+      <span class="dt">human_ICA_mean =</span> <span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="kw"><a href="https://rdrr.io/r/stats/weighted.mean.html">weighted.mean</a></span>(eq$states[, <span class="st">'ICA'</span>], w), sim_length),
+      <span class="dt">human_ICM_mean =</span> <span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="kw"><a href="https://rdrr.io/r/stats/weighted.mean.html">weighted.mean</a></span>(eq$states[, <span class="st">'ICM'</span>], w), sim_length),
+      <span class="dt">human_IB_mean =</span> <span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="kw"><a href="https://rdrr.io/r/stats/weighted.mean.html">weighted.mean</a></span>(eq$states[, <span class="st">'IB'</span>], w), sim_length),
+      <span class="dt">human_ID_mean =</span> <span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="kw"><a href="https://rdrr.io/r/stats/weighted.mean.html">weighted.mean</a></span>(eq$states[, <span class="st">'ID'</span>], w), sim_length)
+    )
+    
+    <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(
+      <span class="kw"><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt</a></span>(
+        output[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(
+          <span class="st">'timestep'</span>,
+          <span class="st">'repetition'</span>,
+          <span class="st">'human_ICA_mean'</span>,
+          <span class="st">'human_ICM_mean'</span>,
+          <span class="st">'human_IB_mean'</span>,
+          <span class="st">'human_ID_mean'</span>
+        )],
+        <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'timestep'</span>, <span class="st">'repetition'</span>)
+      )
+    ) +<span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>(
+      <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(
+        <span class="dt">x =</span> timestep,
+        <span class="dt">y =</span> value,
+        <span class="dt">group =</span> <span class="kw"><a href="https://rdrr.io/r/base/interaction.html">interaction</a></span>(variable, repetition),
+        <span class="dt">color =</span> variable,
+        <span class="dt">alpha =</span> <span class="dv">1</span>/repetitions
+      )
+    )  +<span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>(
+      <span class="dt">data =</span> <span class="kw"><a href="https://rdrr.io/pkg/reshape2/man/melt.html">melt</a></span>(equilibrium, <span class="st">'timestep'</span>),
+      <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> timestep, <span class="dt">y =</span> value, <span class="dt">group =</span> variable, <span class="dt">color =</span> variable),
+      <span class="dt">linetype =</span> <span class="st">'dashed'</span>
+    )
+  }
+)
+
+<span class="co"># consolidate legends</span>
+legend &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/get_legend.html">get_legend</a></span>(immunity_plots[[<span class="dv">1</span>]])
+immunity_plots &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span>(
+  immunity_plots,
+  function(plot) plot +<span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span>(<span class="dt">legend.position=</span><span class="st">"none"</span>)
+)
+<span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/plot_grid.html">plot_grid</a></span>(
+  <span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/plot_grid.html">plot_grid</a></span>(
+    <span class="dt">plotlist =</span> immunity_plots,
+    <span class="dt">labels =</span> total_Ms,
+    <span class="dt">ncol =</span> <span class="dv">2</span>
+  ),
+  legend,
+  <span class="dt">rel_widths =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">1</span>, .<span class="dv">1</span>)
+)</code></pre></div>
+<p><img src="Validation_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
+<p>EIR</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eir_plots &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span>(
+  <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq_along</a></span>(outputs),
+  function(i) {
+    output &lt;-<span class="st"> </span>outputs[[i]]
+    EIR &lt;-<span class="st"> </span>estimated_eirs[[i]]
+    <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(
+      output[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(
+          <span class="st">'timestep'</span>,
+          <span class="st">'repetition'</span>,
+          <span class="st">'mean_EIR'</span>
+        )]
+    ) +<span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>(
+      <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> timestep, <span class="dt">y =</span> mean_EIR, <span class="dt">group =</span> repetition, <span class="dt">alpha =</span> <span class="dv">1</span>/repetitions)
+    ) +<span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>(
+        <span class="dt">data =</span> <span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="dt">timestep=</span><span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(sim_length), <span class="dt">EIR=</span><span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(EIR/<span class="dv">365</span>, sim_length)),
+        <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> timestep, <span class="dt">y =</span> EIR),
+        <span class="dt">linetype =</span> <span class="st">'dashed'</span>
+    ) +<span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span>(<span class="dt">legend.position=</span><span class="st">"none"</span>)
+  }
+)
+
+<span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/plot_grid.html">plot_grid</a></span>(
+  <span class="dt">plotlist =</span> eir_plots,
+  <span class="dt">labels =</span> total_Ms,
+  <span class="dt">ncol =</span> <span class="dv">2</span>
+)</code></pre></div>
+<p><img src="Validation_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
+<p>FOIM</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">foim_plots &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span>(
+  <span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq_along</a></span>(outputs),
+  function(i) {
+    output &lt;-<span class="st"> </span>outputs[[i]]
+    FOIM &lt;-<span class="st"> </span><span class="kw">get_FOIM</span>(<span class="kw">get_equilibrium</span>(estimated_eirs[[i]]))
+    <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(
+      output[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(
+          <span class="st">'timestep'</span>,
+          <span class="st">'repetition'</span>,
+          <span class="st">'FOIM_1'</span>
+        )]
+    ) +<span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>(
+      <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> timestep, <span class="dt">y =</span> FOIM_1, <span class="dt">group =</span> <span class="st">'repetition'</span>, <span class="dt">alpha=</span><span class="dv">1</span>/repetitions)
+    ) +<span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>(
+        <span class="dt">data =</span> <span class="kw"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="dt">timestep=</span><span class="kw"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(sim_length), <span class="dt">FOIM_1=</span><span class="kw"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(FOIM, sim_length)),
+        <span class="kw"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="dt">x =</span> timestep, <span class="dt">y =</span> FOIM_1),
+        <span class="dt">linetype =</span> <span class="st">'dashed'</span>
+    ) +<span class="st"> </span><span class="kw"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span>(<span class="dt">legend.position=</span><span class="st">"none"</span>)
+  }
+)
+
+<span class="kw"><a href="https://rdrr.io/pkg/cowplot/man/plot_grid.html">plot_grid</a></span>(
+  <span class="dt">plotlist =</span> foim_plots,
+  <span class="dt">labels =</span> total_Ms,
+  <span class="dt">ncol =</span> <span class="dv">2</span>
+)</code></pre></div>
+<p><img src="Validation_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
 </div>
 </div>
   </div>

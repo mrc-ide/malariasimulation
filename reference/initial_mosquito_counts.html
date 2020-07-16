@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Basic state transition — create_fixed_probability_state_change_process • malariasimulation</title>
+<title>Calculate equilibrium solution for vector counts — initial_mosquito_counts • malariasimulation</title>
 
 
 <!-- jquery -->
@@ -35,9 +35,10 @@
 
 
 
-<meta property="og:title" content="Basic state transition — create_fixed_probability_state_change_process" />
-<meta property="og:description" content="create_fixed_probability_state_change_process generates a process function
-that moves individuals from one state to another at a constant rate" />
+<meta property="og:title" content="Calculate equilibrium solution for vector counts — initial_mosquito_counts" />
+<meta property="og:description" content="taken from
+&quot;Modelling the impact of vector control interventions on Anopheles gambiae
+population dynamics&quot;" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -85,6 +86,21 @@ that moves individuals from one state to another at a constant rate" />
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/Model.html">Model Structure</a>
+    </li>
+    <li>
+      <a href="../articles/Validation.html">Validation</a>
+    </li>
+  </ul>
+</li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
         
@@ -101,36 +117,33 @@ that moves individuals from one state to another at a constant rate" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Basic state transition</h1>
+    <h1>Calculate equilibrium solution for vector counts</h1>
     
-    <div class="hidden name"><code>create_fixed_probability_state_change_process.Rd</code></div>
+    <div class="hidden name"><code>initial_mosquito_counts.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>create_fixed_probability_state_change_process generates a process function
-that moves individuals from one state to another at a constant rate</p>
+    <p>taken from
+"Modelling the impact of vector control interventions on Anopheles gambiae
+population dynamics"</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_fixed_probability_state_change_process</span>(<span class='no'>i</span>, <span class='no'>from</span>, <span class='no'>to</span>, <span class='no'>rate</span>)</pre>
+    <pre class="usage"><span class='fu'>initial_mosquito_counts</span>(<span class='no'>parameters</span>, <span class='kw'>foim</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>m</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>i, </th>
-      <td><p>an individual</p></td>
+      <th>parameters</th>
+      <td><p>model parameters</p></td>
     </tr>
     <tr>
-      <th>from, </th>
-      <td><p>the source state</p></td>
+      <th>foim</th>
+      <td><p>equilibrium foim</p></td>
     </tr>
     <tr>
-      <th>to, </th>
-      <td><p>the target state</p></td>
-    </tr>
-    <tr>
-      <th>rate, </th>
-      <td><p>the rate at which state transitions occur</p></td>
+      <th>m</th>
+      <td><p>(optional) the total number of female adult mosquitos</p></td>
     </tr>
     </table>
 

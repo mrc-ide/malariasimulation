@@ -40,12 +40,9 @@
 the model. Variables are used to track real data for each individual over
 time, they are read and updated by processes
 The human variables are defined as:
-age - an integer representing the number of years this individual has been
-alive
-last_bitten - the last timestep at which this individual was bitten, used
-for tracking grace periods in the boost of immunity
-last_infected - the last timestep at which this individual was infected, used
-for tracking grace periods in the boost of immunity
+birth - an integer representing the timestep when this individual was born
+last_boosted_* - the last timestep at which this individual's immunity was
+boosted for tracking grace periods in the boost of immunity
 is_severe - a binary indicator (0 or 1) for if the individual currently has
 severe malaria
 ICM - Maternal immunity to clinical disease
@@ -54,10 +51,10 @@ IB  - Pre-erythoctic immunity
 ICA  - Acquired immunity to clinical disease
 IVA  - Acquired immunity to severe disease
 ID - Acquired immunity to detectability
-xi - Heterogeneity of human individuals
-xi_group - Discretised heterogeneity of human individuals
+zeta - Heterogeneity of human individuals
+zeta_group - Discretised heterogeneity of human individuals
 variety - The variety of mosquito, either 1, 2 or 3. These are related to
-blood meal rate parameters av1, av2 and av3
+blood meal rate parameter
 
 " />
 <meta name="twitter:card" content="summary" />
@@ -148,12 +145,9 @@ blood meal rate parameters av1, av2 and av3
 the model. Variables are used to track real data for each individual over
 time, they are read and updated by processes</p>
 <p>The human variables are defined as:</p><ul>
-<li><p>age - an integer representing the number of years this individual has been
-alive</p></li>
-<li><p>last_bitten - the last timestep at which this individual was bitten, used
-for tracking grace periods in the boost of immunity</p></li>
-<li><p>last_infected - the last timestep at which this individual was infected, used
-for tracking grace periods in the boost of immunity</p></li>
+<li><p>birth - an integer representing the timestep when this individual was born</p></li>
+<li><p>last_boosted_* - the last timestep at which this individual's immunity was
+boosted for tracking grace periods in the boost of immunity</p></li>
 <li><p>is_severe - a binary indicator (0 or 1) for if the individual currently has
 severe malaria</p></li>
 <li><p>ICM - Maternal immunity to clinical disease</p></li>
@@ -162,10 +156,10 @@ severe malaria</p></li>
 <li><p>ICA  - Acquired immunity to clinical disease</p></li>
 <li><p>IVA  - Acquired immunity to severe disease</p></li>
 <li><p>ID - Acquired immunity to detectability</p></li>
-<li><p>xi - Heterogeneity of human individuals</p></li>
-<li><p>xi_group - Discretised heterogeneity of human individuals</p></li>
+<li><p>zeta - Heterogeneity of human individuals</p></li>
+<li><p>zeta_group - Discretised heterogeneity of human individuals</p></li>
 <li><p>variety - The variety of mosquito, either 1, 2 or 3. These are related to
-blood meal rate parameters av1, av2 and av3</p></li>
+blood meal rate parameter</p></li>
 </ul>
 
     </div>

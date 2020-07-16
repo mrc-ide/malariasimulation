@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Define model processes — create_processes • malariasimulation</title>
+<title>Run the simulation with repetitions — run_simulation_with_repetitions • malariasimulation</title>
 
 
 <!-- jquery -->
@@ -35,11 +35,8 @@
 
 
 
-<meta property="og:title" content="Define model processes — create_processes" />
-<meta property="og:description" content="create_processes, defines the functions which describe how each individual's
-states and variables change over time.
-It lists processes from infection.R, mosquito_emergence.R and
-mortality.R; and then exposes them to the model" />
+<meta property="og:title" content="Run the simulation with repetitions — run_simulation_with_repetitions" />
+<meta property="og:description" content="Run the simulation with repetitions" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -118,53 +115,40 @@ mortality.R; and then exposes them to the model" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Define model processes</h1>
+    <h1>Run the simulation with repetitions</h1>
     
-    <div class="hidden name"><code>create_processes.Rd</code></div>
+    <div class="hidden name"><code>run_simulation_with_repetitions.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>create_processes, defines the functions which describe how each individual's
-states and variables change over time.</p>
-<p>It lists processes from <code>infection.R</code>, <code>mosquito_emergence.R</code> and
-<code>mortality.R</code>; and then exposes them to the model</p>
+    <p>Run the simulation with repetitions</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_processes</span>(
-  <span class='no'>individuals</span>,
-  <span class='no'>states</span>,
-  <span class='no'>variables</span>,
-  <span class='no'>events</span>,
-  <span class='no'>parameters</span>,
-  <span class='kw'>odes</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
+    <pre class="usage"><span class='fu'>run_simulation_with_repetitions</span>(
+  <span class='no'>timesteps</span>,
+  <span class='no'>repetitions</span>,
+  <span class='kw'>overrides</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(),
+  <span class='kw'>parallel</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>individuals</th>
-      <td><p>a list of individuals in the model</p></td>
+      <th>timesteps</th>
+      <td><p>the number of timesteps to run the simulation for</p></td>
     </tr>
     <tr>
-      <th>states</th>
-      <td><p>a list of states in the model</p></td>
+      <th>repetitions</th>
+      <td><p>n times to run the simulation</p></td>
     </tr>
     <tr>
-      <th>variables</th>
-      <td><p>a list of variables in the model</p></td>
+      <th>overrides</th>
+      <td><p>a named list of parameters to use instead of defaults</p></td>
     </tr>
     <tr>
-      <th>events</th>
-      <td><p>a list of events in the model</p></td>
-    </tr>
-    <tr>
-      <th>parameters</th>
-      <td><p>a list of model parameters</p></td>
-    </tr>
-    <tr>
-      <th>odes</th>
-      <td><p>a list of vector models (if vector_ode == TRUE)</p></td>
+      <th>parallel</th>
+      <td><p>execute runs in parallel</p></td>
     </tr>
     </table>
 

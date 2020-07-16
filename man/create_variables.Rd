@@ -27,8 +27,8 @@ severe malaria
 \item ICA  - Acquired immunity to clinical disease
 \item IVA  - Acquired immunity to severe disease
 \item ID - Acquired immunity to detectability
-\item xi - Heterogeneity of human individuals
-\item xi_group - Discretised heterogeneity of human individuals
+\item zeta - Heterogeneity of human individuals
+\item zeta_group - Discretised heterogeneity of human individuals
 \item variety - The variety of mosquito, either 1, 2 or 3. These are related to
 blood meal rate parameter
 }

@@ -34,7 +34,8 @@ Suggests:
   reshape2,
   DiagrammeR,
   ggplot2,
-  malariaEquilibrium
+  malariaEquilibrium,
+  covr
 RoxygenNote: 7.1.0
 Roxygen: list(markdown = TRUE)
 LinkingTo:

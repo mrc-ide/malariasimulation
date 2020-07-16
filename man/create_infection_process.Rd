@@ -14,6 +14,8 @@ create_infection_process(individuals, states, variables, events, odes = NULL)
 \item{variables}{a list of all of the model variables}
 
 \item{events}{a list of all of the model events}
+
+\item{odes}{(optional) a list of mosquito odes for each variety}
 }
 \description{
 This is the process of infection for humans. It results in human future state

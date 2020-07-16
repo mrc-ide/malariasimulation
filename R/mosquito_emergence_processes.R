@@ -7,6 +7,8 @@
 #' @param L the late stage larval state
 #' @param Unborn the unborn mosquito state
 #' @param events a list of events in the model
+#' @param K0 carrying capacity
+#' @param R_bar mean rainfall
 create_larval_death_process <- function(mosquito, E, L, Unborn, events, K0, R_bar) {
   function(api) {
     timestep <- api$get_timestep()

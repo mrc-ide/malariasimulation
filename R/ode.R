@@ -27,7 +27,7 @@ parameterise_ode <- function(parameters, foim = 0.) {
 #' @description collects summarises the human state, sends it to the vector ode
 #' and makes a step
 #'
-#' @param ode the models to step, one for each species
+#' @param odes the models to step, one for each species
 #' @param human the human individual
 #' @param states a list of all of the model states
 #' @param variables a list of all of the model variables

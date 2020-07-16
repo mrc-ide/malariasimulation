@@ -9,9 +9,9 @@ initial_mosquito_counts(parameters, foim = 0, m = NULL)
 \arguments{
 \item{parameters}{model parameters}
 
-\item{m}{(optional) the total number of female adult mosquitos}
+\item{foim}{equilibrium foim}
 
-\item{equilibrium}{foim}
+\item{m}{(optional) the total number of female adult mosquitos}
 }
 \description{
 taken from

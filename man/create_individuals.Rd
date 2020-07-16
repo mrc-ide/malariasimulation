@@ -12,6 +12,8 @@ create_individuals(states, variables, events, parameters)
 \item{variables}{available variables to assign}
 
 \item{events}{available events to assign}
+
+\item{parameters}{model parameters}
 }
 \description{
 create_individuals declares the individuals to simulate. It assigns the

@@ -3,7 +3,7 @@
 #' "Modelling the impact of vector control interventions on Anopheles gambiae
 #' population dynamics"
 #' @param parameters model parameters
-#' @param equilibrium foim
+#' @param foim equilibrium foim
 #' @param m (optional) the total number of female adult mosquitos
 initial_mosquito_counts <- function(parameters, foim = 0, m = NULL) {
   if (is.null(m)) {

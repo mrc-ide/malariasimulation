@@ -236,6 +236,7 @@ create_variables <- function(parameters) {
 #' @param states available states to assign
 #' @param variables available variables to assign
 #' @param events available events to assign
+#' @param parameters model parameters
 create_individuals <- function(states, variables, events, parameters) {
   human <- individual::Individual$new(
     'human',

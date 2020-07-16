@@ -8,7 +8,7 @@
 #' out what kind of outputs we would like to report from the simulation.
 #'
 #' @param timesteps the number of timesteps to run the simulation for
-#' @param paramters a named list of parameters to use
+#' @param parameters a named list of parameters to use
 #' @export
 run_simulation <- function(timesteps, parameters = NULL) {
   events <- create_events()
@@ -42,6 +42,7 @@ run_simulation <- function(timesteps, parameters = NULL) {
 #' @param timesteps the number of timesteps to run the simulation for
 #' @param repetitions n times to run the simulation
 #' @param overrides a named list of parameters to use instead of defaults
+#' @param parallel execute runs in parallel
 #' @export
 run_simulation_with_repetitions <- function(
   timesteps,

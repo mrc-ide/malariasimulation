@@ -18,6 +18,8 @@ create_egg_laying_process_cpp(
 
 \item{susceptable}{the susceptable mosquito state}
 
+\item{incubating}{the incubating mosquito state}
+
 \item{infected}{the infected mosquito state}
 
 \item{unborn}{the unborn mosquito state}

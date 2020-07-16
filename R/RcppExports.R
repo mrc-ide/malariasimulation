@@ -7,6 +7,7 @@
 #' larvae are created on each timestep.
 #' @param mosquito the mosquito individual
 #' @param susceptable the susceptable mosquito state
+#' @param incubating the incubating mosquito state
 #' @param infected the infected mosquito state
 #' @param unborn the unborn mosquito state
 #' @param early_larval_stage the early stage larval state

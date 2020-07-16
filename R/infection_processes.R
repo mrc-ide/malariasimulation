@@ -6,6 +6,7 @@
 #' @param states a list of all of the model states
 #' @param variables a list of all of the model variables
 #' @param events a list of all of the model events
+#' @param odes (optional) a list of mosquito odes for each variety
 create_infection_process <- function(
   individuals,
   states,
@@ -376,7 +377,7 @@ mosquito_force_of_infection_from_api <- function(
 #' @param v vector of varieties to calculate for
 #' @param age vector for complete human population
 #' @param zeta het vector for complete human population
-#' @param infectious_set the indecies for humans which are infectious
+#' @param infectivity the onwards infectiousness of the population
 #' @param parameters model parameters
 mosquito_force_of_infection <- function(
   v,

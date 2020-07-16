@@ -298,6 +298,8 @@ parameterise_human_equilibrium <- function(parameters, eq) {
 }
 
 #' @title Parameterise total_M and carrying capacity for mosquitos from EIR
+#' @description NOTE: the inital EIR is likely to change unless the rest of the
+#' model is in equilibrium
 #'
 #' @param parameters the parameters to modify
 #' @param EIR to work from

@@ -53,6 +53,16 @@ simparams <- get_parameters(c(
 ))
 ```
 
+Next we want to estimate the yearly EIR. This is an input parameter for the equilibrium solution, but for the IBM it's an emergent statistic...
+
+```{r}
+
+estimate_eir <- function() {
+  output <- run_simulation(sim_length, simparams)
+  sum(tail(output$mean_EIR, year))
+}
+```
+
 We run our IBM model initialised with these state proportions to check for a divergence:
 
 Let's first set up some utility functions:
@@ -70,26 +80,45 @@ get_FOIM <- function(eq) eq$FOIM
 And then run our models.
 
 ```{r}
+estimated_eirs <- c()
 outputs <- list()
-eirs <- c(.1, 1, 10, 100, 1000)
+total_Ms <- c(.5, 1, 5, 10, 50, 100, 500, 1000) * human_population
 
-for (EIR in eirs) {
-  eq <- get_equilibrium(EIR)
-  simparams <- parameterise_human_equilibrium(simparams, eq)
-  simparams <- parameterise_mosquito_equilibrium(simparams, EIR)
-  output <- run_simulation_with_repetitions(
-    sim_length,
-    repetitions,
-    simparams,
-    parallel=TRUE
-  )
-  outputs[[length(outputs) + 1]] <- output
+for (total_M in total_Ms) {
+  simparams$total_M <- total_M
+  EIR <- estimate_eir()
+  if (EIR > 0) {
+    total_Ms <- c(total_Ms, total_M)
+    estimated_eirs <- c(estimated_eirs, EIR)
+    eq <- get_equilibrium(EIR)
+    simparams <- parameterise_human_equilibrium(simparams, eq)
+    output <- run_simulation_with_repetitions(
+      sim_length,
+      repetitions,
+      simparams,
+      parallel=TRUE
+    )
+    outputs[[length(outputs) + 1]] <- output
+  }
 }
 ```
 
 Plot EIR vs Prev
 
 ```{r}
+eirs <- vapply(
+  outputs,
+  function(output) {
+    mean(vapply(
+      seq(repetitions),
+      function(r) {
+        sum(tail(subset(output, output$repetition == r)$mean_EIR, year))
+      },
+      numeric(1)
+    ))
+  },
+  numeric(1)
+)
 
 prevs <- vapply(
   outputs,
@@ -129,7 +158,7 @@ agreement_plots <- lapply(
   function(i) {
     output <- outputs[[i]]
     pop_size <- simparams$human_population
-    state_props <- get_state_proportions(get_equilibrium(eirs[[i]]))
+    state_props <- get_state_proportions(get_equilibrium(estimated_eirs[[i]]))
     equilibrium <- data.frame(
       timestep = seq(sim_length),
       human_S_count = rep(state_props[['S']] * pop_size, sim_length),
@@ -174,7 +203,7 @@ agreement_plots <- lapply(
 plot_grid(
   plot_grid(
     plotlist = agreement_plots,
-    labels = eirs,
+    labels = total_Ms,
     ncol = 2
   ),
   legend,
@@ -189,7 +218,7 @@ immunity_plots <- lapply(
   seq_along(outputs),
   function(i) {
     output <- outputs[[i]]
-    eq <- get_equilibrium(eirs[[i]])
+    eq <- get_equilibrium(estimated_eirs[[i]])
     w <- vapply(
       seq(100)*365,
       function(age) (1/simparams$average_age)*exp(-age/simparams$average_age),
@@ -240,7 +269,7 @@ immunity_plots <- lapply(
 plot_grid(
   plot_grid(
     plotlist = immunity_plots,
-    labels = eirs,
+    labels = total_Ms,
     ncol = 2
   ),
   legend,
@@ -255,7 +284,7 @@ eir_plots <- lapply(
   seq_along(outputs),
   function(i) {
     output <- outputs[[i]]
-    EIR <- eirs[[i]]
+    EIR <- estimated_eirs[[i]]
     ggplot(
       output[c(
           'timestep',
@@ -274,7 +303,7 @@ eir_plots <- lapply(
 
 plot_grid(
   plotlist = eir_plots,
-  labels = eirs,
+  labels = total_Ms,
   ncol = 2
 )
 ```
@@ -286,7 +315,7 @@ foim_plots <- lapply(
   seq_along(outputs),
   function(i) {
     output <- outputs[[i]]
-    FOIM <- get_FOIM(get_equilibrium(eirs[[i]]))
+    FOIM <- get_FOIM(get_equilibrium(estimated_eirs[[i]]))
     ggplot(
       output[c(
           'timestep',
@@ -305,7 +334,7 @@ foim_plots <- lapply(
 
 plot_grid(
   plotlist = foim_plots,
-  labels = eirs,
+  labels = total_Ms,
   ncol = 2
 )
 ```

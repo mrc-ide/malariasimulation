@@ -213,24 +213,12 @@ create_variables <- function(parameters) {
     mosquito_variety <- individual::Variable$new(
       "variety",
       function(n) {
-        p <- runif(n)
-        v <- rep(0, n)
-        bottom <- 0
-        for (i in seq_along(parameters$variety_proportions)) {
-          if (i == 1) {
-            match_bottom <- (p >= bottom)
-          } else {
-            match_bottom <- (p > bottom)
-          }
-          if (i == length(parameters$variety_proportions)) {
-            match_top <- (p <= bottom + parameters$variety_proportions[[i]])
-          } else {
-            match_top <- (p < bottom + parameters$variety_proportions[[i]])
-          }
-          v[match_bottom & match_top] <- i
-          bottom <- bottom + parameters$variety_proportions[[i]]
-        }
-        v
+        sample(
+          seq_along(parameters$variety_proportions),
+          n,
+          prob = parameters$variety_proportions,
+          replace = TRUE
+        )
       }
     )
 

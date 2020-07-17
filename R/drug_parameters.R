@@ -37,7 +37,7 @@ set_drugs <- function(parameters, drugs) {
 #' @export
 set_clinical_treatment <- function(parameters, ft, drugs, coverages) {
   parameters$ft <- ft
-  if (any(drugs < 0 | drugs > length(parameters$drug_efficacy))) {
+  if (any(drugs < 1 | drugs > length(parameters$drug_efficacy))) {
     stop('Drug indecies are invalid')
   }
   parameters$clinical_treatment_drugs <- drugs

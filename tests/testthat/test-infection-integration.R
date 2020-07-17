@@ -259,17 +259,12 @@ test_that('mosquito_force_of_infection_from_api sets up infectivity correctly', 
         U = c(1),
         D = c(3),
         birth = 5 - (c(0, 5, 30) * 365),
+        infectivity = c(.2, 0, .3),
         zeta = c(1.8, 2., .5)
       )
     ),
     timestep = 5,
     parameters = parameters
-  )
-
-  mockery::stub(
-    mosquito_force_of_infection_from_api,
-    'asymptomatic_infectivity',
-    mockery::mock()
   )
 
   foim_mock <- mockery::mock()

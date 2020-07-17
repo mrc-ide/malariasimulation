@@ -469,28 +469,12 @@ mosquito_force_of_infection_from_api <- function(
   parameters <- api$get_parameters()
   age <- get_age(api$get_variable(human, variables$birth), api$get_timestep())
   zeta  <- api$get_variable(human, variables$zeta)
-  a_subset <- api$get_state(human, states$A)
-  d_subset <- api$get_state(human, states$D)
-  u_subset <- api$get_state(human, states$U)
-  t_subset <- api$get_state(human, states$Tr)
-
-  a_infectivity <- asymptomatic_infectivity(
-    age[a_subset],
-    api$get_variable(human, variables$id, a_subset),
-    parameters
-  )
-
-  infectivity <- rep(0, length(age))
-  infectivity[d_subset] <- parameters$cd
-  infectivity[a_subset] <- a_infectivity
-  infectivity[u_subset] <- parameters$cu
-  infectivity[t_subset] <- parameters$ct
 
   mosquito_force_of_infection(
     seq_along(parameters$blood_meal_rates),
     age,
     zeta,
-    infectivity,
+    api$get_variable(human, variables$infectivity),
     parameters
   )
 }

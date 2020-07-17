@@ -98,6 +98,9 @@ and mortality: A modelling study.&quot;" />
       <a href="../articles/Model.html">Model Structure</a>
     </li>
     <li>
+      <a href="../articles/Treatment.html">Treatment</a>
+    </li>
+    <li>
       <a href="../articles/Validation.html">Validation</a>
     </li>
   </ul>
@@ -141,6 +144,8 @@ and mortality: A modelling study."</p>
 The parameters are defined below.</p>
 <p>fixed state transitions:</p><ul>
 <li><p>dd - the delay for humans to move from state D to A</p></li>
+<li><p>dt - the delay for humans to move from state Tr to Ph</p></li>
+<li><p>dph- the delay for humans to move from state Ph to S</p></li>
 <li><p>da - the delay for humans to move from state A to U</p></li>
 <li><p>du - the delay for humans to move from state U to S</p></li>
 <li><p>del - the delay for mosquitos to move from state E to L</p></li>
@@ -180,6 +185,7 @@ The parameters are defined below.</p>
 <li><p>iv0 - scale parameter</p></li>
 <li><p>kv - shape parameter</p></li>
 <li><p>fv0 - age dependent modifier</p></li>
+<li><p>fvt - reduced probability of death due to treatment</p></li>
 <li><p>av - age dependent modifier</p></li>
 <li><p>gammav - age dependent modifier</p></li>
 </ul>
@@ -206,6 +212,7 @@ mistake here!</p></li>
 <li><p>cd - infectivity of clinically diseased humans towards mosquitos</p></li>
 <li><p>gamma1 - parameter for infectivity of asymptomatic humans</p></li>
 <li><p>cu - infectivity of sub-patent infection</p></li>
+<li><p>ct - infectivity of treated infection</p></li>
 </ul>
 
 <p>unique biting rate:</p><ul>
@@ -240,7 +247,8 @@ clinical disease</p></li>
 <li><p>a_proportion - the proportion of <code>human_population</code> that begin as
 Asymptomatic</p></li>
 <li><p>u_proportion - the proportion of <code>human_population</code> that begin as
-Subpatents</p></li>
+subpatents</p></li>
+<li><p>t_proportion - the proportion of <code>human_population</code> that begin treated</p></li>
 </ul>
 
 <p>initial immunity values:</p><ul>
@@ -263,6 +271,21 @@ Subpatents</p></li>
 <li><p>init_foim - the FOIM used to calculate the equilibrium state for mosquitoes</p></li>
 <li><p>variety_proportions - the relative proportions of each species</p></li>
 <li><p>blood_meal_rates - the blood meal rates for each species</p></li>
+</ul>
+
+<p>treatment parameters:
+I recommend setting these with the convenience functions in
+<code>drug_parameters.R</code></p><ul>
+<li><p>drug_efficacy - a vector of efficacies for available drugs</p></li>
+<li><p>drug_rel_c - a vector of relative onwards infectiousness values for drugs</p></li>
+<li><p>drug_prophylaxis_shape - a vector of shape parameters for weibull curves to
+model prophylaxis for each drug</p></li>
+<li><p>drug_prophylaxis_scale - a vector of scale parameters for weibull curves to
+model prophylaxis for each drug</p></li>
+<li><p>ft - probability of seeking treatment if clinically diseased</p></li>
+<li><p>clinical_treatment_drugs - a vector of drugs that are avaliable for
+clinically diseased (these values refer to the index in drug_* parameters)</p></li>
+<li><p>clinical_treatment_coverage - a vector of coverage values for each drug</p></li>
 </ul>
 
 <p>miscellaneous:</p><ul>

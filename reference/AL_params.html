@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Human mortality process — create_mortality_process • malariasimulation</title>
+<title>Preset parameters for the AL drug — AL_params • malariasimulation</title>
 
 
 <!-- jquery -->
@@ -35,10 +35,8 @@
 
 
 
-<meta property="og:title" content="Human mortality process — create_mortality_process" />
-<meta property="og:description" content="This is the process for human mortality, it defines which humans die from
-natural causes and severe infection and replaces dead individuals with
-newborns." />
+<meta property="og:title" content="Preset parameters for the AL drug — AL_params" />
+<meta property="og:description" content="From SI of Commun. 5:5606 doi: 10.1038/ncomms6606 (2014)" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -120,46 +118,27 @@ newborns." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Human mortality process</h1>
+    <h1>Preset parameters for the AL drug</h1>
     
-    <div class="hidden name"><code>create_mortality_process.Rd</code></div>
+    <div class="hidden name"><code>AL_params.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This is the process for human mortality, it defines which humans die from
-natural causes and severe infection and replaces dead individuals with
-newborns.</p>
+    <p>From SI of Commun. 5:5606 doi: 10.1038/ncomms6606 (2014)</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_mortality_process</span>(<span class='no'>human</span>, <span class='no'>D</span>, <span class='no'>variables</span>, <span class='no'>events</span>)</pre>
+    <pre class="usage"><span class='no'>AL_params</span></pre>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>human</th>
-      <td><p>the human individual</p></td>
-    </tr>
-    <tr>
-      <th>D</th>
-      <td><p>the diseased state</p></td>
-    </tr>
-    <tr>
-      <th>variables</th>
-      <td><p>the model variables to reset</p></td>
-    </tr>
-    <tr>
-      <th>events</th>
-      <td><p>the model events to reset</p></td>
-    </tr>
-    </table>
 
+    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
+
+    <p>An object of class <code>numeric</code> of length 4.</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
+      <li><a href="#format">Format</a></li>
     </ul>
 
   </div>

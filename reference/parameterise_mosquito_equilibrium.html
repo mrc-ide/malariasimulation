@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Human mortality process — create_mortality_process • malariasimulation</title>
+<title>Parameterise total_M and carrying capacity for mosquitos from EIR — parameterise_mosquito_equilibrium • malariasimulation</title>
 
 
 <!-- jquery -->
@@ -35,10 +35,9 @@
 
 
 
-<meta property="og:title" content="Human mortality process — create_mortality_process" />
-<meta property="og:description" content="This is the process for human mortality, it defines which humans die from
-natural causes and severe infection and replaces dead individuals with
-newborns." />
+<meta property="og:title" content="Parameterise total_M and carrying capacity for mosquitos from EIR — parameterise_mosquito_equilibrium" />
+<meta property="og:description" content="NOTE: the inital EIR is likely to change unless the rest of the
+model is in equilibrium" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -120,37 +119,28 @@ newborns." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Human mortality process</h1>
+    <h1>Parameterise total_M and carrying capacity for mosquitos from EIR</h1>
     
-    <div class="hidden name"><code>create_mortality_process.Rd</code></div>
+    <div class="hidden name"><code>parameterise_mosquito_equilibrium.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This is the process for human mortality, it defines which humans die from
-natural causes and severe infection and replaces dead individuals with
-newborns.</p>
+    <p>NOTE: the inital EIR is likely to change unless the rest of the
+model is in equilibrium</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_mortality_process</span>(<span class='no'>human</span>, <span class='no'>D</span>, <span class='no'>variables</span>, <span class='no'>events</span>)</pre>
+    <pre class="usage"><span class='fu'>parameterise_mosquito_equilibrium</span>(<span class='no'>parameters</span>, <span class='no'>EIR</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>human</th>
-      <td><p>the human individual</p></td>
+      <th>parameters</th>
+      <td><p>the parameters to modify</p></td>
     </tr>
     <tr>
-      <th>D</th>
-      <td><p>the diseased state</p></td>
-    </tr>
-    <tr>
-      <th>variables</th>
-      <td><p>the model variables to reset</p></td>
-    </tr>
-    <tr>
-      <th>events</th>
-      <td><p>the model events to reset</p></td>
+      <th>EIR</th>
+      <td><p>to work from</p></td>
     </tr>
     </table>
 

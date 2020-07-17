@@ -21,7 +21,7 @@ create_infection_process <- function(
 
     # Calculate EIR
     age <- get_age(api$get_variable(human, variables$birth), api$get_timestep())
-    epsilon <- eir_from_api(api, individuals, states, variables, age)
+    epsilon <- eir_from_api(api, individuals, states, variables, age, odes)
 
     api$render("mean_EIR", mean(epsilon))
 
@@ -86,7 +86,7 @@ create_infection_process <- function(
   }
 }
 
-eir_from_api <- function(api, individuals, states, variables, age) {
+eir_from_api <- function(api, individuals, states, variables, age, odes) {
   parameters <- api$get_parameters()
   if (parameters$vector_ode) {
     infectivity <- vector_infectivity_ode(
@@ -107,7 +107,7 @@ eir_from_api <- function(api, individuals, states, variables, age) {
 
   eir(
     age,
-    api$get_variable(individuals$human, variables$xi),
+    api$get_variable(individuals$human, variables$zeta),
     infectivity,
     parameters
   )
@@ -238,7 +238,7 @@ calculate_treated <- function(
   )
 
   successful <- bernoulli(n_treat, parameters$drug_efficacy[drugs])
-  treated_index <- clinical_infections[seek_treatment[successful]]
+  treated_index <- clinical_infections[seek_treatment][successful]
 
   # Update those who have been treated
   if (length(treated_index) > 0) {
@@ -251,9 +251,10 @@ calculate_treated <- function(
     api$queue_variable_update(
       human,
       variables$infectivity,
-      infectivity * parameters$drug_rel_c[drugs],
+      infectivity * parameters$drug_rel_c[drugs[successful]],
       treated_index
     )
+    #TODO: Test this goddamn thing
     api$queue_variable_update(
       human,
       variables$drug,

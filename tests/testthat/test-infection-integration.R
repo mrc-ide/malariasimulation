@@ -495,3 +495,61 @@ test_that('boost_immunity does not update when there is no-one to update', {
 
   mockery::expect_called(api$queue_variable_update, 0)
 })
+
+
+test_that('calculate_treated can handle multiple drugs', {
+  parameters <- get_parameters()
+  parameters <- set_drugs(parameters, list(AL_params, DHC_PQP_params))
+  parameters <- set_clinical_treatment(parameters, .5, c(1, 2), c(.5, .5))
+  events <- create_events()
+  states <- create_states(parameters)
+  variables <- create_variables(parameters)
+  individuals <- create_individuals(states, variables, events, parameters)
+
+  api <- mock_api(
+    list(human = list(infectivity = c(.1, .2, .3))),
+    parameters = parameters,
+    timestep = 5
+  )
+
+  with_mock(
+    bernoulli = mockery::mock(rep(TRUE, 3), c(TRUE, TRUE, FALSE)),
+    sample = mockery::mock(c(1, 2)),
+    calculate_treated(api, individuals$human, states, variables, seq(3))
+  )
+
+  mockery::expect_args(
+    api$queue_state_update,
+    1,
+    individuals$human,
+    states$Tr,
+    c(1, 2)
+  )
+
+  mockery::expect_args(
+    api$queue_variable_update,
+    1,
+    individuals$human,
+    variables$infectivity,
+    c(.1, .2) * c(AL_params[[2]], DHC_PQP_params[[2]]),
+    c(1, 2)
+  )
+
+  mockery::expect_args(
+    api$queue_variable_update,
+    2,
+    individuals$human,
+    variables$drug,
+    c(1, 2),
+    c(1, 2)
+  )
+
+  mockery::expect_args(
+    api$queue_variable_update,
+    3,
+    individuals$human,
+    variables$drug_time,
+    5,
+    c(1, 2)
+  )
+})

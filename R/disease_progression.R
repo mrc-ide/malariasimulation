@@ -22,13 +22,23 @@ create_asymptomatic_progression_process <- function(
   variables,
   rate
   ) {
-  source_humans <- api$get_state(human, states$D)
-  to_move <- source_humans[bernoulli(length(source_humans), rate)]
-  api$queue_state_update(human, states$A, to_move)
-  new_infectivity <- asymptomatic_infectivity(
-    get_age(api$get_variable(human, variables$birth, to_move), api$get_timestep()),
-    api$get_variable(human, variables$id, to_move),
-    api$get_parameters()
-  )
-  api$queue_variable_update(human, infectivity, new_infectivity, to_move)
+  function(api) {
+    source_humans <- api$get_state(human, states$D)
+    to_move <- source_humans[bernoulli(length(source_humans), rate)]
+    api$queue_state_update(human, states$A, to_move)
+    new_infectivity <- asymptomatic_infectivity(
+      get_age(
+        api$get_variable(human, variables$birth, to_move),
+        api$get_timestep()
+      ),
+      api$get_variable(human, variables$id, to_move),
+      api$get_parameters()
+    )
+    api$queue_variable_update(
+      human,
+      variables$infectivity,
+      new_infectivity,
+      to_move
+    )
+  }
 }

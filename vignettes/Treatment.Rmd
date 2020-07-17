@@ -1,8 +1,8 @@
 ---
-title: "Human_Interventions"
+title: "Treatment"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Human Interventions}
+  %\VignetteIndexEntry{Treatment}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -22,11 +22,7 @@ library(reshape2)
 suppressPackageStartupMessages(library(cowplot))
 ```
 
-# Equilibrium testing
-
-Malaria treatment can be compared to the equilibrium solution.
-
-Let's parameterise our model...
+Set up some baseline parameters:
 
 ```{r}
 year <- 365
@@ -34,165 +30,52 @@ sim_length <- 50 * year
 human_population <- 1000
 repetitions <- 5
 
-remove_keys <- function(x, n) { for (name in n) { x[[name]] <- NULL }; x }
+jamie_params <- load_parameter_set()
 
-jamie_params <- load_parameter_set("Jamie_parameters.rds")
-
-params <- remove_keys(
-  jamie_params,
-  c(
-    'tl', # unused!
-    'aA', # used for microscopy and pcr calculations
-    'aU', # used for microscopy and pcr calculations
-    'tau',# unused!
-    'f', # used later to calculate blood_meal_rates
-    'Q0', # used later to calculate blood_meal_rates
-    'cd_w', # unused!
-    'cd_p' # unused!
+simparams <- get_parameters(c(
+  translate_jamie(remove_unused_jamie(jamie_params)),
+  list(
+    human_population = human_population,
+    variety_proportions = 1,
+    vector_ode = TRUE
   )
-)
+))
+simparams <- set_drugs(simparams, list(AL_params, DHC_PQP_params))
 
-simparams <- translate_jamie(params)
-simparams[['human_population']] <- human_population
-
-#parameterise single species
-simparams$variety_proportions <- 1
-simparams$blood_meal_rates <- jamie_params$f * jamie_params$Q0
-
-#use the ode vector model
-simparams$vector_ode <- TRUE
-```
-
-Now we can write some utility functions for running our simulation:
-
-```{r}
-estimate_eir <- function() {
-  output <- run_simulation(sim_length, simparams)
-  sum(tail(output$mean_EIR, year))
-}
-
-get_equilibrium <- function(EIR, ft = 0) {
+# NOTE: this equilibrium is calculated using an old model of prophylaxis
+# it is just used as a starting point
+get_equilibrium <- function(EIR, ft) {
   human_equilibrium(EIR = EIR, ft = ft, p = jamie_params, age = 0:99)
 }
-
-get_state_proportions <- function(eq) colSums(eq$states[,c('S', 'D', 'A', 'U', 'T', 'P')])
 ```
 
-Then we can run the simulation over a variety of densities and ft:
+Run the model for some starting EIRs and fts:
 
 ```{r}
-estimated_eirs <- c()
 outputs <- list()
-labels <- list()
-for (density in c(.5, 1, 5, 10, 50, 100, 500, 1000)) {
-  for (ft in c(.25, .5, .75)) {
-    simparams$density <- density
-    simparams$ft <- ft
-    EIR <- estimate_eir()
-    if (EIR > 0) {
-      estimated_eirs <- c(estimated_eirs, EIR)
-      eq <- get_equilibrium(EIR, ft)
-      simparams <- parameterise_equilibrium(get_state_proportions(eq), simparams)
-      output <- run_simulation_with_repetitions(
-        sim_length,
-        repetitions,
-        simparams,
-        parallel=TRUE
-      )
-      outputs[[length(outputs) + 1]] <- output
-      labels[[length(labels) + 1]] <- list(density = density, ft = ft)
-    }
+eirs <- c(1, 10)
+fts <- c(0, .25, .5, .75, 1.)
+
+for (EIR in eirs) {
+  for (ft in fts) {
+    eq <- get_equilibrium(EIR, ft)
+    simparams <- parameterise_human_equilibrium(simparams, eq)
+    simparams <- parameterise_mosquito_equilibrium(simparams, EIR)
+    simparams <- set_clinical_treatment(simparams, ft, c(1, 2), c(.5, .5))
+    output <- run_simulation_with_repetitions(
+      sim_length,
+      repetitions,
+      simparams,
+      parallel=FALSE
+    )
+    outputs[[length(outputs) + 1]] <- output
   }
 }
-```
-
-Let's plot the agreement in state proportions:
-
-```{r, fig.height = 12}
-
-agreement_plots <- lapply(
-  seq_along(outputs),
-  function(i) {
-    output <- outputs[[i]]
-    pop_size <- simparams$human_population
-    state_props <- get_state_proportions(get_equilibrium(estimated_eirs[[i]]))
-    equilibrium <- data.frame(
-      timestep = seq(sim_length),
-      human_S_count = rep(state_props[['S']] * pop_size, sim_length),
-      human_D_count = rep(state_props[['D']] * pop_size, sim_length),
-      human_A_count = rep(state_props[['A']] * pop_size, sim_length),
-      human_U_count = rep(state_props[['U']] * pop_size, sim_length),
-      human_Tr_count = rep(state_props[['T']] * pop_size, sim_length),
-      human_Ph_count = rep(state_props[['P']] * pop_size, sim_length)
-    )
-    ggplot(
-      melt(
-        output[c(
-          'timestep',
-          'repetition',
-          'human_S_count',
-          'human_D_count',
-          'human_A_count',
-          'human_U_count',
-          'human_Tr_count',
-          'human_Ph_count'
-        )],
-        id.vars=c('timestep', 'repetition')
-      )
-    ) + geom_line(
-      aes(
-        x = timestep,
-        y = value,
-        group = interaction(variable, repetition),
-        color = variable,
-        alpha = 1/repetitions
-      )
-    ) + geom_line(
-      data = melt(equilibrium, 'timestep'),
-      aes(x = timestep, y = value, group = variable, color = variable),
-      linetype = 'dashed'
-    )
-  }
-)
-
-# consolidate legends
-legend <- get_legend(agreement_plots[[1]])
-agreement_plots <- lapply(
-  agreement_plots,
-  function(plot) plot + theme(legend.position="none")
-)
-
-plot_grid(
-  plot_grid(
-    plotlist = agreement_plots,
-    labels = vapply(
-      labels,
-      function(l) paste0('d=', l$density, ',ft=', l$ft),
-      character(1)
-    ),
-    ncol = 2
-  ),
-  legend,
-  rel_widths = c(1, .1)
-)
 ```
 
 Let's plot the effect of ft on the relationship between EIR and PfPrev2-10:
 
 ```{r}
-eirs <- vapply(
-  outputs,
-  function(output) {
-    mean(vapply(
-      seq(repetitions),
-      function(r) {
-        sum(tail(subset(output, output$repetition == r)$mean_EIR, year))
-      },
-      numeric(1)
-    ))
-  },
-  numeric(1)
-)
 
 prevs <- vapply(
   outputs,
@@ -213,10 +96,10 @@ prevs <- vapply(
   numeric(1)
 )
 
-fts <- vapply(labels, function(label) label$ft, numeric(1))
+applied_fts <- rep(fts, each=length(eirs))
 
 ggplot(
-  data.frame(eir = eirs, prev = prevs, ft = fts)
+  data.frame(eir = eirs, prev = prevs, ft = applied_fts)
 ) + geom_line(
   aes(x = eir, y = prev, group = ft, colour = ft)
 ) + scale_x_continuous(trans='log10')

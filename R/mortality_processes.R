@@ -8,11 +8,7 @@
 #' @param Tr the treated state
 #' @param variables the model variables to reset
 #' @param events the model events to reset
-<<<<<<< HEAD
 create_mortality_process <- function(human, D, Tr, variables, events) {
-=======
-create_mortality_process <- function(human, D, variables, events, mda_events) {
->>>>>>> 8f6c77f... Allow multiple MDAs
   function(api) {
     parameters <- api$get_parameters()
     timestep <- api$get_timestep()

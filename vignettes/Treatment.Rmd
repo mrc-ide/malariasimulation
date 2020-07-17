@@ -73,34 +73,34 @@ for (EIR in eirs) {
 }
 ```
 
-Let's plot the effect of ft on the relationship between EIR and PfPrev2-10:
+Let's plot the effect of ft on PfPrev2-10:
 
 ```{r}
+applied_fts <- rep(fts, length(eirs))
+starting_eirs <- rep(eirs, each=length(fts))
 
-prevs <- vapply(
-  outputs,
-  function(output) {
-    mean(vapply(
-      seq(repetitions),
-      function(r) {
-        mean(
-          tail(
-            subset(output, output$repetition == r)$prev_2_10,
-            year
-          )
-        ) / simparams$human_population
-      },
-      numeric(1)
-    ))
-  },
-  numeric(1)
+plots <- lapply(
+  eirs,
+  function(EIR) {
+    df <- do.call('rbind', lapply(which(starting_eirs == EIR), function(i) {
+      df <- outputs[[i]][c('timestep', 'prev_2_10', 'n_2_10', 'repetition')]
+      df$prev <- df$prev_2_10 / df$n_2_10
+      df$ft <- applied_fts[[i]]
+      df
+    }))
+    
+    ggplot(
+      df
+    ) + geom_line(
+      aes(x = timestep, y = prev, group = interaction(ft, repetition), colour = ft)
+    )
+  }
 )
 
-applied_fts <- rep(fts, each=length(eirs))
 
-ggplot(
-  data.frame(eir = eirs, prev = prevs, ft = applied_fts)
-) + geom_line(
-  aes(x = eir, y = prev, group = ft, colour = ft)
-) + scale_x_continuous(trans='log10')
+plot_grid(
+  plotlist = plots,
+  labels = eirs,
+  nrow = 2
+)
 ```

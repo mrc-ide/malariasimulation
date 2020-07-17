@@ -254,7 +254,6 @@ calculate_treated <- function(
       infectivity * parameters$drug_rel_c[drugs[successful]],
       treated_index
     )
-    #TODO: Test this goddamn thing
     api$queue_variable_update(
       human,
       variables$drug,

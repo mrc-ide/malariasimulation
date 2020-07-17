@@ -7,7 +7,7 @@
 #' @param D the diseased state
 #' @param variables the model variables to reset
 #' @param events the model events to reset
-create_mortality_process <- function(human, D, variables, events) {
+create_mortality_process <- function(human, D, Tr, variables, events) {
   function(api) {
     parameters <- api$get_parameters()
     timestep <- api$get_timestep()
@@ -16,25 +16,23 @@ create_mortality_process <- function(human, D, variables, events) {
       timestep
     ) / 365
 
-    natural_deaths <- which(
-      bernoulli(
+    died <- which(bernoulli(
         parameters$human_population, parameters$mortality_rate
-      )
-    )
+    ))
     
-    api$render('natural_deaths', length(natural_deaths))
+    api$render('natural_deaths', length(died))
 
-    severe_deaths <- died_from_severe(
-      which(api$get_variable(human, variables$is_severe) == 1),
-      api$get_state(human, D),
-      parameters$v,
-      api$get_state(human, Tr),
-      parameters$fvt
-    )
-
-    api$render('severe_deaths', length(severe_deaths))
-
-    died <- union(natural_deaths, severe_deaths)
+    if (parameters$severe_enabled == 1) {
+      severe_deaths <- died_from_severe(
+        which(api$get_variable(human, variables$is_severe) == 1),
+        api$get_state(human, D),
+        parameters$v,
+        api$get_state(human, Tr),
+        parameters$fvt
+      )
+      api$render('severe_deaths', length(severe_deaths))
+      died <- union(died, severe_deaths)
+    }
 
     if (length(died) > 0) {
       # Calculate new maternal immunities
@@ -60,6 +58,9 @@ create_mortality_process <- function(human, D, variables, events) {
       api$queue_variable_update(human, variables$id, 0, died)
       api$queue_variable_update(human, variables$icm, birth_icm, died)
       api$queue_variable_update(human, variables$ivm, birth_ivm, died)
+      api$queue_variable_update(human, variables$drug, 0, died)
+      api$queue_variable_update(human, variables$drug_time, -1, died)
+      api$queue_variable_update(human, variables$infectivity, 0, died)
       # zeta and zeta group survive rebirth
     }
   }

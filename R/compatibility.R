@@ -84,7 +84,7 @@ remove_unused_jamie <- function(params) {
       'aA', # used for microscopy and pcr calculations
       'aU', # used for microscopy and pcr calculations
       'cd_w', # unused!
-      'cd_p', # unused!
+      'cd_p'  # unused!
     )
   )
 }

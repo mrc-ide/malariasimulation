@@ -80,6 +80,7 @@ create_processes <- function(
     create_mortality_process(
       individuals$human,
       states$D,
+      states$Tr,
       variables,
       events
     ),

@@ -1,5 +1,5 @@
 test_that('mortality_process resets humans correctly', {
-  parameters <- get_parameters()
+  parameters <- get_parameters(list(severe_enabled = 1))
   events <- create_events()
   states <- create_states(parameters)
   variables <- create_variables(parameters)
@@ -8,6 +8,7 @@ test_that('mortality_process resets humans correctly', {
   mortality_process <- create_mortality_process(
     individuals$human,
     states$D,
+    states$Tr,
     variables,
     events
   )
@@ -15,7 +16,8 @@ test_that('mortality_process resets humans correctly', {
   api <- mock_api(
     list(
       human = list(
-        D = c(1, 2),
+        D = c(1),
+        Tr = c(2),
         age = c(20, 24, 5, 39),
         is_severe = c(1., 1., 0., 0.),
         zeta_group = c(1, 1, 2, 2),
@@ -23,15 +25,16 @@ test_that('mortality_process resets humans correctly', {
         IVM = c(1, 2, 3, 4)
       )
     ),
+    parameters = parameters,
     timestep = 2
   )
 
-  # NOTE: `with_mock` preferred here as `stub` suffers from locked binding issues
   with_mock(
     sample = mockery::mock(c(1), c(4)),
     'malariasimulation:::bernoulli' = mockery::mock(
       c(FALSE, FALSE, FALSE, TRUE),
-      c(FALSE, TRUE)
+      c(FALSE),
+      c(TRUE)
     ),
     mortality_process(api)
   )
@@ -62,7 +65,10 @@ test_that('mortality_process resets humans correctly', {
       'IB',
       'ICA',
       'IVA',
-      'ID'
+      'ID',
+      'drug',
+      'drug_time',
+      'infectivity'
     )
   )
 

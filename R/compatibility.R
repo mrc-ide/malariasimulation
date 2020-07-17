@@ -11,10 +11,6 @@ translations = list(
   rD  = inverse_param('rD', 'dd'),
   rU  = inverse_param('rU', 'du'),
   rT  = inverse_param('rT', 'dt'),
-<<<<<<< HEAD
-=======
-  rP  = inverse_param('rP', 'dph'),
->>>>>>> 98f02ec... Add treatment and prophylaxis states:
   dE  = 'de',
   cD  = 'cd',
   cU  = 'cu',

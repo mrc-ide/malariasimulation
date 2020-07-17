@@ -27,7 +27,9 @@ create_mortality_process <- function(human, D, variables, events) {
     severe_deaths <- died_from_severe(
       which(api$get_variable(human, variables$is_severe) == 1),
       api$get_state(human, D),
-      parameters$v
+      parameters$v,
+      api$get_state(human, Tr),
+      parameters$fvt
     )
 
     api$render('severe_deaths', length(severe_deaths))
@@ -63,9 +65,13 @@ create_mortality_process <- function(human, D, variables, events) {
   }
 }
 
-died_from_severe <- function(severe, diseased, v) {
+died_from_severe <- function(severe, diseased, v, treated, fvt) {
   at_risk <- intersect(severe, diseased)
-  at_risk[bernoulli(length(at_risk), v)]
+  treated_at_risk <- intersect(severe, treated)
+  c(
+    at_risk[bernoulli(length(at_risk), v)],
+    treated_at_risk[bernoulli(length(treated_at_risk), fvt)]
+  )
 }
 
 sample_mothers <- function(sampleable, died, groups) {

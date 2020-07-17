@@ -18,8 +18,6 @@ knitr::opts_chunk$set(
 suppressPackageStartupMessages(library(ggplot2))
 library(malariasimulation)
 library(malariaEquilibrium)
-library(reshape2)
-suppressPackageStartupMessages(library(cowplot))
 ```
 
 Set up some baseline parameters:
@@ -42,7 +40,7 @@ simparams <- get_parameters(c(
 ))
 simparams <- set_drugs(simparams, list(AL_params, DHC_PQP_params))
 
-# NOTE: this equilibrium is calculated using an old model of prophylaxis
+# NOTE: this equilibrium is calculated using a different prophylaxis model
 # it is just used as a starting point
 get_equilibrium <- function(EIR, ft) {
   human_equilibrium(EIR = EIR, ft = ft, p = jamie_params, age = 0:99)
@@ -53,54 +51,35 @@ Run the model for some starting EIRs and fts:
 
 ```{r}
 outputs <- list()
-eirs <- c(1, 10)
+starting_EIR <- 10
 fts <- c(0, .25, .5, .75, 1.)
 
-for (EIR in eirs) {
-  for (ft in fts) {
-    eq <- get_equilibrium(EIR, ft)
-    simparams <- parameterise_human_equilibrium(simparams, eq)
-    simparams <- parameterise_mosquito_equilibrium(simparams, EIR)
-    simparams <- set_clinical_treatment(simparams, ft, c(1, 2), c(.5, .5))
-    output <- run_simulation_with_repetitions(
-      sim_length,
-      repetitions,
-      simparams,
-      parallel=FALSE
-    )
-    outputs[[length(outputs) + 1]] <- output
-  }
+for (ft in fts) {
+  eq <- get_equilibrium(starting_EIR, ft)
+  simparams <- parameterise_human_equilibrium(simparams, eq)
+  simparams <- parameterise_mosquito_equilibrium(simparams, starting_EIR)
+  simparams <- set_clinical_treatment(simparams, ft, c(1, 2), c(.5, .5))
+  output <- run_simulation_with_repetitions(
+    sim_length,
+    repetitions,
+    simparams,
+    parallel=TRUE
+  )
+  outputs[[length(outputs) + 1]] <- output
 }
 ```
 
 Let's plot the effect of ft on PfPrev2-10:
 
 ```{r}
-applied_fts <- rep(fts, length(eirs))
-starting_eirs <- rep(eirs, each=length(fts))
-
-plots <- lapply(
-  eirs,
-  function(EIR) {
-    df <- do.call('rbind', lapply(which(starting_eirs == EIR), function(i) {
-      df <- outputs[[i]][c('timestep', 'prev_2_10', 'n_2_10', 'repetition')]
-      df$prev <- df$prev_2_10 / df$n_2_10
-      df$ft <- applied_fts[[i]]
-      df
-    }))
+df <- do.call('rbind', lapply(seq_along(outputs), function(i) {
+  df <- outputs[[i]][c('timestep', 'prev_2_10', 'n_2_10', 'repetition')]
+  df$prev <- df$prev_2_10 / df$n_2_10
+  df$ft <- fts[[i]]
+  df
+}))
     
-    ggplot(
-      df
-    ) + geom_line(
-      aes(x = timestep, y = prev, group = interaction(ft, repetition), colour = ft)
-    )
-  }
-)
-
-
-plot_grid(
-  plotlist = plots,
-  labels = eirs,
-  nrow = 2
+ggplot(df) + geom_line(
+  aes(x = timestep, y = prev, group = interaction(ft, repetition), colour = ft)
 )
 ```

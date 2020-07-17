@@ -12,7 +12,6 @@
 #'
 #' * dd - the delay for humans to move from state D to A
 #' * dt - the delay for humans to move from state Tr to Ph
-#' * dph- the delay for humans to move from state Ph to S
 #' * da - the delay for humans to move from state A to U
 #' * du - the delay for humans to move from state U to S
 #' * del - the delay for mosquitos to move from state E to L
@@ -168,7 +167,6 @@ get_parameters <- function(overrides = list()) {
   parameters <- list(
     dd    = 5,
     dt    = 5,
-    dph   = 25,
     da    = 195,
     du    = 110,
     del   = 6.64,

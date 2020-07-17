@@ -92,8 +92,7 @@ create_processes <- function(
         states$A$name,
         states$D$name,
         states$U$name,
-        states$Tr$name,
-        states$Ph$name
+        states$Tr$name
       )
     ),
     individual::variable_mean_renderer_process(

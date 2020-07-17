@@ -1,5 +1,13 @@
-
-
+#' @title Modelling the progression of the human disease
+#' @description Randomly moves individuals towards the later stages of disease
+#' and updates their infectivity
+#'
+#' @param human the handle for the human individuals
+#' @param from_state the source disease state
+#' @param to_state the destination disease state
+#' @param rate the rate at which to move humans
+#' @param infectivity the handle for the infectivity variable
+#' @param new_infectivity the new infectivity of the progressed individuals
 create_progression_process <- function(
  human,
  from_state,
@@ -16,6 +24,14 @@ create_progression_process <- function(
   }
 }
 
+#' @title Modelling the progression to asymptomatic disease
+#' @description Randomly moves individuals to asymptomatic disease and
+#' calculates the infectivity for their age and immunity
+#'
+#' @param human the handle for the human individuals
+#' @param states the available human states
+#' @param states the available human variables
+#' @param rate the rate of progression to asymptomatic infection
 create_asymptomatic_progression_process <- function(
   human,
   states,

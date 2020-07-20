@@ -28,6 +28,7 @@ create_mda_listeners <- function(
 
   administer_listener <- function(api, target) {
     parameters <- api$get_parameters()
+    timestep <- api$get_timestep()
     successful_treatments <- bernoulli(
       length(target),
       parameters$drug_efficacies[[drug]]
@@ -68,7 +69,6 @@ create_mda_listeners <- function(
       )
 
       # Update drug
-      timestep <- api$get_timestep()
       api$queue_variable_update(human, variables$drug, drug, to_move)
       api$queue_variable_update(human, variables$drug_time, timestep, to_move)
     }

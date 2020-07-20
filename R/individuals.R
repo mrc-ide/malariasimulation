@@ -245,8 +245,7 @@ create_individuals <- function(
   states,
   variables,
   events,
-  parameters,
-  mda_events=NULL
+  parameters
   ) {
   human <- individual::Individual$new(
     'human',
@@ -273,7 +272,10 @@ create_individuals <- function(
     events = c(
       events$infection,
       events$asymptomatic_infection,
-      unlist(mda_events)
+      events$mda_enrollment,
+      events$mda_administer,
+      events$smc_enrollment,
+      events$smc_administer
     )
   )
 

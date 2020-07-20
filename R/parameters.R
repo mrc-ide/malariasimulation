@@ -100,8 +100,9 @@
 #' carrying capacity parameters:
 #'
 #' * model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall
-#' * g0 to g3 - rainfall shape parameters
-#' * h1 to h3 - rainfall shape parameters
+#' * g0 - rainfall fourier parameter
+#' * g - rainfall fourier parameter
+#' * h - rainfall fourier parameters
 #' * gamma - effect of density dependence on late instars relative to early
 #' instars
 #'
@@ -245,12 +246,8 @@ get_parameters <- function(overrides = list()) {
     pvm   = .195768,
     # carrying capacity parameters
     g0    = 2,
-    g1   = .3,
-    g2   = .6,
-    g3   = .9,
-    h1   = .1,
-    h2   = .4,
-    h3   = .7,
+    g     = c(.3, .6, .9),
+    h     = c(.1, .4, .7),
     gamma = 13.25,
     model_seasonality = FALSE,
     # larval mortality rates

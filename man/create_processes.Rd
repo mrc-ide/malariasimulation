@@ -4,7 +4,15 @@
 \alias{create_processes}
 \title{Define model processes}
 \usage{
-create_processes(individuals, states, variables, events, parameters, odes)
+create_processes(
+  individuals,
+  states,
+  variables,
+  events,
+  parameters,
+  odes,
+  mda_events
+)
 }
 \arguments{
 \item{individuals}{a list of individuals in the model}
@@ -18,6 +26,8 @@ create_processes(individuals, states, variables, events, parameters, odes)
 \item{parameters}{a list of model parameters}
 
 \item{odes}{a list of vector ode models for each species}
+
+\item{mda_events}{a list of lists of events for each MDA}
 }
 \description{
 create_processes, defines the functions which describe how each individual's

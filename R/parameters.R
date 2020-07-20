@@ -153,6 +153,19 @@
 #' clinically diseased (these values refer to the index in drug_* parameters)
 #' * clinical_treatment_coverage - a vector of coverage values for each drug
 #'
+#' MDA parameters:
+#' I recommend setting these with convenience functions in `mda_parameters.R`
+#'
+#' * mda - whether to apply an MDA or not
+#' * mda_drug - the index of the drug to use
+#' * mda_start - the first timestep for the drug to be distributed
+#' * mda_end - the last timestep for the drug to be distributed
+#' * mda_frequency - how often to distribute drugs
+#' * mda_min_age - the min age of the target population
+#' * mda_max_age - the max age of the target population
+#' * mda_coverage - the proportion of the target population that will be covered
+#' * smc* - as for mda*
+#'
 #' miscellaneous:
 #'
 #' * human_population - the number of humans to model
@@ -270,6 +283,23 @@ get_parameters <- function(overrides = list()) {
     clinical_treatment_drugs     = numeric(0),
     clinical_treatment_coverages = numeric(0),
     ft = 0,
+    # MDA
+    mda = FALSE,
+    mda_drug = 0,
+    mda_start = -1,
+    mda_end = -1,
+    mda_frequency = -1,
+    mda_min_age = -1,
+    mda_max_age = -1,
+    mda_coverage = 0,
+    smc = FALSE,
+    smc_drug = 0,
+    smc_start = -1,
+    smc_end = -1,
+    smc_frequency = -1,
+    smc_min_age = -1,
+    smc_max_age = -1,
+    smc_coverage = 0,
     # misc
     human_population = 100,
     mosquito_limit   = 100 * 1000,

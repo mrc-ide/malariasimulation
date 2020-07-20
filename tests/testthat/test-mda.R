@@ -1,8 +1,8 @@
 
 test_that('mda initialises with full coverage correctly', {
   parameters <- get_parameters()
-  parameters <- add_drug(parameters, 1)
-  parameters <- add_mda(
+  parameters <- set_drugs(parameters, list(SP_AQ_params))
+  parameters <- set_mda(
     parameters,
     1, # drug
     50, # start timestep
@@ -16,73 +16,61 @@ test_that('mda initialises with full coverage correctly', {
   events <- create_events()
   states <- create_states(parameters)
   variables <- create_variables(parameters)
-  mda_events <- create_mda_events(parameters)
-  individuals <- create_individuals(states, variables, events, parameters, mda_events)
-  listeners <- create_mda_listeners(
-    individuals$human,
-    states,
-    variables,
-    1,
-    mda_events[[1]]
-  )
-
-  api <- mock_api(
-    list(
-      human = list(
-        U = c(1),
-        A = c(2),
-        S = c(4),
-        D = c(3),
-        birth = c(2, -365 * 20, -365 * 5, -365 * 7)
-      )
-    ),
-    timestep = 50,
-    parameters = parameters
-  )
-
-  m <- mockery::mock()
-  mockery::stub(listeners$mda_enrollment_listener, 'mda_administer_listener', m)
-  listeners$mda_enrollment_listener(api, NULL)
-
-  mockery::expect_args(
-    m,
-    1,
-    api,
-    c(3, 4),
-    1
-  )
-})
-
-test_that('mda moves the diseased and non-diseased population correctly', {
-  parameters <- get_parameters()
-  parameters <- add_drug(parameters, 1)
-  parameters <- add_mda(
-    parameters,
-    1, # drug
-    50, # start timestep
-    50 + 365 * 5, # last timestep
-    100, # frequency
-    5 * 365, # min age
-    10 * 365, # max age
-    1 # coverage
-  )
-  events <- create_events()
-  mda_events <- create_mda_events(parameters)
-  states <- create_states(parameters)
-  variables <- create_variables(parameters)
-  individuals <- create_individuals(
+  individuals <- create_individuals(states, variables, events, parameters)
+  create_event_based_processes(
+    individuals,
     states,
     variables,
     events,
-    parameters,
-    mda_events
+    parameters
   )
-  listeners <- create_mda_listeners(
-    individuals$human,
+
+  api <- mock_api(
+    list(
+      human = list(
+        U = c(1),
+        A = c(2),
+        S = c(4),
+        D = c(3),
+        birth = c(2, -365 * 20, -365 * 5, -365 * 7)
+      )
+    ),
+    timestep = 50,
+    parameters = parameters
+  )
+
+  listener <- events$mda_enrollment$listeners[[1]]
+
+  m <- mockery::mock()
+  mockery::stub(listener, 'administer_listener', m)
+  listener(api, NULL)
+
+  mockery::expect_args(m, 1, api, c(3, 4))
+})
+
+test_that('MDA moves the diseased and non-diseased population correctly', {
+  parameters <- get_parameters()
+  parameters <- set_drugs(parameters, list(SP_AQ_params))
+  parameters <- set_mda(
+    parameters,
+    1, # drug
+    50, # start timestep
+    50 + 365 * 5, # last timestep
+    100, # frequency
+    5 * 365, # min age
+    10 * 365, # max age
+    1 # coverage
+  )
+  events <- create_events()
+  states <- create_states(parameters)
+  variables <- create_variables(parameters)
+  individuals <- create_individuals(states, variables, events, parameters)
+  create_event_based_processes(
+    individuals,
     states,
     variables,
-    1,
-    mda_events[[1]]
+    events,
+    parameters
   )
 
   api <- mock_api(
@@ -92,14 +80,17 @@ test_that('mda moves the diseased and non-diseased population correctly', {
         A = c(2),
         D = c(3),
         S = c(4),
-        birth = c(2, -365 * 20, -365 * 5, -365 * 7)
+        birth = c(2, -365 * 20, -365 * 5, -365 * 7),
+        infectivity = c(.1, .2, .3, .4)
       )
     ),
     timestep = 50,
     parameters = parameters
   )
 
-  listeners$mda_administer_listener(api, c(3, 4))
+  listener <- events$mda_administer$listeners[[1]]
+  mockery::stub(listener, 'bernoulli', mockery::mock(c(TRUE, TRUE)))
+  listener(api, c(3, 4))
 
   mockery::expect_args(
     api$queue_state_update,
@@ -113,65 +104,69 @@ test_that('mda moves the diseased and non-diseased population correctly', {
     api$queue_state_update,
     2,
     individuals$human,
-    states$Ph,
+    states$S,
     4
+  )
+
+  mockery::expect_args(
+    api$queue_variable_update,
+    1,
+    individuals$human,
+    variables$infectivity,
+    c(.3, .4) * SP_AQ_params[[2]],
+    c(3, 4)
+  )
+
+  mockery::expect_args(
+    api$queue_variable_update,
+    2,
+    individuals$human,
+    variables$drug,
+    1,
+    c(3, 4)
+  )
+
+  mockery::expect_args(
+    api$queue_variable_update,
+    3,
+    individuals$human,
+    variables$drug_time,
+    50,
+    c(3, 4)
   )
 
   mockery::expect_args(
     api$schedule,
     1,
-    mda_events[[1]]$mda_administer,
+    events$mda_administer,
     c(3, 4),
     100
   )
 })
 
-test_that('multiple mdas can be scheduled', {
+test_that('SMC moves the diseased and non-diseased population correctly', {
   parameters <- get_parameters()
-  parameters <- add_drug(parameters, .7)
-  parameters <- add_drug(parameters, .6)
-  parameters <- add_mda(
+  parameters <- set_drugs(parameters, list(SP_AQ_params))
+  parameters <- set_smc(
     parameters,
     1, # drug
     50, # start timestep
     50 + 365 * 5, # last timestep
     100, # frequency
-    5 * 365, # min age
-    10 * 365, # max age
-    1 # coverage
-  )
-  parameters <- add_mda(
-    parameters,
-    2, # drug
-    50, # start timestep
-    50 + 365 * 5, # last timestep
-    200, # frequency
-    10 * 365, # min age
-    30 * 365, # max age
+    0, # min age
+    6 * 365, # max age
     1 # coverage
   )
   events <- create_events()
   states <- create_states(parameters)
   variables <- create_variables(parameters)
-  mda_events <- create_mda_events(parameters)
-  individuals <- create_individuals(
+  individuals <- create_individuals(states, variables, events, parameters)
+  create_event_based_processes(
+    individuals,
     states,
     variables,
     events,
-    parameters,
-    mda_events
-  )
-  listeners <- lapply(
-    seq_along(mda_events),
-    function(i) {
-      create_mda_listeners(
-        individuals$human,
-        states,
-        variables,
-        i,
-        mda_events[[i]]
-      )
-    }
+    parameters
   )
 
   api <- mock_api(
@@ -181,43 +176,40 @@ test_that('multiple mdas can be scheduled', {
         A = c(2),
         D = c(3),
         S = c(4),
-        birth = c(2, -365 * 20, -365 * 5, -365 * 7)
+        birth = c(2, -365 * 20, -365 * 5, -365 * 7),
+        infectivity = c(1, 2, 3, 4)
       )
     ),
     timestep = 50,
     parameters = parameters
   )
 
-  bernoulli_mock <- mockery::mock(rep(TRUE, 2), rep(TRUE, 1))
-  mockery::stub(
-    listeners[[1]]$mda_administer_listener,
-    'bernoulli',
-    bernoulli_mock
-  )
-  mockery::stub(
-    listeners[[2]]$mda_administer_listener,
-    'bernoulli',
-    bernoulli_mock
-  )
-  listeners[[1]]$mda_administer_listener(api, c(3, 4))
-  listeners[[2]]$mda_administer_listener(api, c(2))
+  listener <- events$smc_administer$listeners[[1]]
+  mockery::stub(listener, 'bernoulli', mockery::mock(c(TRUE, FALSE)))
+  listener(api, c(1, 3))
 
-  mockery::expect_args(bernoulli_mock, 1, 2, .7)
-  mockery::expect_args(bernoulli_mock, 2, 1, .6)
+  mockery::expect_args(
+    api$queue_state_update,
+    1,
+    individuals$human,
+    states$S,
+    1
+  )
+
+  mockery::expect_args(
+    api$queue_variable_update,
+    1,
+    individuals$human,
+    variables$infectivity,
+    1 * SP_AQ_params[[2]],
+    1 
+  )
 
   mockery::expect_args(
     api$schedule,
     1,
-    mda_events[[1]]$mda_administer,
-    c(3, 4),
+    events$smc_administer,
+    c(1, 3),
     100
-  )
-
-  mockery::expect_args(
-    api$schedule,
-    2,
-    mda_events[[2]]$mda_administer,
-    2,
-    200
   )
 })

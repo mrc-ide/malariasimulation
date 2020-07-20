@@ -17,14 +17,7 @@ run_simulation <- function(timesteps, parameters = NULL) {
   }
   states <- create_states(parameters)
   variables <- create_variables(parameters)
-  mda_events <- create_mda_events(parameters)
-  individuals <- create_individuals(
-    states,
-    variables,
-    events,
-    parameters,
-    mda_events
-  )
+  individuals <- create_individuals(states, variables, events, parameters)
   create_event_based_processes(individuals, states, variables, events, parameters)
   odes <- parameterise_ode(parameters)
   attach_mda_listeners(individuals$human, states, variables, mda_events)
@@ -36,8 +29,7 @@ run_simulation <- function(timesteps, parameters = NULL) {
       variables,
       events,
       parameters,
-      odes,
-      mda_events
+      odes
     ),
     end_timestep = timesteps,
     parameters = parameters,

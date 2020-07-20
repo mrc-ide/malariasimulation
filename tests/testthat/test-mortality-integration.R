@@ -1,7 +1,7 @@
 test_that('mortality_process resets humans correctly', {
   parameters <- get_parameters(list(severe_enabled = 1))
-  parameters <- add_drug(parameters, 1)
-  parameters <- add_mda(
+  parameters <- set_drugs(parameters, list(SP_AQ_params))
+  parameters <- set_mda(
     parameters,
     1, # drug
     50, # start timestep
@@ -14,13 +14,11 @@ test_that('mortality_process resets humans correctly', {
   events <- create_events()
   states <- create_states(parameters)
   variables <- create_variables(parameters)
-  mda_events <- create_mda_events(parameters)
   individuals <- create_individuals(
     states,
     variables,
     events,
-    parameters,
-    mda_events
+    parameters
   )
 
   mortality_process <- create_mortality_process(
@@ -28,8 +26,7 @@ test_that('mortality_process resets humans correctly', {
     states$D,
     states$Tr,
     variables,
-    events,
-    mda_events
+    events
   )
 
   api <- mock_api(
@@ -96,8 +93,7 @@ test_that('mortality_process resets humans correctly', {
     c(
       'infection',
       'asymptomatic_infection',
-      'mda_administer_1'
+      'mda_administer'
     )
   )
-
 })

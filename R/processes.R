@@ -72,14 +72,8 @@ create_processes <- function(
     individual::fixed_probability_state_change_process(
       individuals$human$name,
       states$Tr$name,
-      states$Ph$name,
-      1. - exp(-1./parameters$dt)
-    ),
-    individual::fixed_probability_state_change_process(
-      individuals$human$name,
-      states$Ph$name,
       states$S$name,
-      1. - exp(-1./parameters$dph)
+      1. - exp(-1./parameters$dt)
     ),
 
     # schedule infections for humans and set last_boosted_*
@@ -95,8 +89,7 @@ create_processes <- function(
       states$D,
       states$Tr,
       variables,
-      events,
-      mda_events
+      events
     ),
 
     # Rendering processes
@@ -244,6 +237,40 @@ create_event_based_processes <- function(individuals, states, variables, events,
       }
     }
   )
+
+  if (parameters$mda == 1) {
+    mda_listeners <- create_mda_listeners(
+      individuals$human,
+      states,
+      variables,
+      events$mda_administer,
+      parameters$mda_drug,
+      parameters$mda_end,
+      parameters$mda_frequency,
+      parameters$mda_min_age,
+      parameters$mda_max_age,
+      parameters$mda_coverage
+    )
+    events$mda_enrollment$add_listener(mda_listeners$enrollment_listener)
+    events$mda_administer$add_listener(mda_listeners$administer_listener)
+  }
+
+  if (parameters$smc == 1) {
+    smc_listeners <- create_mda_listeners(
+      individuals$human,
+      states,
+      variables,
+      events$smc_administer,
+      parameters$smc_drug,
+      parameters$smc_end,
+      parameters$smc_frequency,
+      parameters$smc_min_age,
+      parameters$smc_max_age,
+      parameters$smc_coverage
+    )
+    events$smc_enrollment$add_listener(smc_listeners$enrollment_listener)
+    events$smc_administer$add_listener(smc_listeners$administer_listener)
+  }
 }
 
 # =================
@@ -269,13 +296,11 @@ create_exponential_decay_process <- function(individual, variable, rate) {
 create_setup_process <- function(events) {
   function(api) {
     parameters <- api$get_parameters()
-    for (mda_index in seq_along(parameters$mda_drug)) {
-      api$schedule(
-        events$mda_enrollment,
-        parameters$mda_start[[mda_index]],
-        NULL,
-        mda_index
-      )
+    if (parameters$mda) {
+      api$schedule(events$mda_enrollment, parameters$mda_start, NULL)
+    }
+    if (parameters$smc) {
+      api$schedule(events$smc_enrollment, parameters$smc_start, NULL)
     }
   }
 }

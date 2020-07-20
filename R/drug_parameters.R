@@ -8,10 +8,14 @@ DHC_PQP_params <- c(.95, 0.09434, 4.4, 28.1)
 #' @export
 AL_params <- c(.95, 0.05094, 11.3, 10.6)
 
+#' @title Preset parameters for the SP-AQ drug
+#' @export
+SP_AQ_params <- c(0.9, 0.32, 4.3, 38.1)
+
 #' @title Parameterise drugs to use in the model
 #'
 #' @param parameters the model parameters
-#' @param drugs a list of drug parameters, either preset or created by `create_drug`
+#' @param drugs a list of drug parameters, can be set using the above presets
 #' @export
 set_drugs <- function(parameters, drugs) {
   keys <- c(

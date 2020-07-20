@@ -1,35 +1,23 @@
 library(malariasimulation)
 library(malariaEquilibrium)
+library(profvis)
 
-sim_length <- 1000
+year <- 365
+sim_length <- 10 * year
+human_population <- 60000
 
-remove_keys <- function(x, n) { for (name in n) { x[[name]] <- NULL }; x }
+jamie_params <- load_parameter_set()
 
-jamie_params <- load_parameter_set("Jamie_parameters.rds")
-
-params <- remove_keys(
-  jamie_params,
-  c(
-    's2',
-    'rT', # makes sense
-    'rP', # makes sense
-    'tl',
-    'g_inf',
-    'fd0',
-    'aA',
-    'aU',
-    'b1',
-    'PM',
-    'tau',
-    'f',
-    'Q0',
-    'cd_w',
-    'cd_p',
-    'cT',
-    'dE' # not sure if this translation works
+simparams <- get_parameters(c(
+  translate_jamie(remove_unused_jamie(jamie_params)),
+  list(
+    human_population = human_population,
+    variety_proportions = 1,
+    vector_ode = TRUE
   )
-)
+))
 
-simparams <- translate_jamie(params)
+simparams <- set_drugs(simparams, list(AL_params, DHC_PQP_params))
+simparams <- set_clinical_treatment(simparams, .5, c(1, 2), c(.5, .5))
 
-output <- run_simulation(sim_length, simparams)
+profvis({output <- run_simulation(sim_length, simparams)})

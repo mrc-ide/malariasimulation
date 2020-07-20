@@ -4,7 +4,9 @@
 \name{AL_params}
 \alias{AL_params}
 \title{Preset parameters for the AL drug}
-\format{An object of class \code{numeric} of length 4.}
+\format{
+An object of class \code{numeric} of length 4.
+}
 \usage{
 AL_params
 }

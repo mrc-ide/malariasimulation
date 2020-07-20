@@ -22,7 +22,7 @@ set_drugs <- function(parameters, drugs) {
   )
   for (drug in seq_along(drugs)) {
     for (i in seq_along(drugs[[drug]])) {
-      parameters[[keys[[i]]]][[drug]] <- drugs[[drug]][[i]]
+      parameters[[keys[[i]]]] <- c(parameters[[keys[[i]]]], drugs[[drug]][[i]])
     }
   }
   parameters
@@ -33,7 +33,7 @@ set_drugs <- function(parameters, drugs) {
 #' @param parameters the model parameters
 #' @param ft probability of seeking treatment
 #' @param drugs vector of drugs indecies that are available
-#' @param coverage vector of coverages for those drugs
+#' @param coverages vector of coverages for those drugs
 #' @export
 set_clinical_treatment <- function(parameters, ft, drugs, coverages) {
   parameters$ft <- ft

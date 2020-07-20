@@ -4,7 +4,9 @@
 \name{DHC_PQP_params}
 \alias{DHC_PQP_params}
 \title{Preset parameters for the DHC-PQP drug}
-\format{An object of class \code{numeric} of length 4.}
+\format{
+An object of class \code{numeric} of length 4.
+}
 \usage{
 DHC_PQP_params
 }

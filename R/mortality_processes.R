@@ -5,6 +5,7 @@
 #' newborns.
 #' @param human the human individual
 #' @param D the diseased state
+#' @param Tr the treated state
 #' @param variables the model variables to reset
 #' @param events the model events to reset
 create_mortality_process <- function(human, D, Tr, variables, events) {

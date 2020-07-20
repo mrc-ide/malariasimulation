@@ -13,7 +13,7 @@ set_clinical_treatment(parameters, ft, drugs, coverages)
 
 \item{drugs}{vector of drugs indecies that are available}
 
-\item{coverage}{vector of coverages for those drugs}
+\item{coverages}{vector of coverages for those drugs}
 }
 \description{
 Parameterise clinical treatment

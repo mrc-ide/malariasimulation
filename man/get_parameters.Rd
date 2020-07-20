@@ -14,7 +14,6 @@ fixed state transitions:
 \itemize{
 \item dd - the delay for humans to move from state D to A
 \item dt - the delay for humans to move from state Tr to Ph
-\item dph- the delay for humans to move from state Ph to S
 \item da - the delay for humans to move from state A to U
 \item du - the delay for humans to move from state U to S
 \item del - the delay for mosquitos to move from state E to L

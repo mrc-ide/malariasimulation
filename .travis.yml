@@ -1,0 +1,10 @@
+language: minimal
+
+services:
+  - docker
+
+before_install:
+  - docker build . -t mrcide/ms:ci -f docker/Dockerfile.dev
+
+script:
+  - docker run --rm -v $(pwd):/opt -w /opt mrcide/ms:ci R -e 'devtools::check(vignettes = FALSE)'

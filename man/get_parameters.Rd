@@ -112,8 +112,9 @@ mortality parameters:
 carrying capacity parameters:
 \itemize{
 \item model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall
-\item g0 to g3 - rainfall shape parameters
-\item h1 to h3 - rainfall shape parameters
+\item g0 - rainfall fourier parameter
+\item g - rainfall fourier parameter
+\item h - rainfall fourier parameters
 \item gamma - effect of density dependence on late instars relative to early
 instars
 }
@@ -169,6 +170,20 @@ model prophylaxis for each drug
 \item clinical_treatment_drugs - a vector of drugs that are avaliable for
 clinically diseased (these values refer to the index in drug_* parameters)
 \item clinical_treatment_coverage - a vector of coverage values for each drug
+}
+
+MDA parameters:
+I recommend setting these with convenience functions in \code{mda_parameters.R}
+\itemize{
+\item mda - whether to apply an MDA or not
+\item mda_drug - the index of the drug to use
+\item mda_start - the first timestep for the drug to be distributed
+\item mda_end - the last timestep for the drug to be distributed
+\item mda_frequency - how often to distribute drugs
+\item mda_min_age - the min age of the target population
+\item mda_max_age - the max age of the target population
+\item mda_coverage - the proportion of the target population that will be covered
+\item smc* - as for mda*
 }
 
 miscellaneous:

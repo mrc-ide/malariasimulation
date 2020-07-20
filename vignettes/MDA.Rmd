@@ -16,63 +16,86 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(cowplot))
 library(malariasimulation)
 library(malariaEquilibrium)
 library(reshape2)
-suppressPackageStartupMessages(library(cowplot))
 ```
 
 # Parameterisation
 
-We are going to set the default parameters to run the simulation from equilibrium.
+We are going to set the default parameters to run the simulation from an equilibrium.
 
 ```{r}
 year <- 365
-sim_length <- 50 * year
+sim_length <- 150 * year
 human_population <- 1000
+starting_EIR <- 10
 repetitions <- 5
 
-remove_keys <- function(x, n) { for (name in n) { x[[name]] <- NULL }; x }
+jamie_params <- load_parameter_set()
+eq <- human_equilibrium(EIR = starting_EIR, ft = 0, p = jamie_params, age = 0:99)
 
-jamie_params <- load_parameter_set("Jamie_parameters.rds")
-
-params <- remove_keys(
-  jamie_params,
-  c(
-    'tl', # unused!
-    'aA', # used for microscopy and pcr calculations
-    'aU', # used for microscopy and pcr calculations
-    'tau',# unused!
-    'f', # used later to calculate blood_meal_rates
-    'Q0', # used later to calculate blood_meal_rates
-    'cd_w', # unused!
-    'cd_p' # unused!
+simparams <- get_parameters(c(
+  translate_jamie(remove_unused_jamie(jamie_params)),
+  list(
+    human_population = human_population,
+    variety_proportions = 1,
+    vector_ode = TRUE
   )
-)
+))
 
-simparams <- translate_jamie(params)
-simparams[['human_population']] <- human_population
+simparams <- set_drugs(simparams, list(SP_AQ_params))
+simparams <- parameterise_human_equilibrium(simparams, eq)
+simparams <- parameterise_mosquito_equilibrium(simparams, starting_EIR)
 
-#parameterise single species
-simparams$variety_proportions <- 1
-simparams$blood_meal_rates <- jamie_params$f * jamie_params$Q0
 
-#use the ode vector model
-simparams$vector_ode <- TRUE
-
-#set a probability of seeking treatment
-simparams$ft <- .5
-
-estimate_eir <- function() {
-  output <- run_simulation(sim_length, simparams)
-  sum(tail(output$mean_EIR, year))
+# Plotting functions
+plot_prevalence <- function(output) {
+  output$prev <- output$prev_2_10 / output$n_2_10
+  ggplot(output) + geom_line(
+    aes(x = timestep, y = prev, group = repetition, alpha = 1/repetitions)
+  )
 }
 
-get_equilibrium <- function(EIR, ft = 0) {
-  human_equilibrium(EIR = EIR, ft = ft, p = jamie_params, age = 0:99)
+plot_state_counts <- function(output) {
+  ggplot(
+    melt(
+      output[c(
+        'timestep',
+        'repetition',
+        'human_S_count',
+        'human_D_count',
+        'human_A_count',
+        'human_U_count'
+      )],
+      id.vars=c('timestep', 'repetition')
+    )
+  ) + geom_line(
+    aes(
+      x = timestep,
+      y = value,
+      group = interaction(variable, repetition),
+      color = variable,
+      alpha = 1/repetitions
+    )
+  )
 }
 
-get_state_proportions <- function(eq) colSums(eq$states[,c('S', 'D', 'A', 'U', 'T', 'P')])
+add_mda_lines <- function(plot, events) {
+  plot + geom_vline(
+    data = events,
+    mapping = aes(xintercept=timestep),
+    color="blue"
+  ) + geom_text(
+    data = events,
+    mapping = aes(x = timestep, y = 0, label = name),
+    size = 4,
+    angle = 90,
+    vjust = -0.4,
+    hjust = 0
+  )
+}
 ```
 
 Then we can run the simulation for a variety of MDA strategies:
@@ -82,27 +105,25 @@ Then we can run the simulation for a variety of MDA strategies:
 This is a dose of SP-AQ to 80% of the population once a year.
 
 ```{r}
-EIR <- 5
 mdaparams <- simparams
-eq <- get_equilibrium(EIR, mdaparams$ft)
-
-# Add drug SQ - AP
-mdaparams <- add_drug(mdaparams, .9, .32, 25)
 
 # Add MDA strategy
-mdaparams <- add_mda(
+mda_events = data.frame(
+  timestep = c(50, 100) * 365,
+  name=c("MDA starts", "MDA ends")
+)
+
+mdaparams <- set_mda(
   mdaparams,
   1,
-  25 * 365,
-  50 * 365,
+  mda_events$timestep[[1]],
+  mda_events$timestep[[2]],
   365,
   0,
   200 * 365,
   .8
 )
 
-mdaparams <- parameterise_equilibrium(get_state_proportions(eq), mdaparams)
-mdaparams$density <- equilibrium_density(parameters, EIR)
 output <- run_simulation_with_repetitions(
   sim_length,
   repetitions,
@@ -110,37 +131,31 @@ output <- run_simulation_with_repetitions(
   parallel=TRUE
 )
 
-cowplot(
-  plot_counts_against_equilibrium(
-    output,
-    simparams$human_population,
-    get_state_proportions(eq)
-  ),
-  plot_pfprev2_10(output)
+plot_grid(
+  add_mda_lines(plot_state_counts(output), mda_events),
+  add_mda_lines(plot_prevalence(output), mda_events),
+  nrows = 2
 )
 ```
 
 ## SMC
 
-This is a dose of SP-AQ to 90% of .5 - 5 year olds once a year a month before the peak season for mosquitos.
+This is a dose of SP-AQ to 90% of 2 - 11 year olds once a year a month before the peak season for mosquitos.
 
 ```{r}
-EIR <- 5
 smcparams <- simparams
-eq <- get_equilibrium(EIR, smcparams$ft)
-simparams <- parameterise_equilibrium(get_state_proportions(eq), smcparams)
-simparams$density <- equilibrium_density(parameters, EIR)
 
-# Add drug SQ - AP
-mdaparams <- add_drug(mdaparams, .9, .32, 25)
-
-# Add MDA strategy
-peak <- peak_season(parameters)
-mdaparams <- add_mda(
-  mdaparams,
+# Add SMC strategy
+peak <- peak_season_offset(parameters)
+smc_events = data.frame(
+  timestep = c(50, 100) * 365 + peak - 30,
+  name=c("SMC starts", "SMC ends")
+)
+smcparams <- set_smc(
+  smcparams,
   1,
-  25 * 365 + peak - 30,
-  50 * 365,
+  smc_events$timestep[[1]],
+  smc_events$timestep[[2]],
   365,
   2 * 365 - 1,
   11 * 365,
@@ -151,15 +166,12 @@ output <- run_simulation_with_repetitions(
   sim_length,
   repetitions,
   simparams,
-  parallel=TRUE
+  parallel=FALSE
 )
 
-cowplot(
-  plot_counts_against_equilibrium(
-    output,
-    simparams$human_population,
-    get_state_proportions(eq)
-  ),
-  plot_pfprev2_10(output)
+plot_grid(
+  add_mda_lines(plot_state_counts(output), smc_events),
+  add_mda_lines(plot_pfprev2_10(output), smc_events),
+  nrows = 2
 )
 ```

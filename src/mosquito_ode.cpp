@@ -11,12 +11,22 @@
 integration_function_t create_ode(MosquitoModel& model) {
     return [&model](const state_t& x , state_t& dxdt , double t) {
         auto incubation_survival = exp(-model.mu * model.tau);
+        auto K = carrying_capacity(
+            t,
+            model.model_seasonality,
+            model.days_per_timestep,
+            model.g0,
+            model.g,
+            model.h,
+            model.K0,
+            model.R_bar
+        );
         dxdt[0] = model.beta * (x[3] + x[4] + x[5]) //new eggs
             - x[0] / model.de //growth to late larval stage
-            - x[0] * model.mue * (1 + (x[0] + x[1]) / model.K0); //early larval deaths
+            - x[0] * model.mue * (1 + (x[0] + x[1]) / K); //early larval deaths
         dxdt[1] = x[0] / model.de //growth from early larval
             - x[1] / model.dl //growth to pupal
-            - x[1] * model.mul * (1 + model.gamma * (x[0] + x[1]) / model.K0); //late larval deaths
+            - x[1] * model.mul * (1 + model.gamma * (x[0] + x[1]) / K); //late larval deaths
         dxdt[2] = x[1] / model.dl //growth to pupae
             - x[2] / model.dp //growth to adult
             - x[2] * model.mup; // death of pupae
@@ -44,7 +54,13 @@ MosquitoModel::MosquitoModel(
     double mup,
     double foim,
     double mu,
-    size_t tau
+    size_t tau,
+    bool model_seasonality,
+    double days_per_timestep,
+    double g0,
+    std::vector<double> g,
+    std::vector<double> h,
+    double R_bar
     ):
     beta(beta),
     de(de),
@@ -57,7 +73,13 @@ MosquitoModel::MosquitoModel(
     mup(mup),
     foim(foim),
     mu(mu),
-    tau(tau)
+    tau(tau),
+    model_seasonality(model_seasonality),
+    days_per_timestep(days_per_timestep),
+    g0(g0),
+    g(g),
+    h(h),
+    R_bar(R_bar)
     {
     for (auto i = 0u; i < tau; ++i) {
         lagged_incubating.push(init[3] * foim);
@@ -96,7 +118,13 @@ Rcpp::XPtr<MosquitoModel> create_mosquito_model(
     double mup,
     double foim,
     double mu,
-    size_t tau
+    size_t tau,
+    bool model_seasonality,
+    double days_per_timestep,
+    double g0,
+    std::vector<double> g,
+    std::vector<double> h,
+    double R_bar
     ) {
     auto model = new MosquitoModel(
         init,
@@ -111,7 +139,13 @@ Rcpp::XPtr<MosquitoModel> create_mosquito_model(
         mup,
         foim,
         mu,
-        tau
+        tau,
+        model_seasonality,
+        days_per_timestep,
+        g0,
+        g,
+        h,
+        R_bar
     );
     return Rcpp::XPtr<MosquitoModel>(model, true);
 }

@@ -104,7 +104,7 @@ equilibrium_total_M <- function(parameters, EIR) {
 #' @param parameters to work from
 #' @export
 peak_season_offset <- function(parameters) {
-  argmax(vnapply(seq(365), function(t) {
+  which.max(vnapply(seq(365), function(t) {
     carrying_capacity(
       t,
       parameters$model_seasonality,

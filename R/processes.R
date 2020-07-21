@@ -232,12 +232,14 @@ create_event_based_processes <- function(individuals, states, variables, events,
   )
   events$infection$add_listener(
     function(api, target) {
-      api$queue_variable_update(
-        individuals$human,
-        variables$infectivity,
-        parameters$cd,
-        target
-      )
+      if (length(target) > 0) {
+        api$queue_variable_update(
+          individuals$human,
+          variables$infectivity,
+          parameters$cd,
+          target
+        )
+      }
     }
   )
   events$asymptomatic_infection$add_listener(
@@ -245,20 +247,22 @@ create_event_based_processes <- function(individuals, states, variables, events,
   )
   events$asymptomatic_infection$add_listener(
     function(api, target) {
-      new_infectivity <- asymptomatic_infectivity(
-        get_age(
-          api$get_variable(individuals$human, variables$birth, target),
-          api$get_timestep()
-        ),
-        api$get_variable(individuals$human, variables$id, target),
-        api$get_parameters()
-      )
-      api$queue_variable_update(
-        individuals$human,
-        variables$infectivity,
-        new_infectivity,
-        target
-      )
+      if (length(target) > 0) {
+        new_infectivity <- asymptomatic_infectivity(
+          get_age(
+            api$get_variable(individuals$human, variables$birth, target),
+            api$get_timestep()
+          ),
+          api$get_variable(individuals$human, variables$id, target),
+          api$get_parameters()
+        )
+        api$queue_variable_update(
+          individuals$human,
+          variables$infectivity,
+          new_infectivity,
+          target
+        )
+      }
     }
   )
 

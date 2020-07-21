@@ -2,13 +2,8 @@
 # easy testing, documentation generation and benchmarking
 FROM rocker/r-ver:4.0.2
 
-RUN apt-get update && apt-get -y install \
-  texlive-latex-base \
-  texlive-fonts-extra \
-  texinfo
-
-RUN R -e "install.packages(c('remotes', 'testthat'))"
+RUN R -e "install.packages(c('remotes', 'testthat', 'mockery'))"
 
 COPY DESCRIPTION /home/docker/ms/
 
-RUN R -e "remotes::install_deps('/home/docker/ms', dependencies = TRUE)"
+RUN R -e "remotes::install_deps('/home/docker/ms', dependencies = 'Imports')"

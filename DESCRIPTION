@@ -25,7 +25,8 @@ Imports:
   individual,
   Rcpp,
   BH,
-  statmod
+  statmod,
+  malariaEquilibrium
 Suggests: 
   testthat,
   mockery,
@@ -35,7 +36,6 @@ Suggests:
   DiagrammeR,
   cowplot,
   ggplot2,
-  malariaEquilibrium,
   covr
 RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)

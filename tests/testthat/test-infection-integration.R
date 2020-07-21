@@ -58,7 +58,7 @@ test_that('human infection_process works for non-severe clinical cases', {
   api$get_scheduled = mockery::mock(4, 1)
 
   with_mock(
-    bernoulli = bernoulli_mock,
+    'malariasimulation:::bernoulli' = bernoulli_mock,
     infection_process(api)
   )
 
@@ -156,7 +156,7 @@ test_that('human infection_process works for treated case', {
   )
 
   with_mock(
-    bernoulli = bernoulli_mock,
+    'malariasimulation:::bernoulli' = bernoulli_mock,
     sample = mockery::mock(2), # Return DCH drug
     infection_process(api)
   )
@@ -229,7 +229,7 @@ test_that('prophylaxis is considered for medicated humans', {
   m <- mockery::mock(TRUE, TRUE, TRUE, TRUE)
 
   with_mock(
-    bernoulli = m,
+    'malariasimulation:::bernoulli' = m,
     calculate_infections(api, individuals$human, states, variables, seq(4), ib)
   )
 
@@ -508,7 +508,10 @@ test_that('calculate_treated can handle multiple drugs', {
   )
 
   with_mock(
-    bernoulli = mockery::mock(rep(TRUE, 3), c(TRUE, TRUE, FALSE)),
+    'malariasimulation:::bernoulli' = mockery::mock(
+      rep(TRUE, 3),
+      c(TRUE, TRUE, FALSE)
+    ),
     sample = mockery::mock(c(1, 2)),
     calculate_treated(api, individuals$human, states, variables, seq(3))
   )

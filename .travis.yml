@@ -4,7 +4,8 @@ services:
   - docker
 
 before_install:
-  - docker build . -t mrcide/ms:ci -f docker/Dockerfile.dev
+  - docker build . -t mrcide/ms:ci -f docker/Dockerfile.ci
 
 script:
-  - docker run --rm -v $(pwd):/opt -w /opt mrcide/ms:ci R -e 'devtools::check(vignettes = FALSE)'
+  - docker run --rm -v $(pwd):/opt -w /opt mrcide/ms:ci R CMD build --no-build-vignettes .
+  - docker run --rm -v $(pwd):/opt -w /opt mrcide/ms:ci R CMD check --ignore-vignettes $(ls malariasimulation_*.tar.gz)

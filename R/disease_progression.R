@@ -30,7 +30,7 @@ create_progression_process <- function(
 #'
 #' @param human the handle for the human individuals
 #' @param states the available human states
-#' @param states the available human variables
+#' @param variables the available human variables
 #' @param rate the rate of progression to asymptomatic infection
 create_asymptomatic_progression_process <- function(
   human,

@@ -146,7 +146,21 @@ calculate_infections <- function(
     )
   }
 
-  source_humans[bernoulli(length(source_humans), b * (1 - prophylaxis))]
+  # calculate vaccine efficacy
+  vaccine_efficacy <- rep(0, length(source_humans))
+  vaccine_times <- api$get_variable(human, variables$rtss_vaccinated, source_humans)
+  vaccinated <- vaccine_times > -1
+  antibodies <- calculate_rtss_antibodies(
+    api$get_timestep() - vaccine_times[vaccinated],
+    api$get_variable(human, variables$rtss_boosted, vaccinated) > 0,
+    parameters
+  )
+  vaccine_efficacy <- calculate_rtss_efficacy(antibodies, parameters)
+
+  source_humans[bernoulli(
+    length(source_humans),
+    b * (1 - prophylaxis) * (1 - vaccine_efficacy)
+  )]
 }
 
 calculate_clinical_infections <- function(api, human, variables, infections) {

@@ -266,6 +266,38 @@ create_event_based_processes <- function(individuals, states, variables, events,
     }
   )
 
+  events$rtss_vaccination$add_listener(
+    function(api, target) {
+      timestep <- api$get_timestep()
+      target <- which(trunc(get_age(
+        api$get_variable(individuals$human, variables$birth),
+        timestep
+      ) / 365) %in% parameters$rtss_ages)
+      target <- target[bernoulli(length(target), parameters$rtss_coverage)]
+      if (length(target) > 0) {
+        api$queue_variable_update(
+          individual$human,
+          variable$rtss_vaccinated,
+          timestep,
+          target
+        )
+        api$queue_variable_update(
+          individual$human,
+          variable$rtss_boosted,
+          api$get_variable(
+            individual$human,
+            variable$rtss_vaccinated,
+            target
+          ) > -1,
+          target
+        )
+      }
+      if (timestep + frequency <= parameters$rtss_end) {
+        api$schedule(events$rtss_vaccination, c(1), frequency)
+      }
+    }
+  )
+
   if (!parameters$vector_ode) {
     events$mosquito_infection$add_listener(
       individual::update_state_listener(individuals$mosquito$name, states$Im$name)
@@ -290,5 +322,14 @@ create_exponential_decay_process <- function(individual, variable, rate) {
   function(api) {
     i <- api$get_variable(individual, variable)
     api$queue_variable_update(individual, variable, i * decay_rate)
+  }
+}
+
+create_setup_process <- function(events) {
+  function(api) {
+    parameters <- api$get_parameters()
+    if (parameters$rtss) {
+      api$schedule(events$rtss_vaccination, c(1), parameters$rtss_start)
+    }
   }
 }

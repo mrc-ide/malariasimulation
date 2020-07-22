@@ -2,7 +2,7 @@
 title: "Mass Drug Administration"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Human Interventions}
+  %\VignetteIndexEntry{Mass Drug Administration}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -28,9 +28,9 @@ We are going to set the default parameters to run the simulation from an equilib
 
 ```{r}
 year <- 365
-sim_length <- 150 * year
+sim_length <- 100 * year
 human_population <- 1000
-starting_EIR <- 10
+starting_EIR <- 50
 repetitions <- 5
 
 jamie_params <- load_parameter_set()
@@ -41,7 +41,11 @@ simparams <- get_parameters(c(
   list(
     human_population = human_population,
     variety_proportions = 1,
-    vector_ode = TRUE
+    vector_ode = TRUE,
+    model_seasonality = TRUE, # Let's try a bi-modal model
+    g0 = 0.28605,
+    g = c(0.20636, -0.0740318, -0.0009293),
+    h = c(0.173743, -0.0730962, -0.116019)
   )
 ))
 
@@ -67,7 +71,8 @@ plot_state_counts <- function(output) {
         'human_S_count',
         'human_D_count',
         'human_A_count',
-        'human_U_count'
+        'human_U_count',
+        'human_Tr_count'
       )],
       id.vars=c('timestep', 'repetition')
     )
@@ -109,7 +114,7 @@ mdaparams <- simparams
 
 # Add MDA strategy
 mda_events = data.frame(
-  timestep = c(50, 100) * 365,
+  timestep = c(60, 70) * 365,
   name=c("MDA starts", "MDA ends")
 )
 
@@ -130,12 +135,14 @@ output <- run_simulation_with_repetitions(
   mdaparams,
   parallel=TRUE
 )
+```
 
-plot_grid(
-  add_mda_lines(plot_state_counts(output), mda_events),
-  add_mda_lines(plot_prevalence(output), mda_events),
-  nrows = 2
-)
+```{r}
+add_mda_lines(plot_state_counts(output), mda_events)
+```
+
+```{r}
+add_mda_lines(plot_prevalence(output), mda_events)
 ```
 
 ## SMC
@@ -146,9 +153,9 @@ This is a dose of SP-AQ to 90% of 2 - 11 year olds once a year a month before th
 smcparams <- simparams
 
 # Add SMC strategy
-peak <- peak_season_offset(parameters)
+peak <- peak_season_offset(smcparams)
 smc_events = data.frame(
-  timestep = c(50, 100) * 365 + peak - 30,
+  timestep = c(60, 70) * 365 + peak - 30,
   name=c("SMC starts", "SMC ends")
 )
 smcparams <- set_smc(
@@ -165,13 +172,15 @@ smcparams <- set_smc(
 output <- run_simulation_with_repetitions(
   sim_length,
   repetitions,
-  simparams,
-  parallel=FALSE
+  smcparams,
+  parallel=TRUE
 )
+```
 
-plot_grid(
-  add_mda_lines(plot_state_counts(output), smc_events),
-  add_mda_lines(plot_pfprev2_10(output), smc_events),
-  nrows = 2
-)
+```{r}
+add_mda_lines(plot_state_counts(output), smc_events)
+```
+
+```{r}
+add_mda_lines(plot_prevalence(output), smc_events)
 ```

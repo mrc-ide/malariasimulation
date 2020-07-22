@@ -31,9 +31,11 @@ create_mda_listeners <- function(
     timestep <- api$get_timestep()
     successful_treatments <- bernoulli(
       length(target),
-      parameters$drug_efficacies[[drug]]
+      parameters$drug_efficacy[[drug]]
     )
     to_move <- target[successful_treatments]
+
+    api$render('n_mda_treated', length(to_move))
 
     if (length(to_move > 0)) {
       # Move Diseased
@@ -75,11 +77,7 @@ create_mda_listeners <- function(
 
     # Schedule next dose
     if (timestep + frequency <= end) {
-      api$schedule(
-        administer_event,
-        target,
-        frequency
-      )
+      api$schedule(administer_event, target, frequency)
     }
   }
 
@@ -91,6 +89,8 @@ create_mda_listeners <- function(
     )
     target <- which((age > min_age) & (age < max_age))
     covered <- bernoulli(length(target), coverage)
+
+    api$render('n_enrolled', sum(covered))
     administer_listener(api, target[covered])
   }
 

@@ -331,10 +331,10 @@ create_setup_process <- function(events) {
   function(api) {
     parameters <- api$get_parameters()
     if (parameters$mda) {
-      api$schedule(events$mda_enrollment, numeric(0), parameters$mda_start)
+      api$schedule(events$mda_enrollment, c(1), parameters$mda_start)
     }
     if (parameters$smc) {
-      api$schedule(events$smc_enrollment, numeric(0), parameters$smc_start)
+      api$schedule(events$smc_enrollment, c(1), parameters$smc_start)
     }
   }
 }

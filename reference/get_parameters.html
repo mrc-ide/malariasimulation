@@ -10,23 +10,27 @@
 
 
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous" />
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
 <!-- headroom.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -40,7 +44,6 @@
 parameters are passed to process functions. These parameters are explained in
 &quot;The US President's Malaria Initiative, Plasmodium falciparum transmission
 and mortality: A modelling study.&quot;" />
-<meta name="twitter:card" content="summary" />
 
 
 
@@ -58,7 +61,7 @@ and mortality: A modelling study.&quot;" />
 
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -94,6 +97,9 @@ and mortality: A modelling study.&quot;" />
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="../articles/MDA.html">Mass Drug Administration</a>
+    </li>
     <li>
       <a href="../articles/Model.html">Model Structure</a>
     </li>
@@ -145,7 +151,6 @@ The parameters are defined below.</p>
 <p>fixed state transitions:</p><ul>
 <li><p>dd - the delay for humans to move from state D to A</p></li>
 <li><p>dt - the delay for humans to move from state Tr to Ph</p></li>
-<li><p>dph- the delay for humans to move from state Ph to S</p></li>
 <li><p>da - the delay for humans to move from state A to U</p></li>
 <li><p>du - the delay for humans to move from state U to S</p></li>
 <li><p>del - the delay for mosquitos to move from state E to L</p></li>
@@ -234,8 +239,9 @@ for sampling mothers</p></li>
 
 <p>carrying capacity parameters:</p><ul>
 <li><p>model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall</p></li>
-<li><p>g0 to g3 - rainfall shape parameters</p></li>
-<li><p>h1 to h3 - rainfall shape parameters</p></li>
+<li><p>g0 - rainfall fourier parameter</p></li>
+<li><p>g - rainfall fourier parameter</p></li>
+<li><p>h - rainfall fourier parameters</p></li>
 <li><p>gamma - effect of density dependence on late instars relative to early
 instars</p></li>
 </ul>
@@ -288,6 +294,19 @@ clinically diseased (these values refer to the index in drug_* parameters)</p></
 <li><p>clinical_treatment_coverage - a vector of coverage values for each drug</p></li>
 </ul>
 
+<p>MDA parameters:
+I recommend setting these with convenience functions in <code>mda_parameters.R</code></p><ul>
+<li><p>mda - whether to apply an MDA or not</p></li>
+<li><p>mda_drug - the index of the drug to use</p></li>
+<li><p>mda_start - the first timestep for the drug to be distributed</p></li>
+<li><p>mda_end - the last timestep for the drug to be distributed</p></li>
+<li><p>mda_frequency - how often to distribute drugs</p></li>
+<li><p>mda_min_age - the min age of the target population</p></li>
+<li><p>mda_max_age - the max age of the target population</p></li>
+<li><p>mda_coverage - the proportion of the target population that will be covered</p></li>
+<li><p>smc* - as for mda*</p></li>
+</ul>
+
 <p>miscellaneous:</p><ul>
 <li><p>human_population - the number of humans to model</p></li>
 <li><p>mosquito_limit - the maximum number of mosquitos to allow for in the
@@ -300,12 +319,10 @@ simulation</p></li>
 
 
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-    </ul>
-
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
 
@@ -316,7 +333,7 @@ simulation</p></li>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
 
       </footer>

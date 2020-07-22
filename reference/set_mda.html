@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Larval deaths — create_larval_death_process • malariasimulation</title>
+<title>Parameterise a Mass Drug Administration — set_mda • malariasimulation</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,8 @@
 
 
 
-<meta property="og:title" content="Larval deaths — create_larval_death_process" />
-<meta property="og:description" content="This process defines how many early and late stage larvae die due to
-seasonal carrying capacity." />
+<meta property="og:title" content="Parameterise a Mass Drug Administration — set_mda" />
+<meta property="og:description" content="Parameterise a Mass Drug Administration" />
 
 
 
@@ -125,48 +124,52 @@ seasonal carrying capacity." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Larval deaths</h1>
+    <h1>Parameterise a Mass Drug Administration</h1>
     
-    <div class="hidden name"><code>create_larval_death_process.Rd</code></div>
+    <div class="hidden name"><code>set_mda.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This process defines how many early and late stage larvae die due to
-seasonal carrying capacity.</p>
+    <p>Parameterise a Mass Drug Administration</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_larval_death_process</span>(<span class='no'>mosquito</span>, <span class='no'>E</span>, <span class='no'>L</span>, <span class='no'>Unborn</span>, <span class='no'>events</span>, <span class='no'>K0</span>, <span class='no'>R_bar</span>)</pre>
+    <pre class="usage"><span class='fu'>set_mda</span>(<span class='no'>parameters</span>, <span class='no'>drug</span>, <span class='no'>start</span>, <span class='no'>end</span>, <span class='no'>frequency</span>, <span class='no'>min_age</span>, <span class='no'>max_age</span>, <span class='no'>coverage</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>mosquito</th>
-      <td><p>the mosquito individual</p></td>
+      <th>parameters</th>
+      <td><p>a list of parameters to modify</p></td>
     </tr>
     <tr>
-      <th>E</th>
-      <td><p>the early stage larval state</p></td>
+      <th>drug</th>
+      <td><p>the index of the drug to administer</p></td>
     </tr>
     <tr>
-      <th>L</th>
-      <td><p>the late stage larval state</p></td>
+      <th>start</th>
+      <td><p>the timestep to start</p></td>
     </tr>
     <tr>
-      <th>Unborn</th>
-      <td><p>the unborn mosquito state</p></td>
+      <th>end</th>
+      <td><p>the last timestep for the intervention</p></td>
     </tr>
     <tr>
-      <th>events</th>
-      <td><p>a list of events in the model</p></td>
+      <th>frequency</th>
+      <td><p>the number of timsteps between doses</p></td>
     </tr>
     <tr>
-      <th>K0</th>
-      <td><p>carrying capacity</p></td>
+      <th>min_age</th>
+      <td><p>the minimum age of the target population exclusive (in timesteps)</p></td>
     </tr>
     <tr>
-      <th>R_bar</th>
-      <td><p>mean rainfall</p></td>
+      <th>max_age</th>
+      <td><p>the maximum age of the target population exclusive (in timesteps)</p></td>
+    </tr>
+    <tr>
+      <th>coverage</th>
+      <td><p>the proportion of the target population who will recieve the
+drug</p></td>
     </tr>
     </table>
 

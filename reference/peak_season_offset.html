@@ -6,7 +6,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Larval deaths — create_larval_death_process • malariasimulation</title>
+<title>Calculate the yearly offset (in timesteps) for the peak mosquito
+season — peak_season_offset • malariasimulation</title>
 
 
 <!-- jquery -->
@@ -39,9 +40,10 @@
 
 
 
-<meta property="og:title" content="Larval deaths — create_larval_death_process" />
-<meta property="og:description" content="This process defines how many early and late stage larvae die due to
-seasonal carrying capacity." />
+<meta property="og:title" content="Calculate the yearly offset (in timesteps) for the peak mosquito
+season — peak_season_offset" />
+<meta property="og:description" content="Calculate the yearly offset (in timesteps) for the peak mosquito
+season" />
 
 
 
@@ -125,48 +127,25 @@ seasonal carrying capacity." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Larval deaths</h1>
+    <h1>Calculate the yearly offset (in timesteps) for the peak mosquito
+season</h1>
     
-    <div class="hidden name"><code>create_larval_death_process.Rd</code></div>
+    <div class="hidden name"><code>peak_season_offset.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This process defines how many early and late stage larvae die due to
-seasonal carrying capacity.</p>
+    <p>Calculate the yearly offset (in timesteps) for the peak mosquito
+season</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_larval_death_process</span>(<span class='no'>mosquito</span>, <span class='no'>E</span>, <span class='no'>L</span>, <span class='no'>Unborn</span>, <span class='no'>events</span>, <span class='no'>K0</span>, <span class='no'>R_bar</span>)</pre>
+    <pre class="usage"><span class='fu'>peak_season_offset</span>(<span class='no'>parameters</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>mosquito</th>
-      <td><p>the mosquito individual</p></td>
-    </tr>
-    <tr>
-      <th>E</th>
-      <td><p>the early stage larval state</p></td>
-    </tr>
-    <tr>
-      <th>L</th>
-      <td><p>the late stage larval state</p></td>
-    </tr>
-    <tr>
-      <th>Unborn</th>
-      <td><p>the unborn mosquito state</p></td>
-    </tr>
-    <tr>
-      <th>events</th>
-      <td><p>a list of events in the model</p></td>
-    </tr>
-    <tr>
-      <th>K0</th>
-      <td><p>carrying capacity</p></td>
-    </tr>
-    <tr>
-      <th>R_bar</th>
-      <td><p>mean rainfall</p></td>
+      <th>parameters</th>
+      <td><p>to work from</p></td>
     </tr>
     </table>
 

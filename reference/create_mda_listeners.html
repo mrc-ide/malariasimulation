@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Larval deaths — create_larval_death_process • malariasimulation</title>
+<title>Create listeners for MDA events — create_mda_listeners • malariasimulation</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,10 @@
 
 
 
-<meta property="og:title" content="Larval deaths — create_larval_death_process" />
-<meta property="og:description" content="This process defines how many early and late stage larvae die due to
-seasonal carrying capacity." />
+<meta property="og:title" content="Create listeners for MDA events — create_mda_listeners" />
+<meta property="og:description" content="will create an &quot;enrollment listener&quot; for setting up a target
+population for an MDA and an  &quot;administer listener&quot; for modelling the effects
+of the drug on the population state" />
 
 
 
@@ -125,48 +126,72 @@ seasonal carrying capacity." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Larval deaths</h1>
+    <h1>Create listeners for MDA events</h1>
     
-    <div class="hidden name"><code>create_larval_death_process.Rd</code></div>
+    <div class="hidden name"><code>create_mda_listeners.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This process defines how many early and late stage larvae die due to
-seasonal carrying capacity.</p>
+    <p>will create an "enrollment listener" for setting up a target
+population for an MDA and an  "administer listener" for modelling the effects
+of the drug on the population state</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_larval_death_process</span>(<span class='no'>mosquito</span>, <span class='no'>E</span>, <span class='no'>L</span>, <span class='no'>Unborn</span>, <span class='no'>events</span>, <span class='no'>K0</span>, <span class='no'>R_bar</span>)</pre>
+    <pre class="usage"><span class='fu'>create_mda_listeners</span>(
+  <span class='no'>human</span>,
+  <span class='no'>states</span>,
+  <span class='no'>variables</span>,
+  <span class='no'>administer_event</span>,
+  <span class='no'>drug</span>,
+  <span class='no'>end</span>,
+  <span class='no'>frequency</span>,
+  <span class='no'>min_age</span>,
+  <span class='no'>max_age</span>,
+  <span class='no'>coverage</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>mosquito</th>
-      <td><p>the mosquito individual</p></td>
+      <th>human</th>
+      <td><p>the human individual object</p></td>
     </tr>
     <tr>
-      <th>E</th>
-      <td><p>the early stage larval state</p></td>
+      <th>states</th>
+      <td><p>the states available in the model</p></td>
     </tr>
     <tr>
-      <th>L</th>
-      <td><p>the late stage larval state</p></td>
+      <th>variables</th>
+      <td><p>the variables available in the model</p></td>
     </tr>
     <tr>
-      <th>Unborn</th>
-      <td><p>the unborn mosquito state</p></td>
+      <th>administer_event</th>
+      <td><p>the event schedule for drug administration</p></td>
     </tr>
     <tr>
-      <th>events</th>
-      <td><p>a list of events in the model</p></td>
+      <th>drug</th>
+      <td><p>the drug to administer</p></td>
     </tr>
     <tr>
-      <th>K0</th>
-      <td><p>carrying capacity</p></td>
+      <th>end</th>
+      <td><p>when to stop distributing (timestep)</p></td>
     </tr>
     <tr>
-      <th>R_bar</th>
-      <td><p>mean rainfall</p></td>
+      <th>frequency</th>
+      <td><p>how often doses are distributed (in timesteps)</p></td>
+    </tr>
+    <tr>
+      <th>min_age</th>
+      <td><p>minimum age at enrollment</p></td>
+    </tr>
+    <tr>
+      <th>max_age</th>
+      <td><p>maximum age at enrollment</p></td>
+    </tr>
+    <tr>
+      <th>coverage</th>
+      <td><p>the proportion of the target population that is covered</p></td>
     </tr>
     </table>
 

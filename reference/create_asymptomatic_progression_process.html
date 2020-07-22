@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Larval deaths — create_larval_death_process • malariasimulation</title>
+<title>Modelling the progression to asymptomatic disease — create_asymptomatic_progression_process • malariasimulation</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,9 @@
 
 
 
-<meta property="og:title" content="Larval deaths — create_larval_death_process" />
-<meta property="og:description" content="This process defines how many early and late stage larvae die due to
-seasonal carrying capacity." />
+<meta property="og:title" content="Modelling the progression to asymptomatic disease — create_asymptomatic_progression_process" />
+<meta property="og:description" content="Randomly moves individuals to asymptomatic disease and
+calculates the infectivity for their age and immunity" />
 
 
 
@@ -125,48 +125,36 @@ seasonal carrying capacity." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Larval deaths</h1>
+    <h1>Modelling the progression to asymptomatic disease</h1>
     
-    <div class="hidden name"><code>create_larval_death_process.Rd</code></div>
+    <div class="hidden name"><code>create_asymptomatic_progression_process.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>This process defines how many early and late stage larvae die due to
-seasonal carrying capacity.</p>
+    <p>Randomly moves individuals to asymptomatic disease and
+calculates the infectivity for their age and immunity</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_larval_death_process</span>(<span class='no'>mosquito</span>, <span class='no'>E</span>, <span class='no'>L</span>, <span class='no'>Unborn</span>, <span class='no'>events</span>, <span class='no'>K0</span>, <span class='no'>R_bar</span>)</pre>
+    <pre class="usage"><span class='fu'>create_asymptomatic_progression_process</span>(<span class='no'>human</span>, <span class='no'>states</span>, <span class='no'>variables</span>, <span class='no'>rate</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>mosquito</th>
-      <td><p>the mosquito individual</p></td>
+      <th>human</th>
+      <td><p>the handle for the human individuals</p></td>
     </tr>
     <tr>
-      <th>E</th>
-      <td><p>the early stage larval state</p></td>
+      <th>states</th>
+      <td><p>the available human states</p></td>
     </tr>
     <tr>
-      <th>L</th>
-      <td><p>the late stage larval state</p></td>
+      <th>variables</th>
+      <td><p>the available human variables</p></td>
     </tr>
     <tr>
-      <th>Unborn</th>
-      <td><p>the unborn mosquito state</p></td>
-    </tr>
-    <tr>
-      <th>events</th>
-      <td><p>a list of events in the model</p></td>
-    </tr>
-    <tr>
-      <th>K0</th>
-      <td><p>carrying capacity</p></td>
-    </tr>
-    <tr>
-      <th>R_bar</th>
-      <td><p>mean rainfall</p></td>
+      <th>rate</th>
+      <td><p>the rate of progression to asymptomatic infection</p></td>
     </tr>
     </table>
 

@@ -1,0 +1,138 @@
+---
+title: "Vaccines"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vaccines}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(cowplot))
+library(malariasimulation)
+library(malariaEquilibrium)
+library(reshape2)
+```
+
+# Parameterisation
+
+We are going to set the default parameters to run the simulation from an equilibrium.
+
+```{r}
+year <- 365
+sim_length <- 50 * year
+human_population <- 1000
+starting_EIR <- 10
+repetitions <- 5
+
+jamie_params <- load_parameter_set()
+eq <- human_equilibrium(EIR = starting_EIR, ft = 0, p = jamie_params, age = 0:99)
+
+simparams <- get_parameters(c(
+  translate_jamie(remove_unused_jamie(jamie_params)),
+  list(
+    human_population = human_population,
+    variety_proportions = 1,
+    vector_ode = TRUE
+  )
+))
+
+simparams <- parameterise_human_equilibrium(simparams, eq)
+simparams <- parameterise_mosquito_equilibrium(simparams, starting_EIR)
+
+
+# Plotting functions
+plot_prevalence <- function(output) {
+  output$prev <- output$prev_2_10 / output$n_2_10
+  ggplot(output) + geom_line(
+    aes(x = timestep, y = prev, group = repetition, alpha = 1/repetitions)
+  )
+}
+
+add_intervention_lines <- function(plot, events) {
+  plot + geom_vline(
+    data = events,
+    mapping = aes(xintercept=timestep),
+    color="blue"
+  ) + geom_text(
+    data = events,
+    mapping = aes(x = timestep, y = 0, label = name),
+    size = 4,
+    angle = 90,
+    vjust = -0.4,
+    hjust = 0
+  )
+}
+```
+
+Then we can run the simulation for a variety of Vaccination strategies:
+
+## RTS,S
+
+This is a round of RTS,S vaccine at ages 1, 2, 3 and 18; coverage of 80%; for 10 years:
+
+```{r}
+rtssparams <- simparams
+
+# Add RTS,S strategy
+rtssevents = data.frame(
+  timestep = c(20, 30) * 365,
+  name=c("RTS,S starts", "RTS,S ends")
+)
+
+rtssparams <- set_rtss(
+  rtssparams,
+  start = rtssevents$timestep[[1]],
+  end = rtssevents$timestep[[2]],
+  frequency = 365,
+  ages = c(1, 2, 3, 18) * 365,
+  coverage = 0.8
+)
+
+output <- run_simulation_with_repetitions(
+  sim_length,
+  repetitions,
+  rtssparams,
+  parallel=TRUE
+)
+add_intervention_lines(plot_prevalence(output), rtssevents)
+```
+
+## TBV
+
+This is a round of the TBV (transmission blocking) vaccine at ages 1, 2, 3 and 18; coverage of 80%; for 10 years:
+
+```{r}
+tbvparams <- simparams
+
+# Add TBV strategy
+tbvevents = data.frame(
+  timestep = c(20, 30) * 365,
+  name=c("TBV starts", "TBV ends")
+)
+
+tbvparams <- set_tbv(
+  tbvparams,
+  start = tbvevents$timestep[[1]],
+  end = tbvevents$timestep[[2]],
+  frequency = 365,
+  ages = c(1, 2, 3, 18),
+  efficacy = 0.8
+)
+
+output <- run_simulation_with_repetitions(
+  sim_length,
+  repetitions,
+  tbvevents,
+  parallel=TRUE
+)
+add_intervention_lines(plot_prevalence(output), tbvevents)
+```

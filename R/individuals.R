@@ -89,6 +89,11 @@ create_states <- function(parameters) {
 #' * ID - Acquired immunity to detectability
 #' * zeta - Heterogeneity of human individuals
 #' * zeta_group - Discretised heterogeneity of human individuals
+#' * rtss_vaccinated - The timstep of the last rtss vaccination (-1 if there
+#' haven't been any
+#' * rtss_boosted - Whether the last vaccination was a booster (-1 if there was
+#' no vaccination
+#' * zeta_group - Discretised heterogeneity of human individuals
 #' * variety - The variety of mosquito, either 1, 2 or 3. These are related to
 #' blood meal rate parameter
 #' * infectivity - The onward infectiousness to mosquitos
@@ -189,6 +194,15 @@ create_variables <- function(parameters) {
   drug <- individual::Variable$new("drug", function(n) rep(0, n))
   drug_time <- individual::Variable$new("drug_time", function(n) rep(-1, n))
 
+  rtss_vaccinated <- individual::Variable$new(
+    "rtss_vaccinated",
+    function(n) rep(-1, n)
+  )
+  rtss_boosted <- individual::Variable$new(
+    "rtss_boosted",
+    function(n) rep(-1, n)
+  )
+
   variables <- list(
     birth = birth,
     last_boosted_ib = last_boosted_ib,
@@ -203,10 +217,12 @@ create_variables <- function(parameters) {
     id = id,
     zeta = zeta,
     zeta_group = zeta_group,
-    is_severe = is_severe,
     infectivity = infectivity,
     drug = drug,
-    drug_time = drug_time
+    drug_time = drug_time,
+    rtss_vaccinated = rtss_vaccinated,
+    rtss_boosted = rtss_boosted,
+    is_severe = is_severe
   )
 
   if (!parameters$vector_ode) {
@@ -260,7 +276,9 @@ create_individuals <- function(states, variables, events, parameters) {
       variables$zeta_group,
       variables$infectivity,
       variables$drug,
-      variables$drug_time
+      variables$drug_time,
+      variables$rtss_vaccinated,
+      variables$rtss_boosted
     ),
     events = list(
       events$infection,

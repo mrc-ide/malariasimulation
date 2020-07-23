@@ -182,6 +182,24 @@
 #' * mda_coverage - the proportion of the target population that will be covered
 #' * smc* - as for mda*
 #'
+#' TBV parameters:
+#'
+#' * tbv_mt - effect on treated infectiousness
+#' * tbv_md - effect on diseased infectiousness
+#' * tbv_ma - effect on asymptomatic infectiousness
+#' * tbv_mu - effect on subpatent infectiousness
+#' * tbv_k  - scale parameter for effect on infectiousness
+#' * tbv_tau - peak antibody parameter
+#' * tbv_rho - antibody component parameter
+#' * tbv_ds - antibody short-term delay parameter
+#' * tbv_dl - antibody long-term delay parameter
+#' * tbv_tra_mu - transmission reduction parameter
+#' * tbv_gamma1 - transmission reduction parameter
+#' * tbv_gamma2 - transmission reduction parameter
+#'
+#' I recommend setting tbv strategies with the convenience functions in
+#' `vaccine_parameters.R`, these are the same as for RTS,S
+#'
 #' rendering:
 #' All values are in timesteps and all ranges are inclusive
 #'
@@ -344,6 +362,25 @@ get_parameters <- function(overrides = list()) {
     smc_min_age = -1,
     smc_max_age = -1,
     smc_coverage = 0,
+    # tbv
+    tbv = FALSE,
+    tbv_mt = 35,
+    tbv_md = 46.7,
+    tbv_ma = 3.6,
+    tbv_mu = 0.8,
+    tbv_k = 0.9,
+    tbv_tau = 22,
+    tbv_rho = .7,
+    tbv_ds = 45,
+    tbv_dl = 591,
+    tbv_tra_mu = 12.63,
+    tbv_gamma1 = 2.5,
+    tbv_gamma2 = .06,
+    tbv_start = c(),
+    tbv_end = c(),
+    tbv_frequency = -1,
+    tbv_ages = c(),
+    tbv_coverage = 0,
     # rendering
     prevalence_rendering_min_ages = 2 * 365,
     prevalence_rendering_max_ages = 10 * 365,

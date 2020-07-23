@@ -42,3 +42,29 @@ set_rtss <- function(
   parameters$rtss_booster_coverage <- booster_coverage
   parameters
 }
+
+#' @title Parameterise an TBV strategy
+#' @param parameters a list of parameters to modify
+#' @param start the timestep to start
+#' @param end the last timestep for the intervention
+#' @param frequency the number of timsteps between rounds
+#' @param ages for each round (in years)
+#' @param coverage the proportion of the target population who will recieve the
+#' vaccine
+#' @export
+set_tbv <- function(
+  parameters,
+  start,
+  end,
+  frequency,
+  ages,
+  coverage
+  ) {
+  parameters$tbv <- TRUE
+  parameters$tbv_start <- start
+  parameters$tbv_end <- end
+  parameters$tbv_frequency <- frequency
+  parameters$tbv_ages <- ages
+  parameters$tbv_coverage <- coverage
+  parameters
+}

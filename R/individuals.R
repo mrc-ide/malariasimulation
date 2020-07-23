@@ -89,6 +89,8 @@ create_states <- function(parameters) {
 #' * rtss_rho - antibody component variable
 #' * rtss_ds - short-lived antibody delay variable
 #' * rtss_dl - long-lived antibody delay variable
+#' * tbv_vaccinated - The timstep of the last tbv vaccination (-1 if there
+#' haven't been any
 #' * zeta_group - Discretised heterogeneity of human individuals
 #'
 #' Mosquito variables are: 
@@ -205,6 +207,11 @@ create_variables <- function(parameters) {
     exp(rnorm(size, parameters$rtss_dl[[1]], parameters$rtss_dl[[2]]))
   )
 
+  tbv_vaccinated <- individual::Variable$new(
+    "tbv_vaccinated",
+    function(n) rep(-1, n)
+  )
+
   variables <- list(
     birth = birth,
     last_boosted_ib = last_boosted_ib,
@@ -228,6 +235,7 @@ create_variables <- function(parameters) {
     rtss_rho = rtss_rho,
     rtss_ds = rtss_ds,
     rtss_dl = rtss_dl,
+    tbv_vaccinated = tbv_vaccinated,
     is_severe = is_severe
   )
 
@@ -290,7 +298,8 @@ create_individuals <- function(
       variables$rtss_cs,
       variables$rtss_rho,
       variables$rtss_ds,
-      variables$rtss_dl
+      variables$rtss_dl,
+      variables$tbv_vaccinated
     ),
     events = c(
       events$infection,

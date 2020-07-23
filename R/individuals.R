@@ -91,8 +91,10 @@ create_states <- function(parameters) {
 #' * zeta_group - Discretised heterogeneity of human individuals
 #' * rtss_vaccinated - The timstep of the last rtss vaccination (-1 if there
 #' haven't been any
-#' * rtss_boosted - Whether the last vaccination was a booster (-1 if there was
-#' no vaccination
+#' * rtss_cs - peak antibodies
+#' * rtss_rho - antibody component variable
+#' * rtss_ds - short-lived antibody delay variable
+#' * rtss_dl - long-lived antibody delay variable
 #' * zeta_group - Discretised heterogeneity of human individuals
 #' * variety - The variety of mosquito, either 1, 2 or 3. These are related to
 #' blood meal rate parameter
@@ -198,9 +200,30 @@ create_variables <- function(parameters) {
     "rtss_vaccinated",
     function(n) rep(-1, n)
   )
-  rtss_boosted <- individual::Variable$new(
-    "rtss_boosted",
-    function(n) rep(-1, n)
+  rtss_cs <- individual::Variable$new(
+    "rtss_cs",
+    function(n) {
+      exp(parameters$rtss_cs[[1]] + parameters$rtss_cs[[2]] * rnorm(n))
+    }
+  )
+  rtss_rho <- individual::Variable$new(
+    "rtss_rho",
+    function(n) {
+      invlogit(parameters$rtss_rho[[1]] + parameters$rtss_rho[[2]] * rnorm(n))
+    }
+  )
+  rtss_ds <- individual::Variable$new(
+    "rtss_ds",
+    function(n) {
+      exp(parameters$rtss_ds[[1]] + parameters$rtss_ds[[2]] * rnorm(n))
+    }
+  )
+
+  rtss_dl <- individual::Variable$new(
+    "rtss_dl",
+    function(n) {
+      exp(parameters$rtss_dl[[1]] + parameters$rtss_dl[[2]] * rnorm(n))
+    }
   )
 
   variables <- list(
@@ -221,7 +244,10 @@ create_variables <- function(parameters) {
     drug = drug,
     drug_time = drug_time,
     rtss_vaccinated = rtss_vaccinated,
-    rtss_boosted = rtss_boosted,
+    rtss_cs = rtss_cs,
+    rtss_rho = rtss_rho,
+    rtss_ds = rtss_ds,
+    rtss_dl = rtss_dl,
     is_severe = is_severe
   )
 
@@ -278,7 +304,10 @@ create_individuals <- function(states, variables, events, parameters) {
       variables$drug,
       variables$drug_time,
       variables$rtss_vaccinated,
-      variables$rtss_boosted
+      variables$rtss_cs,
+      variables$rtss_rho,
+      variables$rtss_ds,
+      variables$rtss_dl
     ),
     events = list(
       events$infection,

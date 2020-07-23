@@ -153,6 +153,27 @@
 #' clinically diseased (these values refer to the index in drug_* parameters)
 #' * clinical_treatment_coverage - a vector of coverage values for each drug
 #'
+#' RTS,S paramters:
+#'
+#' * rtss_vmax - the maximum efficacy of the vaccine
+#' * rtss_alpha - shape parameter for the vaccine efficacy model
+#' * rtss_beta - scale parameter for the vaccine efficacy model
+#' * rtss_cs - peak parameters for the antibody model (mean and std. dev)
+#' * rtss_cs_boost - peak parameters for the antibody model for booster rounds (mean and std. dev)
+#' * rtss_rho - delay parameters for the antibody model (mean and std. dev)
+#' * rtss_rho_boost - delay parameters for the antibody model for booster rounds (mean and std. dev)
+#' * rtss_ds - delay parameters for the antibody model (mean and std. dev)
+#' * rtss_dl - delay parameters for the antibody model (mean and std. dev)
+#'
+#' I recommend setting strategies with the convenience functions in
+#' `vaccine_parameters.R`
+#' * rtss - whether to model rtss or not
+#' * rtss_start - the start timstep for rtss
+#' * rtss_end - the end timstep for rtss
+#' * rtss_frequency - the frequency of rounds
+#' * rtss_ages - the ages to apply the vaccine (in years)
+#' * rtss_coverage - the fraction of the target population who will be covered
+#'
 #' miscellaneous:
 #'
 #' * human_population - the number of humans to model
@@ -271,6 +292,22 @@ get_parameters <- function(overrides = list()) {
     clinical_treatment_drugs     = c(),
     clinical_treatment_coverages = c(),
     ft = 0,
+    # rts,s
+    rtss = FALSE,
+    rtss_vmax = .93,
+    rtss_alpha = .74,
+    rtss_beta = 99.4,
+    rtss_cs = c(6.37008, 0.35),
+    rtss_cs_boost = c(5.56277, 0.35),
+    rtss_rho = c(2.37832, 1.00813),
+    rtss_rho_boost = c(1.03431, 1.02735),
+    rtss_ds = c(3.74502, 0.341185),
+    rtss_dl = c(6.30365, 0.396515),
+    rtss_start = c(),
+    rtss_end = c(),
+    rtss_frequency = -1,
+    rtss_ages = c(),
+    rtss_coverage = 0,
     # misc
     human_population = 100,
     mosquito_limit   = 100 * 1000,

@@ -93,7 +93,7 @@ rtssparams <- set_rtss(
   start = rtssevents$timestep[[1]],
   end = rtssevents$timestep[[2]],
   frequency = 365,
-  ages = c(1, 2, 3, 18) * 365,
+  ages = c(1, 2, 3, 18),
   coverage = 0.8
 )
 

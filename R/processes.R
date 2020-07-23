@@ -276,24 +276,33 @@ create_event_based_processes <- function(individuals, states, variables, events,
       target <- target[bernoulli(length(target), parameters$rtss_coverage)]
       if (length(target) > 0) {
         api$queue_variable_update(
-          individual$human,
-          variable$rtss_vaccinated,
+          individuals$human,
+          variables$rtss_vaccinated,
           timestep,
           target
         )
-        api$queue_variable_update(
-          individual$human,
-          variable$rtss_boosted,
-          api$get_variable(
-            individual$human,
-            variable$rtss_vaccinated,
-            target
-          ) > -1,
+        boosters <- target[api$get_variable(
+          individuals$human,
+          variables$rtss_vaccinated,
           target
-        )
+        ) > -1]
+        if (length(boosters) > 0) {
+          api$queue_variable_update(
+            individuals$human,
+            variables$rtss_cs,
+            exp(parameters$rtss_cs_boost[[1]] + parameters$rtss_cs_boost[[2]] * rnorm(length(boosters))),
+            boosters
+          )
+          api$queue_variable_update(
+            individuals$human,
+            variables$rtss_rho,
+            invlogit(parameters$rtss_rho_boost[[1]] + parameters$rtss_rho_boost[[2]] * rnorm(length(boosters))),
+            boosters
+          )
+        }
       }
-      if (timestep + frequency <= parameters$rtss_end) {
-        api$schedule(events$rtss_vaccination, c(1), frequency)
+      if (timestep + parameters$rtss_frequency <= parameters$rtss_end) {
+        api$schedule(events$rtss_vaccination, c(1), parameters$rtss_frequency)
       }
     }
   )

@@ -274,6 +274,7 @@ create_event_based_processes <- function(individuals, states, variables, events,
         timestep
       ) / 365) %in% parameters$rtss_ages)
       target <- target[bernoulli(length(target), parameters$rtss_coverage)]
+      api$render('n_vaccinated', length(target))
       if (length(target) > 0) {
         api$queue_variable_update(
           individuals$human,

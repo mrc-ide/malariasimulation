@@ -171,6 +171,30 @@ clinically diseased (these values refer to the index in drug_* parameters)
 \item clinical_treatment_coverage - a vector of coverage values for each drug
 }
 
+RTS,S paramters:
+\itemize{
+\item rtss_vmax - the maximum efficacy of the vaccine
+\item rtss_alpha - shape parameter for the vaccine efficacy model
+\item rtss_beta - scale parameter for the vaccine efficacy model
+\item rtss_cs - peak parameters for the antibody model (mean and std. dev)
+\item rtss_cs_boost - peak parameters for the antibody model for booster rounds (mean and std. dev)
+\item rtss_rho - delay parameters for the antibody model (mean and std. dev)
+\item rtss_rho_boost - delay parameters for the antibody model for booster rounds (mean and std. dev)
+\item rtss_ds - delay parameters for the antibody model (mean and std. dev)
+\item rtss_dl - delay parameters for the antibody model (mean and std. dev)
+}
+
+I recommend setting strategies with the convenience functions in
+\code{vaccine_parameters.R}
+\itemize{
+\item rtss - whether to model rtss or not
+\item rtss_start - the start timstep for rtss
+\item rtss_end - the end timstep for rtss
+\item rtss_frequency - the frequency of rounds
+\item rtss_ages - the ages to apply the vaccine (in years)
+\item rtss_coverage - the fraction of the target population who will be covered
+}
+
 miscellaneous:
 \itemize{
 \item human_population - the number of humans to model

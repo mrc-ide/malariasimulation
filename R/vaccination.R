@@ -40,7 +40,5 @@ calculate_TBA <- function(z, mx, k) {
   scale <- 1 / (1 - (k / (k + mx)) ** k)
   offset <- (k / (k + mx)) ** k
   tra_transformation <- (k / (k - mx * (1 - z))) ** k
-  print((k - mx * (1 - z)))
-  print(tra_transformation)
   scale * (tra_transformation - offset)
 }

@@ -17,6 +17,14 @@ test_that('TBV strategy parameterisation works', {
 
 test_that('FOIM considers TBA', {
   parameters <- get_parameters()
+  parameters <- set_tbv(
+    parameters,
+    start = 50,
+    end = 200,
+    frequency = 365,
+    ages = c(1, 2, 3, 18),
+    coverage = 0.8
+  )
   events <- create_events()
   states <- create_states(parameters)
   variables <- create_variables(parameters)
@@ -35,7 +43,7 @@ test_that('FOIM considers TBA', {
       )
     ),
     parameters = parameters,
-    timestep = 100
+    timestep = 55
   )
 
   foim_mock = mockery::mock()
@@ -51,7 +59,7 @@ test_that('FOIM considers TBA', {
 
   expect_equal(
     mockery::mock_args(foim_mock)[[1]][[4]],
-    c(0.590, 0.590, 0.275, .352, .325),
+    c(0, .1, 0.275, .352, .325),
     tolerance=1e-3
   )
 })

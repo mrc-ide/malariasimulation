@@ -117,3 +117,34 @@ output <- run_simulation_with_repetitions(
 )
 add_intervention_lines(plot_prevalence(output), rtssevents)
 ```
+
+## TBV
+
+This is a round of the TBV (transmission blocking) vaccine at ages 1, 2, 3 and 18; coverage of 80%; for 10 years:
+
+```{r}
+tbvparams <- simparams
+
+# Add TBV strategy
+tbvevents = data.frame(
+  timestep = c(60, 80) * 365,
+  name=c("TBV starts", "TBV ends")
+)
+
+tbvparams <- set_tbv(
+  tbvparams,
+  start = tbvevents$timestep[[1]],
+  end = tbvevents$timestep[[2]],
+  frequency = 365,
+  ages = c(1, 2, 3, 18),
+  coverage = 0.8
+)
+
+output <- run_simulation_with_repetitions(
+  sim_length,
+  repetitions,
+  tbvparams,
+  parallel=TRUE
+)
+add_intervention_lines(plot_prevalence(output), tbvevents)
+```

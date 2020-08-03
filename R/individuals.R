@@ -310,7 +310,8 @@ create_individuals <- function(
       events$mda_enrollment,
       events$mda_administer,
       events$smc_enrollment,
-      events$smc_administer
+      events$smc_administer,
+      events$tbv_vaccination
     )
   )
 

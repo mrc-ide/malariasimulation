@@ -333,8 +333,9 @@ create_setup_process <- function(events) {
     }
     if (parameters$smc) {
       api$schedule(events$smc_enrollment, c(1), parameters$smc_start)
+    }
     if (parameters$tbv) {
-      api$schedule(events$rtss_vaccination, c(1), parameters$tbv_start)
+      api$schedule(events$tbv_vaccination, c(1), parameters$tbv_start)
     }
   }
 }

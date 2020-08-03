@@ -39,6 +39,6 @@ calculate_TRA <- function(antibodies, parameters) {
 calculate_TBA <- function(z, mx, k) {
   scale <- 1 / (1 - (k / (k + mx)) ** k)
   offset <- (k / (k + mx)) ** k
-  tra_transformation <- (k / (k - mx * (1 - z))) ** k
+  tra_transformation <- (k / (k + mx * (1 - z))) ** k
   scale * (tra_transformation - offset)
 }

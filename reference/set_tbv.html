@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Define model processes — create_processes • malariasimulation</title>
+<title>Parameterise an TBV strategy — set_tbv • malariasimulation</title>
 
 
 <!-- jquery -->
@@ -39,11 +39,8 @@
 
 
 
-<meta property="og:title" content="Define model processes — create_processes" />
-<meta property="og:description" content="create_processes, defines the functions which describe how each individual's
-states and variables change over time.
-It lists processes from infection.R, mosquito_emergence.R and
-mortality.R; and then exposes them to the model" />
+<meta property="og:title" content="Parameterise an TBV strategy — set_tbv" />
+<meta property="og:description" content="Parameterise an TBV strategy" />
 
 
 
@@ -127,53 +124,44 @@ mortality.R; and then exposes them to the model" />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Define model processes</h1>
+    <h1>Parameterise an TBV strategy</h1>
     
-    <div class="hidden name"><code>create_processes.Rd</code></div>
+    <div class="hidden name"><code>set_tbv.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>create_processes, defines the functions which describe how each individual's
-states and variables change over time.</p>
-<p>It lists processes from <code>infection.R</code>, <code>mosquito_emergence.R</code> and
-<code>mortality.R</code>; and then exposes them to the model</p>
+    <p>Parameterise an TBV strategy</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_processes</span>(
-  <span class='no'>individuals</span>,
-  <span class='no'>states</span>,
-  <span class='no'>variables</span>,
-  <span class='no'>events</span>,
-  <span class='no'>parameters</span>,
-  <span class='kw'>odes</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
-)</pre>
+    <pre class="usage"><span class='fu'>set_tbv</span>(<span class='no'>parameters</span>, <span class='no'>start</span>, <span class='no'>end</span>, <span class='no'>frequency</span>, <span class='no'>ages</span>, <span class='no'>coverage</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>individuals</th>
-      <td><p>a list of individuals in the model</p></td>
-    </tr>
-    <tr>
-      <th>states</th>
-      <td><p>a list of states in the model</p></td>
-    </tr>
-    <tr>
-      <th>variables</th>
-      <td><p>a list of variables in the model</p></td>
-    </tr>
-    <tr>
-      <th>events</th>
-      <td><p>a list of events in the model</p></td>
-    </tr>
-    <tr>
       <th>parameters</th>
-      <td><p>a list of model parameters</p></td>
+      <td><p>a list of parameters to modify</p></td>
     </tr>
     <tr>
-      <th>odes</th>
-      <td><p>a list of vector models (if vector_ode == TRUE)</p></td>
+      <th>start</th>
+      <td><p>the timestep to start</p></td>
+    </tr>
+    <tr>
+      <th>end</th>
+      <td><p>the last timestep for the intervention</p></td>
+    </tr>
+    <tr>
+      <th>frequency</th>
+      <td><p>the number of timsteps between rounds</p></td>
+    </tr>
+    <tr>
+      <th>ages</th>
+      <td><p>for each round (in years)</p></td>
+    </tr>
+    <tr>
+      <th>coverage</th>
+      <td><p>the proportion of the target population who will recieve the
+vaccine</p></td>
     </tr>
     </table>
 

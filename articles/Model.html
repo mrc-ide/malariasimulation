@@ -54,13 +54,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/MDA.html">Mass Drug Administration</a>
-    </li>
-    <li>
       <a href="../articles/Model.html">Model Structure</a>
     </li>
     <li>
       <a href="../articles/Treatment.html">Treatment</a>
+    </li>
+    <li>
+      <a href="../articles/Vaccines.html">Vaccines</a>
     </li>
     <li>
       <a href="../articles/Validation.html">Validation</a>
@@ -102,8 +102,8 @@
 <li>‘create_event_based_process’ (green)</li>
 <li>‘create_mortality_process’(red)</li>
 </ol>
-<div id="htmlwidget-8dd75c0207a377476dd9" style="width:700px;height:432.632880098888px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-8dd75c0207a377476dd9">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = LR]\n  \n  node [shape = rectangle]        \n  S\n  D\n  A\n  U\n  \n  node [shape = circle]\n  i [label = \"\"]\n  \n  # edge definitions with the node IDs\n  S -> i [color=\"orange\"]\n  i -> D [color=\"orange\"]\n  i -> A [color=\"orange\"]\n  D -> A -> U -> S [color=\"green\"]\n  A -> i [color=\"orange\"]\n  U -> i [color=\"orange\"]\n  U -> S [color=\"red\"]\n  A -> S [color=\"red\"]\n  D -> S [color=\"red\"]\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script><p>The mosquito biological processes are spread out between the following functions:</p>
+<div id="htmlwidget-aab406a24af61dbed15c" style="width:700px;height:432.632880098888px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-aab406a24af61dbed15c">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = LR]\n  \n  node [shape = rectangle]        \n  S\n  D\n  A\n  U\n  \n  node [shape = circle]\n  i [label = \"\"]\n  \n  # edge definitions with the node IDs\n  S -> i [color=\"orange\"]\n  i -> D [color=\"orange\"]\n  i -> A [color=\"orange\"]\n  D -> A -> U -> S [color=\"green\"]\n  A -> i [color=\"orange\"]\n  U -> i [color=\"orange\"]\n  U -> S [color=\"red\"]\n  A -> S [color=\"red\"]\n  D -> S [color=\"red\"]\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script><p>The mosquito biological processes are spread out between the following functions:</p>
 <ol style="list-style-type: decimal">
 <li>‘create_event_based_process’ (green)</li>
 <li>‘create_mosquito_infection_process’ (orange)</li>
@@ -112,8 +112,8 @@
 <li>‘create_mosquito_death_process’ (red)</li>
 <li>‘create_egg_laying_process_cpp’ (green)</li>
 </ol>
-<div id="htmlwidget-928943f8e288ad4c0d86" style="width:700px;height:432.632880098888px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-928943f8e288ad4c0d86">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = LR]\n  \n  node [shape = rectangle]        \n  E\n  L\n  P\n  Sm\n  Pm\n  Im\n  Unborn\n  \n  # edge definitions with the node IDs\n  E -> L -> P -> Sm [color=\"green\", label=\"1\"]\n  Sm -> Pm -> Im [color=\"orange\", label=\"2\"]\n  E -> Unborn [color=\"red\", label=\"3\"]\n  L -> Unborn [color=\"red\", label=\"3\"]\n  P -> Unborn [color=\"red\", label=\"4\"]\n  Sm -> Unborn [color=\"red\", label=\"5\"]\n  Pm -> Unborn [color=\"red\", label=\"5\"]\n  Im -> Unborn [color=\"red\", label=\"5\"]\n  Unborn -> E [color=\"green\", label=\"6\"]\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-f582521951872905a8f6" style="width:700px;height:432.632880098888px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-f582521951872905a8f6">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = LR]\n  \n  node [shape = rectangle]        \n  E\n  L\n  P\n  Sm\n  Pm\n  Im\n  Unborn\n  \n  # edge definitions with the node IDs\n  E -> L -> P -> Sm [color=\"green\", label=\"1\"]\n  Sm -> Pm -> Im [color=\"orange\", label=\"2\"]\n  E -> Unborn [color=\"red\", label=\"3\"]\n  L -> Unborn [color=\"red\", label=\"3\"]\n  P -> Unborn [color=\"red\", label=\"4\"]\n  Sm -> Unborn [color=\"red\", label=\"5\"]\n  Pm -> Unborn [color=\"red\", label=\"5\"]\n  Im -> Unborn [color=\"red\", label=\"5\"]\n  Unborn -> E [color=\"green\", label=\"6\"]\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

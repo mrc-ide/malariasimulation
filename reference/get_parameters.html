@@ -98,13 +98,13 @@ and mortality: A modelling study.&quot;" />
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/MDA.html">Mass Drug Administration</a>
-    </li>
-    <li>
       <a href="../articles/Model.html">Model Structure</a>
     </li>
     <li>
       <a href="../articles/Treatment.html">Treatment</a>
+    </li>
+    <li>
+      <a href="../articles/Vaccines.html">Vaccines</a>
     </li>
     <li>
       <a href="../articles/Validation.html">Validation</a>
@@ -239,9 +239,8 @@ for sampling mothers</p></li>
 
 <p>carrying capacity parameters:</p><ul>
 <li><p>model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall</p></li>
-<li><p>g0 - rainfall fourier parameter</p></li>
-<li><p>g - rainfall fourier parameter</p></li>
-<li><p>h - rainfall fourier parameters</p></li>
+<li><p>g0 to g3 - rainfall shape parameters</p></li>
+<li><p>h1 to h3 - rainfall shape parameters</p></li>
 <li><p>gamma - effect of density dependence on late instars relative to early
 instars</p></li>
 </ul>
@@ -294,19 +293,45 @@ clinically diseased (these values refer to the index in drug_* parameters)</p></
 <li><p>clinical_treatment_coverage - a vector of coverage values for each drug</p></li>
 </ul>
 
-<p>MDA parameters:
-I recommend setting these with convenience functions in <code>mda_parameters.R</code></p><ul>
-<li><p>mda - whether to apply an MDA or not</p></li>
-<li><p>mda_drug - the index of the drug to use</p></li>
-<li><p>mda_start - the first timestep for the drug to be distributed</p></li>
-<li><p>mda_end - the last timestep for the drug to be distributed</p></li>
-<li><p>mda_frequency - how often to distribute drugs</p></li>
-<li><p>mda_min_age - the min age of the target population</p></li>
-<li><p>mda_max_age - the max age of the target population</p></li>
-<li><p>mda_coverage - the proportion of the target population that will be covered</p></li>
-<li><p>smc* - as for mda*</p></li>
+<p>RTS,S paramters:</p><ul>
+<li><p>rtss_vmax - the maximum efficacy of the vaccine</p></li>
+<li><p>rtss_alpha - shape parameter for the vaccine efficacy model</p></li>
+<li><p>rtss_beta - scale parameter for the vaccine efficacy model</p></li>
+<li><p>rtss_cs - peak parameters for the antibody model (mean and std. dev)</p></li>
+<li><p>rtss_cs_boost - peak parameters for the antibody model for booster rounds (mean and std. dev)</p></li>
+<li><p>rtss_rho - delay parameters for the antibody model (mean and std. dev)</p></li>
+<li><p>rtss_rho_boost - delay parameters for the antibody model for booster rounds (mean and std. dev)</p></li>
+<li><p>rtss_ds - delay parameters for the antibody model (mean and std. dev)</p></li>
+<li><p>rtss_dl - delay parameters for the antibody model (mean and std. dev)</p></li>
 </ul>
 
+<p>I recommend setting strategies with the convenience functions in
+<code>vaccine_parameters.R</code></p><ul>
+<li><p>rtss - whether to model rtss or not</p></li>
+<li><p>rtss_start - the start timstep for rtss</p></li>
+<li><p>rtss_end - the end timstep for rtss</p></li>
+<li><p>rtss_frequency - the frequency of rounds</p></li>
+<li><p>rtss_ages - the ages to apply the vaccine (in years)</p></li>
+<li><p>rtss_coverage - the fraction of the target population who will be covered</p></li>
+</ul>
+
+<p>TBV parameters:</p><ul>
+<li><p>tbv_mt - effect on treated infectiousness</p></li>
+<li><p>tbv_md - effect on diseased infectiousness</p></li>
+<li><p>tbv_ma - effect on asymptomatic infectiousness</p></li>
+<li><p>tbv_mu - effect on subpatent infectiousness</p></li>
+<li><p>tbv_k  - scale parameter for effect on infectiousness</p></li>
+<li><p>tbv_tau - peak antibody parameter</p></li>
+<li><p>tbv_rho - antibody component parameter</p></li>
+<li><p>tbv_ds - antibody short-term delay parameter</p></li>
+<li><p>tbv_dl - antibody long-term delay parameter</p></li>
+<li><p>tbv_tra_mu - transmission reduction parameter</p></li>
+<li><p>tbv_gamma1 - transmission reduction parameter</p></li>
+<li><p>tbv_gamma2 - transmission reduction parameter</p></li>
+</ul>
+
+<p>I recommend setting tbv strategies with the convenience functions in
+<code>vaccine_parameters.R</code>, these are the same as for RTS,S</p>
 <p>miscellaneous:</p><ul>
 <li><p>human_population - the number of humans to model</p></li>
 <li><p>mosquito_limit - the maximum number of mosquitos to allow for in the

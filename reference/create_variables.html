@@ -57,9 +57,15 @@ IVA  - Acquired immunity to severe disease
 ID - Acquired immunity to detectability
 zeta - Heterogeneity of human individuals
 zeta_group - Discretised heterogeneity of human individuals
-
-
-Mosquito variables are:
+rtss_vaccinated - The timstep of the last rtss vaccination (-1 if there
+haven't been any
+rtss_cs - peak antibodies
+rtss_rho - antibody component variable
+rtss_ds - short-lived antibody delay variable
+rtss_dl - long-lived antibody delay variable
+tbv_vaccinated - The timstep of the last tbv vaccination (-1 if there
+haven't been any
+zeta_group - Discretised heterogeneity of human individuals
 variety - The variety of mosquito, either 1, 2 or 3. These are related to
 blood meal rate parameter
 infectivity - The onward infectiousness to mosquitos
@@ -121,13 +127,13 @@ drug_time - The timestep of the last drug
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/MDA.html">Mass Drug Administration</a>
-    </li>
-    <li>
       <a href="../articles/Model.html">Model Structure</a>
     </li>
     <li>
       <a href="../articles/Treatment.html">Treatment</a>
+    </li>
+    <li>
+      <a href="../articles/Vaccines.html">Vaccines</a>
     </li>
     <li>
       <a href="../articles/Validation.html">Validation</a>
@@ -173,9 +179,15 @@ severe malaria</p></li>
 <li><p>ID - Acquired immunity to detectability</p></li>
 <li><p>zeta - Heterogeneity of human individuals</p></li>
 <li><p>zeta_group - Discretised heterogeneity of human individuals</p></li>
-</ul>
-
-<p>Mosquito variables are:</p><ul>
+<li><p>rtss_vaccinated - The timstep of the last rtss vaccination (-1 if there
+haven't been any</p></li>
+<li><p>rtss_cs - peak antibodies</p></li>
+<li><p>rtss_rho - antibody component variable</p></li>
+<li><p>rtss_ds - short-lived antibody delay variable</p></li>
+<li><p>rtss_dl - long-lived antibody delay variable</p></li>
+<li><p>tbv_vaccinated - The timstep of the last tbv vaccination (-1 if there
+haven't been any</p></li>
+<li><p>zeta_group - Discretised heterogeneity of human individuals</p></li>
 <li><p>variety - The variety of mosquito, either 1, 2 or 3. These are related to
 blood meal rate parameter</p></li>
 <li><p>infectivity - The onward infectiousness to mosquitos</p></li>

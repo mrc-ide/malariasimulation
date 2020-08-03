@@ -59,7 +59,7 @@ test_that('FOIM considers TBA', {
 
   expect_equal(
     mockery::mock_args(foim_mock)[[1]][[4]],
-    c(0, .1, 0.275, .352, .325),
+    c(0, .1, .0295, .351, .1930),
     tolerance=1e-3
   )
 })
@@ -114,16 +114,16 @@ test_that('TBV Antibodies are calculated correctly', {
       c(0, 0, 10, 30),
       parameters
     ),
-    c(403.4, 403.4, 116.1, 76.4),
-    tolerance = 1e-3
+    c(22, 22, 19.7, 16.1),
+    tolerance = 1e-1
   )
 })
 
 test_that('TRAs are calculated correctly', {
   parameters <- get_parameters()
   expect_equal(
-    calculate_TRA(c(400, 400, 100, 50), parameters),
-    c(0.685, 0.685, 0.466, 0.349),
+    calculate_TRA(c(22, 22, 19.7, 5), parameters),
+    c(0.985, 0.985, 0.981, 0.622),
     tolerance = 1e-3
   )
 })
@@ -137,7 +137,7 @@ test_that('TBAs are calculated correctly', {
       as.numeric(c(parameters[c('tbv_mt', 'tbv_md', 'tbv_ma', 'tbv_mu')])),
       parameters$tbv_k
     ),
-    c(0.685, 0.685, 0.466, 0.349),
+    c(0.0638, 0.05, 0.1602, 0.2268),
     tolerance = 1e-3
   )
 })

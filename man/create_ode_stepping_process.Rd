@@ -4,12 +4,12 @@
 \alias{create_ode_stepping_process}
 \title{Step mosquito ODE}
 \usage{
-create_ode_stepping_process(odes, human, states, variables)
+create_ode_stepping_process(odes, mosquito, states, variables)
 }
 \arguments{
 \item{odes}{the models to step, one for each species}
 
-\item{human}{the human individual}
+\item{mosquito}{the mosquito individual handle}
 
 \item{states}{a list of all of the model states}
 

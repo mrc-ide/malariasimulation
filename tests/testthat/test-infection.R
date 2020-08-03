@@ -4,28 +4,8 @@ test_that('vector infectivity in the IBM returns correct values', {
     blood_meal_rates = c(.92, .74, .94)
   )
   expect_equal(
-    vector_infectivity_ibm(
+    vector_infectivity(
       infectious_variants,
-      parameters
-    ),
-    4.64
-  )
-})
-
-test_that('vector infectivity in the ODE returns correct values', {
-  infectious_variants <- c(rep(1, 3), rep(3, 2))
-  ode_states <- mockery::mock(
-    c(0, 0, 0, 0, 0, 3),
-    c(0, 0, 0, 0, 0, 0),
-    c(0, 0, 0, 0, 0, 2)
-  )
-  parameters <- list(
-    blood_meal_rates = c(.92, .74, .94)
-  )
-  mockery::stub(vector_infectivity_ode, 'mosquito_model_get_states', ode_states)
-  expect_equal(
-    vector_infectivity_ode(
-      list(mockery::mock(), mockery::mock(), mockery::mock()),
       parameters
     ),
     4.64

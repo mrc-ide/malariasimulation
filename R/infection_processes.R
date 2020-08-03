@@ -6,13 +6,11 @@
 #' @param states a list of all of the model states
 #' @param variables a list of all of the model variables
 #' @param events a list of all of the model events
-#' @param odes (optional) a list of mosquito odes for each variety
 create_infection_process <- function(
   individuals,
   states,
   variables,
-  events,
-  odes=NULL
+  events
   ) {
   function(api) {
     human <- individuals$human
@@ -88,22 +86,15 @@ create_infection_process <- function(
 
 eir_from_api <- function(api, individuals, states, variables, age, odes) {
   parameters <- api$get_parameters()
-  if (parameters$vector_ode) {
-    infectivity <- vector_infectivity_ode(
-      odes,
-      parameters
-    )
-  } else {
-    source_mosquitos <- api$get_state(individuals$mosquito, states$Im)
-    infectivity <- vector_infectivity_ibm(
-      api$get_variable(
-        individuals$mosquito,
-        variables$mosquito_variety,
-        source_mosquitos
-      ),
-      parameters
-    )
-  }
+  source_mosquitos <- api$get_state(individuals$mosquito, states$Im)
+  infectivity <- vector_infectivity(
+    api$get_variable(
+      individuals$mosquito,
+      variables$mosquito_variety,
+      source_mosquitos
+    ),
+    parameters
+  )
 
   eir(
     age,
@@ -344,6 +335,7 @@ create_mosquito_infection_process <- function(
     infected = source_mosquitos[
       bernoulli_multi_p(length(source_mosquitos), lambda[species])
     ]
+
     api$queue_state_update(mosquito, states$Pm, infected)
     api$schedule(mosquito_infection, infected, parameters$dem)
   }
@@ -368,29 +360,13 @@ eir <- function(
 }
 
 # Implemented from Griffin et al 2010 S1 page 7
-vector_infectivity_ibm <- function(
-  infectious_variants,
-  parameters
-  ) {
+vector_infectivity <- function(infectious_variants, parameters) {
   sum(vnapply(
     seq_along(parameters$blood_meal_rate),
     function(variety) {
       parameters$blood_meal_rate[[variety]] * sum(infectious_variants == variety)
     }
   ))
-}
-
-# Implemented from Griffin et al 2010 S1 page 7
-vector_infectivity_ode <- function(
-  odes,
-  parameters
-  ) {
-  sum(vnapply(
-    odes,
-    function(ode) {
-      mosquito_model_get_states(ode)[[6]] # infected state
-    }
-  ) * parameters$blood_meal_rates)
 }
 
 # Implemented from Winskill 2017 - Supplementary Information page 4

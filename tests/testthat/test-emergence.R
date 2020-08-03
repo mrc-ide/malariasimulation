@@ -1,4 +1,5 @@
 test_that('carrying_capacity is calculated correctly', {
+  skip('to be tested on cpp')
   parameters <- list(
     model_seasonality = TRUE,
     g0    = 2,
@@ -18,6 +19,7 @@ test_that('carrying_capacity is calculated correctly', {
 })
 
 test_that('carrying_capacity is takes into account the timescale', {
+  skip('to be tested on cpp')
   parameters <- list(
     model_seasonality = TRUE,
     g0    = 2,
@@ -37,6 +39,7 @@ test_that('carrying_capacity is takes into account the timescale', {
 })
 
 test_that('carrying_capacity cycles every year', {
+  skip('to be tested on cpp')
   parameters <- list(
     model_seasonality = TRUE,
     g0    = 2,
@@ -62,6 +65,7 @@ test_that('carrying_capacity cycles every year', {
 })
 
 test_that('carrying_capacity can avoid seasonality', {
+  skip('to be tested on cpp')
   parameters <- list(
     model_seasonality = FALSE,
     g0    = 2,

@@ -73,18 +73,6 @@ calculate_carrying_capacity <- function(parameters) {
   )
 }
 
-#' @title Calculate the mean rainfall throughout the year
-#' @param parameters model parameters
-calculate_R_bar <- function(parameters) {
-  mean(vnapply(1:365, function(t) rainfall(
-		t,
-		parameters$days_per_timestep,
-    parameters$g0,
-		c(parameters$g1, parameters$g2, parameters$g3),
-		c(parameters$h1, parameters$h2, parameters$h3)
-	)))
-}
-
 #' @title Calculate equilibrium total_M from parameters
 #'
 #' @param parameters to work from

@@ -1,16 +1,16 @@
-
-test_that('egg_laying_process fails when there are not enough individuals', {
-  skip("to be translated to cpp")
+test_that('emergence process fails when there are not enough individuals', {
   parameters <- get_parameters()
+  events <- create_events()
   states <- create_states(parameters)
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables, events, parameters)
-  egg_laying_process <- create_egg_laying_process(
+  emergence_process <- create_mosquito_emergence_process(
     individuals$mosquito,
-    states$Sm,
-    states$Im,
+    list(list(), list()),
     states$Unborn,
-    states$E
+    states$Sm,
+    variables$mosquito_variety,
+    2
   )
 
   api <- mock_api(
@@ -23,7 +23,13 @@ test_that('egg_laying_process fails when there are not enough individuals', {
     )
   )
   expect_error(
-    egg_laying_process(api),
+    with_mock(
+      'malariasimulation:::mosquito_model_get_states' = mockery::mock(
+        c(1000, 500, 100),
+        c(1000, 500, 100)
+      ),
+      emergence_process(api)
+    ),
     '*'
   )
 
@@ -37,24 +43,30 @@ test_that('egg_laying_process fails when there are not enough individuals', {
     )
   )
   expect_error(
-    egg_laying_process(api),
+    with_mock(
+      'malariasimulation:::mosquito_model_get_states' = mockery::mock(
+        c(100000, 50000, 10000),
+        c(100000, 50000, 10000)
+      ),
+      emergence_process(api)
+    ),
     '*'
   )
 })
 
-test_that('egg_laying_process creates the correct number of larvae', {
-  skip("to be translated to cpp")
+test_that('emergence_process creates the correct number of susceptables', {
   parameters <- get_parameters()
-  parameters$beta <- 5
+  events <- create_events()
   states <- create_states(parameters)
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables, events, parameters)
-  egg_laying_process <- create_egg_laying_process(
+  emergence_process <- create_mosquito_emergence_process(
     individuals$mosquito,
-    states$Sm,
-    states$Im,
+    list(list(), list()),
     states$Unborn,
-    states$E
+    states$Sm,
+    variables$variety,
+    2
   )
 
   api <- mock_api(
@@ -67,85 +79,33 @@ test_that('egg_laying_process creates the correct number of larvae', {
     ),
     parameters = parameters
   )
-  egg_laying_process(api)
-  expect_equal(update$individual$name, 'mosquito')
-  expect_equal(update$state$name, 'E')
-  expect_equal(length(update$index), 10000)
-  expect(all(update$index >= 2000 & update$index < 100000 + 2000), 'incorrect range')
-})
 
-test_that('larval_death_process works with no larvae', {
-  parameters <- get_parameters()
-  events <- create_events()
-  states <- create_states(parameters)
-  variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
-  larval_death_process <- create_larval_death_process(
-    individuals$mosquito,
-    states$E,
-    states$L,
-    states$Unborn,
-    events,
-    calculate_carrying_capacity(parameters),
-    calculate_R_bar(parameters)
-  )
-  api <- mock_api(
-    list(
-      mosquito = list(
-        E = c(),
-        L = c(),
-        Unborn = seq_len(100)
-      )
+  with_mock(
+    'malariasimulation:::mosquito_model_get_states' = mockery::mock(
+      c(100000, 50000, 10000),
+      c(100000, 50000, 10000)
     ),
-    timestep = 100,
-    parameters = parameters
+    emergence_process(api)
   )
-  larval_death_process(api)
-  updates <- mockery::mock_args(api$queue_state_update)
-  expect_equal(updates[[1]][[1]]$name, 'mosquito')
-  expect_equal(updates[[1]][[2]]$name, 'Unborn')
-  expect_length(updates[[1]][[3]], 0)
-})
-
-test_that('larval_death_process kills the expected larvae', {
-  parameters <- get_parameters()
-  events <- create_events()
-  states <- create_states(parameters)
-  variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
-  larval_death_process <- create_larval_death_process(
+  emergence_rate <- .5 * (1. - exp(-1./2))
+  expected_target <- seq(emergence_rate * 20000) + 2000
+  expected_variety <- c(
+    rep(1, emergence_rate * 10000),
+    rep(2, emergence_rate * 10000)
+  )
+  mockery::expect_args(
+    api$queue_state_update,
+    1,
     individuals$mosquito,
-    states$E,
-    states$L,
-    states$Unborn,
-    events,
-    calculate_carrying_capacity(parameters),
-    calculate_R_bar(parameters)
+    states$Sm,
+    expected_target
   )
-  api <- mock_api(
-    list(
-      mosquito = list(
-        E = c(1, 2, 3, 4),
-        L = c(5, 6, 7, 8),
-        Unborn = seq_len(100) + 8
-      )
-    ),
-    timestep = 100,
-    parameters = parameters
+  mockery::expect_args(
+    api$queue_variable_update,
+    1,
+    individuals$mosquito,
+    variables$variety,
+    expected_variety,
+    expected_target
   )
-
-  mocked <- mockery::stub(
-    larval_death_process,
-    'bernoulli',
-    mockery::mock(
-      c(1, 2),
-      c(1, 3)
-    )
-  )
-
-  larval_death_process(api)
-  updates <- mockery::mock_args(api$queue_state_update)
-  expect_equal(updates[[1]][[1]]$name, 'mosquito')
-  expect_equal(updates[[1]][[2]]$name, 'Unborn')
-  expect_equal(updates[[1]][[3]], c(1, 2, 5, 7))
 })

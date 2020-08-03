@@ -20,11 +20,8 @@
  * 0 - E  - Early larval stage
  * 1 - L  - Late larval stage
  * 2 - P  - Pupal stage
- * 3 - Sm - Susceptible female adult
- * 4 - Pm - Incubating female adult
- * 5 - Im - Infected female adult
  */
-using state_t = std::array<double, 6>;
+using state_t = std::array<double, 3>;
 using integration_function_t = std::function<void (const state_t&, state_t&, double)>;
 
 struct MosquitoModel {
@@ -38,10 +35,7 @@ struct MosquitoModel {
     const double mul; //death rate for late larvae
     const double dp; //delay for for pupal growth
     const double mup; //death rate for pupae
-    double foim; //force of infection on mosquitoes
-    const double mu; //death rate for adult mosquitoes
-    const size_t tau; //the delay for infection
-    std::queue<double> lagged_incubating; //last tau values for incubating mosquitos
+    size_t total_M; //the number of adult female mosquitos in the model
 
     //solver fields
     boost::numeric::odeint::dense_output_runge_kutta<
@@ -66,11 +60,9 @@ struct MosquitoModel {
         double mul,
         double dp,
         double mup,
-        double foim,
-        double mu,
-        size_t tau
+        size_t total_M
     );
-    void step(double);
+    void step(size_t);
 };
 
 integration_function_t create_ode(MosquitoModel& model);

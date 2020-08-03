@@ -1,10 +1,10 @@
-parameterise_ode <- function(parameters, foim = 0.) {
+parameterise_ode <- function(parameters) {
   lapply(
     parameters$variety_proportions,
     function(p) {
       m <- p * parameters$total_M
       create_mosquito_model(
-        initial_mosquito_counts(parameters, foim, m),
+        initial_mosquito_counts(parameters, 0, m)[seq(3)],
         parameters$beta,
         parameters$del,
         parameters$me,
@@ -14,9 +14,7 @@ parameterise_ode <- function(parameters, foim = 0.) {
         parameters$ml,
         parameters$dpl,
         parameters$mup,
-        foim,
-        parameters$mum,
-        parameters$dem
+        m
       )
     }
   )
@@ -28,38 +26,33 @@ parameterise_ode <- function(parameters, foim = 0.) {
 #' and makes a step
 #'
 #' @param odes the models to step, one for each species
-#' @param human the human individual
+#' @param mosquito the mosquito individual handle
 #' @param states a list of all of the model states
 #' @param variables a list of all of the model variables
 create_ode_stepping_process <- function(
   odes,
-  human,
+  mosquito,
   states,
   variables
   ) {
   function(api) {
-    lambda <- mosquito_force_of_infection_from_api(
-      human,
-      states,
-      variables,
-      api
+    variety <- api$get_variable(mosquito, variables$mosquito_variety)
+    adult_mosquitoes <- api$get_state(
+      mosquito,
+      states$Sm,
+      states$Pm,
+      states$Im
     )
-    for (species in seq_along(lambda)) {
-      api$render(paste0('FOIM_', species), lambda[[species]])
-      mosquito_model_step(odes[[species]], lambda[[species]])
+    for (species in seq_along(api$get_parameters()$biting_rates)) {
+      total_M <- intersect(which(variety == species), adult_mosquitoes)
+      api$render(paste0('total_M_', species), total_M)
+      mosquito_model_step(odes[[species]], total_M)
     }
   }
 }
 
 create_ode_rendering_process <- function(odes) {
-  mosquito_states <- c(
-    'E',
-    'L',
-    'P',
-    'Sm',
-    'Pm',
-    'Im'
-  )
+  mosquito_states <- c('E', 'L', 'P')
   function(api) {
     counts <- rep(0, length(mosquito_states))
     for (ode in odes) {

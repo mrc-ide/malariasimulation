@@ -10,8 +10,7 @@
 
 integration_function_t create_ode(MosquitoModel& model) {
     return [&model](const state_t& x , state_t& dxdt , double t) {
-        auto incubation_survival = exp(-model.mu * model.tau);
-        dxdt[0] = model.beta * (x[3] + x[4] + x[5]) //new eggs
+        dxdt[0] = model.beta * (model.total_M) //new eggs
             - x[0] / model.de //growth to late larval stage
             - x[0] * model.mue * (1 + (x[0] + x[1]) / model.K0); //early larval deaths
         dxdt[1] = x[0] / model.de //growth from early larval
@@ -20,14 +19,6 @@ integration_function_t create_ode(MosquitoModel& model) {
         dxdt[2] = x[1] / model.dl //growth to pupae
             - x[2] / model.dp //growth to adult
             - x[2] * model.mup; // death of pupae
-        dxdt[3] = .5 * x[2] / model.dp //growth to adult female
-            - x[3] * model.foim //infections
-            - x[3] * model.mu; //deaths
-        dxdt[4] = x[3] * model.foim  //infections
-            - model.lagged_incubating.front() * incubation_survival //survived incubation period
-            - x[4] * model.mu; // deaths
-        dxdt[5] = model.lagged_incubating.front() * incubation_survival //survived incubation period
-            - x[5] * model.mu; // deaths
     };
 }
 
@@ -42,9 +33,7 @@ MosquitoModel::MosquitoModel(
     double mul,
     double dp,
     double mup,
-    double foim,
-    double mu,
-    size_t tau
+    size_t total_M
     ):
     beta(beta),
     de(de),
@@ -55,13 +44,8 @@ MosquitoModel::MosquitoModel(
     mul(mul),
     dp(dp),
     mup(mup),
-    foim(foim),
-    mu(mu),
-    tau(tau)
+    total_M(total_M)
     {
-    for (auto i = 0u; i < tau; ++i) {
-        lagged_incubating.push(init[3] * foim);
-    }
     auto in = state_t();
     for (auto i = 0u; i < in.size(); ++i) {
         in[i] = init[i];
@@ -75,11 +59,9 @@ MosquitoModel::MosquitoModel(
     rk.initialize(in, 0, 1);
 }
 
-void MosquitoModel::step(double new_foim) {
-    foim = new_foim;
+void MosquitoModel::step(size_t new_total_M) {
+    total_M = new_total_M;
     rk.do_step(ode);
-    lagged_incubating.pop();
-    lagged_incubating.push(rk.current_state()[3] * foim);
 }
 
 //[[Rcpp::export]]
@@ -94,9 +76,7 @@ Rcpp::XPtr<MosquitoModel> create_mosquito_model(
     double mul,
     double dp,
     double mup,
-    double foim,
-    double mu,
-    size_t tau
+    size_t total_M
     ) {
     auto model = new MosquitoModel(
         init,
@@ -109,16 +89,14 @@ Rcpp::XPtr<MosquitoModel> create_mosquito_model(
         mul,
         dp,
         mup,
-        foim,
-        mu,
-        tau
+        total_M
     );
     return Rcpp::XPtr<MosquitoModel>(model, true);
 }
 
 //[[Rcpp::export]]
-void mosquito_model_step(Rcpp::XPtr<MosquitoModel> model, double foim) {
-    model->step(foim);
+void mosquito_model_step(Rcpp::XPtr<MosquitoModel> model, size_t total_M) {
+    model->step(total_M);
 }
 
 //[[Rcpp::export]]

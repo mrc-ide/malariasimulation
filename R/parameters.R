@@ -264,12 +264,12 @@ get_parameters <- function(overrides = list()) {
     variety_proportions = c(.5, .3, .2),
     blood_meal_rates    = c(.92, .74, .94),
     # treatment
-    drug_efficacy          = c(),
-    drug_rel_c             = c(),
-    drug_prophilaxis_shape = c(),
-    drug_prophilaxis_scale = c(),
-    clinical_treatment_drugs     = c(),
-    clinical_treatment_coverages = c(),
+    drug_efficacy          = numeric(0),
+    drug_rel_c             = numeric(0),
+    drug_prophilaxis_shape = numeric(0),
+    drug_prophilaxis_scale = numeric(0),
+    clinical_treatment_drugs     = numeric(0),
+    clinical_treatment_coverages = numeric(0),
     ft = 0,
     # misc
     human_population = 100,
@@ -302,7 +302,7 @@ get_parameters <- function(overrides = list()) {
     parameters$t_proportion
   )
 
-  if (!all.equal(sum(props), 1)) {
+  if (!approx_sum(props, 1)) {
     stop("Starting proportions do not sum to 1")
   }
 

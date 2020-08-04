@@ -17,9 +17,9 @@ create_mortality_process <- function(human, D, Tr, variables, events) {
       timestep
     ) / 365
 
-    died <- which(bernoulli(
-        parameters$human_population, parameters$mortality_rate
-    ))
+    died <- bernoulli(
+      parameters$human_population, parameters$mortality_rate
+    )
     
     api$render('natural_deaths', length(died))
 

@@ -25,7 +25,7 @@ create_infection_process <- function(
 
     api$render("mean_EIR", mean(epsilon))
 
-    bitten_humans <- which(bernoulli(length(epsilon), epsilon))
+    bitten_humans <- which(bernoulli_multi_p(length(epsilon), epsilon))
     ib <- api$get_variable(human, variables$ib)
     if (length(bitten_humans) > 0) {
       boost_immunity(
@@ -113,6 +113,7 @@ eir_from_api <- function(api, individuals, states, variables, age, odes) {
   )
 }
 
+#' @importFrom stats dweibull
 calculate_infections <- function(
   api,
   human,
@@ -146,7 +147,7 @@ calculate_infections <- function(
     )
   }
 
-  source_humans[bernoulli(length(source_humans), b * (1 - prophylaxis))]
+  source_humans[bernoulli_multi_p(length(source_humans), b * (1 - prophylaxis))]
 }
 
 calculate_clinical_infections <- function(api, human, variables, infections) {
@@ -179,7 +180,7 @@ calculate_clinical_infections <- function(api, human, variables, infections) {
   }
 
   phi <- clinical_immunity(ica, icm, parameters)
-  infections[bernoulli(length(infections), phi)]
+  infections[bernoulli_multi_p(length(infections), phi)]
 }
 
 update_severe_disease <- function(
@@ -199,7 +200,7 @@ update_severe_disease <- function(
       api$get_variable(human, variables$ivm, clinical_infections),
       parameters
     )
-    develop_severe <- bernoulli(length(clinical_infections), theta)
+    develop_severe <- bernoulli_multi_p(length(clinical_infections), theta)
     api$queue_variable_update(
       human,
       variables$is_severe,
@@ -228,30 +229,31 @@ calculate_treated <- function(
   ) {
   parameters <- api$get_parameters()
   seek_treatment <- bernoulli(length(clinical_infections), parameters$ft)
-  n_treat <- sum(seek_treatment)
+  n_treat <- length(seek_treatment)
 
-  drugs <- sample(
-    parameters$clinical_treatment_drugs,
-    n_treat,
-    prob = parameters$clinical_treatment_coverages,
-    replace = TRUE
-  )
+  if (length(parameters$clinical_treatment_coverages) == 0) {
+    return(numeric(0))
+  } else if (length(parameters$clinical_treatment_coverages) > 1) {
+    drugs <- sample(
+      parameters$clinical_treatment_drugs,
+      n_treat,
+      prob = parameters$clinical_treatment_coverages,
+      replace = TRUE
+    )
+  } else {
+    drugs <- rep(parameters$clinical_treatment_drugs, n_treat)
+  }
 
-  successful <- bernoulli(n_treat, parameters$drug_efficacy[drugs])
+  successful <- bernoulli_multi_p(n_treat, parameters$drug_efficacy[drugs])
   treated_index <- clinical_infections[seek_treatment][successful]
 
   # Update those who have been treated
   if (length(treated_index) > 0) {
     api$queue_state_update(human, states$Tr, treated_index)
-    infectivity <- api$get_variable(
-      human,
-      variables$infectivity,
-      treated_index
-    )
     api$queue_variable_update(
       human,
       variables$infectivity,
-      infectivity * parameters$drug_rel_c[drugs[successful]],
+      parameters$cd * parameters$drug_rel_c[drugs[successful]],
       treated_index
     )
     api$queue_variable_update(
@@ -340,7 +342,7 @@ create_mosquito_infection_process <- function(
     )
 
     infected = source_mosquitos[
-      bernoulli(length(source_mosquitos), lambda[species])
+      bernoulli_multi_p(length(source_mosquitos), lambda[species])
     ]
     api$queue_state_update(mosquito, states$Pm, infected)
     api$schedule(mosquito_infection, infected, parameters$dem)

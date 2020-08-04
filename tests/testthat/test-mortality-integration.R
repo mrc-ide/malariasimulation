@@ -32,9 +32,9 @@ test_that('mortality_process resets humans correctly', {
   with_mock(
     sample = mockery::mock(c(1), c(4)),
     'malariasimulation:::bernoulli' = mockery::mock(
-      c(FALSE, FALSE, FALSE, TRUE),
-      c(FALSE),
-      c(TRUE)
+      c(4),
+      numeric(0),
+      c(1)
     ),
     mortality_process(api)
   )

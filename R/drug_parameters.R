@@ -41,7 +41,7 @@ set_clinical_treatment <- function(parameters, ft, drugs, coverages) {
     stop('Drug indecies are invalid')
   }
   parameters$clinical_treatment_drugs <- drugs
-  if (sum(coverages) != 1) {
+  if (!approx_sum(coverages, 1)) {
     stop('Drug coverages do not sum to 1')
   }
   parameters$clinical_treatment_coverages <- coverages

@@ -228,21 +228,20 @@ calculate_treated <- function(
   clinical_infections
   ) {
   parameters <- api$get_parameters()
-  seek_treatment <- bernoulli(length(clinical_infections), parameters$ft)
-  n_treat <- length(seek_treatment)
-
   if (length(parameters$clinical_treatment_coverages) == 0) {
     return(numeric(0))
-  } else if (length(parameters$clinical_treatment_coverages) > 1) {
-    drugs <- sample(
-      parameters$clinical_treatment_drugs,
+  }
+
+  seek_treatment <- bernoulli(length(clinical_infections), parameters$ft)
+  n_treat <- length(seek_treatment)
+  drugs <- parameters$clinical_treatment_drugs[
+    sample.int(
+      length(parameters$clinical_treatment_drugs),
       n_treat,
       prob = parameters$clinical_treatment_coverages,
       replace = TRUE
     )
-  } else {
-    drugs <- rep(parameters$clinical_treatment_drugs, n_treat)
-  }
+  ]
 
   successful <- bernoulli_multi_p(n_treat, parameters$drug_efficacy[drugs])
   treated_index <- clinical_infections[seek_treatment][successful]

@@ -261,7 +261,7 @@ test_that('human infection_process works for two drugs', {
   with_mock(
     'malariasimulation:::bernoulli_multi_p' = bernoulli_mock,
     'malariasimulation:::bernoulli' = mockery::mock(1),
-    sample = mockery::mock(2), # Return DCH drug
+    sample.int = mockery::mock(2), # Return DCH drug
     infection_process(api)
   )
 
@@ -618,7 +618,7 @@ test_that('calculate_treated can handle multiple drugs', {
     'malariasimulation:::bernoulli_multi_p' = mockery::mock(
       c(TRUE, TRUE, FALSE) # Mock drug success
     ),
-    sample = mockery::mock(c(1, 2)),
+    sample.int = mockery::mock(c(1, 2)),
     calculate_treated(api, individuals$human, states, variables, seq(3))
   )
 

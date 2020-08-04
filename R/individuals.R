@@ -44,10 +44,10 @@ create_states <- function(parameters) {
   )
 
   mosquito_counts <- initial_mosquito_counts(parameters, parameters$init_foim)
-  n_Unborn <- parameters$mosquito_limit - sum(mosquito_counts)
+  n_Unborn <- parameters$mosquito_limit - sum(mosquito_counts[c(4, 5, 6)])
 
   if (n_Unborn < 0) {
-    stop(paste('Mosquito limit not high enough. Short by', n_Unborn, sep=' '))
+    stop(paste('Mosquito limit not high enough. Short by', -n_Unborn, sep=' '))
   }
   states <- c(
     states,

@@ -85,6 +85,7 @@ total_Ms <- c(.5, 1, 5, 10, 50, 100, 500, 1000) * human_population
 
 for (total_M in total_Ms) {
   simparams$total_M <- total_M
+  simparams$mosquito_limit <- total_M * 10
   EIR <- estimate_eir()
   if (EIR > 0) {
     total_Ms <- c(total_Ms, total_M)

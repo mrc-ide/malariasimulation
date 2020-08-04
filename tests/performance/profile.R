@@ -3,7 +3,7 @@ library(malariaEquilibrium)
 library(profvis)
 
 year <- 365
-sim_length <- 10 * year
+sim_length <- 5 * year
 human_population <- 60000
 
 jamie_params <- load_parameter_set()
@@ -13,7 +13,8 @@ simparams <- get_parameters(c(
   list(
     human_population = human_population,
     variety_proportions = 1,
-    vector_ode = TRUE
+    total_M = human_population * 5,
+    mosquito_limit = human_population * 10
   )
 ))
 

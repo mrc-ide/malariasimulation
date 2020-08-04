@@ -38,7 +38,7 @@ set_drugs <- function(parameters, drugs) {
 set_clinical_treatment <- function(parameters, ft, drugs, coverages) {
   parameters$ft <- ft
   if (any(drugs < 1 | drugs > length(parameters$drug_efficacy))) {
-    stop('Drug indecies are invalid')
+    stop('Drug indices are invalid')
   }
   parameters$clinical_treatment_drugs <- drugs
   if (sum(coverages) != 1) {

@@ -42,5 +42,6 @@ Roxygen: list(markdown = TRUE)
 LinkingTo:
   Rcpp,
   individual,
-  BH
+  BH,
+  testthat
 VignetteBuilder: knitr

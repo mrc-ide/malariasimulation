@@ -19,7 +19,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Remotes:
-  mrc-ide/individual@0.0.5,
+  mrc-ide/individual@0.0.6,
   mrc-ide/malariaEquilibrium
 Imports:
   individual,

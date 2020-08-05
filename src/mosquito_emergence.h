@@ -10,6 +10,6 @@
 
 #include <individual.h>
 
-Rcpp::XPtr<process_t> create_mosquito_emergence_process_cpp();
+Rcpp::XPtr<process_t> create_mosquito_emergence_process_cpp(std::string, std::string, std::string);
 
 #endif /* SRC_MOSQUITO_EMERGENCE_H_ */

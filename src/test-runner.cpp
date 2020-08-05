@@ -4,14 +4,5 @@
  * available in your package.
  */
 #define TESTTHAT_TEST_RUNNER
-#include <testthat.h>
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
 
-//' @export
-void setup_gmock() {
-  ::testing::GTEST_FLAG(throw_on_failure) = true;
-  int argc = 0;
-  char** argv = nullptr;
-  ::testing::InitGoogleMock(&argc, argv);
-}
+#include <testthat.h>

@@ -11,6 +11,7 @@
 #' fixed state transitions:
 #'
 #' * dd - the delay for humans to move from state D to A
+#' * dt - the delay for humans to move from state Tr to Ph
 #' * da - the delay for humans to move from state A to U
 #' * du - the delay for humans to move from state U to S
 #' * del - the delay for mosquitos to move from state E to L
@@ -50,6 +51,7 @@
 #' * iv0 - scale parameter
 #' * kv - shape parameter
 #' * fv0 - age dependent modifier
+#' * fvt - reduced probability of death due to treatment
 #' * av - age dependent modifier
 #' * gammav - age dependent modifier
 #'
@@ -76,6 +78,7 @@
 #' * cd - infectivity of clinically diseased humans towards mosquitos
 #' * gamma1 - parameter for infectivity of asymptomatic humans
 #' * cu - infectivity of sub-patent infection
+#' * ct - infectivity of treated infection
 #'
 #' unique biting rate:
 #'
@@ -110,7 +113,8 @@
 #' * a_proportion - the proportion of `human_population` that begin as
 #' Asymptomatic
 #' * u_proportion - the proportion of `human_population` that begin as
-#' Subpatents
+#' subpatents
+#' * t_proportion - the proportion of `human_population` that begin treated
 #'
 #' initial immunity values:
 #'
@@ -134,6 +138,21 @@
 #' * variety_proportions - the relative proportions of each species
 #' * blood_meal_rates - the blood meal rates for each species
 #'
+#' treatment parameters:
+#' I recommend setting these with the convenience functions in
+#' `drug_parameters.R`
+#'
+#' * drug_efficacy - a vector of efficacies for available drugs
+#' * drug_rel_c - a vector of relative onwards infectiousness values for drugs
+#' * drug_prophylaxis_shape - a vector of shape parameters for weibull curves to
+#' model prophylaxis for each drug
+#' * drug_prophylaxis_scale - a vector of scale parameters for weibull curves to
+#' model prophylaxis for each drug
+#' * ft - probability of seeking treatment if clinically diseased
+#' * clinical_treatment_drugs - a vector of drugs that are avaliable for
+#' clinically diseased (these values refer to the index in drug_* parameters)
+#' * clinical_treatment_coverage - a vector of coverage values for each drug
+#'
 #' miscellaneous:
 #'
 #' * human_population - the number of humans to model
@@ -147,6 +166,7 @@ get_parameters <- function(overrides = list()) {
   days_per_timestep <- 1
   parameters <- list(
     dd    = 5,
+    dt    = 5,
     da    = 195,
     du    = 110,
     del   = 6.64,
@@ -177,6 +197,7 @@ get_parameters <- function(overrides = list()) {
     cd    = 0.068,
     gamma1= 1.82425,
     cu    = 0.0062,
+    ct    = 0.021896,
     # unique biting rate
     a0    = 8 * 365,
     rho   = .85,
@@ -191,6 +212,7 @@ get_parameters <- function(overrides = list()) {
     theta1  = .0001191,
     kv      = 2.00048,
     fv0     = 0.141195,
+    fvt     = 0.5,
     av      = 2493.41,
     gammav  = 2.91282,
     iv0     = 1.09629,
@@ -227,6 +249,7 @@ get_parameters <- function(overrides = list()) {
     d_proportion = 0.007215064,
     a_proportion = 0.439323667,
     u_proportion = 0.133028023,
+    t_proportion = 0,
     # initial immunities
     init_ica = 0,
     init_iva = 0,
@@ -240,6 +263,14 @@ get_parameters <- function(overrides = list()) {
     init_foim= 0,
     variety_proportions = c(.5, .3, .2),
     blood_meal_rates    = c(.92, .74, .94),
+    # treatment
+    drug_efficacy          = numeric(0),
+    drug_rel_c             = numeric(0),
+    drug_prophilaxis_shape = numeric(0),
+    drug_prophilaxis_scale = numeric(0),
+    clinical_treatment_drugs     = numeric(0),
+    clinical_treatment_coverages = numeric(0),
+    ft = 0,
     # misc
     human_population = 100,
     mosquito_limit   = 100 * 1000,
@@ -267,10 +298,11 @@ get_parameters <- function(overrides = list()) {
     parameters$s_proportion,
     parameters$d_proportion,
     parameters$a_proportion,
-    parameters$u_proportion
+    parameters$u_proportion,
+    parameters$t_proportion
   )
 
-  if (!all.equal(sum(props), 1)) {
+  if (!approx_sum(props, 1)) {
     stop("Starting proportions do not sum to 1")
   }
 
@@ -280,8 +312,8 @@ get_parameters <- function(overrides = list()) {
 #' @title Parameterise equilibrium proportions
 #' @description parameterise equilibrium proportions from a list
 #'
-#' @param eq the equilibrium solution output
 #' @param parameters the model parameters
+#' @param eq the equilibrium solution output
 #' @export
 parameterise_human_equilibrium <- function(parameters, eq) {
   state_props <- colSums(eq$states[,c('S', 'D', 'A', 'U')])

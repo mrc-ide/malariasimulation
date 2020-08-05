@@ -21,92 +21,12 @@ create_infection_process <- function(
 
     # Calculate EIR
     age <- get_age(api$get_variable(human, variables$birth), api$get_timestep())
-
-    if (parameters$vector_ode) {
-      infectivity <- vector_infectivity_ode(
-        odes,
-        parameters
-      )
-    } else {
-      source_mosquitos <- api$get_state(individuals$mosquito, states$Im)
-      infectivity <- vector_infectivity_ibm(
-        api$get_variable(
-          individuals$mosquito,
-          variables$mosquito_variety,
-          source_mosquitos
-        ),
-        parameters
-      )
-    }
-
-    epsilon <- eir(
-      age,
-      api$get_variable(human, variables$zeta),
-      infectivity,
-      parameters
-    )
+    epsilon <- eir_from_api(api, individuals, states, variables, age, odes)
 
     api$render("mean_EIR", mean(epsilon))
 
-    bitten_humans <- which(bernoulli(length(epsilon), epsilon))
-
-    api$render("num_bitten", length(bitten_humans))
-    api$render("average_age", mean(age)/365)
-
-    # Calculate Infected
+    bitten_humans <- which(bernoulli_multi_p(length(epsilon), epsilon))
     ib <- api$get_variable(human, variables$ib)
-
-    source_humans <- intersect(
-      api$get_state(human, states$S, states$A, states$U),
-      bitten_humans
-    )
-
-    b <- blood_immunity(ib[source_humans], parameters)
-
-    infected_humans <- source_humans[bernoulli(length(source_humans), b)]
-
-    ica <- api$get_variable(
-      human,
-      variables$ica,
-      infected_humans
-    )
-
-    iva <- api$get_variable(
-      human,
-      variables$iva,
-      infected_humans
-    )
-
-    icm <- api$get_variable(human, variables$icm, infected_humans)
-    phi <- clinical_immunity(ica, icm, parameters)
-
-    develop_clinical <- bernoulli(length(infected_humans), phi)
-
-    if (parameters$severe_enabled) {
-      theta <- severe_immunity(
-        age[infected_humans],
-        iva,
-        api$get_variable(human, variables$ivm, infected_humans),
-        parameters
-      )
-      develop_severe <- bernoulli(length(develop_clinical), theta)
-    }
-
-    # Exclude humans already scheduled for infection
-    scheduled_for_infection <- union(
-      api$get_scheduled(events$infection),
-      api$get_scheduled(events$asymptomatic_infection)
-    )
-    to_infect <- setdiff(
-      infected_humans[develop_clinical],
-      scheduled_for_infection
-    )
-    to_infect_asym <- setdiff(
-      infected_humans[!develop_clinical],
-      scheduled_for_infection
-    )
-
-    # Updates for those who were bitten
     if (length(bitten_humans) > 0) {
       boost_immunity(
         api,
@@ -118,64 +38,266 @@ create_infection_process <- function(
         timestep,
         parameters$ub
       )
-
-      # Updates for those who were infected
-      if (length(infected_humans) > 0) {
-        boost_immunity(
-          api,
-          human,
-          variables$ica,
-          infected_humans,
-          ica,
-          variables$last_boosted_ica,
-          timestep,
-          parameters$uc
-        )
-        boost_immunity(
-          api,
-          human,
-          variables$iva,
-          infected_humans,
-          iva,
-          variables$last_boosted_iva,
-          timestep,
-          parameters$uv
-        )
-        boost_immunity(
-          api,
-          human,
-          variables$id,
-          infected_humans,
-          api$get_variable(human, variables$id, infected_humans),
-          variables$last_boosted_id,
-          timestep,
-          parameters$ud
-        )
-
-        # Schedule infection states
-        if(length(to_infect) > 0) {
-          api$schedule(events$infection, to_infect, parameters$de)
-
-          if(parameters$severe_enabled) {
-            is_severe <- rep(0, length(infected_humans))
-            is_severe[develop_severe] <- 1
-            api$queue_variable_update(
-              human,
-              variables$is_severe,
-              is_severe,
-              infected_humans
-            )
-          }
-        }
-        if(length(to_infect_asym) > 0) {
-          api$schedule(
-            events$asymptomatic_infection,
-            to_infect_asym,
-            parameters$de
-          )
-        }
-      }
     }
+
+    # Calculate Infected
+    infected_humans <- calculate_infections(
+      api,
+      human,
+      states,
+      variables,
+      bitten_humans,
+      ib
+    )
+
+    clinical_infections <- calculate_clinical_infections(
+      api,
+      human,
+      variables,
+      infected_humans
+    )
+
+    if (parameters$severe_enabled) {
+      update_severe_disease(
+        api,
+        clinical_infections,
+        age[clinical_infections],
+        human,
+        variables,
+        infected_humans
+      )
+    }
+
+    treated <- calculate_treated(
+      api,
+      human,
+      states,
+      variables,
+      clinical_infections
+    )
+
+    schedule_infections(
+      api,
+      events,
+      clinical_infections,
+      treated,
+      infected_humans
+    )
+  }
+}
+
+eir_from_api <- function(api, individuals, states, variables, age, odes) {
+  parameters <- api$get_parameters()
+  if (parameters$vector_ode) {
+    infectivity <- vector_infectivity_ode(
+      odes,
+      parameters
+    )
+  } else {
+    source_mosquitos <- api$get_state(individuals$mosquito, states$Im)
+    infectivity <- vector_infectivity_ibm(
+      api$get_variable(
+        individuals$mosquito,
+        variables$mosquito_variety,
+        source_mosquitos
+      ),
+      parameters
+    )
+  }
+
+  eir(
+    age,
+    api$get_variable(individuals$human, variables$zeta),
+    infectivity,
+    parameters
+  )
+}
+
+#' @importFrom stats dweibull
+calculate_infections <- function(
+  api,
+  human,
+  states,
+  variables,
+  bitten_humans,
+  ib
+  ) {
+  parameters <- api$get_parameters()
+  source_humans <- intersect(
+    api$get_state(human, states$S, states$A, states$U),
+    bitten_humans
+  )
+  b <- blood_immunity(ib[source_humans], api$get_parameters())
+
+  # calculate prophylaxis
+  prophylaxis <- rep(0, length(source_humans))
+  drug <- api$get_variable(human, variables$drug, source_humans)
+  medicated <- (drug > 0)
+  if (any(medicated)) {
+    drug <- drug[medicated]
+    drug_time <- api$get_variable(
+      human,
+      variables$drug_time,
+      source_humans[medicated]
+    )
+    prophylaxis[medicated] <- dweibull(
+      api$get_timestep() - drug_time,
+      parameters$drug_prophylaxis_shape[drug],
+      parameters$drug_prophylaxis_scale[drug]
+    )
+  }
+
+  source_humans[bernoulli_multi_p(length(source_humans), b * (1 - prophylaxis))]
+}
+
+calculate_clinical_infections <- function(api, human, variables, infections) {
+  ica <- api$get_variable(human, variables$ica, infections)
+  icm <- api$get_variable(human, variables$icm, infections)
+  parameters <- api$get_parameters()
+
+  if (length(infections) > 0) {
+    timestep <- api$get_timestep()
+    boost_immunity(
+      api,
+      human,
+      variables$ica,
+      infections,
+      ica,
+      variables$last_boosted_ica,
+      timestep,
+      parameters$uc
+    )
+    boost_immunity(
+      api,
+      human,
+      variables$id,
+      infections,
+      api$get_variable(human, variables$id, infections),
+      variables$last_boosted_id,
+      timestep,
+      parameters$ud
+    )
+  }
+
+  phi <- clinical_immunity(ica, icm, parameters)
+  infections[bernoulli_multi_p(length(infections), phi)]
+}
+
+update_severe_disease <- function(
+  api,
+  clinical_infections,
+  infection_age,
+  human,
+  variables,
+  infections
+  ) {
+  if (length(clinical_infections) > 0) {
+    parameters <- api$get_parameters()
+    iva <- api$get_variable(human, variables$iva, infections)
+    theta <- severe_immunity(
+      infection_age,
+      iva,
+      api$get_variable(human, variables$ivm, clinical_infections),
+      parameters
+    )
+    develop_severe <- bernoulli_multi_p(length(clinical_infections), theta)
+    api$queue_variable_update(
+      human,
+      variables$is_severe,
+      develop_severe,
+      clinical_infections
+    )
+    boost_immunity(
+      api,
+      human,
+      variables$iva,
+      infections,
+      iva,
+      variables$last_boosted_iva,
+      api$get_timestep(),
+      parameters$uv
+    )
+  }
+}
+
+calculate_treated <- function(
+  api,
+  human,
+  states,
+  variables,
+  clinical_infections
+  ) {
+  parameters <- api$get_parameters()
+  if (length(parameters$clinical_treatment_coverages) == 0) {
+    return(numeric(0))
+  }
+
+  seek_treatment <- bernoulli(length(clinical_infections), parameters$ft)
+  n_treat <- length(seek_treatment)
+  drugs <- parameters$clinical_treatment_drugs[
+    sample.int(
+      length(parameters$clinical_treatment_drugs),
+      n_treat,
+      prob = parameters$clinical_treatment_coverages,
+      replace = TRUE
+    )
+  ]
+
+  successful <- bernoulli_multi_p(n_treat, parameters$drug_efficacy[drugs])
+  treated_index <- clinical_infections[seek_treatment][successful]
+
+  # Update those who have been treated
+  if (length(treated_index) > 0) {
+    api$queue_state_update(human, states$Tr, treated_index)
+    api$queue_variable_update(
+      human,
+      variables$infectivity,
+      parameters$cd * parameters$drug_rel_c[drugs[successful]],
+      treated_index
+    )
+    api$queue_variable_update(
+      human,
+      variables$drug,
+      drugs[successful],
+      treated_index
+    )
+    api$queue_variable_update(
+      human,
+      variables$drug_time,
+      api$get_timestep(),
+      treated_index
+    )
+  }
+  treated_index
+}
+
+schedule_infections <- function(
+  api,
+  events,
+  clinical_infections,
+  treated,
+  infections
+  ) {
+  parameters <- api$get_parameters()
+  scheduled_for_infection <- union(
+    api$get_scheduled(events$infection),
+    api$get_scheduled(events$asymptomatic_infection)
+  )
+  to_infect <- setdiff(
+    clinical_infections,
+    c(scheduled_for_infection, treated)
+  )
+  to_infect_asym <- setdiff(
+    infections,
+    c(scheduled_for_infection, clinical_infections)
+  )
+
+  if(length(to_infect) > 0) {
+    api$schedule(events$infection, to_infect, parameters$de)
+  }
+
+  if(length(to_infect_asym) > 0) {
+    api$schedule(events$asymptomatic_infection, to_infect_asym, parameters$de)
   }
 }
 
@@ -219,7 +341,7 @@ create_mosquito_infection_process <- function(
     )
 
     infected = source_mosquitos[
-      bernoulli(length(source_mosquitos), lambda[species])
+      bernoulli_multi_p(length(source_mosquitos), lambda[species])
     ]
     api$queue_state_update(mosquito, states$Pm, infected)
     api$schedule(mosquito_infection, infected, parameters$dem)
@@ -344,29 +466,16 @@ mosquito_force_of_infection_from_api <- function(
   variables,
   api
   ) {
+
   parameters <- api$get_parameters()
   age <- get_age(api$get_variable(human, variables$birth), api$get_timestep())
   zeta  <- api$get_variable(human, variables$zeta)
-  a_subset <- api$get_state(human, states$A)
-  d_subset <- api$get_state(human, states$D)
-  u_subset <- api$get_state(human, states$U)
-
-  a_infectivity <- asymptomatic_infectivity(
-    age[a_subset],
-    api$get_variable(human, variables$id, a_subset),
-    parameters
-  )
-
-  infectivity <- rep(0, length(age))
-  infectivity[d_subset] <- parameters$cd
-  infectivity[a_subset] <- a_infectivity
-  infectivity[u_subset] <- parameters$cu
 
   mosquito_force_of_infection(
     seq_along(parameters$blood_meal_rates),
     age,
     zeta,
-    infectivity,
+    api$get_variable(human, variables$infectivity),
     parameters
   )
 }

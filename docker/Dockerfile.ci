@@ -1,0 +1,9 @@
+# Dockerfile with development tools for:
+# easy testing, documentation generation and benchmarking
+FROM rocker/r-ver:4.0.2
+
+RUN R -e "install.packages(c('remotes', 'testthat', 'mockery'))"
+
+COPY DESCRIPTION /home/docker/ms/
+
+RUN R -e "remotes::install_deps('/home/docker/ms', dependencies = 'Imports')"

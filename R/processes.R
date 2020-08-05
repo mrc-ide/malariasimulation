@@ -37,23 +37,35 @@ create_processes <- function(
     # =================
     # State transitions
     # =================
-    individual::fixed_probability_state_change_process(
-      individuals$human$name,
-      states$D$name,
-      states$A$name,
+    create_asymptomatic_progression_process(
+      individuals$human,
+      states,
+      variables,
       1. - exp(-1./parameters$dd)
     ),
-    individual::fixed_probability_state_change_process(
-      individuals$human$name,
-      states$A$name,
-      states$U$name,
-      1. - exp(-1./parameters$da)
+    create_progression_process(
+      individuals$human,
+      states$A,
+      states$U,
+      1. - exp(-1./parameters$da),
+      variables$infectivity,
+      parameters$cu
     ),
-    individual::fixed_probability_state_change_process(
-      individuals$human$name,
-      states$U$name,
-      states$S$name,
-      1. - exp(-1./parameters$du)
+    create_progression_process(
+      individuals$human,
+      states$U,
+      states$S,
+      1. - exp(-1./parameters$du),
+      variables$infectivity,
+      0
+    ),
+    create_progression_process(
+      individuals$human,
+      states$Tr,
+      states$S,
+      1. - exp(-1./parameters$dt),
+      variables$infectivity,
+      0
     ),
 
     # schedule infections for humans and set last_boosted_*
@@ -68,6 +80,7 @@ create_processes <- function(
     create_mortality_process(
       individuals$human,
       states$D,
+      states$Tr,
       variables,
       events
     ),
@@ -75,7 +88,13 @@ create_processes <- function(
     # Rendering processes
     individual::state_count_renderer_process(
       individuals$human$name,
-      c(states$S$name, states$A$name, states$D$name, states$U$name)
+      c(
+        states$S$name,
+        states$A$name,
+        states$D$name,
+        states$U$name,
+        states$Tr$name
+      )
     ),
     individual::variable_mean_renderer_process(
       individuals$human$name,
@@ -211,8 +230,40 @@ create_event_based_processes <- function(individuals, states, variables, events,
   events$infection$add_listener(
     individual::update_state_listener(individuals$human$name, states$D$name)
   )
+  events$infection$add_listener(
+    function(api, target) {
+      if (length(target) > 0) {
+        api$queue_variable_update(
+          individuals$human,
+          variables$infectivity,
+          parameters$cd,
+          target
+        )
+      }
+    }
+  )
   events$asymptomatic_infection$add_listener(
     individual::update_state_listener(individuals$human$name, states$A$name)
+  )
+  events$asymptomatic_infection$add_listener(
+    function(api, target) {
+      if (length(target) > 0) {
+        new_infectivity <- asymptomatic_infectivity(
+          get_age(
+            api$get_variable(individuals$human, variables$birth, target),
+            api$get_timestep()
+          ),
+          api$get_variable(individuals$human, variables$id, target),
+          api$get_parameters()
+        )
+        api$queue_variable_update(
+          individuals$human,
+          variables$infectivity,
+          new_infectivity,
+          target
+        )
+      }
+    }
   )
 
   if (!parameters$vector_ode) {

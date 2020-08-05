@@ -19,13 +19,14 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Remotes:
-  mrc-ide/individual@0.0.3,
+  mrc-ide/individual@0.0.5,
   mrc-ide/malariaEquilibrium
 Imports:
   individual,
   Rcpp,
   BH,
-  statmod
+  statmod,
+  malariaEquilibrium
 Suggests: 
   testthat,
   mockery,
@@ -35,9 +36,8 @@ Suggests:
   DiagrammeR,
   cowplot,
   ggplot2,
-  malariaEquilibrium,
   covr
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
 LinkingTo:
   Rcpp,

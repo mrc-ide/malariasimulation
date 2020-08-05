@@ -19,6 +19,7 @@ progressing to the T or D state
 \item D - \strong{D}isease individuals exhibit "clinical" or "severe" disease
 \item A - \strong{A}symptomatic individuals no longer exhibit symptoms
 \item U - S\strong{u}bpatent infectious patients are still infectious to mosquitos
+\item Tr - Patients under \strong{Tr}eatment
 }
 
 The mosquito states are defined as:

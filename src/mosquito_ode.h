@@ -62,7 +62,9 @@ struct MosquitoModel {
         double mup,
         size_t total_M
     );
-    void step(size_t);
+    virtual void step(size_t);
+    virtual state_t get_state();
+    virtual ~MosquitoModel() {};
 };
 
 integration_function_t create_ode(MosquitoModel& model);

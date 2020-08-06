@@ -6,16 +6,46 @@
  */
 
 #include "mosquito_emergence.h"
+#include "mosquito_ode.h"
 
 Rcpp::XPtr<process_t> create_mosquito_emergence_process_cpp(
-    std::string human,
+    std::string mosquito,
+    Rcpp::List odes,
     std::string unborn,
-    std::string susceptible
+    std::string susceptible,
+    std::string variety,
+    double dpl
     ) {
+    auto rate = .5 * (1. - exp(-1./dpl));
     return Rcpp::XPtr<process_t>(
         new process_t([=] (ProcessAPI& api) {
-            auto target_individuals = api.get_state(human, unborn);
-            api.queue_state_update(human, susceptible, target_individuals);
+            auto n = 0u;
+            for (Rcpp::XPtr<MosquitoModel> ode : odes) {
+                n += ode->get_state()[2] * rate;
+            }
+            auto source = api.get_state(mosquito, unborn);
+            if (source.size() < n) {
+                Rcpp::stop("Not enough mosquitos. Please raise mosquito_limit");
+            }
+            variable_vector_t species(n);
+            auto ode_i = 1;
+            auto species_i = 0u;
+            for (Rcpp::XPtr<MosquitoModel> ode : odes) {
+                auto to_set = static_cast<size_t>(ode->get_state()[2] * rate);
+                auto start = species_i;
+                for (;species_i < start + to_set; ++species_i) {
+                    species[species_i] = ode_i;
+                }
+                ++ode_i;
+            }
+            std::vector<size_t> target(n);
+            auto sourceit = source.begin();
+            for (auto i = 0; i < target.size(); ++i) {
+                target[i] = *sourceit;
+                ++sourceit;
+            }
+            api.queue_state_update(mosquito, susceptible, target);
+            api.queue_variable_update(mosquito, variety, target, species);
         }),
         true
     );

@@ -64,6 +64,10 @@ void MosquitoModel::step(size_t new_total_M) {
     rk.do_step(ode);
 }
 
+state_t MosquitoModel::get_state() {
+    return rk.current_state();
+}
+
 //[[Rcpp::export]]
 Rcpp::XPtr<MosquitoModel> create_mosquito_model(
     std::vector<double> init,
@@ -101,6 +105,6 @@ void mosquito_model_step(Rcpp::XPtr<MosquitoModel> model, size_t total_M) {
 
 //[[Rcpp::export]]
 std::vector<double> mosquito_model_get_states(Rcpp::XPtr<MosquitoModel> model) {
-    const auto& state = model->rk.current_state();
+    auto state = model->get_state();
     return std::vector<double>(state.cbegin(), state.cend());
 }

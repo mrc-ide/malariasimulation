@@ -12,6 +12,7 @@ RUN apt-get update && apt-get -y install \
   libgit2-dev \
   pandoc \
   pandoc-citeproc \
+  valgrind \
   time
 
 RUN R -e "install.packages(c('devtools', 'roxygen2', 'testthat', 'pkgdown'))"

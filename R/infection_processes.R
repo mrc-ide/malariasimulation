@@ -19,7 +19,7 @@ create_infection_process <- function(
 
     # Calculate EIR
     age <- get_age(api$get_variable(human, variables$birth), api$get_timestep())
-    epsilon <- eir_from_api(api, individuals, states, variables, age, odes)
+    epsilon <- eir_from_api(api, individuals, states, variables, age)
 
     api$render("mean_EIR", mean(epsilon))
 
@@ -84,7 +84,7 @@ create_infection_process <- function(
   }
 }
 
-eir_from_api <- function(api, individuals, states, variables, age, odes) {
+eir_from_api <- function(api, individuals, states, variables, age) {
   parameters <- api$get_parameters()
   source_mosquitos <- api$get_state(individuals$mosquito, states$Im)
   infectivity <- vector_infectivity(

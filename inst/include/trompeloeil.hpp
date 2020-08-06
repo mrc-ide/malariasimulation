@@ -133,6 +133,7 @@
 #include <initializer_list>
 #include <type_traits>
 #include <utility>
+#include <Rcpp.h>
 
 
 #ifdef TROMPELOEIL_SANITY_CHECKS
@@ -1501,7 +1502,7 @@ template <typename T>
     const
     noexcept
     {
-      std::abort(); // must never be called
+      Rcpp::stop("Should not be called"); // must never be called
     }
   };
 
@@ -2699,7 +2700,7 @@ template <typename T>
   {
     TROMPELOEIL_NORETURN static R value()
     {
-      std::abort(); // must never be called
+      Rcpp::stop("Should not be called"); // must never be called
     }
   };
 
@@ -3115,7 +3116,7 @@ template <typename T>
       }
     }
     send_report<specialized>(severity::fatal, location{}, os.str());
-    std::abort(); // must never get here.
+    Rcpp::stop("Should not be called"); // must never be called
   }
 
   template <typename Sig>
@@ -3453,7 +3454,7 @@ template <typename T>
         try
         {
           h(p);
-          abort();
+          Rcpp::stop("Should not be called"); // must never be called
         }
         catch (...)
         {

@@ -6,6 +6,22 @@
 
 using namespace Rcpp;
 
+// create_mosquito_emergence_process_cpp
+Rcpp::XPtr<process_t> create_mosquito_emergence_process_cpp(std::string mosquito, Rcpp::List odes, std::string unborn, std::string susceptible, std::string variety, double dpl);
+RcppExport SEXP _malariasimulation_create_mosquito_emergence_process_cpp(SEXP mosquitoSEXP, SEXP odesSEXP, SEXP unbornSEXP, SEXP susceptibleSEXP, SEXP varietySEXP, SEXP dplSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string >::type mosquito(mosquitoSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type odes(odesSEXP);
+    Rcpp::traits::input_parameter< std::string >::type unborn(unbornSEXP);
+    Rcpp::traits::input_parameter< std::string >::type susceptible(susceptibleSEXP);
+    Rcpp::traits::input_parameter< std::string >::type variety(varietySEXP);
+    Rcpp::traits::input_parameter< double >::type dpl(dplSEXP);
+    rcpp_result_gen = Rcpp::wrap(create_mosquito_emergence_process_cpp(mosquito, odes, unborn, susceptible, variety, dpl));
+    return rcpp_result_gen;
+END_RCPP
+}
 // create_mosquito_model
 Rcpp::XPtr<MosquitoModel> create_mosquito_model(std::vector<double> init, double beta, double de, double mue, double K0, double gamma, double dl, double mul, double dp, double mup, size_t total_M);
 RcppExport SEXP _malariasimulation_create_mosquito_model(SEXP initSEXP, SEXP betaSEXP, SEXP deSEXP, SEXP mueSEXP, SEXP K0SEXP, SEXP gammaSEXP, SEXP dlSEXP, SEXP mulSEXP, SEXP dpSEXP, SEXP mupSEXP, SEXP total_MSEXP) {
@@ -53,6 +69,7 @@ END_RCPP
 RcppExport SEXP run_testthat_tests();
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_malariasimulation_create_mosquito_emergence_process_cpp", (DL_FUNC) &_malariasimulation_create_mosquito_emergence_process_cpp, 6},
     {"_malariasimulation_create_mosquito_model", (DL_FUNC) &_malariasimulation_create_mosquito_model, 11},
     {"_malariasimulation_mosquito_model_step", (DL_FUNC) &_malariasimulation_mosquito_model_step, 2},
     {"_malariasimulation_mosquito_model_get_states", (DL_FUNC) &_malariasimulation_mosquito_model_get_states, 1},

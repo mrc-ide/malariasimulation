@@ -122,12 +122,12 @@ create_processes <- function(
       events$mosquito_infection
     ),
 
-    create_mosquito_emergence_process(
-      individuals$mosquito,
+    create_mosquito_emergence_process_cpp(
+      individuals$mosquito$name,
       odes,
-      states$Unborn,
-      states$Sm,
-      variables$mosquito_variety,
+      states$Unborn$name,
+      states$Sm$name,
+      variables$mosquito_variety$name,
       parameters$dpl
     ),
 

@@ -41,7 +41,7 @@ public:
         0,
         0
     ) {};
-    MAKE_MOCK0(get_state, state_t, override);
+    MAKE_MOCK0(get_state, state_t(), override);
 };
 
 #endif /* SRC_TEST_MOCK_H_ */

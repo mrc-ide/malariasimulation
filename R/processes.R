@@ -114,12 +114,17 @@ create_processes <- function(
     # ==================
     # Mosquito Processes
     # ==================
-    create_mosquito_infection_process(
-      individuals$mosquito,
-      individuals$human,
-      states,
-      variables,
-      events$mosquito_infection
+    create_mosquito_infection_process_cpp(
+      individuals$mosquito$name,
+      individuals$human$name,
+      c(states$Sm$name, states$Pm$name),
+      c(
+        variables$birth$name,
+        variables$zeta$name,
+        variables$infectivity$name,
+        variables$mosquito_variety$name
+      ),
+      events$mosquito_infection$name
     ),
 
     create_mosquito_emergence_process_cpp(

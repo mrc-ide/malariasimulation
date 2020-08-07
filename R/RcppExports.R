@@ -15,6 +15,22 @@ create_mosquito_emergence_process_cpp <- function(mosquito, odes, unborn, suscep
     .Call(`_malariasimulation_create_mosquito_emergence_process_cpp`, mosquito, odes, unborn, susceptible, variety, dpl)
 }
 
+#' @title Mosquito infection process
+#' @description
+#' This is the process of infection for mosquitos. It results in a state
+#' transition from Sm to Pm for infected mosquitos.
+#'
+#' NOTE: this process will become obsolete when the model is reformulated to
+#' model individual mosquitos biting individual humans.
+#' @param mosquito the mosquito individual
+#' @param human the human individual
+#' @param states a list of relevant model states (Sm, Pm)
+#' @param variables a list of relevant model variables (birth, zeta, infectivity, mosquito_variety)
+#' @param infection the mosquito infection event
+create_mosquito_infection_process_cpp <- function(mosquito, human, states, variables, infection) {
+    .Call(`_malariasimulation_create_mosquito_infection_process_cpp`, mosquito, human, states, variables, infection)
+}
+
 create_mosquito_model <- function(init, beta, de, mue, K0, gamma, dl, mul, dp, mup, total_M) {
     .Call(`_malariasimulation_create_mosquito_model`, init, beta, de, mue, K0, gamma, dl, mul, dp, mup, total_M)
 }

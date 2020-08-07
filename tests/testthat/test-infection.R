@@ -90,30 +90,6 @@ test_that('severe immunity returns correct values', {
   )
 })
 
-test_that('mosquito_force_of_infection returns correct values', {
-  days_per_timestep <- 1
-  parameters <- list(
-    blood_meal_rates = c(.92, .74, .94),
-    rho   = .85,
-    a0    = 8 * 365 / days_per_timestep
-  )
-  age <- c(0, 5, 30) * 365
-  zeta <- c(1.8, 2., .5)
-  infectivity <- c(.5, .5, .2)
-  v <- c(1, 1, 1, 2, 3, 3)
-  expect_equal(
-    mosquito_force_of_infection(
-      v,
-      age,
-      zeta,
-      infectivity,
-      parameters
-    ),
-    c(.387, .387, .387, .311, .395, .395),
-    tolerance=1e-3
-  )
-})
-
 test_that('asymptomatic_infectivity returns the correct values', {
   age <- c(0, 5, 30, 6)
   immunity <- c(2.4, 1.2, 0., 4.)

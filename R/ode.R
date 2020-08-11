@@ -43,8 +43,8 @@ create_ode_stepping_process <- function(
       states$Pm,
       states$Im
     )
-    for (species in seq_along(api$get_parameters()$biting_rates)) {
-      total_M <- intersect(which(variety == species), adult_mosquitoes)
+    for (species in seq_along(api$get_parameters()$blood_meal_rates)) {
+      total_M <- length(intersect(which(variety == species), adult_mosquitoes))
       api$render(paste0('total_M_', species), total_M)
       mosquito_model_step(odes[[species]], total_M)
     }

@@ -27,7 +27,6 @@ context("Mosquito infection works") {
             "human",
             std::vector<std::string>{"Sm", "Pm"},
             std::vector<std::string>{"birth", "zeta", "infectivity", "mosquito_variety"},
-            "mosquito_infection",
             &random
         );
 
@@ -47,6 +46,12 @@ context("Mosquito infection works") {
             .RETURN(zeta);
         REQUIRE_CALL(api, get_variable("human", "infectivity"))
             .RETURN(infectivity);
+        REQUIRE_CALL(api, render("FOIM_1", _))
+            .WITH(Approx(_2) == 0.2477872);
+        REQUIRE_CALL(api, render("FOIM_2", _))
+            .WITH(Approx(_2) == 0.1993071);
+        REQUIRE_CALL(api, render("FOIM_3", _))
+            .WITH(Approx(_2) == 0.2531739);
         REQUIRE_CALL(api, get_timestep())
             .RETURN(5);
 
@@ -79,12 +84,34 @@ context("Mosquito infection works") {
             .RETURN(both);
 
         //Mock updates
-        //Check that correct updates are made and scheduled
+        //Check that correct updates are made
         auto state_update = std::vector<size_t>{1, 2, 3};
         REQUIRE_CALL(api, queue_state_update("mosquito", "Pm", state_update));
-        REQUIRE_CALL(api, schedule("mosquito_infection", state_update, 5));
 
         (*process)(api);
+    }
+
+    test_that("create_infectivity_target_vector can deal with interleaved species") {
+        auto susceptible = individual_index(
+            12,
+            std::vector<size_t>{
+                0, 3, 6, 9, //1
+                1, 4,       //2
+                2, 5, 8, 11 //3
+            }
+        );
+        auto species = std::vector<double>{
+            1., 2., 3., 1., 2., 3., 1., 2., 3., 1., 2., 3., 1., 2., 3.
+        };
+        auto infected_i = std::vector<std::vector<size_t>>{
+            {0, 3},
+            {1},
+            {2}
+        };
+        auto target = std::vector<size_t>(4);
+        auto expected = std::vector<size_t>{0, 4, 8, 9};
+        create_infectivity_target_vector(susceptible, species, infected_i, target);
+        expect_true(target == expected);
     }
 
 }

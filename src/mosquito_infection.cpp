@@ -6,6 +6,7 @@
  */
 
 #include "mosquito_infection.h"
+#include <sstream>
 
 variable_vector_t get_age(const variable_vector_t& birth, size_t t) {
     variable_vector_t age(birth.size());
@@ -26,14 +27,12 @@ variable_vector_t get_age(const variable_vector_t& birth, size_t t) {
 //' @param human the human individual
 //' @param states a list of relevant model states (Sm, Pm)
 //' @param variables a list of relevant model variables (birth, zeta, infectivity, mosquito_variety)
-//' @param infection the mosquito infection event
 //[[Rcpp::export]]
 Rcpp::XPtr<process_t> create_mosquito_infection_process_cpp(
     const std::string mosquito,
     const std::string human,
     const std::vector<std::string>& states, //{"Sm", "Pm"}
-    const std::vector<std::string>& variables, //{"birth", "zeta", "infectivity", "variety"}
-    const std::string& infection
+    const std::vector<std::string>& variables //{"birth", "zeta", "infectivity", "variety"}
 ) {
     auto& random = Random::get_instance();
     return create_mosquito_infection_process(
@@ -41,9 +40,31 @@ Rcpp::XPtr<process_t> create_mosquito_infection_process_cpp(
         human,
         states,
         variables,
-        infection,
         &random
     );
+}
+
+void create_infectivity_target_vector(
+    const individual_index_t& susceptible,
+    const variable_vector_t& species,
+    const std::vector<std::vector<size_t>>& infected_i,
+    std::vector<size_t>& target
+    ) {
+    auto target_counter = 0u;
+    auto species_counter = std::vector<size_t>(3u, 0u);
+    auto infected_counter = species_counter;
+    for (auto i : susceptible) {
+        auto species_i = species[i] - 1;
+        auto species_count = species_counter[species_i];
+        auto infected_count = infected_counter[species_i];
+        if (infected_count < infected_i[species_i].size() &&
+            species_count == infected_i[species_i][infected_count]) {
+            target[target_counter] = i;
+            ++target_counter;
+            ++infected_counter[species_i];
+        }
+        ++species_counter[species_i];
+    }
 }
 
 Rcpp::XPtr<process_t> create_mosquito_infection_process(
@@ -51,7 +72,6 @@ Rcpp::XPtr<process_t> create_mosquito_infection_process(
     const std::string human,
     const std::vector<std::string>& states, //{"Sm", "Pm"}
     const std::vector<std::string>& variables, //{"birth", "zeta", "infectivity", "variety"}
-    const std::string& infection,
     RandomInterface *random
     ) {
     return Rcpp::XPtr<process_t>(
@@ -81,6 +101,9 @@ Rcpp::XPtr<process_t> create_mosquito_infection_process(
             auto lambda = std::vector<double>(alpha.size());
             for (auto i = 0u; i < lambda.size(); ++i) {
                 lambda[i] = alpha[i] * mean_infectivity;
+                std::stringstream label;
+                label << "FOIM_" << i + 1;
+                api.render(label.str(), lambda[i]);
             }
 
             //sample mosquitos who get infected for each species
@@ -102,22 +125,10 @@ Rcpp::XPtr<process_t> create_mosquito_infection_process(
 
             //create a target vector for those mosquitos
             auto target = std::vector<size_t>(n_infected);
-            auto target_counter = 0u;
-            auto species_counter = std::vector<size_t>(3u, 0u);
-            for (auto i = 0u; i < susceptible.size(); ++i) {
-                auto species_i = species[i] - 1;
-                auto n_infected_species = species_counter[species_i];
-                if (n_infected_species < infected_i[species_i].size() &&
-                    n_infected_species == infected_i[species_i][n_infected_species]) {
-                    target[target_counter] = i;
-                    ++target_counter;
-                }
-                ++species_counter[species_i];
-            }
+            create_infectivity_target_vector(susceptible, species, infected_i, target);
 
             //set up updates
             api.queue_state_update(mosquito, states[1], target);
-            api.schedule(infection, target, parameters.at("dem")[0]);
         }),
         true
     );

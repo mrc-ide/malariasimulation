@@ -26,9 +26,8 @@ create_mosquito_emergence_process_cpp <- function(mosquito, odes, unborn, suscep
 #' @param human the human individual
 #' @param states a list of relevant model states (Sm, Pm)
 #' @param variables a list of relevant model variables (birth, zeta, infectivity, mosquito_variety)
-#' @param infection the mosquito infection event
-create_mosquito_infection_process_cpp <- function(mosquito, human, states, variables, infection) {
-    .Call(`_malariasimulation_create_mosquito_infection_process_cpp`, mosquito, human, states, variables, infection)
+create_mosquito_infection_process_cpp <- function(mosquito, human, states, variables) {
+    .Call(`_malariasimulation_create_mosquito_infection_process_cpp`, mosquito, human, states, variables)
 }
 
 create_mosquito_model <- function(init, beta, de, mue, K0, gamma, dl, mul, dp, mup, total_M) {

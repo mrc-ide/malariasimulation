@@ -11,12 +11,18 @@
 #include <individual.h>
 #include "Random.h"
 
+void create_infectivity_target_vector(
+    const individual_index_t&,
+    const variable_vector_t&,
+    const std::vector<std::vector<size_t>>&,
+    std::vector<size_t>&
+);
+
 Rcpp::XPtr<process_t> create_mosquito_infection_process(
     const std::string,
     const std::string,
     const std::vector<std::string>&,
     const std::vector<std::string>&,
-    const std::string&,
     RandomInterface*
 );
 

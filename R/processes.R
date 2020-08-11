@@ -123,8 +123,7 @@ create_processes <- function(
         variables$zeta$name,
         variables$infectivity$name,
         variables$mosquito_variety$name
-      ),
-      events$mosquito_infection$name
+      )
     ),
 
     create_mosquito_emergence_process_cpp(
@@ -134,6 +133,14 @@ create_processes <- function(
       states$Sm$name,
       variables$mosquito_variety$name,
       parameters$dpl
+    ),
+
+    # Infection after incubation
+    individual::fixed_probability_state_change_process(
+      individuals$mosquito$name,
+      states$Pm$name,
+      states$Im$name,
+      1. - exp(-1./parameters$dem)
     ),
 
     # Natural death of females
@@ -216,10 +223,6 @@ create_event_based_processes <- function(individuals, states, variables, events,
         )
       }
     }
-  )
-
-  events$mosquito_infection$add_listener(
-    individual::update_state_listener(individuals$mosquito$name, states$Im$name)
   )
 }
 

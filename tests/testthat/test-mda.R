@@ -43,7 +43,10 @@ test_that('mda initialises with full coverage correctly', {
 
   m <- mockery::mock()
   mockery::stub(listener, 'administer_listener', m)
-  listener(api, NULL)
+  with_mock(
+    "malariasimulation:::bernoulli" = mockery::mock(c(1, 2)),
+    listener(api, NULL)
+  )
 
   mockery::expect_args(m, 1, api, c(3, 4))
 })

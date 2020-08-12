@@ -4,13 +4,7 @@
 \alias{create_mosquito_infection_process_cpp}
 \title{Mosquito infection process}
 \usage{
-create_mosquito_infection_process_cpp(
-  mosquito,
-  human,
-  states,
-  variables,
-  infection
-)
+create_mosquito_infection_process_cpp(mosquito, human, states, variables)
 }
 \arguments{
 \item{mosquito}{the mosquito individual}
@@ -20,8 +14,6 @@ create_mosquito_infection_process_cpp(
 \item{states}{a list of relevant model states (Sm, Pm)}
 
 \item{variables}{a list of relevant model variables (birth, zeta, infectivity, mosquito_variety)}
-
-\item{infection}{the mosquito infection event}
 }
 \description{
 This is the process of infection for mosquitos. It results in a state

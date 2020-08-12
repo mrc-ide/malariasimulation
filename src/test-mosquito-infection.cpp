@@ -69,7 +69,7 @@ context("Mosquito infection works") {
         trompeloeil::sequence seq;
         auto none = std::vector<size_t>();
         auto first = std::vector<size_t>{0};
-        auto both = std::vector<size_t>{0, 1};
+        auto both = std::vector<size_t>{1, 0};
         REQUIRE_CALL(random, bernoulli(0, _))
             .IN_SEQUENCE(seq)
             .WITH(Approx(_2) == 0.2477872)
@@ -89,6 +89,23 @@ context("Mosquito infection works") {
         REQUIRE_CALL(api, queue_state_update("mosquito", "Pm", state_update));
 
         (*process)(api);
+    }
+
+    test_that("create_infectivity_target_vector can work with one species") {
+        auto susceptible = individual_index(
+            12,
+            std::vector<size_t>{
+                0, 1, 3, 5, 6, 9, 10
+            }
+        );
+        auto species = std::vector<double>(12, 1);
+        auto infected_i = std::vector<std::vector<size_t>>{
+            {1, 3, 6}
+        };
+        auto target = std::vector<size_t>(3);
+        auto expected = std::vector<size_t>{1, 5, 10};
+        create_infectivity_target_vector(susceptible, species, infected_i, target);
+        expect_true(target == expected);
     }
 
     test_that("create_infectivity_target_vector can deal with interleaved species") {

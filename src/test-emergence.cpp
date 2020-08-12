@@ -40,7 +40,7 @@ context("Emergence works") {
         );
         MockAPI api;
         individual_index_t unborn(2000);
-        for (auto n = 1000ul; n < 1018; ++n) {
+        for (auto n = 1000ul; n < 1024; ++n) {
             unborn.insert(n);
         }
         REQUIRE_CALL(api, get_state("mosquito", "unborn"))
@@ -66,7 +66,7 @@ context("Emergence works") {
         for (auto n = 1000ul; n < 2000; ++n) {
             unborn.insert(n);
         }
-        auto expected_to_emerge = 19u;
+        auto expected_to_emerge = 25u;
         std::vector<size_t>target(expected_to_emerge);
         variable_vector_t value(expected_to_emerge);
         for (auto i = 0ul; i < expected_to_emerge; ++i) {
@@ -95,10 +95,10 @@ context("Emergence works") {
         );
         MockAPI api;
         individual_index_t unborn(2000);
-        for (auto n = 1000ul; n < 1019; ++n) {
+        auto expected_to_emerge = 25u;
+        for (auto n = 1000ul; n < 1000 + expected_to_emerge; ++n) {
             unborn.insert(n);
         }
-        auto expected_to_emerge = 19u;
         std::vector<size_t>target(expected_to_emerge);
         variable_vector_t value(expected_to_emerge);
         for (auto i = 0ul; i < expected_to_emerge; ++i) {

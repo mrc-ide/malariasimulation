@@ -27,7 +27,7 @@ Rcpp::XPtr<process_t> create_mosquito_emergence_process_cpp(
     std::string variety,
     double dpl
     ) {
-    auto rate = .5 * (1. - exp(-1./dpl));
+    auto rate = .5 * 1./dpl;
     return Rcpp::XPtr<process_t>(
         new process_t([=] (ProcessAPI& api) {
             auto n = 0u;

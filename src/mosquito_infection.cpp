@@ -51,8 +51,8 @@ void create_infectivity_target_vector(
     std::vector<size_t>& target
     ) {
     auto target_counter = 0u;
-    auto species_counter = std::vector<size_t>(3u, 0u);
-    auto infected_counter = species_counter;
+    auto species_counter = std::vector<size_t>(infected_i.size(), 0u);
+    auto infected_counter = std::vector<size_t>(infected_i.size(), 0u);
     for (auto i : susceptible) {
         auto species_i = species[i] - 1;
         auto species_count = species_counter[species_i];
@@ -119,12 +119,12 @@ Rcpp::XPtr<process_t> create_mosquito_infection_process(
             auto n_infected = 0u;
             for (auto i = 0u; i < infected_i.size(); ++i) {
                 auto infected = random->bernoulli(n_susceptible[i], lambda[i]);
+                std::sort(infected.begin(), infected.end());
                 infected_i[i] = infected;
                 n_infected += infected.size();
             }
 
-            //create a target vector for those mosquitos
-            auto target = std::vector<size_t>(n_infected);
+            auto target = std::vector<size_t>(n_infected, 0u);
             create_infectivity_target_vector(susceptible, species, infected_i, target);
 
             //set up updates

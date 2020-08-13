@@ -19,7 +19,6 @@ environment:
   # see https://github.com/krlmlr/r-appveyor#readme for details
   # USE_RTOOLS: true
   R_REMOTES_STANDALONE: true
-  R_REMOTES_UPGRADE: 'never'
   WARNINGS_ARE_ERRORS: true
 
 # Adapt as necessary starting from here

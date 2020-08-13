@@ -13,6 +13,7 @@ The parameters are defined below.
 fixed state transitions:
 \itemize{
 \item dd - the delay for humans to move from state D to A
+\item dt - the delay for humans to move from state Tr to Ph
 \item da - the delay for humans to move from state A to U
 \item du - the delay for humans to move from state U to S
 \item del - the delay for mosquitos to move from state E to L
@@ -56,6 +57,7 @@ probability of severe infection:
 \item iv0 - scale parameter
 \item kv - shape parameter
 \item fv0 - age dependent modifier
+\item fvt - reduced probability of death due to treatment
 \item av - age dependent modifier
 \item gammav - age dependent modifier
 }
@@ -85,6 +87,7 @@ infectivity towards mosquitos:
 \item cd - infectivity of clinically diseased humans towards mosquitos
 \item gamma1 - parameter for infectivity of asymptomatic humans
 \item cu - infectivity of sub-patent infection
+\item ct - infectivity of treated infection
 }
 
 unique biting rate:
@@ -123,7 +126,8 @@ clinical disease
 \item a_proportion - the proportion of \code{human_population} that begin as
 Asymptomatic
 \item u_proportion - the proportion of \code{human_population} that begin as
-Subpatents
+subpatents
+\item t_proportion - the proportion of \code{human_population} that begin treated
 }
 
 initial immunity values:
@@ -149,6 +153,22 @@ vector biology:
 \item init_foim - the FOIM used to calculate the equilibrium state for mosquitoes
 \item variety_proportions - the relative proportions of each species
 \item blood_meal_rates - the blood meal rates for each species
+}
+
+treatment parameters:
+I recommend setting these with the convenience functions in
+\code{drug_parameters.R}
+\itemize{
+\item drug_efficacy - a vector of efficacies for available drugs
+\item drug_rel_c - a vector of relative onwards infectiousness values for drugs
+\item drug_prophylaxis_shape - a vector of shape parameters for weibull curves to
+model prophylaxis for each drug
+\item drug_prophylaxis_scale - a vector of scale parameters for weibull curves to
+model prophylaxis for each drug
+\item ft - probability of seeking treatment if clinically diseased
+\item clinical_treatment_drugs - a vector of drugs that are avaliable for
+clinically diseased (these values refer to the index in drug_* parameters)
+\item clinical_treatment_coverage - a vector of coverage values for each drug
 }
 
 miscellaneous:

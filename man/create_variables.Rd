@@ -31,5 +31,8 @@ severe malaria
 \item zeta_group - Discretised heterogeneity of human individuals
 \item variety - The variety of mosquito, either 1, 2 or 3. These are related to
 blood meal rate parameter
+\item infectivity - The onward infectiousness to mosquitos
+\item drug - The last prescribed drug
+\item drug_time - The timestep of the last drug
 }
 }

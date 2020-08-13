@@ -10,9 +10,11 @@ translations = list(
   rA  = inverse_param('rA', 'da'),
   rD  = inverse_param('rD', 'dd'),
   rU  = inverse_param('rU', 'du'),
+  rT  = inverse_param('rT', 'dt'),
   dE  = 'de',
   cD  = 'cd',
   cU  = 'cu',
+  cT  = 'ct',
   d1  = 'd1',
   dd  = 'rid',
   ID0 = 'id0',
@@ -77,14 +79,12 @@ remove_unused_jamie <- function(params) {
   remove_keys(
     params,
     c(
-      'rT', # to be included in treatment validation
-      'rP', # to be included in treatment validation
+      'rP', # Prophylaxis state is no longer used, see `drug_parameters.R`
       'tl', # unused!
       'aA', # used for microscopy and pcr calculations
       'aU', # used for microscopy and pcr calculations
       'cd_w', # unused!
-      'cd_p', # unused!
-      'cT' # to be included in treatment validation
+      'cd_p'  # unused!
     )
   )
 }

@@ -20,6 +20,7 @@ initial_immunity <- function(parameter, age) {
 #' * D - **D**isease individuals exhibit "clinical" or "severe" disease
 #' * A - **A**symptomatic individuals no longer exhibit symptoms
 #' * U - S**u**bpatent infectious patients are still infectious to mosquitos
+#' * Tr - Patients under **Tr**eatment
 #'
 #' The mosquito states are defined as:
 #'
@@ -35,36 +36,14 @@ initial_immunity <- function(parameter, age) {
 #'
 #' @param parameters, the model parameters
 create_states <- function(parameters) {
-  initial_counts <- vnapply(
-    c(
-      parameters$s_proportion,
-      parameters$d_proportion,
-      parameters$a_proportion,
-      parameters$u_proportion
-    ),
-    function(p) round(parameters$human_population * p)
-  )
-  left_over <- parameters$human_population - sum(initial_counts)
-  initial_counts[[1]] <- initial_counts[[1]] + left_over
-
+  initial_counts <- calculate_initial_counts(parameters)
   states <- list(
     # Human states
-    S = individual::State$new(
-      "S",
-      initial_counts[[1]]
-    ),
-    D = individual::State$new(
-      "D",
-      initial_counts[[2]]
-    ),
-    A = individual::State$new(
-      "A",
-      initial_counts[[3]]
-    ),
-    U = individual::State$new(
-      "U",
-      initial_counts[[4]]
-    )
+    S = individual::State$new("S", initial_counts[[1]]),
+    D = individual::State$new("D", initial_counts[[2]]),
+    A = individual::State$new("A", initial_counts[[3]]),
+    U = individual::State$new("U", initial_counts[[4]]),
+    Tr = individual::State$new("Tr", initial_counts[[5]])
   )
 
   if (!parameters$vector_ode) {
@@ -112,8 +91,12 @@ create_states <- function(parameters) {
 #' * zeta_group - Discretised heterogeneity of human individuals
 #' * variety - The variety of mosquito, either 1, 2 or 3. These are related to
 #' blood meal rate parameter
+#' * infectivity - The onward infectiousness to mosquitos
+#' * drug - The last prescribed drug
+#' * drug_time - The timestep of the last drug
 #'
 #' @param parameters, model parameters created by `get_parameters`
+#' @importFrom stats rexp rnorm
 create_variables <- function(parameters) {
   initial_age <- trunc(
     rexp(
@@ -190,6 +173,31 @@ create_variables <- function(parameters) {
     }
   )
 
+  # Initialise infectiousness of humans -> mosquitoes
+  # NOTE: not yet supporting initialisation of infectiousness of Treated individuals
+  infectivity_values <- rep(0, parameters$human_population)
+  counts <- calculate_initial_counts(parameters)
+
+  # Calculate the indices of individuals in each infectious state
+  diseased <- counts[[1]]:sum(counts[1:2])  # The index of individuals in the D state
+  asymptomatic <- sum(counts[1:2]):sum(counts[1:3]) # The index of individuals in the A state
+  subpatent <- sum(counts[1:3]):sum(counts[1:4]) # The index of individuals in the U state 
+
+  # Set the initial infectivity values for each individual
+  infectivity_values[diseased] <- parameters$cd
+  infectivity_values[asymptomatic] <- asymptomatic_infectivity(
+    initial_age[asymptomatic],
+    initial_immunity(parameters$init_id, initial_age)[asymptomatic],
+    parameters
+  )
+  infectivity_values[subpatent] <- parameters$cu
+
+  # Initialise the infectivity variable
+  infectivity <- individual::Variable$new("infectivity", function(n) infectivity_values)
+
+  drug <- individual::Variable$new("drug", function(n) rep(0, n))
+  drug_time <- individual::Variable$new("drug_time", function(n) rep(-1, n))
+
   variables <- list(
     birth = birth,
     last_boosted_ib = last_boosted_ib,
@@ -204,7 +212,10 @@ create_variables <- function(parameters) {
     id = id,
     zeta = zeta,
     zeta_group = zeta_group,
-    is_severe = is_severe
+    is_severe = is_severe,
+    infectivity = infectivity,
+    drug = drug,
+    drug_time = drug_time
   )
 
   if (!parameters$vector_ode) {
@@ -240,7 +251,7 @@ create_variables <- function(parameters) {
 create_individuals <- function(states, variables, events, parameters) {
   human <- individual::Individual$new(
     'human',
-    states = list(states$S, states$D, states$A, states$U),
+    states = list(states$S, states$D, states$A, states$U, states$Tr),
     variables = list(
       variables$birth,
       variables$last_boosted_ib,
@@ -255,7 +266,10 @@ create_individuals <- function(states, variables, events, parameters) {
       variables$ivm,
       variables$is_severe,
       variables$zeta,
-      variables$zeta_group
+      variables$zeta_group,
+      variables$infectivity,
+      variables$drug,
+      variables$drug_time
     ),
     events = list(
       events$infection,
@@ -285,4 +299,19 @@ create_individuals <- function(states, variables, events, parameters) {
   )
 
   list(human = human, mosquito = mosquito)
+}
+
+calculate_initial_counts <- function(parameters) {
+  initial_counts <- round(
+    c(
+      parameters$s_proportion,
+      parameters$d_proportion,
+      parameters$a_proportion,
+      parameters$u_proportion,
+      parameters$t_proportion
+    ) * parameters$human_population
+  )
+  left_over <- parameters$human_population - sum(initial_counts)
+  initial_counts[[1]] <- initial_counts[[1]] + left_over
+  initial_counts
 }

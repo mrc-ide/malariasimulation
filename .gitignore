@@ -9,3 +9,4 @@ malariasimulation_*.tar.gz
 .DS_Store
 /build/
 doc
+inst/doc

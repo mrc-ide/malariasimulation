@@ -4,12 +4,14 @@
 \alias{create_mortality_process}
 \title{Human mortality process}
 \usage{
-create_mortality_process(human, D, variables, events)
+create_mortality_process(human, D, Tr, variables, events)
 }
 \arguments{
 \item{human}{the human individual}
 
 \item{D}{the diseased state}
+
+\item{Tr}{the treated state}
 
 \item{variables}{the model variables to reset}
 

@@ -138,8 +138,8 @@ test_that('larval_death_process kills the expected larvae', {
     larval_death_process,
     'bernoulli',
     mockery::mock(
-      c(TRUE, TRUE, FALSE, FALSE),
-      c(TRUE, FALSE, TRUE, FALSE)
+      c(1, 2),
+      c(1, 3)
     )
   )
 

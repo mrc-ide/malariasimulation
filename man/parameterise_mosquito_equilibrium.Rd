@@ -12,5 +12,6 @@ parameterise_mosquito_equilibrium(parameters, EIR)
 \item{EIR}{to work from}
 }
 \description{
-Parameterise total_M and carrying capacity for mosquitos from EIR
+NOTE: the inital EIR is likely to change unless the rest of the
+model is in equilibrium
 }

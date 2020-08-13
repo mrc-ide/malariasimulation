@@ -172,7 +172,12 @@ create_processes <- function(
         states$Im$name
       )
     ),
-    create_ode_stepping_process(odes, individuals$mosquito, states, variables),
+    create_ode_stepping_process_cpp(
+      odes,
+      individuals$mosquito$name,
+      c(states$Sm$name, states$Pm$name, states$Im$name),
+      variables$mosquito_variety$name
+    ),
     create_ode_rendering_process(odes)
   )
 }

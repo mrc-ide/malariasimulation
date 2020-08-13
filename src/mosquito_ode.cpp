@@ -6,7 +6,9 @@
  */
 
 #include <Rcpp.h>
+#include <individual.h>
 #include "mosquito_ode.h"
+#include <sstream>
 
 integration_function_t create_ode(MosquitoModel& model) {
     return [&model](const state_t& x , state_t& dxdt , double t) {
@@ -99,12 +101,52 @@ Rcpp::XPtr<MosquitoModel> create_mosquito_model(
 }
 
 //[[Rcpp::export]]
-void mosquito_model_step(Rcpp::XPtr<MosquitoModel> model, size_t total_M) {
-    model->step(total_M);
-}
-
-//[[Rcpp::export]]
 std::vector<double> mosquito_model_get_states(Rcpp::XPtr<MosquitoModel> model) {
     auto state = model->get_state();
     return std::vector<double>(state.cbegin(), state.cend());
+}
+
+//' @title Step mosquito ODE
+//' @description collects summarises the human state, sends it to the vector ode
+//' and makes a step
+//'
+//' @param odes the models to step, one for each species
+//' @param mosquito the mosquito individual handle
+//' @param states a list of all of adult mosquito states (Sm, Pm, Im)
+//' @param variety the handle for the mosquito variety variable
+//[[Rcpp::export]]
+Rcpp::XPtr<process_t> create_ode_stepping_process_cpp(
+    Rcpp::List odes,
+    const std::string mosquito,
+    const std::vector<std::string> states,
+    const std::string variety
+    ) {
+    return Rcpp::XPtr<process_t>(
+        new process_t([=] (ProcessAPI& api) {
+            const auto& v = api.get_variable(mosquito, variety);
+            const auto& Sm = api.get_state(mosquito, states[0]);
+            const auto& Pm = api.get_state(mosquito, states[1]);
+            const auto& Im = api.get_state(mosquito, states[2]);
+            auto total_M = std::vector<size_t>(odes.size(), 0);
+            for (auto i = 0ull; i < v.size(); ++i) {
+                if (Sm.find(i) != Sm.cend() || Pm.find(i) != Pm.cend() || Im.find(i) != Im.cend()) {
+                    ++total_M[v[i] - 1];
+                }
+            }
+            for (auto i = 0u; i < odes.size(); ++i) {
+                std::stringstream label;
+                label << "total_M_" << i + 1;
+                api.render(label.str(), total_M[i]);
+                Rcpp::as<Rcpp::XPtr<MosquitoModel>>(odes[i])->step(total_M[i]);
+            }
+        }),
+        true
+    );
+}
+
+
+//Exported for testing purposes
+//[[Rcpp::export]]
+void mosquito_model_step(Rcpp::XPtr<MosquitoModel> model, size_t total_M) {
+    model->step(total_M);
 }

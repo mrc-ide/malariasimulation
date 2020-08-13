@@ -57,17 +57,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// mosquito_model_step
-void mosquito_model_step(Rcpp::XPtr<MosquitoModel> model, size_t total_M);
-RcppExport SEXP _malariasimulation_mosquito_model_step(SEXP modelSEXP, SEXP total_MSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<MosquitoModel> >::type model(modelSEXP);
-    Rcpp::traits::input_parameter< size_t >::type total_M(total_MSEXP);
-    mosquito_model_step(model, total_M);
-    return R_NilValue;
-END_RCPP
-}
 // mosquito_model_get_states
 std::vector<double> mosquito_model_get_states(Rcpp::XPtr<MosquitoModel> model);
 RcppExport SEXP _malariasimulation_mosquito_model_get_states(SEXP modelSEXP) {
@@ -79,6 +68,31 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// create_ode_stepping_process_cpp
+Rcpp::XPtr<process_t> create_ode_stepping_process_cpp(Rcpp::List odes, const std::string mosquito, const std::vector<std::string> states, const std::string variety);
+RcppExport SEXP _malariasimulation_create_ode_stepping_process_cpp(SEXP odesSEXP, SEXP mosquitoSEXP, SEXP statesSEXP, SEXP varietySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List >::type odes(odesSEXP);
+    Rcpp::traits::input_parameter< const std::string >::type mosquito(mosquitoSEXP);
+    Rcpp::traits::input_parameter< const std::vector<std::string> >::type states(statesSEXP);
+    Rcpp::traits::input_parameter< const std::string >::type variety(varietySEXP);
+    rcpp_result_gen = Rcpp::wrap(create_ode_stepping_process_cpp(odes, mosquito, states, variety));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mosquito_model_step
+void mosquito_model_step(Rcpp::XPtr<MosquitoModel> model, size_t total_M);
+RcppExport SEXP _malariasimulation_mosquito_model_step(SEXP modelSEXP, SEXP total_MSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<MosquitoModel> >::type model(modelSEXP);
+    Rcpp::traits::input_parameter< size_t >::type total_M(total_MSEXP);
+    mosquito_model_step(model, total_M);
+    return R_NilValue;
+END_RCPP
+}
 
 RcppExport SEXP run_testthat_tests();
 
@@ -86,8 +100,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_malariasimulation_create_mosquito_emergence_process_cpp", (DL_FUNC) &_malariasimulation_create_mosquito_emergence_process_cpp, 6},
     {"_malariasimulation_create_mosquito_infection_process_cpp", (DL_FUNC) &_malariasimulation_create_mosquito_infection_process_cpp, 4},
     {"_malariasimulation_create_mosquito_model", (DL_FUNC) &_malariasimulation_create_mosquito_model, 11},
-    {"_malariasimulation_mosquito_model_step", (DL_FUNC) &_malariasimulation_mosquito_model_step, 2},
     {"_malariasimulation_mosquito_model_get_states", (DL_FUNC) &_malariasimulation_mosquito_model_get_states, 1},
+    {"_malariasimulation_create_ode_stepping_process_cpp", (DL_FUNC) &_malariasimulation_create_ode_stepping_process_cpp, 4},
+    {"_malariasimulation_mosquito_model_step", (DL_FUNC) &_malariasimulation_mosquito_model_step, 2},
     {"run_testthat_tests", (DL_FUNC) &run_testthat_tests, 0},
     {NULL, NULL, 0}
 };

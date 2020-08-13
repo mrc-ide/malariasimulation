@@ -34,11 +34,23 @@ create_mosquito_model <- function(init, beta, de, mue, K0, gamma, dl, mul, dp, m
     .Call(`_malariasimulation_create_mosquito_model`, init, beta, de, mue, K0, gamma, dl, mul, dp, mup, total_M)
 }
 
-mosquito_model_step <- function(model, total_M) {
-    invisible(.Call(`_malariasimulation_mosquito_model_step`, model, total_M))
-}
-
 mosquito_model_get_states <- function(model) {
     .Call(`_malariasimulation_mosquito_model_get_states`, model)
+}
+
+#' @title Step mosquito ODE
+#' @description collects summarises the human state, sends it to the vector ode
+#' and makes a step
+#'
+#' @param odes the models to step, one for each species
+#' @param mosquito the mosquito individual handle
+#' @param states a list of all of adult mosquito states (Sm, Pm, Im)
+#' @param variety the handle for the mosquito variety variable
+create_ode_stepping_process_cpp <- function(odes, mosquito, states, variety) {
+    .Call(`_malariasimulation_create_ode_stepping_process_cpp`, odes, mosquito, states, variety)
+}
+
+mosquito_model_step <- function(model, total_M) {
+    invisible(.Call(`_malariasimulation_mosquito_model_step`, model, total_M))
 }
 

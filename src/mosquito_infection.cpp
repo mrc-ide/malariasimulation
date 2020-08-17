@@ -130,6 +130,6 @@ Rcpp::XPtr<process_t> create_mosquito_infection_process(
             //set up updates
             api.queue_state_update(mosquito, states[1], target);
         }),
-        true
+        true //Enable R garbage collection on this pointer
     );
 };

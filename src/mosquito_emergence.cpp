@@ -32,7 +32,7 @@ Rcpp::XPtr<process_t> create_mosquito_emergence_process_cpp(
         new process_t([=] (ProcessAPI& api) {
             auto n = 0u;
             for (Rcpp::XPtr<MosquitoModel> ode : odes) {
-                n += ode->get_state()[2] * rate;
+                n += ode->get_state()[get_idx(ODEState::P)] * rate;
             }
             auto source = api.get_state(mosquito, unborn);
             if (source.size() < n) {
@@ -44,15 +44,14 @@ Rcpp::XPtr<process_t> create_mosquito_emergence_process_cpp(
                 auto species_i = 0u;
                 for (Rcpp::XPtr<MosquitoModel> ode : odes) {
                     auto to_set = static_cast<size_t>(ode->get_state()[2] * rate);
-                    auto start = species_i;
-                    for (;species_i < start + to_set; ++species_i) {
+                    for (auto start = species_i; species_i < start + to_set; ++species_i) {
                         species[species_i] = ode_i;
                     }
                     ++ode_i;
                 }
                 std::vector<size_t> target(n);
                 auto sourceit = source.begin();
-                for (auto i = 0; i < target.size(); ++i) {
+                for (auto i = 0u; i < target.size(); ++i) {
                     target[i] = *sourceit;
                     ++sourceit;
                 }

@@ -14,6 +14,7 @@
 #include <queue>
 #include <cmath>
 #include <functional>
+#include <type_traits>
 
 /*
  * The states are:
@@ -21,6 +22,15 @@
  * 1 - L  - Late larval stage
  * 2 - P  - Pupal stage
  */
+enum class ODEState : size_t {E, L, P};
+
+// Provide a convenience function for getting at the index of an enumeration
+template<typename T>
+constexpr auto get_idx(T value)
+{
+    return static_cast<std::underlying_type_t<T>>(value);
+}
+
 using state_t = std::array<double, 3>;
 using integration_function_t = std::function<void (const state_t&, state_t&, double)>;
 

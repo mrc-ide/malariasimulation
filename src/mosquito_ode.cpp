@@ -12,15 +12,15 @@
 
 integration_function_t create_ode(MosquitoModel& model) {
     return [&model](const state_t& x , state_t& dxdt , double t) {
-        dxdt[0] = model.beta * (model.total_M) //new eggs
-            - x[0] / model.de //growth to late larval stage
-            - x[0] * model.mue * (1 + (x[0] + x[1]) / model.K0); //early larval deaths
-        dxdt[1] = x[0] / model.de //growth from early larval
-            - x[1] / model.dl //growth to pupal
-            - x[1] * model.mul * (1 + model.gamma * (x[0] + x[1]) / model.K0); //late larval deaths
-        dxdt[2] = x[1] / model.dl //growth to pupae
-            - x[2] / model.dp //growth to adult
-            - x[2] * model.mup; // death of pupae
+        dxdt[get_idx(ODEState::E)] = model.beta * (model.total_M) //new eggs
+            - x[get_idx(ODEState::E)] / model.de //growth to late larval stage
+            - x[get_idx(ODEState::E)] * model.mue * (1 + (x[get_idx(ODEState::E)] + x[get_idx(ODEState::L)]) / model.K0); //early larval deaths
+        dxdt[1] = x[get_idx(ODEState::E)] / model.de //growth from early larval
+            - x[get_idx(ODEState::L)] / model.dl //growth to pupal
+            - x[get_idx(ODEState::L)] * model.mul * (1 + model.gamma * (x[get_idx(ODEState::E)] + x[get_idx(ODEState::L)]) / model.K0); //late larval deaths
+        dxdt[2] = x[get_idx(ODEState::L)] / model.dl //growth to pupae
+            - x[get_idx(ODEState::P)] / model.dp //growth to adult
+            - x[get_idx(ODEState::P)] * model.mup; // death of pupae
     };
 }
 

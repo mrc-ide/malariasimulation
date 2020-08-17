@@ -1,10 +1,12 @@
+ODE_INDICES <- c(E = 1, L = 2, P = 3)
+
 parameterise_ode <- function(parameters) {
   lapply(
     parameters$variety_proportions,
     function(p) {
       m <- p * parameters$total_M
       create_mosquito_model(
-        initial_mosquito_counts(parameters, 0, m)[seq(3)],
+        initial_mosquito_counts(parameters, 0, m)[ODE_INDICES],
         parameters$beta,
         parameters$del,
         parameters$me,
@@ -21,16 +23,15 @@ parameterise_ode <- function(parameters) {
 }
 
 create_ode_rendering_process <- function(odes) {
-  mosquito_states <- c('E', 'L', 'P')
   function(api) {
-    counts <- rep(0, length(mosquito_states))
+    counts <- rep(0, length(ODE_INDICES))
     for (ode in odes) {
       row <- mosquito_model_get_states(ode)
       counts <- counts + row
     }
-    for (i in seq_along(mosquito_states)) {
+    for (i in seq_along(ODE_INDICES)) {
       api$render(
-        paste0('mosquito_', mosquito_states[[i]], '_count'),
+        paste0('mosquito_', names(ODE_INDICES)[[i]], '_count'),
         counts[[i]]
       )
     }

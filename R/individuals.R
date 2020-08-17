@@ -90,7 +90,9 @@ create_states <- function(parameters) {
 #' * zeta - Heterogeneity of human individuals
 #' * zeta_group - Discretised heterogeneity of human individuals
 #' * rtss_vaccinated - The timstep of the last rtss vaccination (-1 if there
-#' haven't been any
+#' haven't been any)
+#' * rtss_boosted  - The timstep of the last rtss booster (-1 if there
+#' haven't been any)
 #' * rtss_cs - peak antibodies
 #' * rtss_rho - antibody component variable
 #' * rtss_ds - short-lived antibody delay variable
@@ -211,6 +213,12 @@ create_variables <- function(parameters) {
     "rtss_vaccinated",
     function(n) rep(-1, n)
   )
+
+  rtss_boosted <- individual::Variable$new(
+    "rtss_boosted",
+    function(n) rep(-1, n)
+  )
+
   rtss_cs <- individual::Variable$new(
     "rtss_cs",
     function(n) {
@@ -255,6 +263,7 @@ create_variables <- function(parameters) {
     drug = drug,
     drug_time = drug_time,
     rtss_vaccinated = rtss_vaccinated,
+    rtss_boosted = rtss_boosted,
     rtss_cs = rtss_cs,
     rtss_rho = rtss_rho,
     rtss_ds = rtss_ds,
@@ -320,6 +329,7 @@ create_individuals <- function(
       variables$drug,
       variables$drug_time,
       variables$rtss_vaccinated,
+      variables$rtss_boosted,
       variables$rtss_cs,
       variables$rtss_rho,
       variables$rtss_ds,
@@ -329,6 +339,7 @@ create_individuals <- function(
       events$infection,
       events$asymptomatic_infection,
       events$rtss_vaccination,
+      events$rtss_booster,
       events$mda_enrollment,
       events$mda_administer,
       events$smc_enrollment,

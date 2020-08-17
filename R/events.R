@@ -6,6 +6,7 @@ create_events <- function() {
 
     # Vaccination events
     rtss_vaccination = individual::Event$new('rtss_vaccination'),
+    rtss_booster = individual::Event$new('rtss_booster'),
 
     # MDA events
     mda_enrollment = individual::Event$new('mda_enrolment'),

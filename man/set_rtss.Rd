@@ -4,7 +4,16 @@
 \alias{set_rtss}
 \title{Parameterise an RTS,S strategy}
 \usage{
-set_rtss(parameters, start, end, frequency, ages, coverage)
+set_rtss(
+  parameters,
+  start,
+  end,
+  frequency,
+  min_ages,
+  max_ages,
+  boosters,
+  coverage
+)
 }
 \arguments{
 \item{parameters}{a list of parameters to modify}
@@ -15,7 +24,11 @@ set_rtss(parameters, start, end, frequency, ages, coverage)
 
 \item{frequency}{the number of timsteps between rounds}
 
-\item{ages}{for each round (in years)}
+\item{min_ages}{for the target population, inclusive (in timesteps)}
+
+\item{max_ages}{for the target population, inclusive (in timesteps)}
+
+\item{boosters}{the timesteps (following the initial vaccination) at which booster vaccinations are administered}
 
 \item{coverage}{the proportion of the target population who will recieve the
 vaccine}

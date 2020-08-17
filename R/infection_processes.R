@@ -149,7 +149,10 @@ calculate_infections <- function(
 
   # calculate vaccine efficacy
   vaccine_efficacy <- rep(0, length(source_humans))
-  vaccine_times <- api$get_variable(human, variables$rtss_vaccinated, source_humans)
+  vaccine_times <- pmax(
+    api$get_variable(human, variables$rtss_vaccinated, source_humans),
+    api$get_variable(human, variables$rtss_boosted, source_humans)
+  )
   vaccinated <- which(vaccine_times > -1)
   antibodies <- calculate_rtss_antibodies(
     api$get_timestep() - vaccine_times[vaccinated],

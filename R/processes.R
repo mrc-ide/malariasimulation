@@ -268,45 +268,10 @@ create_event_based_processes <- function(individuals, states, variables, events,
 
   if (parameters$rtss == 1) {
     events$rtss_vaccination$add_listener(
-      function(api, target) {
-        timestep <- api$get_timestep()
-        target <- which(trunc(get_age(
-          api$get_variable(individuals$human, variables$birth),
-          timestep
-        ) / 365) %in% parameters$rtss_ages)
-        target <- target[bernoulli(length(target), parameters$rtss_coverage)]
-        api$render('n_vaccinated', length(target))
-        if (length(target) > 0) {
-          api$queue_variable_update(
-            individuals$human,
-            variables$rtss_vaccinated,
-            timestep,
-            target
-          )
-          boosters <- target[api$get_variable(
-            individuals$human,
-            variables$rtss_vaccinated,
-            target
-          ) > -1]
-          if (length(boosters) > 0) {
-            api$queue_variable_update(
-              individuals$human,
-              variables$rtss_cs,
-              exp(parameters$rtss_cs_boost[[1]] + parameters$rtss_cs_boost[[2]] * rnorm(length(boosters))),
-              boosters
-            )
-            api$queue_variable_update(
-              individuals$human,
-              variables$rtss_rho,
-              invlogit(parameters$rtss_rho_boost[[1]] + parameters$rtss_rho_boost[[2]] * rnorm(length(boosters))),
-              boosters
-            )
-          }
-        }
-        if (timestep + parameters$rtss_frequency <= parameters$rtss_end) {
-          api$schedule(events$rtss_vaccination, c(1), parameters$rtss_frequency)
-        }
-      }
+      create_rtss_vaccination_listener(individuals$human, variables, events, parameters)
+    )
+    events$rtss_booster$add_listener(
+      create_rtss_booster_listener(individuals$human, variables, events, parameters)
     )
   }
 

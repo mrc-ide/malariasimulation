@@ -16,7 +16,13 @@ parameterise_ode <- function(parameters, foim = 0.) {
         parameters$mup,
         foim,
         parameters$mum,
-        parameters$dem
+        parameters$dem,
+        parameters$model_seasonality,
+        parameters$days_per_timestep,
+        parameters$g0,
+        parameters$g,
+        parameters$h,
+        calculate_R_bar(parameters)
       )
     }
   )

@@ -17,9 +17,9 @@ create_mortality_process <- function(human, D, Tr, variables, events) {
       timestep
     ) / 365
 
-    died <- which(bernoulli(
-        parameters$human_population, parameters$mortality_rate
-    ))
+    died <- bernoulli(
+      parameters$human_population, parameters$mortality_rate
+    )
     
     api$render('natural_deaths', length(died))
 
@@ -47,6 +47,12 @@ create_mortality_process <- function(human, D, Tr, variables, events) {
 
       api$clear_schedule(events$infection, died)
       api$clear_schedule(events$asymptomatic_infection, died)
+      if (parameters$mda == 1) {
+        api$clear_schedule(events$mda_administer, died)
+      }
+      if (parameters$smc == 1) {
+        api$clear_schedule(events$smc_administer, died)
+      }
 
       api$queue_variable_update(human, variables$birth, timestep, died)
       api$queue_variable_update(human, variables$last_boosted_ib, -1, died)

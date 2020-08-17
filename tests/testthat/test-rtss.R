@@ -45,7 +45,7 @@ test_that('Infection considers vaccine efficacy', {
 
   bernoulli_mock <- mockery::mock(c(TRUE, TRUE, FALSE, FALSE))
   with_mock(
-    'malariasimulation:::bernoulli' = bernoulli_mock,
+    'malariasimulation:::bernoulli_multi_p' = bernoulli_mock,
     calculate_infections(
       api,
       individuals$human,

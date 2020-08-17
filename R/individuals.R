@@ -96,6 +96,8 @@ create_states <- function(parameters) {
 #' * rtss_ds - short-lived antibody delay variable
 #' * rtss_dl - long-lived antibody delay variable
 #' * zeta_group - Discretised heterogeneity of human individuals
+#'
+#' Mosquito variables are: 
 #' * variety - The variety of mosquito, either 1, 2 or 3. These are related to
 #' blood meal rate parameter
 #' * infectivity - The onward infectiousness to mosquitos
@@ -103,6 +105,7 @@ create_states <- function(parameters) {
 #' * drug_time - The timestep of the last drug
 #'
 #' @param parameters, model parameters created by `get_parameters`
+#' @importFrom stats rexp rnorm
 create_variables <- function(parameters) {
   initial_age <- trunc(
     rexp(
@@ -183,14 +186,22 @@ create_variables <- function(parameters) {
   # NOTE: not yet supporting initialisation of infectiousness of Treated individuals
   infectivity_values <- rep(0, parameters$human_population)
   counts <- calculate_initial_counts(parameters)
-  infectivity_values[counts[[1]]:sum(counts[1:2])] <- parameters$cd
-  a <- sum(counts[1:2]):sum(counts[1:3])
-  infectivity_values[a] <- asymptomatic_infectivity(
-    initial_age[a],
-    initial_immunity(parameters$init_id, initial_age)[a],
+
+  # Calculate the indices of individuals in each infectious state
+  diseased <- counts[[1]]:sum(counts[1:2])  # The index of individuals in the D state
+  asymptomatic <- sum(counts[1:2]):sum(counts[1:3]) # The index of individuals in the A state
+  subpatent <- sum(counts[1:3]):sum(counts[1:4]) # The index of individuals in the U state 
+
+  # Set the initial infectivity values for each individual
+  infectivity_values[diseased] <- parameters$cd
+  infectivity_values[asymptomatic] <- asymptomatic_infectivity(
+    initial_age[asymptomatic],
+    initial_immunity(parameters$init_id, initial_age)[asymptomatic],
     parameters
   )
-  infectivity_values[sum(counts[1:3]):sum(counts[1:4])] <- parameters$cu
+  infectivity_values[subpatent] <- parameters$cu
+
+  # Initialise the infectivity variable
   infectivity <- individual::Variable$new("infectivity", function(n) infectivity_values)
 
   drug <- individual::Variable$new("drug", function(n) rep(0, n))
@@ -281,7 +292,12 @@ create_variables <- function(parameters) {
 #' @param variables available variables to assign
 #' @param events available events to assign
 #' @param parameters model parameters
-create_individuals <- function(states, variables, events, parameters) {
+create_individuals <- function(
+  states,
+  variables,
+  events,
+  parameters
+  ) {
   human <- individual::Individual$new(
     'human',
     states = list(states$S, states$D, states$A, states$U, states$Tr),
@@ -309,10 +325,14 @@ create_individuals <- function(states, variables, events, parameters) {
       variables$rtss_ds,
       variables$rtss_dl
     ),
-    events = list(
+    events = c(
       events$infection,
       events$asymptomatic_infection,
-      events$rtss_vaccination
+      events$rtss_vaccination,
+      events$mda_enrollment,
+      events$mda_administer,
+      events$smc_enrollment,
+      events$smc_administer
     )
   )
 

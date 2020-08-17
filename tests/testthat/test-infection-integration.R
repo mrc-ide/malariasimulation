@@ -58,11 +58,12 @@ test_that('human infection_process works for non-severe clinical cases', {
   api$get_scheduled = mockery::mock(4, 1)
 
   with_mock(
-    'malariasimulation:::bernoulli' = bernoulli_mock,
+    'malariasimulation:::bernoulli_multi_p' = bernoulli_mock,
+    'malariasimulation:::bernoulli' = mockery::mock(numeric(0)), # mock seek treatment
     infection_process(api)
   )
 
-  mockery::expect_called(bernoulli_mock, 6)
+  mockery::expect_called(bernoulli_mock, 4)
 
   mockery::expect_args(
     api$queue_variable_update,
@@ -97,7 +98,112 @@ test_that('human infection_process works for non-severe clinical cases', {
   )
 })
 
-test_that('human infection_process works for treated case', {
+test_that('human infection_process works for one drug', {
+  parameters <- get_parameters()
+  parameters <- set_drugs(parameters, list(AL_params, DHC_PQP_params))
+  parameters <- set_clinical_treatment(parameters, .5, 2, 1)
+  events <- create_events()
+  states <- create_states(parameters)
+  variables <- create_variables(parameters)
+  individuals <- create_individuals(states, variables, events, parameters)
+
+  infection_process <- create_infection_process(
+    individuals,
+    states,
+    variables,
+    events
+  )
+
+  parameters$severe_enabled = 1
+
+  api <- mock_api(
+    list(
+      human = list(
+        S = c(2),
+        U = c(3),
+        A = c(4),
+        D = c(1),
+        birth = -c(20, 24, 5, 39) * 365 + 5,
+        IB = c(.2, .3, .5, .9),
+        xi = c(.2, .3, .5, .9),
+        ICA = c(.2, .3, .5, .9),
+        IVA = c(.2, .3, .5, .9),
+        ICM = c(.2, .3, .5, .9),
+        IVM = c(.2, .3, .5, .9),
+        infectivity = c(.6, 0, .2, .3),
+        drug = c(0, 0, 0, 0),
+        last_boosted_ib = c(-1, -1, 1, -1),
+        last_boosted_ica = c(-1, -1, 1, -1),
+        last_boosted_iva = c(-1, -1, 1, -1),
+        last_boosted_id = c(-1, -1, 1, -1),
+        ID = c(.2, .3, .5, .9)
+      ),
+      mosquito = list(
+        Im = 1:100,
+        variety = c(rep(1, 25), rep(2, 25), rep(3, 50))
+      )
+    ),
+    timestep = 5,
+    parameters = parameters
+  )
+
+  bernoulli_mock <- mockery::mock(
+    c(FALSE, TRUE, TRUE, FALSE), # bitten
+    c(TRUE, TRUE),               # infected
+    c(TRUE, TRUE),               # clinical
+    c(FALSE, TRUE),              # severe
+    c(TRUE, TRUE)                # treatment successful
+  )
+
+  with_mock(
+    'malariasimulation:::bernoulli_multi_p' = bernoulli_mock,
+    'malariasimulation:::bernoulli' = mockery::mock(c(1, 2)),
+    infection_process(api)
+  )
+
+  api$get_scheduled = mockery::mock(4, 1)
+
+  infection_process(api)
+
+  # expect treated individual to go to Tr state
+  mockery::expect_args(
+    api$queue_state_update,
+    1,
+    individuals$human,
+    states$Tr,
+    c(2, 3)
+  )
+
+  # expect rel_c to be applied correctly
+  mockery::expect_args(
+    api$queue_variable_update,
+    10,
+    individuals$human,
+    variables$infectivity,
+    rep(parameters$cd * 0.09434, 2),
+    c(2, 3)
+  )
+  
+  # expect drug and time to be applied correctly
+  mockery::expect_args(
+    api$queue_variable_update,
+    11,
+    individuals$human,
+    variables$drug,
+    c(2, 2),
+    c(2, 3)
+  )
+  mockery::expect_args(
+    api$queue_variable_update,
+    12,
+    individuals$human,
+    variables$drug_time,
+    5,
+    c(2, 3)
+  )
+})
+
+test_that('human infection_process works for two drugs', {
   parameters <- get_parameters()
   parameters <- set_drugs(parameters, list(AL_params, DHC_PQP_params))
   parameters <- set_clinical_treatment(parameters, .5, c(1, 2), c(.5, .5))
@@ -151,13 +257,13 @@ test_that('human infection_process works for treated case', {
     c(TRUE),                     # infected
     c(TRUE),                     # clinical
     c(FALSE),                    # severe
-    c(TRUE),                     # seeks treatment
     c(TRUE)                      # treatment successful
   )
 
   with_mock(
-    'malariasimulation:::bernoulli' = bernoulli_mock,
-    sample = mockery::mock(2), # Return DCH drug
+    'malariasimulation:::bernoulli_multi_p' = bernoulli_mock,
+    'malariasimulation:::bernoulli' = mockery::mock(1),
+    sample.int = mockery::mock(2), # Return DCH drug
     infection_process(api)
   )
 
@@ -180,7 +286,7 @@ test_that('human infection_process works for treated case', {
     4,
     individuals$human,
     variables$infectivity,
-    .2 * 0.09434,
+    parameters$cd * 0.09434,
     3
   )
   
@@ -226,10 +332,10 @@ test_that('prophylaxis is considered for medicated humans', {
     timestep = 50,
     parameters = parameters
   )
-  m <- mockery::mock(TRUE, TRUE, TRUE, TRUE)
+  m <- mockery::mock(c(TRUE, TRUE, TRUE, TRUE))
 
   with_mock(
-    'malariasimulation:::bernoulli' = m,
+    'malariasimulation:::bernoulli_multi_p' = m,
     calculate_infections(api, individuals$human, states, variables, seq(4), ib)
   )
 
@@ -326,7 +432,7 @@ test_that('mosquito_infection_process creates the correct updates', {
 
   mockery::stub(
     mosquito_infection_process,
-    'bernoulli',
+    'bernoulli_multi_p',
     mockery::mock(c(TRUE, TRUE, TRUE, FALSE))
   )
 
@@ -509,10 +615,12 @@ test_that('calculate_treated can handle multiple drugs', {
 
   with_mock(
     'malariasimulation:::bernoulli' = mockery::mock(
-      rep(TRUE, 3),
-      c(TRUE, TRUE, FALSE)
+      seq(3) # Mock seek treatment
     ),
-    sample = mockery::mock(c(1, 2)),
+    'malariasimulation:::bernoulli_multi_p' = mockery::mock(
+      c(TRUE, TRUE, FALSE) # Mock drug success
+    ),
+    sample.int = mockery::mock(c(1, 2)),
     calculate_treated(api, individuals$human, states, variables, seq(3))
   )
 
@@ -529,7 +637,7 @@ test_that('calculate_treated can handle multiple drugs', {
     1,
     individuals$human,
     variables$infectivity,
-    c(.1, .2) * c(AL_params[[2]], DHC_PQP_params[[2]]),
+    parameters$cd * c(AL_params[[2]], DHC_PQP_params[[2]]),
     c(1, 2)
   )
 

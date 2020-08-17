@@ -14,6 +14,7 @@
 #include <queue>
 #include <cmath>
 #include <functional>
+#include "mosquito_biology.h"
 
 /*
  * The states are:
@@ -41,6 +42,12 @@ struct MosquitoModel {
     double foim; //force of infection on mosquitoes
     const double mu; //death rate for adult mosquitoes
     const size_t tau; //the delay for infection
+    const bool model_seasonality; //whether to model seasonality
+    const double days_per_timestep; //scale of the fourier model for seasonality
+    const double g0; //fourier shape parameter
+    const std::vector<double> g; //fourier shape parameters
+    const std::vector<double> h; //fourier shape parameters
+    const double R_bar; //average rainfall
     std::queue<double> lagged_incubating; //last tau values for incubating mosquitos
 
     //solver fields
@@ -68,7 +75,13 @@ struct MosquitoModel {
         double mup,
         double foim,
         double mu,
-        size_t tau
+        size_t tau,
+        bool model_seasonality,
+        double days_per_timestep,
+        double g0,
+        std::vector<double> g,
+        std::vector<double> h,
+        double R_bar
     );
     void step(double);
 };

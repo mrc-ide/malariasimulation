@@ -1,9 +1,25 @@
 test_that('mortality_process resets humans correctly', {
   parameters <- get_parameters(list(severe_enabled = 1))
+  parameters <- set_drugs(parameters, list(SP_AQ_params))
+  parameters <- set_mda(
+    parameters,
+    1, # drug
+    50, # start timestep
+    50 + 365 * 5, # last timestep
+    100, # frequency
+    5 * 365, # min age
+    10 * 365, # max age
+    1 # coverage
+  )
   events <- create_events()
   states <- create_states(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
+  individuals <- create_individuals(
+    states,
+    variables,
+    events,
+    parameters
+  )
 
   mortality_process <- create_mortality_process(
     individuals$human,
@@ -32,9 +48,9 @@ test_that('mortality_process resets humans correctly', {
   with_mock(
     sample = mockery::mock(c(1), c(4)),
     'malariasimulation:::bernoulli' = mockery::mock(
-      c(FALSE, FALSE, FALSE, TRUE),
-      c(FALSE),
-      c(TRUE)
+      c(4),
+      numeric(0),
+      c(1)
     ),
     mortality_process(api)
   )
@@ -76,8 +92,8 @@ test_that('mortality_process resets humans correctly', {
     vapply(cleared_args, function(cleared) cleared[[1]]$name, character(1)),
     c(
       'infection',
-      'asymptomatic_infection'
+      'asymptomatic_infection',
+      'mda_administer'
     )
   )
-
 })

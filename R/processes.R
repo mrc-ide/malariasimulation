@@ -266,47 +266,83 @@ create_event_based_processes <- function(individuals, states, variables, events,
     }
   )
 
-  events$rtss_vaccination$add_listener(
-    function(api, target) {
-      timestep <- api$get_timestep()
-      target <- which(trunc(get_age(
-        api$get_variable(individuals$human, variables$birth),
-        timestep
-      ) / 365) %in% parameters$rtss_ages)
-      target <- target[bernoulli(length(target), parameters$rtss_coverage)]
-      api$render('n_vaccinated', length(target))
-      if (length(target) > 0) {
-        api$queue_variable_update(
-          individuals$human,
-          variables$rtss_vaccinated,
-          timestep,
-          target
-        )
-        boosters <- target[api$get_variable(
-          individuals$human,
-          variables$rtss_vaccinated,
-          target
-        ) > -1]
-        if (length(boosters) > 0) {
+  if (parameters$rtss == 1) {
+    events$rtss_vaccination$add_listener(
+      function(api, target) {
+        timestep <- api$get_timestep()
+        target <- which(trunc(get_age(
+          api$get_variable(individuals$human, variables$birth),
+          timestep
+        ) / 365) %in% parameters$rtss_ages)
+        target <- target[bernoulli(length(target), parameters$rtss_coverage)]
+        api$render('n_vaccinated', length(target))
+        if (length(target) > 0) {
           api$queue_variable_update(
             individuals$human,
-            variables$rtss_cs,
-            exp(parameters$rtss_cs_boost[[1]] + parameters$rtss_cs_boost[[2]] * rnorm(length(boosters))),
-            boosters
+            variables$rtss_vaccinated,
+            timestep,
+            target
           )
-          api$queue_variable_update(
+          boosters <- target[api$get_variable(
             individuals$human,
-            variables$rtss_rho,
-            invlogit(parameters$rtss_rho_boost[[1]] + parameters$rtss_rho_boost[[2]] * rnorm(length(boosters))),
-            boosters
-          )
+            variables$rtss_vaccinated,
+            target
+          ) > -1]
+          if (length(boosters) > 0) {
+            api$queue_variable_update(
+              individuals$human,
+              variables$rtss_cs,
+              exp(parameters$rtss_cs_boost[[1]] + parameters$rtss_cs_boost[[2]] * rnorm(length(boosters))),
+              boosters
+            )
+            api$queue_variable_update(
+              individuals$human,
+              variables$rtss_rho,
+              invlogit(parameters$rtss_rho_boost[[1]] + parameters$rtss_rho_boost[[2]] * rnorm(length(boosters))),
+              boosters
+            )
+          }
+        }
+        if (timestep + parameters$rtss_frequency <= parameters$rtss_end) {
+          api$schedule(events$rtss_vaccination, c(1), parameters$rtss_frequency)
         }
       }
-      if (timestep + parameters$rtss_frequency <= parameters$rtss_end) {
-        api$schedule(events$rtss_vaccination, c(1), parameters$rtss_frequency)
-      }
-    }
-  )
+    )
+  }
+
+  if (parameters$mda == 1) {
+    mda_listeners <- create_mda_listeners(
+      individuals$human,
+      states,
+      variables,
+      events$mda_administer,
+      parameters$mda_drug,
+      parameters$mda_end,
+      parameters$mda_frequency,
+      parameters$mda_min_age,
+      parameters$mda_max_age,
+      parameters$mda_coverage
+    )
+    events$mda_enrollment$add_listener(mda_listeners$enrollment_listener)
+    events$mda_administer$add_listener(mda_listeners$administer_listener)
+  }
+
+  if (parameters$smc == 1) {
+    smc_listeners <- create_mda_listeners(
+      individuals$human,
+      states,
+      variables,
+      events$smc_administer,
+      parameters$smc_drug,
+      parameters$smc_end,
+      parameters$smc_frequency,
+      parameters$smc_min_age,
+      parameters$smc_max_age,
+      parameters$smc_coverage
+    )
+    events$smc_enrollment$add_listener(smc_listeners$enrollment_listener)
+    events$smc_administer$add_listener(smc_listeners$administer_listener)
+  }
 
   if (!parameters$vector_ode) {
     events$mosquito_infection$add_listener(
@@ -340,6 +376,12 @@ create_setup_process <- function(events) {
     parameters <- api$get_parameters()
     if (parameters$rtss) {
       api$schedule(events$rtss_vaccination, c(1), parameters$rtss_start)
+    }
+    if (parameters$mda) {
+      api$schedule(events$mda_enrollment, c(1), parameters$mda_start)
+    }
+    if (parameters$smc) {
+      api$schedule(events$smc_enrollment, c(1), parameters$smc_start)
     }
   }
 }

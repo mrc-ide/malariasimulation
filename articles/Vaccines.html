@@ -54,6 +54,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/MDA.html">Mass Drug Administration</a>
+    </li>
+    <li>
       <a href="../articles/Model.html">Model Structure</a>
     </li>
     <li>
@@ -103,7 +106,7 @@
 <div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="no">year</span> <span class="kw">&lt;-</span> <span class="fl">365</span>
 <span class="no">sim_length</span> <span class="kw">&lt;-</span> <span class="fl">100</span> * <span class="no">year</span>
 <span class="no">human_population</span> <span class="kw">&lt;-</span> <span class="fl">1000</span>
-<span class="no">starting_EIR</span> <span class="kw">&lt;-</span> <span class="fl">5</span>
+<span class="no">starting_EIR</span> <span class="kw">&lt;-</span> <span class="fl">500</span>
 <span class="no">repetitions</span> <span class="kw">&lt;-</span> <span class="fl">5</span>
 
 <span class="no">jamie_params</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariaEquilibrium/man/load_parameter_set.html">load_parameter_set</a></span>()
@@ -114,6 +117,10 @@
   <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
     <span class="kw">human_population</span> <span class="kw">=</span> <span class="no">human_population</span>,
     <span class="kw">variety_proportions</span> <span class="kw">=</span> <span class="fl">1</span>,
+    <span class="kw">model_seasonality</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="co"># Let's try a bi-modal model</span>
+    <span class="kw">g0</span> <span class="kw">=</span> <span class="fl">0.28605</span>,
+    <span class="kw">g</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.20636</span>, -<span class="fl">0.0740318</span>, -<span class="fl">0.0009293</span>),
+    <span class="kw">h</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.173743</span>, -<span class="fl">0.0730962</span>, -<span class="fl">0.116019</span>),
     <span class="kw">vector_ode</span> <span class="kw">=</span> <span class="fl">TRUE</span>
   )
 ))
@@ -148,12 +155,15 @@
 <div id="rtss" class="section level2">
 <h2 class="hasAnchor">
 <a href="#rtss" class="anchor"></a>RTS,S</h2>
-<p>This is a round of RTS,S vaccine at ages 1, 2, 3 and 18; coverage of 80%; for 10 years:</p>
+<p>This is a round of RTS,S vaccine for individuals between 5 - 17 months and a booster after 18 months; coverage of 80%; for 10 years:</p>
 <div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="no">rtssparams</span> <span class="kw">&lt;-</span> <span class="no">simparams</span>
+
+<span class="no">peak</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/peak_season_offset.html">peak_season_offset</a></span>(<span class="no">rtssparams</span>)
+<span class="no">month</span> <span class="kw">&lt;-</span> <span class="fl">30</span>
 
 <span class="co"># Add RTS,S strategy</span>
 <span class="no">rtssevents</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(
-  <span class="kw">timestep</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">60</span>, <span class="fl">80</span>) * <span class="fl">365</span>,
+  <span class="kw">timestep</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">60</span>, <span class="fl">80</span>) * <span class="no">year</span> + <span class="no">peak</span> - <span class="no">month</span>, <span class="co">#vaccine efficacy kicks off a month before the peak</span>
   <span class="kw">name</span><span class="kw">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"RTS,S starts"</span>, <span class="st">"RTS,S ends"</span>)
 )
 
@@ -161,8 +171,10 @@
   <span class="no">rtssparams</span>,
   <span class="kw">start</span> <span class="kw">=</span> <span class="no">rtssevents</span>$<span class="no">timestep</span><span class="kw">[[</span><span class="fl">1</span>]],
   <span class="kw">end</span> <span class="kw">=</span> <span class="no">rtssevents</span>$<span class="no">timestep</span><span class="kw">[[</span><span class="fl">2</span>]],
-  <span class="kw">frequency</span> <span class="kw">=</span> <span class="fl">365</span>,
-  <span class="kw">ages</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">18</span>),
+  <span class="kw">frequency</span> <span class="kw">=</span> <span class="no">year</span>,
+  <span class="kw">min_ages</span> <span class="kw">=</span> <span class="fl">5</span> * <span class="no">month</span>,
+  <span class="kw">max_ages</span> <span class="kw">=</span> <span class="fl">17</span> * <span class="no">month</span>,
+  <span class="kw">boosters</span> <span class="kw">=</span> <span class="fl">18</span> * <span class="no">month</span>,
   <span class="kw">coverage</span> <span class="kw">=</span> <span class="fl">0.8</span>
 )
 

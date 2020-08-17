@@ -95,6 +95,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
+      <a href="../articles/MDA.html">Mass Drug Administration</a>
+    </li>
+    <li>
       <a href="../articles/Model.html">Model Structure</a>
     </li>
     <li>
@@ -133,7 +136,16 @@
     <p>Parameterise an RTS,S strategy</p>
     </div>
 
-    <pre class="usage"><span class='fu'>set_rtss</span>(<span class='no'>parameters</span>, <span class='no'>start</span>, <span class='no'>end</span>, <span class='no'>frequency</span>, <span class='no'>ages</span>, <span class='no'>coverage</span>)</pre>
+    <pre class="usage"><span class='fu'>set_rtss</span>(
+  <span class='no'>parameters</span>,
+  <span class='no'>start</span>,
+  <span class='no'>end</span>,
+  <span class='no'>frequency</span>,
+  <span class='no'>min_ages</span>,
+  <span class='no'>max_ages</span>,
+  <span class='no'>boosters</span>,
+  <span class='no'>coverage</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -155,8 +167,16 @@
       <td><p>the number of timsteps between rounds</p></td>
     </tr>
     <tr>
-      <th>ages</th>
-      <td><p>for each round (in years)</p></td>
+      <th>min_ages</th>
+      <td><p>for the target population, inclusive (in timesteps)</p></td>
+    </tr>
+    <tr>
+      <th>max_ages</th>
+      <td><p>for the target population, inclusive (in timesteps)</p></td>
+    </tr>
+    <tr>
+      <th>boosters</th>
+      <td><p>the timesteps (following the initial vaccination) at which booster vaccinations are administered</p></td>
     </tr>
     <tr>
       <th>coverage</th>

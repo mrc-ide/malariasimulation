@@ -98,6 +98,9 @@ and mortality: A modelling study.&quot;" />
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
+      <a href="../articles/MDA.html">Mass Drug Administration</a>
+    </li>
+    <li>
       <a href="../articles/Model.html">Model Structure</a>
     </li>
     <li>
@@ -239,8 +242,9 @@ for sampling mothers</p></li>
 
 <p>carrying capacity parameters:</p><ul>
 <li><p>model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall</p></li>
-<li><p>g0 to g3 - rainfall shape parameters</p></li>
-<li><p>h1 to h3 - rainfall shape parameters</p></li>
+<li><p>g0 - rainfall fourier parameter</p></li>
+<li><p>g - rainfall fourier parameter</p></li>
+<li><p>h - rainfall fourier parameters</p></li>
 <li><p>gamma - effect of density dependence on late instars relative to early
 instars</p></li>
 </ul>
@@ -313,6 +317,19 @@ clinically diseased (these values refer to the index in drug_* parameters)</p></
 <li><p>rtss_frequency - the frequency of rounds</p></li>
 <li><p>rtss_ages - the ages to apply the vaccine (in years)</p></li>
 <li><p>rtss_coverage - the fraction of the target population who will be covered</p></li>
+</ul>
+
+<p>MDA parameters:
+I recommend setting these with convenience functions in <code>mda_parameters.R</code></p><ul>
+<li><p>mda - whether to apply an MDA or not</p></li>
+<li><p>mda_drug - the index of the drug to use</p></li>
+<li><p>mda_start - the first timestep for the drug to be distributed</p></li>
+<li><p>mda_end - the last timestep for the drug to be distributed</p></li>
+<li><p>mda_frequency - how often to distribute drugs</p></li>
+<li><p>mda_min_age - the min age of the target population</p></li>
+<li><p>mda_max_age - the max age of the target population</p></li>
+<li><p>mda_coverage - the proportion of the target population that will be covered</p></li>
+<li><p>smc* - as for mda*</p></li>
 </ul>
 
 <p>TBV parameters:</p><ul>

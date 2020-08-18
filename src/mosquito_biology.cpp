@@ -6,6 +6,7 @@
  */
 
 #include "mosquito_biology.h"
+#include <algorithm>
 
 //[[Rcpp::export]]
 double carrying_capacity(
@@ -20,7 +21,7 @@ double carrying_capacity(
 ) {
     if (model_seasonality) {
         double r = rainfall(timestep, days_per_timestep, g0, g, h);
-        return K0 * r / R_bar;
+        return std::max(K0 * r / R_bar, .01);
     }
     return K0;
 }

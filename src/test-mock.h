@@ -1,3 +1,4 @@
+// -*- mode: C++; c-indent-level: 4; c-basic-offset: 4; indent-tabs-mode: nil; -*-
 /*
  * test-emergence.h
  *
@@ -59,6 +60,7 @@ public:
 class MockRandom : public RandomInterface {
 public:
     MAKE_MOCK2(bernoulli, std::vector<size_t>(size_t, double), override);
+    MAKE_MOCK2(sample, std::vector<size_t>(size_t, size_t), override);
 };
 
 #endif /* SRC_TEST_MOCK_H_ */

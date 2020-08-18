@@ -1,3 +1,4 @@
+// -*- mode: C++; c-indent-level: 4; c-basic-offset: 4; indent-tabs-mode: nil; -*-
 /*
  * test-random.cpp
  *
@@ -23,6 +24,22 @@ context("Random is sane") {
         set_seed(42);
         auto indices = random.bernoulli(1000, .5);
         expect_true(indices.size() == 486u);
+        for (auto i : indices) {
+            expect_true(i < 1000u);
+            expect_true(i >= 0u);
+        }
+        auto values = std::unordered_set<size_t>(indices.begin(), indices.end());
+        expect_true(indices.size() == values.size());
+    }
+
+}
+
+context("Sample is sane") {
+    test_that("Sample produces the right size") {
+        auto& random = Random::get_instance();
+        set_seed(42);
+        auto indices = random.sample(1000, 500);
+        expect_true(indices.size() == 500u);
         for (auto i : indices) {
             expect_true(i < 1000u);
             expect_true(i >= 0u);

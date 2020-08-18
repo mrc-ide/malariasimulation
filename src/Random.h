@@ -1,3 +1,4 @@
+// -*- mode: C++; c-indent-level: 4; c-basic-offset: 4; indent-tabs-mode: nil; -*-
 /*
  * Random.h
  *
@@ -13,6 +14,7 @@
 class RandomInterface {
 public:
     virtual std::vector<size_t> bernoulli(size_t, double) = 0;
+    virtual std::vector<size_t> sample(size_t, size_t) = 0;
     virtual ~RandomInterface() = default;
 };
 
@@ -23,6 +25,7 @@ public:
         return instance;
     }
     virtual std::vector<size_t> bernoulli(size_t, double);
+    virtual std::vector<size_t> sample(size_t, size_t);
     virtual ~Random() = default;
     Random(const Random &other) = delete;
     Random(Random &&other) = delete;

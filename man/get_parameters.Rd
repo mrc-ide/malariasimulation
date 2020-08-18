@@ -177,7 +177,6 @@ miscellaneous:
 \item mosquito_limit - the maximum number of mosquitos to allow for in the
 simulation
 \item days_per_timestep - the number of days to model per timestep
-\item vector_ode - whether to use the ODE model to model mosquitos
 }}
 }
 \description{

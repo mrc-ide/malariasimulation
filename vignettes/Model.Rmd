@@ -56,37 +56,41 @@ DiagrammeR::grViz("digraph {
   }")
 ```
 
+#Mosquito Biology
+
 The mosquito biological processes are spread out between the following functions:
 
- 1. 'create_event_based_process' (green)
- 2. 'create_mosquito_infection_process' (orange)
- 3. 'create_larval_death_process_cpp'(red)
- 4. 'create_pupal_death_process' (red)
- 5. 'create_mosquito_death_process' (red)
- 6. 'create_egg_laying_process_cpp' (green)
+ 1. 'create_ode' (green)
+ 2. 'create_mosquito_emergence_process' (green)
+ 3. 'create_mosquito_infection_process' (orange)
+ 4. 'create_processes' (red)
 
 ```{r echo=FALSE}
 DiagrammeR::grViz("digraph {
   graph [layout = dot, rankdir = LR]
   
-  node [shape = rectangle]        
-  E
-  L
-  P
+  subgraph clusterode {
+    style=filled;
+    color=lightblue;
+    node [shape = rectangle]
+    E
+    L
+    P
+    label='ODE'
+  }
+
+  node [shape = rectangle]
   Sm
   Pm
   Im
   Unborn
   
   # edge definitions with the node IDs
-  E -> L -> P -> Sm [color='green', label='1']
-  Sm -> Pm -> Im [color='orange', label='2']
-  E -> Unborn [color='red', label='3']
-  L -> Unborn [color='red', label='3']
-  P -> Unborn [color='red', label='4']
-  Sm -> Unborn [color='red', label='5']
-  Pm -> Unborn [color='red', label='5']
-  Im -> Unborn [color='red', label='5']
-  Unborn -> E [color='green', label='6']
+  E -> L -> P [color='green', label='1']
+  P -> Sm [color='green', label='2']
+  Sm -> Pm -> Im [color='orange', label='3']
+  Sm -> Unborn [color='red', label='4']
+  Pm -> Unborn [color='red', label='4']
+  Im -> Unborn [color='red', label='4']
   }")
 ```

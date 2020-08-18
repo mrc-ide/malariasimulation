@@ -14,17 +14,24 @@
 #include <queue>
 #include <cmath>
 #include <functional>
+#include <type_traits>
 
 /*
  * The states are:
  * 0 - E  - Early larval stage
  * 1 - L  - Late larval stage
  * 2 - P  - Pupal stage
- * 3 - Sm - Susceptible female adult
- * 4 - Pm - Incubating female adult
- * 5 - Im - Infected female adult
  */
-using state_t = std::array<double, 6>;
+enum class ODEState : size_t {E, L, P};
+
+// Provide a convenience function for getting at the index of an enumeration
+template<typename T>
+constexpr auto get_idx(T value)
+{
+    return static_cast<std::underlying_type_t<T>>(value);
+}
+
+using state_t = std::array<double, 3>;
 using integration_function_t = std::function<void (const state_t&, state_t&, double)>;
 
 struct MosquitoModel {
@@ -38,10 +45,7 @@ struct MosquitoModel {
     const double mul; //death rate for late larvae
     const double dp; //delay for for pupal growth
     const double mup; //death rate for pupae
-    double foim; //force of infection on mosquitoes
-    const double mu; //death rate for adult mosquitoes
-    const size_t tau; //the delay for infection
-    std::queue<double> lagged_incubating; //last tau values for incubating mosquitos
+    size_t total_M; //the number of adult female mosquitos in the model
 
     //solver fields
     boost::numeric::odeint::dense_output_runge_kutta<
@@ -66,11 +70,11 @@ struct MosquitoModel {
         double mul,
         double dp,
         double mup,
-        double foim,
-        double mu,
-        size_t tau
+        size_t total_M
     );
-    void step(double);
+    virtual void step(size_t);
+    virtual state_t get_state();
+    virtual ~MosquitoModel() {};
 };
 
 integration_function_t create_ode(MosquitoModel& model);

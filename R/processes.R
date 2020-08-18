@@ -10,14 +10,14 @@
 #' @param variables a list of variables in the model
 #' @param events a list of events in the model
 #' @param parameters a list of model parameters
-#' @param odes a list of vector models (if vector_ode == TRUE)
+#' @param odes a list of vector ode models for each species
 create_processes <- function(
   individuals,
   states,
   variables,
   events,
   parameters,
-  odes=NULL
+  odes
   ) {
   processes <- list(
     # ========
@@ -73,8 +73,7 @@ create_processes <- function(
       individuals,
       states,
       variables,
-      events,
-      odes
+      events
     ),
 
     create_mortality_process(
@@ -110,112 +109,77 @@ create_processes <- function(
       states$D,
       states$A,
       variables$birth
-    )
-  )
+    ),
 
-  if (!parameters$vector_ode) {
-    processes <- c(
-      processes,
-      # ==================
-      # Mosquito Processes
-      # ==================
-      create_mosquito_infection_process(
-        individuals$mosquito,
-        individuals$human,
-        states,
-        variables,
-        events$mosquito_infection
-      ),
-
-      # Eggs laid
-      create_egg_laying_process_cpp(
-        individuals$mosquito$name,
-        states$Sm$name,
-        states$Pm$name,
-        states$Im$name,
-        states$Unborn$name,
-        states$E$name
-      ),
-
-      individual::fixed_probability_state_change_process(
-        individuals$mosquito$name,
-        states$E$name,
-        states$L$name,
-        1. - exp(-1./parameters$del)
-      ),
-
-      # Death of larvae
-      create_larval_death_process_cpp(
-        individuals$mosquito$name,
-        states$E$name,
-        states$L$name,
-        states$Unborn$name,
-        calculate_carrying_capacity(parameters),
-        calculate_R_bar(parameters)
-      ),
-
-      individual::fixed_probability_state_change_process(
-        individuals$mosquito$name,
-        states$L$name,
-        states$P$name,
-        1. - exp(-1./parameters$dl)
-      ),
-
-      individual::fixed_probability_state_change_process(
-        individuals$mosquito$name,
-        states$P$name,
-        states$Sm$name,
-        .5 * (1. - exp(-1./parameters$dpl))
-      ),
-
-      # Death of pupals
-      individual::fixed_probability_state_change_process(
-        individuals$mosquito$name,
-        states$P$name,
-        states$Unborn$name,
-        parameters$mup
-      ),
-
-      # Natural death of females
-      individual::fixed_probability_state_change_process(
-        individuals$mosquito$name,
-        states$Sm$name,
-        states$Unborn$name,
-        parameters$mum
-      ),
-      individual::fixed_probability_state_change_process(
-        individuals$mosquito$name,
-        states$Pm$name,
-        states$Unborn$name,
-        parameters$mum
-      ),
-      individual::fixed_probability_state_change_process(
-        individuals$mosquito$name,
-        states$Im$name,
-        states$Unborn$name,
-        parameters$mum
-      ),
-
-      # Rendering processes
-      individual::state_count_renderer_process(
-        individuals$mosquito$name,
-        c(
-          states$E$name,
-          states$L$name,
-          states$P$name,
-          states$Sm$name,
-          states$Pm$name,
-          states$Im$name
-        )
+    # ==================
+    # Mosquito Processes
+    # ==================
+    create_mosquito_infection_process_cpp(
+      individuals$mosquito$name,
+      individuals$human$name,
+      c(states$Sm$name, states$Pm$name),
+      c(
+        variables$birth$name,
+        variables$zeta$name,
+        variables$infectivity$name,
+        variables$mosquito_variety$name
       )
-    )
-  } else {
-    processes <- c(
-      processes,
-      create_ode_stepping_process(odes, individuals$human, states, variables),
-      create_ode_rendering_process(odes)
-    )
-  }
+    ),
+
+    create_mosquito_emergence_process_cpp(
+      individuals$mosquito$name,
+      odes,
+      states$Unborn$name,
+      states$Sm$name,
+      variables$mosquito_variety$name,
+      parameters$dpl
+    ),
+
+    # Infection after incubation
+    individual::fixed_probability_state_change_process(
+      individuals$mosquito$name,
+      states$Pm$name,
+      states$Im$name,
+      1. - exp(-1./parameters$dem)
+    ),
+
+    # Natural death of females
+    individual::fixed_probability_state_change_process(
+      individuals$mosquito$name,
+      states$Sm$name,
+      states$Unborn$name,
+      parameters$mum
+    ),
+    individual::fixed_probability_state_change_process(
+      individuals$mosquito$name,
+      states$Pm$name,
+      states$Unborn$name,
+      parameters$mum
+    ),
+    individual::fixed_probability_state_change_process(
+      individuals$mosquito$name,
+      states$Im$name,
+      states$Unborn$name,
+      parameters$mum
+    ),
+
+    # Rendering processes
+    individual::state_count_renderer_process(
+      individuals$mosquito$name,
+      c(
+        states$Sm$name,
+        states$Pm$name,
+        states$Im$name
+      )
+    ),
+    create_ode_stepping_process_cpp(
+      odes,
+      individuals$mosquito$name,
+      c(states$Sm$name, states$Pm$name, states$Im$name),
+      variables$mosquito_variety$name
+    ),
+    create_ode_rendering_process(odes)
+  )
 }
 
 #' @title Define event based processes
@@ -265,12 +229,6 @@ create_event_based_processes <- function(individuals, states, variables, events,
       }
     }
   )
-
-  if (!parameters$vector_ode) {
-    events$mosquito_infection$add_listener(
-      individual::update_state_listener(individuals$mosquito$name, states$Im$name)
-    )
-  }
 }
 
 # =================

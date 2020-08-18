@@ -24,9 +24,6 @@ progressing to the T or D state
 
 The mosquito states are defined as:
 \itemize{
-\item E - \strong{E}arly larval stage
-\item L - \strong{L}ate larval stage
-\item P - \strong{P}upal
 \item Sm - \strong{S}usceptable \strong{m}osquito
 \item Pm - Extrinsic Incubation \strong{P}eriod for \strong{m}osquitoes
 \item Im - \strong{I}nfectious \strong{m}osquito

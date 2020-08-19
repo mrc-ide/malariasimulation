@@ -48,9 +48,8 @@ MosquitoModel::MosquitoModel(
     mup(mup),
     total_M(total_M)
     {
-    auto in = state_t();
-    for (auto i = 0u; i < in.size(); ++i) {
-        in[i] = init[i];
+    for (auto i = 0u; i < state.size(); ++i) {
+        state[i] = init[i];
     }
     ode = create_ode(*this);
     rk = boost::numeric::odeint::make_dense_output(
@@ -58,16 +57,16 @@ MosquitoModel::MosquitoModel(
         r_tolerance,
         boost::numeric::odeint::runge_kutta_dopri5<state_t>()
     );
-    rk.initialize(in, 0, 1);
 }
 
 void MosquitoModel::step(size_t new_total_M) {
     total_M = new_total_M;
-    rk.do_step(ode);
+    boost::numeric::odeint::integrate_adaptive(rk, ode, state, t, t + dt, dt);
+    ++t;
 }
 
 state_t MosquitoModel::get_state() {
-    return rk.current_state();
+    return state;
 }
 
 //[[Rcpp::export]]

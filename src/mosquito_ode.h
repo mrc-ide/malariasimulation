@@ -47,18 +47,6 @@ struct MosquitoModel {
     const double mup; //death rate for pupae
     size_t total_M; //the number of adult female mosquitos in the model
 
-    //solver fields
-    boost::numeric::odeint::dense_output_runge_kutta<
-        boost::numeric::odeint::controlled_runge_kutta<
-            boost::numeric::odeint::runge_kutta_dopri5<state_t>
-        >
-    >rk;
-    const double r_tolerance = 1.0e-6;
-    const double a_tolerance = 1.0e-6;
-    integration_function_t ode;
-    double t = 0;
-    const double dt = 1;
-
     MosquitoModel(
         std::vector<double> init,
         double beta,
@@ -75,6 +63,20 @@ struct MosquitoModel {
     virtual void step(size_t);
     virtual state_t get_state();
     virtual ~MosquitoModel() {};
+private:
+    //solver fields
+    boost::numeric::odeint::dense_output_runge_kutta<
+        boost::numeric::odeint::controlled_runge_kutta<
+            boost::numeric::odeint::runge_kutta_dopri5<state_t>
+        >
+    >rk;
+    const double r_tolerance = 1.0e-6;
+    const double a_tolerance = 1.0e-6;
+    integration_function_t ode;
+
+    double t = 0.;
+    const double dt = 1.;
+    state_t state;
 };
 
 integration_function_t create_ode(MosquitoModel& model);

@@ -43,7 +43,7 @@ Rcpp::XPtr<process_t> create_mosquito_emergence_process_cpp(
                 auto ode_i = 1;
                 auto species_i = 0u;
                 for (Rcpp::XPtr<MosquitoModel> ode : odes) {
-                    auto to_set = static_cast<size_t>(ode->get_state()[2] * rate);
+                    auto to_set = static_cast<size_t>(ode->get_state()[get_idx(ODEState::P)] * rate);
                     for (auto start = species_i; species_i < start + to_set; ++species_i) {
                         species[species_i] = ode_i;
                     }

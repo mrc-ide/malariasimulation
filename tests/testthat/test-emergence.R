@@ -33,18 +33,6 @@ test_that('carrying_capacity is takes into account the timescale', {
 })
 
 test_that('carrying_capacity cycles every year', {
-  parameters <- list(
-    model_seasonality = TRUE,
-    g0    = 2,
-    g1   = .3,
-    g2   = .6,
-    g3   = .9,
-    h1   = .1,
-    h2   = .4,
-    h3   = .7,
-    days_per_timestep = 1
-  )
-
   time_points <- c(1, 30, 160, 240, 365)
   for (t in time_points) {
     for (y in 1:3) {

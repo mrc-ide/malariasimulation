@@ -194,7 +194,6 @@
 #' * mosquito_limit - the maximum number of mosquitos to allow for in the
 #' simulation
 #' * days_per_timestep - the number of days to model per timestep
-#' * vector_ode - whether to use the ODE model to model mosquitos
 #'
 #' @export
 get_parameters <- function(overrides = list()) {
@@ -338,7 +337,6 @@ get_parameters <- function(overrides = list()) {
     # misc
     human_population = 100,
     mosquito_limit   = 100 * 1000,
-    vector_ode         = FALSE,
     days_per_timestep  = days_per_timestep
   )
 

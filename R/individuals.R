@@ -24,9 +24,6 @@ initial_immunity <- function(parameter, age) {
 #'
 #' The mosquito states are defined as:
 #'
-#' * E - **E**arly larval stage
-#' * L - **L**ate larval stage
-#' * P - **P**upal
 #' * Sm - **S**usceptable **m**osquito
 #' * Pm - Extrinsic Incubation **P**eriod for **m**osquitoes
 #' * Im - **I**nfectious **m**osquito
@@ -46,25 +43,20 @@ create_states <- function(parameters) {
     Tr = individual::State$new("Tr", initial_counts[[5]])
   )
 
-  if (!parameters$vector_ode) {
-    mosquito_counts <- initial_mosquito_counts(parameters, parameters$init_foim)
-    n_Unborn <- parameters$mosquito_limit - sum(mosquito_counts)
+  mosquito_counts <- initial_mosquito_counts(parameters, parameters$init_foim)
+  n_Unborn <- parameters$mosquito_limit - sum(mosquito_counts[c(4, 5, 6)])
 
-    if (n_Unborn < 0) {
-      stop(paste('Mosquito limit not high enough. Short', n_Unborn, sep=' '))
-    }
-    states <- c(
-      states,
-      # Mosquito states
-      E       = individual::State$new("E", mosquito_counts[[1]]),
-      L       = individual::State$new("L", mosquito_counts[[2]]),
-      P       = individual::State$new("P", mosquito_counts[[3]]),
-      Sm      = individual::State$new("Sm", mosquito_counts[[4]]),
-      Pm      = individual::State$new("Pm", mosquito_counts[[5]]),
-      Im      = individual::State$new("Im", mosquito_counts[[6]]),
-      Unborn  = individual::State$new("Unborn", n_Unborn)
-    )
+  if (n_Unborn < 0) {
+    stop(paste('Mosquito limit not high enough. Short by', -n_Unborn, sep=' '))
   }
+  states <- c(
+    states,
+    # Mosquito states
+    Sm      = individual::State$new("Sm", mosquito_counts[[4]]),
+    Pm      = individual::State$new("Pm", mosquito_counts[[5]]),
+    Im      = individual::State$new("Im", mosquito_counts[[6]]),
+    Unborn  = individual::State$new("Unborn", n_Unborn)
+  )
   states
 }
 
@@ -271,24 +263,23 @@ create_variables <- function(parameters) {
     is_severe = is_severe
   )
 
-  if (!parameters$vector_ode) {
-    mosquito_variety <- individual::Variable$new(
-      "variety",
-      function(n) {
-        sample(
-          seq_along(parameters$variety_proportions),
-          n,
-          prob = parameters$variety_proportions,
-          replace = TRUE
-        )
-      }
-    )
+  mosquito_variety <- individual::Variable$new(
+    "variety",
+    function(n) {
+      sample(
+        seq_along(parameters$variety_proportions),
+        n,
+        prob = parameters$variety_proportions,
+        replace = TRUE
+      )
+    }
+  )
 
-    variables <- c(
-      variables,
-      mosquito_variety = mosquito_variety
-    )
-  }
+  variables <- c(
+    variables,
+    mosquito_variety = mosquito_variety
+  )
+
   variables
 }
 
@@ -347,16 +338,9 @@ create_individuals <- function(
     )
   )
 
-  if (parameters$vector_ode) {
-    return(list(human = human))
-  }
-
   mosquito <- individual::Individual$new(
     'mosquito',
     states=list(
-      states$E,
-      states$L,
-      states$P,
       states$Sm,
       states$Pm,
       states$Im,

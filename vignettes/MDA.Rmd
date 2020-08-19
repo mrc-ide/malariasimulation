@@ -41,7 +41,6 @@ simparams <- get_parameters(c(
   list(
     human_population = human_population,
     variety_proportions = 1,
-    vector_ode = TRUE,
     model_seasonality = TRUE, # Let's try a bi-modal model
     g0 = 0.28605,
     g = c(0.20636, -0.0740318, -0.0009293),

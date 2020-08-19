@@ -4,28 +4,8 @@ test_that('vector infectivity in the IBM returns correct values', {
     blood_meal_rates = c(.92, .74, .94)
   )
   expect_equal(
-    vector_infectivity_ibm(
+    vector_infectivity(
       infectious_variants,
-      parameters
-    ),
-    4.64
-  )
-})
-
-test_that('vector infectivity in the ODE returns correct values', {
-  infectious_variants <- c(rep(1, 3), rep(3, 2))
-  ode_states <- mockery::mock(
-    c(0, 0, 0, 0, 0, 3),
-    c(0, 0, 0, 0, 0, 0),
-    c(0, 0, 0, 0, 0, 2)
-  )
-  parameters <- list(
-    blood_meal_rates = c(.92, .74, .94)
-  )
-  mockery::stub(vector_infectivity_ode, 'mosquito_model_get_states', ode_states)
-  expect_equal(
-    vector_infectivity_ode(
-      list(mockery::mock(), mockery::mock(), mockery::mock()),
       parameters
     ),
     4.64
@@ -107,30 +87,6 @@ test_that('severe immunity returns correct values', {
     severe_immunity(age, acquired_immunity, maternal_immunity, parameters),
     c(0.0675, 0.0593, 0.0132),
     tolerance=1e-4
-  )
-})
-
-test_that('mosquito_force_of_infection returns correct values', {
-  days_per_timestep <- 1
-  parameters <- list(
-    blood_meal_rates = c(.92, .74, .94),
-    rho   = .85,
-    a0    = 8 * 365 / days_per_timestep
-  )
-  age <- c(0, 5, 30) * 365
-  zeta <- c(1.8, 2., .5)
-  infectivity <- c(.5, .5, .2)
-  v <- c(1, 1, 1, 2, 3, 3)
-  expect_equal(
-    mosquito_force_of_infection(
-      v,
-      age,
-      zeta,
-      infectivity,
-      parameters
-    ),
-    c(.387, .387, .387, .311, .395, .395),
-    tolerance=1e-3
   )
 })
 

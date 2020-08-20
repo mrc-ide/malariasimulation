@@ -9,8 +9,8 @@
 #include <testthat.h>
 #include "mosquito_infection.h"
 #include "test-mock.h"
+#include "test-helper.h"
 #include <individual.h>
-#include "test-helpers.h"
 
 context("Mosquito infection works") {
 

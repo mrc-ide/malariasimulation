@@ -6,7 +6,7 @@
 #include <testthat.h>
 #include "test-mock.h"
 #include "human_mortality.h"
-#include "test-helpers.h"
+#include "test-helper.h"
 
 context("Sample mothers implementation") {
     test_that("sample_mothers correctly samples mothers from the population") {

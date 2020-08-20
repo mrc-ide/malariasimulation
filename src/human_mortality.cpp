@@ -32,3 +32,13 @@ std::vector<size_t> sample_mothers(const std::vector<bool>& sampleable,
 
     return ret;
 }
+
+Rcpp::XPtr<process_t> create_mortality_process(std::string,
+                                               std::string,
+                                               std::string,
+                                               std::vector<std::string>,
+                                               std::vector<std::string>,
+                                               RandomInterface*) {
+    return Rcpp::XPtr<process_t>(
+              new process_t([=] (ProcessAPI& api) {}), true);
+}

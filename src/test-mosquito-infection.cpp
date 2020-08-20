@@ -10,10 +10,7 @@
 #include "mosquito_infection.h"
 #include "test-mock.h"
 #include <individual.h>
-
-individual_index_t individual_index(size_t size, std::vector<size_t> i) {
-    return individual_index_t(size, i.cbegin(), i.cend());
-}
+#include "test-helpers.h"
 
 context("Mosquito infection works") {
 

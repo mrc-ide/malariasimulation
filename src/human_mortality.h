@@ -4,11 +4,19 @@
 #define SRC_HUMAN_MORTALITY_H_
 #include <vector>
 #include "Random.h"
+#include <individual.h>
 
 std::vector<size_t> sample_mothers(const std::vector<bool>&,
                                    const std::vector<size_t>&,
                                    const size_t,
                                    const std::vector<size_t>&,
                                    RandomInterface*);
+
+Rcpp::XPtr<process_t> create_mortality_process(std::string,
+                                               std::string,
+                                               std::string,
+                                               std::vector<std::string>,
+                                               std::vector<std::string>,
+                                               RandomInterface*);
 
 #endif

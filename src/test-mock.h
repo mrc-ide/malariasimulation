@@ -31,6 +31,8 @@ public:
     MAKE_MOCK3(schedule, void(const std::string& event, const std::vector<size_t>& index, double delay), override);
     MAKE_CONST_MOCK0(get_timestep, size_t(), override);
     MAKE_MOCK2(render, void(const std::string& label, double value), override);
+    MAKE_MOCK2(clear_schedule, void(const std::string& label, const std::vector<size_t>& index), override);
+    MAKE_MOCK2(clear_schedule, void(const std::string& label, const individual_index_t& index), override);
 };
 
 class MockODE : public MosquitoModel {

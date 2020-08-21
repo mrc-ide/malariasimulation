@@ -169,15 +169,7 @@ context("Mortality process") {
         REQUIRE_CALL(api, clear_schedule("infection", died));
         REQUIRE_CALL(api, clear_schedule("asymptomatic_infection", died));
 
-        std::vector<std::string> variables{"birth", "last_boosted_ib",
-                                      "last_boosted_ica", "last_boosted_ica",
-                                      "last_boosted_id", "ICM", "IVM", "IB",
-                                      "ICA", "IVA", "ID", "drug_time",
-                                      "infectivity", "zeta_group", "is_severe"};
-        std::vector<std::string> events{"infection", "asymptomatic_infection"};
-        auto mortality_process = create_mortality_process("human", "D", "Tr",
-                                                          variables, events,
-                                                          &random);
+        auto mortality_process = create_mortality_process(&random);
         (*mortality_process)(api);
     }
 }

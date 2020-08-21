@@ -12,11 +12,6 @@ std::vector<size_t> sample_mothers(const std::vector<bool>&,
                                    const std::vector<size_t>&,
                                    RandomInterface*);
 
-Rcpp::XPtr<process_t> create_mortality_process(std::string,
-                                               std::string,
-                                               std::string,
-                                               std::vector<std::string>,
-                                               std::vector<std::string>,
-                                               RandomInterface*);
+Rcpp::XPtr<process_t> create_mortality_process(RandomInterface*);
 
 #endif

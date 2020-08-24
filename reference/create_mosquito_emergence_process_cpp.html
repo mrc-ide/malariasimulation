@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Parameterise drugs to use in the model — set_drugs • malariasimulation</title>
+<title>Mosquito emergence process — create_mosquito_emergence_process_cpp • malariasimulation</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,9 @@
 
 
 
-<meta property="og:title" content="Parameterise drugs to use in the model — set_drugs" />
-<meta property="og:description" content="Parameterise drugs to use in the model" />
+<meta property="og:title" content="Mosquito emergence process — create_mosquito_emergence_process_cpp" />
+<meta property="og:description" content="Move mosquitos from Unborn to Sm in line with the number of
+pupals in the ODE models" />
 
 
 
@@ -127,27 +128,51 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Parameterise drugs to use in the model</h1>
+    <h1>Mosquito emergence process</h1>
     
-    <div class="hidden name"><code>set_drugs.Rd</code></div>
+    <div class="hidden name"><code>create_mosquito_emergence_process_cpp.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Parameterise drugs to use in the model</p>
+    <p>Move mosquitos from Unborn to Sm in line with the number of
+pupals in the ODE models</p>
     </div>
 
-    <pre class="usage"><span class='fu'>set_drugs</span>(<span class='no'>parameters</span>, <span class='no'>drugs</span>)</pre>
+    <pre class="usage"><span class='fu'>create_mosquito_emergence_process_cpp</span>(
+  <span class='no'>mosquito</span>,
+  <span class='no'>odes</span>,
+  <span class='no'>unborn</span>,
+  <span class='no'>susceptible</span>,
+  <span class='no'>variety</span>,
+  <span class='no'>dpl</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>parameters</th>
-      <td><p>the model parameters</p></td>
+      <th>mosquito</th>
+      <td><p>the handle for the mosquito individual</p></td>
     </tr>
     <tr>
-      <th>drugs</th>
-      <td><p>a list of drug parameters, can be set using the above presets</p></td>
+      <th>odes</th>
+      <td><p>a list of odes for each species</p></td>
+    </tr>
+    <tr>
+      <th>unborn</th>
+      <td><p>the handle for the unborn mosquito state</p></td>
+    </tr>
+    <tr>
+      <th>susceptible</th>
+      <td><p>the handle for the susceptible mosquito state</p></td>
+    </tr>
+    <tr>
+      <th>variety</th>
+      <td><p>the handle for the variable representing the mosquito species</p></td>
+    </tr>
+    <tr>
+      <th>dpl</th>
+      <td><p>the delay for pupal growth (in timesteps)</p></td>
     </tr>
     </table>
 

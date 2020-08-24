@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.2</span>
       </span>
     </div>
 
@@ -104,9 +104,9 @@
 <a href="#parameterisation" class="anchor"></a>Parameterisation</h1>
 <p>We are going to set the default parameters to run the simulation from an equilibrium.</p>
 <div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="no">year</span> <span class="kw">&lt;-</span> <span class="fl">365</span>
-<span class="no">sim_length</span> <span class="kw">&lt;-</span> <span class="fl">100</span> * <span class="no">year</span>
+<span class="no">sim_length</span> <span class="kw">&lt;-</span> <span class="fl">30</span> * <span class="no">year</span>
 <span class="no">human_population</span> <span class="kw">&lt;-</span> <span class="fl">1000</span>
-<span class="no">starting_EIR</span> <span class="kw">&lt;-</span> <span class="fl">500</span>
+<span class="no">starting_EIR</span> <span class="kw">&lt;-</span> <span class="fl">50</span>
 <span class="no">repetitions</span> <span class="kw">&lt;-</span> <span class="fl">5</span>
 
 <span class="no">jamie_params</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariaEquilibrium/man/load_parameter_set.html">load_parameter_set</a></span>()
@@ -120,8 +120,7 @@
     <span class="kw">model_seasonality</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="co"># Let's try a bi-modal model</span>
     <span class="kw">g0</span> <span class="kw">=</span> <span class="fl">0.28605</span>,
     <span class="kw">g</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.20636</span>, -<span class="fl">0.0740318</span>, -<span class="fl">0.0009293</span>),
-    <span class="kw">h</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.173743</span>, -<span class="fl">0.0730962</span>, -<span class="fl">0.116019</span>),
-    <span class="kw">vector_ode</span> <span class="kw">=</span> <span class="fl">TRUE</span>
+    <span class="kw">h</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.173743</span>, -<span class="fl">0.0730962</span>, -<span class="fl">0.116019</span>)
   )
 ))
 
@@ -163,7 +162,7 @@
 
 <span class="co"># Add RTS,S strategy</span>
 <span class="no">rtssevents</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(
-  <span class="kw">timestep</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">60</span>, <span class="fl">80</span>) * <span class="no">year</span> + <span class="no">peak</span> - <span class="no">month</span>, <span class="co">#vaccine efficacy kicks off a month before the peak</span>
+  <span class="kw">timestep</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">10</span>, <span class="fl">20</span>) * <span class="no">year</span> + <span class="no">peak</span> - <span class="no">month</span>, <span class="co">#vaccine efficacy kicks off a month before the peak</span>
   <span class="kw">name</span><span class="kw">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"RTS,S starts"</span>, <span class="st">"RTS,S ends"</span>)
 )
 
@@ -195,7 +194,7 @@
 
 <span class="co"># Add TBV strategy</span>
 <span class="no">tbvevents</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(
-  <span class="kw">timestep</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">60</span>, <span class="fl">80</span>) * <span class="fl">365</span>,
+  <span class="kw">timestep</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">10</span>, <span class="fl">20</span>) * <span class="fl">365</span>,
   <span class="kw">name</span><span class="kw">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"TBV starts"</span>, <span class="st">"TBV ends"</span>)
 )
 

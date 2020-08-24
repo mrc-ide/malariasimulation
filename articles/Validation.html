@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.2</span>
       </span>
     </div>
 
@@ -123,8 +123,7 @@
   <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/translate_jamie.html">translate_jamie</a></span>(<span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/remove_unused_jamie.html">remove_unused_jamie</a></span>(<span class="no">jamie_params</span>)),
   <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
     <span class="kw">human_population</span> <span class="kw">=</span> <span class="no">human_population</span>,
-    <span class="kw">variety_proportions</span> <span class="kw">=</span> <span class="fl">1</span>,
-    <span class="kw">vector_ode</span> <span class="kw">=</span> <span class="fl">TRUE</span>
+    <span class="kw">variety_proportions</span> <span class="kw">=</span> <span class="fl">1</span>
   )
 ))</pre></body></html></div>
 <p>Next we want to estimate the yearly EIR. This is an input parameter for the equilibrium solution, but for the IBM it’s an emergent statistic…</p>
@@ -145,10 +144,13 @@
 <p>And then run our models.</p>
 <div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="no">estimated_eirs</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>()
 <span class="no">outputs</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>()
-<span class="no">total_Ms</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">.5</span>, <span class="fl">1</span>, <span class="fl">5</span>, <span class="fl">10</span>, <span class="fl">50</span>, <span class="fl">100</span>, <span class="fl">500</span>, <span class="fl">1000</span>) * <span class="no">human_population</span>
+<span class="no">initial_Ms</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">.5</span>, <span class="fl">1</span>, <span class="fl">5</span>, <span class="fl">10</span>, <span class="fl">50</span>, <span class="fl">100</span>) * <span class="no">human_population</span>
+<span class="no">total_Ms</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>()
 
-<span class="kw">for</span> (<span class="no">total_M</span> <span class="kw">in</span> <span class="no">total_Ms</span>) {
+<span class="kw">for</span> (<span class="no">total_M</span> <span class="kw">in</span> <span class="no">initial_Ms</span>) {
   <span class="no">simparams</span>$<span class="no">total_M</span> <span class="kw">&lt;-</span> <span class="no">total_M</span>
+  <span class="no">simparams</span>$<span class="no">mosquito_limit</span> <span class="kw">&lt;-</span> <span class="no">total_M</span> * <span class="fl">1.5</span>
+  <span class="no">output</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/run_simulation.html">run_simulation</a></span>(<span class="no">sim_length</span>, <span class="no">simparams</span>)
   <span class="no">EIR</span> <span class="kw">&lt;-</span> <span class="fu">estimate_eir</span>()
   <span class="kw">if</span> (<span class="no">EIR</span> <span class="kw">&gt;</span> <span class="fl">0</span>) {
     <span class="no">total_Ms</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">total_Ms</span>, <span class="no">total_M</span>)

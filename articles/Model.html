@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.2</span>
       </span>
     </div>
 
@@ -105,18 +105,17 @@
 <li>‘create_event_based_process’ (green)</li>
 <li>‘create_mortality_process’(red)</li>
 </ol>
-<div id="htmlwidget-652e7b6cf98be14e6554" style="width:700px;height:432.632880098888px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-652e7b6cf98be14e6554">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = LR]\n  \n  node [shape = rectangle]        \n  S\n  D\n  A\n  U\n  \n  node [shape = circle]\n  i [label = \"\"]\n  \n  # edge definitions with the node IDs\n  S -> i [color=\"orange\"]\n  i -> D [color=\"orange\"]\n  i -> A [color=\"orange\"]\n  D -> A -> U -> S [color=\"green\"]\n  A -> i [color=\"orange\"]\n  U -> i [color=\"orange\"]\n  U -> S [color=\"red\"]\n  A -> S [color=\"red\"]\n  D -> S [color=\"red\"]\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script><p>The mosquito biological processes are spread out between the following functions:</p>
+<div id="htmlwidget-03428940fd6026bd3cad" style="width:700px;height:432.632880098888px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-03428940fd6026bd3cad">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = LR]\n  \n  node [shape = rectangle]        \n  S\n  D\n  A\n  U\n  \n  node [shape = circle]\n  i [label = \"\"]\n  \n  # edge definitions with the node IDs\n  S -> i [color=\"orange\"]\n  i -> D [color=\"orange\"]\n  i -> A [color=\"orange\"]\n  D -> A -> U -> S [color=\"green\"]\n  A -> i [color=\"orange\"]\n  U -> i [color=\"orange\"]\n  U -> S [color=\"red\"]\n  A -> S [color=\"red\"]\n  D -> S [color=\"red\"]\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script><p>#Mosquito Biology</p>
+<p>The mosquito biological processes are spread out between the following functions:</p>
 <ol style="list-style-type: decimal">
-<li>‘create_event_based_process’ (green)</li>
+<li>‘create_ode’ (green)</li>
+<li>‘create_mosquito_emergence_process’ (green)</li>
 <li>‘create_mosquito_infection_process’ (orange)</li>
-<li>‘create_larval_death_process_cpp’(red)</li>
-<li>‘create_pupal_death_process’ (red)</li>
-<li>‘create_mosquito_death_process’ (red)</li>
-<li>‘create_egg_laying_process_cpp’ (green)</li>
+<li>‘create_processes’ (red)</li>
 </ol>
-<div id="htmlwidget-4d7ae6e83c0f7abf8eaa" style="width:700px;height:432.632880098888px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-4d7ae6e83c0f7abf8eaa">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = LR]\n  \n  node [shape = rectangle]        \n  E\n  L\n  P\n  Sm\n  Pm\n  Im\n  Unborn\n  \n  # edge definitions with the node IDs\n  E -> L -> P -> Sm [color=\"green\", label=\"1\"]\n  Sm -> Pm -> Im [color=\"orange\", label=\"2\"]\n  E -> Unborn [color=\"red\", label=\"3\"]\n  L -> Unborn [color=\"red\", label=\"3\"]\n  P -> Unborn [color=\"red\", label=\"4\"]\n  Sm -> Unborn [color=\"red\", label=\"5\"]\n  Pm -> Unborn [color=\"red\", label=\"5\"]\n  Im -> Unborn [color=\"red\", label=\"5\"]\n  Unborn -> E [color=\"green\", label=\"6\"]\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-1f317bf53d0ee77bdafb" style="width:700px;height:432.632880098888px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-1f317bf53d0ee77bdafb">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = LR]\n  \n  subgraph clusterode {\n    style=filled;\n    color=lightblue;\n    node [shape = rectangle]\n    E\n    L\n    P\n    label=\"ODE\"\n  }\n\n  node [shape = rectangle]\n  Sm\n  Pm\n  Im\n  Unborn\n  \n  # edge definitions with the node IDs\n  E -> L -> P [color=\"green\", label=\"1\"]\n  P -> Sm [color=\"green\", label=\"2\"]\n  Sm -> Pm -> Im [color=\"orange\", label=\"3\"]\n  Sm -> Unborn [color=\"red\", label=\"4\"]\n  Pm -> Unborn [color=\"red\", label=\"4\"]\n  Im -> Unborn [color=\"red\", label=\"4\"]\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

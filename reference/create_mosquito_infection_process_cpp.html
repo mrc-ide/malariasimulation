@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Parameterise drugs to use in the model — set_drugs • malariasimulation</title>
+<title>Mosquito infection process — create_mosquito_infection_process_cpp • malariasimulation</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,11 @@
 
 
 
-<meta property="og:title" content="Parameterise drugs to use in the model — set_drugs" />
-<meta property="og:description" content="Parameterise drugs to use in the model" />
+<meta property="og:title" content="Mosquito infection process — create_mosquito_infection_process_cpp" />
+<meta property="og:description" content="This is the process of infection for mosquitos. It results in a state
+transition from Sm to Pm for infected mosquitos.
+NOTE: this process will become obsolete when the model is reformulated to
+model individual mosquitos biting individual humans." />
 
 
 
@@ -127,27 +130,38 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Parameterise drugs to use in the model</h1>
+    <h1>Mosquito infection process</h1>
     
-    <div class="hidden name"><code>set_drugs.Rd</code></div>
+    <div class="hidden name"><code>create_mosquito_infection_process_cpp.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Parameterise drugs to use in the model</p>
+    <p>This is the process of infection for mosquitos. It results in a state
+transition from Sm to Pm for infected mosquitos.</p>
+<p>NOTE: this process will become obsolete when the model is reformulated to
+model individual mosquitos biting individual humans.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>set_drugs</span>(<span class='no'>parameters</span>, <span class='no'>drugs</span>)</pre>
+    <pre class="usage"><span class='fu'>create_mosquito_infection_process_cpp</span>(<span class='no'>mosquito</span>, <span class='no'>human</span>, <span class='no'>states</span>, <span class='no'>variables</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>parameters</th>
-      <td><p>the model parameters</p></td>
+      <th>mosquito</th>
+      <td><p>the mosquito individual</p></td>
     </tr>
     <tr>
-      <th>drugs</th>
-      <td><p>a list of drug parameters, can be set using the above presets</p></td>
+      <th>human</th>
+      <td><p>the human individual</p></td>
+    </tr>
+    <tr>
+      <th>states</th>
+      <td><p>a list of relevant model states (Sm, Pm)</p></td>
+    </tr>
+    <tr>
+      <th>variables</th>
+      <td><p>a list of relevant model variables (birth, zeta, infectivity, mosquito_variety)</p></td>
     </tr>
     </table>
 

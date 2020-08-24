@@ -75,7 +75,7 @@ mortality.R; and then exposes them to the model" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.2</span>
       </span>
     </div>
 
@@ -148,7 +148,8 @@ states and variables change over time.</p>
   <span class='no'>variables</span>,
   <span class='no'>events</span>,
   <span class='no'>parameters</span>,
-  <span class='kw'>odes</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
+  <span class='no'>odes</span>,
+  <span class='no'>mda_events</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -176,7 +177,11 @@ states and variables change over time.</p>
     </tr>
     <tr>
       <th>odes</th>
-      <td><p>a list of vector models (if vector_ode == TRUE)</p></td>
+      <td><p>a list of vector ode models for each species</p></td>
+    </tr>
+    <tr>
+      <th>mda_events</th>
+      <td><p>a list of lists of events for each MDA</p></td>
     </tr>
     </table>
 

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Parameterise drugs to use in the model — set_drugs • malariasimulation</title>
+<title>Step mosquito ODE — create_ode_stepping_process_cpp • malariasimulation</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,9 @@
 
 
 
-<meta property="og:title" content="Parameterise drugs to use in the model — set_drugs" />
-<meta property="og:description" content="Parameterise drugs to use in the model" />
+<meta property="og:title" content="Step mosquito ODE — create_ode_stepping_process_cpp" />
+<meta property="og:description" content="collects summarises the human state, sends it to the vector ode
+and makes a step" />
 
 
 
@@ -127,27 +128,36 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Parameterise drugs to use in the model</h1>
+    <h1>Step mosquito ODE</h1>
     
-    <div class="hidden name"><code>set_drugs.Rd</code></div>
+    <div class="hidden name"><code>create_ode_stepping_process_cpp.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Parameterise drugs to use in the model</p>
+    <p>collects summarises the human state, sends it to the vector ode
+and makes a step</p>
     </div>
 
-    <pre class="usage"><span class='fu'>set_drugs</span>(<span class='no'>parameters</span>, <span class='no'>drugs</span>)</pre>
+    <pre class="usage"><span class='fu'>create_ode_stepping_process_cpp</span>(<span class='no'>odes</span>, <span class='no'>mosquito</span>, <span class='no'>states</span>, <span class='no'>variety</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>parameters</th>
-      <td><p>the model parameters</p></td>
+      <th>odes</th>
+      <td><p>the models to step, one for each species</p></td>
     </tr>
     <tr>
-      <th>drugs</th>
-      <td><p>a list of drug parameters, can be set using the above presets</p></td>
+      <th>mosquito</th>
+      <td><p>the mosquito individual handle</p></td>
+    </tr>
+    <tr>
+      <th>states</th>
+      <td><p>a list of all of adult mosquito states (Sm, Pm, Im)</p></td>
+    </tr>
+    <tr>
+      <th>variety</th>
+      <td><p>the handle for the mosquito variety variable</p></td>
     </tr>
     </table>
 

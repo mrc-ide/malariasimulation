@@ -13,26 +13,32 @@
 void account_for_tbv(
     variable_vector_t& infectivity,
     ProcessAPI& api,
+    const std::string& human,
     const std::vector<std::string>& human_states,
     const std::string& vaccinated_handle,
     const params_t& params
 );
 
-void calculate_tbv_antibodies(
-    const std::vector<double>& t,
-    const params_t& params,
-    std::vector<double>& antibodies
-);
+inline double calculate_tbv_antibodies(
+    double t,
+    double tau,
+    double rho,
+    double ds,
+    double dl
+    ) {
+    return tau * (rho * exp(-t * log(2) / ds) + (1 - rho) * exp(-t * log(2) / dl));
+}
 
-void calculate_TRA(
-    const params_t& params,
-    std::vector<double>& antibodies
-);
+inline double calculate_TRA(double mu, double gamma1, double gamma2, double antibodies) {
+    auto numerator = pow(antibodies / mu, gamma1);
+    return numerator / (numerator + gamma2);
+}
 
-void calculate_TBA(
-    const std::vector<double>& mx,
-    double k,
-    std::vector<double>& tra
-);
+inline double calculate_TBA(double mx, double k, double tra) {
+    auto offset = pow(k / (k + mx), k);
+    auto scale = 1. / (1. - offset);
+    auto tra_transformation = pow(k / (k + mx * (1 - tra)), k);
+    return scale * (tra_transformation - offset);
+}
 
 #endif /* SRC_TBV_H_ */

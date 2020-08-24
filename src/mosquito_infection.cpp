@@ -6,6 +6,7 @@
  */
 
 #include "mosquito_infection.h"
+#include "tbv.h"
 #include <sstream>
 
 variable_vector_t get_age(const variable_vector_t& birth, size_t t) {
@@ -105,12 +106,22 @@ Rcpp::XPtr<process_t> create_mosquito_infection_process(
     const std::vector<std::string>& variables, //{"birth", "zeta", "infectivity", "variety"}
     RandomInterface *random
     ) {
+    const auto human_states = std::vector<std::string>{"U", "A", "D", "Tr"};
+    const auto vaccination_handle = "tbv_vaccinated";
     return Rcpp::XPtr<process_t>(
         new process_t([=] (ProcessAPI& api) {
             const auto& parameters = api.get_parameters();
             const auto age = get_age(api.get_variable(human, variables[0]), api.get_timestep());
             const auto& zeta = api.get_variable(human, variables[1]);
             const auto& infectivity = api.get_variable(human, variables[2]);
+            account_for_tbv(
+                infectivity,
+                api,
+                human,
+                human_states,
+                vaccination_handle,
+                parameters
+            );
 
             const auto lambda = calculate_force_of_infection(age, zeta, infectivity, parameters);
 

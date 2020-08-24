@@ -33,6 +33,8 @@ context("Mosquito infection works") {
         auto v = variable_vector_t{1, 2, 3, 3};
         auto zeta = variable_vector_t{.2, .3, .5, .9};
         auto infectivity = variable_vector_t{.2, 0, .5, .3};
+        auto vaccinated = variable_vector_t{-1, -1, -1, -1};
+        auto noone = individual_index(4, std::vector<size_t>{});
         REQUIRE_CALL(api, get_variable("human", "birth"))
             .RETURN(birth);
         REQUIRE_CALL(api, get_state("mosquito", "Sm"))
@@ -43,6 +45,16 @@ context("Mosquito infection works") {
             .RETURN(zeta);
         REQUIRE_CALL(api, get_variable("human", "infectivity"))
             .RETURN(infectivity);
+        REQUIRE_CALL(api, get_variable("human", "tbv_vaccinated"))
+            .RETURN(vaccinated);
+        REQUIRE_CALL(api, get_state("human", "U"))
+            .RETURN(noone);
+        REQUIRE_CALL(api, get_state("human", "A"))
+            .RETURN(noone);
+        REQUIRE_CALL(api, get_state("human", "D"))
+            .RETURN(noone);
+        REQUIRE_CALL(api, get_state("human", "Tr"))
+            .RETURN(noone);
         REQUIRE_CALL(api, render("FOIM_1", _))
             .WITH(Approx(_2) == 0.2477872);
         REQUIRE_CALL(api, render("FOIM_2", _))
@@ -50,7 +62,8 @@ context("Mosquito infection works") {
         REQUIRE_CALL(api, render("FOIM_3", _))
             .WITH(Approx(_2) == 0.2531739);
         REQUIRE_CALL(api, get_timestep())
-            .RETURN(5);
+            .RETURN(5)
+            .TIMES(AT_MOST(2));
 
         //Mock parameters
         params_t params;
@@ -58,6 +71,20 @@ context("Mosquito infection works") {
         params["dem"] = std::vector<double>{5};
         params["rho"] = std::vector<double>{.85};
         params["a0"] = std::vector<double>{8 * 365};
+        //mock tbv
+        params["tbv_mt"] = std::vector<double>{35};
+        params["tbv_md"] = std::vector<double>{46.7};
+        params["tbv_ma"] = std::vector<double>{3.6};
+        params["tbv_mu"] = std::vector<double>{.8};
+        params["tbv_k"] = std::vector<double>{.9};
+        params["tbv_tau"] = std::vector<double>{22};
+        params["tbv_rho"] = std::vector<double>{.7};
+        params["tbv_ds"] = std::vector<double>{45};
+        params["tbv_dl"] = std::vector<double>{591};
+        params["tbv_tra_mu"] = std::vector<double>{12.63};
+        params["tbv_gamma1"] = std::vector<double>{2.5};
+        params["tbv_gamma2"] = std::vector<double>{.06};
+
         REQUIRE_CALL(api, get_parameters())
             .RETURN(params);
 

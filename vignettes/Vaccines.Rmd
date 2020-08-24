@@ -27,7 +27,7 @@ We are going to set the default parameters to run the simulation from an equilib
 
 ```{r}
 year <- 365
-sim_length <- 10 * year
+sim_length <- 30 * year
 human_population <- 1000
 starting_EIR <- 50
 repetitions <- 5
@@ -93,7 +93,7 @@ month <- 30
 
 # Add RTS,S strategy
 rtssevents = data.frame(
-  timestep = c(6, 8) * year + peak - month, #vaccine efficacy kicks off a month before the peak
+  timestep = c(10, 20) * year + peak - month, #vaccine efficacy kicks off a month before the peak
   name=c("RTS,S starts", "RTS,S ends")
 )
 
@@ -127,7 +127,7 @@ tbvparams <- simparams
 
 # Add TBV strategy
 tbvevents = data.frame(
-  timestep = c(6, 8) * 365,
+  timestep = c(10, 20) * 365,
   name=c("TBV starts", "TBV ends")
 )
 

@@ -28,7 +28,7 @@ We are going to set the default parameters to run the simulation from an equilib
 
 ```{r}
 year <- 365
-sim_length <- 100 * year
+sim_length <- 10 * year
 human_population <- 1000
 starting_EIR <- 50
 repetitions <- 5
@@ -113,7 +113,7 @@ mdaparams <- simparams
 
 # Add MDA strategy
 mda_events = data.frame(
-  timestep = c(60, 70) * 365,
+  timestep = c(4, 7) * 365,
   name=c("MDA starts", "MDA ends")
 )
 
@@ -154,7 +154,7 @@ smcparams <- simparams
 # Add SMC strategy
 peak <- peak_season_offset(smcparams)
 smc_events = data.frame(
-  timestep = c(60, 70) * 365 + peak - 30,
+  timestep = c(4, 7) * 365 + peak - 30,
   name=c("SMC starts", "SMC ends")
 )
 smcparams <- set_smc(

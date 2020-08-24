@@ -12,7 +12,7 @@ context("Sample mothers implementation") {
   test_that("sample_mothers correctly samples mothers from the population") {
       MockRandom random;
       std::vector<bool> sampleable{true, true, false, true, true, true, true};
-      std::vector<size_t> groups{1, 1, 1, 2, 2, 3, 3};
+      std::vector<double> groups{1, 1, 1, 2, 2, 3, 3};
       std::vector<size_t> died{1, 3, 4};
 
       std::vector<size_t> first{1};
@@ -37,7 +37,7 @@ context("Sample mothers implementation") {
   test_that("we do not make assumptions about monotonacity") {
       MockRandom random;
       std::vector<bool> sampleable{true, true, false, true, true, true, true};
-      std::vector<size_t> groups{1, 1, 1, 2, 2, 3, 3};
+      std::vector<double> groups{1, 1, 1, 2, 2, 3, 3};
       std::vector<size_t> died{3, 1, 4};
 
       std::vector<size_t> first{1};
@@ -94,19 +94,32 @@ context("Mortality process") {
         params["fvt"] = std::vector<double>{.5};
         params["pcm"] = std::vector<double>{.774368};
         params["pvm"] = std::vector<double>{.195768};
+        params["n_heterogeneity_groups"] = std::vector<double>{2};
 
+        auto diseased = individual_index(4, std::vector<size_t>{0});
+        auto treated = individual_index(4, std::vector<size_t>{1});
+        auto is_severe = variable_vector_t{1, 1, 0, 0};
+        auto zeta = variable_vector_t{1, 1, 2, 2};
+        auto state_ica = variable_vector_t{1, 2, 3, 4};
+        auto state_iva = variable_vector_t{1, 2, 3, 4};
+        auto birth = variable_vector_t{-8758, -9488, -9853, -11678};
+
+        // NOTE: allocations should be done in the test scope
+        // allocations in the mocking scope could lead to memory errors!
+        REQUIRE_CALL(api, get_variable("human", "birth"))
+            .RETURN(birth);
         REQUIRE_CALL(api, get_state("human", "D"))
-            .RETURN(individual_index(4, std::vector<size_t>{0}));
+            .RETURN(diseased);
         REQUIRE_CALL(api, get_state("human", "Tr"))
-            .RETURN(individual_index(4, std::vector<size_t>{1}));
+            .RETURN(treated);
         REQUIRE_CALL(api, get_variable("human", "is_severe"))
-            .RETURN(variable_vector_t{1, 1, 0, 0});
+            .RETURN(is_severe);
         REQUIRE_CALL(api, get_variable("human", "zeta_group"))
-            .RETURN(variable_vector_t{1, 1, 2, 2});
-        REQUIRE_CALL(api, get_variable("human", "ICM"))
-            .RETURN(variable_vector_t{1, 2, 3, 4});
-        REQUIRE_CALL(api, get_variable("human", "IVM"))
-            .RETURN(variable_vector_t{1, 2, 3, 4});
+            .RETURN(zeta);
+        REQUIRE_CALL(api, get_variable("human", "ICA"))
+            .RETURN(state_ica);
+        REQUIRE_CALL(api, get_variable("human", "IVA"))
+            .RETURN(state_iva);
         REQUIRE_CALL(api, get_parameters())
             .RETURN(params);
         REQUIRE_CALL(api, get_timestep())
@@ -115,32 +128,36 @@ context("Mortality process") {
         // We can't easily mock sample_mothers here as we can only
         // mock out methods on classes, or write everything in a way
         // that specifically enables mocking.
+        auto three = std::vector<size_t>{3};
+        std::vector<size_t> empty{};
+        std::vector<size_t> zero_size_t{0};
         trompeloeil::sequence seq_bernoulli;
         REQUIRE_CALL(random, bernoulli(4, .95)) // mortality_rate
             .IN_SEQUENCE(seq_bernoulli)
-            .RETURN(std::vector<size_t>{3});
+            .RETURN(three);
         REQUIRE_CALL(random, bernoulli(_, .65)) // v
             .IN_SEQUENCE(seq_bernoulli)
-            .RETURN(std::vector<size_t>{});
+            .RETURN(empty);
         REQUIRE_CALL(random, bernoulli(_, .5)) // fvt
             .IN_SEQUENCE(seq_bernoulli)
-            .RETURN(std::vector<size_t>{0});
+            .RETURN(zero_size_t);
 
         trompeloeil::sequence seq_sample;
         REQUIRE_CALL(random, sample(2, 1))
             .IN_SEQUENCE(seq_sample)
-            .RETURN(std::vector<size_t>{0});
+            .RETURN(zero_size_t);
         REQUIRE_CALL(random, sample(2, 1))
             .IN_SEQUENCE(seq_sample)
-            .RETURN(std::vector<size_t>{3});
+            .RETURN(zero_size_t);
 
-        std::vector<size_t> died{1, 3};
-        std::vector<double> icm{.774368, 3.097472};
-        std::vector<double> ivm{0.195768, 0.783072};
+        std::vector<size_t> died{3, 1};
+        std::vector<double> icm{2.323104, .774368};
+        std::vector<double> ivm{.587304, .195768};
         std::vector<double> negone{-1};
         std::vector<double> zero{0};
+        std::vector<double> two{2};
         REQUIRE_CALL(api, queue_variable_update("human", "birth",
-                                                died, std::vector<double>{2}));
+                                                died, two));
         REQUIRE_CALL(api, queue_variable_update("human", "last_boosted_ib",
                                                 died, negone));
         REQUIRE_CALL(api, queue_variable_update("human", "last_boosted_ica",

@@ -78,13 +78,7 @@ create_processes <- function(
       events
     ),
 
-    create_mortality_process(
-      individuals$human,
-      states$D,
-      states$Tr,
-      variables,
-      events
-    ),
+    create_mortality_process_cpp(),
 
     # Rendering processes
     individual::state_count_renderer_process(

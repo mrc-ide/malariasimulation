@@ -7,7 +7,7 @@
 #include <individual.h>
 
 std::vector<size_t> sample_mothers(const std::vector<bool>&,
-                                   const std::vector<size_t>&,
+                                   const variable_vector_t&,
                                    const size_t,
                                    const std::vector<size_t>&,
                                    RandomInterface*);

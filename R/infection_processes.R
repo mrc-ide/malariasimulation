@@ -118,7 +118,7 @@ calculate_infections <- function(
     api$get_state(human, states$S, states$A, states$U),
     bitten_humans
   )
-  b <- blood_immunity(ib[source_humans], api$get_parameters())
+  b <- blood_immunity(ib[source_humans], parameters)
 
   # calculate prophylaxis
   prophylaxis <- rep(0, length(source_humans))
@@ -138,7 +138,27 @@ calculate_infections <- function(
     )
   }
 
-  source_humans[bernoulli_multi_p(length(source_humans), b * (1 - prophylaxis))]
+  # calculate vaccine efficacy
+  vaccine_efficacy <- rep(0, length(source_humans))
+  vaccine_times <- pmax(
+    api$get_variable(human, variables$rtss_vaccinated, source_humans),
+    api$get_variable(human, variables$rtss_boosted, source_humans)
+  )
+  vaccinated <- which(vaccine_times > -1)
+  antibodies <- calculate_rtss_antibodies(
+    api$get_timestep() - vaccine_times[vaccinated],
+    api$get_variable(human, variables$rtss_cs, vaccinated),
+    api$get_variable(human, variables$rtss_rho, vaccinated),
+    api$get_variable(human, variables$rtss_ds, vaccinated),
+    api$get_variable(human, variables$rtss_dl, vaccinated),
+    parameters
+  )
+  vaccine_efficacy[vaccinated] <- calculate_rtss_efficacy(antibodies, parameters)
+
+  source_humans[bernoulli_multi_p(
+    length(source_humans),
+    b * (1 - prophylaxis) * (1 - vaccine_efficacy)
+  )]
 }
 
 calculate_clinical_infections <- function(api, human, variables, infections) {

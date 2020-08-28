@@ -232,6 +232,15 @@ create_event_based_processes <- function(individuals, states, variables, events,
     }
   )
 
+  if (parameters$rtss == 1) {
+    events$rtss_vaccination$add_listener(
+      create_rtss_vaccination_listener(individuals$human, variables, events, parameters)
+    )
+    events$rtss_booster$add_listener(
+      create_rtss_booster_listener(individuals$human, variables, events, parameters)
+    )
+  }
+
   if (parameters$mda == 1) {
     mda_listeners <- create_mda_listeners(
       individuals$human,
@@ -290,6 +299,9 @@ create_exponential_decay_process <- function(individual, variable, rate) {
 create_setup_process <- function(events) {
   function(api) {
     parameters <- api$get_parameters()
+    if (parameters$rtss) {
+      api$schedule(events$rtss_vaccination, c(1), parameters$rtss_start)
+    }
     if (parameters$mda) {
       api$schedule(events$mda_enrollment, c(1), parameters$mda_start)
     }

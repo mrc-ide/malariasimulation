@@ -81,6 +81,15 @@ create_states <- function(parameters) {
 #' * ID - Acquired immunity to detectability
 #' * zeta - Heterogeneity of human individuals
 #' * zeta_group - Discretised heterogeneity of human individuals
+#' * rtss_vaccinated - The timstep of the last rtss vaccination (-1 if there
+#' haven't been any)
+#' * rtss_boosted  - The timstep of the last rtss booster (-1 if there
+#' haven't been any)
+#' * rtss_cs - peak antibodies
+#' * rtss_rho - antibody component variable
+#' * rtss_ds - short-lived antibody delay variable
+#' * rtss_dl - long-lived antibody delay variable
+#' * zeta_group - Discretised heterogeneity of human individuals
 #'
 #' Mosquito variables are: 
 #' * variety - The variety of mosquito, either 1, 2 or 3. These are related to
@@ -192,6 +201,42 @@ create_variables <- function(parameters) {
   drug <- individual::Variable$new("drug", function(n) rep(0, n))
   drug_time <- individual::Variable$new("drug_time", function(n) rep(-1, n))
 
+  rtss_vaccinated <- individual::Variable$new(
+    "rtss_vaccinated",
+    function(n) rep(-1, n)
+  )
+
+  rtss_boosted <- individual::Variable$new(
+    "rtss_boosted",
+    function(n) rep(-1, n)
+  )
+
+  rtss_cs <- individual::Variable$new(
+    "rtss_cs",
+    function(n) {
+      exp(parameters$rtss_cs[[1]] + parameters$rtss_cs[[2]] * rnorm(n))
+    }
+  )
+  rtss_rho <- individual::Variable$new(
+    "rtss_rho",
+    function(n) {
+      invlogit(parameters$rtss_rho[[1]] + parameters$rtss_rho[[2]] * rnorm(n))
+    }
+  )
+  rtss_ds <- individual::Variable$new(
+    "rtss_ds",
+    function(n) {
+      exp(parameters$rtss_ds[[1]] + parameters$rtss_ds[[2]] * rnorm(n))
+    }
+  )
+
+  rtss_dl <- individual::Variable$new(
+    "rtss_dl",
+    function(n) {
+      exp(parameters$rtss_dl[[1]] + parameters$rtss_dl[[2]] * rnorm(n))
+    }
+  )
+
   variables <- list(
     birth = birth,
     last_boosted_ib = last_boosted_ib,
@@ -206,10 +251,16 @@ create_variables <- function(parameters) {
     id = id,
     zeta = zeta,
     zeta_group = zeta_group,
-    is_severe = is_severe,
     infectivity = infectivity,
     drug = drug,
-    drug_time = drug_time
+    drug_time = drug_time,
+    rtss_vaccinated = rtss_vaccinated,
+    rtss_boosted = rtss_boosted,
+    rtss_cs = rtss_cs,
+    rtss_rho = rtss_rho,
+    rtss_ds = rtss_ds,
+    rtss_dl = rtss_dl,
+    is_severe = is_severe
   )
 
   mosquito_variety <- individual::Variable$new(
@@ -267,11 +318,19 @@ create_individuals <- function(
       variables$zeta_group,
       variables$infectivity,
       variables$drug,
-      variables$drug_time
+      variables$drug_time,
+      variables$rtss_vaccinated,
+      variables$rtss_boosted,
+      variables$rtss_cs,
+      variables$rtss_rho,
+      variables$rtss_ds,
+      variables$rtss_dl
     ),
     events = c(
       events$infection,
       events$asymptomatic_infection,
+      events$rtss_vaccination,
+      events$rtss_booster,
       events$mda_enrollment,
       events$mda_administer,
       events$smc_enrollment,

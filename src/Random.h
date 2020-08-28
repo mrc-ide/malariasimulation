@@ -14,7 +14,7 @@
 class RandomInterface {
 public:
     virtual std::vector<size_t> bernoulli(size_t, double) = 0;
-    virtual std::vector<size_t> sample(size_t, size_t) = 0;
+    virtual std::vector<size_t> sample(size_t, size_t, bool) = 0;
     virtual ~RandomInterface() = default;
 };
 
@@ -25,7 +25,7 @@ public:
         return instance;
     }
     virtual std::vector<size_t> bernoulli(size_t, double);
-    virtual std::vector<size_t> sample(size_t, size_t);
+    virtual std::vector<size_t> sample(size_t, size_t, bool);
     virtual ~Random() = default;
     Random(const Random &other) = delete;
     Random(Random &&other) = delete;

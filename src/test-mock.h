@@ -62,7 +62,7 @@ public:
 class MockRandom : public RandomInterface {
 public:
     MAKE_MOCK2(bernoulli, std::vector<size_t>(size_t, double), override);
-    MAKE_MOCK2(sample, std::vector<size_t>(size_t, size_t), override);
+    MAKE_MOCK3(sample, std::vector<size_t>(size_t, size_t, bool), override);
 };
 
 #endif /* SRC_TEST_MOCK_H_ */

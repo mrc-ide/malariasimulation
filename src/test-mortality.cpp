@@ -9,55 +9,95 @@
 #include "test-helpers.h"
 
 context("Sample mothers implementation") {
-  test_that("sample_mothers correctly samples mothers from the population") {
-      MockRandom random;
-      std::vector<bool> sampleable{true, true, false, true, true, true, true};
-      std::vector<double> groups{1, 1, 1, 2, 2, 3, 3};
-      std::vector<size_t> died{1, 3, 4};
+    test_that("sample_mothers correctly samples mothers from the population") {
+        MockRandom random;
+        std::vector<bool> sampleable{true, true, false, true, true, true, true};
+        std::vector<double> groups{1, 1, 1, 2, 2, 3, 3};
+        std::vector<size_t> died{1, 3, 4};
 
-      std::vector<size_t> first{1};
-      std::vector<size_t> second{1, 0};
-      std::vector<size_t> third;
-      trompeloeil::sequence seq;
-      REQUIRE_CALL(random, sample(2, 1))
-          .IN_SEQUENCE(seq)
-          .RETURN(first);
-      REQUIRE_CALL(random, sample(2, 2))
-          .IN_SEQUENCE(seq)
-          .RETURN(second);
-      REQUIRE_CALL(random, sample(2, 0))
-          .IN_SEQUENCE(seq)
-          .RETURN(third);
+        std::vector<size_t> first{1};
+        std::vector<size_t> second{1, 0};
+        std::vector<size_t> third;
+        trompeloeil::sequence seq;
+        REQUIRE_CALL(random, sample(2, 1, true))
+        .IN_SEQUENCE(seq)
+        .RETURN(first);
+        REQUIRE_CALL(random, sample(2, 2, true))
+        .IN_SEQUENCE(seq)
+        .RETURN(second);
+        REQUIRE_CALL(random, sample(2, 0, true))
+        .IN_SEQUENCE(seq)
+        .RETURN(third);
 
-      auto mothers = sample_mothers(sampleable, groups, 3, died, &random);
+        auto mothers = sample_mothers(sampleable, groups, 3, died, &random);
 
-      expect_true(mothers == std::vector<size_t>({1, 4, 3}));
-  }
+        expect_true(mothers == std::vector<size_t>({1, 4, 3}));
+    }
 
-  test_that("we do not make assumptions about monotonacity") {
-      MockRandom random;
-      std::vector<bool> sampleable{true, true, false, true, true, true, true};
-      std::vector<double> groups{1, 1, 1, 2, 2, 3, 3};
-      std::vector<size_t> died{3, 1, 4};
+    test_that("we do not make assumptions about monotonacity") {
+        MockRandom random;
+        std::vector<bool> sampleable{true, true, false, true, true, true, true};
+        std::vector<double> groups{1, 1, 1, 2, 2, 3, 3};
+        std::vector<size_t> died{3, 1, 4};
 
-      std::vector<size_t> first{1};
-      std::vector<size_t> second{1, 0};
-      std::vector<size_t> third;
-      trompeloeil::sequence seq;
-      REQUIRE_CALL(random, sample(2, 1))
-          .IN_SEQUENCE(seq)
-          .RETURN(first);
-      REQUIRE_CALL(random, sample(2, 2))
-          .IN_SEQUENCE(seq)
-          .RETURN(second);
-      REQUIRE_CALL(random, sample(2, 0))
-          .IN_SEQUENCE(seq)
-          .RETURN(third);
+        std::vector<size_t> first{1};
+        std::vector<size_t> second{1, 0};
+        std::vector<size_t> third;
+        trompeloeil::sequence seq;
+        REQUIRE_CALL(random, sample(2, 1, true))
+        .IN_SEQUENCE(seq)
+        .RETURN(first);
+        REQUIRE_CALL(random, sample(2, 2, true))
+        .IN_SEQUENCE(seq)
+        .RETURN(second);
+        REQUIRE_CALL(random, sample(2, 0, true))
+        .IN_SEQUENCE(seq)
+        .RETURN(third);
 
-      auto mothers = sample_mothers(sampleable, groups, 3, died, &random);
+        auto mothers = sample_mothers(sampleable, groups, 3, died, &random);
 
-      expect_true(mothers == std::vector<size_t>({4, 1, 3}));
-  }
+        expect_true(mothers == std::vector<size_t>({4, 1, 3}));
+    }
+
+    test_that("sample_mothers samples from the whole population if there is no one in the same het group") {
+        MockRandom random;
+        std::vector<bool> sampleable{true, true, false, true, false, false, false};
+        std::vector<double> groups{1, 1, 1, 2, 2, 3, 3};
+        std::vector<size_t> died{3, 5, 6};
+
+        std::vector<size_t> first;
+        std::vector<size_t> second{0};
+        std::vector<size_t> third{1, 0};
+        trompeloeil::sequence seq;
+        REQUIRE_CALL(random, sample(2, 0, true))
+        .IN_SEQUENCE(seq)
+        .RETURN(first);
+        REQUIRE_CALL(random, sample(1, 1, true))
+        .IN_SEQUENCE(seq)
+        .RETURN(second);
+        REQUIRE_CALL(random, sample(3, 2, true))
+        .IN_SEQUENCE(seq)
+        .RETURN(third);
+
+        auto mothers = sample_mothers(sampleable, groups, 3, died, &random);
+
+        expect_true(mothers == std::vector<size_t>({3, 1, 0}));
+    }
+
+    test_that("sample_mothers takes anyone if nobody is sampleable") {
+        MockRandom random;
+        std::vector<bool> sampleable(7, false);
+        std::vector<double> groups{1, 1, 1, 2, 2, 3, 3};
+        std::vector<size_t> died{3, 5, 6};
+
+        std::vector<size_t> s{1, 1, 0};
+        REQUIRE_CALL(random, sample(7, 3, true))
+        .RETURN(s);
+
+        auto mothers = sample_mothers(sampleable, groups, 3, died, &random);
+
+        expect_true(mothers == std::vector<size_t>({1, 1, 0}));
+    }
 }
 
 
@@ -143,10 +183,10 @@ context("Mortality process") {
             .RETURN(zero_size_t);
 
         trompeloeil::sequence seq_sample;
-        REQUIRE_CALL(random, sample(2, 1))
+        REQUIRE_CALL(random, sample(2, 1, true))
             .IN_SEQUENCE(seq_sample)
             .RETURN(zero_size_t);
-        REQUIRE_CALL(random, sample(2, 1))
+        REQUIRE_CALL(random, sample(2, 1, true))
             .IN_SEQUENCE(seq_sample)
             .RETURN(zero_size_t);
 

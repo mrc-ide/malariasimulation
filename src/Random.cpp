@@ -15,8 +15,8 @@ std::vector<size_t> Random::bernoulli(size_t size, double p) {
     return Rcpp::as<std::vector<size_t>>(indices);
 }
 
-std::vector<size_t> Random::sample(size_t n, size_t size) {
-    //                                              replace probs      one_based
-    Rcpp::IntegerVector res = Rcpp::sample(n, size, false, R_NilValue, false);
+std::vector<size_t> Random::sample(size_t n, size_t size, bool replacement) {
+    //                                                           probs       one_based
+    Rcpp::IntegerVector res = Rcpp::sample(n, size, replacement, R_NilValue, false);
     return Rcpp::as<std::vector<size_t>>(res);
 }

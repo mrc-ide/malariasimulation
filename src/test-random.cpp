@@ -38,7 +38,7 @@ context("Sample is sane") {
     test_that("Sample produces the right size") {
         auto& random = Random::get_instance();
         set_seed(42);
-        auto indices = random.sample(1000, 500);
+        auto indices = random.sample(1000, 500, false);
         expect_true(indices.size() == 500u);
         for (auto i : indices) {
             expect_true(i < 1000u);

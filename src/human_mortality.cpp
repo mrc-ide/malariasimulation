@@ -2,6 +2,17 @@
 #include "human_mortality.h"
 #include <unordered_set>
 
+// Check if a vector contains empty vectors
+inline bool some_empty(std::vector<std::vector<size_t>>& x) {
+    for (auto sub_vector : x) {
+        if (sub_vector.size() == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
 std::vector<size_t> sample_mothers(
     const std::vector<bool>& sampleable,
     const variable_vector_t& groups,
@@ -9,14 +20,38 @@ std::vector<size_t> sample_mothers(
     const std::vector<size_t>& died,
     RandomInterface* random
     ) {
+    // Create a lookup for sampleable individuals per het group
     std::vector<std::vector<size_t>> index(n_groups);
+    auto exists_sampleable = false;
     for (auto i = 0u; i < sampleable.size(); ++i) {
         if (sampleable[i]) {
             index[groups[i] - 1].push_back(i);
+            exists_sampleable = true;
         }
     }
 
-    std::vector<size_t> n_died(n_groups);
+    if (!exists_sampleable) {
+        // give up and return anyone
+        return random->sample(sampleable.size(), died.size(), true);
+    }
+
+    // If a het group has no sampleable individuals create a backup group
+    if (some_empty(index)) {
+        auto sampleable_group = std::vector<size_t>();
+        for (auto i = 0u; i < sampleable.size(); ++i) {
+            if (sampleable[i]) {
+                sampleable_group.push_back(i);
+            }
+        }
+        for (auto i = 0u; i < index.size(); ++i) {
+            if (index[i].size() == 0) {
+                index[i] = sampleable_group;
+            }
+        }
+    }
+
+    // Create a lookup for dead individuals per het group
+    std::vector<size_t> n_died(n_groups, 0);
     std::vector<std::vector<size_t>> index_dest(n_groups);
     for (auto i = 0u; i < died.size(); ++i) {
         size_t group = groups[died[i]];
@@ -26,7 +61,7 @@ std::vector<size_t> sample_mothers(
 
     std::vector<size_t> ret(died.size());
     for (auto i = 0u; i < n_groups; ++i) {
-        const auto take = random->sample(index[i].size(), n_died[i]);
+        const auto take = random->sample(index[i].size(), n_died[i], true);
         const auto& index_dest_i = index_dest[i];
         for (auto j = 0u; j < take.size(); ++j) {
             ret[index_dest_i[j]] = index[i][take[j]];

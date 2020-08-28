@@ -10,6 +10,23 @@
 
 #include <individual.h>
 
-double carrying_capacity(const size_t, const params_t&, double);
+double carrying_capacity(
+    const size_t,
+    const bool,
+    const double,
+    const double,
+    const std::vector<double>&,
+    const std::vector<double>&,
+    const double,
+    const double
+);
+
+double rainfall(
+    const size_t,
+    const double,
+    const double,
+    const std::vector<double>&,
+    const std::vector<double>&
+);
 
 #endif /* SRC_MOSQUITO_BIOLOGY_H_ */

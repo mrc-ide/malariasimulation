@@ -50,7 +50,9 @@ test_that('human infection_process works for non-severe clinical cases', {
     c(TRUE, FALSE, TRUE, FALSE), # bitten
     c(TRUE),                     # infected
     c(TRUE),                     # clinical
-    c(FALSE)                     # severe
+    c(FALSE),                    # severe
+    c(FALSE),                    # treatment
+    c()                          # treatment successful
   )
 
   api$get_scheduled = mockery::mock(4, 1)

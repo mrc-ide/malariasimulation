@@ -11,13 +11,15 @@
 #' @param events a list of events in the model
 #' @param parameters a list of model parameters
 #' @param odes a list of vector ode models for each species
+#' @param mda_events a list of lists of events for each MDA
 create_processes <- function(
   individuals,
   states,
   variables,
   events,
   parameters,
-  odes
+  odes,
+  mda_events
   ) {
   processes <- list(
     # ========
@@ -229,6 +231,40 @@ create_event_based_processes <- function(individuals, states, variables, events,
       }
     }
   )
+
+  if (parameters$mda == 1) {
+    mda_listeners <- create_mda_listeners(
+      individuals$human,
+      states,
+      variables,
+      events$mda_administer,
+      parameters$mda_drug,
+      parameters$mda_end,
+      parameters$mda_frequency,
+      parameters$mda_min_age,
+      parameters$mda_max_age,
+      parameters$mda_coverage
+    )
+    events$mda_enrollment$add_listener(mda_listeners$enrollment_listener)
+    events$mda_administer$add_listener(mda_listeners$administer_listener)
+  }
+
+  if (parameters$smc == 1) {
+    smc_listeners <- create_mda_listeners(
+      individuals$human,
+      states,
+      variables,
+      events$smc_administer,
+      parameters$smc_drug,
+      parameters$smc_end,
+      parameters$smc_frequency,
+      parameters$smc_min_age,
+      parameters$smc_max_age,
+      parameters$smc_coverage
+    )
+    events$smc_enrollment$add_listener(smc_listeners$enrollment_listener)
+    events$smc_administer$add_listener(smc_listeners$administer_listener)
+  }
 }
 
 # =================
@@ -248,5 +284,17 @@ create_exponential_decay_process <- function(individual, variable, rate) {
   function(api) {
     i <- api$get_variable(individual, variable)
     api$queue_variable_update(individual, variable, i * decay_rate)
+  }
+}
+
+create_setup_process <- function(events) {
+  function(api) {
+    parameters <- api$get_parameters()
+    if (parameters$mda) {
+      api$schedule(events$mda_enrollment, c(1), parameters$mda_start)
+    }
+    if (parameters$smc) {
+      api$schedule(events$smc_enrollment, c(1), parameters$smc_start)
+    }
   }
 }

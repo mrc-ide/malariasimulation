@@ -6,8 +6,39 @@
  */
 
 #include "mosquito_biology.h"
+#include <algorithm>
 
-// Seasonality not yet supported in C++
-double carrying_capacity(const size_t timestep, const params_t& parameters, double K0) {
+//[[Rcpp::export]]
+double carrying_capacity(
+    const size_t timestep,
+    const bool model_seasonality,
+    const double days_per_timestep,
+    const double g0,
+    const std::vector<double>& g,
+    const std::vector<double>& h,
+    const double K0,
+    const double R_bar
+) {
+    if (model_seasonality) {
+        double r = rainfall(timestep, days_per_timestep, g0, g, h);
+        return std::max(K0 * r / R_bar, .01);
+    }
     return K0;
+}
+
+//[[Rcpp::export]]
+double rainfall(
+    const size_t t,
+    const double days_per_timestep,
+    const double g0,
+    const std::vector<double>& g,
+    const std::vector<double>& h
+) {
+    double result = g0;
+    for (auto i = 0u; i < g.size(); ++i) {
+        result +=
+            g[i] * cos(2 * M_PI * t * days_per_timestep / 365 * (i + 1)) +
+            h[i] * sin(2 * M_PI * t * days_per_timestep / 365 * (i + 1));
+    }
+    return result;
 }

@@ -81,6 +81,8 @@ create_states <- function(parameters) {
 #' * ID - Acquired immunity to detectability
 #' * zeta - Heterogeneity of human individuals
 #' * zeta_group - Discretised heterogeneity of human individuals
+#'
+#' Mosquito variables are: 
 #' * variety - The variety of mosquito, either 1, 2 or 3. These are related to
 #' blood meal rate parameter
 #' * infectivity - The onward infectiousness to mosquitos
@@ -239,7 +241,12 @@ create_variables <- function(parameters) {
 #' @param variables available variables to assign
 #' @param events available events to assign
 #' @param parameters model parameters
-create_individuals <- function(states, variables, events, parameters) {
+create_individuals <- function(
+  states,
+  variables,
+  events,
+  parameters
+  ) {
   human <- individual::Individual$new(
     'human',
     states = list(states$S, states$D, states$A, states$U, states$Tr),
@@ -262,9 +269,13 @@ create_individuals <- function(states, variables, events, parameters) {
       variables$drug,
       variables$drug_time
     ),
-    events = list(
+    events = c(
       events$infection,
-      events$asymptomatic_infection
+      events$asymptomatic_infection,
+      events$mda_enrollment,
+      events$mda_administer,
+      events$smc_enrollment,
+      events$smc_administer
     )
   )
 

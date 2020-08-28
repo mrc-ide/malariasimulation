@@ -15,6 +15,7 @@
 #include <cmath>
 #include <functional>
 #include <type_traits>
+#include "mosquito_biology.h"
 
 /*
  * The states are:
@@ -46,6 +47,13 @@ struct MosquitoModel {
     const double dp; //delay for for pupal growth
     const double mup; //death rate for pupae
     size_t total_M; //the number of adult female mosquitos in the model
+    const bool model_seasonality; //whether to model seasonality
+    const double days_per_timestep; //scale of the fourier model for seasonality
+    const double g0; //fourier shape parameter
+    const std::vector<double> g; //fourier shape parameters
+    const std::vector<double> h; //fourier shape parameters
+    const double R_bar; //average rainfall
+    std::queue<double> lagged_incubating; //last tau values for incubating mosquitos
 
     //solver fields
     boost::numeric::odeint::dense_output_runge_kutta<
@@ -70,7 +78,13 @@ struct MosquitoModel {
         double mul,
         double dp,
         double mup,
-        size_t total_M
+        size_t total_M,
+        bool model_seasonality,
+        double days_per_timestep,
+        double g0,
+        std::vector<double> g,
+        std::vector<double> h,
+        double R_bar
     );
     virtual void step(size_t);
     virtual state_t get_state();

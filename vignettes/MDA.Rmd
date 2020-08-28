@@ -1,0 +1,185 @@
+---
+title: "Mass Drug Administration"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Mass Drug Administration}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(cowplot))
+library(malariasimulation)
+library(malariaEquilibrium)
+library(reshape2)
+```
+
+# Parameterisation
+
+We are going to set the default parameters to run the simulation from an equilibrium.
+
+```{r}
+year <- 365
+sim_length <- 100 * year
+human_population <- 1000
+starting_EIR <- 50
+repetitions <- 5
+
+jamie_params <- load_parameter_set()
+eq <- human_equilibrium(EIR = starting_EIR, ft = 0, p = jamie_params, age = 0:99)
+
+simparams <- get_parameters(c(
+  translate_jamie(remove_unused_jamie(jamie_params)),
+  list(
+    human_population = human_population,
+    variety_proportions = 1,
+    model_seasonality = TRUE, # Let's try a bi-modal model
+    g0 = 0.28605,
+    g = c(0.20636, -0.0740318, -0.0009293),
+    h = c(0.173743, -0.0730962, -0.116019)
+  )
+))
+
+simparams <- set_drugs(simparams, list(SP_AQ_params))
+simparams <- parameterise_human_equilibrium(simparams, eq)
+simparams <- parameterise_mosquito_equilibrium(simparams, starting_EIR)
+
+
+# Plotting functions
+plot_prevalence <- function(output) {
+  output$prev <- output$prev_2_10 / output$n_2_10
+  ggplot(output) + geom_line(
+    aes(x = timestep, y = prev, group = repetition, alpha = 1/repetitions)
+  )
+}
+
+plot_state_counts <- function(output) {
+  ggplot(
+    melt(
+      output[c(
+        'timestep',
+        'repetition',
+        'human_S_count',
+        'human_D_count',
+        'human_A_count',
+        'human_U_count',
+        'human_Tr_count'
+      )],
+      id.vars=c('timestep', 'repetition')
+    )
+  ) + geom_line(
+    aes(
+      x = timestep,
+      y = value,
+      group = interaction(variable, repetition),
+      color = variable,
+      alpha = 1/repetitions
+    )
+  )
+}
+
+add_mda_lines <- function(plot, events) {
+  plot + geom_vline(
+    data = events,
+    mapping = aes(xintercept=timestep),
+    color="blue"
+  ) + geom_text(
+    data = events,
+    mapping = aes(x = timestep, y = 0, label = name),
+    size = 4,
+    angle = 90,
+    vjust = -0.4,
+    hjust = 0
+  )
+}
+```
+
+Then we can run the simulation for a variety of MDA strategies:
+
+## MDA
+
+This is a dose of SP-AQ to 80% of the population once a year.
+
+```{r}
+mdaparams <- simparams
+
+# Add MDA strategy
+mda_events = data.frame(
+  timestep = c(60, 70) * 365,
+  name=c("MDA starts", "MDA ends")
+)
+
+mdaparams <- set_mda(
+  mdaparams,
+  1,
+  mda_events$timestep[[1]],
+  mda_events$timestep[[2]],
+  365,
+  0,
+  200 * 365,
+  .8
+)
+
+output <- run_simulation_with_repetitions(
+  sim_length,
+  repetitions,
+  mdaparams,
+  parallel=TRUE
+)
+```
+
+```{r}
+add_mda_lines(plot_state_counts(output), mda_events)
+```
+
+```{r}
+add_mda_lines(plot_prevalence(output), mda_events)
+```
+
+## SMC
+
+This is a dose of SP-AQ to 90% of 2 - 11 year olds once a year a month before the peak season for mosquitos.
+
+```{r}
+smcparams <- simparams
+
+# Add SMC strategy
+peak <- peak_season_offset(smcparams)
+smc_events = data.frame(
+  timestep = c(60, 70) * 365 + peak - 30,
+  name=c("SMC starts", "SMC ends")
+)
+smcparams <- set_smc(
+  smcparams,
+  1,
+  smc_events$timestep[[1]],
+  smc_events$timestep[[2]],
+  365,
+  2 * 365 - 1,
+  11 * 365,
+  .9
+)
+
+output <- run_simulation_with_repetitions(
+  sim_length,
+  repetitions,
+  smcparams,
+  parallel=TRUE
+)
+```
+
+```{r}
+add_mda_lines(plot_state_counts(output), smc_events)
+```
+
+```{r}
+add_mda_lines(plot_prevalence(output), smc_events)
+```

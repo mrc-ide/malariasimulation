@@ -73,6 +73,18 @@ calculate_carrying_capacity <- function(parameters) {
   )
 }
 
+#' @title Calculate the mean rainfall throughout the year
+#' @param parameters model parameters
+calculate_R_bar <- function(parameters) {
+  mean(vnapply(1:365, function(t) rainfall(
+		t,
+		parameters$days_per_timestep,
+    parameters$g0,
+    parameters$g,
+    parameters$h
+	)))
+}
+
 #' @title Calculate equilibrium total_M from parameters
 #'
 #' @param parameters to work from
@@ -84,4 +96,24 @@ equilibrium_total_M <- function(parameters, EIR) {
   EIR / sum(
     parameters$variety_proportions * parameters$blood_meal_rates * lifetime
   )
+}
+
+#' @title Calculate the yearly offset (in timesteps) for the peak mosquito
+#' season
+#'
+#' @param parameters to work from
+#' @export
+peak_season_offset <- function(parameters) {
+  which.max(vnapply(seq(365), function(t) {
+    carrying_capacity(
+      t,
+      parameters$model_seasonality,
+      parameters$days_per_timestep,
+      parameters$g0,
+      parameters$g,
+      parameters$h,
+      calculate_carrying_capacity(parameters),
+      calculate_R_bar(parameters)
+    )
+  }))[[1]]
 }

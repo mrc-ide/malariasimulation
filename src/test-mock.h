@@ -45,6 +45,12 @@ public:
         0,
         0,
         0,
+        0,
+        false,
+        1,
+        0,
+        std::vector<double>{},
+        std::vector<double>{},
         0
     ) {};
     MAKE_MOCK0(get_state, state_t(), override);

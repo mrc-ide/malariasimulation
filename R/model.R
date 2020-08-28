@@ -31,7 +31,8 @@ run_simulation <- function(timesteps, parameters = NULL) {
       odes
     ),
     end_timestep = timesteps,
-    parameters = parameters
+    parameters = parameters,
+    initialisation = create_setup_process(events)
   )
 }
 

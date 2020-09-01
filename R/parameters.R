@@ -100,8 +100,9 @@
 #' carrying capacity parameters:
 #'
 #' * model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall
-#' * g0 to g3 - rainfall shape parameters
-#' * h1 to h3 - rainfall shape parameters
+#' * g0 - rainfall fourier parameter
+#' * g - rainfall fourier parameter
+#' * h - rainfall fourier parameters
 #' * gamma - effect of density dependence on late instars relative to early
 #' instars
 #'
@@ -153,13 +154,46 @@
 #' clinically diseased (these values refer to the index in drug_* parameters)
 #' * clinical_treatment_coverage - a vector of coverage values for each drug
 #'
+#' RTS,S paramters:
+#'
+#' * rtss_vmax - the maximum efficacy of the vaccine
+#' * rtss_alpha - shape parameter for the vaccine efficacy model
+#' * rtss_beta - scale parameter for the vaccine efficacy model
+#' * rtss_cs - peak parameters for the antibody model (mean and std. dev)
+#' * rtss_cs_boost - peak parameters for the antibody model for booster rounds (mean and std. dev)
+#' * rtss_rho - delay parameters for the antibody model (mean and std. dev)
+#' * rtss_rho_boost - delay parameters for the antibody model for booster rounds (mean and std. dev)
+#' * rtss_ds - delay parameters for the antibody model (mean and std. dev)
+#' * rtss_dl - delay parameters for the antibody model (mean and std. dev)
+#'
+#' I recommend setting strategies with the convenience functions in
+#' `vaccine_parameters.R`
+#' * rtss - whether to model rtss or not
+#' * rtss_start - the start timstep for rtss
+#' * rtss_end - the end timstep for rtss
+#' * rtss_frequency - the frequency of rounds
+#' * rtss_ages - the ages to apply the vaccine (in years)
+#' * rtss_coverage - the fraction of the target population who will be covered
+#'
+#' MDA parameters:
+#' I recommend setting these with convenience functions in `mda_parameters.R`
+#'
+#' * mda - whether to apply an MDA or not
+#' * mda_drug - the index of the drug to use
+#' * mda_start - the first timestep for the drug to be distributed
+#' * mda_end - the last timestep for the drug to be distributed
+#' * mda_frequency - how often to distribute drugs
+#' * mda_min_age - the min age of the target population
+#' * mda_max_age - the max age of the target population
+#' * mda_coverage - the proportion of the target population that will be covered
+#' * smc* - as for mda*
+#'
 #' miscellaneous:
 #'
 #' * human_population - the number of humans to model
 #' * mosquito_limit - the maximum number of mosquitos to allow for in the
 #' simulation
 #' * days_per_timestep - the number of days to model per timestep
-#' * vector_ode - whether to use the ODE model to model mosquitos
 #'
 #' @export
 get_parameters <- function(overrides = list()) {
@@ -233,12 +267,8 @@ get_parameters <- function(overrides = list()) {
     pvm   = .195768,
     # carrying capacity parameters
     g0    = 2,
-    g1   = .3,
-    g2   = .6,
-    g3   = .9,
-    h1   = .1,
-    h2   = .4,
-    h3   = .7,
+    g     = c(.3, .6, .9),
+    h     = c(.1, .4, .7),
     gamma = 13.25,
     model_seasonality = FALSE,
     # larval mortality rates
@@ -271,10 +301,42 @@ get_parameters <- function(overrides = list()) {
     clinical_treatment_drugs     = numeric(0),
     clinical_treatment_coverages = numeric(0),
     ft = 0,
+    # rts,s
+    rtss = FALSE,
+    rtss_vmax = .93,
+    rtss_alpha = .74,
+    rtss_beta = 99.4,
+    rtss_cs = c(6.37008, 0.35),
+    rtss_cs_boost = c(5.56277, 0.35),
+    rtss_rho = c(2.37832, 1.00813),
+    rtss_rho_boost = c(1.03431, 1.02735),
+    rtss_ds = c(3.74502, 0.341185),
+    rtss_dl = c(6.30365, 0.396515),
+    rtss_start = c(),
+    rtss_end = c(),
+    rtss_frequency = -1,
+    rtss_ages = c(),
+    rtss_coverage = 0,
+    # MDA
+    mda = FALSE,
+    mda_drug = 0,
+    mda_start = -1,
+    mda_end = -1,
+    mda_frequency = -1,
+    mda_min_age = -1,
+    mda_max_age = -1,
+    mda_coverage = 0,
+    smc = FALSE,
+    smc_drug = 0,
+    smc_start = -1,
+    smc_end = -1,
+    smc_frequency = -1,
+    smc_min_age = -1,
+    smc_max_age = -1,
+    smc_coverage = 0,
     # misc
     human_population = 100,
     mosquito_limit   = 100 * 1000,
-    vector_ode         = FALSE,
     days_per_timestep  = days_per_timestep
   )
 

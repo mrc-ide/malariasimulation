@@ -112,8 +112,9 @@ mortality parameters:
 carrying capacity parameters:
 \itemize{
 \item model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall
-\item g0 to g3 - rainfall shape parameters
-\item h1 to h3 - rainfall shape parameters
+\item g0 - rainfall fourier parameter
+\item g - rainfall fourier parameter
+\item h - rainfall fourier parameters
 \item gamma - effect of density dependence on late instars relative to early
 instars
 }
@@ -171,13 +172,50 @@ clinically diseased (these values refer to the index in drug_* parameters)
 \item clinical_treatment_coverage - a vector of coverage values for each drug
 }
 
+RTS,S paramters:
+\itemize{
+\item rtss_vmax - the maximum efficacy of the vaccine
+\item rtss_alpha - shape parameter for the vaccine efficacy model
+\item rtss_beta - scale parameter for the vaccine efficacy model
+\item rtss_cs - peak parameters for the antibody model (mean and std. dev)
+\item rtss_cs_boost - peak parameters for the antibody model for booster rounds (mean and std. dev)
+\item rtss_rho - delay parameters for the antibody model (mean and std. dev)
+\item rtss_rho_boost - delay parameters for the antibody model for booster rounds (mean and std. dev)
+\item rtss_ds - delay parameters for the antibody model (mean and std. dev)
+\item rtss_dl - delay parameters for the antibody model (mean and std. dev)
+}
+
+I recommend setting strategies with the convenience functions in
+\code{vaccine_parameters.R}
+\itemize{
+\item rtss - whether to model rtss or not
+\item rtss_start - the start timstep for rtss
+\item rtss_end - the end timstep for rtss
+\item rtss_frequency - the frequency of rounds
+\item rtss_ages - the ages to apply the vaccine (in years)
+\item rtss_coverage - the fraction of the target population who will be covered
+}
+
+MDA parameters:
+I recommend setting these with convenience functions in \code{mda_parameters.R}
+\itemize{
+\item mda - whether to apply an MDA or not
+\item mda_drug - the index of the drug to use
+\item mda_start - the first timestep for the drug to be distributed
+\item mda_end - the last timestep for the drug to be distributed
+\item mda_frequency - how often to distribute drugs
+\item mda_min_age - the min age of the target population
+\item mda_max_age - the max age of the target population
+\item mda_coverage - the proportion of the target population that will be covered
+\item smc* - as for mda*
+}
+
 miscellaneous:
 \itemize{
 \item human_population - the number of humans to model
 \item mosquito_limit - the maximum number of mosquitos to allow for in the
 simulation
 \item days_per_timestep - the number of days to model per timestep
-\item vector_ode - whether to use the ODE model to model mosquitos
 }}
 }
 \description{

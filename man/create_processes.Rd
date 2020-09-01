@@ -10,7 +10,8 @@ create_processes(
   variables,
   events,
   parameters,
-  odes = NULL
+  odes,
+  mda_events
 )
 }
 \arguments{
@@ -24,7 +25,9 @@ create_processes(
 
 \item{parameters}{a list of model parameters}
 
-\item{odes}{a list of vector models (if vector_ode == TRUE)}
+\item{odes}{a list of vector ode models for each species}
+
+\item{mda_events}{a list of lists of events for each MDA}
 }
 \description{
 create_processes, defines the functions which describe how each individual's

@@ -5,7 +5,15 @@ test_that('create_processes makes valid process functions', {
   states <- create_states(parameters)
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables, events, parameters)
-  processes <- create_processes(individuals, states, variables, events, parameters)
+  odes <- parameterise_ode(parameters)
+  processes <- create_processes(
+    individuals,
+    states,
+    variables,
+    events,
+    parameters,
+    odes
+  )
   for (process in processes) {
     expect(is.function(process) || inherits(process, 'externalptr'), 'Process is not a function')
   }

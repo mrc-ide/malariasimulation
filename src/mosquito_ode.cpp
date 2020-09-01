@@ -6,28 +6,31 @@
  */
 
 #include <Rcpp.h>
+#include <individual.h>
 #include "mosquito_ode.h"
+#include <sstream>
 
 integration_function_t create_ode(MosquitoModel& model) {
     return [&model](const state_t& x , state_t& dxdt , double t) {
-        auto incubation_survival = exp(-model.mu * model.tau);
-        dxdt[0] = model.beta * (x[3] + x[4] + x[5]) //new eggs
-            - x[0] / model.de //growth to late larval stage
-            - x[0] * model.mue * (1 + (x[0] + x[1]) / model.K0); //early larval deaths
-        dxdt[1] = x[0] / model.de //growth from early larval
-            - x[1] / model.dl //growth to pupal
-            - x[1] * model.mul * (1 + model.gamma * (x[0] + x[1]) / model.K0); //late larval deaths
-        dxdt[2] = x[1] / model.dl //growth to pupae
-            - x[2] / model.dp //growth to adult
-            - x[2] * model.mup; // death of pupae
-        dxdt[3] = .5 * x[2] / model.dp //growth to adult female
-            - x[3] * model.foim //infections
-            - x[3] * model.mu; //deaths
-        dxdt[4] = x[3] * model.foim  //infections
-            - model.lagged_incubating.front() * incubation_survival //survived incubation period
-            - x[4] * model.mu; // deaths
-        dxdt[5] = model.lagged_incubating.front() * incubation_survival //survived incubation period
-            - x[5] * model.mu; // deaths
+        auto K = carrying_capacity(
+            t,
+            model.model_seasonality,
+            model.days_per_timestep,
+            model.g0,
+            model.g,
+            model.h,
+            model.K0,
+            model.R_bar
+        );
+        dxdt[get_idx(ODEState::E)] = model.beta * (model.total_M) //new eggs
+            - x[get_idx(ODEState::E)] / model.de //growth to late larval stage
+            - x[get_idx(ODEState::E)] * model.mue * (1 + (x[get_idx(ODEState::E)] + x[get_idx(ODEState::L)]) / K); //early larval deaths
+        dxdt[1] = x[get_idx(ODEState::E)] / model.de //growth from early larval
+            - x[get_idx(ODEState::L)] / model.dl //growth to pupal
+            - x[get_idx(ODEState::L)] * model.mul * (1 + model.gamma * (x[get_idx(ODEState::E)] + x[get_idx(ODEState::L)]) / K); //late larval deaths
+        dxdt[2] = x[get_idx(ODEState::L)] / model.dl //growth to pupae
+            - x[get_idx(ODEState::P)] / model.dp //growth to adult
+            - x[get_idx(ODEState::P)] * model.mup; // death of pupae
     };
 }
 
@@ -42,9 +45,13 @@ MosquitoModel::MosquitoModel(
     double mul,
     double dp,
     double mup,
-    double foim,
-    double mu,
-    size_t tau
+    size_t total_M,
+    bool model_seasonality,
+    double days_per_timestep,
+    double g0,
+    std::vector<double> g,
+    std::vector<double> h,
+    double R_bar
     ):
     beta(beta),
     de(de),
@@ -55,16 +62,16 @@ MosquitoModel::MosquitoModel(
     mul(mul),
     dp(dp),
     mup(mup),
-    foim(foim),
-    mu(mu),
-    tau(tau)
+    total_M(total_M),
+    model_seasonality(model_seasonality),
+    days_per_timestep(days_per_timestep),
+    g0(g0),
+    g(g),
+    h(h),
+    R_bar(R_bar)
     {
-    for (auto i = 0u; i < tau; ++i) {
-        lagged_incubating.push(init[3] * foim);
-    }
-    auto in = state_t();
-    for (auto i = 0u; i < in.size(); ++i) {
-        in[i] = init[i];
+    for (auto i = 0u; i < state.size(); ++i) {
+        state[i] = init[i];
     }
     ode = create_ode(*this);
     rk = boost::numeric::odeint::make_dense_output(
@@ -72,14 +79,16 @@ MosquitoModel::MosquitoModel(
         r_tolerance,
         boost::numeric::odeint::runge_kutta_dopri5<state_t>()
     );
-    rk.initialize(in, 0, 1);
 }
 
-void MosquitoModel::step(double new_foim) {
-    foim = new_foim;
-    rk.do_step(ode);
-    lagged_incubating.pop();
-    lagged_incubating.push(rk.current_state()[3] * foim);
+void MosquitoModel::step(size_t new_total_M) {
+    total_M = new_total_M;
+    boost::numeric::odeint::integrate_adaptive(rk, ode, state, t, t + dt, dt);
+    ++t;
+}
+
+state_t MosquitoModel::get_state() {
+    return state;
 }
 
 //[[Rcpp::export]]
@@ -94,9 +103,13 @@ Rcpp::XPtr<MosquitoModel> create_mosquito_model(
     double mul,
     double dp,
     double mup,
-    double foim,
-    double mu,
-    size_t tau
+    size_t total_M,
+    bool model_seasonality,
+    double days_per_timestep,
+    double g0,
+    std::vector<double> g,
+    std::vector<double> h,
+    double R_bar
     ) {
     auto model = new MosquitoModel(
         init,
@@ -109,20 +122,64 @@ Rcpp::XPtr<MosquitoModel> create_mosquito_model(
         mul,
         dp,
         mup,
-        foim,
-        mu,
-        tau
+        total_M,
+        model_seasonality,
+        days_per_timestep,
+        g0,
+        g,
+        h,
+        R_bar
     );
     return Rcpp::XPtr<MosquitoModel>(model, true);
 }
 
 //[[Rcpp::export]]
-void mosquito_model_step(Rcpp::XPtr<MosquitoModel> model, double foim) {
-    model->step(foim);
+std::vector<double> mosquito_model_get_states(Rcpp::XPtr<MosquitoModel> model) {
+    auto state = model->get_state();
+    return std::vector<double>(state.cbegin(), state.cend());
 }
 
+//' @title Step mosquito ODE
+//' @description collects summarises the human state, sends it to the vector ode
+//' and makes a step
+//'
+//' @param odes the models to step, one for each species
+//' @param mosquito the mosquito individual handle
+//' @param states a list of all of adult mosquito states (Sm, Pm, Im)
+//' @param variety the handle for the mosquito variety variable
 //[[Rcpp::export]]
-std::vector<double> mosquito_model_get_states(Rcpp::XPtr<MosquitoModel> model) {
-    const auto& state = model->rk.current_state();
-    return std::vector<double>(state.cbegin(), state.cend());
+Rcpp::XPtr<process_t> create_ode_stepping_process_cpp(
+    Rcpp::List odes,
+    const std::string mosquito,
+    const std::vector<std::string> states,
+    const std::string variety
+    ) {
+    return Rcpp::XPtr<process_t>(
+        new process_t([=] (ProcessAPI& api) {
+            const auto& v = api.get_variable(mosquito, variety);
+            const auto& Sm = api.get_state(mosquito, states[get_idx(ODEState::E)]);
+            const auto& Pm = api.get_state(mosquito, states[get_idx(ODEState::L)]);
+            const auto& Im = api.get_state(mosquito, states[get_idx(ODEState::P)]);
+            auto total_M = std::vector<size_t>(odes.size(), 0);
+            for (auto i = 0ull; i < v.size(); ++i) {
+                if (Sm.find(i) != Sm.cend() || Pm.find(i) != Pm.cend() || Im.find(i) != Im.cend()) {
+                    ++total_M[v[i] - 1];
+                }
+            }
+            for (auto i = 0u; i < odes.size(); ++i) {
+                std::stringstream label;
+                label << "total_M_" << i + 1;
+                api.render(label.str(), total_M[i]);
+                Rcpp::as<Rcpp::XPtr<MosquitoModel>>(odes[i])->step(total_M[i]);
+            }
+        }),
+        true
+    );
+}
+
+
+//Exported for testing purposes
+//[[Rcpp::export]]
+void mosquito_model_step(Rcpp::XPtr<MosquitoModel> model, size_t total_M) {
+    model->step(total_M);
 }

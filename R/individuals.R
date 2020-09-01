@@ -24,9 +24,6 @@ initial_immunity <- function(parameter, age) {
 #'
 #' The mosquito states are defined as:
 #'
-#' * E - **E**arly larval stage
-#' * L - **L**ate larval stage
-#' * P - **P**upal
 #' * Sm - **S**usceptable **m**osquito
 #' * Pm - Extrinsic Incubation **P**eriod for **m**osquitoes
 #' * Im - **I**nfectious **m**osquito
@@ -46,25 +43,20 @@ create_states <- function(parameters) {
     Tr = individual::State$new("Tr", initial_counts[[5]])
   )
 
-  if (!parameters$vector_ode) {
-    mosquito_counts <- initial_mosquito_counts(parameters, parameters$init_foim)
-    n_Unborn <- parameters$mosquito_limit - sum(mosquito_counts)
+  mosquito_counts <- initial_mosquito_counts(parameters, parameters$init_foim)
+  n_Unborn <- parameters$mosquito_limit - sum(mosquito_counts[c(4, 5, 6)])
 
-    if (n_Unborn < 0) {
-      stop(paste('Mosquito limit not high enough. Short', n_Unborn, sep=' '))
-    }
-    states <- c(
-      states,
-      # Mosquito states
-      E       = individual::State$new("E", mosquito_counts[[1]]),
-      L       = individual::State$new("L", mosquito_counts[[2]]),
-      P       = individual::State$new("P", mosquito_counts[[3]]),
-      Sm      = individual::State$new("Sm", mosquito_counts[[4]]),
-      Pm      = individual::State$new("Pm", mosquito_counts[[5]]),
-      Im      = individual::State$new("Im", mosquito_counts[[6]]),
-      Unborn  = individual::State$new("Unborn", n_Unborn)
-    )
+  if (n_Unborn < 0) {
+    stop(paste('Mosquito limit not high enough. Short by', -n_Unborn, sep=' '))
   }
+  states <- c(
+    states,
+    # Mosquito states
+    Sm      = individual::State$new("Sm", mosquito_counts[[4]]),
+    Pm      = individual::State$new("Pm", mosquito_counts[[5]]),
+    Im      = individual::State$new("Im", mosquito_counts[[6]]),
+    Unborn  = individual::State$new("Unborn", n_Unborn)
+  )
   states
 }
 
@@ -89,6 +81,17 @@ create_states <- function(parameters) {
 #' * ID - Acquired immunity to detectability
 #' * zeta - Heterogeneity of human individuals
 #' * zeta_group - Discretised heterogeneity of human individuals
+#' * rtss_vaccinated - The timstep of the last rtss vaccination (-1 if there
+#' haven't been any)
+#' * rtss_boosted  - The timstep of the last rtss booster (-1 if there
+#' haven't been any)
+#' * rtss_cs - peak antibodies
+#' * rtss_rho - antibody component variable
+#' * rtss_ds - short-lived antibody delay variable
+#' * rtss_dl - long-lived antibody delay variable
+#' * zeta_group - Discretised heterogeneity of human individuals
+#'
+#' Mosquito variables are: 
 #' * variety - The variety of mosquito, either 1, 2 or 3. These are related to
 #' blood meal rate parameter
 #' * infectivity - The onward infectiousness to mosquitos
@@ -198,6 +201,42 @@ create_variables <- function(parameters) {
   drug <- individual::Variable$new("drug", function(n) rep(0, n))
   drug_time <- individual::Variable$new("drug_time", function(n) rep(-1, n))
 
+  rtss_vaccinated <- individual::Variable$new(
+    "rtss_vaccinated",
+    function(n) rep(-1, n)
+  )
+
+  rtss_boosted <- individual::Variable$new(
+    "rtss_boosted",
+    function(n) rep(-1, n)
+  )
+
+  rtss_cs <- individual::Variable$new(
+    "rtss_cs",
+    function(n) {
+      exp(parameters$rtss_cs[[1]] + parameters$rtss_cs[[2]] * rnorm(n))
+    }
+  )
+  rtss_rho <- individual::Variable$new(
+    "rtss_rho",
+    function(n) {
+      invlogit(parameters$rtss_rho[[1]] + parameters$rtss_rho[[2]] * rnorm(n))
+    }
+  )
+  rtss_ds <- individual::Variable$new(
+    "rtss_ds",
+    function(n) {
+      exp(parameters$rtss_ds[[1]] + parameters$rtss_ds[[2]] * rnorm(n))
+    }
+  )
+
+  rtss_dl <- individual::Variable$new(
+    "rtss_dl",
+    function(n) {
+      exp(parameters$rtss_dl[[1]] + parameters$rtss_dl[[2]] * rnorm(n))
+    }
+  )
+
   variables <- list(
     birth = birth,
     last_boosted_ib = last_boosted_ib,
@@ -212,30 +251,35 @@ create_variables <- function(parameters) {
     id = id,
     zeta = zeta,
     zeta_group = zeta_group,
-    is_severe = is_severe,
     infectivity = infectivity,
     drug = drug,
-    drug_time = drug_time
+    drug_time = drug_time,
+    rtss_vaccinated = rtss_vaccinated,
+    rtss_boosted = rtss_boosted,
+    rtss_cs = rtss_cs,
+    rtss_rho = rtss_rho,
+    rtss_ds = rtss_ds,
+    rtss_dl = rtss_dl,
+    is_severe = is_severe
   )
 
-  if (!parameters$vector_ode) {
-    mosquito_variety <- individual::Variable$new(
-      "variety",
-      function(n) {
-        sample(
-          seq_along(parameters$variety_proportions),
-          n,
-          prob = parameters$variety_proportions,
-          replace = TRUE
-        )
-      }
-    )
+  mosquito_variety <- individual::Variable$new(
+    "variety",
+    function(n) {
+      sample(
+        seq_along(parameters$variety_proportions),
+        n,
+        prob = parameters$variety_proportions,
+        replace = TRUE
+      )
+    }
+  )
 
-    variables <- c(
-      variables,
-      mosquito_variety = mosquito_variety
-    )
-  }
+  variables <- c(
+    variables,
+    mosquito_variety = mosquito_variety
+  )
+
   variables
 }
 
@@ -248,7 +292,12 @@ create_variables <- function(parameters) {
 #' @param variables available variables to assign
 #' @param events available events to assign
 #' @param parameters model parameters
-create_individuals <- function(states, variables, events, parameters) {
+create_individuals <- function(
+  states,
+  variables,
+  events,
+  parameters
+  ) {
   human <- individual::Individual$new(
     'human',
     states = list(states$S, states$D, states$A, states$U, states$Tr),
@@ -269,24 +318,29 @@ create_individuals <- function(states, variables, events, parameters) {
       variables$zeta_group,
       variables$infectivity,
       variables$drug,
-      variables$drug_time
+      variables$drug_time,
+      variables$rtss_vaccinated,
+      variables$rtss_boosted,
+      variables$rtss_cs,
+      variables$rtss_rho,
+      variables$rtss_ds,
+      variables$rtss_dl
     ),
-    events = list(
+    events = c(
       events$infection,
-      events$asymptomatic_infection
+      events$asymptomatic_infection,
+      events$rtss_vaccination,
+      events$rtss_booster,
+      events$mda_enrollment,
+      events$mda_administer,
+      events$smc_enrollment,
+      events$smc_administer
     )
   )
-
-  if (parameters$vector_ode) {
-    return(list(human = human))
-  }
 
   mosquito <- individual::Individual$new(
     'mosquito',
     states=list(
-      states$E,
-      states$L,
-      states$P,
       states$Sm,
       states$Pm,
       states$Im,

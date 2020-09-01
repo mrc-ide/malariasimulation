@@ -4,7 +4,7 @@
 \alias{create_infection_process}
 \title{Infection process}
 \usage{
-create_infection_process(individuals, states, variables, events, odes = NULL)
+create_infection_process(individuals, states, variables, events)
 }
 \arguments{
 \item{individuals}{a list of individuals in the model}
@@ -14,8 +14,6 @@ create_infection_process(individuals, states, variables, events, odes = NULL)
 \item{variables}{a list of all of the model variables}
 
 \item{events}{a list of all of the model events}
-
-\item{odes}{(optional) a list of mosquito odes for each variety}
 }
 \description{
 This is the process of infection for humans. It results in human future state

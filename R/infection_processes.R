@@ -6,13 +6,11 @@
 #' @param states a list of all of the model states
 #' @param variables a list of all of the model variables
 #' @param events a list of all of the model events
-#' @param odes (optional) a list of mosquito odes for each variety
 create_infection_process <- function(
   individuals,
   states,
   variables,
-  events,
-  odes=NULL
+  events
   ) {
   function(api) {
     human <- individuals$human
@@ -21,7 +19,7 @@ create_infection_process <- function(
 
     # Calculate EIR
     age <- get_age(api$get_variable(human, variables$birth), api$get_timestep())
-    epsilon <- eir_from_api(api, individuals, states, variables, age, odes)
+    epsilon <- eir_from_api(api, individuals, states, variables, age)
 
     api$render("mean_EIR", mean(epsilon))
 
@@ -86,24 +84,17 @@ create_infection_process <- function(
   }
 }
 
-eir_from_api <- function(api, individuals, states, variables, age, odes) {
+eir_from_api <- function(api, individuals, states, variables, age) {
   parameters <- api$get_parameters()
-  if (parameters$vector_ode) {
-    infectivity <- vector_infectivity_ode(
-      odes,
-      parameters
-    )
-  } else {
-    source_mosquitos <- api$get_state(individuals$mosquito, states$Im)
-    infectivity <- vector_infectivity_ibm(
-      api$get_variable(
-        individuals$mosquito,
-        variables$mosquito_variety,
-        source_mosquitos
-      ),
-      parameters
-    )
-  }
+  source_mosquitos <- api$get_state(individuals$mosquito, states$Im)
+  infectivity <- vector_infectivity(
+    api$get_variable(
+      individuals$mosquito,
+      variables$mosquito_variety,
+      source_mosquitos
+    ),
+    parameters
+  )
 
   eir(
     age,
@@ -127,7 +118,7 @@ calculate_infections <- function(
     api$get_state(human, states$S, states$A, states$U),
     bitten_humans
   )
-  b <- blood_immunity(ib[source_humans], api$get_parameters())
+  b <- blood_immunity(ib[source_humans], parameters)
 
   # calculate prophylaxis
   prophylaxis <- rep(0, length(source_humans))
@@ -147,7 +138,27 @@ calculate_infections <- function(
     )
   }
 
-  source_humans[bernoulli_multi_p(length(source_humans), b * (1 - prophylaxis))]
+  # calculate vaccine efficacy
+  vaccine_efficacy <- rep(0, length(source_humans))
+  vaccine_times <- pmax(
+    api$get_variable(human, variables$rtss_vaccinated, source_humans),
+    api$get_variable(human, variables$rtss_boosted, source_humans)
+  )
+  vaccinated <- which(vaccine_times > -1)
+  antibodies <- calculate_rtss_antibodies(
+    api$get_timestep() - vaccine_times[vaccinated],
+    api$get_variable(human, variables$rtss_cs, vaccinated),
+    api$get_variable(human, variables$rtss_rho, vaccinated),
+    api$get_variable(human, variables$rtss_ds, vaccinated),
+    api$get_variable(human, variables$rtss_dl, vaccinated),
+    parameters
+  )
+  vaccine_efficacy[vaccinated] <- calculate_rtss_efficacy(antibodies, parameters)
+
+  source_humans[bernoulli_multi_p(
+    length(source_humans),
+    b * (1 - prophylaxis) * (1 - vaccine_efficacy)
+  )]
 }
 
 calculate_clinical_infections <- function(api, human, variables, infections) {
@@ -301,53 +312,6 @@ schedule_infections <- function(
   }
 }
 
-#' @title Mosquito infection process
-#' @description
-#' This is the process of infection for mosquitos. It results in a state
-#' transition from Sm to Im for infected mosquitos.
-#'
-#' NOTE: this process will become obsolete when the model is reformulated to
-#' model individual mosquitos biting individual humans.
-#' @param mosquito the mosquito individual
-#' @param human the human individual
-#' @param states a list of all of the model states
-#' @param variables a list of all of the model variables
-#' @param mosquito_infection the mosquito infection event
-create_mosquito_infection_process <- function(
-  mosquito,
-  human,
-  states,
-  variables,
-  mosquito_infection
-  ) {
-  function(api) {
-    lambda <- mosquito_force_of_infection_from_api(
-      human,
-      states,
-      variables,
-      api
-    )
-
-    for (species in seq_along(lambda)) {
-      api$render(paste0('FOIM_', species), lambda[[species]])
-    }
-
-    parameters <- api$get_parameters()
-    source_mosquitos <- api$get_state(mosquito, states$Sm)
-    species <- api$get_variable(
-      mosquito,
-      variables$mosquito_variety,
-      source_mosquitos
-    )
-
-    infected = source_mosquitos[
-      bernoulli_multi_p(length(source_mosquitos), lambda[species])
-    ]
-    api$queue_state_update(mosquito, states$Pm, infected)
-    api$schedule(mosquito_infection, infected, parameters$dem)
-  }
-}
-
 # =================
 # Utility functions
 # =================
@@ -367,29 +331,13 @@ eir <- function(
 }
 
 # Implemented from Griffin et al 2010 S1 page 7
-vector_infectivity_ibm <- function(
-  infectious_variants,
-  parameters
-  ) {
+vector_infectivity <- function(infectious_variants, parameters) {
   sum(vnapply(
     seq_along(parameters$blood_meal_rate),
     function(variety) {
       parameters$blood_meal_rate[[variety]] * sum(infectious_variants == variety)
     }
   ))
-}
-
-# Implemented from Griffin et al 2010 S1 page 7
-vector_infectivity_ode <- function(
-  odes,
-  parameters
-  ) {
-  sum(vnapply(
-    odes,
-    function(ode) {
-      mosquito_model_get_states(ode)[[6]] # infected state
-    }
-  ) * parameters$blood_meal_rates)
 }
 
 # Implemented from Winskill 2017 - Supplementary Information page 4
@@ -453,52 +401,6 @@ blood_immunity <- function(ib, parameters) {
 
 human_pi <- function(zeta, psi) {
  (zeta * psi) / sum(zeta * psi)
-}
-
-#' @title calculate FOIM from API
-#' @param human handle for the human individual
-#' @param states list of available states
-#' @param variables list of available variables
-#' @param api the IBM api
-mosquito_force_of_infection_from_api <- function(
-  human,
-  states,
-  variables,
-  api
-  ) {
-
-  parameters <- api$get_parameters()
-  age <- get_age(api$get_variable(human, variables$birth), api$get_timestep())
-  zeta  <- api$get_variable(human, variables$zeta)
-
-  mosquito_force_of_infection(
-    seq_along(parameters$blood_meal_rates),
-    age,
-    zeta,
-    api$get_variable(human, variables$infectivity),
-    parameters
-  )
-}
-
-
-#' @title calculate FOIM
-#' @description  Implemented from Griffin et al 2010 S1 page 7
-#' @param v vector of varieties to calculate for
-#' @param age vector for complete human population
-#' @param zeta het vector for complete human population
-#' @param infectivity the onwards infectiousness of the population
-#' @param parameters model parameters
-mosquito_force_of_infection <- function(
-  v,
-  age,
-  zeta,
-  infectivity,
-  parameters) {
-
-  psi <- unique_biting_rate(age, parameters)
-  .pi <- human_pi(zeta, psi)
-  mean_infectivity <- sum(.pi * infectivity)
-  blood_meal_rate(v, parameters) * mean_infectivity
 }
 
 blood_meal_rate <- function(v, parameters) {

@@ -29,6 +29,19 @@ severe malaria
 \item ID - Acquired immunity to detectability
 \item zeta - Heterogeneity of human individuals
 \item zeta_group - Discretised heterogeneity of human individuals
+\item rtss_vaccinated - The timstep of the last rtss vaccination (-1 if there
+haven't been any)
+\item rtss_boosted  - The timstep of the last rtss booster (-1 if there
+haven't been any)
+\item rtss_cs - peak antibodies
+\item rtss_rho - antibody component variable
+\item rtss_ds - short-lived antibody delay variable
+\item rtss_dl - long-lived antibody delay variable
+\item zeta_group - Discretised heterogeneity of human individuals
+}
+
+Mosquito variables are:
+\itemize{
 \item variety - The variety of mosquito, either 1, 2 or 3. These are related to
 blood meal rate parameter
 \item infectivity - The onward infectiousness to mosquitos

@@ -6,6 +6,16 @@
 
 using namespace Rcpp;
 
+// create_mortality_process_cpp
+Rcpp::XPtr<process_t> create_mortality_process_cpp();
+RcppExport SEXP _malariasimulation_create_mortality_process_cpp() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(create_mortality_process_cpp());
+    return rcpp_result_gen;
+END_RCPP
+}
 // carrying_capacity
 double carrying_capacity(const size_t timestep, const bool model_seasonality, const double days_per_timestep, const double g0, const std::vector<double>& g, const std::vector<double>& h, const double K0, const double R_bar);
 RcppExport SEXP _malariasimulation_carrying_capacity(SEXP timestepSEXP, SEXP model_seasonalitySEXP, SEXP days_per_timestepSEXP, SEXP g0SEXP, SEXP gSEXP, SEXP hSEXP, SEXP K0SEXP, SEXP R_barSEXP) {
@@ -136,6 +146,7 @@ END_RCPP
 RcppExport SEXP run_testthat_tests();
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_malariasimulation_create_mortality_process_cpp", (DL_FUNC) &_malariasimulation_create_mortality_process_cpp, 0},
     {"_malariasimulation_carrying_capacity", (DL_FUNC) &_malariasimulation_carrying_capacity, 8},
     {"_malariasimulation_rainfall", (DL_FUNC) &_malariasimulation_rainfall, 5},
     {"_malariasimulation_create_mosquito_emergence_process_cpp", (DL_FUNC) &_malariasimulation_create_mosquito_emergence_process_cpp, 6},

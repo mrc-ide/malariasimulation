@@ -1,3 +1,4 @@
+// -*- mode: C++; c-indent-level: 4; c-basic-offset: 4; indent-tabs-mode: nil; -*-
 /*
  * test-emergence.h
  *
@@ -30,6 +31,8 @@ public:
     MAKE_MOCK3(schedule, void(const std::string& event, const std::vector<size_t>& index, double delay), override);
     MAKE_CONST_MOCK0(get_timestep, size_t(), override);
     MAKE_MOCK2(render, void(const std::string& label, double value), override);
+    MAKE_MOCK2(clear_schedule, void(const std::string& label, const std::vector<size_t>& index), override);
+    MAKE_MOCK2(clear_schedule, void(const std::string& label, const individual_index_t& index), override);
 };
 
 class MockODE : public MosquitoModel {
@@ -59,6 +62,7 @@ public:
 class MockRandom : public RandomInterface {
 public:
     MAKE_MOCK2(bernoulli, std::vector<size_t>(size_t, double), override);
+    MAKE_MOCK3(sample, std::vector<size_t>(size_t, size_t, bool), override);
 };
 
 #endif /* SRC_TEST_MOCK_H_ */

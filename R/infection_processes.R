@@ -204,7 +204,7 @@ update_severe_disease <- function(
   ) {
   if (length(clinical_infections) > 0) {
     parameters <- api$get_parameters()
-    iva <- api$get_variable(human, variables$iva, infections)
+    iva <- api$get_variable(human, variables$iva, clinical_infections)
     theta <- severe_immunity(
       infection_age,
       iva,

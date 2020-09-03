@@ -34,6 +34,39 @@ test_that('that default rendering works', {
   )
 })
 
+test_that('that default rendering works when no one is in the age range', {
+  parameters <- get_parameters()
+  events <- create_events()
+  states <- create_states(parameters)
+  variables <- create_variables(parameters)
+  individuals <- create_individuals(states, variables, events, parameters)
+  api <- mock_api(
+    list(
+      human = list(
+        S = c(1, 2, 3, 4),
+        birth = -c(1, 11, 21, 11) * 365
+      )
+    ),
+    parameters = parameters,
+    timestep = 0
+  )
+  renderer <- create_prevelance_renderer(
+    individuals$human,
+    states$D,
+    states$A,
+    variables$birth,
+    variables$is_severe
+  )
+  renderer(api)
+
+  mockery::expect_args(
+    api$render,
+    1,
+    'pv_730_3650',
+    0
+  )
+})
+
 test_that('that severe rendering works', {
   year <- 365
   parameters <- get_parameters(list(

@@ -1,5 +1,8 @@
 epi_from_subpopulation <- function(target, age, lower, upper) {
   in_range <- which((age >= lower) & (age <= upper))
+  if (length(in_range) == 0) {
+    return(0)
+  }
   n_target <- length(intersect(target, in_range))
   n_target / length(in_range)
 }

@@ -1,8 +1,9 @@
 create_events <- function() {
   list(
     # Human infection events
-    infection = individual::Event$new('infection'),
+    clinical_infection = individual::Event$new('clinical_infection'),
     asymptomatic_infection = individual::Event$new('asymptomatic_infection'),
+    infection = individual::Event$new('infection'),
 
     # Vaccination events
     rtss_vaccination = individual::Event$new('rtss_vaccination'),

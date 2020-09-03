@@ -92,6 +92,13 @@ test_that('human infection_process works for non-severe clinical cases', {
   mockery::expect_args(
     api$schedule,
     1,
+    events$clinical_infection,
+    3,
+    12
+  )
+  mockery::expect_args(
+    api$schedule,
+    2,
     events$infection,
     3,
     12

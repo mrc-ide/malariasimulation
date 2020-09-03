@@ -290,25 +290,32 @@ schedule_infections <- function(
   infections
   ) {
   parameters <- api$get_parameters()
-  scheduled_for_infection <- union(
-    api$get_scheduled(events$infection),
-    api$get_scheduled(events$asymptomatic_infection)
-  )
+  scheduled_for_infection <- api$get_scheduled(events$infection)
   to_infect <- setdiff(
     clinical_infections,
     c(scheduled_for_infection, treated)
   )
-  to_infect_asym <- setdiff(
+
+  all_new_infections <- setdiff(
     infections,
-    c(scheduled_for_infection, clinical_infections)
+    scheduled_for_infection
+  )
+
+  to_infect_asym <- setdiff(
+    all_new_infections,
+    clinical_infections
   )
 
   if(length(to_infect) > 0) {
-    api$schedule(events$infection, to_infect, parameters$de)
+    api$schedule(events$clinical_infection, to_infect, parameters$de)
   }
 
   if(length(to_infect_asym) > 0) {
     api$schedule(events$asymptomatic_infection, to_infect_asym, parameters$de)
+  }
+
+  if(length(all_new_infections) > 0) {
+    api$schedule(events$infection, all_new_infections, parameters$de)
   }
 }
 

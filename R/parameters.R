@@ -139,6 +139,13 @@
 #' * variety_proportions - the relative proportions of each species
 #' * blood_meal_rates - the blood meal rates for each species
 #'
+#' feeding cycle:
+#' these are vectors specifying the values for each species
+#'
+#' * rn - probability repelled before entering the house (bednets)
+#' * rnw - probability repelled by the bednet 
+#' * dnw - probability killed by the bednet
+#'
 #' treatment parameters:
 #' I recommend setting these with the convenience functions in
 #' `drug_parameters.R`
@@ -319,8 +326,18 @@ get_parameters <- function(overrides = list()) {
     beta     = 21.2,
     total_M  = 1000,
     init_foim= 0,
+    # order of species: An gambiae s.s, An arabiensis, An funestus
     variety_proportions = c(.5, .3, .2),
     blood_meal_rates    = c(.92, .74, .94),
+    # bed nets
+    rn = rep(.113, 3),
+    rnw = rep(.295, 3),
+    dnw = rep(.533, 3),
+    # indoor spraying
+    ri = rep(.687, 3),
+    riw = rep(0, 3),
+    diw = rep(.295, 3),
+    dif = c(.813, .422, 0.813),
     # treatment
     drug_efficacy          = numeric(0),
     drug_rel_c             = numeric(0),

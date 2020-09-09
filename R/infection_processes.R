@@ -12,8 +12,8 @@ create_infection_process <- function(
   variables,
   events
   ) {
+  human <- individuals$human
   function(api) {
-    human <- individuals$human
     parameters <- api$get_parameters()
     timestep <- api$get_timestep()
 

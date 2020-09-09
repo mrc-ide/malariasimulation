@@ -92,6 +92,8 @@ create_states <- function(parameters) {
 #' * tbv_vaccinated - The timstep of the last tbv vaccination (-1 if there
 #' haven't been any
 #' * zeta_group - Discretised heterogeneity of human individuals
+#' * net_time - The timestep when a net was last put up (-1 if never)
+#' * spray_time - The timestep when the house was last sprayed (-1 if never)
 #'
 #' Mosquito variables are: 
 #' * variety - The variety of mosquito, either 1, 2 or 3. These are related to
@@ -209,6 +211,10 @@ create_variables <- function(parameters) {
 
   tbv_vaccinated <- individual::Variable$new("tbv_vaccinated", rep(-1, size))
 
+  # Init vector controls
+  net_time <- individual::Variable$new("net_time", rep(-1, size))
+  spray_time <- individual::Variable$new("spray_time", rep(-1, size))
+
   variables <- list(
     birth = birth,
     last_boosted_ib = last_boosted_ib,
@@ -233,7 +239,9 @@ create_variables <- function(parameters) {
     rtss_ds = rtss_ds,
     rtss_dl = rtss_dl,
     tbv_vaccinated = tbv_vaccinated,
-    is_severe = is_severe
+    is_severe = is_severe,
+    net_time,
+    spray_time
   )
 
   mosquito_variety <- individual::Variable$new(
@@ -296,7 +304,9 @@ create_individuals <- function(
       variables$rtss_rho,
       variables$rtss_ds,
       variables$rtss_dl,
-      variables$tbv_vaccinated
+      variables$tbv_vaccinated,
+      variables$net_time,
+      variables$spray_time
     ),
     events = c(
       events$infection,

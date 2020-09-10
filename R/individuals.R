@@ -96,8 +96,8 @@ create_states <- function(parameters) {
 #' * spray_time - The timestep when the house was last sprayed (-1 if never)
 #'
 #' Mosquito variables are: 
-#' * variety - The variety of mosquito, either 1, 2 or 3. These are related to
-#' blood meal rate parameter
+#' * variety - The variety of mosquito, this is an ordinal in the range of
+#' length(parameters$variety_proportions)
 #' * infectivity - The onward infectiousness to mosquitos
 #' * drug - The last prescribed drug
 #' * drug_time - The timestep of the last drug
@@ -240,8 +240,8 @@ create_variables <- function(parameters) {
     rtss_dl = rtss_dl,
     tbv_vaccinated = tbv_vaccinated,
     is_severe = is_severe,
-    net_time,
-    spray_time
+    net_time = net_time,
+    spray_time = spray_time
   )
 
   mosquito_variety <- individual::Variable$new(

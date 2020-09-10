@@ -1,14 +1,15 @@
-test_that('vector infectivity in the IBM returns correct values', {
+test_that('vector infectivity returns correct values', {
   infectious_variants <- c(rep(1, 3), rep(3, 2))
   parameters <- list(
     blood_meal_rates = c(.92, .74, .94)
   )
   expect_equal(
     vector_infectivity(
-      infectious_variants,
+      1,
+      3,
       parameters
     ),
-    4.64
+    2.76
   )
 })
 

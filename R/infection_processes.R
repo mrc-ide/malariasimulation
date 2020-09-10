@@ -17,13 +17,45 @@ create_infection_process <- function(
     parameters <- api$get_parameters()
     timestep <- api$get_timestep()
 
-    # Calculate EIR
+    # Calculate combined EIR
     age <- get_age(api$get_variable(human, variables$birth), api$get_timestep())
-    epsilon <- eir_from_api(api, individuals, states, variables, age)
 
-    api$render("mean_EIR", mean(epsilon))
+    total_eir <- 0
+    total_p_bitten <- 0
+    infectious_species <- api$get_variable(
+      individuals$mosquito,
+      variables$mosquito_variety,
+      api$get_state(individuals$mosquito, states$Im)
+    )
 
-    bitten_humans <- which(bernoulli_multi_p(length(epsilon), epsilon))
+    for (species in seq_along(parameters$blood_meal_rate)) {
+      n_infectious <- sum(infectious_species == species)
+      epsilon <- eir_from_api(
+        api,
+        human,
+        variables$zeta,
+        age,
+        species,
+        n_infectious,
+        parameters
+      )
+
+      total_eir <- total_eir + epsilon
+
+      p_bitten <- prob_bitten(
+        individuals,
+        variables,
+        species,
+        api,
+        parameters
+      )
+
+      total_p_bitten <- total_p_bitten + p_bitten * epsilon
+    }
+
+    bitten_humans <- which(bernoulli_multi_p(length(total_p_bitten), total_p_bitten))
+    api$render("mean_EIR", mean(total_eir))
+
     ib <- api$get_variable(human, variables$ib)
     if (length(bitten_humans) > 0) {
       boost_immunity(
@@ -84,21 +116,11 @@ create_infection_process <- function(
   }
 }
 
-eir_from_api <- function(api, individuals, states, variables, age) {
-  parameters <- api$get_parameters()
-  source_mosquitos <- api$get_state(individuals$mosquito, states$Im)
-  infectivity <- vector_infectivity(
-    api$get_variable(
-      individuals$mosquito,
-      variables$mosquito_variety,
-      source_mosquitos
-    ),
-    parameters
-  )
-
+eir_from_api <- function(api, human, zeta, age, species, n_infectious, parameters) {
+  infectivity <- vector_infectivity(species, n_infectious, parameters)
   eir(
     age,
-    api$get_variable(individuals$human, variables$zeta),
+    api$get_variable(human, zeta),
     infectivity,
     parameters
   )
@@ -330,13 +352,8 @@ eir <- function(
 }
 
 # Implemented from Griffin et al 2010 S1 page 7
-vector_infectivity <- function(infectious_variants, parameters) {
-  sum(vnapply(
-    seq_along(parameters$blood_meal_rate),
-    function(variety) {
-      parameters$blood_meal_rate[[variety]] * sum(infectious_variants == variety)
-    }
-  ))
+vector_infectivity <- function(species, n_infectious, parameters) {
+  parameters$blood_meal_rate[[species]] * n_infectious
 }
 
 # Implemented from Winskill 2017 - Supplementary Information page 4

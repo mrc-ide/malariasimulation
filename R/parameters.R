@@ -138,13 +138,24 @@
 #' * init_foim - the FOIM used to calculate the equilibrium state for mosquitoes
 #' * variety_proportions - the relative proportions of each species
 #' * blood_meal_rates - the blood meal rates for each species
+#' * endophily - proportion of mosquitoes resting indoors after feeding with no
+#' intervention
 #'
 #' feeding cycle:
 #' these are vectors specifying the values for each species
 #'
-#' * rn - probability repelled before entering the house (bednets)
-#' * rnw - probability repelled by the bednet 
-#' * dnw - probability killed by the bednet
+#' * bednets - boolean for if bednets are enabled
+#' * rn - probability mosquito is repelled by the bednet
+#' * rnm - minimum probability mosquito is repelled by the bednet 
+#' * dn0 - probability killed by the bednet
+#' * spraying - boolean for if indoor spraying is enabled
+#' * rs - probability repelled by indoor spraying
+#' * phi_spraying - proportion of bites taken indoors
+#' * phi_bednets - proportion of bites taken in bed
+#' * endophily - proportion of mosquitoes resting indoors after feeding with no
+#' intervention
+#' * gammas - the half-life of spraying efficacy (timesteps)
+#' * gamman - the half-life of bednet efficacy (timesteps)
 #'
 #' treatment parameters:
 #' I recommend setting these with the convenience functions in
@@ -328,16 +339,20 @@ get_parameters <- function(overrides = list()) {
     init_foim= 0,
     # order of species: An gambiae s.s, An arabiensis, An funestus
     variety_proportions = c(.5, .3, .2),
-    blood_meal_rates    = c(.92, .74, .94),
+    blood_meal_rates    = c(.92, .71, .94),
+    endophily = c(.813, .422, .813),
     # bed nets
-    rn = rep(.113, 3),
-    rnw = rep(.295, 3),
-    dnw = rep(.533, 3),
+    bednets = FALSE,
+    rn = c(.56, .46, .56),
+    rnm = c(.24, .1, .24),
+    dn0 = rep(.533, 3),
+    phi_bednets = c(.89, .9, .9),
+    gamman = 2.64 * 365,
     # indoor spraying
-    ri = rep(.687, 3),
-    riw = rep(0, 3),
-    diw = rep(.295, 3),
-    dif = c(.813, .422, 0.813),
+    spraying = FALSE,
+    rs = rep(.2, 3),
+    phi_spraying = c(.97, .96, .98),
+    gammas = .25 * 365,
     # treatment
     drug_efficacy          = numeric(0),
     drug_rel_c             = numeric(0),

@@ -70,8 +70,31 @@ create_processes <- function(
       0
     ),
 
+
+    create_mosquito_emergence_process_cpp(
+      individuals$mosquito$name,
+      odes,
+      states$Unborn$name,
+      states$Sm$name,
+      variables$mosquito_variety$name,
+      parameters$dpl
+    ),
+
+    # Infection after incubation
+    individual::fixed_probability_state_change_process(
+      individuals$mosquito$name,
+      states$Pm$name,
+      states$Im$name,
+      1. - exp(-1./parameters$dem)
+    ),
+
+    # ==============
+    # Biting process
+    # ==============
     # schedule infections for humans and set last_boosted_*
-    create_infection_process(
+    # move mosquitoes into incubating state
+    # kill mosquitoes caught in vector control
+    create_biting_process(
       individuals,
       states,
       variables,
@@ -79,6 +102,16 @@ create_processes <- function(
     ),
 
     create_mortality_process_cpp(),
+
+    # ===============
+    # ODE integration
+    # ===============
+    create_ode_stepping_process_cpp(
+      odes,
+      individuals$mosquito$name,
+      c(states$Sm$name, states$Pm$name, states$Im$name),
+      variables$mosquito_variety$name
+    ),
 
     # Rendering processes
     individual::state_count_renderer_process(
@@ -107,60 +140,6 @@ create_processes <- function(
       variables$birth,
       variables$is_severe
     ),
-
-    # ==================
-    # Mosquito Processes
-    # ==================
-    create_mosquito_infection_process_cpp(
-      individuals$mosquito$name,
-      individuals$human$name,
-      c(states$Sm$name, states$Pm$name),
-      c(
-        variables$birth$name,
-        variables$zeta$name,
-        variables$infectivity$name,
-        variables$mosquito_variety$name
-      )
-    ),
-
-    create_mosquito_emergence_process_cpp(
-      individuals$mosquito$name,
-      odes,
-      states$Unborn$name,
-      states$Sm$name,
-      variables$mosquito_variety$name,
-      parameters$dpl
-    ),
-
-    # Infection after incubation
-    individual::fixed_probability_state_change_process(
-      individuals$mosquito$name,
-      states$Pm$name,
-      states$Im$name,
-      1. - exp(-1./parameters$dem)
-    ),
-
-    # Natural death of females
-    individual::fixed_probability_state_change_process(
-      individuals$mosquito$name,
-      states$Sm$name,
-      states$Unborn$name,
-      parameters$mum
-    ),
-    individual::fixed_probability_state_change_process(
-      individuals$mosquito$name,
-      states$Pm$name,
-      states$Unborn$name,
-      parameters$mum
-    ),
-    individual::fixed_probability_state_change_process(
-      individuals$mosquito$name,
-      states$Im$name,
-      states$Unborn$name,
-      parameters$mum
-    ),
-
-    # Rendering processes
     individual::state_count_renderer_process(
       individuals$mosquito$name,
       c(
@@ -169,12 +148,7 @@ create_processes <- function(
         states$Im$name
       )
     ),
-    create_ode_stepping_process_cpp(
-      odes,
-      individuals$mosquito$name,
-      c(states$Sm$name, states$Pm$name, states$Im$name),
-      variables$mosquito_variety$name
-    ),
+    
     create_ode_rendering_process(odes)
   )
 }

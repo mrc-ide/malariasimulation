@@ -18,7 +18,11 @@ test_that('prob_bitten defaults to 1 with no protection', {
 
   expect_equal(
     prob_bitten(individuals, variables, 1, api, parameters),
-    rep(1, 4)
+    list(
+      prob_bitten_survives = rep(1, 4),
+      prob_bitten = rep(1, 4),
+      prob_repelled = rep(0, 4)
+    )
   )
 })
 
@@ -43,9 +47,13 @@ test_that('prob_bitten correctly calculates net only probabilities', {
     parameters = parameters
   )
 
-  expect_equal(
+  expect_mapequal(
     prob_bitten(individuals, variables, 1, api, parameters),
-    c(1, 0.78640, 0.78640, 0.02723)
+    list(
+      prob_bitten_survives = c(1, 0.78640, 0.78640, 0.02723),
+      prob_bitten = c(1, 0.78640, 0.78640, 0.02723),
+      prob_repelled = c(0, 0.2136, 0.2136, 0.4984)
+    )
   )
 })
 
@@ -69,7 +77,11 @@ test_that('prob_bitten correctly calculates spraying only probabilities', {
 
   expect_equal(
     prob_bitten(individuals, variables, 1, api, parameters),
-    c(1, 1, 1, 0.806)
+    list(
+      prob_bitten_survives = c(1, 1, 1, 0.175112),
+      prob_bitten = c(1, 1, 1, 0.806),
+      prob_repelled = c(0, 0, 0, 0.194)
+    )
   )
 })
 
@@ -93,7 +105,11 @@ test_that('prob_bitten correctly combines spraying and net probabilities', {
 
   expect_equal(
     prob_bitten(individuals, variables, 1, api, parameters),
-    c(.0272, .7864, .7864, .8060),
+    list(
+      prob_bitten_survives = c(0.027230, 0.786400, 0.786400, 0.175112),
+      prob_bitten = c(0.02723, 0.78640, 0.78640, 0.80600),
+      prob_repelled = c(0.4984, 0.2136, 0.2136, 0.1940)
+    ),
     tolerance=1e-4
   )
 })

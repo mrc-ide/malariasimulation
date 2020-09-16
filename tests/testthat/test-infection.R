@@ -1,5 +1,4 @@
 test_that('vector infectivity returns correct values', {
-  infectious_variants <- c(rep(1, 3), rep(3, 2))
   parameters <- list(
     blood_meal_rates = c(.92, .74, .94)
   )

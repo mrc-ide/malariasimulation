@@ -132,17 +132,19 @@
 #' * dem - delay for infection in mosquitoes
 #'
 #' vector biology:
+#' species specific values are vectors
 #'
 #' * beta - the average number of eggs laid per female mosquito per day
 #' * total_M - the initial number of adult mosquitos in the simulation
 #' * init_foim - the FOIM used to calculate the equilibrium state for mosquitoes
 #' * variety_proportions - the relative proportions of each species
 #' * blood_meal_rates - the blood meal rates for each species
+#' * Q0 - proportion of blood meals taken on humans
 #' * endophily - proportion of mosquitoes resting indoors after feeding with no
 #' intervention
+#' * foraging_time - time spent taking blood meals
 #'
 #' feeding cycle:
-#' these are vectors specifying the values for each species
 #'
 #' * bednets - boolean for if bednets are enabled
 #' * rn - probability mosquito is repelled by the bednet
@@ -339,8 +341,10 @@ get_parameters <- function(overrides = list()) {
     init_foim= 0,
     # order of species: An gambiae s.s, An arabiensis, An funestus
     variety_proportions = c(.5, .3, .2),
-    blood_meal_rates    = c(.92, .71, .94),
-    endophily = c(.813, .422, .813),
+    blood_meal_rates    = rep(1/3, 3),
+    Q0                  = c(.92, .71, .94),
+    endophily           = c(.813, .422, .813),
+    foraging_time       = .69,
     # bed nets
     bednets = FALSE,
     rn = c(.56, .46, .56),

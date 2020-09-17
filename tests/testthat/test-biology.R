@@ -162,3 +162,68 @@ test_that('mosquito_limit is set to a sensible level', {
   }
   expect_true(TRUE)
 })
+
+test_that('mosquito_effects correctly samples mortalities and infections without interventions', {
+  parameters <- get_parameters()
+  events <- create_events()
+  states <- create_states(parameters)
+  variables <- create_variables(parameters)
+  individuals <- create_individuals(states, variables, events, parameters)
+  infectivity <- c(.6, 0, .2, .3)
+  eir <- c(.1, .2, .3, .4)
+
+  api <- mock_api(
+    list(),
+    parameters = parameters
+  )
+
+  f <- parameters$blood_meal_rates[[1]]
+  infected <- c(1:25)
+  dead <- c(1:15, 51:60, 76:85)
+  bernoulli_mock = mockery::mock(infected, dead)
+  mockery::stub(calculate_mosquito_effects, 'bernoulli', bernoulli_mock)
+  calculate_mosquito_effects(
+    api,
+    infectivity,
+    eir,
+    individuals,
+    states,
+    1,
+    1:50,
+    1:100,
+    1,
+    0,
+    f,
+    parameters
+  )
+
+  mockery::expect_args(
+    bernoulli_mock,
+    1,
+    50,
+    sum(infectivity * eir)
+  )
+
+  mockery::expect_args(
+    api$queue_state_update,
+    1,
+    individuals$mosquito,
+    states$Pm,
+    infected
+  )
+
+  mockery::expect_args(
+    bernoulli_mock,
+    2,
+    100,
+    parameters$mum
+  )
+
+  mockery::expect_args(
+    api$queue_state_update,
+    2,
+    individuals$mosquito,
+    states$Unborn,
+    dead
+  )
+})

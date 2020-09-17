@@ -1,158 +1,3 @@
-#' @title Biting process
-#' @description
-#' This is the biting process. It results in human and mosquito infection and
-#' mosquito death.
-#' @param individuals a list of individuals in the model
-#' @param states a list of all of the model states
-#' @param variables a list of all of the model variables
-#' @param events a list of all of the model events
-create_biting_process <- function(
-  individuals,
-  states,
-  variables,
-  events
-  ) {
-  function(api) {
-    parameters <- api$get_parameters()
-    timestep <- api$get_timestep()
-
-    # Calculate combined EIR
-    age <- get_age(api$get_variable(individuals$human, variables$birth), api$get_timestep())
-
-    total_eir <- simulate_bites(api, individuals, states, variables, age, parameters)
-    simulate_infection(api, individuals, states, variables, events, total_eir, age, parameters)
-    
-  }
-}
-
-simulate_bites <- function(api, individuals, states, variables, age, parameters) {
-  total_eir <- 0
-  lambda <- rep(NA, length(parameters$blood_meal_rate))
-
-  Sm <- api$get_state(individuals$mosquito, states$Sm)
-  Pm <- api$get_state(individuals$mosquito, states$Pm)
-  Im <- api$get_state(individuals$mosquito, states$Im)
-  species_index <- api$get_variable(
-    individuals$mosquito,
-    variables$mosquito_variety
-  )
-  human_infectivity <- api$get_variable(individuals$human, variables$infectivity)
-
-  for (species in seq_along(parameters$blood_meal_rate)) {
-    p_bitten <- prob_bitten(
-      individuals,
-      variables,
-      species,
-      api,
-      parameters
-    )
-
-    Z <- mean(p_bitten$prob_repelled)
-    f <- blood_meal_rate(species, Z, parameters)
-
-    infectious_species_index <- species_index[Im] == species
-    n_infectious <- sum(infectious_species_index)
-
-    species_eir <- eir(
-      api,
-      individuals$human,
-      variables$zeta,
-      age,
-      species,
-      n_infectious,
-      p_bitten,
-      f,
-      parameters
-    )
-
-    total_eir <- total_eir + species_eir
-
-    susceptible_species <- Sm[species_index[Sm] == species]
-    calculate_mosquito_effects(
-      api,
-      human_infectivity,
-      species_eir,
-      individuals,
-      states,
-      species,
-      susceptible_species,
-      c(
-        susceptible_species,
-        Pm[species_index[Pm] == species],
-        Im[infectious_species_index]
-      ),
-      mean(p_bitten$prob_bitten_survives),
-      Z,
-      f,
-      parameters
-    )
-  }
-  total_eir
-}
-
-simulate_infection <- function(api, individuals, states, variables, events, total_eir, age, parameters) {
-  bitten_humans <- which(bernoulli_multi_p(length(total_eir), total_eir))
-  api$render("mean_EIR", mean(total_eir))
-
-  ib <- api$get_variable(individuals$human, variables$ib)
-  if (length(bitten_humans) > 0) {
-    boost_immunity(
-      api,
-      individuals$human,
-      variables$ib,
-      bitten_humans,
-      ib[bitten_humans],
-      variables$last_boosted_ib,
-      api$get_timestep(),
-      parameters$ub
-    )
-  }
-
-  # Calculate Infected
-  infected_humans <- calculate_infections(
-    api,
-    individuals$human,
-    states,
-    variables,
-    bitten_humans,
-    ib
-  )
-
-  clinical_infections <- calculate_clinical_infections(
-    api,
-    individuals$human,
-    variables,
-    infected_humans
-  )
-
-  if (parameters$severe_enabled) {
-    update_severe_disease(
-      api,
-      clinical_infections,
-      age[clinical_infections],
-      individuals$human,
-      variables,
-      infected_humans
-    )
-  }
-
-  treated <- calculate_treated(
-    api,
-    individuals$human,
-    states,
-    variables,
-    clinical_infections
-  )
-
-  schedule_infections(
-    api,
-    events,
-    clinical_infections,
-    treated,
-    infected_humans
-  )
-}
-
 #' @importFrom stats dweibull
 calculate_infections <- function(
   api,
@@ -242,46 +87,6 @@ calculate_clinical_infections <- function(api, human, variables, infections) {
 
   phi <- clinical_immunity(ica, icm, parameters)
   infections[bernoulli_multi_p(length(infections), phi)]
-}
-
-calculate_mosquito_effects <- function(
-    api,
-    human_infectivity,
-    eir,
-    individuals,
-    states,
-    species,
-    susceptible_species,
-    adult_species,
-    W,
-    Z,
-    f,
-    parameters
-  ) {
-  # deal with mosquito infections
-  lambda <- sum(human_infectivity * eir)
-  api$queue_state_update(
-    individuals$mosquito,
-    states$Pm,
-    susceptible_species[
-      bernoulli(length(susceptible_species), lambda)
-    ]
-  )
-
-  # deal with mosquito deaths
-  p1_0 <- exp(-parameters$mum*parameters$foraging_time)
-  gonotrophic_cycle <- 1 / parameters$blood_meal_rates[[species]] - parameters$foraging_time
-  p2 <- exp(-parameters$mum*gonotrophic_cycle)
-  p1 <- p1_0 * W / (1 - Z * p1_0)
-  mu <- -f * log(p1*p2)
-  
-  api$queue_state_update(
-    individuals$mosquito,
-    states$Unborn,
-    adult_species[
-      bernoulli(length(adult_species), mu)
-    ]
-  )
 }
 
 update_severe_disease <- function(
@@ -403,15 +208,35 @@ schedule_infections <- function(
 # =================
 # Utility functions
 # =================
-
-# Implemented from Griffin et al 2010 S2 page 6
-eir <- function(api, human, zeta, age, species, n_infectious, p_bitten, f, parameters) {
-  a <- human_blood_meal_rate(f, species, mean(p_bitten$prob_bitten_survives), parameters)
-  psi <- unique_biting_rate(age, parameters)
-  .pi <- human_pi(api$get_variable(human, zeta), psi)
-  infectious_bites <- n_infectious * a * .pi
-  omega <- sum(.pi * p_bitten$prob_bitten_survives)
-  infectious_bites * p_bitten$prob_bitten / omega
+boost_immunity <- function(
+  api,
+  human,
+  immunity_variable,
+  exposed_index,
+  exposed_values,
+  last_boosted_variable,
+  timestep,
+  delay
+  ) {
+  # record who can be boosted
+  last_boosted <- api$get_variable(human, last_boosted_variable, exposed_index)
+  to_boost <- (timestep - last_boosted) >= delay | (last_boosted == -1)
+  if (sum(to_boost) > 0) {
+    # boost the variable
+    api$queue_variable_update(
+      human,
+      immunity_variable,
+      exposed_values[to_boost] + 1,
+      exposed_index[to_boost]
+    )
+    # record last boosted
+    api$queue_variable_update(
+      human,
+      last_boosted_variable,
+      timestep,
+      exposed_index[to_boost]
+    )
+  }
 }
 
 # Implemented from Winskill 2017 - Supplementary Information page 4
@@ -471,51 +296,4 @@ blood_immunity <- function(ib, parameters) {
       (1 - parameters$b1) /
       (1 + (ib / parameters$ib0) ** parameters$kb)
   )
-}
-
-human_pi <- function(zeta, psi) {
- (zeta * psi) / sum(zeta * psi)
-}
-
-blood_meal_rate <- function(v, z, parameters) {
-  f <- parameters$blood_meal_rates[[v]]
-  gonotrophic_cycle <- 1 / f - parameters$foraging_time
-  interrupted_foraging_time <- parameters$foraging_time / (1 - z)
-  1 / (interrupted_foraging_time + gonotrophic_cycle)
-}
-
-human_blood_meal_rate <- function(f, v, w, parameters) {
-  Q <- 1 - (1 - parameters$Q0[[v]]) / w
-  Q * f
-}
-
-boost_immunity <- function(
-  api,
-  human,
-  immunity_variable,
-  exposed_index,
-  exposed_values,
-  last_boosted_variable,
-  timestep,
-  delay
-  ) {
-  # record who can be boosted
-  last_boosted <- api$get_variable(human, last_boosted_variable, exposed_index)
-  to_boost <- (timestep - last_boosted) >= delay | (last_boosted == -1)
-  if (sum(to_boost) > 0) {
-    # boost the variable
-    api$queue_variable_update(
-      human,
-      immunity_variable,
-      exposed_values[to_boost] + 1,
-      exposed_index[to_boost]
-    )
-    # record last boosted
-    api$queue_variable_update(
-      human,
-      last_boosted_variable,
-      timestep,
-      exposed_index[to_boost]
-    )
-  }
 }

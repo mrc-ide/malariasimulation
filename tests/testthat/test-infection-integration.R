@@ -560,108 +560,34 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   )
 })
 
-test_that('schedule_infections correctly schedules', {
-  skip('not yet')
+test_that('schedule_infections correctly schedules new infections', {
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters, list(AL_params, DHC_PQP_params))
-  parameters <- set_clinical_treatment(parameters, .5, c(1, 2), c(.5, .5))
   events <- create_events()
-  states <- create_states(parameters)
-  variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
-
-  biting_process <- create_biting_process(
-    individuals,
-    states,
-    variables,
-    events
-  )
-
-  parameters$severe_enabled = 1
 
   api <- mock_api(
-    list(
-      human = list(
-        S = c(2),
-        U = c(3),
-        A = c(4),
-        D = c(1),
-        birth = -c(20, 24, 5, 39) * 365 + 5,
-        IB = c(.2, .3, .5, .9),
-        xi = c(.2, .3, .5, .9),
-        ICA = c(.2, .3, .5, .9),
-        IVA = c(.2, .3, .5, .9),
-        ICM = c(.2, .3, .5, .9),
-        IVM = c(.2, .3, .5, .9),
-        infectivity = c(.6, 0, .2, .3),
-        drug = c(0, 0, 0, 0),
-        last_boosted_ib = c(-1, -1, 1, -1),
-        last_boosted_ica = c(-1, -1, 1, -1),
-        last_boosted_iva = c(-1, -1, 1, -1),
-        last_boosted_id = c(-1, -1, 1, -1),
-        ID = c(.2, .3, .5, .9)
-      ),
-      mosquito = list(
-        Im = 1:100,
-        variety = c(rep(1, 25), rep(2, 25), rep(3, 50))
-      )
-    ),
+    list(),
     timestep = 5,
     parameters = parameters
   )
 
-  bernoulli_mock <- mockery::mock(
-    c(TRUE, FALSE, TRUE, FALSE), # bitten
-    c(TRUE),                     # infected
-    c(TRUE),                     # clinical
-    c(FALSE),                    # severe
-    c(TRUE)                      # treatment successful
-  )
+  api$get_scheduled = mockery::mock(c(1, 3), c(7, 15))
 
-  api$get_scheduled = mockery::mock(4, 1)
+  schedule_infections(api, events, 5:15, 7:12, 1:20)
 
-  with_mock(
-    'malariasimulation:::bernoulli_multi_p' = bernoulli_mock,
-    'malariasimulation:::bernoulli' = mockery::mock(1),
-    sample.int = mockery::mock(2), # Return DCH drug
-    biting_process(api)
-  )
-
-  # expect treated individual to go to Tr state
   mockery::expect_args(
-    api$queue_state_update,
+    api$schedule,
     1,
-    individuals$human,
-    states$Tr,
-    3
+    events$infection,
+    c(5, 6, 13, 14),
+    parameters$de
   )
 
-  # expect rel_c to be applied correctly
   mockery::expect_args(
-    api$queue_variable_update,
-    4,
-    individuals$human,
-    variables$infectivity,
-    parameters$cd * 0.09434,
-    3
-  )
-  
-  # expect drug and time to be applied correctly
-  mockery::expect_args(
-    api$queue_variable_update,
-    5,
-    individuals$human,
-    variables$drug,
+    api$schedule,
     2,
-    3
-  )
-  mockery::expect_args(
-    api$queue_variable_update,
-    6,
-    individuals$human,
-    variables$drug_time,
-    5,
-    3
+    events$asymptomatic_infection,
+    c(2, 4, 16, 17, 18, 19, 20),
+    parameters$de
   )
 })
 

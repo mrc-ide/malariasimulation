@@ -46,7 +46,7 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR', {
       p_bitten,
       f,
       parameters
-    )$eir) * 365,
+    )) * 365,
     EIR,
     tolerance = 1
   )
@@ -122,7 +122,7 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR (with h
       p_bitten,
       f,
       parameters
-    )$eir) * 365,
+    )) * 365,
     EIR,
     tolerance = 1
   )

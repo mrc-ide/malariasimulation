@@ -151,6 +151,23 @@ create_processes <- function(
     
     create_ode_rendering_process(odes)
   )
+
+  if (parameters$bednets) {
+    processes <- c(
+      processes,
+      distribute_nets(individuals$human, variables$net_time, parameters),
+      throw_away_nets(individuals$human, variables$net_time, parameters$bednet_retention)
+    )
+  }
+
+  if (parameters$spraying) {
+    processes <- c(
+      processes,
+      indoor_spraying(individuals$human, variables$spray_time, parameters)
+    )
+  }
+
+  processes
 }
 
 #' @title Define event based processes

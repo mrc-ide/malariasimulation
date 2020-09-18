@@ -1,3 +1,133 @@
+test_that('set_bednets validates parameters', {
+  parameters <- get_parameters()
+  expect_error(
+    set_bednets(parameters, c(5, 50), .8, 40),
+    '*'
+  )
+})
+
+test_that('set_bednets sets parameters', {
+  parameters <- get_parameters()
+  parameters <- set_bednets(parameters, c(5, 50), c(.5, .9), 40)
+  expect_true(parameters$bednets)
+  expect_equal(parameters$bednet_timesteps, c(5, 50))
+  expect_equal(parameters$bednet_coverages, c(.5, .9))
+  expect_equal(parameters$bednet_retention, 40)
+})
+
+test_that('set_spraying validates parameters', {
+  parameters <- get_parameters()
+  expect_error(
+    set_spraying(parameters, c(5, 50), .8),
+    '*'
+  )
+})
+
+test_that('set_spraying sets parameters', {
+  parameters <- get_parameters()
+  parameters <- set_spraying(parameters, c(5, 50), c(.5, .9))
+  expect_true(parameters$spraying)
+  expect_equal(parameters$spraying_timesteps, c(5, 50))
+  expect_equal(parameters$spraying_coverages, c(.5, .9))
+})
+
+test_that('distribute_bednets process sets net_time correctly', {
+  parameters <- get_parameters(list(human_population = 4))
+  parameters <- set_bednets(parameters, c(5, 50), c(.5, .9), 40)
+  events <- create_events()
+  states <- create_states(parameters)
+  variables <- create_variables(parameters)
+  individuals <- create_individuals(states, variables, events, parameters)
+  process <- distribute_nets(individuals$human, variables$net_time, parameters)
+
+  api <- mock_api(
+    list(),
+    timestep = 50,
+    parameters = parameters
+  )
+
+  bernoulli_mock <- mockery::mock(c(3, 4))
+  mockery::stub(process, 'bernoulli', bernoulli_mock)
+
+  process(api)
+
+  mockery::expect_args(bernoulli_mock, 1, 4, .9)
+  mockery::expect_args(
+    api$queue_variable_update,
+    1,
+    individuals$human,
+    variables$net_time,
+    50,
+    c(3, 4)
+  )
+})
+
+test_that('throw_away_bednets process resets net_time correctly', {
+  parameters <- get_parameters(list(human_population = 4))
+  parameters <- set_bednets(parameters, c(5, 50), c(.5, .9), 40)
+  events <- create_events()
+  states <- create_states(parameters)
+  variables <- create_variables(parameters)
+  individuals <- create_individuals(states, variables, events, parameters)
+  process <- throw_away_nets(individuals$human, variables$net_time, 40)
+
+  api <- mock_api(
+    list(
+      human = list(
+        net_time = c(-1, 50, 50, 50)
+      )
+    ),
+    timestep = 55,
+    parameters = parameters
+  )
+
+  bernoulli_mock <- mockery::mock(c(1, 3))
+  mockery::stub(process, 'bernoulli', bernoulli_mock)
+
+  process(api)
+
+  mockery::expect_args(bernoulli_mock, 1, 3, exp(-1/40))
+  mockery::expect_args(
+    api$queue_variable_update,
+    1,
+    individuals$human,
+    variables$net_time,
+    -1,
+    c(2, 4)
+  )
+})
+
+test_that('indoor_spraying process sets spray_time correctly', {
+  parameters <- get_parameters(list(human_population = 4))
+  parameters <- set_spraying(parameters, c(5, 50), c(.5, .9))
+  events <- create_events()
+  states <- create_states(parameters)
+  variables <- create_variables(parameters)
+  individuals <- create_individuals(states, variables, events, parameters)
+  process <- indoor_spraying(individuals$human, variables$spray_time, parameters)
+
+  api <- mock_api(
+    list(),
+    timestep = 50,
+    parameters = parameters
+  )
+
+  bernoulli_mock <- mockery::mock(c(3, 4))
+  mockery::stub(process, 'bernoulli', bernoulli_mock)
+
+  process(api)
+
+  mockery::expect_args(bernoulli_mock, 1, 4, .9)
+  mockery::expect_args(
+    api$queue_variable_update,
+    1,
+    individuals$human,
+    variables$spray_time,
+    50,
+    c(3, 4)
+  )
+})
+
 test_that('prob_bitten defaults to 1 with no protection', {
   parameters <- get_parameters(list(human_population = 4))
   events <- create_events()

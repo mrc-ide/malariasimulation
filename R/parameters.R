@@ -159,6 +159,8 @@
 #' * gammas - the half-life of spraying efficacy (timesteps)
 #' * gamman - the half-life of bednet efficacy (timesteps)
 #'
+#' please set vector control strategies using `set_betnets` and `set_spraying`
+#'
 #' treatment parameters:
 #' I recommend setting these with the convenience functions in
 #' `drug_parameters.R`

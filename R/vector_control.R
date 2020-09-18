@@ -74,6 +74,50 @@ prob_bitten <- function(individuals, variables, species, api, parameters) {
   )
 }
 
+indoor_spraying <- function(human, spray_time, parameters) {
+  function(api) {
+    timestep <- api$get_timestep()
+    matches <- timestep == parameters$spraying_timesteps
+    if (any(matches)) {
+      target <- bernoulli(
+        parameters$human_population,
+        parameters$spraying_coverages[matches]
+      )
+      api$queue_variable_update(human, spray_time, timestep, target)
+    }
+  }
+}
+
+distribute_nets <- function(human, net_time, parameters) {
+  function(api) {
+    timestep <- api$get_timestep()
+    matches <- timestep == parameters$bednet_timesteps
+    if (any(matches)) {
+      target <- bernoulli(
+        parameters$human_population,
+        parameters$bednet_coverages[matches]
+      )
+      api$queue_variable_update(human, net_time, timestep, target)
+    }
+  }
+}
+
+throw_away_nets <- function(human, net_time, retention) {
+  rate <- exp(-1/retention)
+  function(api) {
+    timestep <- api$get_timestep()
+    times <- api$get_variable(human, net_time)
+    distributed <- which(times > -1)
+    target <- distributed[bernoulli(length(distributed), rate)]
+    if (length(target) > 0) {
+      api$queue_variable_update(human, net_time, -1, target)
+    }
+  }
+}
+
+# =================
+# Utility functions
+# =================
 prob_spraying_repels <- function(t, rs0, gammas) {
   rs0 * vector_control_decay(t, gammas)
 }

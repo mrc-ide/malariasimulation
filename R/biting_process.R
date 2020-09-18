@@ -89,6 +89,19 @@ simulate_bites <- function(api, individuals, states, variables, age, parameters)
   total_eir
 }
 
+#' @title Simulate malaria infection in humans
+#' @description
+#' Updates human states and variables to represent asymptomatic/clinical/severe
+#' and treated malaria; and resulting boosts in immunity
+#' @param api simulation api
+#' @param individuals a list of individuals in the model
+#' @param states a list of all of the model states
+#' @param variables a list of all of the model variables
+#' @param events a list of all of the model events
+#' @param total_eir a vector of eirs for each human summed across each
+#' mosquito species
+#' @param age of each human (timesteps)
+#' @param parameters of the model
 simulate_infection <- function(api, individuals, states, variables, events, total_eir, age, parameters) {
   bitten_humans <- which(bernoulli_multi_p(length(total_eir), total_eir))
   api$render("mean_EIR", mean(total_eir))
@@ -156,7 +169,18 @@ simulate_infection <- function(api, individuals, states, variables, events, tota
 # Utility functions
 # =================
 
-# Implemented from Griffin et al 2010 S2 page 6
+#' @title Calculate the entomological inoculation rate for a species on each human
+#' @description
+#' Implemented from Griffin et al 2010 S2 page 6
+#' @param api simulation api
+#' @param human a handle for humans
+#' @param zeta a handle for heterogeneity
+#' @param age of each human (timesteps)
+#' @param species to model
+#' @param n_infectious the number of infectious mosquitos of `species`
+#' @param p_bitten the probabilities of feeding given vector controls
+#' @param f blood meal rate
+#' @param parameters of the model
 eir <- function(api, human, zeta, age, species, n_infectious, p_bitten, f, parameters) {
   a <- human_blood_meal_rate(f, species, mean(p_bitten$prob_bitten_survives), parameters)
   psi <- unique_biting_rate(age, parameters)

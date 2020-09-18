@@ -1,3 +1,12 @@
+#' @title Calculate overall infections for bitten humans
+#' @description
+#' Sample infected humans given prophylaxis and vaccination
+#' @param api simulation api
+#' @param human a handle for humans
+#' @param states a list of all of the model states
+#' @param variables a list of all of the model variables
+#' @param bitten_humans indices of bitten humans
+#' @param ib vector of pre-erythrocytic immunity levels
 #' @importFrom stats dweibull
 calculate_infections <- function(
   api,
@@ -56,6 +65,13 @@ calculate_infections <- function(
   )]
 }
 
+#' @title Calculate clinical infections
+#' @description
+#' Sample clinical infections from all infections
+#' @param api simulation api
+#' @param human a handle for humans
+#' @param variables a list of all of the model variables
+#' @param infections indices of infected humans
 calculate_clinical_infections <- function(api, human, variables, infections) {
   ica <- api$get_variable(human, variables$ica, infections)
   icm <- api$get_variable(human, variables$icm, infections)
@@ -89,6 +105,15 @@ calculate_clinical_infections <- function(api, human, variables, infections) {
   infections[bernoulli_multi_p(length(infections), phi)]
 }
 
+#' @title Calculate severe infections
+#' @description
+#' Sample severely infected humans from clinically infected
+#' @param api
+#' @param clinical_infections indices of clinically infected humans
+#' @param infection_age ages of individuals in `clinical_infections` (timesteps)
+#' @param human handle for humans
+#' @param variables a list of all of the model variables
+#' @param infections indices of all infected humans (for immunity boosting)
 update_severe_disease <- function(
   api,
   clinical_infections,
@@ -126,6 +151,14 @@ update_severe_disease <- function(
   }
 }
 
+#' @title Calculate treated humans
+#' @description
+#' Sample treated humans from the clinically infected
+#' @param api
+#' @param human handle for humans
+#' @param states a list of all of the model states
+#' @param variables a list of all of the model variables
+#' @param clinical_infections indices of clinically infected humans
 calculate_treated <- function(
   api,
   human,
@@ -177,6 +210,14 @@ calculate_treated <- function(
   treated_index
 }
 
+#' @title Schedule infections
+#' @description
+#' Schedule infections in humans after the incubation period
+#' @param api
+#' @param events a list of all of the model events
+#' @param clinical_infections indices of clinically infected humans
+#' @param treated indices of treated humans
+#' @param infections indices of infected humans
 schedule_infections <- function(
   api,
   events,

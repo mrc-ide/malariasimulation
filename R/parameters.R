@@ -397,8 +397,12 @@ parameterise_human_equilibrium <- function(parameters, eq) {
 #'
 #' @param parameters the parameters to modify
 #' @param EIR to work from
+#' @param limit_grace the number of mosquitos to allocate to the simulation as a
+#' proportion of total_M. e.g. 10 will allocate total_M * 10 mosquitos. High
+#' values of `limit_grace` are required for simulations with seasonality.
 #' @export
-parameterise_mosquito_equilibrium <- function(parameters, EIR) {
+parameterise_mosquito_equilibrium <- function(parameters, EIR, limit_grace=1.5) {
   parameters$total_M <- equilibrium_total_M(parameters, EIR)
+  parameters$mosquito_limit <- parameters$total_M * limit_grace
   parameters
 }

@@ -1,0 +1,150 @@
+---
+title: "Vector Control"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vector Control}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(cowplot))
+library(malariasimulation)
+library(malariaEquilibrium)
+library(reshape2)
+```
+
+# Parameterisation
+
+We are going to set the default parameters to run the simulation from an equilibrium.
+
+```{r}
+year <- 365
+month <- 30
+sim_length <- 10 * year
+human_population <- 1000
+starting_EIR <- 50
+repetitions <- 5
+
+jamie_params <- load_parameter_set()
+eq <- human_equilibrium(EIR = starting_EIR, ft = 0, p = jamie_params, age = 0:99)
+
+simparams <- get_parameters(c(
+  translate_jamie(remove_unused_jamie(jamie_params)),
+  list(
+    human_population = human_population,
+    variety_proportions = 1,
+    model_seasonality = TRUE, # Let's try a bi-modal model
+    g0 = 0.28605,
+    g = c(0.20636, -0.0740318, -0.0009293),
+    h = c(0.173743, -0.0730962, -0.116019),
+    # vector control parameters
+    rn = .56,
+    rnm = .24,
+    dn0 = .533,
+    phi_bednets = .89,
+    gamman = 2.64 * 365,
+    rs = .2,
+    phi_spraying = .97,
+    gammas = .5 * 365
+  )
+))
+
+simparams <- set_drugs(simparams, list(SP_AQ_params))
+simparams <- parameterise_human_equilibrium(simparams, eq)
+simparams <- parameterise_mosquito_equilibrium(simparams, starting_EIR)
+
+
+# Plotting functions
+plot_prevalence <- function(output) {
+  output$prev <- output$prev_2_10 / output$n_2_10
+  ggplot(output) + geom_line(
+    aes(x = timestep, y = prev, group = repetition, alpha = 1/repetitions)
+  )
+}
+
+add_intervention_lines <- function(plot, events) {
+  plot + geom_vline(
+    data = events,
+    mapping = aes(xintercept=timestep),
+    color="blue"
+  ) + geom_text(
+    data = events,
+    mapping = aes(x = timestep, y = 0, label = name),
+    size = 4,
+    angle = 90,
+    vjust = -0.4,
+    hjust = 0
+  )
+}
+```
+
+Then we can run the simulation for a variety of vector control strategies:
+
+## Bed nets
+
+We can distribute bed nets once a year for 4 years, 3 months before peak season:
+
+```{r}
+bednetparams <- simparams
+
+peak <- peak_season_offset(bednetparams)
+bednet_events = data.frame(
+  timestep = c(4, 7) * year + peak - 3 * month,
+  name=c("Bednets start", "Bednets end")
+)
+
+bednetparams <- set_bednets(
+  bednetparams,
+  timesteps = 4:7 * year,
+  coverages = rep(.8, 4),
+  retention = 5 * year
+)
+
+output <- run_simulation_with_repetitions(
+  sim_length,
+  repetitions,
+  bednetparams,
+  parallel=TRUE
+)
+
+add_intervention_lines(plot_prevalence(output), bednet_events)
+```
+
+## Indoor spraying
+
+We can spray indoors once a year for 4 years, 3 months before peak season:
+
+```{r}
+sprayingparams <- simparams
+
+peak <- peak_season_offset(sprayingparams)
+spraying_events = data.frame(
+  timestep = c(4, 7) * year + peak - 3 * month,
+  name=c("Spraying starts", "Spraying ends")
+)
+
+sprayingparams <- set_bednets(
+  sprayingparams,
+  timesteps = 4:7 * year,
+  coverages = rep(.8, 4),
+  retention = 5 * year
+)
+
+output <- run_simulation_with_repetitions(
+  sim_length,
+  repetitions,
+  sprayingparams,
+  parallel=TRUE
+)
+
+add_intervention_lines(plot_prevalence(output), spraying_events)
+```

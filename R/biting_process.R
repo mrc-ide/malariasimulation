@@ -26,7 +26,6 @@ create_biting_process <- function(
 
 simulate_bites <- function(api, individuals, states, variables, age, parameters) {
   total_eir <- 0
-  lambda <- rep(NA, length(parameters$blood_meal_rate))
 
   Sm <- api$get_state(individuals$mosquito, states$Sm)
   Pm <- api$get_state(individuals$mosquito, states$Pm)

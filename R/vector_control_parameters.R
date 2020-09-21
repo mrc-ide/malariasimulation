@@ -29,8 +29,7 @@ set_bednets <- function(
 set_spraying <- function(
   parameters,
   timesteps,
-  coverages,
-  retention
+  coverages
   ) {
   if (length(timesteps) != length(coverages)) {
     stop('timesteps and coverages must align')

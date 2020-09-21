@@ -131,6 +131,7 @@ peak_season_offset <- function(parameters) {
 #'
 #' @param api the simulation api
 #' @param human_infectivity the infectivity for each human
+#' @param eir the entomological inoculation rate for each human
 #' @param individuals a list of individual handles
 #' @param states a list of state handles
 #' @param species the index of the species to calculate for
@@ -141,7 +142,7 @@ peak_season_offset <- function(parameters) {
 #' @param W the mean probability that a mosquito feeds and survives
 #' @param Z the mean probability that a mosquito is repelled
 #' @param f the feeding rate for this species of mosquito
-#' @param paramters the model parameters
+#' @param parameters the model parameters
 #' @export
 calculate_mosquito_effects <- function(
     api,

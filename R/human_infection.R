@@ -108,7 +108,7 @@ calculate_clinical_infections <- function(api, human, variables, infections) {
 #' @title Calculate severe infections
 #' @description
 #' Sample severely infected humans from clinically infected
-#' @param api
+#' @param api simulation api
 #' @param clinical_infections indices of clinically infected humans
 #' @param infection_age ages of individuals in `clinical_infections` (timesteps)
 #' @param human handle for humans
@@ -154,7 +154,7 @@ update_severe_disease <- function(
 #' @title Calculate treated humans
 #' @description
 #' Sample treated humans from the clinically infected
-#' @param api
+#' @param api simulation api
 #' @param human handle for humans
 #' @param states a list of all of the model states
 #' @param variables a list of all of the model variables
@@ -213,7 +213,7 @@ calculate_treated <- function(
 #' @title Schedule infections
 #' @description
 #' Schedule infections in humans after the incubation period
-#' @param api
+#' @param api simulation api
 #' @param events a list of all of the model events
 #' @param clinical_infections indices of clinically infected humans
 #' @param treated indices of treated humans

@@ -131,7 +131,7 @@ peak_season_offset <- function(parameters) {
 #'
 #' @param api the simulation api
 #' @param human_infectivity the infectivity for each human
-#' @param eir the entomological inoculation rate for each human
+#' @param lambda the effective biting rate for this species on each human
 #' @param individuals a list of individual handles
 #' @param states a list of state handles
 #' @param species the index of the species to calculate for
@@ -147,7 +147,7 @@ peak_season_offset <- function(parameters) {
 calculate_mosquito_effects <- function(
     api,
     human_infectivity,
-    eir,
+    lambda,
     individuals,
     states,
     species,
@@ -159,7 +159,8 @@ calculate_mosquito_effects <- function(
     parameters
   ) {
   # deal with mosquito infections
-  lambda <- sum(human_infectivity * eir)
+  lambda <- sum(human_infectivity * lambda)
+  api$render(paste0('FOIM_', species), lambda)
   api$queue_state_update(
     individuals$mosquito,
     states$Pm,

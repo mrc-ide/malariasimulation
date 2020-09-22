@@ -7,7 +7,7 @@
 calculate_mosquito_effects(
   api,
   human_infectivity,
-  eir,
+  lambda,
   individuals,
   states,
   species,
@@ -24,7 +24,7 @@ calculate_mosquito_effects(
 
 \item{human_infectivity}{the infectivity for each human}
 
-\item{eir}{the entomological inoculation rate for each human}
+\item{lambda}{the effective biting rate for this species on each human}
 
 \item{individuals}{a list of individual handles}
 

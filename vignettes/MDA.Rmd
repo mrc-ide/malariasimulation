@@ -171,7 +171,7 @@ output <- run_simulation_with_repetitions(
   sim_length,
   repetitions,
   smcparams,
-  parallel=TRUE
+  parallel=FALSE
 )
 ```
 

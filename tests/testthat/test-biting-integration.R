@@ -91,30 +91,25 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
   )
 
   total_eir <- 5
-  eir <- rep(
-    total_eir / population / length(parameters$blood_meal_rates),
-    population
-  )
-  eir_mock <- mockery::mock(eir, eir, eir)
+  lambda_mock <- mockery::mock(.5, .5, .5)
   mosquito_effects_mock <- mockery::mock()
 
-  mockery::stub(simulate_bites, 'eir', eir_mock)
+  mockery::stub(simulate_bites, 'effective_biting_rate', lambda_mock)
   mockery::stub(simulate_bites, 'calculate_mosquito_effects', mosquito_effects_mock)
   total_eir <- simulate_bites(api, individuals, states, variables, age, parameters)
 
-  expect_equal(total_eir, eir * 3)
+  expect_equal(total_eir, 5)
 
   f <- parameters$blood_meal_rates[[1]]
 
   mockery::expect_args(
-    eir_mock,
+    lambda_mock,
     1,
     api,
     individuals$human,
     variables$zeta,
     age,
     1,
-    10,
     list(
       prob_bitten_survives = rep(1, population),
       prob_bitten = rep(1, population),
@@ -129,7 +124,7 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
     1,
     api,
     infectivity,
-    eir,
+    .5,
     individuals,
     states,
     1,

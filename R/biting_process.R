@@ -51,25 +51,24 @@ simulate_bites <- function(api, individuals, states, variables, age, parameters)
     infectious_species_index <- species_index[Im] == species
     n_infectious <- sum(infectious_species_index)
 
-    species_eir <- eir(
+    lambda <- effective_biting_rate(
       api,
       individuals$human,
       variables$zeta,
       age,
       species,
-      n_infectious,
       p_bitten,
       f,
       parameters
     )
 
-    total_eir <- total_eir + species_eir
+    total_eir <- total_eir + n_infectious * lambda
 
     susceptible_species <- Sm[species_index[Sm] == species]
     calculate_mosquito_effects(
       api,
       human_infectivity,
-      species_eir,
+      lambda,
       individuals,
       states,
       species,
@@ -168,7 +167,8 @@ simulate_infection <- function(api, individuals, states, variables, events, tota
 # Utility functions
 # =================
 
-#' @title Calculate the entomological inoculation rate for a species on each human
+#' @title Calculate the effective biting rate for a species on each human given
+#' vector control interventions
 #' @description
 #' Implemented from Griffin et al 2010 S2 page 6
 #' @param api simulation api
@@ -176,17 +176,14 @@ simulate_infection <- function(api, individuals, states, variables, events, tota
 #' @param zeta a handle for heterogeneity
 #' @param age of each human (timesteps)
 #' @param species to model
-#' @param n_infectious the number of infectious mosquitos of `species`
 #' @param p_bitten the probabilities of feeding given vector controls
 #' @param f blood meal rate
 #' @param parameters of the model
-eir <- function(api, human, zeta, age, species, n_infectious, p_bitten, f, parameters) {
+effective_biting_rate <- function(api, human, zeta, age, species, p_bitten, f, parameters) {
   a <- human_blood_meal_rate(f, species, mean(p_bitten$prob_bitten_survives), parameters)
   psi <- unique_biting_rate(age, parameters)
   .pi <- human_pi(api$get_variable(human, zeta), psi)
-  infectious_bites <- n_infectious * a * .pi
-  omega <- sum(.pi * p_bitten$prob_bitten_survives)
-  infectious_bites * p_bitten$prob_bitten / omega
+  a * .pi * p_bitten$prob_bitten / sum(.pi * p_bitten$prob_bitten_survives)
 }
 
 human_pi <- function(zeta, psi) {

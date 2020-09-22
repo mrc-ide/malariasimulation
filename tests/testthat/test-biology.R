@@ -35,18 +35,18 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR', {
   p_bitten <- prob_bitten(individuals, variables, 1, api, parameters)
   Z <- mean(p_bitten$prob_repelled)
   f <- blood_meal_rate(1, Z, parameters)
+  estimated_eir <- m_eq[[6]] * effective_biting_rate(
+    api,
+    individuals$human,
+    variables$zeta,
+    age,
+    1,
+    p_bitten,
+    f,
+    parameters
+  )
   expect_equal(
-    mean(eir(
-      api,
-      individuals$human,
-      variables$zeta,
-      age,
-      1,
-      m_eq[[6]],
-      p_bitten,
-      f,
-      parameters
-    )) * 365,
+    mean(estimated_eir) * 365,
     EIR,
     tolerance = 1
   )
@@ -110,19 +110,19 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR (with h
   p_bitten <- prob_bitten(individuals, variables, 1, api, parameters)
   Z <- mean(p_bitten$prob_repelled)
   f <- blood_meal_rate(1, Z, parameters)
+  estimated_eir <- m_eq[[6]] * effective_biting_rate(
+    api,
+    individuals$human,
+    variables$zeta,
+    age,
+    1,
+    p_bitten,
+    f,
+    parameters
+  )
 
   expect_equal(
-    mean(eir(
-      api,
-      individuals$human,
-      variables$zeta,
-      age,
-      1,
-      m_eq[[6]],
-      p_bitten,
-      f,
-      parameters
-    )) * 365,
+    mean(estimated_eir) * 365,
     EIR,
     tolerance = 1
   )
@@ -170,7 +170,7 @@ test_that('mosquito_effects correctly samples mortalities and infections without
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables, events, parameters)
   infectivity <- c(.6, 0, .2, .3)
-  eir <- c(.1, .2, .3, .4)
+  lambda <- c(.1, .2, .3, .4)
 
   api <- mock_api(
     list(),
@@ -185,7 +185,7 @@ test_that('mosquito_effects correctly samples mortalities and infections without
   calculate_mosquito_effects(
     api,
     infectivity,
-    eir,
+    lambda,
     individuals,
     states,
     1,
@@ -201,7 +201,7 @@ test_that('mosquito_effects correctly samples mortalities and infections without
     bernoulli_mock,
     1,
     50,
-    sum(infectivity * eir)
+    sum(infectivity * lambda)
   )
 
   mockery::expect_args(

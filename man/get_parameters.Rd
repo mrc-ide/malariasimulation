@@ -186,15 +186,7 @@ RTS,S paramters:
 }
 
 I recommend setting strategies with the convenience functions in
-\code{vaccine_parameters.R}
-\itemize{
-\item rtss - whether to model rtss or not
-\item rtss_start - the start timstep for rtss
-\item rtss_end - the end timstep for rtss
-\item rtss_frequency - the frequency of rounds
-\item rtss_ages - the ages to apply the vaccine (in years)
-\item rtss_coverage - the fraction of the target population who will be covered
-}
+\code{vaccine_parameters.R:set_rtss}
 
 MDA parameters:
 I recommend setting these with convenience functions in \code{mda_parameters.R}

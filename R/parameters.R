@@ -167,13 +167,7 @@
 #' * rtss_dl - delay parameters for the antibody model (mean and std. dev)
 #'
 #' I recommend setting strategies with the convenience functions in
-#' `vaccine_parameters.R`
-#' * rtss - whether to model rtss or not
-#' * rtss_start - the start timstep for rtss
-#' * rtss_end - the end timstep for rtss
-#' * rtss_frequency - the frequency of rounds
-#' * rtss_ages - the ages to apply the vaccine (in years)
-#' * rtss_coverage - the fraction of the target population who will be covered
+#' `vaccine_parameters.R:set_rtss`
 #'
 #' MDA parameters:
 #' I recommend setting these with convenience functions in `mda_parameters.R`

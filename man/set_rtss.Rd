@@ -12,7 +12,8 @@ set_rtss(
   min_ages,
   max_ages,
   boosters,
-  coverage
+  coverage,
+  booster_coverage
 )
 }
 \arguments{
@@ -30,8 +31,11 @@ set_rtss(
 
 \item{boosters}{the timesteps (following the initial vaccination) at which booster vaccinations are administered}
 
-\item{coverage}{the proportion of the target population who will recieve the
+\item{coverage}{the proportion of the target population who will receive the
 vaccine}
+
+\item{booster_coverage}{the proportion of the vaccinated population who will
+receive each booster vaccine}
 }
 \description{
 Parameterise an RTS,S strategy

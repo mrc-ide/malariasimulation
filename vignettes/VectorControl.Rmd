@@ -60,7 +60,7 @@ simparams <- get_parameters(c(
 
 simparams <- set_drugs(simparams, list(SP_AQ_params))
 simparams <- parameterise_human_equilibrium(simparams, eq)
-simparams <- parameterise_mosquito_equilibrium(simparams, starting_EIR)
+simparams <- parameterise_mosquito_equilibrium(simparams, starting_EIR, limit_grace = 10)
 
 
 # Plotting functions

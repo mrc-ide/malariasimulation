@@ -144,13 +144,14 @@ calculate_infections <- function(
     api$get_variable(human, variables$rtss_vaccinated, source_humans),
     api$get_variable(human, variables$rtss_boosted, source_humans)
   )
-  vaccinated <- which(vaccine_times > -1)
+	vaccinated <- which(vaccine_times > -1)
+  vaccinated_index <- source_humans[vaccine_times > -1]
   antibodies <- calculate_rtss_antibodies(
     api$get_timestep() - vaccine_times[vaccinated],
-    api$get_variable(human, variables$rtss_cs, vaccinated),
-    api$get_variable(human, variables$rtss_rho, vaccinated),
-    api$get_variable(human, variables$rtss_ds, vaccinated),
-    api$get_variable(human, variables$rtss_dl, vaccinated),
+    api$get_variable(human, variables$rtss_cs, vaccinated_index),
+    api$get_variable(human, variables$rtss_rho, vaccinated_index),
+    api$get_variable(human, variables$rtss_ds, vaccinated_index),
+    api$get_variable(human, variables$rtss_dl, vaccinated_index),
     parameters
   )
   vaccine_efficacy[vaccinated] <- calculate_rtss_efficacy(antibodies, parameters)

@@ -16,7 +16,6 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 suppressPackageStartupMessages(library(ggplot2))
-suppressPackageStartupMessages(library(cowplot))
 library(malariasimulation)
 library(malariaEquilibrium)
 library(reshape2)
@@ -106,7 +105,8 @@ rtssparams <- set_rtss(
   min_ages = 5 * month,
   max_ages = 17 * month,
   boosters = 18 * month,
-  coverage = 0.8
+  coverage = 0.8,
+  booster_coverage = .7
 )
 
 output <- run_simulation_with_repetitions(

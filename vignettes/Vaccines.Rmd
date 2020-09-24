@@ -43,19 +43,23 @@ simparams <- get_parameters(c(
     model_seasonality = TRUE, # Let's try a bi-modal model
     g0 = 0.28605,
     g = c(0.20636, -0.0740318, -0.0009293),
-    h = c(0.173743, -0.0730962, -0.116019)
+    h = c(0.173743, -0.0730962, -0.116019),
+    severe_enabled = TRUE,
+    incidence_rendering_min_ages = 0,
+    incidence_rendering_max_ages = 5 * year,
+    severe_incidence_rendering_min_ages = 0,
+    severe_incidence_rendering_max_ages = 5 * year
   )
 ))
 
 simparams <- parameterise_human_equilibrium(simparams, eq)
-simparams <- parameterise_mosquito_equilibrium(simparams, starting_EIR)
+simparams <- parameterise_mosquito_equilibrium(simparams, starting_EIR, limit_grace = 10)
 
 
 # Plotting functions
 plot_prevalence <- function(output) {
-  output$prev <- output$prev_2_10 / output$n_2_10
   ggplot(output) + geom_line(
-    aes(x = timestep, y = prev, group = repetition, alpha = 1/repetitions)
+    aes(x = timestep, y = inc_0_1825, group = repetition, alpha = 1/repetitions)
   )
 }
 

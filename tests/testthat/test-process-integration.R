@@ -29,7 +29,7 @@ test_that('Infection listener updates infectivity correctly', {
 
   api <- mock_api(list(), parameters = parameters)
 
-  events$infection$listeners[[2]](api, c(2, 4))
+  events$clinical_infection$listeners[[2]](api, c(2, 4))
   mockery::expect_args(
     api$queue_variable_update,
     1,
@@ -50,7 +50,7 @@ test_that('Infection listener doesn\'t call for empty targets', {
 
   api <- mock_api(list(), parameters = parameters)
 
-  events$infection$listeners[[2]](api, numeric(0))
+  events$clinical_infection$listeners[[2]](api, numeric(0))
   mockery::expect_called(api$queue_variable_update, 0)
 })
 

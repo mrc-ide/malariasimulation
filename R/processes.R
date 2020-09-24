@@ -104,7 +104,8 @@ create_processes <- function(
       individuals$human,
       states$D,
       states$A,
-      variables$birth
+      variables$birth,
+      variables$is_severe
     ),
 
     # ==================
@@ -187,10 +188,10 @@ create_processes <- function(
 #' @param events a list of events in the model
 #' @param parameters the model parameters
 create_event_based_processes <- function(individuals, states, variables, events, parameters) {
-  events$infection$add_listener(
+  events$clinical_infection$add_listener(
     individual::update_state_listener(individuals$human$name, states$D$name)
   )
-  events$infection$add_listener(
+  events$clinical_infection$add_listener(
     function(api, target) {
       if (length(target) > 0) {
         api$queue_variable_update(
@@ -224,6 +225,14 @@ create_event_based_processes <- function(individuals, states, variables, events,
         )
       }
     }
+  )
+
+  events$infection$add_listener(
+    create_incidence_renderer(
+      individuals$human,
+      variables$birth,
+      variables$is_severe
+    )
   )
 
   if (parameters$rtss == 1) {

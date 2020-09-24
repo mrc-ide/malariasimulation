@@ -130,10 +130,7 @@ prevs <- vapply(
       function(r) {
         mean(
           tail(
-            subset(output, output$repetition == r)$prev_2_10,
-            year
-          ) / tail(
-            subset(output, output$repetition == r)$n_2_10,
+            subset(output, output$repetition == r)$pv_730_3650,
             year
           )
         )

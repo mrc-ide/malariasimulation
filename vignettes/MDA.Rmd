@@ -55,9 +55,8 @@ simparams <- parameterise_mosquito_equilibrium(simparams, starting_EIR)
 
 # Plotting functions
 plot_prevalence <- function(output) {
-  output$prev <- output$prev_2_10 / output$n_2_10
   ggplot(output) + geom_line(
-    aes(x = timestep, y = prev, group = repetition, alpha = 1/repetitions)
+    aes(x = timestep, y = pv_730_3650, group = repetition, alpha = 1/repetitions)
   )
 }
 

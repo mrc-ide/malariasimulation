@@ -182,6 +182,22 @@
 #' * mda_coverage - the proportion of the target population that will be covered
 #' * smc* - as for mda*
 #'
+#' rendering:
+#' All values are in timesteps and all ranges are inclusive
+#'
+#' * prevalence_rendering_min_ages - the minimum ages for clinical prevalence
+#' outputs
+#' * prevalence_rendering_max_ages - the corresponding max ages
+#' * incidence_rendering_min_ages - the minimum ages for clinical incidence
+#' outputs
+#' * incidence_rendering_max_ages - the corresponding max ages
+#' * severe_prevalence_rendering_min_ages - the minimum ages for severe
+#' prevalence outputs
+#' * severe_prevalence_rendering_max_ages - the corresponding max ages
+#' * severe_incidence_rendering_min_ages - the minimum ages for severe incidence
+#' outputs
+#' * severe_incidence_rendering_max_ages - the corresponding max ages
+#'
 #' miscellaneous:
 #'
 #' * human_population - the number of humans to model
@@ -328,6 +344,15 @@ get_parameters <- function(overrides = list()) {
     smc_min_age = -1,
     smc_max_age = -1,
     smc_coverage = 0,
+    # rendering
+    prevalence_rendering_min_ages = 2 * 365,
+    prevalence_rendering_max_ages = 10 * 365,
+    incidence_rendering_min_ages = numeric(0),
+    incidence_rendering_max_ages = numeric(0),
+    severe_prevalence_rendering_min_ages = numeric(0),
+    severe_prevalence_rendering_max_ages = numeric(0),
+    severe_incidence_rendering_min_ages = numeric(0),
+    severe_incidence_rendering_max_ages = numeric(0),
     # misc
     human_population = 100,
     mosquito_limit   = 100 * 1000,

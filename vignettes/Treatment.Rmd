@@ -34,8 +34,7 @@ simparams <- get_parameters(c(
   translate_jamie(remove_unused_jamie(jamie_params)),
   list(
     human_population = human_population,
-    variety_proportions = 1,
-    vector_ode = TRUE
+    variety_proportions = 1
   )
 ))
 simparams <- set_drugs(simparams, list(AL_params, DHC_PQP_params))
@@ -73,13 +72,12 @@ Let's plot the effect of ft on PfPrev2-10:
 
 ```{r}
 df <- do.call('rbind', lapply(seq_along(outputs), function(i) {
-  df <- outputs[[i]][c('timestep', 'prev_2_10', 'n_2_10', 'repetition')]
-  df$prev <- df$prev_2_10 / df$n_2_10
+  df <- outputs[[i]][c('timestep', 'pv_730_3650', 'repetition')]
   df$ft <- fts[[i]]
   df
 }))
     
 ggplot(df) + geom_line(
-  aes(x = timestep, y = prev, group = interaction(ft, repetition), colour = ft)
+  aes(x = timestep, y = pv_730_3650, group = interaction(ft, repetition), colour = ft)
 )
 ```

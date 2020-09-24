@@ -191,6 +191,7 @@ Rcpp::XPtr<process_t> create_mortality_process(RandomInterface* random) {
             }
 
             api.clear_schedule("infection", died);
+            api.clear_schedule("clinical_infection", died);
             api.clear_schedule("asymptomatic_infection", died);
 
             api.queue_variable_update("human", "birth", died, variable_vector_t{static_cast<double>(timestep)});

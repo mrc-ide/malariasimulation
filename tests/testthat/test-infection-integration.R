@@ -102,7 +102,6 @@ test_that('simulate_infection integrates different types of infection and schedu
     c(1, 3),
     c(3),
     c(1, 3, 5)
->>>>>>> 2917837... New feeding cycle:
   )
 })
 
@@ -360,14 +359,14 @@ test_that('schedule_infections correctly schedules new infections', {
     parameters = parameters
   )
 
-  api$get_scheduled = mockery::mock(c(1, 3), c(7, 15))
+  api$get_scheduled = mockery::mock(c(1, 3, 7, 15))
 
   schedule_infections(api, events, 5:15, 7:12, 1:20)
 
   mockery::expect_args(
     api$schedule,
     1,
-    events$infection,
+    events$clinical_infection,
     c(5, 6, 13, 14),
     parameters$de
   )
@@ -377,6 +376,14 @@ test_that('schedule_infections correctly schedules new infections', {
     2,
     events$asymptomatic_infection,
     c(2, 4, 16, 17, 18, 19, 20),
+    parameters$de
+  )
+
+  mockery::expect_args(
+    api$schedule,
+    3,
+    events$infection,
+    c(2, 4, 5, 6, 13, 14, 16, 17, 18, 19, 20),
     parameters$de
   )
 })

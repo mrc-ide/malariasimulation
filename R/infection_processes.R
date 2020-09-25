@@ -292,20 +292,11 @@ schedule_infections <- function(
   ) {
   parameters <- api$get_parameters()
   scheduled_for_infection <- api$get_scheduled(events$infection)
-  to_infect <- setdiff(
-    clinical_infections,
-    c(scheduled_for_infection, treated)
-  )
+  excluded <- c(scheduled_for_infection, treated)
 
-  all_new_infections <- setdiff(
-    infections,
-    scheduled_for_infection
-  )
-
-  to_infect_asym <- setdiff(
-    all_new_infections,
-    clinical_infections
-  )
+  to_infect <- setdiff(clinical_infections, excluded)
+  all_new_infections <- setdiff(infections, excluded)
+  to_infect_asym <- setdiff(all_new_infections, clinical_infections)
 
   if(length(to_infect) > 0) {
     api$schedule(events$clinical_infection, to_infect, parameters$de)

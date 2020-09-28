@@ -310,15 +310,7 @@ clinically diseased (these values refer to the index in drug_* parameters)</p></
 </ul>
 
 <p>I recommend setting strategies with the convenience functions in
-<code>vaccine_parameters.R</code></p><ul>
-<li><p>rtss - whether to model rtss or not</p></li>
-<li><p>rtss_start - the start timstep for rtss</p></li>
-<li><p>rtss_end - the end timstep for rtss</p></li>
-<li><p>rtss_frequency - the frequency of rounds</p></li>
-<li><p>rtss_ages - the ages to apply the vaccine (in years)</p></li>
-<li><p>rtss_coverage - the fraction of the target population who will be covered</p></li>
-</ul>
-
+<code>vaccine_parameters.R:set_rtss</code></p>
 <p>MDA parameters:
 I recommend setting these with convenience functions in <code>mda_parameters.R</code></p><ul>
 <li><p>mda - whether to apply an MDA or not</p></li>
@@ -349,6 +341,22 @@ I recommend setting these with convenience functions in <code>mda_parameters.R</
 
 <p>I recommend setting tbv strategies with the convenience functions in
 <code>vaccine_parameters.R</code>, these are the same as for RTS,S</p>
+<p>rendering:
+All values are in timesteps and all ranges are inclusive</p><ul>
+<li><p>prevalence_rendering_min_ages - the minimum ages for clinical prevalence
+outputs</p></li>
+<li><p>prevalence_rendering_max_ages - the corresponding max ages</p></li>
+<li><p>incidence_rendering_min_ages - the minimum ages for clinical incidence
+outputs</p></li>
+<li><p>incidence_rendering_max_ages - the corresponding max ages</p></li>
+<li><p>severe_prevalence_rendering_min_ages - the minimum ages for severe
+prevalence outputs</p></li>
+<li><p>severe_prevalence_rendering_max_ages - the corresponding max ages</p></li>
+<li><p>severe_incidence_rendering_min_ages - the minimum ages for severe incidence
+outputs</p></li>
+<li><p>severe_incidence_rendering_max_ages - the corresponding max ages</p></li>
+</ul>
+
 <p>miscellaneous:</p><ul>
 <li><p>human_population - the number of humans to model</p></li>
 <li><p>mosquito_limit - the maximum number of mosquitos to allow for in the

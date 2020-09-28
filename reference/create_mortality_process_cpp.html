@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Parameterise an RTS,S strategy — set_rtss • malariasimulation</title>
+<title>Human mortality process — create_mortality_process_cpp • malariasimulation</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,10 @@
 
 
 
-<meta property="og:title" content="Parameterise an RTS,S strategy — set_rtss" />
-<meta property="og:description" content="Parameterise an RTS,S strategy" />
+<meta property="og:title" content="Human mortality process — create_mortality_process_cpp" />
+<meta property="og:description" content="This is the process for human mortality, it defines which humans die from
+natural causes and severe infection and replaces dead individuals with
+newborns." />
 
 
 
@@ -127,69 +129,19 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Parameterise an RTS,S strategy</h1>
+    <h1>Human mortality process</h1>
     
-    <div class="hidden name"><code>set_rtss.Rd</code></div>
+    <div class="hidden name"><code>create_mortality_process_cpp.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Parameterise an RTS,S strategy</p>
+    <p>This is the process for human mortality, it defines which humans die from
+natural causes and severe infection and replaces dead individuals with
+newborns.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>set_rtss</span>(
-  <span class='no'>parameters</span>,
-  <span class='no'>start</span>,
-  <span class='no'>end</span>,
-  <span class='no'>frequency</span>,
-  <span class='no'>min_ages</span>,
-  <span class='no'>max_ages</span>,
-  <span class='no'>boosters</span>,
-  <span class='no'>coverage</span>,
-  <span class='no'>booster_coverage</span>
-)</pre>
+    <pre class="usage"><span class='fu'>create_mortality_process_cpp</span>()</pre>
 
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
-    <table class="ref-arguments">
-    <colgroup><col class="name" /><col class="desc" /></colgroup>
-    <tr>
-      <th>parameters</th>
-      <td><p>a list of parameters to modify</p></td>
-    </tr>
-    <tr>
-      <th>start</th>
-      <td><p>the timestep to start</p></td>
-    </tr>
-    <tr>
-      <th>end</th>
-      <td><p>the last timestep for the intervention</p></td>
-    </tr>
-    <tr>
-      <th>frequency</th>
-      <td><p>the number of timsteps between rounds</p></td>
-    </tr>
-    <tr>
-      <th>min_ages</th>
-      <td><p>for the target population, inclusive (in timesteps)</p></td>
-    </tr>
-    <tr>
-      <th>max_ages</th>
-      <td><p>for the target population, inclusive (in timesteps)</p></td>
-    </tr>
-    <tr>
-      <th>boosters</th>
-      <td><p>the timesteps (following the initial vaccination) at which booster vaccinations are administered</p></td>
-    </tr>
-    <tr>
-      <th>coverage</th>
-      <td><p>the proportion of the target population who will receive the
-vaccine</p></td>
-    </tr>
-    <tr>
-      <th>booster_coverage</th>
-      <td><p>the proportion of the vaccinated population who will
-receive each booster vaccine</p></td>
-    </tr>
-    </table>
 
 
   </div>

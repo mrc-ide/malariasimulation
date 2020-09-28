@@ -105,8 +105,8 @@
 <li>‘create_event_based_process’ (green)</li>
 <li>‘create_mortality_process’(red)</li>
 </ol>
-<div id="htmlwidget-03428940fd6026bd3cad" style="width:700px;height:432.632880098888px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-03428940fd6026bd3cad">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = LR]\n  \n  node [shape = rectangle]        \n  S\n  D\n  A\n  U\n  \n  node [shape = circle]\n  i [label = \"\"]\n  \n  # edge definitions with the node IDs\n  S -> i [color=\"orange\"]\n  i -> D [color=\"orange\"]\n  i -> A [color=\"orange\"]\n  D -> A -> U -> S [color=\"green\"]\n  A -> i [color=\"orange\"]\n  U -> i [color=\"orange\"]\n  U -> S [color=\"red\"]\n  A -> S [color=\"red\"]\n  D -> S [color=\"red\"]\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script><p>#Mosquito Biology</p>
+<div id="htmlwidget-bf2e817b8758498fd77f" style="width:700px;height:432.632880098888px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-bf2e817b8758498fd77f">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = LR]\n  \n  node [shape = rectangle]        \n  S\n  D\n  A\n  U\n  \n  node [shape = circle]\n  i [label = \"\"]\n  \n  # edge definitions with the node IDs\n  S -> i [color=\"orange\"]\n  i -> D [color=\"orange\"]\n  i -> A [color=\"orange\"]\n  D -> A -> U -> S [color=\"green\"]\n  A -> i [color=\"orange\"]\n  U -> i [color=\"orange\"]\n  U -> S [color=\"red\"]\n  A -> S [color=\"red\"]\n  D -> S [color=\"red\"]\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script><p>#Mosquito Biology</p>
 <p>The mosquito biological processes are spread out between the following functions:</p>
 <ol style="list-style-type: decimal">
 <li>‘create_ode’ (green)</li>
@@ -114,8 +114,8 @@
 <li>‘create_mosquito_infection_process’ (orange)</li>
 <li>‘create_processes’ (red)</li>
 </ol>
-<div id="htmlwidget-1f317bf53d0ee77bdafb" style="width:700px;height:432.632880098888px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-1f317bf53d0ee77bdafb">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = LR]\n  \n  subgraph clusterode {\n    style=filled;\n    color=lightblue;\n    node [shape = rectangle]\n    E\n    L\n    P\n    label=\"ODE\"\n  }\n\n  node [shape = rectangle]\n  Sm\n  Pm\n  Im\n  Unborn\n  \n  # edge definitions with the node IDs\n  E -> L -> P [color=\"green\", label=\"1\"]\n  P -> Sm [color=\"green\", label=\"2\"]\n  Sm -> Pm -> Im [color=\"orange\", label=\"3\"]\n  Sm -> Unborn [color=\"red\", label=\"4\"]\n  Pm -> Unborn [color=\"red\", label=\"4\"]\n  Im -> Unborn [color=\"red\", label=\"4\"]\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-2c05e13aab15b1c27a8d" style="width:700px;height:432.632880098888px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-2c05e13aab15b1c27a8d">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = LR]\n  \n  subgraph clusterode {\n    style=filled;\n    color=lightblue;\n    node [shape = rectangle]\n    E\n    L\n    P\n    label=\"ODE\"\n  }\n\n  node [shape = rectangle]\n  Sm\n  Pm\n  Im\n  Unborn\n  \n  # edge definitions with the node IDs\n  E -> L -> P [color=\"green\", label=\"1\"]\n  P -> Sm [color=\"green\", label=\"2\"]\n  Sm -> Pm -> Im [color=\"orange\", label=\"3\"]\n  Sm -> Unborn [color=\"red\", label=\"4\"]\n  Pm -> Unborn [color=\"red\", label=\"4\"]\n  Im -> Unborn [color=\"red\", label=\"4\"]\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

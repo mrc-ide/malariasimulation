@@ -139,14 +139,13 @@
 }</pre></body></html></div>
 <p>Let’s plot the effect of ft on PfPrev2-10:</p>
 <div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="no">df</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span>(<span class="st">'rbind'</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq_along</a></span>(<span class="no">outputs</span>), <span class="kw">function</span>(<span class="no">i</span>) {
-  <span class="no">df</span> <span class="kw">&lt;-</span> <span class="no">outputs</span><span class="kw">[[</span><span class="no">i</span>]][<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'timestep'</span>, <span class="st">'prev_2_10'</span>, <span class="st">'n_2_10'</span>, <span class="st">'repetition'</span>)]
-  <span class="no">df</span>$<span class="no">prev</span> <span class="kw">&lt;-</span> <span class="no">df</span>$<span class="no">prev_2_10</span> / <span class="no">df</span>$<span class="no">n_2_10</span>
+  <span class="no">df</span> <span class="kw">&lt;-</span> <span class="no">outputs</span><span class="kw">[[</span><span class="no">i</span>]][<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">'timestep'</span>, <span class="st">'pv_730_3650'</span>, <span class="st">'repetition'</span>)]
   <span class="no">df</span>$<span class="no">ft</span> <span class="kw">&lt;-</span> <span class="no">fts</span><span class="kw">[[</span><span class="no">i</span>]]
   <span class="no">df</span>
 }))
 
 <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="no">df</span>) + <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>(
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">timestep</span>, <span class="kw">y</span> <span class="kw">=</span> <span class="no">prev</span>, <span class="kw">group</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interaction.html">interaction</a></span>(<span class="no">ft</span>, <span class="no">repetition</span>), <span class="kw">colour</span> <span class="kw">=</span> <span class="no">ft</span>)
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">timestep</span>, <span class="kw">y</span> <span class="kw">=</span> <span class="no">pv_730_3650</span>, <span class="kw">group</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interaction.html">interaction</a></span>(<span class="no">ft</span>, <span class="no">repetition</span>), <span class="kw">colour</span> <span class="kw">=</span> <span class="no">ft</span>)
 )</pre></body></html></div>
 <p><img src="Treatment_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
   </div>

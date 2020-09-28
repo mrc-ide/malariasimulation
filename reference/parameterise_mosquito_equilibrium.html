@@ -138,7 +138,7 @@ model is in equilibrium" />
 model is in equilibrium</p>
     </div>
 
-    <pre class="usage"><span class='fu'>parameterise_mosquito_equilibrium</span>(<span class='no'>parameters</span>, <span class='no'>EIR</span>)</pre>
+    <pre class="usage"><span class='fu'>parameterise_mosquito_equilibrium</span>(<span class='no'>parameters</span>, <span class='no'>EIR</span>, <span class='kw'>limit_grace</span> <span class='kw'>=</span> <span class='fl'>1.5</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -150,6 +150,12 @@ model is in equilibrium</p>
     <tr>
       <th>EIR</th>
       <td><p>to work from</p></td>
+    </tr>
+    <tr>
+      <th>limit_grace</th>
+      <td><p>the number of mosquitos to allocate to the simulation as a
+proportion of total_M. e.g. 10 will allocate total_M * 10 mosquitos. High
+values of <code>limit_grace</code> are required for simulations with seasonality.</p></td>
     </tr>
     </table>
 

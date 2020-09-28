@@ -95,7 +95,6 @@
     
     
 <div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">ggplot2</span>))
-<span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">cowplot</span>))
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">malariasimulation</span>)
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">malariaEquilibrium</span>)
 <span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">reshape2</span>)</pre></body></html></div>
@@ -120,19 +119,23 @@
     <span class="kw">model_seasonality</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="co"># Let's try a bi-modal model</span>
     <span class="kw">g0</span> <span class="kw">=</span> <span class="fl">0.28605</span>,
     <span class="kw">g</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.20636</span>, -<span class="fl">0.0740318</span>, -<span class="fl">0.0009293</span>),
-    <span class="kw">h</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.173743</span>, -<span class="fl">0.0730962</span>, -<span class="fl">0.116019</span>)
+    <span class="kw">h</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.173743</span>, -<span class="fl">0.0730962</span>, -<span class="fl">0.116019</span>),
+    <span class="kw">severe_enabled</span> <span class="kw">=</span> <span class="fl">TRUE</span>,
+    <span class="kw">incidence_rendering_min_ages</span> <span class="kw">=</span> <span class="fl">0</span>,
+    <span class="kw">incidence_rendering_max_ages</span> <span class="kw">=</span> <span class="fl">5</span> * <span class="no">year</span>,
+    <span class="kw">severe_incidence_rendering_min_ages</span> <span class="kw">=</span> <span class="fl">0</span>,
+    <span class="kw">severe_incidence_rendering_max_ages</span> <span class="kw">=</span> <span class="fl">5</span> * <span class="no">year</span>
   )
 ))
 
 <span class="no">simparams</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/parameterise_human_equilibrium.html">parameterise_human_equilibrium</a></span>(<span class="no">simparams</span>, <span class="no">eq</span>)
-<span class="no">simparams</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/parameterise_mosquito_equilibrium.html">parameterise_mosquito_equilibrium</a></span>(<span class="no">simparams</span>, <span class="no">starting_EIR</span>)
+<span class="no">simparams</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/parameterise_mosquito_equilibrium.html">parameterise_mosquito_equilibrium</a></span>(<span class="no">simparams</span>, <span class="no">starting_EIR</span>, <span class="kw">limit_grace</span> <span class="kw">=</span> <span class="fl">10</span>)
 
 
 <span class="co"># Plotting functions</span>
 <span class="no">plot_prevalence</span> <span class="kw">&lt;-</span> <span class="kw">function</span>(<span class="no">output</span>) {
-  <span class="no">output</span>$<span class="no">prev</span> <span class="kw">&lt;-</span> <span class="no">output</span>$<span class="no">prev_2_10</span> / <span class="no">output</span>$<span class="no">n_2_10</span>
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="no">output</span>) + <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>(
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">timestep</span>, <span class="kw">y</span> <span class="kw">=</span> <span class="no">prev</span>, <span class="kw">group</span> <span class="kw">=</span> <span class="no">repetition</span>, <span class="kw">alpha</span> <span class="kw">=</span> <span class="fl">1</span>/<span class="no">repetitions</span>)
+    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">timestep</span>, <span class="kw">y</span> <span class="kw">=</span> <span class="no">inc_0_1825</span>, <span class="kw">group</span> <span class="kw">=</span> <span class="no">repetition</span>, <span class="kw">alpha</span> <span class="kw">=</span> <span class="fl">1</span>/<span class="no">repetitions</span>)
   )
 }
 
@@ -174,7 +177,8 @@
   <span class="kw">min_ages</span> <span class="kw">=</span> <span class="fl">5</span> * <span class="no">month</span>,
   <span class="kw">max_ages</span> <span class="kw">=</span> <span class="fl">17</span> * <span class="no">month</span>,
   <span class="kw">boosters</span> <span class="kw">=</span> <span class="fl">18</span> * <span class="no">month</span>,
-  <span class="kw">coverage</span> <span class="kw">=</span> <span class="fl">0.8</span>
+  <span class="kw">coverage</span> <span class="kw">=</span> <span class="fl">0.8</span>,
+  <span class="kw">booster_coverage</span> <span class="kw">=</span> <span class="fl">.7</span>
 )
 
 <span class="no">output</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/run_simulation_with_repetitions.html">run_simulation_with_repetitions</a></span>(
@@ -183,7 +187,8 @@
   <span class="no">rtssparams</span>,
   <span class="kw">parallel</span><span class="kw">=</span><span class="fl">TRUE</span>
 )
-<span class="fu">add_intervention_lines</span>(<span class="fu">plot_prevalence</span>(<span class="no">output</span>), <span class="no">rtssevents</span>)</pre></body></html></div>
+<span class="fu">add_intervention_lines</span>(<span class="fu">plot_prevalence</span>(<span class="no">output</span>), <span class="no">rtssevents</span>)
+<span class="co">#&gt; Warning: Removed 60 row(s) containing missing values (geom_path).</span></pre></body></html></div>
 <p><img src="Vaccines_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
 </div>
 <div id="tbv" class="section level2">
@@ -213,7 +218,8 @@
   <span class="no">tbvparams</span>,
   <span class="kw">parallel</span><span class="kw">=</span><span class="fl">TRUE</span>
 )
-<span class="fu">add_intervention_lines</span>(<span class="fu">plot_prevalence</span>(<span class="no">output</span>), <span class="no">tbvevents</span>)</pre></body></html></div>
+<span class="fu">add_intervention_lines</span>(<span class="fu">plot_prevalence</span>(<span class="no">output</span>), <span class="no">tbvevents</span>)
+<span class="co">#&gt; Warning: Removed 60 row(s) containing missing values (geom_path).</span></pre></body></html></div>
 <p><img src="Vaccines_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
 </div>
 </div>

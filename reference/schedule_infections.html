@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Parameterise an RTS,S strategy — set_rtss • malariasimulation</title>
+<title>Schedule infections — schedule_infections • malariasimulation</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Parameterise an RTS,S strategy — set_rtss" />
-<meta property="og:description" content="Parameterise an RTS,S strategy" />
+<meta property="og:title" content="Schedule infections — schedule_infections" />
+<meta property="og:description" content="Schedule infections in humans after the incubation period" />
 
 
 
@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.3</span>
       </span>
     </div>
 
@@ -109,6 +109,9 @@
     <li>
       <a href="../articles/Validation.html">Validation</a>
     </li>
+    <li>
+      <a href="../articles/VectorControl.html">Vector Control</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -127,67 +130,39 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Parameterise an RTS,S strategy</h1>
+    <h1>Schedule infections</h1>
     
-    <div class="hidden name"><code>set_rtss.Rd</code></div>
+    <div class="hidden name"><code>schedule_infections.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Parameterise an RTS,S strategy</p>
+    <p>Schedule infections in humans after the incubation period</p>
     </div>
 
-    <pre class="usage"><span class='fu'>set_rtss</span>(
-  <span class='no'>parameters</span>,
-  <span class='no'>start</span>,
-  <span class='no'>end</span>,
-  <span class='no'>frequency</span>,
-  <span class='no'>min_ages</span>,
-  <span class='no'>max_ages</span>,
-  <span class='no'>boosters</span>,
-  <span class='no'>coverage</span>,
-  <span class='no'>booster_coverage</span>
-)</pre>
+    <pre class="usage"><span class='fu'>schedule_infections</span>(<span class='no'>api</span>, <span class='no'>events</span>, <span class='no'>clinical_infections</span>, <span class='no'>treated</span>, <span class='no'>infections</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>parameters</th>
-      <td><p>a list of parameters to modify</p></td>
+      <th>api</th>
+      <td><p>simulation api</p></td>
     </tr>
     <tr>
-      <th>start</th>
-      <td><p>the timestep to start</p></td>
+      <th>events</th>
+      <td><p>a list of all of the model events</p></td>
     </tr>
     <tr>
-      <th>end</th>
-      <td><p>the last timestep for the intervention</p></td>
+      <th>clinical_infections</th>
+      <td><p>indices of clinically infected humans</p></td>
     </tr>
     <tr>
-      <th>frequency</th>
-      <td><p>the number of timsteps between rounds</p></td>
+      <th>treated</th>
+      <td><p>indices of treated humans</p></td>
     </tr>
     <tr>
-      <th>min_ages</th>
-      <td><p>for the target population, inclusive (in timesteps)</p></td>
-    </tr>
-    <tr>
-      <th>max_ages</th>
-      <td><p>for the target population, inclusive (in timesteps)</p></td>
-    </tr>
-    <tr>
-      <th>boosters</th>
-      <td><p>the timesteps (following the initial vaccination) at which booster vaccinations are administered</p></td>
-    </tr>
-    <tr>
-      <th>coverage</th>
-      <td><p>the proportion of the target population who will receive the
-vaccine</p></td>
-    </tr>
-    <tr>
-      <th>booster_coverage</th>
-      <td><p>the proportion of the vaccinated population who will
-receive each booster vaccine</p></td>
+      <th>infections</th>
+      <td><p>indices of infected humans</p></td>
     </tr>
     </table>
 

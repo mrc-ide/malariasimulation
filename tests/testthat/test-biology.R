@@ -8,7 +8,7 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR', {
     0:99
   )
   foim <- sum(h_eq[,'inf']*h_eq[,'psi'])
-  population <- 1000
+  population <- 100000
   parameters <- get_parameters(c(
     translate_jamie(remove_unused_jamie(jamie_parameters)),
     list(
@@ -24,15 +24,16 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR', {
   xi <- rep(1, length(age))
   infectivity <- m_eq[[6]] * parameters$blood_meal_rate
   expect_equal(
-    sum(eir(age, xi, infectivity, parameters)),
-    EIR
+    mean(eir(age, xi, infectivity, parameters)) * 365,
+    EIR,
+    tolerance = 1
   )
 })
 
 test_that('total_M and EIR functions are consistent with equilibrium EIR (with het)', {
-  population <- 1000
+  population <- 100000
 
-  EIR <- 5
+  EIR <- 50
   n_groups <- 10
 
   jamie_parameters <- malariaEquilibrium::load_parameter_set()
@@ -76,7 +77,8 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR (with h
   infectivity <- m_eq[[6]] * parameters$blood_meal_rate
 
   expect_equal(
-    sum(eir(all_age, all_xi, infectivity, parameters)),
-    EIR
+    mean(eir(all_age, all_xi, infectivity, parameters)) * 365,
+    EIR,
+    tolerance = 1
   )
 })

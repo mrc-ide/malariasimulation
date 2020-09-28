@@ -67,6 +67,37 @@ void create_infectivity_target_vector(
     }
 }
 
+std::vector<double> calculate_force_of_infection(
+    const variable_vector_t& age,
+    const variable_vector_t& zeta,
+    const variable_vector_t& infectivity,
+    const params_t& parameters
+    ) {
+    const auto& alpha = parameters.at("blood_meal_rates");
+
+    // Calculate force of infection per species
+    auto pi = std::vector<double>(age.size());
+    auto rho = parameters.at("rho")[0];
+    auto a0 = parameters.at("a0")[0];
+    double sum_pi = 0;
+    for (auto i = 0u; i < pi.size(); ++i) {
+        auto psi = 1 - rho * exp(-age[i] / a0);
+        auto p = zeta[i] * psi;
+        pi[i] = p;
+        sum_pi += p;
+    }
+    double mean_infectivity = 0;
+    for (auto i = 0u; i < pi.size(); ++i) {
+        mean_infectivity += pi[i] * infectivity[i];
+    }
+    mean_infectivity /= sum_pi;
+    auto lambda = std::vector<double>(alpha.size());
+    for (auto i = 0u; i < lambda.size(); ++i) {
+        lambda[i] = alpha[i] * mean_infectivity;
+    }
+    return lambda;
+}
+
 Rcpp::XPtr<process_t> create_mosquito_infection_process(
     const std::string mosquito,
     const std::string human,
@@ -80,27 +111,11 @@ Rcpp::XPtr<process_t> create_mosquito_infection_process(
             const auto age = get_age(api.get_variable(human, variables[0]), api.get_timestep());
             const auto& zeta = api.get_variable(human, variables[1]);
             const auto& infectivity = api.get_variable(human, variables[2]);
-            const auto& alpha = parameters.at("blood_meal_rates");
 
-            // Calculate force of infection per species
-            auto pi = std::vector<double>(age.size());
-            auto rho = parameters.at("rho")[0];
-            auto a0 = parameters.at("a0")[0];
-            double sum_pi = 0;
-            for (auto i = 0u; i < pi.size(); ++i) {
-                auto psi = 1 - rho * exp(-age[i] / a0);
-                auto p = zeta[i] * psi;
-                pi[i] = p;
-                sum_pi += p;
-            }
-            double mean_infectivity = 0;
-            for (auto i = 0u; i < pi.size(); ++i) {
-                mean_infectivity += pi[i] * infectivity[i];
-            }
-            mean_infectivity /= sum_pi;
-            auto lambda = std::vector<double>(alpha.size());
+            const auto lambda = calculate_force_of_infection(age, zeta, infectivity, parameters);
+
+            //render the force of infection
             for (auto i = 0u; i < lambda.size(); ++i) {
-                lambda[i] = alpha[i] * mean_infectivity;
                 std::stringstream label;
                 label << "FOIM_" << i + 1;
                 api.render(label.str(), lambda[i]);
@@ -109,13 +124,13 @@ Rcpp::XPtr<process_t> create_mosquito_infection_process(
             //sample mosquitos who get infected for each species
             const auto& susceptible = api.get_state(mosquito, states[0]);
             const auto& species = api.get_variable(mosquito, variables[3]);
-            auto n_susceptible = std::vector<size_t>(alpha.size(), 0);
+            auto n_susceptible = std::vector<size_t>(lambda.size(), 0);
             for (auto i : susceptible) {
                 ++n_susceptible[species[i] - 1];
             }
 
             //infected_i is the ith of each species that should become infected
-            auto infected_i = std::vector<std::vector<size_t>>(alpha.size());
+            auto infected_i = std::vector<std::vector<size_t>>(lambda.size());
             auto n_infected = 0u;
             for (auto i = 0u; i < infected_i.size(); ++i) {
                 auto infected = random->bernoulli(n_susceptible[i], lambda[i]);

@@ -113,7 +113,7 @@ Rcpp::XPtr<process_t> create_mosquito_infection_process(
             const auto& parameters = api.get_parameters();
             const auto age = get_age(api.get_variable(human, variables[0]), api.get_timestep());
             const auto& zeta = api.get_variable(human, variables[1]);
-            const auto& infectivity = api.get_variable(human, variables[2]);
+            auto infectivity = variable_vector_t(api.get_variable(human, variables[2]));
             account_for_tbv(
                 infectivity,
                 api,

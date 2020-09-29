@@ -56,35 +56,16 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR (with h
   population <- 100000
 
   EIR <- 50
-  n_groups <- 10
 
   jamie_parameters <- malariaEquilibrium::load_parameter_set()
-  het_groups <- statmod::gauss.quad.prob(n_groups, dist = "normal")
-  h_eqs <- list()
-  foim <- 0
-  all_age <- c()
-  all_xi <- c()
 
-  for (h in seq(n_groups)) {
-    h_eq <- malariaEquilibrium::human_equilibrium_no_het(
-      EIR,
-      0,
-      jamie_parameters,
-      0:99
-    )
-    zeta <- exp(
-      -jamie_parameters$s2 * .5 + sqrt(
-        jamie_parameters$s2
-      ) * het_groups$nodes[h]
-    )
-    age <- rep(
-      seq(100) - 1,
-      rowSums(h_eq[,c('S', 'U', 'A', 'D')]) * het_groups$weights[h] * population
-    )
-    all_age <- c(all_age, age)
-    all_zeta <- c(all_zeta, rep(zeta, length(age)))
-    foim <- foim + sum(h_eq[,'inf'] * h_eq[,'psi']) * het_groups$weights[h] * xi
-  }
+  h_eq <- malariaEquilibrium::human_equilibrium(
+    EIR,
+    0,
+    jamie_parameters,
+    0:99
+  )
+  foim <- h_eq$FOIM
 
   parameters <- get_parameters(c(
     translate_jamie(remove_unused_jamie(jamie_parameters)),
@@ -94,6 +75,8 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR (with h
       human_population = population
     )
   ))
+  parameters <- parameterise_mosquito_equilibrium(parameters, EIR)
+  m_eq <- initial_mosquito_counts(parameters, foim)
 
   #set up arguments for EIR calculation
   events <- create_events()
@@ -101,9 +84,10 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR (with h
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables, events, parameters)
   age <- get_age(variables$birth$initialiser(population), 0)
+  zeta <- variables$zeta$initialiser(population)
   api <- mock_api(
     list(human = list(
-      zeta = all_zeta
+      zeta = zeta
     ),
     parameters = parameters
   ))

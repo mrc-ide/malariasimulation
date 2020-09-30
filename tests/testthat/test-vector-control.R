@@ -86,7 +86,7 @@ test_that('throw_away_bednets process resets net_time correctly', {
 
   process(api)
 
-  mockery::expect_args(bernoulli_mock, 1, 3, exp(-1/40))
+  mockery::expect_args(bernoulli_mock, 1, 3, 1 - exp(-1/40))
   mockery::expect_args(
     api$queue_variable_update,
     1,

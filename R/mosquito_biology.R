@@ -175,6 +175,7 @@ calculate_mosquito_effects <- function(
   p2 <- exp(-parameters$mum*gonotrophic_cycle)
   p1 <- p1_0 * W / (1 - Z * p1_0)
   mu <- -f * log(p1*p2)
+  api$render(paste0('mu_', species), mu)
 
   api$queue_state_update(
     individuals$mosquito,

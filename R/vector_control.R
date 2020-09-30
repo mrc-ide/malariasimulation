@@ -25,8 +25,10 @@ prob_bitten <- function(individuals, variables, species, api, parameters) {
     since_net <- timestep - net_time
     rn <- prob_repelled_bednets(since_net, species, parameters)
     sn <- prob_survives_bednets(rn, since_net, species, parameters)
-    sn[net_time == -1] <- 1
-    rn[net_time == -1] <- 0
+    unused <- net_time == -1
+    api$render('net_usage', sum(!unused) / length(unused))
+    sn[unused] <- 1
+    rn[unused] <- 0
   } else {
     phi_bednets <- 0
     sn <- 1
@@ -55,6 +57,7 @@ prob_bitten <- function(individuals, variables, species, api, parameters) {
     rs_ <- 1
     ss <- 1
   }
+
   
   list(
     prob_bitten_survives = (
@@ -103,7 +106,7 @@ distribute_nets <- function(human, net_time, parameters) {
 }
 
 throw_away_nets <- function(human, net_time, retention) {
-  rate <- exp(-1/retention)
+  rate <- 1 - exp(-1/retention)
   function(api) {
     timestep <- api$get_timestep()
     times <- api$get_variable(human, net_time)

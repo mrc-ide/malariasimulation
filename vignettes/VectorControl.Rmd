@@ -46,9 +46,9 @@ simparams <- get_parameters(c(
     g = c(0.20636, -0.0740318, -0.0009293),
     h = c(0.173743, -0.0730962, -0.116019),
     # vector control parameters
-    rn = .56,
+    rn = .31,
     rnm = .24,
-    dn0 = .533,
+    dn0 = .51,
     phi_bednets = .89,
     gamman = 2.64 * 365,
     rs = .2,

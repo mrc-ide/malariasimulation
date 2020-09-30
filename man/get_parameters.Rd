@@ -156,8 +156,6 @@ species specific values are vectors
 \item variety_proportions - the relative proportions of each species
 \item blood_meal_rates - the blood meal rates for each species
 \item Q0 - proportion of blood meals taken on humans
-\item endophily - proportion of mosquitoes resting indoors after feeding with no
-intervention
 \item foraging_time - time spent taking blood meals
 }
 

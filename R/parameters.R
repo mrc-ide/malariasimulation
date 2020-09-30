@@ -140,8 +140,6 @@
 #' * variety_proportions - the relative proportions of each species
 #' * blood_meal_rates - the blood meal rates for each species
 #' * Q0 - proportion of blood meals taken on humans
-#' * endophily - proportion of mosquitoes resting indoors after feeding with no
-#' intervention
 #' * foraging_time - time spent taking blood meals
 #'
 #' feeding cycle:

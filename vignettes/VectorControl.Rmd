@@ -52,8 +52,9 @@ simparams <- get_parameters(c(
     phi_bednets = .89,
     gamman = 2.64 * 365,
     rs = .2,
-    phi_spraying = .97,
-    gammas = .5 * 365
+    phi_indoors = .97,
+    gammas = .5 * 365,
+    endophily = .813
   )
 ))
 

@@ -17,16 +17,36 @@ create_biting_process <- function(
     timestep <- api$get_timestep()
 
     # Calculate combined EIR
-    age <- get_age(api$get_variable(individuals$human, variables$birth), api$get_timestep())
+    age <- get_age(
+      api$get_variable(individuals$human, variables$birth),
+      api$get_timestep()
+    )
 
-    total_eir <- simulate_bites(api, individuals, states, variables, age, parameters)
-    simulate_infection(api, individuals, states, variables, events, total_eir, age, parameters)
+    total_eir <- simulate_bites(
+      api,
+      individuals,
+      states,
+      variables,
+      age,
+      parameters
+    )
+    simulate_infection(
+      api,
+      individuals,
+      states,
+      variables,
+      events,
+      total_eir,
+      age,
+      parameters
+    )
   }
 }
 
 simulate_bites <- function(api, individuals, states, variables, age, parameters) {
   total_eir <- 0
 
+  # Get mosquitoes in each state
   Sm <- api$get_state(individuals$mosquito, states$Sm)
   Pm <- api$get_state(individuals$mosquito, states$Pm)
   Im <- api$get_state(individuals$mosquito, states$Im)
@@ -34,9 +54,16 @@ simulate_bites <- function(api, individuals, states, variables, age, parameters)
     individuals$mosquito,
     variables$mosquito_variety
   )
+
   human_infectivity <- api$get_variable(individuals$human, variables$infectivity)
 
+  # Calculate pi (the relative biting rate for each human)
+  psi <- unique_biting_rate(age, parameters)
+  .pi <- human_pi(api$get_variable(individuals$human, variables$zeta), psi)
+
   for (species in seq_along(parameters$blood_meal_rate)) {
+    # Calculate the probabilities of each human being bitten (given
+    # interventions)
     p_bitten <- prob_bitten(
       individuals,
       variables,
@@ -45,8 +72,9 @@ simulate_bites <- function(api, individuals, states, variables, age, parameters)
       parameters
     )
 
-    Z <- mean(p_bitten$prob_repelled)
-    W <- mean(p_bitten$prob_bitten_survives)
+    Q0 <- parameters$Q0[[species]]
+    Z <- average_p_repelled(p_bitten$prob_repelled, .pi, Q0)
+    W <- average_p_successful(p_bitten$prob_bitten_survives, .pi, Q0)
     api$render(paste0('p_repelled_', species), Z)
     api$render(paste0('p_feed_survives_', species), W)
     f <- blood_meal_rate(species, Z, parameters)
@@ -56,8 +84,7 @@ simulate_bites <- function(api, individuals, states, variables, age, parameters)
 
     lambda <- effective_biting_rate(
       api,
-      individuals$human,
-      variables$zeta,
+      .pi,
       age,
       species,
       p_bitten,
@@ -175,27 +202,23 @@ simulate_infection <- function(api, individuals, states, variables, events, tota
 #' @description
 #' Implemented from Griffin et al 2010 S2 page 6
 #' @param api simulation api
-#' @param human a handle for humans
-#' @param zeta a handle for heterogeneity
+#' @param .pi relative biting rate for each human
 #' @param age of each human (timesteps)
 #' @param species to model
 #' @param p_bitten the probabilities of feeding given vector controls
 #' @param f blood meal rate
 #' @param parameters of the model
-effective_biting_rate <- function(api, human, zeta, age, species, p_bitten, f, parameters) {
+effective_biting_rate <- function(api, .pi, age, species, p_bitten, f, parameters) {
   a <- human_blood_meal_rate(f, species, mean(p_bitten$prob_bitten_survives), parameters)
-  psi <- unique_biting_rate(age, parameters)
-  .pi <- human_pi(api$get_variable(human, zeta), psi)
   a * .pi * p_bitten$prob_bitten / sum(.pi * p_bitten$prob_bitten_survives)
 }
 
 human_pi <- function(zeta, psi) {
- (zeta * psi) / sum(zeta * psi)
+  (zeta * psi) / sum(zeta * psi)
 }
 
 blood_meal_rate <- function(v, z, parameters) {
-  f <- parameters$blood_meal_rates[[v]]
-  gonotrophic_cycle <- 1 / f - parameters$foraging_time
+  gonotrophic_cycle <- get_gonotrophic_cycle(v, parameters)
   interrupted_foraging_time <- parameters$foraging_time / (1 - z)
   1 / (interrupted_foraging_time + gonotrophic_cycle)
 }
@@ -203,4 +226,12 @@ blood_meal_rate <- function(v, z, parameters) {
 human_blood_meal_rate <- function(f, v, w, parameters) {
   Q <- 1 - (1 - parameters$Q0[[v]]) / w
   Q * f
+}
+
+average_p_repelled <- function(p_repelled, .pi, Q0) {
+  Q0 * sum(.pi * p_repelled)
+}
+
+average_p_successful <- function(prob_bitten_survives, .pi, Q0) {
+  (1 - Q0) + Q0 * sum(.pi *  prob_bitten_survives)
 }

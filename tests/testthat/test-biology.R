@@ -26,19 +26,21 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR', {
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables, events, parameters)
   age <- get_age(variables$birth$initialiser(population), 0)
+  zeta <- rep(1, length(age))
   api <- mock_api(
     list(human = list(
-      zeta = rep(1, length(age))
+      zeta = zeta
     ),
     parameters = parameters
   ))
   p_bitten <- prob_bitten(individuals, variables, 1, api, parameters)
-  Z <- mean(p_bitten$prob_repelled)
+  psi <- unique_biting_rate(age, parameters)
+  .pi <- human_pi(zeta, psi)
+  Z <- average_p_repelled(p_bitten$prob_repelled, .pi, parameters$Q0)
   f <- blood_meal_rate(1, Z, parameters)
   estimated_eir <- m_eq[[6]] * effective_biting_rate(
     api,
-    individuals$human,
-    variables$zeta,
+    .pi,
     age,
     1,
     p_bitten,
@@ -92,12 +94,13 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR (with h
     parameters = parameters
   ))
   p_bitten <- prob_bitten(individuals, variables, 1, api, parameters)
-  Z <- mean(p_bitten$prob_repelled)
+  psi <- unique_biting_rate(age, parameters)
+  .pi <- human_pi(zeta, psi)
+  Z <- average_p_repelled(p_bitten$prob_repelled, .pi, parameters$Q0)
   f <- blood_meal_rate(1, Z, parameters)
   estimated_eir <- m_eq[[6]] * effective_biting_rate(
     api,
-    individuals$human,
-    variables$zeta,
+    .pi,
     age,
     1,
     p_bitten,

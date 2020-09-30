@@ -39,18 +39,20 @@ prob_bitten <- function(individuals, variables, species, api, parameters) {
     phi_indoors <- parameters$phi_indoors[[species]]
     spray_time <- api$get_variable(individuals$human, variables$spray_time)
     since_spray <- timestep - spray_time
+    unused <- spray_time == -1
     rs <- prob_spraying_repels(
       since_spray,
       parameters$rs[[species]],
       parameters$gammas
     )
-    rs_comp <- 1 - rs # the complement of rs
+    rs[unused] <- 0
+    rs_comp <- 1 - rs
     ss <- prob_survives_spraying(
       since_spray,
       parameters$endophily[[species]],
       parameters$gammas
     )
-    ss[spray_time == -1] <- 1
+    ss[unused] <- 1
   } else {
     phi_indoors <- 0
     rs <- 0
@@ -142,5 +144,5 @@ prob_survives_bednets <- function(rn, t, species, parameters) {
 }
 
 vector_control_decay <- function(t, gamma) {
-  exp(-t * gamma)
+  exp(-t / gamma)
 }

@@ -5,14 +5,12 @@
 \title{Calculate the effective biting rate for a species on each human given
 vector control interventions}
 \usage{
-effective_biting_rate(api, human, zeta, age, species, p_bitten, f, parameters)
+effective_biting_rate(api, .pi, age, species, p_bitten, f, parameters)
 }
 \arguments{
 \item{api}{simulation api}
 
-\item{human}{a handle for humans}
-
-\item{zeta}{a handle for heterogeneity}
+\item{.pi}{relative biting rate for each human}
 
 \item{age}{of each human (timesteps)}
 

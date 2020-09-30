@@ -171,7 +171,7 @@ calculate_mosquito_effects <- function(
 
   # deal with mosquito deaths
   p1_0 <- exp(-parameters$mum * parameters$foraging_time)
-  gonotrophic_cycle <- 1 / parameters$blood_meal_rates[[species]] - parameters$foraging_time
+  gonotrophic_cycle <- get_gonotrophic_cycle(species, parameters)
   p2 <- exp(-parameters$mum * gonotrophic_cycle)
   p1 <- p1_0 * W / (1 - Z * p1_0)
   mu <- -f * log(p1 * p2)
@@ -184,4 +184,9 @@ calculate_mosquito_effects <- function(
       bernoulli(length(adult_species), mu)
     ]
   )
+}
+
+get_gonotrophic_cycle <- function(v, parameters) {
+  f <- parameters$blood_meal_rates[[v]]
+  gonotrophic_cycle <- 1 / f - parameters$foraging_time
 }

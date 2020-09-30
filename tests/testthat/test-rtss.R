@@ -8,7 +8,8 @@ test_that('RTS,S strategy parameterisation works', {
     min_ages = 5 * 30,
     max_ages = 17 * 30,
     boosters = c(18, 36) * 30,
-    coverage = 0.8
+    coverage = 0.8,
+    booster_coverage = c(.9, .8)
   )
   expect_equal(parameters$rtss, TRUE)
   expect_equal(parameters$rtss_start, 10)
@@ -17,6 +18,52 @@ test_that('RTS,S strategy parameterisation works', {
   expect_equal(parameters$rtss_max_ages, 17 * 30)
   expect_equal(parameters$rtss_boosters, c(18, 36) * 30)
   expect_equal(parameters$rtss_coverage, .8)
+})
+
+test_that('RTS,S fails pre-emptively', {
+  parameters <- get_parameters()
+  expect_error(
+    set_rtss(
+      parameters,
+      start = 100,
+      end = 100,
+      frequency = 365,
+      min_ages = 5 * 30,
+      max_ages = 17 * 30,
+      boosters = c(18, 36) * 30,
+      coverage = 0.8,
+      booster_coverage = c(.9)
+    ),
+    '*'
+  )
+  expect_error(
+    set_rtss(
+      parameters,
+      start = 100,
+      end = 100,
+      frequency = 365,
+      min_ages = c(0, 5 * 30),
+      max_ages = 17 * 30,
+      boosters = c(18, 36) * 30,
+      coverage = 0.8,
+      booster_coverage = c(.9)
+    ),
+    '*'
+  )
+  expect_error(
+    set_rtss(
+      parameters,
+      start = 10,
+      end = 100,
+      frequency = 365,
+      min_ages = 5 * 30,
+      max_ages = 17 * 30,
+      boosters = c(18, 36) * 30,
+      coverage = 0.8,
+      booster_coverage = c(.9)
+    ),
+    '*'
+  )
 })
 
 test_that('Infection considers vaccine efficacy', {
@@ -78,7 +125,8 @@ test_that('RTS,S vaccinations update vaccination time and schedule boosters', {
     min_ages = c(1, 2, 3, 18) * 365,
     max_ages = (c(1, 2, 3, 18) + 1) * 365 - 1,
     boosters = c(18, 36) * 30,
-    coverage = 0.8
+    coverage = 0.8,
+    booster_coverage = c(.9, .8)
   )
   events <- create_events()
   states <- create_states(parameters)
@@ -103,9 +151,25 @@ test_that('RTS,S vaccinations update vaccination time and schedule boosters', {
     parameters
   )
 
+  bernoulli_mock = mockery::mock(c(1, 2), 2)
+
   with_mock(
-    'malariasimulation:::bernoulli' = mockery::mock(c(1, 2)),
+    'malariasimulation:::bernoulli' = bernoulli_mock,
     listener(api, c(1))
+  )
+
+  mockery::expect_args(
+    bernoulli_mock,
+    1, # first call
+    2, # n in age group and not vaccinated
+    .8 # vaccination coverage
+  )
+
+  mockery::expect_args(
+    bernoulli_mock,
+    2, # second call
+    2, # n vaccinated
+    .9 # first booster coverage
   )
 
   mockery::expect_args(
@@ -128,7 +192,7 @@ test_that('RTS,S vaccinations update vaccination time and schedule boosters', {
     api$schedule,
     2,
     events$rtss_booster,
-    c(1, 3),
+    3,
     18 * 30
   )
 })
@@ -143,7 +207,8 @@ test_that('RTS,S boosters update antibody params and reschedule correctly', {
     min_ages = c(1, 2, 3, 18) * 365,
     max_ages = (c(1, 2, 3, 18) + 1) * 365 - 1,
     boosters = c(1, 6) * 30,
-    coverage = 0.8
+    coverage = 0.8,
+    booster_coverage = c(1, 1)
   )
   events <- create_events()
   states <- create_states(parameters)
@@ -170,6 +235,7 @@ test_that('RTS,S boosters update antibody params and reschedule correctly', {
   )
 
   with_mock(
+    "malariasimulation::bernoulli" = mockery::mock(c(1, 2, 3)),
     rnorm = mockery::mock(c(0, 0, 0), c(0, 0, 0)),
     listener(api, c(1, 2, 3))
   )
@@ -206,6 +272,94 @@ test_that('RTS,S boosters update antibody params and reschedule correctly', {
     1,
     events$rtss_booster,
     c(1, 2, 3),
+    5 * 30
+  )
+})
+
+test_that('RTS,S booster coverages sample subpopulations correctly', {
+  parameters <- get_parameters()
+  parameters <- set_rtss(
+    parameters,
+    start = 50,
+    end = 200,
+    frequency = 365,
+    min_ages = c(1, 2, 3, 18) * 365,
+    max_ages = (c(1, 2, 3, 18) + 1) * 365 - 1,
+    boosters = c(1, 6) * 30,
+    coverage = 0.8,
+    booster_coverage = c(.9, .8)
+  )
+  events <- create_events()
+  states <- create_states(parameters)
+  variables <- create_variables(parameters)
+  individuals <- create_individuals(states, variables, events, parameters)
+
+  api <- mock_api(
+    list(
+      human = list(
+        birth = -c(2.9, 3.2, 18.4) * 365 + 100,
+        rtss_vaccinated = c(50, 50, 50),
+        rtss_boosted = c(-1, -1, -1)
+      )
+    ),
+    parameters = parameters,
+    timestep = 50 + 30
+  )
+
+  listener <- create_rtss_booster_listener(
+    individuals$human,
+    variables,
+    events,
+    parameters
+  )
+
+  bernoulli_mock = mockery::mock(c(2, 3))
+
+  with_mock(
+    rnorm = mockery::mock(c(0, 0, 0), c(0, 0, 0)),
+    'malariasimulation:::bernoulli' = bernoulli_mock,
+    listener(api, c(1, 2, 3))
+  )
+
+  mockery::expect_args(
+    bernoulli_mock,
+    1,
+    3, #number of humans
+    .8 #booster coverage for the second booster
+  )
+
+  mockery::expect_args(
+    api$queue_variable_update,
+    1,
+    individuals$human,
+    variables$rtss_cs,
+    rep(exp(parameters$rtss_cs_boost[[1]]), 3),
+    c(1, 2, 3)
+  )
+
+  mockery::expect_args(
+    api$queue_variable_update,
+    2,
+    individuals$human,
+    variables$rtss_rho,
+    rep(invlogit(parameters$rtss_rho_boost[[1]]), 3),
+    c(1, 2, 3)
+  )
+
+  mockery::expect_args(
+    api$queue_variable_update,
+    3,
+    individuals$human,
+    variables$rtss_boosted,
+    50 + 30,
+    c(1, 2, 3)
+  )
+
+  mockery::expect_args(
+    api$schedule,
+    1,
+    events$rtss_booster,
+    c(2, 3),
     5 * 30
   )
 })

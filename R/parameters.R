@@ -167,13 +167,7 @@
 #' * rtss_dl - delay parameters for the antibody model (mean and std. dev)
 #'
 #' I recommend setting strategies with the convenience functions in
-#' `vaccine_parameters.R`
-#' * rtss - whether to model rtss or not
-#' * rtss_start - the start timstep for rtss
-#' * rtss_end - the end timstep for rtss
-#' * rtss_frequency - the frequency of rounds
-#' * rtss_ages - the ages to apply the vaccine (in years)
-#' * rtss_coverage - the fraction of the target population who will be covered
+#' `vaccine_parameters.R:set_rtss`
 #'
 #' MDA parameters:
 #' I recommend setting these with convenience functions in `mda_parameters.R`
@@ -187,6 +181,22 @@
 #' * mda_max_age - the max age of the target population
 #' * mda_coverage - the proportion of the target population that will be covered
 #' * smc* - as for mda*
+#'
+#' rendering:
+#' All values are in timesteps and all ranges are inclusive
+#'
+#' * prevalence_rendering_min_ages - the minimum ages for clinical prevalence
+#' outputs
+#' * prevalence_rendering_max_ages - the corresponding max ages
+#' * incidence_rendering_min_ages - the minimum ages for clinical incidence
+#' outputs
+#' * incidence_rendering_max_ages - the corresponding max ages
+#' * severe_prevalence_rendering_min_ages - the minimum ages for severe
+#' prevalence outputs
+#' * severe_prevalence_rendering_max_ages - the corresponding max ages
+#' * severe_incidence_rendering_min_ages - the minimum ages for severe incidence
+#' outputs
+#' * severe_incidence_rendering_max_ages - the corresponding max ages
 #'
 #' miscellaneous:
 #'
@@ -334,6 +344,15 @@ get_parameters <- function(overrides = list()) {
     smc_min_age = -1,
     smc_max_age = -1,
     smc_coverage = 0,
+    # rendering
+    prevalence_rendering_min_ages = 2 * 365,
+    prevalence_rendering_max_ages = 10 * 365,
+    incidence_rendering_min_ages = numeric(0),
+    incidence_rendering_max_ages = numeric(0),
+    severe_prevalence_rendering_min_ages = numeric(0),
+    severe_prevalence_rendering_max_ages = numeric(0),
+    severe_incidence_rendering_min_ages = numeric(0),
+    severe_incidence_rendering_max_ages = numeric(0),
     # misc
     human_population = 100,
     mosquito_limit   = 100 * 1000,
@@ -397,8 +416,12 @@ parameterise_human_equilibrium <- function(parameters, eq) {
 #'
 #' @param parameters the parameters to modify
 #' @param EIR to work from
+#' @param limit_grace the number of mosquitos to allocate to the simulation as a
+#' proportion of total_M. e.g. 10 will allocate total_M * 10 mosquitos. High
+#' values of `limit_grace` are required for simulations with seasonality.
 #' @export
-parameterise_mosquito_equilibrium <- function(parameters, EIR) {
+parameterise_mosquito_equilibrium <- function(parameters, EIR, limit_grace=1.5) {
   parameters$total_M <- equilibrium_total_M(parameters, EIR)
+  parameters$mosquito_limit <- parameters$total_M * limit_grace
   parameters
 }

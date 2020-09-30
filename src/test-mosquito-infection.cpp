@@ -88,6 +88,54 @@ context("Mosquito infection works") {
         (*process)(api);
     }
 
+    test_that("Force of infection is independent of human population size") {
+        //Mock state
+        auto timestep = 5;
+        auto birth_seed = variable_vector_t{-7295,  -8755,  -1820, -14230};
+        auto zeta_seed = variable_vector_t{.2, .3, .5, .9};
+        auto infectivity_seed = variable_vector_t{.2, 0, .5, .3};
+        auto pop = birth_seed.size();
+        auto pop_multiplier = 10;
+
+        auto birth = variable_vector_t(pop * pop_multiplier);
+        auto zeta = variable_vector_t(pop * pop_multiplier);
+        auto infectivity = variable_vector_t(pop * pop_multiplier);
+        for (auto i = 0u; i < pop * pop_multiplier; ++i) {
+            auto source_i = i % pop;
+            birth[i] = birth_seed[source_i];
+            zeta[i] = zeta_seed[source_i];
+            infectivity[i] = infectivity_seed[source_i];
+        }
+
+        //Mock parameters
+        params_t params;
+        params["blood_meal_rates"] = std::vector<double>{.92, .74, .94};
+        params["rho"] = std::vector<double>{.85};
+        params["a0"] = std::vector<double>{8 * 365};
+
+        auto lambda_seed = calculate_force_of_infection(
+            get_age(birth_seed, timestep),
+            zeta_seed,
+            infectivity_seed,
+            params
+        );
+
+        auto lambda = calculate_force_of_infection(
+            get_age(birth, timestep),
+            zeta,
+            infectivity,
+            params
+        );
+
+        expect_true(lambda_seed[0] == Approx(0.2477872));
+        expect_true(lambda_seed[1] == Approx(0.1993071));
+        expect_true(lambda_seed[2] == Approx(0.2531739));
+
+        expect_true(lambda[0] == Approx(0.2477872));
+        expect_true(lambda[1] == Approx(0.1993071));
+        expect_true(lambda[2] == Approx(0.2531739));
+    }
+
     test_that("create_infectivity_target_vector can work with one species") {
         auto susceptible = individual_index(
             12,

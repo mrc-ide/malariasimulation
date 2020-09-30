@@ -26,4 +26,13 @@ Rcpp::XPtr<process_t> create_mosquito_infection_process(
     RandomInterface*
 );
 
+variable_vector_t get_age(const variable_vector_t& birth, size_t t);
+
+std::vector<double> calculate_force_of_infection(
+    const variable_vector_t& age,
+    const variable_vector_t& zeta,
+    const variable_vector_t& infectivity,
+    const params_t& parameters
+);
+
 #endif /* SRC_MOSQUITO_INFECTION_H_ */

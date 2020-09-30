@@ -4,12 +4,16 @@
 \alias{parameterise_mosquito_equilibrium}
 \title{Parameterise total_M and carrying capacity for mosquitos from EIR}
 \usage{
-parameterise_mosquito_equilibrium(parameters, EIR)
+parameterise_mosquito_equilibrium(parameters, EIR, limit_grace = 1.5)
 }
 \arguments{
 \item{parameters}{the parameters to modify}
 
 \item{EIR}{to work from}
+
+\item{limit_grace}{the number of mosquitos to allocate to the simulation as a
+proportion of total_M. e.g. 10 will allocate total_M * 10 mosquitos. High
+values of \code{limit_grace} are required for simulations with seasonality.}
 }
 \description{
 NOTE: the inital EIR is likely to change unless the rest of the

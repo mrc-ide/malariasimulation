@@ -9,7 +9,7 @@ equilibrium_total_M(parameters, EIR)
 \arguments{
 \item{parameters}{to work from}
 
-\item{EIR}{equilibrium to use}
+\item{EIR}{equilibrium to use, bites per person per year}
 }
 \description{
 Calculate equilibrium total_M from parameters

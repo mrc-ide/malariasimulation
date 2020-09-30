@@ -28,7 +28,11 @@ create_rtss_vaccination_listener <- function(human, variables, events, parameter
       api$schedule(events$rtss_vaccination, c(1), parameters$rtss_frequency)
     }
     if (length(parameters$rtss_boosters) > 0) {
-      api$schedule(events$rtss_booster, target, parameters$rtss_boosters[[1]])
+      api$schedule(
+        events$rtss_booster,
+        target[bernoulli(length(target), parameters$rtss_booster_coverage[[1]])],
+        parameters$rtss_boosters[[1]]
+      )
     }
   }
 }
@@ -67,7 +71,11 @@ create_rtss_booster_listener <- function(human, variables, events, parameters) {
         to_boost <- which(
           vaccinated + parameters$rtss_boosters[[i]] == timestep
         )
+
         if (length(to_boost) > 0) {
+          to_boost <- to_boost[
+            bernoulli(length(to_boost), parameters$rtss_booster_coverage[[i + 1]])
+          ]
           api$schedule(
             events$rtss_booster,
             to_boost,

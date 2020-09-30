@@ -16,7 +16,6 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 suppressPackageStartupMessages(library(ggplot2))
-suppressPackageStartupMessages(library(cowplot))
 library(malariasimulation)
 library(malariaEquilibrium)
 library(reshape2)
@@ -28,9 +27,9 @@ We are going to set the default parameters to run the simulation from an equilib
 
 ```{r}
 year <- 365
-sim_length <- 100 * year
+sim_length <- 30 * year
 human_population <- 1000
-starting_EIR <- 500
+starting_EIR <- 50
 repetitions <- 5
 
 jamie_params <- load_parameter_set()
@@ -45,19 +44,22 @@ simparams <- get_parameters(c(
     g0 = 0.28605,
     g = c(0.20636, -0.0740318, -0.0009293),
     h = c(0.173743, -0.0730962, -0.116019),
-    vector_ode = TRUE
+    severe_enabled = TRUE,
+    incidence_rendering_min_ages = 0,
+    incidence_rendering_max_ages = 5 * year,
+    severe_incidence_rendering_min_ages = 0,
+    severe_incidence_rendering_max_ages = 5 * year
   )
 ))
 
 simparams <- parameterise_human_equilibrium(simparams, eq)
-simparams <- parameterise_mosquito_equilibrium(simparams, starting_EIR)
+simparams <- parameterise_mosquito_equilibrium(simparams, starting_EIR, limit_grace = 10)
 
 
 # Plotting functions
 plot_prevalence <- function(output) {
-  output$prev <- output$prev_2_10 / output$n_2_10
   ggplot(output) + geom_line(
-    aes(x = timestep, y = prev, group = repetition, alpha = 1/repetitions)
+    aes(x = timestep, y = inc_0_1825, group = repetition, alpha = 1/repetitions)
   )
 }
 
@@ -91,7 +93,7 @@ month <- 30
 
 # Add RTS,S strategy
 rtssevents = data.frame(
-  timestep = c(60, 80) * year + peak - month, #vaccine efficacy kicks off a month before the peak
+  timestep = c(10, 20) * year + peak - month, #vaccine efficacy kicks off a month before the peak
   name=c("RTS,S starts", "RTS,S ends")
 )
 
@@ -103,7 +105,8 @@ rtssparams <- set_rtss(
   min_ages = 5 * month,
   max_ages = 17 * month,
   boosters = 18 * month,
-  coverage = 0.8
+  coverage = 0.8,
+  booster_coverage = .7
 )
 
 output <- run_simulation_with_repetitions(

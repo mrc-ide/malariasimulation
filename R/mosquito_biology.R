@@ -88,12 +88,13 @@ calculate_R_bar <- function(parameters) {
 #' @title Calculate equilibrium total_M from parameters
 #'
 #' @param parameters to work from
-#' @param EIR equilibrium to use
+#' @param EIR equilibrium to use, bites per person per year
 equilibrium_total_M <- function(parameters, EIR) {
+  total_daily_eir <- EIR * parameters$human_population / 365
   lifetime <- parameters$init_foim * exp(-parameters$mum * parameters$dem) / (
     parameters$init_foim + parameters$mum
   )
-  EIR / sum(
+  total_daily_eir / sum(
     parameters$variety_proportions * parameters$blood_meal_rates * lifetime
   )
 }

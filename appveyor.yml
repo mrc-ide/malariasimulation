@@ -24,6 +24,8 @@ environment:
 # Adapt as necessary starting from here
 
 build_script:
+  - Rscript -e "install.packages('remotes', repos='https://cloud.r-project.org')"
+  - Rscript -e "remotes::install_github('r-lib/vctrs')"
   - travis-tool.sh install_deps
 
 test_script:

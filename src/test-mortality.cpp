@@ -224,6 +224,7 @@ context("Mortality process") {
                                                 died, zero));
 
         REQUIRE_CALL(api, clear_schedule("infection", died));
+        REQUIRE_CALL(api, clear_schedule("clinical_infection", died));
         REQUIRE_CALL(api, clear_schedule("asymptomatic_infection", died));
 
         auto mortality_process = create_mortality_process(&random);

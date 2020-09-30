@@ -328,6 +328,7 @@ create_individuals <- function(
     ),
     events = c(
       events$infection,
+      events$clinical_infection,
       events$asymptomatic_infection,
       events$rtss_vaccination,
       events$rtss_booster,

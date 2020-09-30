@@ -186,15 +186,7 @@ RTS,S paramters:
 }
 
 I recommend setting strategies with the convenience functions in
-\code{vaccine_parameters.R}
-\itemize{
-\item rtss - whether to model rtss or not
-\item rtss_start - the start timstep for rtss
-\item rtss_end - the end timstep for rtss
-\item rtss_frequency - the frequency of rounds
-\item rtss_ages - the ages to apply the vaccine (in years)
-\item rtss_coverage - the fraction of the target population who will be covered
-}
+\code{vaccine_parameters.R:set_rtss}
 
 MDA parameters:
 I recommend setting these with convenience functions in \code{mda_parameters.R}
@@ -208,6 +200,23 @@ I recommend setting these with convenience functions in \code{mda_parameters.R}
 \item mda_max_age - the max age of the target population
 \item mda_coverage - the proportion of the target population that will be covered
 \item smc* - as for mda*
+}
+
+rendering:
+All values are in timesteps and all ranges are inclusive
+\itemize{
+\item prevalence_rendering_min_ages - the minimum ages for clinical prevalence
+outputs
+\item prevalence_rendering_max_ages - the corresponding max ages
+\item incidence_rendering_min_ages - the minimum ages for clinical incidence
+outputs
+\item incidence_rendering_max_ages - the corresponding max ages
+\item severe_prevalence_rendering_min_ages - the minimum ages for severe
+prevalence outputs
+\item severe_prevalence_rendering_max_ages - the corresponding max ages
+\item severe_incidence_rendering_min_ages - the minimum ages for severe incidence
+outputs
+\item severe_incidence_rendering_max_ages - the corresponding max ages
 }
 
 miscellaneous:

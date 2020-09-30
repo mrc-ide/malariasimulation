@@ -170,11 +170,11 @@ calculate_mosquito_effects <- function(
   )
 
   # deal with mosquito deaths
-  p1_0 <- exp(-parameters$mum*parameters$foraging_time)
+  p1_0 <- exp(-parameters$mum * parameters$foraging_time)
   gonotrophic_cycle <- 1 / parameters$blood_meal_rates[[species]] - parameters$foraging_time
-  p2 <- exp(-parameters$mum*gonotrophic_cycle)
+  p2 <- exp(-parameters$mum * gonotrophic_cycle)
   p1 <- p1_0 * W / (1 - Z * p1_0)
-  mu <- -f * log(p1*p2)
+  mu <- -f * log(p1 * p2)
   api$render(paste0('mu_', species), mu)
 
   api$queue_state_update(

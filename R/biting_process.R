@@ -46,7 +46,9 @@ simulate_bites <- function(api, individuals, states, variables, age, parameters)
     )
 
     Z <- mean(p_bitten$prob_repelled)
+    W <- mean(p_bitten$prob_bitten_survives)
     api$render(paste0('p_repelled_', species), Z)
+    api$render(paste0('p_feed_survives_', species), W)
     f <- blood_meal_rate(species, Z, parameters)
 
     infectious_species_index <- species_index[Im] == species
@@ -79,7 +81,7 @@ simulate_bites <- function(api, individuals, states, variables, age, parameters)
         Pm[species_index[Pm] == species],
         Im[infectious_species_index]
       ),
-      mean(p_bitten$prob_bitten_survives),
+      W,
       Z,
       f,
       parameters

@@ -36,7 +36,7 @@ prob_bitten <- function(individuals, variables, species, api, parameters) {
   }
 
   if (parameters$spraying) {
-    phi_spraying <- parameters$phi_spraying[[species]]
+    phi_indoors <- parameters$phi_indoors[[species]]
     spray_time <- api$get_variable(individuals$human, variables$spray_time)
     since_spray <- timestep - spray_time
     rs <- prob_spraying_repels(
@@ -44,7 +44,7 @@ prob_bitten <- function(individuals, variables, species, api, parameters) {
       parameters$rs[[species]],
       parameters$gammas
     )
-    rs_ <- 1 - rs # the complement of rs
+    rs_comp <- 1 - rs # the complement of rs
     ss <- prob_survives_spraying(
       since_spray,
       parameters$endophily[[species]],
@@ -52,27 +52,27 @@ prob_bitten <- function(individuals, variables, species, api, parameters) {
     )
     ss[spray_time == -1] <- 1
   } else {
-    phi_spraying <- 0
+    phi_indoors <- 0
     rs <- 0
-    rs_ <- 1
+    rs_comp <- 1
     ss <- 1
   }
 
   
   list(
     prob_bitten_survives = (
-      1 - phi_spraying +
-      phi_bednets * rs_ * sn * ss +
-      (phi_spraying - phi_bednets) * rs_ * ss
+      1 - phi_indoors +
+      phi_bednets * rs_comp * sn * ss +
+      (phi_indoors - phi_bednets) * rs_comp * ss
     ),
     prob_bitten = (
-      1 - phi_spraying +
-      phi_bednets * rs_ * sn +
-      (phi_spraying - phi_bednets) * rs_
+      1 - phi_indoors +
+      phi_bednets * rs_comp * sn +
+      (phi_indoors - phi_bednets) * rs_comp
     ),
     prob_repelled = (
-      phi_bednets * rs_ * rn +
-      phi_spraying * rs
+      phi_bednets * rs_comp * rn +
+      phi_indoors * rs
     )
   )
 }

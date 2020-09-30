@@ -152,7 +152,7 @@
 #' * dn0 - probability killed by the bednet
 #' * spraying - boolean for if indoor spraying is enabled
 #' * rs - probability repelled by indoor spraying
-#' * phi_spraying - proportion of bites taken indoors
+#' * phi_indoors - proportion of bites taken indoors
 #' * phi_bednets - proportion of bites taken in bed
 #' * endophily - proportion of mosquitoes resting indoors after feeding with no
 #' intervention
@@ -357,7 +357,7 @@ get_parameters <- function(overrides = list()) {
     # indoor spraying
     spraying = FALSE,
     rs = rep(.2, 3),
-    phi_spraying = c(.97, .96, .98),
+    phi_indoors = c(.97, .96, .98),
     gammas = .25 * 365,
     # treatment
     drug_efficacy          = numeric(0),

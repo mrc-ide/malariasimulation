@@ -169,7 +169,7 @@ feeding cycle:
 \item dn0 - probability killed by the bednet
 \item spraying - boolean for if indoor spraying is enabled
 \item rs - probability repelled by indoor spraying
-\item phi_spraying - proportion of bites taken indoors
+\item phi_indoors - proportion of bites taken indoors
 \item phi_bednets - proportion of bites taken in bed
 \item endophily - proportion of mosquitoes resting indoors after feeding with no
 intervention

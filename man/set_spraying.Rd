@@ -11,9 +11,15 @@ set_spraying(parameters, timesteps, coverages)
 
 \item{timesteps}{the timesteps at which to spray}
 
-\item{coverages}{the proportion of the target population who get indoor
+\item{coverages}{the proportion of the population who get indoor
 spraying}
 }
 \description{
-Parameterise an indoor spraying strategy
+The model will apply indoor spraying at \code{timesteps} to a random
+sample of the entire human population. The sample size will be a proportion
+of the human population taken from the corresponding \code{coverages}.
+The sample \emph{can} contain humans who have already benefitted from spraying.
+
+If a human in the sample lives in a sprayed house, the efficacy of the
+spraying will be returned to the maximum.
 }

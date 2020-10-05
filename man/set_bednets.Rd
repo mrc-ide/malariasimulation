@@ -11,10 +11,21 @@ set_bednets(parameters, timesteps, coverages, retention)
 
 \item{timesteps}{the timesteps at which to distribute bednets}
 
-\item{coverages}{the proportion of the target population who receive bednets}
+\item{coverages}{the proportion of the human population who receive bednets}
 
 \item{retention}{the average number of timesteps a net is kept for}
 }
 \description{
-Parameterise a bed net strategy
+The model will distribute bednets at \code{timesteps} to a random
+sample of the entire human population. The sample size will be a proportion
+of the human population taken from the corresponding \code{coverages}.
+The sample \emph{can} contain humans who already have bednets.
+
+All of the sample "use" their bednets on the timestep after they are
+distributed. Incomplete usage is not part of this model.
+
+If a human in the sample already has a bednet, their bednet will be replaced
+by a new one.
+
+Bednets will be randomly removed each timestep with a rate of \code{1 - exp(-1/retention)}
 }

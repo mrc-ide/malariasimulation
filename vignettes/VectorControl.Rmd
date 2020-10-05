@@ -95,9 +95,8 @@ We can distribute bed nets once a year for 4 years, 3 months before peak season:
 ```{r}
 bednetparams <- simparams
 
-peak <- peak_season_offset(bednetparams)
 bednet_events = data.frame(
-  timestep = c(4, 7) * year + peak - 3 * month,
+  timestep = c(4, 7) * year,
   name=c("Bednets start", "Bednets end")
 )
 

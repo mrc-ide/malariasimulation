@@ -416,12 +416,35 @@ parameterise_human_equilibrium <- function(parameters, eq) {
 #'
 #' @param parameters the parameters to modify
 #' @param EIR to work from
-#' @param limit_grace the number of mosquitos to allocate to the simulation as a
-#' proportion of total_M. e.g. 10 will allocate total_M * 10 mosquitos. High
-#' values of `limit_grace` are required for simulations with seasonality.
 #' @export
-parameterise_mosquito_equilibrium <- function(parameters, EIR, limit_grace=1.5) {
+parameterise_mosquito_equilibrium <- function(parameters, EIR) {
   parameters$total_M <- equilibrium_total_M(parameters, EIR)
-  parameters$mosquito_limit <- parameters$total_M * limit_grace
+  K0 <- calculate_carrying_capacity(parameters)
+  R_bar <- calculate_R_bar(parameters)
+  max_K <- max(vnapply(seq(365), function(t) {
+    carrying_capacity(
+      t,
+      parameters$model_seasonality,
+      parameters$days_per_timestep,
+      parameters$g0,
+      parameters$g,
+      parameters$h,
+      K0,
+      R_bar
+    )
+  }))
+  omega <- calculate_omega(parameters)
+  max_total_M <- max_K * (
+    1 / (
+      2 * parameters$dl * parameters$mum * (1 + parameters$dpl * parameters$mup)
+    )
+  ) * (
+    1 / (
+      parameters$gamma * (omega + 1)
+    )
+  ) * (
+    omega / (parameters$ml * parameters$del) - 1 / (parameters$ml * parameters$dl) - 1
+  )
+  parameters$mosquito_limit <- max_total_M * 1.5
   parameters
 }

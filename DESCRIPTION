@@ -26,6 +26,7 @@ Imports:
   Rcpp,
   BH,
   statmod,
+  MASS,
   malariaEquilibrium
 Suggests: 
   testthat,

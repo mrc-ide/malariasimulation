@@ -11,15 +11,13 @@
 #' @param events a list of events in the model
 #' @param parameters a list of model parameters
 #' @param odes a list of vector ode models for each species
-#' @param mda_events a list of lists of events for each MDA
 create_processes <- function(
   individuals,
   states,
   variables,
   events,
   parameters,
-  odes,
-  mda_events
+  odes
   ) {
   processes <- list(
     # ========
@@ -145,7 +143,8 @@ create_event_based_processes <- function(
   states,
   variables,
   events,
-  parameters
+  parameters,
+  c_param
   ) {
 
   # =============
@@ -241,6 +240,8 @@ create_event_based_processes <- function(
         variables,
         events,
         parameters
+        parameters,
+        c_param
       )
     )
     events$rtss_booster$add_listener(
@@ -254,7 +255,7 @@ create_event_based_processes <- function(
   }
 
   if (parameters$mda == 1) {
-    mda_listeners <- create_mda_listeners(
+    events$mda_administer$add_listener(create_mda_listeners(
       individuals$human,
       states,
       variables,
@@ -264,14 +265,13 @@ create_event_based_processes <- function(
       parameters$mda_frequency,
       parameters$mda_min_age,
       parameters$mda_max_age,
-      parameters$mda_coverage
-    )
-    events$mda_enrollment$add_listener(mda_listeners$enrollment_listener)
-    events$mda_administer$add_listener(mda_listeners$administer_listener)
+      parameters$mda_coverage,
+      c_param
+    ))
   }
 
   if (parameters$smc == 1) {
-    smc_listeners <- create_mda_listeners(
+    events$smc_administer$add_listener(create_mda_listeners(
       individuals$human,
       states,
       variables,
@@ -281,15 +281,15 @@ create_event_based_processes <- function(
       parameters$smc_frequency,
       parameters$smc_min_age,
       parameters$smc_max_age,
-      parameters$smc_coverage
-    )
-    events$smc_enrollment$add_listener(smc_listeners$enrollment_listener)
-    events$smc_administer$add_listener(smc_listeners$administer_listener)
+      parameters$smc_coverage,
+      c_param
+    ))
   }
 
   events$tbv_vaccination$add_listener(
     function(api, target) {
       timestep <- api$get_timestep()
+      # TODO: sample from c_param
       target <- which(trunc(get_age(
         api$get_variable(individuals$human, variables$birth),
         timestep
@@ -374,10 +374,10 @@ create_setup_process <- function(individuals, states, events) {
       api$schedule(events$rtss_vaccination, c(1), parameters$rtss_start)
     }
     if (parameters$mda) {
-      api$schedule(events$mda_enrollment, c(1), parameters$mda_start)
+      api$schedule(events$mda_administer, c(1), parameters$mda_start)
     }
     if (parameters$smc) {
-      api$schedule(events$smc_enrollment, c(1), parameters$smc_start)
+      api$schedule(events$smc_administer, c(1), parameters$smc_start)
     }
     if (parameters$tbv) {
       api$schedule(events$tbv_vaccination, c(1), parameters$tbv_start)

@@ -1,4 +1,12 @@
-create_rtss_vaccination_listener <- function(human, variables, events, parameters) {
+create_rtss_vaccination_listener <- function(
+  human,
+  variables,
+  events,
+  parameters,
+  sigma,
+  u,
+  int_i
+  ) {
   function(api, target) {
     timestep <- api$get_timestep()
     age <- get_age(
@@ -14,7 +22,9 @@ create_rtss_vaccination_listener <- function(human, variables, events, parameter
       )
     }
     target <- which(target_indices & not_vaccinated)
-    target <- target[bernoulli(length(target), parameters$rtss_coverage)]
+    target <- target[
+      sample_intervention(target, parameters$rtss_coverage, sigma, u, int_i)
+    ]
     api$render('n_vaccinated', length(target))
     if (length(target) > 0) {
       api$queue_variable_update(

@@ -14,7 +14,10 @@ create_mda_listeners(
   frequency,
   min_age,
   max_age,
-  coverage
+  coverage,
+  sigma,
+  u,
+  int_i
 )
 }
 \arguments{
@@ -32,14 +35,18 @@ create_mda_listeners(
 
 \item{frequency}{how often doses are distributed (in timesteps)}
 
-\item{min_age}{minimum age at enrollment}
+\item{min_age}{minimum age for the target population}
 
-\item{max_age}{maximum age at enrollment}
+\item{max_age}{maximum age for the target population}
 
 \item{coverage}{the proportion of the target population that is covered}
+
+\item{sigma}{the standard deviation of each intervention}
+
+\item{u}{correlation matrix}
+
+\item{int_i}{the index of the intervention we are modelling}
 }
 \description{
-will create an "enrollment listener" for setting up a target
-population for an MDA and an  "administer listener" for modelling the effects
-of the drug on the population state
+will create a listener for administering each round of drugs
 }

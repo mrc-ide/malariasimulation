@@ -121,10 +121,16 @@ get_correlation_parameters <- function(parameters) {
   CorrelationParameters$new(parameters)
 }
 
-sample_intervention <- function(intervention, n, p, c_param) {
+#' @title Sample a population to intervene in given the correlation parameters
+#' @param target a vector of individual indices to sample from
+#' @param intervention name of the intervention
+#' @param p the probability of being selected
+#' @param c_param correlation parameters
+#' @importFrom stats qnorm
+sample_intervention <- function(target, intervention, p, c_param) {
   sigma_squared <- c_param$sigma()[[intervention]]^2
   sd <- sqrt(1 + sigma_squared)
   u0 <- -qnorm(p, 0) * sd
-  z <- rnorm(n)
-  u0 + c_param$mvnorm()[,intervention] + z < 0
+  z <- rnorm(length(target))
+  u0 + c_param$mvnorm()[target, intervention] + z < 0
 }

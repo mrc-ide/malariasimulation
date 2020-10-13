@@ -148,26 +148,23 @@ test_that('RTS,S vaccinations update vaccination time and schedule boosters', {
     individuals$human,
     variables,
     events,
-    parameters
+    parameters,
+    1,
+    1,
+    1
   )
 
-  bernoulli_mock = mockery::mock(c(1, 2), 2)
+  bernoulli_mock = mockery::mock(2)
 
   with_mock(
     'malariasimulation:::bernoulli' = bernoulli_mock,
+    'malariasimulation:::sample_intervention' = mockery::mock(TRUE, TRUE, FALSE),
     listener(api, c(1))
   )
 
   mockery::expect_args(
     bernoulli_mock,
-    1, # first call
-    2, # n in age group and not vaccinated
-    .8 # vaccination coverage
-  )
-
-  mockery::expect_args(
-    bernoulli_mock,
-    2, # second call
+    1, # second call
     2, # n vaccinated
     .9 # first booster coverage
   )

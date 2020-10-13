@@ -2,7 +2,7 @@ initial_immunity <- function(parameter, age) {
   if (length(parameter) == 1) {
     return(rep(parameter, length(age)))
   } else if (length(parameter) == 100) {
-    age <- trunc(age / 365)
+    age <- floor(age / 365)
     age[age > 99] <- 99
     return(parameter[age + 1])
   }
@@ -103,7 +103,7 @@ create_states <- function(parameters) {
 create_variables <- function(parameters) {
   size <- parameters$human_population
 
-  initial_age <- trunc(rexp(size, rate=1/parameters$average_age))
+  initial_age <- floor(rexp(size, rate=1/parameters$average_age))
 
   # Define variables
   birth <- individual::Variable$new("birth", -initial_age)
@@ -189,20 +189,20 @@ create_variables <- function(parameters) {
 
   rtss_cs <- individual::Variable$new(
     "rtss_cs",
-    exp(parameters$rtss_cs[[1]] + parameters$rtss_cs[[2]] * rnorm(size))
+    exp(rnorm(size, parameters$rtss_cs[[1]], parameters$rtss_cs[[2]]))
   )
   rtss_rho <- individual::Variable$new(
     "rtss_rho",
-    invlogit(parameters$rtss_rho[[1]] + parameters$rtss_rho[[2]] * rnorm(size))
+    invlogit(rnorm(size, parameters$rtss_rho[[1]], parameters$rtss_rho[[2]]))
   )
   rtss_ds <- individual::Variable$new(
     "rtss_ds",
-    exp(parameters$rtss_ds[[1]] + parameters$rtss_ds[[2]] * rnorm(size))
+    exp(rnorm(size, parameters$rtss_ds[[1]], parameters$rtss_ds[[2]]))
   )
 
   rtss_dl <- individual::Variable$new(
     "rtss_dl",
-    exp(parameters$rtss_dl[[1]] + parameters$rtss_dl[[2]] * rnorm(size))
+    exp(rnorm(size, parameters$rtss_dl[[1]], parameters$rtss_dl[[2]]))
   )
 
   variables <- list(

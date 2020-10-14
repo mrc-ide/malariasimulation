@@ -2,7 +2,7 @@ initial_immunity <- function(parameter, age) {
   if (length(parameter) == 1) {
     return(rep(parameter, length(age)))
   } else if (length(parameter) == 100) {
-    age <- trunc(age / 365)
+    age <- floor(age / 365)
     age[age > 99] <- 99
     return(parameter[age + 1])
   }
@@ -101,79 +101,62 @@ create_states <- function(parameters) {
 #' @param parameters, model parameters created by `get_parameters`
 #' @importFrom stats rexp rnorm
 create_variables <- function(parameters) {
-  initial_age <- trunc(
-    rexp(
-         parameters$human_population,
-         rate=1/parameters$average_age
-    )
-  )
+  size <- parameters$human_population
+
+  initial_age <- floor(rexp(size, rate=1/parameters$average_age))
 
   # Define variables
-  birth <- individual::Variable$new("birth", function(size) -initial_age)
-  last_boosted_ib <- individual::Variable$new("last_boosted_ib", function(size) { rep(-1, size) })
-  last_boosted_ica <- individual::Variable$new("last_boosted_ica", function(size) { rep(-1, size) })
-  last_boosted_iva <- individual::Variable$new("last_boosted_iva", function(size) { rep(-1, size) })
-  last_boosted_id <- individual::Variable$new("last_boosted_id", function(size) { rep(-1, size) })
-  is_severe <- individual::Variable$new(
-    "is_severe",
-    function(size) { rep(0, size) }
-  )
+  birth <- individual::Variable$new("birth", -initial_age)
+  last_boosted_ib <- individual::Variable$new("last_boosted_ib", rep(-1, size) )
+  last_boosted_ica <- individual::Variable$new("last_boosted_ica", rep(-1, size))
+  last_boosted_iva <- individual::Variable$new("last_boosted_iva", rep(-1, size))
+  last_boosted_id <- individual::Variable$new("last_boosted_id", rep(-1, size))
+
+  is_severe <- individual::Variable$new("is_severe", rep(0, size))
 
   # Maternal immunity
   icm <- individual::Variable$new(
     "ICM",
-    function(size) {
-      first_immunity <- parameters$init_icm
-      t <- initial_age * 365 / parameters$days_per_timestep
-      first_immunity * exp(-(t * parameters$rm))
-    }
+    parameters$init_icm * exp(-(initial_age * parameters$rm))
   )
 
   ivm <- individual::Variable$new(
     "IVM",
-    function(size) {
-      first_immunity <- parameters$init_ivm
-      t <- initial_age * 365 / parameters$days_per_timestep
-      first_immunity * exp(-(t * parameters$rm))
-    }
+    parameters$init_ivm * exp(-(initial_age * parameters$rm))
   )
 
   # Pre-erythoctic immunity
   ib  <- individual::Variable$new(
     "IB",
-    function(size) initial_immunity(parameters$init_ib, initial_age)
+    initial_immunity(parameters$init_ib, initial_age)
   )
   # Acquired immunity to clinical disease
   ica <- individual::Variable$new(
     "ICA",
-    function(size) initial_immunity(parameters$init_ica, initial_age)
+    initial_immunity(parameters$init_ica, initial_age)
   )
   # Acquired immunity to severe disease
   iva <- individual::Variable$new(
     "IVA",
-    function(size) initial_immunity(parameters$init_iva, initial_age)
+    initial_immunity(parameters$init_iva, initial_age)
   )
   # Acquired immunity to detectability
   id <- individual::Variable$new(
-     "ID",
-    function(size) initial_immunity(parameters$init_id, initial_age)
+    "ID",
+    initial_immunity(parameters$init_id, initial_age)
   )
 
-  zeta_norm <- rnorm(parameters$human_population)
+  zeta_norm <- rnorm(size)
   zeta <- individual::Variable$new(
     "zeta",
-    function(n) {
-      exp(
-        zeta_norm * sqrt(parameters$sigma_squared) - parameters$sigma_squared/2
-      )
-    }
+    exp(
+      zeta_norm * sqrt(parameters$sigma_squared) - parameters$sigma_squared/2
+    )
   )
 
   zeta_group <- individual::Variable$new(
     "zeta_group",
-    function(n) {
-      discretise_normal(zeta_norm, parameters$n_heterogeneity_groups)
-    }
+    discretise_normal(zeta_norm, parameters$n_heterogeneity_groups)
   )
 
   # Initialise infectiousness of humans -> mosquitoes
@@ -196,45 +179,30 @@ create_variables <- function(parameters) {
   infectivity_values[subpatent] <- parameters$cu
 
   # Initialise the infectivity variable
-  infectivity <- individual::Variable$new("infectivity", function(n) infectivity_values)
+  infectivity <- individual::Variable$new("infectivity", infectivity_values)
 
-  drug <- individual::Variable$new("drug", function(n) rep(0, n))
-  drug_time <- individual::Variable$new("drug_time", function(n) rep(-1, n))
+  drug <- individual::Variable$new("drug", rep(0, size))
+  drug_time <- individual::Variable$new("drug_time", rep(-1, size))
 
-  rtss_vaccinated <- individual::Variable$new(
-    "rtss_vaccinated",
-    function(n) rep(-1, n)
-  )
-
-  rtss_boosted <- individual::Variable$new(
-    "rtss_boosted",
-    function(n) rep(-1, n)
-  )
+  rtss_vaccinated <- individual::Variable$new("rtss_vaccinated", rep(-1, size))
+  rtss_boosted <- individual::Variable$new("rtss_boosted", rep(-1, size))
 
   rtss_cs <- individual::Variable$new(
     "rtss_cs",
-    function(n) {
-      exp(parameters$rtss_cs[[1]] + parameters$rtss_cs[[2]] * rnorm(n))
-    }
+    exp(rnorm(size, parameters$rtss_cs[[1]], parameters$rtss_cs[[2]]))
   )
   rtss_rho <- individual::Variable$new(
     "rtss_rho",
-    function(n) {
-      invlogit(parameters$rtss_rho[[1]] + parameters$rtss_rho[[2]] * rnorm(n))
-    }
+    invlogit(rnorm(size, parameters$rtss_rho[[1]], parameters$rtss_rho[[2]]))
   )
   rtss_ds <- individual::Variable$new(
     "rtss_ds",
-    function(n) {
-      exp(parameters$rtss_ds[[1]] + parameters$rtss_ds[[2]] * rnorm(n))
-    }
+    exp(rnorm(size, parameters$rtss_ds[[1]], parameters$rtss_ds[[2]]))
   )
 
   rtss_dl <- individual::Variable$new(
     "rtss_dl",
-    function(n) {
-      exp(parameters$rtss_dl[[1]] + parameters$rtss_dl[[2]] * rnorm(n))
-    }
+    exp(rnorm(size, parameters$rtss_dl[[1]], parameters$rtss_dl[[2]]))
   )
 
   variables <- list(
@@ -265,14 +233,12 @@ create_variables <- function(parameters) {
 
   mosquito_variety <- individual::Variable$new(
     "variety",
-    function(n) {
-      sample(
-        seq_along(parameters$variety_proportions),
-        n,
-        prob = parameters$variety_proportions,
-        replace = TRUE
-      )
-    }
+    sample(
+      seq_along(parameters$variety_proportions),
+      parameters$mosquito_limit,
+      prob = parameters$variety_proportions,
+      replace = TRUE
+    )
   )
 
   variables <- c(

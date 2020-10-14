@@ -7,6 +7,7 @@
 
 #include "mosquito_emergence.h"
 #include "mosquito_ode.h"
+#include <sstream>
 
 //' @title Mosquito emergence process
 //' @description Move mosquitos from Unborn to Sm in line with the number of
@@ -36,7 +37,11 @@ Rcpp::XPtr<process_t> create_mosquito_emergence_process_cpp(
             }
             auto source = api.get_state(mosquito, unborn);
             if (source.size() < n) {
-                Rcpp::stop("Not enough mosquitos. Please raise mosquito_limit");
+                std::stringstream m;
+                m << "Not enough mosquitos (short by ";
+                m << n - source.size();
+                m << ").Please raise mosquito_limit";
+                Rcpp::stop(m.str());
             }
             if (n > 0) {
                 variable_vector_t species(n);

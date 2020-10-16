@@ -26,7 +26,7 @@ void account_for_tbv(
     auto rho = params.at("tbv_rho")[0];
     auto ds = params.at("tbv_ds")[0];
     auto dl = params.at("tbv_dl")[0];
-    auto mu = params.at("tbv_mu")[0];
+    auto mu = params.at("tbv_tra_mu")[0];
     auto gamma1 = params.at("tbv_gamma1")[0];
     auto gamma2 = params.at("tbv_gamma2")[0];
     auto timestep = api.get_timestep();

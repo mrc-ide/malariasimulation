@@ -35,14 +35,14 @@ void account_for_tbv(
         for (auto i : state) {
             if (vaccinated[i] > -1) {
                 infectivity[i] *= (1 - calculate_TBA(
+                    mx[state_i],
+                    k,
                     calculate_TRA(
                         mu,
                         gamma1,
                         gamma2,
                         calculate_tbv_antibodies(timestep - vaccinated[i], tau, rho, ds, dl)
-                    ),
-                    mx[state_i],
-                    k
+                    )
                 ));
             }
         }

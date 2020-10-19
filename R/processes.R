@@ -277,6 +277,29 @@ create_event_based_processes <- function(individuals, states, variables, events,
     events$smc_enrollment$add_listener(smc_listeners$enrollment_listener)
     events$smc_administer$add_listener(smc_listeners$administer_listener)
   }
+
+  events$tbv_vaccination$add_listener(
+    function(api, target) {
+      timestep <- api$get_timestep()
+      target <- which(trunc(get_age(
+        api$get_variable(individuals$human, variables$birth),
+        timestep
+      ) / 365) %in% parameters$tbv_ages)
+      target <- target[bernoulli(length(target), parameters$tbv_coverage)]
+      api$render('n_vaccinated_tbv', length(target))
+      if (length(target) > 0) {
+        api$queue_variable_update(
+          individuals$human,
+          variables$tbv_vaccinated,
+          timestep,
+          target
+        )
+      }
+      if (timestep + parameters$tbv_frequency <= parameters$tbv_end) {
+        api$schedule(events$tbv_vaccination, c(1), parameters$tbv_frequency)
+      }
+    }
+  )
 }
 
 # =================
@@ -310,6 +333,9 @@ create_setup_process <- function(events) {
     }
     if (parameters$smc) {
       api$schedule(events$smc_enrollment, c(1), parameters$smc_start)
+    }
+    if (parameters$tbv) {
+      api$schedule(events$tbv_vaccination, c(1), parameters$tbv_start)
     }
   }
 }

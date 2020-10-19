@@ -37,6 +37,8 @@ haven't been any)
 \item rtss_rho - antibody component variable
 \item rtss_ds - short-lived antibody delay variable
 \item rtss_dl - long-lived antibody delay variable
+\item tbv_vaccinated - The timstep of the last tbv vaccination (-1 if there
+haven't been any
 \item zeta_group - Discretised heterogeneity of human individuals
 }
 

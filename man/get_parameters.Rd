@@ -202,6 +202,25 @@ I recommend setting these with convenience functions in \code{mda_parameters.R}
 \item smc* - as for mda*
 }
 
+TBV parameters:
+\itemize{
+\item tbv_mt - effect on treated infectiousness
+\item tbv_md - effect on diseased infectiousness
+\item tbv_ma - effect on asymptomatic infectiousness
+\item tbv_mu - effect on subpatent infectiousness
+\item tbv_k  - scale parameter for effect on infectiousness
+\item tbv_tau - peak antibody parameter
+\item tbv_rho - antibody component parameter
+\item tbv_ds - antibody short-term delay parameter
+\item tbv_dl - antibody long-term delay parameter
+\item tbv_tra_mu - transmission reduction parameter
+\item tbv_gamma1 - transmission reduction parameter
+\item tbv_gamma2 - transmission reduction parameter
+}
+
+I recommend setting tbv strategies with the convenience functions in
+\code{vaccine_parameters.R}, these are the same as for RTS,S
+
 rendering:
 All values are in timesteps and all ranges are inclusive
 \itemize{

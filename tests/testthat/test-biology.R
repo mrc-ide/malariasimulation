@@ -83,9 +83,12 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR (with h
   )
 })
 
-test_that('mosquito_limit is set to a sensible level', {
-  population <- 1000
+test_that('mosquito_limit is set to 0 for 0 EIR', {
+  parameters <- parameterise_mosquito_equilibrium(get_parameters(), 0)
+  expect_equal(parameters$mosquito_limit, 0)
+})
 
+test_that('mosquito_limit is set to a sensible level', {
   EIRs <- c(5, 50, 1000)
 
   seasonalities <- list(

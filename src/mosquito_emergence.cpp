@@ -40,7 +40,9 @@ Rcpp::XPtr<process_t> create_mosquito_emergence_process_cpp(
                 std::stringstream m;
                 m << "Not enough mosquitos (short by ";
                 m << n - source.size();
-                m << ").Please raise mosquito_limit";
+                m << "). Please raise the value of parameters$mosquito_limit. ";
+                m << "If you have used `parameterise_mosquito_equilibrium`, ";
+                m << "your seasonality parameters may have lead to more mosquitoes than expected.";
                 Rcpp::stop(m.str());
             }
             if (n > 0) {

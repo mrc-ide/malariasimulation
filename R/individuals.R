@@ -207,10 +207,7 @@ create_variables <- function(parameters) {
     exp(rnorm(size, parameters$rtss_dl[[1]], parameters$rtss_dl[[2]]))
   )
 
-  tbv_vaccinated <- individual::Variable$new(
-    "tbv_vaccinated",
-    function(n) rep(-1, n)
-  )
+  tbv_vaccinated <- individual::Variable$new("tbv_vaccinated", rep(-1, size))
 
   variables <- list(
     birth = birth,

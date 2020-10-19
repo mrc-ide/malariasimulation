@@ -59,7 +59,7 @@ context("TBV calculations are correct") {
         account_for_tbv(infectivity, api, "human", human_states, vaccinated_handle, params);
 
         //check the result
-        auto expected = variable_vector_t{ 0.0, 0.1, 0.0240331058, 0.0756617895, 0.0454750192 };
+        auto expected = variable_vector_t{ 0.0, 0.1, 0.0112133312, 0.2226002769, 0.1137443524 };
         for (auto i = 0u; i < expected.size(); ++i) {
             expect_true(infectivity[i] == Approx(expected[i]));
         }

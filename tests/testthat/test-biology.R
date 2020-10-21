@@ -82,3 +82,38 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR (with h
     tolerance = 1
   )
 })
+
+test_that('mosquito_limit is set to 0 for 0 EIR', {
+  parameters <- parameterise_mosquito_equilibrium(get_parameters(), 0)
+  expect_equal(parameters$mosquito_limit, 0)
+})
+
+test_that('mosquito_limit is set to a sensible level', {
+  EIRs <- c(5, 50, 1000)
+
+  seasonalities <- list(
+    list(
+      g0 = 7.2,
+      g = c(-10, 4.06, -1.08),
+      h = c(-4.6, 3.59, -1.32)
+    ),
+    list(
+      g0 = 7.2,
+      g = c(-10, 4.06, -1.08),
+      h = c(-4.6, 3.59, -1.32)
+    )
+  )
+
+  for (EIR in EIRs) {
+    for (seasonality in seasonalities) {
+      parameters <- get_parameters(c(
+        seasonality,
+        model_seasonality = TRUE,
+        init_foim = .1
+      ))
+      parameters <- parameterise_mosquito_equilibrium(parameters, EIR)
+      run_simulation(365, parameters)
+    }
+  }
+  expect_true(TRUE)
+})

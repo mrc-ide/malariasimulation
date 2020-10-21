@@ -43,7 +43,7 @@ create_states <- function(parameters) {
     Tr = individual::State$new("Tr", initial_counts[[5]])
   )
 
-  mosquito_counts <- initial_mosquito_counts(parameters, parameters$init_foim)
+  mosquito_counts <- floor(initial_mosquito_counts(parameters, parameters$init_foim))
   n_Unborn <- parameters$mosquito_limit - sum(mosquito_counts[c(4, 5, 6)])
 
   if (n_Unborn < 0) {

@@ -310,7 +310,7 @@ get_parameters <- function(overrides = list()) {
     kd    = .476614,
     # mortality parameters
     average_age = 7663 / days_per_timestep,
-    v     = .065, # NOTE: there are two definitions of this: one on line 124 and one in the parameters table
+    v     = .065, # NOTE: there are two definitions of this in the literature: one on line 124 and one in the parameters table
     pcm   = .774368,
     pvm   = .195768,
     # carrying capacity parameters

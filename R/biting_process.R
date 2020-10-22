@@ -56,6 +56,14 @@ simulate_bites <- function(api, individuals, states, variables, age, parameters)
   )
 
   human_infectivity <- api$get_variable(individuals$human, variables$infectivity)
+  human_infectivity <- account_for_tbv(
+    api,
+    human_infectivity,
+    individuals$human,
+    states,
+    variables,
+    parameters
+  )
 
   # Calculate pi (the relative biting rate for each human)
   psi <- unique_biting_rate(age, parameters)

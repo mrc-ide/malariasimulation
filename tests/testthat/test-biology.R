@@ -25,7 +25,7 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR', {
   states <- create_states(parameters)
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables, events, parameters)
-  age <- get_age(variables$birth$initialiser(population), 0)
+  age <- get_age(variables$birth$initial_values, 0)
   zeta <- rep(1, length(age))
   api <- mock_api(
     list(human = list(
@@ -85,8 +85,8 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR (with h
   states <- create_states(parameters)
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables, events, parameters)
-  age <- get_age(variables$birth$initialiser(population), 0)
-  zeta <- variables$zeta$initialiser(population)
+  age <- get_age(variables$birth$initial_values, 0)
+  zeta <- variables$zeta$initial_values
   api <- mock_api(
     list(human = list(
       zeta = zeta

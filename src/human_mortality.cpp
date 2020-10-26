@@ -150,7 +150,7 @@ Rcpp::XPtr<process_t> create_mortality_process(RandomInterface* random) {
         const auto& parameters = api.get_parameters();
         auto died = random->bernoulli(
             parameters.at("human_population")[0],
-            parameters.at("mortality_rate")[0]
+            1./parameters.at("average_age")[0]
         );
 
         if (parameters.at("severe_enabled")[0] == 1.) {

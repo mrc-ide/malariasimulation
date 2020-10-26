@@ -6,7 +6,7 @@ initial_immunity <- function(parameter, age) {
     age[age > 99] <- 99
     return(parameter[age + 1])
   }
-  stop('unsupported param')
+  stop('unsupported immunity parameter')
 }
 
 #' @title Define model states
@@ -121,12 +121,12 @@ create_variables <- function(parameters) {
   # Maternal immunity
   icm <- individual::Variable$new(
     "ICM",
-    parameters$init_icm * exp(-(initial_age * parameters$rm))
+    initial_immunity(parameters$init_icm, initial_age)
   )
 
   ivm <- individual::Variable$new(
     "IVM",
-    parameters$init_ivm * exp(-(initial_age * parameters$rm))
+    initial_immunity(parameters$init_ivm, initial_age)
   )
 
   # Pre-erythoctic immunity

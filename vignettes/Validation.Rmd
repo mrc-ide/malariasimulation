@@ -217,11 +217,7 @@ immunity_plots <- lapply(
   function(i) {
     output <- outputs[[i]]
     eq <- get_equilibrium(estimated_eirs[[i]])
-    w <- vapply(
-      seq(100)*365,
-      function(age) (1/simparams$average_age)*exp(-age/simparams$average_age),
-      numeric(1)
-    )
+    w <- eq$states[,'props']
     equilibrium <- data.frame(
       timestep = seq(sim_length),
       human_ICA_mean = rep(weighted.mean(eq$states[, 'ICA'], w), sim_length),

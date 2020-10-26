@@ -90,7 +90,6 @@
 #'
 #' mortality parameters:
 #'
-#' * mortality_rate - human mortality rate across age groups
 #' * v - mortality scaling factor from severe disease
 #' * pcm - new-born clinical immunity relative to mother's
 #' * pvm - new-born severe immunity relative to mother's
@@ -430,10 +429,6 @@ get_parameters <- function(overrides = list()) {
     human_population = 100,
     mosquito_limit   = 100 * 1000,
     days_per_timestep  = days_per_timestep
-  )
-
-  parameters$mortality_rate = 1 - exp(
-    -days_per_timestep * (1 / parameters$average_age)
   )
 
   # Override parameters with any client specified ones

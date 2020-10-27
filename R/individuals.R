@@ -93,6 +93,7 @@ create_states <- function(parameters) {
 #' haven't been any
 #' * zeta_group - Discretised heterogeneity of human individuals
 #' * net_time - The timestep when a net was last put up (-1 if never)
+#' * net_end_time - The timestep when a net will be thrown away (-1 if NA)
 #' * spray_time - The timestep when the house was last sprayed (-1 if never)
 #'
 #' Mosquito variables are: 
@@ -213,6 +214,7 @@ create_variables <- function(parameters) {
 
   # Init vector controls
   net_time <- individual::Variable$new("net_time", rep(-1, size))
+  net_end_time <- individual::Variable$new("net_end_time", rep(-1, size))
   spray_time <- individual::Variable$new("spray_time", rep(-1, size))
 
   variables <- list(
@@ -241,6 +243,7 @@ create_variables <- function(parameters) {
     tbv_vaccinated = tbv_vaccinated,
     is_severe = is_severe,
     net_time = net_time,
+    net_end_time = net_end_time,
     spray_time = spray_time
   )
 
@@ -306,6 +309,7 @@ create_individuals <- function(
       variables$rtss_dl,
       variables$tbv_vaccinated,
       variables$net_time,
+      variables$net_end_time,
       variables$spray_time
     ),
     events = c(

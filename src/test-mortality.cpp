@@ -222,6 +222,12 @@ context("Mortality process") {
                                                 died, negone));
         REQUIRE_CALL(api, queue_variable_update("human", "infectivity",
                                                 died, zero));
+        REQUIRE_CALL(api, queue_variable_update("human", "net_time",
+                                                died, negone));
+        REQUIRE_CALL(api, queue_variable_update("human", "net_end_time",
+                                                died, negone));
+        REQUIRE_CALL(api, queue_variable_update("human", "spray_time",
+                                                died, negone));
 
         REQUIRE_CALL(api, clear_schedule("infection", died));
         REQUIRE_CALL(api, clear_schedule("clinical_infection", died));

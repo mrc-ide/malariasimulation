@@ -93,7 +93,7 @@ indoor_spraying <- function(human, spray_time, parameters) {
   }
 }
 
-distribute_nets <- function(human, net_time, parameters) {
+distribute_nets <- function(human, variables, parameters) {
   function(api) {
     timestep <- api$get_timestep()
     matches <- timestep == parameters$bednet_timesteps
@@ -102,21 +102,25 @@ distribute_nets <- function(human, net_time, parameters) {
         parameters$human_population,
         parameters$bednet_coverages[matches]
       )
-      api$queue_variable_update(human, net_time, timestep, target)
+      api$queue_variable_update(human, variables$net_time, timestep, target)
+      api$queue_variable_update(
+        human,
+        variables$net_end_time,
+        timestep + ceiling(
+          -parameters$bednet_retention * log(runif(length(target)))
+        ),
+        target
+      )
     }
   }
 }
 
-throw_away_nets <- function(human, net_time, retention) {
-  rate <- 1 - exp(-1/retention)
+throw_away_nets <- function(human, variables) {
   function(api) {
-    timestep <- api$get_timestep()
-    times <- api$get_variable(human, net_time)
-    distributed <- which(times > -1)
-    target <- distributed[bernoulli(length(distributed), rate)]
-    if (length(target) > 0) {
-      api$queue_variable_update(human, net_time, -1, target)
-    }
+    end_time <- api$get_variable(human, variables$net_end_time)
+    target <- which(end_time == api$get_timestep())
+    api$queue_variable_update(human, variables$net_time, -1, target)
+    api$queue_variable_update(human, variables$net_end_time, -1, target)
   }
 }
 

@@ -155,8 +155,8 @@ create_processes <- function(
   if (parameters$bednets) {
     processes <- c(
       processes,
-      distribute_nets(individuals$human, variables$net_time, parameters),
-      throw_away_nets(individuals$human, variables$net_time, parameters$bednet_retention)
+      distribute_nets(individuals$human, variables, parameters),
+      throw_away_nets(individuals$human, variables)
     )
   }
 

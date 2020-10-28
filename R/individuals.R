@@ -95,13 +95,13 @@ create_states <- function(parameters) {
 #' * net_time - The timestep when a net was last put up (-1 if never)
 #' * net_end_time - The timestep when a net will be thrown away (-1 if NA)
 #' * spray_time - The timestep when the house was last sprayed (-1 if never)
+#' * infectivity - The onward infectiousness to mosquitos
+#' * drug - The last prescribed drug
+#' * drug_time - The timestep of the last drug
 #'
 #' Mosquito variables are: 
 #' * variety - The variety of mosquito, this is an ordinal in the range of
 #' length(parameters$variety_proportions)
-#' * infectivity - The onward infectiousness to mosquitos
-#' * drug - The last prescribed drug
-#' * drug_time - The timestep of the last drug
 #'
 #' @param parameters, model parameters created by `get_parameters`
 #' @importFrom stats rexp rnorm
@@ -334,10 +334,7 @@ create_individuals <- function(
       states$Im,
       states$Unborn
     ),
-    variables = list(variables$mosquito_variety),
-    events = list(
-      events$mosquito_infection
-    )
+    variables = list(variables$mosquito_variety)
   )
 
   list(human = human, mosquito = mosquito)

@@ -27,6 +27,7 @@ create_biting_process <- function(
       individuals,
       states,
       variables,
+      events,
       age,
       parameters
     )
@@ -43,7 +44,7 @@ create_biting_process <- function(
   }
 }
 
-simulate_bites <- function(api, individuals, states, variables, age, parameters) {
+simulate_bites <- function(api, individuals, states, variables, events, age, parameters) {
   total_eir <- 0
 
   # Get mosquitoes in each state
@@ -111,6 +112,7 @@ simulate_bites <- function(api, individuals, states, variables, age, parameters)
       lambda,
       individuals,
       states,
+      events$mosquito_infection,
       species,
       susceptible_species,
       c(

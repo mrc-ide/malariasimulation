@@ -80,14 +80,6 @@ create_processes <- function(
       parameters$dpl
     ),
 
-    # Infection after incubation
-    individual::fixed_probability_state_change_process(
-      individuals$mosquito$name,
-      states$Pm$name,
-      states$Im$name,
-      1. - exp(-1./parameters$dem)
-    ),
-
     # ==============
     # Biting process
     # ==============
@@ -226,6 +218,13 @@ create_event_based_processes <- function(individuals, states, variables, events,
     )
   )
 
+  events$mosquito_infection$add_listener(
+    individual::update_state_listener(
+      individuals$mosquito$name,
+      states$Im$name
+    )
+  )
+
   if (parameters$rtss == 1) {
     events$rtss_vaccination$add_listener(
       create_rtss_vaccination_listener(individuals$human, variables, events, parameters)
@@ -313,9 +312,14 @@ create_exponential_decay_process <- function(individual, variable, rate) {
   }
 }
 
-create_setup_process <- function(events) {
+create_setup_process <- function(mosquito, Pm, events) {
   function(api) {
     parameters <- api$get_parameters()
+    api$schedule(
+      events$mosquito_infection,
+      api$get_state(mosquito, Pm),
+      parameters$dem
+    )
     if (parameters$rtss) {
       api$schedule(events$rtss_vaccination, c(1), parameters$rtss_start)
     }

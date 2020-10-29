@@ -334,7 +334,8 @@ create_individuals <- function(
       states$Im,
       states$Unborn
     ),
-    variables = list(variables$mosquito_variety)
+    variables = list(variables$mosquito_variety),
+    events = list(events$mosquito_infection)
   )
 
   list(human = human, mosquito = mosquito)

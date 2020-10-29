@@ -32,7 +32,11 @@ run_simulation <- function(timesteps, parameters = NULL) {
     ),
     end_timestep = timesteps,
     parameters = parameters,
-    initialisation = create_setup_process(events)
+    initialisation = create_setup_process(
+      individuals$mosquito,
+      states$Pm,
+      events
+    )
   )
 }
 

@@ -150,6 +150,7 @@ calculate_mosquito_effects <- function(
     lambda,
     individuals,
     states,
+    mosquito_infection,
     species,
     susceptible_species,
     adult_species,
@@ -161,13 +162,15 @@ calculate_mosquito_effects <- function(
   # deal with mosquito infections
   lambda <- sum(human_infectivity * lambda)
   api$render(paste0('FOIM_', species), lambda)
+  target <- susceptible_species[
+    bernoulli(length(susceptible_species), lambda)
+  ]
   api$queue_state_update(
     individuals$mosquito,
     states$Pm,
-    susceptible_species[
-      bernoulli(length(susceptible_species), lambda)
-    ]
+    target
   )
+  api$schedule(mosquito_infection, target, parameters$dem)
 
   # deal with mosquito deaths
   p1_0 <- exp(-parameters$mum * parameters$foraging_time)

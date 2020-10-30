@@ -45,6 +45,7 @@ test_that('biting_process integrates mosquito effects and human infection', {
     individuals,
     states,
     variables,
+    events,
     age,
     parameters
   )
@@ -98,7 +99,7 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
   mockery::stub(simulate_bites, 'calculate_mosquito_effects', mosquito_effects_mock)
   .pi <- rep(1 / population, population)
   mockery::stub(simulate_bites, 'human_pi', mockery::mock(.pi))
-  total_eir <- simulate_bites(api, individuals, states, variables, age, parameters)
+  total_eir <- simulate_bites(api, individuals, states, variables, events, age, parameters)
 
   expect_equal(total_eir, 5)
 
@@ -128,6 +129,7 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
     .5,
     individuals,
     states,
+    events$mosquito_infection,
     1,
     11:25,
     c(11:25, 1:10),

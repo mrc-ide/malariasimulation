@@ -175,6 +175,7 @@ test_that('mosquito_effects correctly samples mortalities and infections without
     lambda,
     individuals,
     states,
+    events,
     1,
     1:50,
     1:100,

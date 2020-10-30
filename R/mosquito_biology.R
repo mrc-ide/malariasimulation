@@ -179,14 +179,16 @@ calculate_mosquito_effects <- function(
   p1 <- p1_0 * W / (1 - Z * p1_0)
   mu <- -f * log(p1 * p2)
   api$render(paste0('mu_', species), mu)
+  died <- adult_species[
+    bernoulli(length(adult_species), mu)
+  ]
 
   api$queue_state_update(
     individuals$mosquito,
     states$Unborn,
-    adult_species[
-      bernoulli(length(adult_species), mu)
-    ]
+    died
   )
+  api$clear_schedule(mosquito_infection, died)
 }
 
 get_gonotrophic_cycle <- function(v, parameters) {

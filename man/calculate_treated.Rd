@@ -4,7 +4,7 @@
 \alias{calculate_treated}
 \title{Calculate treated humans}
 \usage{
-calculate_treated(api, human, states, variables, clinical_infections)
+calculate_treated(api, human, states, variables, clinical_infections, recovery)
 }
 \arguments{
 \item{api}{simulation api}
@@ -16,6 +16,8 @@ calculate_treated(api, human, states, variables, clinical_infections)
 \item{variables}{a list of all of the model variables}
 
 \item{clinical_infections}{indices of clinically infected humans}
+
+\item{recovery}{the recovery event}
 }
 \description{
 Sample treated humans from the clinically infected

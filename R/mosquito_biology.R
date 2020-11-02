@@ -134,6 +134,7 @@ peak_season_offset <- function(parameters) {
 #' @param lambda the effective biting rate for this species on each human
 #' @param individuals a list of individual handles
 #' @param states a list of state handles
+#' @param mosquito_infection an event for mosquito infection
 #' @param species the index of the species to calculate for
 #' @param susceptible_species the indices of susceptible mosquitos of the
 #' species at index `species`

@@ -6,6 +6,9 @@ bernoulli <- function(size, p) sample.int(size, rbinom(1, size, min(p, 1)))
 #' @importFrom stats runif
 bernoulli_multi_p <- function(size, p) runif(size, 0, 1) < p
 
+#' @importFrom stats runif
+log_uniform <- function(size, rate) -rate * log(runif(size))
+
 approx_sum <- function(X, n) abs(sum(X) - n) < sqrt(.Machine$double.eps)
 
 discretise_normal <- function(values, n_groups) {

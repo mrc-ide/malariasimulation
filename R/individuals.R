@@ -316,6 +316,8 @@ create_individuals <- function(
       events$infection,
       events$clinical_infection,
       events$asymptomatic_infection,
+      events$subpatent_infection,
+      events$recovery,
       events$rtss_vaccination,
       events$rtss_booster,
       events$mda_enrollment,

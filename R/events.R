@@ -3,7 +3,9 @@ create_events <- function() {
     # Human infection events
     clinical_infection = individual::Event$new('clinical_infection'),
     asymptomatic_infection = individual::Event$new('asymptomatic_infection'),
-    infection = individual::Event$new('infection'),
+    infection = individual::Event$new('infection'), # either clinical or asym infection
+    subpatent_infection = individual::Event$new('subpatent_infection'),
+    recovery = individual::Event$new('recovery'),
 
     # Vaccination events
     rtss_vaccination = individual::Event$new('rtss_vaccination'),

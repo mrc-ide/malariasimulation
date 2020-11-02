@@ -7,3 +7,4 @@
 appveyor.yml
 docker
 LICENSE.md
+codecov.yml

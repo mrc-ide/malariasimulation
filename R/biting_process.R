@@ -142,7 +142,16 @@ simulate_bites <- function(api, individuals, states, variables, events, age, par
 #' mosquito species
 #' @param age of each human (timesteps)
 #' @param parameters of the model
-simulate_infection <- function(api, individuals, states, variables, events, total_eir, age, parameters) {
+simulate_infection <- function(
+  api,
+  individuals,
+  states,
+  variables,
+  events,
+  total_eir,
+  age,
+  parameters
+  ) {
   bitten_humans <- which(bernoulli_multi_p(length(total_eir), total_eir))
   api$render("mean_EIR", mean(total_eir))
 
@@ -193,7 +202,8 @@ simulate_infection <- function(api, individuals, states, variables, events, tota
     individuals$human,
     states,
     variables,
-    clinical_infections
+    clinical_infections,
+    events$recovery
   )
 
   schedule_infections(

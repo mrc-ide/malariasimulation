@@ -10,6 +10,7 @@ calculate_mosquito_effects(
   lambda,
   individuals,
   states,
+  mosquito_infection,
   species,
   susceptible_species,
   adult_species,
@@ -29,6 +30,8 @@ calculate_mosquito_effects(
 \item{individuals}{a list of individual handles}
 
 \item{states}{a list of state handles}
+
+\item{mosquito_infection}{an event for mosquito infection}
 
 \item{species}{the index of the species to calculate for}
 

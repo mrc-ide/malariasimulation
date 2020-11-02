@@ -159,12 +159,14 @@ update_severe_disease <- function(
 #' @param states a list of all of the model states
 #' @param variables a list of all of the model variables
 #' @param clinical_infections indices of clinically infected humans
+#' @param recovery the recovery event
 calculate_treated <- function(
   api,
   human,
   states,
   variables,
-  clinical_infections
+  clinical_infections,
+  recovery
   ) {
   parameters <- api$get_parameters()
   if (length(parameters$clinical_treatment_coverages) == 0) {
@@ -206,6 +208,11 @@ calculate_treated <- function(
       api$get_timestep(),
       treated_index
     )
+    api$schedule(
+      recovery,
+      treated_index,
+      log_uniform(length(treated_index), parameters$dt)
+    )
   }
   treated_index
 }
@@ -229,20 +236,32 @@ schedule_infections <- function(
   scheduled_for_infection <- api$get_scheduled(events$infection)
   excluded <- c(scheduled_for_infection, treated)
 
-  to_infect <- setdiff(clinical_infections, excluded)
   all_new_infections <- setdiff(infections, excluded)
-  to_infect_asym <- setdiff(all_new_infections, clinical_infections)
+  to_infect <- all_new_infections %in% clinical_infections
+  to_infect_asym <- !to_infect
 
-  if(length(to_infect) > 0) {
-    api$schedule(events$clinical_infection, to_infect, parameters$de)
+  infection_times <- log_uniform(length(all_new_infections), parameters$de)
+
+  if(sum(to_infect) > 0) {
+    api$schedule(
+      events$clinical_infection,
+      all_new_infections[to_infect],
+      infection_times[to_infect]
+    )
   }
 
-  if(length(to_infect_asym) > 0) {
-    api$schedule(events$asymptomatic_infection, to_infect_asym, parameters$de)
+  if(sum(to_infect_asym) > 0) {
+    api$schedule(
+      events$asymptomatic_infection,
+      all_new_infections[to_infect_asym],
+      infection_times[to_infect_asym]
+    )
   }
 
   if(length(all_new_infections) > 0) {
-    api$schedule(events$infection, all_new_infections, parameters$de)
+    api$schedule(events$infection, all_new_infections, infection_times)
+    api$clear_schedule(events$subpatent_infection, all_new_infections)
+    api$clear_schedule(events$recovery, all_new_infections)
   }
 }
 

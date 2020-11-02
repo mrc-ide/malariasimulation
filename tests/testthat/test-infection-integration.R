@@ -91,7 +91,8 @@ test_that('simulate_infection integrates different types of infection and schedu
     individuals$human,
     states,
     variables,
-    c(1, 3)
+    c(1, 3),
+    events$recovery
   )
 
   mockery::expect_args(
@@ -290,8 +291,16 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   mockery::stub(calculate_treated, 'sample.int', sample_mock)
   bernoulli_multi_mock <- mockery::mock(c(TRUE, FALSE, TRUE))
   mockery::stub(calculate_treated, 'bernoulli_multi_p', bernoulli_multi_mock)
+  mockery::stub(calculate_treated, 'log_uniform', mockery::mock(c(3, 4)))
 
-  calculate_treated(api, individuals$human, states, variables, c(1, 2, 3, 4))
+  calculate_treated(
+    api,
+    individuals$human,
+    states,
+    variables,
+    c(1, 2, 3, 4),
+    events$recovery
+  )
 
   mockery::expect_args(
     bernoulli_mock,
@@ -347,6 +356,13 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
     5,
     c(1, 4)
   )
+  mockery::expect_args(
+    api$schedule,
+    1,
+    events$recovery,
+    c(1, 4),
+    c(3, 4)
+  )
 })
 
 test_that('schedule_infections correctly schedules new infections', {
@@ -360,6 +376,13 @@ test_that('schedule_infections correctly schedules new infections', {
   )
 
   api$get_scheduled = mockery::mock(c(1, 3, 7, 15))
+  mockery::stub(
+    schedule_infections,
+    'log_uniform',
+    mockery::mock(
+      c(2, 4, 5, 6, 13, 14, 16, 17, 18, 19, 20)
+    )
+  )
 
   schedule_infections(api, events, 5:15, 7:12, 1:20)
 
@@ -368,7 +391,7 @@ test_that('schedule_infections correctly schedules new infections', {
     1,
     events$clinical_infection,
     c(5, 6, 13, 14),
-    parameters$de
+    c(5, 6, 13, 14)
   )
 
   mockery::expect_args(
@@ -376,7 +399,7 @@ test_that('schedule_infections correctly schedules new infections', {
     2,
     events$asymptomatic_infection,
     c(2, 4, 16, 17, 18, 19, 20),
-    parameters$de
+    c(2, 4, 16, 17, 18, 19, 20)
   )
 
   mockery::expect_args(
@@ -384,7 +407,7 @@ test_that('schedule_infections correctly schedules new infections', {
     3,
     events$infection,
     c(2, 4, 5, 6, 13, 14, 16, 17, 18, 19, 20),
-    parameters$de
+    c(2, 4, 5, 6, 13, 14, 16, 17, 18, 19, 20)
   )
 })
 
@@ -599,8 +622,18 @@ test_that('calculate_treated can handle multiple drugs', {
     'malariasimulation:::bernoulli_multi_p' = mockery::mock(
       c(TRUE, TRUE, FALSE) # Mock drug success
     ),
+    'malariasimulation:::log_uniform' = mockery::mock(
+      c(10, 12) # Recovery times
+    ),
     sample.int = mockery::mock(c(1, 2)),
-    calculate_treated(api, individuals$human, states, variables, seq(3))
+    calculate_treated(
+      api,
+      individuals$human,
+      states,
+      variables,
+      seq(3),
+      events$recovery
+    )
   )
 
   mockery::expect_args(
@@ -636,5 +669,13 @@ test_that('calculate_treated can handle multiple drugs', {
     variables$drug_time,
     5,
     c(1, 2)
+  )
+
+  mockery::expect_args(
+    api$schedule,
+    1,
+    events$recovery,
+    c(1, 2),
+    c(10, 12)
   )
 })

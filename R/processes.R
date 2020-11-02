@@ -36,41 +36,6 @@ create_processes <- function(
     create_exponential_decay_process(individuals$human, variables$iva, parameters$rva),
     create_exponential_decay_process(individuals$human, variables$id, parameters$rid),
 
-    # =================
-    # State transitions
-    # =================
-    create_asymptomatic_progression_process(
-      individuals$human,
-      states,
-      variables,
-      1. - exp(-1./parameters$dd)
-    ),
-    create_progression_process(
-      individuals$human,
-      states$A,
-      states$U,
-      1. - exp(-1./parameters$da),
-      variables$infectivity,
-      parameters$cu
-    ),
-    create_progression_process(
-      individuals$human,
-      states$U,
-      states$S,
-      1. - exp(-1./parameters$du),
-      variables$infectivity,
-      0
-    ),
-    create_progression_process(
-      individuals$human,
-      states$Tr,
-      states$S,
-      1. - exp(-1./parameters$dt),
-      variables$infectivity,
-      0
-    ),
-
-
     create_mosquito_emergence_process_cpp(
       individuals$mosquito$name,
       odes,
@@ -171,43 +136,70 @@ create_processes <- function(
 #' @param events a list of events in the model
 #' @param parameters the model parameters
 create_event_based_processes <- function(individuals, states, variables, events, parameters) {
+
+  # =============
+  # State updates
+  # =============
+  # When infection events fire, update the corresponding states and infectivity
+  # variables
+
+  # Infection events
   events$clinical_infection$add_listener(
-    individual::update_state_listener(individuals$human$name, states$D$name)
-  )
-  events$clinical_infection$add_listener(
-    function(api, target) {
-      if (length(target) > 0) {
-        api$queue_variable_update(
-          individuals$human,
-          variables$infectivity,
-          parameters$cd,
-          target
-        )
-      }
-    }
+    create_infection_update_listener(
+      individuals$human,
+      states$D,
+      variables$infectivity,
+      parameters$cd
+    )
   )
   events$asymptomatic_infection$add_listener(
-    individual::update_state_listener(individuals$human$name, states$A$name)
+    create_asymptomatic_update_listener(
+      individuals$human,
+      states,
+      variables
+    )
+  )
+
+  # Recovery events
+  events$subpatent_infection$add_listener(
+    create_infection_update_listener(
+      individuals$human,
+      states$U,
+      variables$infectivity,
+      parameters$cu
+    )
+  )
+  events$recovery$add_listener(
+    create_infection_update_listener(
+      individuals$human,
+      states$S,
+      variables$infectivity,
+      0
+    )
+  )
+
+  # ===========
+  # Progression
+  # ===========
+  # When infection events fire, schedule the next stages of infection
+
+  events$clinical_infection$add_listener(
+    create_progression_listener(
+      events$asymptomatic_infection,
+      parameters$dd
+    )
   )
   events$asymptomatic_infection$add_listener(
-    function(api, target) {
-      if (length(target) > 0) {
-        new_infectivity <- asymptomatic_infectivity(
-          get_age(
-            api$get_variable(individuals$human, variables$birth, target),
-            api$get_timestep()
-          ),
-          api$get_variable(individuals$human, variables$id, target),
-          api$get_parameters()
-        )
-        api$queue_variable_update(
-          individuals$human,
-          variables$infectivity,
-          new_infectivity,
-          target
-        )
-      }
-    }
+    create_progression_listener(
+      events$subpatent_infection,
+      parameters$da
+    )
+  )
+  events$subpatent_infection$add_listener(
+    create_progression_listener(
+      events$recovery,
+      parameters$du
+    )
   )
 
   events$infection$add_listener(
@@ -227,10 +219,20 @@ create_event_based_processes <- function(individuals, states, variables, events,
 
   if (parameters$rtss == 1) {
     events$rtss_vaccination$add_listener(
-      create_rtss_vaccination_listener(individuals$human, variables, events, parameters)
+      create_rtss_vaccination_listener(
+        individuals$human,
+        variables,
+        events,
+        parameters
+      )
     )
     events$rtss_booster$add_listener(
-      create_rtss_booster_listener(individuals$human, variables, events, parameters)
+      create_rtss_booster_listener(
+        individuals$human,
+        variables,
+        events,
+        parameters
+      )
     )
   }
 
@@ -312,14 +314,45 @@ create_exponential_decay_process <- function(individual, variable, rate) {
   }
 }
 
-create_setup_process <- function(mosquito, Pm, events) {
+create_setup_process <- function(individuals, states, events) {
   function(api) {
     parameters <- api$get_parameters()
+    # Initialise malaria progression
+    initialise_progression(
+      api,
+      events$asymptomatic_infection,
+      individuals$human,
+      states$D,
+      parameters$de
+    )
+    initialise_progression(
+      api,
+      events$subpatent_infection,
+      individuals$human,
+      states$A,
+      parameters$da
+    )
+    initialise_progression(
+      api,
+      events$recovery,
+      individuals$human,
+      states$U,
+      parameters$du
+    )
+    initialise_progression(
+      api,
+      events$recovery,
+      individuals$human,
+      states$Tr,
+      parameters$dt
+    )
     api$schedule(
       events$mosquito_infection,
-      api$get_state(mosquito, Pm),
+      api$get_state(individuals$mosquito, states$Pm),
       parameters$dem
     )
+
+    # Initialise interventions
     if (parameters$rtss) {
       api$schedule(events$rtss_vaccination, c(1), parameters$rtss_start)
     }

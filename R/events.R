@@ -18,6 +18,9 @@ create_events <- function() {
     smc_enrollment = individual::Event$new('smc_enrolment'),
     smc_administer = individual::Event$new('smc_administer'),
 
+    # Bednet events
+    throw_away_net = individual::Event$new('throw_away_net'),
+
     # Mosquito events
     mosquito_infection = individual::Event$new('mosquito_infection')
   )

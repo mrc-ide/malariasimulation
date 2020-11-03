@@ -112,7 +112,12 @@ create_processes <- function(
   if (parameters$bednets) {
     processes <- c(
       processes,
-      distribute_nets(individuals$human, variables, parameters),
+      distribute_nets(
+        individuals$human,
+        variables,
+        events$throw_away_net,
+        parameters
+      ),
       throw_away_nets(individuals$human, variables)
     )
   }
@@ -135,7 +140,13 @@ create_processes <- function(
 #' @param variables list of variables in the model
 #' @param events a list of events in the model
 #' @param parameters the model parameters
-create_event_based_processes <- function(individuals, states, variables, events, parameters) {
+create_event_based_processes <- function(
+  individuals,
+  states,
+  variables,
+  events,
+  parameters
+  ) {
 
   # =============
   # State updates
@@ -216,6 +227,12 @@ create_event_based_processes <- function(individuals, states, variables, events,
       states$Im$name
     )
   )
+
+  if (parameters$bednets == 1) {
+    events$throw_away_net$add_listener(
+      throw_away_nets(individuals$human, variables)
+    )
+  }
 
   if (parameters$rtss == 1) {
     events$rtss_vaccination$add_listener(

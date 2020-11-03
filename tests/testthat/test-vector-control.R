@@ -38,7 +38,12 @@ test_that('distribute_bednets process sets net_time correctly', {
   states <- create_states(parameters)
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables, events, parameters)
-  process <- distribute_nets(individuals$human, variables, parameters)
+  process <- distribute_nets(
+    individuals$human,
+    variables,
+    events$throw_away_net,
+    parameters
+  )
 
   api <- mock_api(
     list(),
@@ -48,7 +53,7 @@ test_that('distribute_bednets process sets net_time correctly', {
 
   bernoulli_mock <- mockery::mock(c(3, 4))
   mockery::stub(process, 'bernoulli', bernoulli_mock)
-  mockery::stub(process, 'runif', mockery::mock(c(.99999, .5)))
+  mockery::stub(process, 'log_uniform', mockery::mock(c(3, 4)))
 
   process(api)
 
@@ -62,11 +67,10 @@ test_that('distribute_bednets process sets net_time correctly', {
     c(3, 4)
   )
   mockery::expect_args(
-    api$queue_variable_update,
-    2,
-    individuals$human,
-    variables$net_end_time,
-    c(51, 78),
+    api$schedule,
+    1,
+    events$throw_away_net,
+    c(3, 4),
     c(3, 4)
   )
 })
@@ -78,34 +82,17 @@ test_that('throw_away_bednets process resets net_time correctly', {
   states <- create_states(parameters)
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables, events, parameters)
-  process <- throw_away_nets(individuals$human, variables)
+  listener <- throw_away_nets(individuals$human, variables)
 
-  api <- mock_api(
-    list(
-      human = list(
-        net_time = c(-1, 50, 50, 50),
-        net_end_time = c(-1, 55, 55, 56)
-      )
-    ),
-    timestep = 55,
-    parameters = parameters
-  )
+  api <- mock_api()
 
-  process(api)
+  listener(api, c(2, 3))
 
   mockery::expect_args(
     api$queue_variable_update,
     1,
     individuals$human,
     variables$net_time,
-    -1,
-    c(2, 3)
-  )
-  mockery::expect_args(
-    api$queue_variable_update,
-    2,
-    individuals$human,
-    variables$net_end_time,
     -1,
     c(2, 3)
   )

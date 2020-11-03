@@ -224,8 +224,6 @@ context("Mortality process") {
                                                 died, zero));
         REQUIRE_CALL(api, queue_variable_update("human", "net_time",
                                                 died, negone));
-        REQUIRE_CALL(api, queue_variable_update("human", "net_end_time",
-                                                died, negone));
         REQUIRE_CALL(api, queue_variable_update("human", "spray_time",
                                                 died, negone));
 
@@ -234,6 +232,7 @@ context("Mortality process") {
         REQUIRE_CALL(api, clear_schedule("asymptomatic_infection", died));
         REQUIRE_CALL(api, clear_schedule("subpatent_infection", died));
         REQUIRE_CALL(api, clear_schedule("recovery", died));
+        REQUIRE_CALL(api, clear_schedule("throw_away_net", died));
 
         auto mortality_process = create_mortality_process(&random);
         (*mortality_process)(api);

@@ -195,6 +195,7 @@ Rcpp::XPtr<process_t> create_mortality_process(RandomInterface* random) {
             api.clear_schedule("asymptomatic_infection", died);
             api.clear_schedule("subpatent_infection", died);
             api.clear_schedule("recovery", died);
+            api.clear_schedule("throw_away_net", died);
 
             api.queue_variable_update("human", "birth", died, variable_vector_t{static_cast<double>(timestep)});
             api.queue_variable_update("human", "last_boosted_ib", died, variable_vector_t{-1});
@@ -211,7 +212,6 @@ Rcpp::XPtr<process_t> create_mortality_process(RandomInterface* random) {
             api.queue_variable_update("human", "drug_time", died, variable_vector_t{-1});
             api.queue_variable_update("human", "infectivity", died, variable_vector_t{0});
             api.queue_variable_update("human", "net_time", died, variable_vector_t{-1});
-            api.queue_variable_update("human", "net_end_time", died, variable_vector_t{-1});
             api.queue_variable_update("human", "spray_time", died, variable_vector_t{-1});
             //zeta and zeta group survive rebirth
         }

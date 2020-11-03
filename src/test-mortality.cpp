@@ -6,7 +6,7 @@
 #include <testthat.h>
 #include "test-mock.h"
 #include "human_mortality.h"
-#include "test-helpers.h"
+#include "test-helper.h"
 
 context("Sample mothers implementation") {
     test_that("sample_mothers correctly samples mothers from the population") {
@@ -129,7 +129,7 @@ context("Mortality process") {
         params_t params;
         params["severe_enabled"] = std::vector<double>{1};
         params["human_population"] = std::vector<double>{4};
-        params["mortality_rate"] = std::vector<double>{.95};
+        params["average_age"] = std::vector<double>{7000};
         params["v"] = std::vector<double>{.65};
         params["fvt"] = std::vector<double>{.5};
         params["pcm"] = std::vector<double>{.774368};
@@ -172,7 +172,7 @@ context("Mortality process") {
         std::vector<size_t> empty{};
         std::vector<size_t> zero_size_t{0};
         trompeloeil::sequence seq_bernoulli;
-        REQUIRE_CALL(random, bernoulli(4, .95)) // mortality_rate
+        REQUIRE_CALL(random, bernoulli(4, 1./7000.)) // mortality_rate
             .IN_SEQUENCE(seq_bernoulli)
             .RETURN(three);
         REQUIRE_CALL(random, bernoulli(_, .65)) // v
@@ -222,10 +222,17 @@ context("Mortality process") {
                                                 died, negone));
         REQUIRE_CALL(api, queue_variable_update("human", "infectivity",
                                                 died, zero));
+        REQUIRE_CALL(api, queue_variable_update("human", "net_time",
+                                                died, negone));
+        REQUIRE_CALL(api, queue_variable_update("human", "spray_time",
+                                                died, negone));
 
         REQUIRE_CALL(api, clear_schedule("infection", died));
         REQUIRE_CALL(api, clear_schedule("clinical_infection", died));
         REQUIRE_CALL(api, clear_schedule("asymptomatic_infection", died));
+        REQUIRE_CALL(api, clear_schedule("subpatent_infection", died));
+        REQUIRE_CALL(api, clear_schedule("recovery", died));
+        REQUIRE_CALL(api, clear_schedule("throw_away_net", died));
 
         auto mortality_process = create_mortality_process(&random);
         (*mortality_process)(api);

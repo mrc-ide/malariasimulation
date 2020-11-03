@@ -1,109 +1,12 @@
-#' @title Infection process
+#' @title Calculate overall infections for bitten humans
 #' @description
-#' This is the process of infection for humans. It results in human future state
-#' changes for infected humans and boosts in immunity.
-#' @param individuals a list of individuals in the model
+#' Sample infected humans given prophylaxis and vaccination
+#' @param api simulation api
+#' @param human a handle for humans
 #' @param states a list of all of the model states
 #' @param variables a list of all of the model variables
-#' @param events a list of all of the model events
-create_infection_process <- function(
-  individuals,
-  states,
-  variables,
-  events
-  ) {
-  function(api) {
-    human <- individuals$human
-    parameters <- api$get_parameters()
-    timestep <- api$get_timestep()
-
-    # Calculate EIR
-    age <- get_age(api$get_variable(human, variables$birth), api$get_timestep())
-    epsilon <- eir_from_api(api, individuals, states, variables, age)
-
-    api$render("mean_EIR", mean(epsilon))
-
-    bitten_humans <- which(bernoulli_multi_p(length(epsilon), epsilon))
-    ib <- api$get_variable(human, variables$ib)
-    if (length(bitten_humans) > 0) {
-      boost_immunity(
-        api,
-        human,
-        variables$ib,
-        bitten_humans,
-        ib[bitten_humans],
-        variables$last_boosted_ib,
-        timestep,
-        parameters$ub
-      )
-    }
-
-    # Calculate Infected
-    infected_humans <- calculate_infections(
-      api,
-      human,
-      states,
-      variables,
-      bitten_humans,
-      ib
-    )
-
-    clinical_infections <- calculate_clinical_infections(
-      api,
-      human,
-      variables,
-      infected_humans
-    )
-
-    if (parameters$severe_enabled) {
-      update_severe_disease(
-        api,
-        clinical_infections,
-        age[clinical_infections],
-        human,
-        variables,
-        infected_humans
-      )
-    }
-
-    treated <- calculate_treated(
-      api,
-      human,
-      states,
-      variables,
-      clinical_infections
-    )
-
-    schedule_infections(
-      api,
-      events,
-      clinical_infections,
-      treated,
-      infected_humans
-    )
-  }
-}
-
-eir_from_api <- function(api, individuals, states, variables, age) {
-  parameters <- api$get_parameters()
-  source_mosquitos <- api$get_state(individuals$mosquito, states$Im)
-  infectivity <- vector_infectivity(
-    api$get_variable(
-      individuals$mosquito,
-      variables$mosquito_variety,
-      source_mosquitos
-    ),
-    parameters
-  )
-
-  eir(
-    age,
-    api$get_variable(individuals$human, variables$zeta),
-    infectivity,
-    parameters
-  )
-}
-
+#' @param bitten_humans indices of bitten humans
+#' @param ib vector of pre-erythrocytic immunity levels
 #' @importFrom stats dweibull
 calculate_infections <- function(
   api,
@@ -144,7 +47,7 @@ calculate_infections <- function(
     api$get_variable(human, variables$rtss_vaccinated, source_humans),
     api$get_variable(human, variables$rtss_boosted, source_humans)
   )
-	vaccinated <- which(vaccine_times > -1)
+  vaccinated <- which(vaccine_times > -1)
   vaccinated_index <- source_humans[vaccine_times > -1]
   antibodies <- calculate_rtss_antibodies(
     api$get_timestep() - vaccine_times[vaccinated],
@@ -162,6 +65,13 @@ calculate_infections <- function(
   )]
 }
 
+#' @title Calculate clinical infections
+#' @description
+#' Sample clinical infections from all infections
+#' @param api simulation api
+#' @param human a handle for humans
+#' @param variables a list of all of the model variables
+#' @param infections indices of infected humans
 calculate_clinical_infections <- function(api, human, variables, infections) {
   ica <- api$get_variable(human, variables$ica, infections)
   icm <- api$get_variable(human, variables$icm, infections)
@@ -195,6 +105,15 @@ calculate_clinical_infections <- function(api, human, variables, infections) {
   infections[bernoulli_multi_p(length(infections), phi)]
 }
 
+#' @title Calculate severe infections
+#' @description
+#' Sample severely infected humans from clinically infected
+#' @param api simulation api
+#' @param clinical_infections indices of clinically infected humans
+#' @param infection_age ages of individuals in `clinical_infections` (timesteps)
+#' @param human handle for humans
+#' @param variables a list of all of the model variables
+#' @param infections indices of all infected humans (for immunity boosting)
 update_severe_disease <- function(
   api,
   clinical_infections,
@@ -232,12 +151,22 @@ update_severe_disease <- function(
   }
 }
 
+#' @title Calculate treated humans
+#' @description
+#' Sample treated humans from the clinically infected
+#' @param api simulation api
+#' @param human handle for humans
+#' @param states a list of all of the model states
+#' @param variables a list of all of the model variables
+#' @param clinical_infections indices of clinically infected humans
+#' @param recovery the recovery event
 calculate_treated <- function(
   api,
   human,
   states,
   variables,
-  clinical_infections
+  clinical_infections,
+  recovery
   ) {
   parameters <- api$get_parameters()
   if (length(parameters$clinical_treatment_coverages) == 0) {
@@ -279,10 +208,23 @@ calculate_treated <- function(
       api$get_timestep(),
       treated_index
     )
+    api$schedule(
+      recovery,
+      treated_index,
+      log_uniform(length(treated_index), parameters$dt)
+    )
   }
   treated_index
 }
 
+#' @title Schedule infections
+#' @description
+#' Schedule infections in humans after the incubation period
+#' @param api simulation api
+#' @param events a list of all of the model events
+#' @param clinical_infections indices of clinically infected humans
+#' @param treated indices of treated humans
+#' @param infections indices of infected humans
 schedule_infections <- function(
   api,
   events,
@@ -294,49 +236,67 @@ schedule_infections <- function(
   scheduled_for_infection <- api$get_scheduled(events$infection)
   excluded <- c(scheduled_for_infection, treated)
 
-  to_infect <- setdiff(clinical_infections, excluded)
   all_new_infections <- setdiff(infections, excluded)
-  to_infect_asym <- setdiff(all_new_infections, clinical_infections)
+  to_infect <- all_new_infections %in% clinical_infections
+  to_infect_asym <- !to_infect
 
-  if(length(to_infect) > 0) {
-    api$schedule(events$clinical_infection, to_infect, parameters$de)
+  infection_times <- log_uniform(length(all_new_infections), parameters$de)
+
+  if(sum(to_infect) > 0) {
+    api$schedule(
+      events$clinical_infection,
+      all_new_infections[to_infect],
+      infection_times[to_infect]
+    )
   }
 
-  if(length(to_infect_asym) > 0) {
-    api$schedule(events$asymptomatic_infection, to_infect_asym, parameters$de)
+  if(sum(to_infect_asym) > 0) {
+    api$schedule(
+      events$asymptomatic_infection,
+      all_new_infections[to_infect_asym],
+      infection_times[to_infect_asym]
+    )
   }
 
   if(length(all_new_infections) > 0) {
-    api$schedule(events$infection, all_new_infections, parameters$de)
+    api$schedule(events$infection, all_new_infections, infection_times)
+    api$clear_schedule(events$subpatent_infection, all_new_infections)
+    api$clear_schedule(events$recovery, all_new_infections)
   }
 }
 
 # =================
 # Utility functions
 # =================
-
-# Implemented from Winskill 2017 - Supplementary Information page 3
-# and Griffin et al 2010 S1 page 7
-eir <- function(
-  age,
-  zeta,
-  vector_infectivity,
-  parameters
+boost_immunity <- function(
+  api,
+  human,
+  immunity_variable,
+  exposed_index,
+  exposed_values,
+  last_boosted_variable,
+  timestep,
+  delay
   ) {
-
-  psi <- unique_biting_rate(age, parameters)
-  .pi <- human_pi(zeta, psi)
-  .pi * vector_infectivity
-}
-
-# Implemented from Griffin et al 2010 S1 page 7
-vector_infectivity <- function(infectious_variants, parameters) {
-  sum(vnapply(
-    seq_along(parameters$blood_meal_rate),
-    function(variety) {
-      parameters$blood_meal_rate[[variety]] * sum(infectious_variants == variety)
-    }
-  ))
+  # record who can be boosted
+  last_boosted <- api$get_variable(human, last_boosted_variable, exposed_index)
+  to_boost <- (timestep - last_boosted) >= delay | (last_boosted == -1)
+  if (sum(to_boost) > 0) {
+    # boost the variable
+    api$queue_variable_update(
+      human,
+      immunity_variable,
+      exposed_values[to_boost] + 1,
+      exposed_index[to_boost]
+    )
+    # record last boosted
+    api$queue_variable_update(
+      human,
+      last_boosted_variable,
+      timestep,
+      exposed_index[to_boost]
+    )
+  }
 }
 
 # Implemented from Winskill 2017 - Supplementary Information page 4
@@ -396,43 +356,4 @@ blood_immunity <- function(ib, parameters) {
       (1 - parameters$b1) /
       (1 + (ib / parameters$ib0) ** parameters$kb)
   )
-}
-
-human_pi <- function(zeta, psi) {
- (zeta * psi) / sum(zeta * psi)
-}
-
-blood_meal_rate <- function(v, parameters) {
-  parameters$blood_meal_rates[v]
-}
-
-boost_immunity <- function(
-  api,
-  human,
-  immunity_variable,
-  exposed_index,
-  exposed_values,
-  last_boosted_variable,
-  timestep,
-  delay
-  ) {
-  # record who can be boosted
-  last_boosted <- api$get_variable(human, last_boosted_variable, exposed_index)
-  to_boost <- (timestep - last_boosted) >= delay | (last_boosted == -1)
-  if (sum(to_boost) > 0) {
-    # boost the variable
-    api$queue_variable_update(
-      human,
-      immunity_variable,
-      exposed_values[to_boost] + 1,
-      exposed_index[to_boost]
-    )
-    # record last boosted
-    api$queue_variable_update(
-      human,
-      last_boosted_variable,
-      timestep,
-      exposed_index[to_boost]
-    )
-  }
 }

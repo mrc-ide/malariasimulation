@@ -29,7 +29,7 @@ test_that('Infection listener updates infectivity correctly', {
 
   api <- mock_api(list(), parameters = parameters)
 
-  events$clinical_infection$listeners[[2]](api, c(2, 4))
+  events$clinical_infection$listeners[[1]](api, c(2, 4))
   mockery::expect_args(
     api$queue_variable_update,
     1,
@@ -66,7 +66,7 @@ test_that('Asymptomatic infection listener updates infectivity correctly', {
 
   with_mock(
     'malariasimulation:::asymptomatic_infectivity' = mockery::mock(c(.2, .5)),
-    events$asymptomatic_infection$listeners[[2]](api, c(2, 4))
+    events$asymptomatic_infection$listeners[[1]](api, c(2, 4))
   )
   mockery::expect_args(
     api$queue_variable_update,

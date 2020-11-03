@@ -90,7 +90,6 @@
 #'
 #' mortality parameters:
 #'
-#' * mortality_rate - human mortality rate across age groups
 #' * v - mortality scaling factor from severe disease
 #' * pcm - new-born clinical immunity relative to mother's
 #' * pvm - new-born severe immunity relative to mother's
@@ -132,12 +131,32 @@
 #' * dem - delay for infection in mosquitoes
 #'
 #' vector biology:
+#' species specific values are vectors
 #'
 #' * beta - the average number of eggs laid per female mosquito per day
 #' * total_M - the initial number of adult mosquitos in the simulation
 #' * init_foim - the FOIM used to calculate the equilibrium state for mosquitoes
 #' * variety_proportions - the relative proportions of each species
 #' * blood_meal_rates - the blood meal rates for each species
+#' * Q0 - proportion of blood meals taken on humans
+#' * foraging_time - time spent taking blood meals
+#'
+#' feeding cycle:
+#'
+#' * bednets - boolean for if bednets are enabled
+#' * rn - probability mosquito is repelled by the bednet
+#' * rnm - minimum probability mosquito is repelled by the bednet 
+#' * dn0 - probability killed by the bednet
+#' * spraying - boolean for if indoor spraying is enabled
+#' * rs - probability repelled by indoor spraying
+#' * phi_indoors - proportion of bites taken indoors
+#' * phi_bednets - proportion of bites taken in bed
+#' * endophily - proportion of mosquitoes resting indoors after feeding with no
+#' intervention
+#' * gammas - the half-life of spraying efficacy (timesteps)
+#' * gamman - the half-life of bednet efficacy (timesteps)
+#'
+#' please set vector control strategies using `set_betnets` and `set_spraying`
 #'
 #' treatment parameters:
 #' I recommend setting these with the convenience functions in
@@ -181,6 +200,24 @@
 #' * mda_max_age - the max age of the target population
 #' * mda_coverage - the proportion of the target population that will be covered
 #' * smc* - as for mda*
+#'
+#' TBV parameters:
+#'
+#' * tbv_mt - effect on treated infectiousness
+#' * tbv_md - effect on diseased infectiousness
+#' * tbv_ma - effect on asymptomatic infectiousness
+#' * tbv_mu - effect on subpatent infectiousness
+#' * tbv_k  - scale parameter for effect on infectiousness
+#' * tbv_tau - peak antibody parameter
+#' * tbv_rho - antibody component parameter
+#' * tbv_ds - antibody short-term delay parameter
+#' * tbv_dl - antibody long-term delay parameter
+#' * tbv_tra_mu - transmission reduction parameter
+#' * tbv_gamma1 - transmission reduction parameter
+#' * tbv_gamma2 - transmission reduction parameter
+#'
+#' I recommend setting tbv strategies with the convenience functions in
+#' `vaccine_parameters.R`, these are the same as for RTS,S
 #'
 #' rendering:
 #' All values are in timesteps and all ranges are inclusive
@@ -272,7 +309,7 @@ get_parameters <- function(overrides = list()) {
     kd    = .476614,
     # mortality parameters
     average_age = 7663 / days_per_timestep,
-    v     = .065, # NOTE: there are two definitions of this: one on line 124 and one in the parameters table
+    v     = .065, # NOTE: there are two definitions of this in the literature: one on line 124 and one in the parameters table
     pcm   = .774368,
     pvm   = .195768,
     # carrying capacity parameters
@@ -301,8 +338,24 @@ get_parameters <- function(overrides = list()) {
     beta     = 21.2,
     total_M  = 1000,
     init_foim= 0,
+    # order of species: An gambiae s.s, An arabiensis, An funestus
     variety_proportions = c(.5, .3, .2),
-    blood_meal_rates    = c(.92, .74, .94),
+    blood_meal_rates    = rep(1/3, 3),
+    Q0                  = c(.92, .71, .94),
+    endophily           = c(.813, .422, .813),
+    foraging_time       = .69,
+    # bed nets
+    bednets = FALSE,
+    rn = c(.56, .46, .56),
+    rnm = c(.24, .1, .24),
+    dn0 = rep(.533, 3),
+    phi_bednets = c(.89, .9, .9),
+    gamman = 2.64 * 365,
+    # indoor spraying
+    spraying = FALSE,
+    rs = rep(.2, 3),
+    phi_indoors = c(.97, .96, .98),
+    gammas = .25 * 365,
     # treatment
     drug_efficacy          = numeric(0),
     drug_rel_c             = numeric(0),
@@ -344,6 +397,25 @@ get_parameters <- function(overrides = list()) {
     smc_min_age = -1,
     smc_max_age = -1,
     smc_coverage = 0,
+    # tbv
+    tbv = FALSE,
+    tbv_mt = 35,
+    tbv_md = 46.7,
+    tbv_ma = 3.6,
+    tbv_mu = 0.8,
+    tbv_k = 0.9,
+    tbv_tau = 22,
+    tbv_rho = .7,
+    tbv_ds = 45,
+    tbv_dl = 591,
+    tbv_tra_mu = 12.63,
+    tbv_gamma1 = 2.5,
+    tbv_gamma2 = .06,
+    tbv_start = c(),
+    tbv_end = c(),
+    tbv_frequency = -1,
+    tbv_ages = c(),
+    tbv_coverage = 0,
     # rendering
     prevalence_rendering_min_ages = 2 * 365,
     prevalence_rendering_max_ages = 10 * 365,
@@ -357,10 +429,6 @@ get_parameters <- function(overrides = list()) {
     human_population = 100,
     mosquito_limit   = 100 * 1000,
     days_per_timestep  = days_per_timestep
-  )
-
-  parameters$mortality_rate = 1 - exp(
-    -days_per_timestep * (1 / parameters$average_age)
   )
 
   # Override parameters with any client specified ones
@@ -414,14 +482,43 @@ parameterise_human_equilibrium <- function(parameters, eq) {
 #' @description NOTE: the inital EIR is likely to change unless the rest of the
 #' model is in equilibrium
 #'
+#' max_total_M is calculated using the equilibrium solution from "Modelling the
+#' impact of vector control interventions on Anopheles gambiae population
+#' dynamics"
+#'
 #' @param parameters the parameters to modify
 #' @param EIR to work from
-#' @param limit_grace the number of mosquitos to allocate to the simulation as a
-#' proportion of total_M. e.g. 10 will allocate total_M * 10 mosquitos. High
-#' values of `limit_grace` are required for simulations with seasonality.
 #' @export
-parameterise_mosquito_equilibrium <- function(parameters, EIR, limit_grace=1.5) {
+parameterise_mosquito_equilibrium <- function(parameters, EIR) {
   parameters$total_M <- equilibrium_total_M(parameters, EIR)
-  parameters$mosquito_limit <- parameters$total_M * limit_grace
+  K0 <- calculate_carrying_capacity(parameters)
+  R_bar <- calculate_R_bar(parameters)
+  max_K <- max(vnapply(seq(365), function(t) {
+    carrying_capacity(
+      t,
+      parameters$model_seasonality,
+      parameters$days_per_timestep,
+      parameters$g0,
+      parameters$g,
+      parameters$h,
+      K0,
+      R_bar
+    )
+  }))
+  omega <- calculate_omega(parameters)
+  max_total_M <- max_K * (
+    1 / (
+      2 * parameters$dl * parameters$mum * (
+        1 + parameters$dpl * parameters$mup
+      )
+    )
+  ) * (
+    1 / (
+      parameters$gamma * (omega + 1)
+    )
+  ) * (
+    omega / (parameters$ml * parameters$del) - (1 / (parameters$ml * parameters$dl)) - 1
+  )
+  parameters$mosquito_limit <- ceiling(max_total_M * 5) #Allow for random fluctuations
   parameters
 }

@@ -41,7 +41,9 @@ translations = list(
   fd0 = 'fd0',
   g_inf = 'gamma1',
   PM = 'pcm',
-  tau = 'dem'
+  tau = 'dem',
+  Q0 = 'Q0',
+  f = 'blood_meal_rates'
 )
 
 #' @title translate parameter keys from jamie's format to ones compatible
@@ -50,11 +52,6 @@ translations = list(
 #' @export
 translate_jamie <- function(params) {
   translated <- list()
-  if (!(is.null(params$Q0) || is.null(params$f))) {
-    translated$blood_meal_rates <- params$Q0 * params$f
-    params$Q0 <- NULL
-    params$f <- NULL
-  }
   for (name in names(params)) {
     if(!name %in% names(translations)) {
       stop(paste('Unknown parameter', name))

@@ -8,8 +8,11 @@
 #ifndef SRC_MOSQUITO_ODE_H_
 #define SRC_MOSQUITO_ODE_H_
 
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 // [[Rcpp::depends(BH)]]
 #include <boost/numeric/odeint.hpp>
+#pragma GCC diagnostic pop
+
 #include <array>
 #include <queue>
 #include <cmath>

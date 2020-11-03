@@ -87,7 +87,6 @@ total_Ms <- c()
 for (total_M in initial_Ms) {
   simparams$total_M <- total_M
   simparams$mosquito_limit <- total_M * 1.5
-  output <- run_simulation(sim_length, simparams)
   EIR <- estimate_eir()
   if (EIR > 0) {
     total_Ms <- c(total_Ms, total_M)
@@ -218,11 +217,7 @@ immunity_plots <- lapply(
   function(i) {
     output <- outputs[[i]]
     eq <- get_equilibrium(estimated_eirs[[i]])
-    w <- vapply(
-      seq(100)*365,
-      function(age) (1/simparams$average_age)*exp(-age/simparams$average_age),
-      numeric(1)
-    )
+    w <- eq$states[,'props']
     equilibrium <- data.frame(
       timestep = seq(sim_length),
       human_ICA_mean = rep(weighted.mean(eq$states[, 'ICA'], w), sim_length),

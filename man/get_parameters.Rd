@@ -101,7 +101,6 @@ for sampling mothers
 
 mortality parameters:
 \itemize{
-\item mortality_rate - human mortality rate across age groups
 \item v - mortality scaling factor from severe disease
 \item pcm - new-born clinical immunity relative to mother's
 \item pvm - new-born severe immunity relative to mother's
@@ -148,13 +147,34 @@ incubation periods:
 }
 
 vector biology:
+species specific values are vectors
 \itemize{
 \item beta - the average number of eggs laid per female mosquito per day
 \item total_M - the initial number of adult mosquitos in the simulation
 \item init_foim - the FOIM used to calculate the equilibrium state for mosquitoes
 \item variety_proportions - the relative proportions of each species
 \item blood_meal_rates - the blood meal rates for each species
+\item Q0 - proportion of blood meals taken on humans
+\item foraging_time - time spent taking blood meals
 }
+
+feeding cycle:
+\itemize{
+\item bednets - boolean for if bednets are enabled
+\item rn - probability mosquito is repelled by the bednet
+\item rnm - minimum probability mosquito is repelled by the bednet
+\item dn0 - probability killed by the bednet
+\item spraying - boolean for if indoor spraying is enabled
+\item rs - probability repelled by indoor spraying
+\item phi_indoors - proportion of bites taken indoors
+\item phi_bednets - proportion of bites taken in bed
+\item endophily - proportion of mosquitoes resting indoors after feeding with no
+intervention
+\item gammas - the half-life of spraying efficacy (timesteps)
+\item gamman - the half-life of bednet efficacy (timesteps)
+}
+
+please set vector control strategies using \code{set_betnets} and \code{set_spraying}
 
 treatment parameters:
 I recommend setting these with the convenience functions in
@@ -201,6 +221,25 @@ I recommend setting these with convenience functions in \code{mda_parameters.R}
 \item mda_coverage - the proportion of the target population that will be covered
 \item smc* - as for mda*
 }
+
+TBV parameters:
+\itemize{
+\item tbv_mt - effect on treated infectiousness
+\item tbv_md - effect on diseased infectiousness
+\item tbv_ma - effect on asymptomatic infectiousness
+\item tbv_mu - effect on subpatent infectiousness
+\item tbv_k  - scale parameter for effect on infectiousness
+\item tbv_tau - peak antibody parameter
+\item tbv_rho - antibody component parameter
+\item tbv_ds - antibody short-term delay parameter
+\item tbv_dl - antibody long-term delay parameter
+\item tbv_tra_mu - transmission reduction parameter
+\item tbv_gamma1 - transmission reduction parameter
+\item tbv_gamma2 - transmission reduction parameter
+}
+
+I recommend setting tbv strategies with the convenience functions in
+\code{vaccine_parameters.R}, these are the same as for RTS,S
 
 rendering:
 All values are in timesteps and all ranges are inclusive

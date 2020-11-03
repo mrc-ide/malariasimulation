@@ -101,7 +101,7 @@ equilibrium_total_M <- function(parameters, EIR) {
     parameters$init_foim + parameters$mum
   )
   total_daily_eir / sum(
-    parameters$variety_proportions * parameters$blood_meal_rates * lifetime
+    parameters$variety_proportions * parameters$blood_meal_rates * parameters$Q0 * lifetime
   )
 }
 
@@ -125,4 +125,74 @@ peak_season_offset <- function(parameters) {
       R_bar
     )
   }))[[1]]
+}
+
+#' @title Calculate the effects of biting on mosquito individuals
+#'
+#' @param api the simulation api
+#' @param human_infectivity the infectivity for each human
+#' @param lambda the effective biting rate for this species on each human
+#' @param individuals a list of individual handles
+#' @param states a list of state handles
+#' @param mosquito_infection an event for mosquito infection
+#' @param species the index of the species to calculate for
+#' @param susceptible_species the indices of susceptible mosquitos of the
+#' species at index `species`
+#' @param adult_species the indices of adult mosquitos of the
+#' species at index `species`
+#' @param W the mean probability that a mosquito feeds and survives
+#' @param Z the mean probability that a mosquito is repelled
+#' @param f the feeding rate for this species of mosquito
+#' @param parameters the model parameters
+#' @export
+calculate_mosquito_effects <- function(
+    api,
+    human_infectivity,
+    lambda,
+    individuals,
+    states,
+    mosquito_infection,
+    species,
+    susceptible_species,
+    adult_species,
+    W,
+    Z,
+    f,
+    parameters
+  ) {
+  # deal with mosquito infections
+  lambda <- sum(human_infectivity * lambda)
+  api$render(paste0('FOIM_', species), lambda)
+  target <- susceptible_species[
+    bernoulli(length(susceptible_species), lambda)
+  ]
+  api$queue_state_update(
+    individuals$mosquito,
+    states$Pm,
+    target
+  )
+  api$schedule(mosquito_infection, target, parameters$dem)
+
+  # deal with mosquito deaths
+  p1_0 <- exp(-parameters$mum * parameters$foraging_time)
+  gonotrophic_cycle <- get_gonotrophic_cycle(species, parameters)
+  p2 <- exp(-parameters$mum * gonotrophic_cycle)
+  p1 <- p1_0 * W / (1 - Z * p1_0)
+  mu <- -f * log(p1 * p2)
+  api$render(paste0('mu_', species), mu)
+  died <- adult_species[
+    bernoulli(length(adult_species), mu)
+  ]
+
+  api$queue_state_update(
+    individuals$mosquito,
+    states$Unborn,
+    died
+  )
+  api$clear_schedule(mosquito_infection, died)
+}
+
+get_gonotrophic_cycle <- function(v, parameters) {
+  f <- parameters$blood_meal_rates[[v]]
+  gonotrophic_cycle <- 1 / f - parameters$foraging_time
 }

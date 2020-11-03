@@ -101,7 +101,6 @@ for sampling mothers
 
 mortality parameters:
 \itemize{
-\item mortality_rate - human mortality rate across age groups
 \item v - mortality scaling factor from severe disease
 \item pcm - new-born clinical immunity relative to mother's
 \item pvm - new-born severe immunity relative to mother's
@@ -148,13 +147,34 @@ incubation periods:
 }
 
 vector biology:
+species specific values are vectors
 \itemize{
 \item beta - the average number of eggs laid per female mosquito per day
 \item total_M - the initial number of adult mosquitos in the simulation
 \item init_foim - the FOIM used to calculate the equilibrium state for mosquitoes
 \item variety_proportions - the relative proportions of each species
 \item blood_meal_rates - the blood meal rates for each species
+\item Q0 - proportion of blood meals taken on humans
+\item foraging_time - time spent taking blood meals
 }
+
+feeding cycle:
+\itemize{
+\item bednets - boolean for if bednets are enabled
+\item rn - probability mosquito is repelled by the bednet
+\item rnm - minimum probability mosquito is repelled by the bednet
+\item dn0 - probability killed by the bednet
+\item spraying - boolean for if indoor spraying is enabled
+\item rs - probability repelled by indoor spraying
+\item phi_indoors - proportion of bites taken indoors
+\item phi_bednets - proportion of bites taken in bed
+\item endophily - proportion of mosquitoes resting indoors after feeding with no
+intervention
+\item gammas - the half-life of spraying efficacy (timesteps)
+\item gamman - the half-life of bednet efficacy (timesteps)
+}
+
+please set vector control strategies using \code{set_betnets} and \code{set_spraying}
 
 treatment parameters:
 I recommend setting these with the convenience functions in

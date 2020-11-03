@@ -40,14 +40,16 @@ haven't been any)
 \item tbv_vaccinated - The timstep of the last tbv vaccination (-1 if there
 haven't been any
 \item zeta_group - Discretised heterogeneity of human individuals
+\item net_time - The timestep when a net was last put up (-1 if never)
+\item spray_time - The timestep when the house was last sprayed (-1 if never)
+\item infectivity - The onward infectiousness to mosquitos
+\item drug - The last prescribed drug
+\item drug_time - The timestep of the last drug
 }
 
 Mosquito variables are:
 \itemize{
-\item variety - The variety of mosquito, either 1, 2 or 3. These are related to
-blood meal rate parameter
-\item infectivity - The onward infectiousness to mosquitos
-\item drug - The last prescribed drug
-\item drug_time - The timestep of the last drug
+\item variety - The variety of mosquito, this is an ordinal in the range of
+length(parameters$variety_proportions)
 }
 }

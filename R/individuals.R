@@ -6,7 +6,7 @@ initial_immunity <- function(parameter, age) {
     age[age > 99] <- 99
     return(parameter[age + 1])
   }
-  stop('unsupported param')
+  stop('unsupported immunity parameter')
 }
 
 #' @title Define model states
@@ -92,13 +92,15 @@ create_states <- function(parameters) {
 #' * tbv_vaccinated - The timstep of the last tbv vaccination (-1 if there
 #' haven't been any
 #' * zeta_group - Discretised heterogeneity of human individuals
-#'
-#' Mosquito variables are: 
-#' * variety - The variety of mosquito, either 1, 2 or 3. These are related to
-#' blood meal rate parameter
+#' * net_time - The timestep when a net was last put up (-1 if never)
+#' * spray_time - The timestep when the house was last sprayed (-1 if never)
 #' * infectivity - The onward infectiousness to mosquitos
 #' * drug - The last prescribed drug
 #' * drug_time - The timestep of the last drug
+#'
+#' Mosquito variables are: 
+#' * variety - The variety of mosquito, this is an ordinal in the range of
+#' length(parameters$variety_proportions)
 #'
 #' @param parameters, model parameters created by `get_parameters`
 #' @importFrom stats rexp rnorm
@@ -119,12 +121,12 @@ create_variables <- function(parameters) {
   # Maternal immunity
   icm <- individual::Variable$new(
     "ICM",
-    parameters$init_icm * exp(-(initial_age * parameters$rm))
+    initial_immunity(parameters$init_icm, initial_age)
   )
 
   ivm <- individual::Variable$new(
     "IVM",
-    parameters$init_ivm * exp(-(initial_age * parameters$rm))
+    initial_immunity(parameters$init_ivm, initial_age)
   )
 
   # Pre-erythoctic immunity
@@ -209,6 +211,10 @@ create_variables <- function(parameters) {
 
   tbv_vaccinated <- individual::Variable$new("tbv_vaccinated", rep(-1, size))
 
+  # Init vector controls
+  net_time <- individual::Variable$new("net_time", rep(-1, size))
+  spray_time <- individual::Variable$new("spray_time", rep(-1, size))
+
   variables <- list(
     birth = birth,
     last_boosted_ib = last_boosted_ib,
@@ -233,7 +239,9 @@ create_variables <- function(parameters) {
     rtss_ds = rtss_ds,
     rtss_dl = rtss_dl,
     tbv_vaccinated = tbv_vaccinated,
-    is_severe = is_severe
+    is_severe = is_severe,
+    net_time = net_time,
+    spray_time = spray_time
   )
 
   mosquito_variety <- individual::Variable$new(
@@ -296,19 +304,24 @@ create_individuals <- function(
       variables$rtss_rho,
       variables$rtss_ds,
       variables$rtss_dl,
-      variables$tbv_vaccinated
+      variables$tbv_vaccinated,
+      variables$net_time,
+      variables$spray_time
     ),
     events = c(
       events$infection,
       events$clinical_infection,
       events$asymptomatic_infection,
+      events$subpatent_infection,
+      events$recovery,
       events$rtss_vaccination,
       events$rtss_booster,
       events$mda_enrollment,
       events$mda_administer,
       events$smc_enrollment,
       events$smc_administer,
-      events$tbv_vaccination
+      events$tbv_vaccination,
+      events$throw_away_net
     )
   )
 
@@ -321,9 +334,7 @@ create_individuals <- function(
       states$Unborn
     ),
     variables = list(variables$mosquito_variety),
-    events = list(
-      events$mosquito_infection
-    )
+    events = list(events$mosquito_infection)
   )
 
   list(human = human, mosquito = mosquito)

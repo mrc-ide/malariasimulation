@@ -100,12 +100,13 @@ CorrelationParameters <- R6::R6Class(
     },
 
     #' @description multivariate norm draws for these parameters
+    #' @importFrom MASS mvrnorm
     mvnorm = function() {
       if (is.null(private$.mvnorm)) {
         sigma <- self$sigma()
         V <- outer(sigma, sigma) * private$rho_matrix
         diag(V) <- sigma ^ 2
-        private$.mvnorm <- MASS::mvrnorm(
+        private$.mvnorm <- mvrnorm(
           private$population,
           rep(0, length(private$interventions)),
           V

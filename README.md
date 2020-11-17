@@ -1,4 +1,5 @@
-[![AppVeyor build status](https://ci.appveyor.com/api/projects/status/github/mrc-ide/malariasimulation?branch=master&svg=true)](https://ci.appveyor.com/project/mrc-ide/malariasimulation) [![codecov](https://codecov.io/github/mrc-ide/malariasimulation/branch/master/graphs/badge.svg)](https://codecov.io/github/mrc-ide/malariasimulation)
+[![R build status](https://github.com/mrc-ide/malariasimulation/workflows/R-CMD-check/badge.svg)](https://github.com/mrc-ide/malariasimulation/actions)
+[![codecov](https://codecov.io/github/mrc-ide/malariasimulation/branch/master/graphs/badge.svg)](https://codecov.io/github/mrc-ide/malariasimulation)
 
 # malariasimulation
 

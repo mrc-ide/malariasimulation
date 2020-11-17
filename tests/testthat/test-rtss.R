@@ -149,9 +149,7 @@ test_that('RTS,S vaccinations update vaccination time and schedule boosters', {
     variables,
     events,
     parameters,
-    1,
-    1,
-    1
+    get_correlation_parameters(parameters)
   )
 
   bernoulli_mock = mockery::mock(2)

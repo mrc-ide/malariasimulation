@@ -15,9 +15,8 @@ create_mda_listeners(
   min_age,
   max_age,
   coverage,
-  sigma,
-  u,
-  int_i
+  c_param,
+  int_name
 )
 }
 \arguments{
@@ -41,11 +40,9 @@ create_mda_listeners(
 
 \item{coverage}{the proportion of the target population that is covered}
 
-\item{sigma}{the standard deviation of each intervention}
+\item{c_param}{correlation parameters}
 
-\item{u}{correlation matrix}
-
-\item{int_i}{the index of the intervention we are modelling}
+\item{int_name}{the name of this intervention (either 'smc' or 'mda')}
 }
 \description{
 will create a listener for administering each round of drugs

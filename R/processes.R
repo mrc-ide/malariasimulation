@@ -138,6 +138,7 @@ create_processes <- function(
 #' @param variables list of variables in the model
 #' @param events a list of events in the model
 #' @param parameters the model parameters
+#' @param c_param correlation parameters
 create_event_based_processes <- function(
   individuals,
   states,
@@ -239,7 +240,6 @@ create_event_based_processes <- function(
         individuals$human,
         variables,
         events,
-        parameters
         parameters,
         c_param
       )
@@ -266,7 +266,8 @@ create_event_based_processes <- function(
       parameters$mda_min_age,
       parameters$mda_max_age,
       parameters$mda_coverage,
-      c_param
+      c_param,
+      'mda'
     ))
   }
 
@@ -282,26 +283,31 @@ create_event_based_processes <- function(
       parameters$smc_min_age,
       parameters$smc_max_age,
       parameters$smc_coverage,
-      c_param
+      c_param,
+      'smc'
     ))
   }
 
   events$tbv_vaccination$add_listener(
     function(api, target) {
       timestep <- api$get_timestep()
-      # TODO: sample from c_param
       target <- which(trunc(get_age(
         api$get_variable(individuals$human, variables$birth),
         timestep
       ) / 365) %in% parameters$tbv_ages)
-      target <- target[bernoulli(length(target), parameters$tbv_coverage)]
+      to_vaccinate <- which(sample_intervention(
+        target,
+        'tbv',
+        parameters$tbv_coverage,
+        c_param
+      ))
       api$render('n_vaccinated_tbv', length(target))
-      if (length(target) > 0) {
+      if (length(to_vaccinate) > 0) {
         api$queue_variable_update(
           individuals$human,
           variables$tbv_vaccinated,
           timestep,
-          target
+          to_vaccinate
         )
       }
       if (timestep + parameters$tbv_frequency <= parameters$tbv_end) {

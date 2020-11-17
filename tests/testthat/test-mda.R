@@ -21,7 +21,8 @@ test_that('MDA moves the diseased and non-diseased population correctly', {
     states,
     variables,
     events,
-    parameters
+    parameters,
+    get_correlation_parameters(parameters)
   )
 
   api <- mock_api(
@@ -124,7 +125,8 @@ test_that('SMC moves the diseased and non-diseased population correctly', {
     states,
     variables,
     events,
-    parameters
+    parameters,
+    get_correlation_parameters(parameters)
   )
 
   api <- mock_api(

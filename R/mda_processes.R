@@ -9,9 +9,8 @@
 #' @param min_age minimum age for the target population
 #' @param max_age maximum age for the target population
 #' @param coverage the proportion of the target population that is covered
-#' @param sigma the standard deviation of each intervention
-#' @param u correlation matrix
-#' @param int_i the index of the intervention we are modelling
+#' @param c_param correlation parameters
+#' @param int_name the name of this intervention (either 'smc' or 'mda')
 #' @description will create a listener for administering each round of drugs
 create_mda_listeners <- function(
   human,
@@ -24,9 +23,8 @@ create_mda_listeners <- function(
   min_age,
   max_age,
   coverage,
-  sigma,
-  u,
-  int_i
+  c_param,
+  int_name
   ) {
   function(api, target) {
     parameters <- api$get_parameters()
@@ -37,7 +35,7 @@ create_mda_listeners <- function(
     )
 
     in_age <- which((age > min_age) & (age < max_age))
-    target <- in_age[sample_intervention(in_age, coverage, sigma, u, int_i)]
+    target <- in_age[sample_intervention(in_age, int_name, coverage, c_param)]
 
     timestep <- api$get_timestep()
     successful_treatments <- bernoulli(

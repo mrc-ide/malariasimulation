@@ -222,7 +222,6 @@ I recommend setting these with convenience functions in \code{mda_parameters.R}
 \item smc* - as for mda*
 }
 
-<<<<<<< HEAD
 TBV parameters:
 \itemize{
 \item tbv_mt - effect on treated infectiousness
@@ -242,17 +241,6 @@ TBV parameters:
 I recommend setting tbv strategies with the convenience functions in
 \code{vaccine_parameters.R}, these are the same as for RTS,S
 
-=======
-correlation:
-\itemize{
-\item rho_rtss - the correlation between rounds of rtss
-\item rho_mda - the correlation between rounds of mda
-\item rho_smc - the correlation between rounds of smc
-\item rho_rtss_mda - the correlation between rtss and mda
-\item rho_rtss_smc - the correlation between rtss and smc
-}
-
->>>>>>> 951f7fe (Integrate correlation with RTSS and MDAs)
 rendering:
 All values are in timesteps and all ranges are inclusive
 \itemize{

@@ -32,5 +32,3 @@ get_age <- function(birth_timesteps, current_timestep) {
 remove_keys <- function(x, n) { for (name in n) { x[[name]] <- NULL }; x }
 
 invlogit <- function(x) exp(x) / (1 + exp(x))
-
-small_delta <- 1e-16

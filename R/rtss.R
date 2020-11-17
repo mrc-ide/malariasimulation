@@ -1,11 +1,19 @@
+#' @title RTS,S vaccination
+#' @description creates a listener which models vaccination according to the
+#' strategy from `set_rtss` and correlation parameters from
+#' `get_correlation_parameters`
+#'
+#' @param human the handle for the human individual
+#' @param variables list of variables in the model
+#' @param events a list of events in the model
+#' @param parameters the model parameters
+#' @param c_param correlation parameters
 create_rtss_vaccination_listener <- function(
   human,
   variables,
   events,
   parameters,
-  sigma,
-  u,
-  int_i
+  c_param
   ) {
   function(api, target) {
     timestep <- api$get_timestep()
@@ -23,7 +31,7 @@ create_rtss_vaccination_listener <- function(
     }
     target <- which(target_indices & not_vaccinated)
     target <- target[
-      sample_intervention(target, parameters$rtss_coverage, sigma, u, int_i)
+      sample_intervention(target, 'rtss', parameters$rtss_coverage, c_param)
     ]
     api$render('n_vaccinated', length(target))
     if (length(target) > 0) {

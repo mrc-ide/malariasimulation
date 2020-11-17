@@ -9,7 +9,6 @@ INTS <- c(
 
 #' Class: Correlation parameters
 #' Describes an event in the simulation
-#' @export CorrelationParameters
 CorrelationParameters <- R6::R6Class(
   'CorrelationParameters',
   private = list(
@@ -44,7 +43,7 @@ CorrelationParameters <- R6::R6Class(
     },
 
     #' @description Add rho between rounds
-    #' @param intervention string representing the intervention to update
+    #' @param int string representing the intervention to update
     #' @param rho value between 0 and 1 representing the correlation between rounds of
     #' the intervention
     inter_round_rho = function(int, rho) {
@@ -59,6 +58,7 @@ CorrelationParameters <- R6::R6Class(
       }
       private$rho_matrix[[int, int]] <- rho
       private$.sigma <- NULL
+      private$.mvnorm <- NULL
     },
 
     #' @description Add rho between interventions
@@ -69,10 +69,10 @@ CorrelationParameters <- R6::R6Class(
     #' the intervention
     inter_intervention_rho = function(int_1, int_2, rho) {
       if (!(int_1 %in% private$interventions)) {
-        stop(paste0('invalid intervention name: ', int))
+        stop(paste0('invalid intervention name: ', int_1))
       }
       if (!(int_2 %in% private$interventions)) {
-        stop(paste0('invalid intervention name: ', int))
+        stop(paste0('invalid intervention name: ', int_2))
       }
       if (rho < -1 || rho > 1) {
         stop(paste0(
@@ -86,6 +86,7 @@ CorrelationParameters <- R6::R6Class(
       private$rho_matrix[[int_1, int_2]] <- rho
       private$rho_matrix[[int_2, int_1]] <- rho
       private$.sigma <- NULL
+      private$.mvnorm <- NULL
     },
 
     #' @description Standard deviation of each intervention between rounds
@@ -101,9 +102,8 @@ CorrelationParameters <- R6::R6Class(
     #' @description multivariate norm draws for these parameters
     mvnorm = function() {
       if (is.null(private$.mvnorm)) {
-        rho <- private$rho()
         sigma <- self$sigma()
-        V <- outer(sigma, sigma) * rho
+        V <- outer(sigma, sigma) * private$rho_matrix
         diag(V) <- sigma ^ 2
         private$.mvnorm <- MASS::mvrnorm(
           private$population,
@@ -117,6 +117,51 @@ CorrelationParameters <- R6::R6Class(
   )
 )
 
+#' @title Get default correlation parameters
+#' @description returns a `CorrelationParameters` object for you edit. By
+#' default, all correlations are set to 0
+#'
+#' @param parameters model parameters
+#' @export
+#' @examples
+#' 
+#' # get the default model parameters
+#' parameters <- get_parameters()
+#' 
+#' # Set some rtss strategy
+#' parameters <- set_rtss(
+#'   parameters,
+#'   start = 100,
+#'   end = 1000,
+#'   frequency = 100,
+#'   min_ages = 100,
+#'   max_ages = 1000,
+#'   boosters = NULL,
+#'   coverage = .9,
+#'   booster_coverage = NULL
+#' )
+#' 
+#' # Set some smc strategy
+#' parameters <- set_drugs(parameters, list(SP_AQ_params))
+#' parameters <- set_smc(
+#'   parameters,
+#'   drug = 1,
+#'   start = 100,
+#'   end = 1000,
+#'   frequency = 100,
+#'   min_age = 100,
+#'   max_age = 1000,
+#'   coverage = .9
+#' )
+#' 
+#' # Correlate the rtss and smc targets
+#' c_param <- get_correlation_parameters(parameters)
+#' c_param$inter_intervention_rho('rtss', 'smc', 1)
+#' 
+#' # Correlate the rounds of smc
+#' c_param$inter_round_rho('smc', 1)
+#' 
+#' # You can now pass the correlation parameters to the run_simulation function
 get_correlation_parameters <- function(parameters) {
   CorrelationParameters$new(parameters)
 }

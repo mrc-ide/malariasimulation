@@ -79,29 +79,52 @@ prob_bitten <- function(individuals, variables, species, api, parameters) {
   )
 }
 
-indoor_spraying <- function(human, spray_time, parameters) {
+#' @title Indoor spraying
+#' @description models indoor residual spraying according to the strategy
+#' from `set_spraying` and correlation parameters from
+#' `get_correlation_parameters`
+#'
+#' @param human the handle for the human individual
+#' @param spray_time the variable for the time of spraying
+#' @param parameters the model parameters
+#' @param correlations correlation parameters
+indoor_spraying <- function(human, spray_time, parameters, correlations) {
   function(api) {
     timestep <- api$get_timestep()
     matches <- timestep == parameters$spraying_timesteps
     if (any(matches)) {
-      target <- bernoulli(
-        parameters$human_population,
-        parameters$spraying_coverages[matches]
-      )
+      target <- which(sample_intervention(
+        seq(parameters$human_population),
+        'spraying',
+        parameters$spraying_coverages[matches],
+        correlations
+      ))
       api$queue_variable_update(human, spray_time, timestep, target)
     }
   }
 }
 
-distribute_nets <- function(human, variables, throw_away_net, parameters) {
+#' @title Distribute nets
+#' @description distributes nets to individuals according to the strategy
+#' from `set_bednets` and correlation parameters from
+#' `get_correlation_parameters`
+#'
+#' @param human the handle for the human individual
+#' @param variables list of variables in the model
+#' @param throw_away_net an event to trigger when the net will be removed
+#' @param parameters the model parameters
+#' @param correlations correlation parameters
+distribute_nets <- function(human, variables, throw_away_net, parameters, correlations) {
   function(api) {
     timestep <- api$get_timestep()
     matches <- timestep == parameters$bednet_timesteps
     if (any(matches)) {
-      target <- bernoulli(
-        parameters$human_population,
-        parameters$bednet_coverages[matches]
-      )
+      target <- which(sample_intervention(
+        seq(parameters$human_population),
+        'bednets',
+        parameters$bednet_coverages[matches],
+        correlations
+      ))
       api$queue_variable_update(human, variables$net_time, timestep, target)
       api$schedule(throw_away_net, target, log_uniform(length(target)))
     }

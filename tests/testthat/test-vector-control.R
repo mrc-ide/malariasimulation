@@ -38,11 +38,13 @@ test_that('distribute_bednets process sets net_time correctly', {
   states <- create_states(parameters)
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables, events, parameters)
+  correlations <- get_correlation_parameters(parameters)
   process <- distribute_nets(
     individuals$human,
     variables,
     events$throw_away_net,
-    parameters
+    parameters,
+    correlations
   )
 
   api <- mock_api(
@@ -51,13 +53,13 @@ test_that('distribute_bednets process sets net_time correctly', {
     parameters = parameters
   )
 
-  bernoulli_mock <- mockery::mock(c(3, 4))
-  mockery::stub(process, 'bernoulli', bernoulli_mock)
+  target_mock <- mockery::mock(c(FALSE, FALSE, TRUE, TRUE))
+  mockery::stub(process, 'sample_intervention', target_mock)
   mockery::stub(process, 'log_uniform', mockery::mock(c(3, 4)))
 
   process(api)
 
-  mockery::expect_args(bernoulli_mock, 1, 4, .9)
+  mockery::expect_args(target_mock, 1, seq(4), 'bednets', .9, correlations)
   mockery::expect_args(
     api$queue_variable_update,
     1,
@@ -105,7 +107,13 @@ test_that('indoor_spraying process sets spray_time correctly', {
   states <- create_states(parameters)
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables, events, parameters)
-  process <- indoor_spraying(individuals$human, variables$spray_time, parameters)
+  correlations <- get_correlation_parameters(parameters)
+  process <- indoor_spraying(
+    individuals$human,
+    variables$spray_time,
+    parameters,
+    correlations
+  )
 
   api <- mock_api(
     list(),
@@ -113,12 +121,12 @@ test_that('indoor_spraying process sets spray_time correctly', {
     parameters = parameters
   )
 
-  bernoulli_mock <- mockery::mock(c(3, 4))
-  mockery::stub(process, 'bernoulli', bernoulli_mock)
+  target_mock <- mockery::mock(c(FALSE, FALSE, TRUE, TRUE))
+  mockery::stub(process, 'sample_intervention', target_mock)
 
   process(api)
 
-  mockery::expect_args(bernoulli_mock, 1, 4, .9)
+  mockery::expect_args(target_mock, 1, seq(4), 'spraying', .9, correlations)
   mockery::expect_args(
     api$queue_variable_update,
     1,

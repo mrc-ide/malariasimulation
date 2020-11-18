@@ -316,7 +316,6 @@ create_individuals <- function(
       events$recovery,
       events$rtss_vaccination,
       events$rtss_booster,
-      events$mda_enrollment,
       events$mda_administer,
       events$smc_enrollment,
       events$smc_administer,

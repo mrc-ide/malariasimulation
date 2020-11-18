@@ -7,13 +7,13 @@
 #' @param variables list of variables in the model
 #' @param events a list of events in the model
 #' @param parameters the model parameters
-#' @param c_param correlation parameters
+#' @param correlations correlation parameters
 create_rtss_vaccination_listener <- function(
   human,
   variables,
   events,
   parameters,
-  c_param
+  correlations
   ) {
   function(api, target) {
     timestep <- api$get_timestep()
@@ -31,7 +31,7 @@ create_rtss_vaccination_listener <- function(
     }
     target <- which(target_indices & not_vaccinated)
     target <- target[
-      sample_intervention(target, 'rtss', parameters$rtss_coverage, c_param)
+      sample_intervention(target, 'rtss', parameters$rtss_coverage, correlations)
     ]
     api$render('n_vaccinated', length(target))
     if (length(target) > 0) {

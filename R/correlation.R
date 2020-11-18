@@ -156,11 +156,11 @@ CorrelationParameters <- R6::R6Class(
 #' )
 #' 
 #' # Correlate the rtss and smc targets
-#' c_param <- get_correlation_parameters(parameters)
-#' c_param$inter_intervention_rho('rtss', 'smc', 1)
+#' correlations <- get_correlation_parameters(parameters)
+#' correlations$inter_intervention_rho('rtss', 'smc', 1)
 #' 
 #' # Correlate the rounds of smc
-#' c_param$inter_round_rho('smc', 1)
+#' correlations$inter_round_rho('smc', 1)
 #' 
 #' # You can now pass the correlation parameters to the run_simulation function
 get_correlation_parameters <- function(parameters) {
@@ -171,12 +171,12 @@ get_correlation_parameters <- function(parameters) {
 #' @param target a vector of individual indices to sample from
 #' @param intervention name of the intervention
 #' @param p the probability of being selected
-#' @param c_param correlation parameters
+#' @param correlations correlation parameters
 #' @importFrom stats qnorm
-sample_intervention <- function(target, intervention, p, c_param) {
-  sigma_squared <- c_param$sigma()[[intervention]]^2
+sample_intervention <- function(target, intervention, p, correlations) {
+  sigma_squared <- correlations$sigma()[[intervention]]^2
   sd <- sqrt(1 + sigma_squared)
   u0 <- -qnorm(p, 0) * sd
   z <- rnorm(length(target))
-  u0 + c_param$mvnorm()[target, intervention] + z < 0
+  u0 + correlations$mvnorm()[target, intervention] + z < 0
 }

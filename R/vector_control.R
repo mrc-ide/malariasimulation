@@ -87,8 +87,8 @@ prob_bitten <- function(individuals, variables, species, api, parameters) {
 #' @param human the handle for the human individual
 #' @param spray_time the variable for the time of spraying
 #' @param parameters the model parameters
-#' @param c_param correlation parameters
-indoor_spraying <- function(human, spray_time, parameters, c_param) {
+#' @param correlations correlation parameters
+indoor_spraying <- function(human, spray_time, parameters, correlations) {
   function(api) {
     timestep <- api$get_timestep()
     matches <- timestep == parameters$spraying_timesteps
@@ -97,7 +97,7 @@ indoor_spraying <- function(human, spray_time, parameters, c_param) {
         seq(parameters$human_population),
         'spraying',
         parameters$spraying_coverages[matches],
-        c_param
+        correlations
       ))
       api$queue_variable_update(human, spray_time, timestep, target)
     }
@@ -113,8 +113,8 @@ indoor_spraying <- function(human, spray_time, parameters, c_param) {
 #' @param variables list of variables in the model
 #' @param throw_away_net an event to trigger when the net will be removed
 #' @param parameters the model parameters
-#' @param c_param correlation parameters
-distribute_nets <- function(human, variables, throw_away_net, parameters, c_param) {
+#' @param correlations correlation parameters
+distribute_nets <- function(human, variables, throw_away_net, parameters, correlations) {
   function(api) {
     timestep <- api$get_timestep()
     matches <- timestep == parameters$bednet_timesteps
@@ -123,7 +123,7 @@ distribute_nets <- function(human, variables, throw_away_net, parameters, c_para
         seq(parameters$human_population),
         'bednets',
         parameters$bednet_coverages[matches],
-        c_param
+        correlations
       ))
       api$queue_variable_update(human, variables$net_time, timestep, target)
       api$schedule(throw_away_net, target, log_uniform(length(target)))

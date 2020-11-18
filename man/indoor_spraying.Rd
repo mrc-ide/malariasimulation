@@ -4,7 +4,7 @@
 \alias{indoor_spraying}
 \title{Indoor spraying}
 \usage{
-indoor_spraying(human, spray_time, parameters, c_param)
+indoor_spraying(human, spray_time, parameters, correlations)
 }
 \arguments{
 \item{human}{the handle for the human individual}
@@ -13,7 +13,7 @@ indoor_spraying(human, spray_time, parameters, c_param)
 
 \item{parameters}{the model parameters}
 
-\item{c_param}{correlation parameters}
+\item{correlations}{correlation parameters}
 }
 \description{
 models indoor residual spraying according to the strategy

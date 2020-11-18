@@ -10,7 +10,7 @@ create_event_based_processes(
   variables,
   events,
   parameters,
-  c_param
+  correlations
 )
 }
 \arguments{
@@ -24,7 +24,7 @@ create_event_based_processes(
 
 \item{parameters}{the model parameters}
 
-\item{c_param}{correlation parameters}
+\item{correlations}{correlation parameters}
 }
 \description{
 defines processes for events that can be scheduled in the future

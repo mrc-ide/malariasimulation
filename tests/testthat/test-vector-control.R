@@ -38,13 +38,13 @@ test_that('distribute_bednets process sets net_time correctly', {
   states <- create_states(parameters)
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables, events, parameters)
-  c_param <- get_correlation_parameters(parameters)
+  correlations <- get_correlation_parameters(parameters)
   process <- distribute_nets(
     individuals$human,
     variables,
     events$throw_away_net,
     parameters,
-    c_param
+    correlations
   )
 
   api <- mock_api(
@@ -59,7 +59,7 @@ test_that('distribute_bednets process sets net_time correctly', {
 
   process(api)
 
-  mockery::expect_args(target_mock, 1, seq(4), 'bednets', .9, c_param)
+  mockery::expect_args(target_mock, 1, seq(4), 'bednets', .9, correlations)
   mockery::expect_args(
     api$queue_variable_update,
     1,
@@ -107,12 +107,12 @@ test_that('indoor_spraying process sets spray_time correctly', {
   states <- create_states(parameters)
   variables <- create_variables(parameters)
   individuals <- create_individuals(states, variables, events, parameters)
-  c_param <- get_correlation_parameters(parameters)
+  correlations <- get_correlation_parameters(parameters)
   process <- indoor_spraying(
     individuals$human,
     variables$spray_time,
     parameters,
-    c_param
+    correlations
   )
 
   api <- mock_api(
@@ -126,7 +126,7 @@ test_that('indoor_spraying process sets spray_time correctly', {
 
   process(api)
 
-  mockery::expect_args(target_mock, 1, seq(4), 'spraying', .9, c_param)
+  mockery::expect_args(target_mock, 1, seq(4), 'spraying', .9, correlations)
   mockery::expect_args(
     api$queue_variable_update,
     1,

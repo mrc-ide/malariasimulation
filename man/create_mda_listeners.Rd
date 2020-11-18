@@ -15,7 +15,7 @@ create_mda_listeners(
   min_age,
   max_age,
   coverage,
-  c_param,
+  correlations,
   int_name
 )
 }
@@ -40,7 +40,7 @@ create_mda_listeners(
 
 \item{coverage}{the proportion of the target population that is covered}
 
-\item{c_param}{correlation parameters}
+\item{correlations}{correlation parameters}
 
 \item{int_name}{the name of this intervention (either 'smc' or 'mda')}
 }

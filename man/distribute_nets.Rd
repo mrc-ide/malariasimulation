@@ -4,7 +4,7 @@
 \alias{distribute_nets}
 \title{Distribute nets}
 \usage{
-distribute_nets(human, variables, throw_away_net, parameters, c_param)
+distribute_nets(human, variables, throw_away_net, parameters, correlations)
 }
 \arguments{
 \item{human}{the handle for the human individual}
@@ -15,7 +15,7 @@ distribute_nets(human, variables, throw_away_net, parameters, c_param)
 
 \item{parameters}{the model parameters}
 
-\item{c_param}{correlation parameters}
+\item{correlations}{correlation parameters}
 }
 \description{
 distributes nets to individuals according to the strategy

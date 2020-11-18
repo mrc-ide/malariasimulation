@@ -4,7 +4,13 @@
 \alias{create_rtss_vaccination_listener}
 \title{RTS,S vaccination}
 \usage{
-create_rtss_vaccination_listener(human, variables, events, parameters, c_param)
+create_rtss_vaccination_listener(
+  human,
+  variables,
+  events,
+  parameters,
+  correlations
+)
 }
 \arguments{
 \item{human}{the handle for the human individual}
@@ -15,7 +21,7 @@ create_rtss_vaccination_listener(human, variables, events, parameters, c_param)
 
 \item{parameters}{the model parameters}
 
-\item{c_param}{correlation parameters}
+\item{correlations}{correlation parameters}
 }
 \description{
 creates a listener which models vaccination according to the

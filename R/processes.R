@@ -138,14 +138,14 @@ create_processes <- function(
 #' @param variables list of variables in the model
 #' @param events a list of events in the model
 #' @param parameters the model parameters
-#' @param c_param correlation parameters
+#' @param correlations correlation parameters
 create_event_based_processes <- function(
   individuals,
   states,
   variables,
   events,
   parameters,
-  c_param
+  correlations
   ) {
 
   # =============
@@ -241,7 +241,7 @@ create_event_based_processes <- function(
         variables,
         events,
         parameters,
-        c_param
+        correlations
       )
     )
     events$rtss_booster$add_listener(
@@ -266,7 +266,7 @@ create_event_based_processes <- function(
       parameters$mda_min_age,
       parameters$mda_max_age,
       parameters$mda_coverage,
-      c_param,
+      correlations,
       'mda'
     ))
   }
@@ -283,7 +283,7 @@ create_event_based_processes <- function(
       parameters$smc_min_age,
       parameters$smc_max_age,
       parameters$smc_coverage,
-      c_param,
+      correlations,
       'smc'
     ))
   }
@@ -299,7 +299,7 @@ create_event_based_processes <- function(
         target,
         'tbv',
         parameters$tbv_coverage,
-        c_param
+        correlations
       ))
       api$render('n_vaccinated_tbv', length(target))
       if (length(to_vaccinate) > 0) {

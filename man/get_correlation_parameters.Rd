@@ -45,11 +45,11 @@ parameters <- set_smc(
 )
 
 # Correlate the rtss and smc targets
-c_param <- get_correlation_parameters(parameters)
-c_param$inter_intervention_rho('rtss', 'smc', 1)
+correlations <- get_correlation_parameters(parameters)
+correlations$inter_intervention_rho('rtss', 'smc', 1)
 
 # Correlate the rounds of smc
-c_param$inter_round_rho('smc', 1)
+correlations$inter_round_rho('smc', 1)
 
 # You can now pass the correlation parameters to the run_simulation function
 }

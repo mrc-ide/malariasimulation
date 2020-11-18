@@ -4,14 +4,14 @@
 \alias{run_simulation}
 \title{Run the simulation}
 \usage{
-run_simulation(timesteps, parameters = NULL, c_param = NULL)
+run_simulation(timesteps, parameters = NULL, correlations = NULL)
 }
 \arguments{
 \item{timesteps}{the number of timesteps to run the simulation for}
 
 \item{parameters}{a named list of parameters to use}
 
-\item{c_param}{correlation parameters}
+\item{correlations}{correlation parameters}
 }
 \description{
 The main entrypoint for the simulation. run_simulation puts together the

@@ -4,7 +4,7 @@
 \alias{sample_intervention}
 \title{Sample a population to intervene in given the correlation parameters}
 \usage{
-sample_intervention(target, intervention, p, c_param)
+sample_intervention(target, intervention, p, correlations)
 }
 \arguments{
 \item{target}{a vector of individual indices to sample from}
@@ -13,7 +13,7 @@ sample_intervention(target, intervention, p, c_param)
 
 \item{p}{the probability of being selected}
 
-\item{c_param}{correlation parameters}
+\item{correlations}{correlation parameters}
 }
 \description{
 Sample a population to intervene in given the correlation parameters

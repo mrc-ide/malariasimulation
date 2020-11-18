@@ -9,15 +9,15 @@
 #'
 #' @param timesteps the number of timesteps to run the simulation for
 #' @param parameters a named list of parameters to use
-#' @param c_param correlation parameters
+#' @param correlations correlation parameters
 #' @export
-run_simulation <- function(timesteps, parameters = NULL, c_param = NULL) {
+run_simulation <- function(timesteps, parameters = NULL, correlations = NULL) {
   events <- create_events()
   if (is.null(parameters)) {
     parameters <- get_parameters()
   }
-  if (is.null(c_param)) {
-    c_param <- get_correlation_parameters(parameters)
+  if (is.null(correlations)) {
+    correlations <- get_correlation_parameters(parameters)
   }
   states <- create_states(parameters)
   variables <- create_variables(parameters)
@@ -28,7 +28,7 @@ run_simulation <- function(timesteps, parameters = NULL, c_param = NULL) {
     variables,
     events,
     parameters,
-    c_param
+    correlations
   )
   odes <- parameterise_ode(parameters)
   individual::simulate(

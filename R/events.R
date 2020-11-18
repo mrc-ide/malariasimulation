@@ -13,9 +13,7 @@ create_events <- function() {
     tbv_vaccination = individual::Event$new('tbv_vaccination'),
 
     # MDA events
-    mda_enrollment = individual::Event$new('mda_enrolment'),
     mda_administer = individual::Event$new('mda_administer'),
-    smc_enrollment = individual::Event$new('smc_enrolment'),
     smc_administer = individual::Event$new('smc_administer'),
 
     # Bednet events

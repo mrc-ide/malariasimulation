@@ -1,6 +1,6 @@
 Package: malariasimulation
 Title: An individual based model for malaria
-Version: 0.0.3
+Version: 0.0.4
 Authors@R: c(
   person(
     given = "Giovanni",
@@ -24,11 +24,11 @@ Remotes:
 Imports:
   individual,
   Rcpp,
-  BH,
   statmod,
-  malariaEquilibrium
+  MASS
 Suggests: 
   testthat,
+  malariaEquilibrium,
   mockery,
   knitr,
   rmarkdown,
@@ -36,7 +36,7 @@ Suggests:
   DiagrammeR,
   cowplot,
   ggplot2,
-  covr
+  covr,
 RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
 LinkingTo:

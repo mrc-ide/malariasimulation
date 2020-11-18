@@ -1,4 +1,20 @@
-create_rtss_vaccination_listener <- function(human, variables, events, parameters) {
+#' @title RTS,S vaccination
+#' @description creates a listener which models vaccination according to the
+#' strategy from `set_rtss` and correlation parameters from
+#' `get_correlation_parameters`
+#'
+#' @param human the handle for the human individual
+#' @param variables list of variables in the model
+#' @param events a list of events in the model
+#' @param parameters the model parameters
+#' @param correlations correlation parameters
+create_rtss_vaccination_listener <- function(
+  human,
+  variables,
+  events,
+  parameters,
+  correlations
+  ) {
   function(api, target) {
     timestep <- api$get_timestep()
     age <- get_age(
@@ -14,7 +30,9 @@ create_rtss_vaccination_listener <- function(human, variables, events, parameter
       )
     }
     target <- which(target_indices & not_vaccinated)
-    target <- target[bernoulli(length(target), parameters$rtss_coverage)]
+    target <- target[
+      sample_intervention(target, 'rtss', parameters$rtss_coverage, correlations)
+    ]
     api$render('n_vaccinated', length(target))
     if (length(target) > 0) {
       api$queue_variable_update(

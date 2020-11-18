@@ -1,4 +1,3 @@
-
 #' @title Create listeners for MDA events
 #' @param human the human individual object
 #' @param states the states available in the model
@@ -7,12 +6,12 @@
 #' @param drug the drug to administer
 #' @param end when to stop distributing (timestep)
 #' @param frequency how often doses are distributed (in timesteps)
-#' @param min_age minimum age at enrollment
-#' @param max_age maximum age at enrollment
+#' @param min_age minimum age for the target population
+#' @param max_age maximum age for the target population
 #' @param coverage the proportion of the target population that is covered
-#' @description will create an "enrollment listener" for setting up a target
-#' population for an MDA and an  "administer listener" for modelling the effects
-#' of the drug on the population state
+#' @param correlations correlation parameters
+#' @param int_name the name of this intervention (either 'smc' or 'mda')
+#' @description will create a listener for administering each round of drugs
 create_mda_listeners <- function(
   human,
   states,
@@ -23,11 +22,21 @@ create_mda_listeners <- function(
   frequency,
   min_age,
   max_age,
-  coverage
+  coverage,
+  correlations,
+  int_name
   ) {
-
-  administer_listener <- function(api, target) {
+  function(api, target) {
     parameters <- api$get_parameters()
+
+    age <- get_age(
+      api$get_variable(human, variables$birth),
+      api$get_timestep()
+    )
+
+    in_age <- which((age > min_age) & (age < max_age))
+    target <- in_age[sample_intervention(in_age, int_name, coverage, correlations)]
+
     timestep <- api$get_timestep()
     successful_treatments <- bernoulli(
       length(target),
@@ -75,27 +84,9 @@ create_mda_listeners <- function(
       api$queue_variable_update(human, variables$drug_time, timestep, to_move)
     }
 
-    # Schedule next dose
+    # Schedule next round
     if (timestep + frequency <= end) {
-      api$schedule(administer_event, target, frequency)
+      api$schedule(administer_event, c(1), frequency)
     }
   }
-
-  enrollment_listener <- function(api, target) {
-    parameters <- api$get_parameters()
-    age <- get_age(
-      api$get_variable(human, variables$birth),
-      api$get_timestep()
-    )
-    target <- which((age > min_age) & (age < max_age))
-    covered <- bernoulli(length(target), coverage)
-
-    api$render('n_enrolled', sum(covered))
-    administer_listener(api, target[covered])
-  }
-
-  list(
-    enrollment_listener = enrollment_listener,
-    administer_listener = administer_listener
-  )
 }

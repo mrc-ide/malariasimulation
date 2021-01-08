@@ -90,6 +90,7 @@
 #'
 #' mortality parameters:
 #'
+#' * average_age - the average age of humans (in timesteps)
 #' * v - mortality scaling factor from severe disease
 #' * pcm - new-born clinical immunity relative to mother's
 #' * pvm - new-born severe immunity relative to mother's

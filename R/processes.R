@@ -115,8 +115,7 @@ create_processes <- function(
         variables,
         events$throw_away_net,
         parameters
-      ),
-      throw_away_nets(individuals$human, variables)
+      )
     )
   }
 

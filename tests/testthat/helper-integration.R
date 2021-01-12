@@ -1,3 +1,28 @@
+mock_double <- function(values) {
+  list(
+    get_values = mockery::mock(values),
+    queue_update = mockery::mock()
+  )
+}
+
+mock_category <- function(values) {
+  list(
+    get_index_of = function(categories) {
+      b <- individual::Bitset$new(length(values))
+      for (c in categories) {
+        b$insert(which(values == c))
+      }
+      b
+    },
+    queue_update = mockery::mock()
+  )
+}
+
+mock_renderer <- function() {
+  list(
+    render = mockery::mock()
+  )
+}
 
 expect_any <- function(X, FUN) {
   for (x in X) {
@@ -17,32 +42,6 @@ expect_none <- function(X, FUN) {
     }
   }
   expect(TRUE, 'No match found')
-}
-
-mock_api <- function(values, parameters = list(), timestep = 1) {
-  list(
-    get_state = function(individual, ...) {
-      subset <- c()
-      for (state in list(...)) {
-        subset <- c(subset, values[[individual$name]][[state$name]])
-      }
-      subset
-    },
-    get_variable = function(individual, variable, index=NULL) {
-      if (!is.null(index)) {
-        return(values[[individual$name]][[variable$name]][index])
-      }
-      values[[individual$name]][[variable$name]]
-    },
-    queue_state_update = mockery::mock(),
-    queue_variable_update = mockery::mock(),
-    schedule = mockery::mock(),
-    clear_schedule = mockery::mock(),
-    get_scheduled = mockery::mock(),
-    get_timestep = function() timestep,
-    get_parameters = function() parameters,
-    render = mockery::mock()
-  )
 }
 
 expect_variable_update <- function(args, name, value, index) {

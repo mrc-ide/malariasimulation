@@ -12,38 +12,30 @@
 #' @param correlations correlation parameters
 #' @export
 run_simulation <- function(timesteps, parameters = NULL, correlations = NULL) {
-  events <- create_events()
   if (is.null(parameters)) {
     parameters <- get_parameters()
   }
   if (is.null(correlations)) {
     correlations <- get_correlation_parameters(parameters)
   }
-  states <- create_states(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
-  create_event_based_processes(
-    individuals,
-    states,
-    variables,
+  events <- create_events(parameters)
+  initialise_events(events, parameters)
+  attach_event_listeners(
     events,
+    variables,
     parameters,
     correlations
   )
   odes <- parameterise_ode(parameters)
-  individual::simulate(
-    individuals = individuals,
+  individual::simulation_loop(
     processes = create_processes(
-      individuals,
-      states,
       variables,
       events,
       parameters,
       odes
     ),
-    end_timestep = timesteps,
-    parameters = parameters,
-    initialisation = create_setup_process(individuals, states, events)
+    timesteps = timesteps,
   )
 }
 

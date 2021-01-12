@@ -1,28 +1,20 @@
 test_that('biting_process integrates mosquito effects and human infection', {
   population <- 4
-  parameters <- get_parameters(list(human_population = population, severe_enabled = TRUE))
-  events <- create_events()
-  states <- create_states(parameters)
-  variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
-
-  biting_process <- create_biting_process(
-    individuals,
-    states,
-    variables,
-    events
+  timestep <- 5
+  parameters <- get_parameters(
+    list(human_population = population, severe_enabled = TRUE)
   )
 
+  renderer <- mock_renderer()
+  events <- mockery::mock()
   age <- c(20, 24, 5, 39) * 365
+  variables <- list(birth = mock_double(-age + timestep))
 
-  api <- mock_api(
-    list(
-      human = list(
-        birth = -age + 5
-      )
-    ),
-    timestep = 5,
-    parameters = parameters
+  biting_process <- create_biting_process(
+    renderer,
+    variables,
+    events,
+    parameters
   )
 
   total_eir <- 5
@@ -36,26 +28,22 @@ test_that('biting_process integrates mosquito effects and human infection', {
 
   mockery::stub(biting_process, 'simulate_bites', bites_mock)
   mockery::stub(biting_process, 'simulate_infection', infection_mock)
-  biting_process(api)
+  biting_process(timestep)
 
   mockery::expect_args(
     bites_mock,
     1,
-    api,
-    individuals,
-    states,
     variables,
     events,
     age,
-    parameters
+    parameters,
+    timestep
   )
 
   mockery::expect_args(
     infection_mock,
     1,
-    api,
-    individuals,
-    states,
+    renderer,
     variables,
     events,
     eir,
@@ -66,29 +54,24 @@ test_that('biting_process integrates mosquito effects and human infection', {
 
 test_that('simulate_bites integrates eir calculation and mosquito side effects', {
   population <- 4
-  parameters <- get_parameters(list(human_population = population, severe_enabled = TRUE))
-  events <- create_events()
-  states <- create_states(parameters)
+  timestep <- 5
+  renderer <- mock_renderer()
+  parameters <- get_parameters(
+    list(human_population = population, severe_enabled = TRUE)
+  )
+  events <- create_events(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
 
   infectivity <- c(.6, 0, .2, .3)
   age <- c(20, 24, 5, 39) * 365
 
-  api <- mock_api(
-    list(
-      human = list(
-        zeta = c(.2, .3, .5, .9),
-        infectivity = infectivity
-      ),
-      mosquito = list(
-        Im = 1:10,
-        Sm = 11:25,
-        variety = c(rep(1, 25), rep(2, 25), rep(3, 50))
-      )
-    ),
-    timestep = 5,
-    parameters = parameters
+  variables$zeta <- mock_double(c(.2, .3, .5, .9))
+  variables$infectivity <- mock_double(infectivity)
+  variables$mosquito_state <- mock_category(
+    c(rep('Im', 10), rep('Sm', 15))
+  )
+  variables$species <- mock_category(
+    c(rep('gamb', 25), rep('arab', 25), rep('fun', 50))
   )
 
   total_eir <- 5
@@ -99,7 +82,7 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
   mockery::stub(simulate_bites, 'calculate_mosquito_effects', mosquito_effects_mock)
   .pi <- rep(1 / population, population)
   mockery::stub(simulate_bites, 'human_pi', mockery::mock(.pi))
-  total_eir <- simulate_bites(api, individuals, states, variables, events, age, parameters)
+  total_eir <- simulate_bites(renderer, variables, events, age, parameters, timestep)
 
   expect_equal(total_eir, 5)
 
@@ -108,7 +91,6 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
   mockery::expect_args(
     lambda_mock,
     1,
-    api,
     .pi,
     age,
     1,
@@ -121,21 +103,15 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
     parameters
   )
 
-  mockery::expect_args(
-    mosquito_effects_mock,
-    1,
-    api,
-    infectivity,
-    .5,
-    individuals,
-    states,
-    events$mosquito_infection,
-    1,
-    11:25,
-    c(11:25, 1:10),
-    1,
-    0,
-    f,
-    parameters
-  )
+  effects_args <- mockery::mock_args(mosquito_effects_mock)
+
+  expect_equal(effects_args[[1]][[1]], infectivity)
+  expect_equal(effects_args[[1]][[2]], .5)
+  expect_equal(effects_args[[1]][[3]], events$mosquito_infection)
+  expect_equal(effects_args[[1]][[4]], 1)
+  expect_equal(effects_args[[1]][[5]]$to_vector(), 11:25)
+  expect_equal(effects_args[[1]][[6]]$to_vector(), c(1:10, 11:25))
+  expect_equal(effects_args[[1]][[7]], 1)
+  expect_equal(effects_args[[1]][[8]], 0)
+  expect_equal(effects_args[[1]][[9]], f)
 })

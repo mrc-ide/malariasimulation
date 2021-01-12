@@ -1,11 +1,9 @@
 
 #' @title return the probability of being bitten given vector controls
-#' @param individuals a list of available individuals
 #' @param variables a list of available variables
 #' @param species the species to calculate for
-#' @param api the simulation api
 #' @param parameters model parameters
-prob_bitten <- function(individuals, variables, species, api, parameters) {
+prob_bitten <- function(timestep, variables, species, parameters) {
   if (!(parameters$bednets || parameters$spraying)) {
     n <- parameters$human_population
     return(
@@ -21,12 +19,11 @@ prob_bitten <- function(individuals, variables, species, api, parameters) {
 
   if (parameters$bednets) {
     phi_bednets <- parameters$phi_bednets[[species]]
-    net_time <- api$get_variable(individuals$human, variables$net_time)
+    net_time <- variables$net_time$get_values()
     since_net <- timestep - net_time
     rn <- prob_repelled_bednets(since_net, species, parameters)
     sn <- prob_survives_bednets(rn, since_net, species, parameters)
     unused <- net_time == -1
-    api$render('net_usage', sum(!unused) / length(unused))
     sn[unused] <- 1
     rn[unused] <- 0
   } else {
@@ -37,7 +34,7 @@ prob_bitten <- function(individuals, variables, species, api, parameters) {
 
   if (parameters$spraying) {
     phi_indoors <- parameters$phi_indoors[[species]]
-    spray_time <- api$get_variable(individuals$human, variables$spray_time)
+    spray_time <- variables$spray_time$get_values()
     since_spray <- timestep - spray_time
     unused <- spray_time == -1
     rs <- prob_spraying_repels(

@@ -129,11 +129,8 @@ peak_season_offset <- function(parameters) {
 
 #' @title Calculate the effects of biting on mosquito individuals
 #'
-#' @param api the simulation api
 #' @param human_infectivity the infectivity for each human
 #' @param lambda the effective biting rate for this species on each human
-#' @param individuals a list of individual handles
-#' @param states a list of state handles
 #' @param mosquito_infection an event for mosquito infection
 #' @param species the index of the species to calculate for
 #' @param susceptible_species the indices of susceptible mosquitos of the
@@ -146,11 +143,8 @@ peak_season_offset <- function(parameters) {
 #' @param parameters the model parameters
 #' @export
 calculate_mosquito_effects <- function(
-    api,
     human_infectivity,
     lambda,
-    individuals,
-    states,
     mosquito_infection,
     species,
     susceptible_species,

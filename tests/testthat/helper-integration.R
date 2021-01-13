@@ -1,29 +1,3 @@
-mock_double <- function(values) {
-  list(
-    get_values = mockery::mock(values),
-    queue_update = mockery::mock()
-  )
-}
-
-mock_category <- function(values) {
-  list(
-    get_index_of = function(categories) {
-      b <- individual::Bitset$new(length(values))
-      for (c in categories) {
-        b$insert(which(values == c))
-      }
-      b
-    },
-    queue_update = mockery::mock()
-  )
-}
-
-mock_renderer <- function() {
-  list(
-    render = mockery::mock()
-  )
-}
-
 expect_any <- function(X, FUN) {
   for (x in X) {
     if (FUN(x) == TRUE) {

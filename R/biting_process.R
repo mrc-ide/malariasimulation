@@ -17,13 +17,16 @@ create_biting_process <- function(renderer, variables, events, parameters) {
       parameters,
       timestep
     )
+
+    renderer$render("mean_EIR", mean(total_eir))
+
     simulate_infection(
-      renderer,
       variables,
       events,
       total_eir,
       age,
-      parameters
+      parameters,
+      timestep
     )
   }
 }
@@ -97,9 +100,6 @@ simulate_bites <- function(renderer, variables, events, age, parameters, timeste
 #' @description
 #' Updates human states and variables to represent asymptomatic/clinical/severe
 #' and treated malaria; and resulting boosts in immunity
-#' @param api simulation api
-#' @param individuals a list of individuals in the model
-#' @param states a list of all of the model states
 #' @param variables a list of all of the model variables
 #' @param events a list of all of the model events
 #' @param total_eir a vector of eirs for each human summed across each
@@ -107,71 +107,61 @@ simulate_bites <- function(renderer, variables, events, age, parameters, timeste
 #' @param age of each human (timesteps)
 #' @param parameters of the model
 simulate_infection <- function(
-  api,
-  individuals,
-  states,
   variables,
   events,
   total_eir,
   age,
-  parameters
+  parameters,
+  timestep
   ) {
-  bitten_humans <- which(bernoulli_multi_p(length(total_eir), total_eir))
-  api$render("mean_EIR", mean(total_eir))
+  bitten_humans <- which(bernoulli_multi_p(total_eir))
 
-  ib <- api$get_variable(individuals$human, variables$ib)
+  ib <- variables$ib$get_values()
   if (length(bitten_humans) > 0) {
     boost_immunity(
-      api,
-      individuals$human,
       variables$ib,
       bitten_humans,
       ib[bitten_humans],
       variables$last_boosted_ib,
-      api$get_timestep(),
+      timestep,
       parameters$ub
     )
   }
 
   # Calculate Infected
   infected_humans <- calculate_infections(
-    api,
-    individuals$human,
-    states,
     variables,
     bitten_humans,
-    ib
+    ib,
+    parameters,
+    timestep
   )
 
   clinical_infections <- calculate_clinical_infections(
-    api,
-    individuals$human,
     variables,
-    infected_humans
+    infected_humans,
+    parameters,
+    timestep
   )
 
   if (parameters$severe_enabled) {
     update_severe_disease(
-      api,
       clinical_infections,
       age[clinical_infections],
-      individuals$human,
       variables,
       infected_humans
     )
   }
 
   treated <- calculate_treated(
-    api,
-    individuals$human,
-    states,
     variables,
     clinical_infections,
-    events$recovery
+    events$recovery,
+    parameters,
+    timestep
   )
 
   schedule_infections(
-    api,
     events,
     clinical_infections,
     treated,

@@ -37,7 +37,7 @@ test_that('simulate_infection integrates different types of infection and schedu
     boost_immunity_mock,
     1,
     variables$ib,
-    c(1, 3, 5, 7),
+    b,
     c(.2, .5, .2, .5),
     variables$last_boosted_ib,
     5,
@@ -48,7 +48,7 @@ test_that('simulate_infection integrates different types of infection and schedu
     infection_mock,
     1,
     variables,
-    c(1, 3, 5, 7),
+    b,
     c(.2, .3, .5, .9, .2, .3, .5, .9),
     parameters,
     timestep
@@ -117,7 +117,7 @@ test_that('calculate_infections works various combinations of drug and vaccinati
   weibull_mock <- mockery::mock(.2)
   rtss_antibodies_mock <- mockery::mock(c(2, 3))
   rtss_efficacy_mock <- mockery::mock(c(.2, .3))
-  b <- individual::Bitset$new(3)
+  b <- individual::Bitset$new(4)
   b$insert(2)
   bernoulli_mock <- mockery::mock(b)
   mockery::stub(calculate_infections, 'blood_immunity', immunity_mock)
@@ -126,15 +126,17 @@ test_that('calculate_infections works various combinations of drug and vaccinati
   mockery::stub(calculate_infections, 'calculate_rtss_efficacy', rtss_efficacy_mock)
   mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
 
+  bitten_humans <- individual::Bitset$new(4)
+  bitten_humans$insert(c(1, 2, 3, 4))
   infections <- calculate_infections(
     variables,
-    c(1, 2, 3, 4), 
+    bitten_humans, 
     c(.2, .3, .5, .9),
     parameters,
     timestep
   )
 
-  expect_equal(infections, 3)
+  expect_equal(infections$to_vector(), 2)
 
   mockery::expect_args(immunity_mock, 1, c(.3, .5, .9), parameters)
   mockery::expect_args(
@@ -186,23 +188,27 @@ test_that('calculate_clinical_infections correctly samples clinically infected',
   mockery::stub(calculate_clinical_infections, 'boost_immunity', boost_mock)
 
   mockery::stub(calculate_clinical_infections, 'clinical_immunity', immunity_mock)
-  b <- individual::Bitset$new(3)
+  b <- individual::Bitset$new(4)
   b$insert(c(1, 3))
   bernoulli_mock <- mockery::mock(b)
   mockery::stub(calculate_clinical_infections, 'bernoulli_multi_p', bernoulli_mock)
+  infections <- individual::Bitset$new(4)
+  infections$insert(c(2, 3, 4))
+
   clinical_infections <- calculate_clinical_infections(
     variables,
-    c(2, 3, 4),
+    infections,
     parameters,
     timestep
   )
-  expect_equal(clinical_infections, c(2, 4))
+
+  expect_equal(clinical_infections$to_vector(), 3)
 
   mockery::expect_args(
     boost_mock,
     1,
     variables$ica,
-    c(2, 3, 4),
+    infections,
     c(.3, .5, .9),
     variables$last_boosted_ica,
     5,
@@ -213,7 +219,7 @@ test_that('calculate_clinical_infections correctly samples clinically infected',
     boost_mock,
     2,
     variables$id,
-    c(2, 3, 4),
+    infections,
     c(.3, .5, .9),
     variables$last_boosted_id,
     5,
@@ -251,29 +257,29 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   schedule_mock <- mockery::mock()
   mockery::stub(calculate_treated, 'recovery$schedule', schedule_mock)
 
-  bernoulli_mock <- mockery::mock(c(1, 2, 4))
-  mockery::stub(calculate_treated, 'bernoulli', bernoulli_mock)
-  sample_mock <- mockery::mock(c(2, 1, 1))
+  seek_treatment <- individual::Bitset$new(4)
+  seek_treatment$insert(c(1, 2, 4))
+  mockery::stub(
+    calculate_treated,
+    'sample_bitset',
+    mockery::mock(seek_treatment)
+  )
+  sample_mock <- mockery::mock(c(2, 1, 1, 1))
   mockery::stub(calculate_treated, 'sample.int', sample_mock)
-b <- individual::Bitset$new(3)
-  b$insert(c(1, 3))
+  b <- individual::Bitset$new(4)
+  b$insert(c(1, 4))
   bernoulli_mock <- mockery::mock(b)
-  mockery::stub(calculate_treated, 'bernoulli_multi_p', bernoulli_multi_mock)
+  mockery::stub(calculate_treated, 'bernoulli_multi_p', bernoulli_mock)
   mockery::stub(calculate_treated, 'log_uniform', mockery::mock(c(3, 4)))
 
+  clinical_infections <- individual::Bitset$new(4)
+  clinical_infections$insert(c(1, 2, 3, 4))
   calculate_treated(
     variables,
-    c(1, 2, 3, 4),
+    clinical_infections,
     events$recovery,
     parameters,
     timestep
-  )
-
-  mockery::expect_args(
-    bernoulli_mock,
-    1,
-    4,
-    parameters$ft
   )
 
   mockery::expect_args(
@@ -286,35 +292,50 @@ b <- individual::Bitset$new(3)
   )
 
   mockery::expect_args(
-    bernoulli_multi_mock,
+    bernoulli_mock,
     1,
-    parameters$drug_efficacy[c(2, 1, 1)]
+    parameters$drug_efficacy[c(2, 1, 1, 1)]
   )
 
-  mockery::expect_args(
-    variables$state$queue_update,
-    1,
-    'Tr',
+  expect_equal(
+    mockery::mock_args(variables$state$queue_update)[[1]][[1]],
+    'Tr'
+  )
+  expect_equal(
+    mockery::mock_args(variables$state$queue_update)[[1]][[2]]$to_vector(),
     c(1, 4)
   )
-  mockery::expect_args(
-    variables$infectivity$queue_update,
-    1,
+
+  expect_equal(
+    mockery::mock_args(variables$infectivity$queue_update)[[1]][[1]],
     parameters$cd * parameters$drug_rel_c[c(2, 1)],
+  )
+
+  expect_equal(
+    mockery::mock_args(variables$infectivity$queue_update)[[1]][[2]]$to_vector(),
     c(1, 4)
   )
-  mockery::expect_args(
-    variables$drug$queue_update,
-    1,
+
+  expect_equal(
+    mockery::mock_args(variables$drug$queue_update)[[1]][[1]],
     c(2, 1),
+  )
+
+  expect_equal(
+    mockery::mock_args(variables$drug$queue_update)[[1]][[2]]$to_vector(),
     c(1, 4)
   )
-  mockery::expect_args(
-    variables$drug_time$queue_update,
-    1,
-    5,
+
+  expect_equal(
+    mockery::mock_args(variables$drug_time$queue_update)[[1]][[1]],
+    5
+  )
+
+  expect_equal(
+    mockery::mock_args(variables$drug_time$queue_update)[[1]][[2]]$to_vector(),
     c(1, 4)
   )
+
   mockery::expect_args(
     schedule_mock,
     1,
@@ -325,50 +346,57 @@ b <- individual::Bitset$new(3)
 
 test_that('schedule_infections correctly schedules new infections', {
   parameters <- get_parameters()
-  events <- create_events(parameters)
-  timestep <- 5
 
   scheduled <- individual::Bitset$new(20)
   scheduled$insert(c(1, 3, 7, 15))
-  mockery::stub(
-    schedule_infections,
-    'events$infection$get_scheduled',
-    mockery::mock(scheduled)
-  )
-
   clinical_mock <- mockery::mock()
-  mockery::stub(
-    schedule_infections,
-    'events$clinical_infection$schedule',
-    clinical_mock
-  )
-
   asym_mock <- mockery::mock()
-  mockery::stub(
-    schedule_infections,
-    'events$asymptomatic_infection$schedule',
-    asym_mock
-  )
+  all_mock <- mockery::mock(cycle = TRUE)
 
-  all_mock <- mockery::mock()
-  mockery::stub(
-    schedule_infections,
-    'events$infection$schedule',
-    all_mock
+  events <- list(
+    infection = list(
+      schedule = all_mock,
+      get_scheduled = mockery::mock(scheduled)
+    ),
+    clinical_infection = list(schedule = clinical_mock),
+    asymptomatic_infection = list(schedule = asym_mock),
+    subpatent_infection = list(clear_schedule = mockery::mock()),
+    recovery = list(clear_schedule = mockery::mock())
   )
 
   mockery::stub(
     schedule_infections,
     'log_uniform',
     mockery::mock(
-      c(2, 4, 5, 6, 13, 14, 16, 17, 18, 19, 20)
+      c(5, 6, 13, 14),
+      c(2, 4, 16, 17, 18, 19, 20)
     )
   )
 
-  schedule_infections(events, 5:15, 7:12, 1:20, parameters)
+  infections <- individual::Bitset$new(20)
+  infections$insert(1:20)
+  clinical_infections <- individual::Bitset$new(20)
+  clinical_infections$insert(5:15)
+  treated <- individual::Bitset$new(20)
+  treated$insert(7:12)
+
+  schedule_infections(
+    events,
+    clinical_infections,
+    treated,
+    infections,
+    parameters
+  )
 
   mockery::expect_args(
     clinical_mock,
+    1,
+    c(5, 6, 13, 14),
+    c(5, 6, 13, 14)
+  )
+
+  mockery::expect_args(
+    all_mock,
     1,
     c(5, 6, 13, 14),
     c(5, 6, 13, 14)
@@ -383,9 +411,9 @@ test_that('schedule_infections correctly schedules new infections', {
 
   mockery::expect_args(
     all_mock,
-    1,
-    c(2, 4, 5, 6, 13, 14, 16, 17, 18, 19, 20),
-    c(2, 4, 5, 6, 13, 14, 16, 17, 18, 19, 20)
+    2,
+    c(2, 4, 16, 17, 18, 19, 20),
+    c(2, 4, 16, 17, 18, 19, 20)
   )
 })
 

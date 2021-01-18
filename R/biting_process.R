@@ -114,14 +114,14 @@ simulate_infection <- function(
   parameters,
   timestep
   ) {
-  bitten_humans <- which(bernoulli_multi_p(total_eir))
+  bitten_humans <- bernoulli_multi_p(total_eir)
 
   ib <- variables$ib$get_values()
-  if (length(bitten_humans) > 0) {
+  if (bitten_humans$size() > 0) {
     boost_immunity(
       variables$ib,
       bitten_humans,
-      ib[bitten_humans],
+      ib[bitten_humans$to_vector()],
       variables$last_boosted_ib,
       timestep,
       parameters$ub

@@ -4,6 +4,8 @@ vlapply <- function(X, FUN, ...) vapply(X, FUN, ..., logical(1))
 #' @importFrom stats rbinom 
 bernoulli <- function(size, p) sample.int(size, rbinom(1, size, min(p, 1)))
 
+sample_bitset <- function(b, rate) b$copy()$sample(rate)
+
 #' @importFrom stats runif
 bernoulli_multi_p <- function(p) {
   individual::Bitset$new(from = bernoulli_multi_p_cpp(p))

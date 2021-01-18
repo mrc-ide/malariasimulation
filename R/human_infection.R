@@ -2,7 +2,7 @@
 #' @description
 #' Sample infected humans given prophylaxis and vaccination
 #' @param variables a list of all of the model variables
-#' @param bitten_humans indices of bitten humans
+#' @param bitten_humans bitset of bitten humans
 #' @param ib vector of pre-erythrocytic immunity levels
 #' @param timestep current timestep
 #' @importFrom stats dweibull
@@ -13,20 +13,19 @@ calculate_infections <- function(
   parameters,
   timestep
   ) {
-  source_humans <- variables$state$get_index_of(c('S', 'A', 'U'))
-  bitten_bitset <- individual::Bitset$new(source_humans$max_size)
-  bitten_bitset$insert(bitten_humans)
-  source_humans <- source_humans$and(bitten_bitset)$to_vector()
+  source_humans <- variables$state$get_index_of(c('S', 'A', 'U'))$and(
+    bitten_humans)
+  source_vector <- source_humans$to_vector()
 
-  b <- blood_immunity(ib[source_humans], parameters)
+  b <- blood_immunity(ib[source_vector], parameters)
 
   # calculate prophylaxis
-  prophylaxis <- rep(0, length(source_humans))
+  prophylaxis <- rep(0, length(source_vector))
   drug <- variables$drug$get_values(source_humans)
   medicated <- (drug > 0)
   if (any(medicated)) {
     drug <- drug[medicated]
-    drug_time <- variables$drug_time$get_values(source_humans[medicated])
+    drug_time <- variables$drug_time$get_values(source_vector[medicated])
     prophylaxis[medicated] <- dweibull(
       timestep - drug_time,
       parameters$drug_prophylaxis_shape[drug],
@@ -35,13 +34,13 @@ calculate_infections <- function(
   }
 
   # calculate vaccine efficacy
-  vaccine_efficacy <- rep(0, length(source_humans))
+  vaccine_efficacy <- rep(0, length(source_vector))
   vaccine_times <- pmax(
     variables$rtss_vaccinated$get_values(source_humans),
     variables$rtss_boosted$get_values(source_humans)
   )
   vaccinated <- which(vaccine_times > -1)
-  vaccinated_index <- source_humans[vaccine_times > -1]
+  vaccinated_index <- source_vector[vaccine_times > -1]
   antibodies <- calculate_rtss_antibodies(
     timestep - vaccine_times[vaccinated],
     variables$rtss_cs$get_values(vaccinated_index),
@@ -52,22 +51,23 @@ calculate_infections <- function(
   )
   vaccine_efficacy[vaccinated] <- calculate_rtss_efficacy(antibodies, parameters)
 
-  source_humans[bernoulli_multi_p(
+  source_humans$and(bernoulli_multi_p(
     b * (1 - prophylaxis) * (1 - vaccine_efficacy)
-  )]
+  ))
 }
 
 #' @title Calculate clinical infections
 #' @description
 #' Sample clinical infections from all infections
 #' @param variables a list of all of the model variables
-#' @param infections index of infected humans
+#' @param infections bitset of infected humans
 #' @param parameters model parameters
+#' @param timestep current timestep
 calculate_clinical_infections <- function(variables, infections, parameters, timestep) {
   ica <- variables$ica$get_values(infections)
   icm <- variables$icm$get_values(infections)
 
-  if (length(infections) > 0) {
+  if (infections$size() > 0) {
     boost_immunity(
       variables$ica,
       infections,
@@ -87,7 +87,7 @@ calculate_clinical_infections <- function(variables, infections, parameters, tim
   }
 
   phi <- clinical_immunity(ica, icm, parameters)
-  infections[bernoulli_multi_p(phi)]
+  infections$and(bernoulli_multi_p(phi))
 }
 
 #' @title Calculate severe infections
@@ -140,7 +140,7 @@ update_severe_disease <- function(
 #' @description
 #' Sample treated humans from the clinically infected
 #' @param variables a list of all of the model variables
-#' @param clinical_infections indices of clinically infected humans
+#' @param clinical_infections a bitset of clinically infected humans
 #' @param recovery the recovery event
 #' @param parameters model parameters
 #' @param timestep
@@ -155,8 +155,8 @@ calculate_treated <- function(
     return(numeric(0))
   }
 
-  seek_treatment <- bernoulli(length(clinical_infections), parameters$ft)
-  n_treat <- length(seek_treatment)
+  seek_treatment <- sample_bitset(clinical_infections, parameters$ft)
+  n_treat <- seek_treatment$size()
   drugs <- parameters$clinical_treatment_drugs[
     sample.int(
       length(parameters$clinical_treatment_drugs),
@@ -167,17 +167,18 @@ calculate_treated <- function(
   ]
 
   successful <- bernoulli_multi_p(parameters$drug_efficacy[drugs])
-  treated_index <- clinical_infections[seek_treatment][successful]
+  treated_index <- seek_treatment$and(successful)
 
   # Update those who have been treated
-  if (length(treated_index) > 0) {
+  if (treated_index$size() > 0) {
+    successful_vector <- successful$to_vector()
     variables$state$queue_update('Tr', treated_index)
     variables$infectivity$queue_update(
-      parameters$cd * parameters$drug_rel_c[drugs[successful]],
+      parameters$cd * parameters$drug_rel_c[drugs[successful_vector]],
       treated_index
     )
     variables$drug$queue_update(
-      drugs[successful],
+      drugs[successful_vector],
       treated_index
     )
     variables$drug_time$queue_update(
@@ -185,8 +186,8 @@ calculate_treated <- function(
       treated_index
     )
     recovery$schedule(
-      treated_index,
-      log_uniform(length(treated_index), parameters$dt)
+      treated_index$to_vector(),
+      log_uniform(treated_index$size(), parameters$dt)
     )
   }
   treated_index
@@ -196,9 +197,9 @@ calculate_treated <- function(
 #' @description
 #' Schedule infections in humans after the incubation period
 #' @param events a list of all of the model events
-#' @param clinical_infections indices of clinically infected humans
-#' @param treated indices of treated humans
-#' @param infections indices of infected humans
+#' @param clinical_infections bitset of clinically infected humans
+#' @param treated bitset of treated humans
+#' @param infections bitset of infected humans
 schedule_infections <- function(
   events,
   clinical_infections,
@@ -206,38 +207,34 @@ schedule_infections <- function(
   infections,
   parameters
   ) {
-  scheduled_for_infection <- events$infection$get_scheduled()
-  treated_b <- individual::Bitset$new(scheduled_for_infection$max_size)
-  treated_b$insert(treated)
-  excluded <- scheduled_for_infection$and(treated)
+  included <- events$infection$get_scheduled()$or(treated)$not()
 
-  infections
-  all_new_infections <- setdiff(infections, excluded)
-  to_infect <- all_new_infections %in% clinical_infections
-  to_infect_asym <- !to_infect
+  to_infect <- clinical_infections$and(included)
+  to_infect_asym <- clinical_infections$not()$and(infections)$and(included)
 
-  infection_times <- log_uniform(length(all_new_infections), parameters$de)
-
-  if(sum(to_infect) > 0) {
-    api$schedule(
-      events$clinical_infection,
-      all_new_infections[to_infect],
-      infection_times[to_infect]
+  # change to symptomatic
+  if(to_infect$size() > 0) {
+    to_infect_vector <- to_infect$to_vector()
+    infection_times <- log_uniform(to_infect$size(), parameters$de)
+    events$clinical_infection$schedule(
+      to_infect_vector,
+      infection_times
     )
+    events$infection$schedule(to_infect_vector, infection_times)
+    events$subpatent_infection$clear_schedule(to_infect)
+    events$recovery$clear_schedule(to_infect)
   }
 
-  if(sum(to_infect_asym) > 0) {
-    api$schedule(
-      events$asymptomatic_infection,
-      all_new_infections[to_infect_asym],
-      infection_times[to_infect_asym]
+  if(to_infect_asym$size() > 0) {
+    to_infect_vector <- to_infect_asym$to_vector()
+    infection_times <- log_uniform(to_infect_asym$size(), parameters$de)
+    events$asymptomatic_infection$schedule(
+      to_infect_vector,
+      infection_times
     )
-  }
-
-  if(length(all_new_infections) > 0) {
-    api$schedule(events$infection, all_new_infections, infection_times)
-    api$clear_schedule(events$subpatent_infection, all_new_infections)
-    api$clear_schedule(events$recovery, all_new_infections)
+    events$infection$schedule(to_infect_vector, infection_times)
+    events$subpatent_infection$clear_schedule(to_infect_asym)
+    events$recovery$clear_schedule(to_infect_asym)
   }
 }
 
@@ -245,8 +242,6 @@ schedule_infections <- function(
 # Utility functions
 # =================
 boost_immunity <- function(
-  api,
-  human,
   immunity_variable,
   exposed_index,
   exposed_values,
@@ -255,22 +250,19 @@ boost_immunity <- function(
   delay
   ) {
   # record who can be boosted
-  last_boosted <- api$get_variable(human, last_boosted_variable, exposed_index)
+  exposed_index_vector <- exposed_index$to_vector()
+  last_boosted <- last_boosted_variable$get_values(exposed_index)
   to_boost <- (timestep - last_boosted) >= delay | (last_boosted == -1)
   if (sum(to_boost) > 0) {
     # boost the variable
-    api$queue_variable_update(
-      human,
-      immunity_variable,
+    immunity_variable$queue_update(
       exposed_values[to_boost] + 1,
-      exposed_index[to_boost]
+      exposed_index_vector[to_boost]
     )
     # record last boosted
-    api$queue_variable_update(
-      human,
-      last_boosted_variable,
+    last_boosted_variable$queue_update(
       timestep,
-      exposed_index[to_boost]
+      exposed_index_vector[to_boost]
     )
   }
 }

@@ -297,44 +297,14 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
     parameters$drug_efficacy[c(2, 1, 1, 1)]
   )
 
-  expect_equal(
-    mockery::mock_args(variables$state$queue_update)[[1]][[1]],
-    'Tr'
-  )
-  expect_equal(
-    mockery::mock_args(variables$state$queue_update)[[1]][[2]]$to_vector(),
-    c(1, 4)
-  )
-
-  expect_equal(
-    mockery::mock_args(variables$infectivity$queue_update)[[1]][[1]],
+  expect_bitset_update(variables$state$queue_update, 'Tr', c(1, 4))
+  expect_bitset_update(
+    variables$infectivity$queue_update,
     parameters$cd * parameters$drug_rel_c[c(2, 1)],
-  )
-
-  expect_equal(
-    mockery::mock_args(variables$infectivity$queue_update)[[1]][[2]]$to_vector(),
     c(1, 4)
   )
-
-  expect_equal(
-    mockery::mock_args(variables$drug$queue_update)[[1]][[1]],
-    c(2, 1),
-  )
-
-  expect_equal(
-    mockery::mock_args(variables$drug$queue_update)[[1]][[2]]$to_vector(),
-    c(1, 4)
-  )
-
-  expect_equal(
-    mockery::mock_args(variables$drug_time$queue_update)[[1]][[1]],
-    5
-  )
-
-  expect_equal(
-    mockery::mock_args(variables$drug_time$queue_update)[[1]][[2]]$to_vector(),
-    c(1, 4)
-  )
+  expect_bitset_update(variables$drug$queue_update, c(2, 1), c(1, 4))
+  expect_bitset_update(variables$drug_time$queue_update, 5, c(1, 4))
 
   mockery::expect_args(
     schedule_mock,
@@ -420,268 +390,142 @@ test_that('schedule_infections correctly schedules new infections', {
 test_that('prophylaxis is considered for medicated humans', {
   parameters <- get_parameters()
   parameters <- set_drugs(parameters, list(AL_params, DHC_PQP_params))
-  events <- create_events()
-  states <- create_states(parameters)
-  variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
+  events <- create_events(parameters)
+  timestep <- 50
 
-  ib = c(.2, .3, .5, .9)
-  api <- mock_api(
-    list(
-      human = list(
-        D = c(1),
-        S = c(2),
-        U = c(3),
-        A = c(4),
-        drug = c(0, 2, 1, 0),
-        drug_time = c(-1, 49, 40, -1)
-      )
+  variables = list(
+    state = individual::CategoricalVariable$new(
+      c('D', 'S', 'A', 'U', 'Tr'),
+      c('D', 'S', 'A', 'U')
     ),
-    timestep = 50,
-    parameters = parameters
+    drug = individual::DoubleVariable$new(c(0, 2, 1, 0)),
+    drug_time = individual::DoubleVariable$new(c(-1, 49, 40, -1)),
+    rtss_vaccinated = individual::DoubleVariable$new(c(-1, -1, -1, -1)),
+    rtss_boosted = individual::DoubleVariable$new(c(-1, -1, -1, -1))
   )
-  m <- mockery::mock(c(TRUE, TRUE, TRUE, TRUE))
+  ib = c(.2, .3, .5, .9)
 
-  with_mock(
-    'malariasimulation:::bernoulli_multi_p' = m,
-    calculate_infections(api, individuals$human, states, variables, seq(4), ib)
-  )
+  b <- individual::Bitset$new(4)
+  b$insert(seq(4))
+  m <- mockery::mock(b)
+  mockery::stub(calculate_infections, 'bernoulli_multi_p', m)
+
+  calculate_infections(variables, b, ib, parameters, timestep)
 
   expect_equal(
-    mockery::mock_args(m)[[1]][[2]],
-    c(0.590, 0.590, 0.384),
+    mockery::mock_args(m)[[1]][[1]],
+    c(.590, .384, .590),
     tolerance = 1e-3
   )
 })
 
 test_that('boost_immunity respects the delay period', {
-  parameters <- get_parameters()
-  states <- create_states(parameters)
-  variables <- create_variables(parameters)
-  individuals <- create_individuals(
-    states,
-    variables,
-    create_events(),
-    parameters
-  )
-
   level <- c(2.4, 1.2, 0., 4.)
-  last_boosted <- c(11, 5, 1, 13)
-  index <- seq(4)
+  immunity <- individual::DoubleVariable$new(level)
+  last_boosted <- individual::DoubleVariable$new(c(11, 5, 1, 13))
+
+  level_mock <- mockery::mock()
+  mockery::stub(boost_immunity, 'immunity_variable$queue_update', level_mock)
+
+  last_mock <- mockery::mock()
+  mockery::stub(boost_immunity, 'last_boosted_variable$queue_update', last_mock)
+
+  index <- individual::Bitset$new(4)
+  index$insert(seq(4))
   timestep <- 15
   delay <- 4
 
-  api <- mock_api(
-    list(
-      human = list(
-        ID = level,
-        last_boosted_id = last_boosted
-      )
-    )
-  )
-
   boost_immunity(
-    api,
-    individuals$human,
-    variables$id,
+    immunity,
     index,
     level,
-    variables$last_boosted_id,
+    last_boosted,
     timestep,
     delay
   )
 
   mockery::expect_args(
-    api$queue_variable_update,
+    level_mock,
     1,
-    individuals$human,
-    variables$id,
     c(3.4, 2.2, 1),
     seq(3)
   )
 
   mockery::expect_args(
-    api$queue_variable_update,
-    2,
-    individuals$human,
-    variables$last_boosted_id,
+    last_mock,
+    1,
     15,
     seq(3)
   )
 })
 
 test_that('boost_immunity respects the delay period', {
-  parameters <- get_parameters()
-  states <- create_states(parameters)
-  variables <- create_variables(parameters)
-  individuals <- create_individuals(
-    states,
-    variables,
-    create_events(),
-    parameters
-  )
-
   level <- c(2.4, 1.2, 0., 4., 0.)
-  last_boosted <- c(11, 5, 1, 13, -1)
-  index <- seq(5)
+  immunity <- individual::DoubleVariable$new(level)
+  last_boosted <- individual::DoubleVariable$new(c(11, 5, 1, 13, -1))
+
+  index <- individual::Bitset$new(5)
+  index$insert(seq(5))
   timestep <- 15
   delay <- 4
 
-  api <- mock_api(
-    list(
-      human = list(
-        ID = level,
-        last_boosted_id = last_boosted
-      )
-    )
-  )
+  level_mock <- mockery::mock()
+  mockery::stub(boost_immunity, 'immunity_variable$queue_update', level_mock)
+
+  last_mock <- mockery::mock()
+  mockery::stub(boost_immunity, 'last_boosted_variable$queue_update', last_mock)
 
   boost_immunity(
-    api,
-    individuals$human,
-    variables$id,
+    immunity,
     index,
     level,
-    variables$last_boosted_id,
+    last_boosted,
     timestep,
     delay
   )
 
   mockery::expect_args(
-    api$queue_variable_update,
+    level_mock,
     1,
-    individuals$human,
-    variables$id,
     c(3.4, 2.2, 1, 1),
     c(seq(3), 5)
   )
 
   mockery::expect_args(
-    api$queue_variable_update,
-    2,
-    individuals$human,
-    variables$last_boosted_id,
+    last_mock,
+    1,
     15,
     c(seq(3), 5)
   )
 })
 
 test_that('boost_immunity does not update when there is no-one to update', {
-  parameters <- get_parameters()
-  states <- create_states(parameters)
-  variables <- create_variables(parameters)
-  individuals <- create_individuals(
-    states,
-    variables,
-    create_events(),
-    parameters
-  )
-
   level <- c(2.4, 1.2, 0., 4., 0.)
-  last_boosted <- c(12, 14, 14, 13, 13)
-  index <- seq(5)
+  immunity <- individual::DoubleVariable$new(level)
+  last_boosted <- individual::DoubleVariable$new(c(11, 5, 1, 13, -1))
+
+  index <- individual::Bitset$new(5)
+  index$insert(seq(5))
   timestep <- 15
   delay <- 4
 
-  api <- mock_api(
-    list(
-      human = list(
-        ID = level,
-        last_boosted_id = last_boosted
-      )
-    )
-  )
+  level_mock <- mockery::mock()
+  mockery::stub(boost_immunity, 'immunity$queue_update', level_mock)
+
+  last_mock <- mockery::mock()
+  mockery::stub(boost_immunity, 'last_boosted$queue_update', last_mock)
 
   boost_immunity(
-    api,
-    individuals$human,
-    variables$id,
+    immunity,
     index,
     level,
-    variables$last_boosted_id,
+    last_boosted,
     timestep,
     delay
   )
-
-  mockery::expect_called(api$queue_variable_update, 0)
+  mockery::expect_called(level_mock, 0)
+  mockery::expect_called(last_mock, 0)
 })
 
-test_that('calculate_treated can handle multiple drugs', {
-  parameters <- get_parameters()
-  parameters <- set_drugs(parameters, list(AL_params, DHC_PQP_params))
-  parameters <- set_clinical_treatment(parameters, .5, c(1, 2), c(.5, .5))
-  events <- create_events()
-  states <- create_states(parameters)
-  variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
 
-  api <- mock_api(
-    list(human = list(infectivity = c(.1, .2, .3))),
-    parameters = parameters,
-    timestep = 5
-  )
 
-  with_mock(
-    'malariasimulation:::bernoulli' = mockery::mock(
-      seq(3) # Mock seek treatment
-    ),
-    'malariasimulation:::bernoulli_multi_p' = mockery::mock(
-      c(TRUE, TRUE, FALSE) # Mock drug success
-    ),
-    'malariasimulation:::log_uniform' = mockery::mock(
-      c(10, 12) # Recovery times
-    ),
-    sample.int = mockery::mock(c(1, 2)),
-    calculate_treated(
-      api,
-      individuals$human,
-      states,
-      variables,
-      seq(3),
-      events$recovery
-    )
-  )
-
-  mockery::expect_args(
-    api$queue_state_update,
-    1,
-    individuals$human,
-    states$Tr,
-    c(1, 2)
-  )
-
-  mockery::expect_args(
-    api$queue_variable_update,
-    1,
-    individuals$human,
-    variables$infectivity,
-    parameters$cd * c(AL_params[[2]], DHC_PQP_params[[2]]),
-    c(1, 2)
-  )
-
-  mockery::expect_args(
-    api$queue_variable_update,
-    2,
-    individuals$human,
-    variables$drug,
-    c(1, 2),
-    c(1, 2)
-  )
-
-  mockery::expect_args(
-    api$queue_variable_update,
-    3,
-    individuals$human,
-    variables$drug_time,
-    5,
-    c(1, 2)
-  )
-
-  mockery::expect_args(
-    api$schedule,
-    1,
-    events$recovery,
-    c(1, 2),
-    c(10, 12)
-  )
-})

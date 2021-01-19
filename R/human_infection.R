@@ -21,7 +21,7 @@ calculate_infections <- function(
 
   # calculate prophylaxis
   prophylaxis <- rep(0, length(source_vector))
-  drug <- variables$drug$get_values(source_humans)
+  drug <- variables$drug$get_values(source_vector)
   medicated <- (drug > 0)
   if (any(medicated)) {
     drug <- drug[medicated]
@@ -36,20 +36,22 @@ calculate_infections <- function(
   # calculate vaccine efficacy
   vaccine_efficacy <- rep(0, length(source_vector))
   vaccine_times <- pmax(
-    variables$rtss_vaccinated$get_values(source_humans),
-    variables$rtss_boosted$get_values(source_humans)
+    variables$rtss_vaccinated$get_values(source_vector),
+    variables$rtss_boosted$get_values(source_vector)
   )
   vaccinated <- which(vaccine_times > -1)
-  vaccinated_index <- source_vector[vaccine_times > -1]
-  antibodies <- calculate_rtss_antibodies(
-    timestep - vaccine_times[vaccinated],
-    variables$rtss_cs$get_values(vaccinated_index),
-    variables$rtss_rho$get_values(vaccinated_index),
-    variables$rtss_ds$get_values(vaccinated_index),
-    variables$rtss_dl$get_values(vaccinated_index),
-    parameters
-  )
-  vaccine_efficacy[vaccinated] <- calculate_rtss_efficacy(antibodies, parameters)
+  if (length(vaccinated) > 0) {
+    vaccinated_index <- source_vector[vaccine_times > -1]
+    antibodies <- calculate_rtss_antibodies(
+      timestep - vaccine_times[vaccinated],
+      variables$rtss_cs$get_values(vaccinated_index),
+      variables$rtss_rho$get_values(vaccinated_index),
+      variables$rtss_ds$get_values(vaccinated_index),
+      variables$rtss_dl$get_values(vaccinated_index),
+      parameters
+    )
+    vaccine_efficacy[vaccinated] <- calculate_rtss_efficacy(antibodies, parameters)
+  }
 
   source_humans$and(bernoulli_multi_p(
     b * (1 - prophylaxis) * (1 - vaccine_efficacy)

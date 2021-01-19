@@ -18,10 +18,9 @@ expect_none <- function(X, FUN) {
   expect(TRUE, 'No match found')
 }
 
-expect_variable_update <- function(args, name, value, index) {
-  expect_equal(args[[2]]$name, name)
-  expect_equal(args[[3]], value)
-  expect_equal(args[[4]], index)
+expect_bitset_update <- function(mock, value, index) {
+  expect_equal(mockery::mock_args(mock)[[1]][[1]], value)
+  expect_equal(mockery::mock_args(mock)[[1]][[2]]$to_vector(), index)
 }
 
 # Determine if range of vector is FP 0.

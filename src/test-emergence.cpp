@@ -31,6 +31,9 @@ context("Emergence works") {
             {"gamb"},
             2
         );
+        REQUIRE_CALL(ode, get_state())
+        .RETURN(state_t{1000, 500, 100})
+        .TIMES(AT_LEAST(1));
         CATCH_REQUIRE_THROWS((*process)(1));
     }
 
@@ -60,6 +63,9 @@ context("Emergence works") {
             {"gamb"},
             2
         );
+        REQUIRE_CALL(ode, get_state())
+        .RETURN(state_t{1000, 500, 100})
+        .TIMES(AT_LEAST(1));
         CATCH_REQUIRE_THROWS((*process)(1));
     }
 
@@ -97,6 +103,9 @@ context("Emergence works") {
             target.insert(i + 1000);
         }
 
+        REQUIRE_CALL(ode, get_state())
+        .RETURN(state_t{1000, 500, 100})
+        .TIMES(AT_LEAST(1));
         REQUIRE_CALL(state, queue_update("Sm", target));
         REQUIRE_CALL(species, queue_update("gamb", target));
         (*process)(1);
@@ -134,6 +143,9 @@ context("Emergence works") {
             target.insert(i + 1000);
         }
 
+        REQUIRE_CALL(ode, get_state())
+        .RETURN(state_t{1000, 500, 100})
+        .TIMES(AT_LEAST(1));
         REQUIRE_CALL(state, queue_update("Sm", target));
         REQUIRE_CALL(species, queue_update("gamb", target));
         (*process)(1);

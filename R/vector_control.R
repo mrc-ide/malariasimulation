@@ -15,8 +15,6 @@ prob_bitten <- function(timestep, variables, species, parameters) {
     )
   }
 
-  timestep <- api$get_timestep()
-
   if (parameters$bednets) {
     phi_bednets <- parameters$phi_bednets[[species]]
     net_time <- variables$net_time$get_values()

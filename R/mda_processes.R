@@ -1,6 +1,4 @@
 #' @title Create listeners for MDA events
-#' @param human the human individual object
-#' @param states the states available in the model
 #' @param variables the variables available in the model
 #' @param administer_event the event schedule for drug administration
 #' @param drug the drug to administer
@@ -13,8 +11,6 @@
 #' @param int_name the name of this intervention (either 'smc' or 'mda')
 #' @description will create a listener for administering each round of drugs
 create_mda_listeners <- function(
-  human,
-  states,
   variables,
   administer_event,
   drug,
@@ -24,69 +20,53 @@ create_mda_listeners <- function(
   max_age,
   coverage,
   correlations,
-  int_name
+  int_name,
+  parameters
   ) {
-  function(api, target) {
-    parameters <- api$get_parameters()
-
-    age <- get_age(
-      api$get_variable(human, variables$birth),
-      api$get_timestep()
-    )
+  function(timestep, target) {
+    age <- get_age(variables$birth$get_values(), timestep)
 
     in_age <- which((age > min_age) & (age < max_age))
     target <- in_age[sample_intervention(in_age, int_name, coverage, correlations)]
 
-    timestep <- api$get_timestep()
     successful_treatments <- bernoulli(
       length(target),
       parameters$drug_efficacy[[drug]]
     )
     to_move <- target[successful_treatments]
 
-    api$render('n_mda_treated', length(to_move))
+    renderer$render('n_mda_treated', length(to_move))
 
     if (length(to_move > 0)) {
       # Move Diseased
-      diseased <- intersect(to_move, api$get_state(human, states$D, states$A))
+      diseased <- intersect(to_move, variables$state$get_index_of('D', 'A')$to_vector())
       if (length(diseased) > 0) {
-        api$queue_state_update(
-          human,
-          states$Tr,
-          diseased
-        )
+        variables$state$queue_update('Tr', diseased)
       }
 
       # Move everyone else
       other <- setdiff(to_move, diseased)
       if (length(other) > 0) {
-        api$queue_state_update(
-          human,
-          states$S,
-          other
-        )
+        variables$state$queue_update('S', other)
       }
 
       # Update infectivity
-      api$queue_variable_update(
-        human,
-        variables$infectivity,
-        api$get_variable(
+      variables$infectivity$queue_update(
+        variables$infectivity$get_values(
           human,
-          variables$infectivity,
           to_move
         ) * parameters$drug_rel_c[[drug]],
         to_move
       )
 
       # Update drug
-      api$queue_variable_update(human, variables$drug, drug, to_move)
-      api$queue_variable_update(human, variables$drug_time, timestep, to_move)
+      variables$drug$queue_update(drug, to_move)
+      variables$drug_time$queue_update(timestep, to_move)
     }
 
     # Schedule next round
     if (timestep + frequency <= end) {
-      api$schedule(administer_event, c(1), frequency)
+      administer_event$schedule(frequency)
     }
   }
 }

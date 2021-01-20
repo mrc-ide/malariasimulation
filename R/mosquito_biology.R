@@ -101,7 +101,7 @@ equilibrium_total_M <- function(parameters, EIR) {
     parameters$init_foim + parameters$mum
   )
   total_daily_eir / sum(
-    parameters$variety_proportions * parameters$blood_meal_rates * parameters$Q0 * lifetime
+    parameters$species_proportions * parameters$blood_meal_rates * parameters$Q0 * lifetime
   )
 }
 

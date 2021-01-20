@@ -161,6 +161,7 @@ create_variables <- function(parameters) {
   spray_time <- individual::DoubleVariable$new(rep(-1, size))
 
   variables <- list(
+    state = state,
     birth = birth,
     last_boosted_ib = last_boosted_ib,
     last_boosted_ica = last_boosted_ica,

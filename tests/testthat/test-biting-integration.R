@@ -5,10 +5,10 @@ test_that('biting_process integrates mosquito effects and human infection', {
     list(human_population = population, severe_enabled = TRUE)
   )
 
-  renderer <- mock_renderer()
+  renderer <- individual::Render$new(5)
   events <- mockery::mock()
   age <- c(20, 24, 5, 39) * 365
-  variables <- list(birth = mock_double(-age + timestep))
+  variables <- list(birth = individual::DoubleVariable$new((-age + timestep)))
 
   biting_process <- create_biting_process(
     renderer,
@@ -43,19 +43,19 @@ test_that('biting_process integrates mosquito effects and human infection', {
   mockery::expect_args(
     infection_mock,
     1,
-    renderer,
     variables,
     events,
     eir,
     age,
-    parameters
+    parameters,
+    timestep
   )
 })
 
 test_that('simulate_bites integrates eir calculation and mosquito side effects', {
   population <- 4
   timestep <- 5
-  renderer <- mock_renderer()
+  renderer <- individual::Render$new(5)
   parameters <- get_parameters(
     list(human_population = population, severe_enabled = TRUE)
   )
@@ -65,12 +65,14 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
   infectivity <- c(.6, 0, .2, .3)
   age <- c(20, 24, 5, 39) * 365
 
-  variables$zeta <- mock_double(c(.2, .3, .5, .9))
-  variables$infectivity <- mock_double(infectivity)
-  variables$mosquito_state <- mock_category(
+  variables$zeta <- individual::DoubleVariable$new((c(.2, .3, .5, .9)))
+  variables$infectivity <- individual::DoubleVariable$new(infectivity)
+  variables$mosquito_state <- individual::CategoricalVariable$new(
+    c('Sm', 'Pm', 'Im', 'Unborn'),
     c(rep('Im', 10), rep('Sm', 15))
   )
-  variables$species <- mock_category(
+  variables$species <- individual::CategoricalVariable$new(
+    c('gamb', 'arab', 'fun'),
     c(rep('gamb', 25), rep('arab', 25), rep('fun', 50))
   )
 

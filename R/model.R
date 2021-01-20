@@ -20,7 +20,7 @@ run_simulation <- function(timesteps, parameters = NULL, correlations = NULL) {
   }
   variables <- create_variables(parameters)
   events <- create_events(parameters)
-  initialise_events(events, parameters)
+  initialise_events(events, variables, parameters)
   attach_event_listeners(
     events,
     variables,

@@ -18,7 +18,7 @@ create_biting_process <- function(renderer, variables, events, parameters) {
       timestep
     )
 
-    renderer$render("mean_EIR", mean(total_eir))
+    renderer$render("mean_EIR", mean(total_eir), timestep)
 
     simulate_infection(
       variables,
@@ -177,15 +177,15 @@ simulate_infection <- function(
 #' vector control interventions
 #' @description
 #' Implemented from Griffin et al 2010 S2 page 6
-#' @param api simulation api
 #' @param .pi relative biting rate for each human
 #' @param age of each human (timesteps)
 #' @param species to model
 #' @param p_bitten the probabilities of feeding given vector controls
 #' @param f blood meal rate
 #' @param parameters of the model
-effective_biting_rate <- function(api, .pi, age, species, p_bitten, f, parameters) {
+effective_biting_rate <- function(.pi, age, species, p_bitten, f, parameters) {
   a <- human_blood_meal_rate(f, species, mean(p_bitten$prob_bitten_survives), parameters)
+
   a * .pi * p_bitten$prob_bitten / sum(.pi * p_bitten$prob_bitten_survives)
 }
 

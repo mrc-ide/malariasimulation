@@ -18,9 +18,32 @@ expect_none <- function(X, FUN) {
   expect(TRUE, 'No match found')
 }
 
-expect_bitset_update <- function(mock, value, index) {
-  expect_equal(mockery::mock_args(mock)[[1]][[1]], value)
-  expect_equal(mockery::mock_args(mock)[[1]][[2]]$to_vector(), index)
+mock_category <- function(...) {
+  v <- individual::CategoricalVariable$new(...)
+  list(
+    get_index_of = v$get_index_of,
+    queue_update = mockery::mock()
+  )
+}
+
+mock_double <- function(...) {
+  v <- individual::DoubleVariable$new(...)
+  list(
+    get_values = v$get_values,
+    queue_update = mockery::mock()
+  )
+}
+
+mock_event <- function(event) {
+  list(
+    get_scheduled = function(...) event$get_scheduled(...),
+    schedule = mockery::mock()
+  )
+}
+
+expect_bitset_update <- function(mock, value, index, call = 1) {
+  expect_equal(mockery::mock_args(mock)[[call]][[1]], value)
+  expect_equal(mockery::mock_args(mock)[[call]][[2]]$to_vector(), index)
 }
 
 # Determine if range of vector is FP 0.

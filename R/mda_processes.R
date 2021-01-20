@@ -21,9 +21,10 @@ create_mda_listeners <- function(
   coverage,
   correlations,
   int_name,
-  parameters
+  parameters,
+  renderer
   ) {
-  function(timestep, target) {
+  function(timestep) {
     age <- get_age(variables$birth$get_values(), timestep)
 
     in_age <- which((age > min_age) & (age < max_age))
@@ -33,27 +34,27 @@ create_mda_listeners <- function(
       length(target),
       parameters$drug_efficacy[[drug]]
     )
-    to_move <- target[successful_treatments]
+    to_move <- individual::Bitset$new(parameters$human_population)
+    to_move$insert(target[successful_treatments])
 
-    renderer$render('n_mda_treated', length(to_move))
+    renderer$render('n_mda_treated', to_move$size(), timestep)
 
-    if (length(to_move > 0)) {
+    if (to_move$size() > 0) {
       # Move Diseased
-      diseased <- intersect(to_move, variables$state$get_index_of('D', 'A')$to_vector())
-      if (length(diseased) > 0) {
+      diseased <- variables$state$get_index_of(c('D', 'A'))$and(to_move)
+      if (diseased$size() > 0) {
         variables$state$queue_update('Tr', diseased)
       }
 
       # Move everyone else
-      other <- setdiff(to_move, diseased)
-      if (length(other) > 0) {
+      other <- to_move$copy()$and(diseased$not())
+      if (other$size() > 0) {
         variables$state$queue_update('S', other)
       }
 
       # Update infectivity
       variables$infectivity$queue_update(
         variables$infectivity$get_values(
-          human,
           to_move
         ) * parameters$drug_rel_c[[drug]],
         to_move

@@ -28,8 +28,10 @@ run_simulation <- function(timesteps, parameters = NULL, correlations = NULL) {
     correlations
   )
   odes <- parameterise_ode(parameters)
+  renderer <- individual::Render$new(timesteps)
   individual::simulation_loop(
     processes = create_processes(
+      renderer,
       variables,
       events,
       parameters,

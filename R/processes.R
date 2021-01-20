@@ -1,15 +1,15 @@
 #' @title Define model processes
 #' @description
 #' create_processes, defines the functions which describe how each individual's
-#' states and variables change over time.
+#' variables change over time.
 #'
-#' It lists processes from `infection.R`, `mosquito_emergence.R` and
-#' `mortality.R`; and then exposes them to the model
+#' @param renderer a renderer object
 #' @param variables a list of variables in the model
 #' @param events a list of events in the model
 #' @param parameters a list of model parameters
 #' @param odes a list of vector ode models for each species
 create_processes <- function(
+  renderer,
   variables,
   events,
   parameters,
@@ -32,9 +32,9 @@ create_processes <- function(
 
     create_mosquito_emergence_process_cpp(
       odes,
-      states$Unborn$name,
-      states$Sm$name,
-      variables$mosquito_species$.variable,
+      variables$mosquito_state$.variable,
+      variables$species$.variable,
+      parameters$species,
       parameters$dpl
     ),
 
@@ -53,24 +53,21 @@ create_processes <- function(
     # ===============
     create_ode_stepping_process_cpp(
       odes,
-      variables$mosquito_state,
-      c('Sm', 'Pm', 'Im'),
-      variables$mosquito_species
+      variables$mosquito_state$.variable,
+      variables$species$.variable,
+      parameters$species
     ),
 
     # Rendering processes
-    individual::state_count_renderer_process(
+    individual::categorical_count_renderer_process(
+      renderer,
       variables$state,
       c('S', 'A', 'D', 'U', 'Tr')
     ),
-    individual::variable_mean_renderer_process(
-      individuals$human$name,
-      c(
-        variables$ica$name,
-        variables$icm$name,
-        variables$ib$name,
-        variables$id$name
-      )
+    create_variable_mean_renderer_process(
+      renderer,
+      c('ica', 'icm', 'ib', 'id'),
+      variables[c('ica', 'icm', 'ib', 'id')]
     ),
     create_prevelance_renderer(
       individuals$human,
@@ -78,12 +75,13 @@ create_processes <- function(
       variables$birth,
       variables$is_severe
     ),
-    individual::state_count_renderer_process(
+    individual::categorical_count_renderer_process(
+      renderer,
       variables$mosquito_state,
       c('Sm', 'Pm', 'Im')
     ),
     
-    create_ode_rendering_process(odes)
+    create_ode_rendering_process(renderer, odes)
   )
 
   if (parameters$bednets) {

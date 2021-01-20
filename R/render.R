@@ -73,3 +73,19 @@ create_incidence_renderer <- function(human, birth, is_severe) {
     }
   }
 }
+
+create_variable_mean_renderer_process <- function(
+  renderer,
+  names,
+  variables
+) {
+  function(timestep) {
+    for (i in seq_along(variables)) {
+      renderer$render(
+        paste0(names[[i]], '_mean'),
+        mean(variables[[i]]$get_values()),
+        timestep
+      )
+    }
+  }
+}

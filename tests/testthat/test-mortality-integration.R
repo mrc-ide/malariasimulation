@@ -1,5 +1,6 @@
 test_that('mortality_process resets humans correctly', {
-  parameters <- get_parameters(list(severe_enabled = 1))
+  timestep <- 2
+  parameters <- get_parameters(list(severe_enabled = 1, human_population = 4))
   parameters <- set_drugs(parameters, list(SP_AQ_params))
   parameters <- set_mda(
     parameters,
@@ -11,89 +12,50 @@ test_that('mortality_process resets humans correctly', {
     10 * 365, # max age
     1 # coverage
   )
-  events <- create_events()
-  states <- create_states(parameters)
+  events <- create_events(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(
-    states,
+
+  variables$state <- individual::CategoricalVariable$new(
+    c('S', 'A', 'D', 'U', 'Tr'),
+    c('D', 'Tr', 'S', 'S')
+  )
+  variables$is_severe = individual::CategoricalVariable$new(
+    c('yes', 'no'),
+    c('yes', 'yes', 'no', 'no')
+  )
+  variables$zeta_group = individual::CategoricalVariable$new(
+    c('1', '2', '3', '4', '5'),
+    c('1', '1', '2', '2')
+  )
+  variables$birth <- mock_double(-c(20, 24, 5, 39) * 365)
+  variables$icm <- mock_double(c(1, 2, 3, 4))
+  variables$ivm <- mock_double(c(1, 2, 3, 4))
+  renderer <- individual::Render$new(timestep)
+
+  mortality_process <- create_mortality_process(
     variables,
     events,
+    renderer,
     parameters
   )
 
-  mortality_process <- create_mortality_process(
-    individuals$human,
-    states$D,
-    states$Tr,
-    variables,
-    events
+  mockery::stub(mortality_process, 'sample', mockery::mock(1, 4), depth = 2)
+  first_sample <- individual::Bitset$new(4)
+  first_sample$insert(4)
+  second_sample <- individual::Bitset$new(4)
+  third_sample <- individual::Bitset$new(4)
+  third_sample$insert(1)
+  mockery::stub(
+    mortality_process,
+    'sample_bitset',
+    mockery::mock(first_sample, second_sample, third_sample),
+    depth = 2
   )
 
-  api <- mock_api(
-    list(
-      human = list(
-        D = c(1),
-        Tr = c(2),
-        age = c(20, 24, 5, 39),
-        is_severe = c(1., 1., 0., 0.),
-        zeta_group = c(1, 1, 2, 2),
-        ICM = c(1, 2, 3, 4),
-        IVM = c(1, 2, 3, 4)
-      )
-    ),
-    parameters = parameters,
-    timestep = 2
-  )
-
-  with_mock(
-    sample = mockery::mock(c(1), c(4)),
-    'malariasimulation:::bernoulli' = mockery::mock(
-      c(4),
-      numeric(0),
-      c(1)
-    ),
-    mortality_process(api)
-  )
+  mortality_process(timestep)
 
   died <- c(2, 4)
 
-  expect(is.numeric(parameters$pvm), 'Pvm is not set')
-  expect(is.numeric(parameters$pcm), 'Pcm is not set')
-
-  update_args <- mockery::mock_args(api$queue_variable_update)
-  cleared_args <- mockery::mock_args(api$clear_schedule)
-
-  for (update in update_args) {
-    expect_equal(update[[1]]$name, 'human')
-    expect_setequal(update[[4]], died)
-  }
-
-  expect_setequal(
-    vapply(update_args, function(update) update[[2]]$name, character(1)),
-    c(
-      'birth',
-      'last_boosted_ib',
-      'last_boosted_ica',
-      'last_boosted_iva',
-      'last_boosted_id',
-      'ICM',
-      'IVM',
-      'IB',
-      'ICA',
-      'IVA',
-      'ID',
-      'drug',
-      'drug_time',
-      'infectivity'
-    )
-  )
-
-  expect_setequal(
-    vapply(cleared_args, function(cleared) cleared[[1]]$name, character(1)),
-    c(
-      'infection',
-      'asymptomatic_infection',
-      'mda_administer'
-    )
-  )
+  expect_bitset_update(variables$state, 'S', died)
+  expect_bitset_update(variables$is_severe, 'no', died)
 })

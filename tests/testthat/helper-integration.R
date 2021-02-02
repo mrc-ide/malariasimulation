@@ -34,6 +34,13 @@ mock_double <- function(...) {
   )
 }
 
+mock_render <- function(...) {
+  v <- individual::Render$new(...)
+  list(
+    render = mockery::mock()
+  )
+}
+
 mock_event <- function(event) {
   list(
     get_scheduled = function(...) event$get_scheduled(...),

@@ -32,19 +32,29 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
     }
 
     if (died$size() > 0) {
-      # Calculate new maternal immunities
+      # inherit immunity from parent in group
       sampleable <- individual::Bitset$new(parameters$human_population)
       sampleable$insert(which(age >= 15 | age <= 35))
-      mothers <- sample_mothers(
-        sampleable,
-        died,
-        parameters$n_heterogeneity_groups,
-        variables$zeta_group
-      )
-      ica <- variables$ica$get_values()
-      iva <- variables$iva$get_values()
-      birth_icm <- ica[mothers] * parameters$pcm
-      birth_ivm <- iva[mothers] * parameters$pvm
+      for (group in seq(parameters$n_heterogeneity_groups)) {
+
+        # get the individuals who died in this group
+        group_index <- variables$zeta_group$get_index_of(toString(group))
+        died_group <- group_index$copy()$and(died)
+
+        if (died_group$size() > 0) {
+          # find their mothers
+          mothers <- sample_bitset_fixed(
+            group_index$and(sampleable),
+            died_group$size()
+          )$to_vector()
+
+          # set their maternal immunities
+          birth_icm <- variables$ica$get_values(mothers) * parameters$pcm
+          birth_ivm <- variables$ica$get_values(mothers) * parameters$pvm
+          variables$icm$queue_update(birth_icm, died_group)
+          variables$ivm$queue_update(birth_ivm, died_group)
+        }
+      }
 
       events$infection$clear_schedule(died)
       events$asymptomatic_infection$clear_schedule(died)
@@ -60,8 +70,6 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
       variables$ica$queue_update(0, died)
       variables$iva$queue_update(0, died)
       variables$id$queue_update(0, died)
-      variables$icm$queue_update(birth_icm, died)
-      variables$ivm$queue_update(birth_ivm, died)
       variables$drug$queue_update(0, died)
       variables$drug_time$queue_update(-1, died)
       variables$infectivity$queue_update(0, died)
@@ -74,19 +82,4 @@ died_from_severe <- function(severe, diseased, v, treated, fvt) {
   at_risk <- severe$copy()$and(diseased)
   treated_at_risk <- severe$copy()$and(treated)
   sample_bitset(at_risk, v)$or(sample_bitset(treated_at_risk, fvt))
-}
-
-sample_mothers <- function(sampleable, died, n, groups) {
-  group_lookup <- list()
-  for (group in seq(n)) {
-    group_lookup[[group]] <- sampleable$and(
-      groups$get_index_of(toString(group))
-    )$to_vector()
-  }
-  vnapply(
-    groups[died],
-    function(source_group) {
-      sample(group_lookup[[source_group]], 1)[[1]]
-    }
-  )
 }

@@ -6,6 +6,11 @@ bernoulli <- function(size, p) sample.int(size, rbinom(1, size, min(p, 1)))
 
 sample_bitset <- function(b, rate) b$copy()$sample(rate)
 
+sample_bitset_fixed <- function(b, n, replace = TRUE) {
+  ret <- individual::Bitset$new(b$max_size)
+  ret$insert(b$to_vector()[sample.int(b$size(), n, replace = replace)])
+}
+
 #' @importFrom stats runif
 bernoulli_multi_p <- function(p) {
   individual::Bitset$new(from = bernoulli_multi_p_cpp(p))

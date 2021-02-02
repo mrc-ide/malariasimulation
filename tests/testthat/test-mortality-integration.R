@@ -15,11 +15,11 @@ test_that('mortality_process resets humans correctly', {
   events <- create_events(parameters)
   variables <- create_variables(parameters)
 
-  variables$state <- individual::CategoricalVariable$new(
+  variables$state <- mock_category(
     c('S', 'A', 'D', 'U', 'Tr'),
     c('D', 'Tr', 'S', 'S')
   )
-  variables$is_severe = individual::CategoricalVariable$new(
+  variables$is_severe = mock_category(
     c('yes', 'no'),
     c('yes', 'yes', 'no', 'no')
   )
@@ -30,6 +30,8 @@ test_that('mortality_process resets humans correctly', {
   variables$birth <- mock_double(-c(20, 24, 5, 39) * 365)
   variables$icm <- mock_double(c(1, 2, 3, 4))
   variables$ivm <- mock_double(c(1, 2, 3, 4))
+  variables$ica <- mock_double(c(1, 2, 3, 4))
+  variables$iva <- mock_double(c(1, 2, 3, 4))
   renderer <- individual::Render$new(timestep)
 
   mortality_process <- create_mortality_process(
@@ -39,23 +41,55 @@ test_that('mortality_process resets humans correctly', {
     parameters
   )
 
-  mockery::stub(mortality_process, 'sample', mockery::mock(1, 4), depth = 2)
-  first_sample <- individual::Bitset$new(4)
-  first_sample$insert(4)
-  second_sample <- individual::Bitset$new(4)
-  third_sample <- individual::Bitset$new(4)
-  third_sample$insert(1)
-  mockery::stub(
+  mockery::stub( # natural deaths
     mortality_process,
     'sample_bitset',
-    mockery::mock(first_sample, second_sample, third_sample),
-    depth = 2
+    mockery::mock(individual::Bitset$new(4)$insert(4))
+  )
+
+  mockery::stub( # severe deaths
+    mortality_process,
+    'died_from_severe',
+    mockery::mock(individual::Bitset$new(4)$insert(2))
+  )
+
+  mockery::stub( # mothers
+    mortality_process,
+    'sample_bitset_fixed',
+    mockery::mock(
+      individual::Bitset$new(4)$insert(1), # for 2
+      individual::Bitset$new(4)$insert(3) # for 4
+    )
   )
 
   mortality_process(timestep)
 
-  died <- c(2, 4)
+  expect_bitset_update(variables$state$queue_update, 'S', c(2, 4))
+  expect_bitset_update(variables$is_severe$queue_update, 'no', c(2, 4))
+  expect_bitset_update(variables$icm$queue_update, parameters$pcm, 2)
+  expect_bitset_update(variables$ivm$queue_update, parameters$pvm, 2)
+  expect_bitset_update(variables$icm$queue_update, 3 * parameters$pcm, 4, call = 2)
+  expect_bitset_update(variables$ivm$queue_update, 3 * parameters$pvm, 4, call = 2)
+})
 
-  expect_bitset_update(variables$state, 'S', died)
-  expect_bitset_update(variables$is_severe, 'no', died)
+test_that('died from severe samples correctly', {
+  parameters <- get_parameters()
+  mockery::stub(
+    died_from_severe,
+    'sample_bitset',
+    mockery::mock(
+      individual::Bitset$new(4),
+      individual::Bitset$new(4)$insert(1)
+    )
+  )
+
+  actual <- died_from_severe(
+    individual::Bitset$new(4)$insert(c(1, 2)),
+    individual::Bitset$new(4)$insert(1),
+    parameters$v,
+    individual::Bitset$new(4)$insert(2),
+    parameters$fvt
+  )
+
+  expect_equal(actual$to_vector(), 1)
 })

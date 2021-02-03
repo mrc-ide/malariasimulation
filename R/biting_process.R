@@ -37,6 +37,7 @@ simulate_bites <- function(renderer, variables, events, age, parameters, timeste
   human_infectivity <- variables$infectivity$get_values()
   if (parameters$tbv) {
     human_infectivity <- account_for_tbv(
+      timestep,
       human_infectivity,
       variables,
       parameters

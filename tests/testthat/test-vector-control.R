@@ -32,131 +32,95 @@ test_that('set_spraying sets parameters', {
 })
 
 test_that('distribute_bednets process sets net_time correctly', {
+  timestep <- 50
   parameters <- get_parameters(list(human_population = 4))
   parameters <- set_bednets(parameters, c(5, 50), c(.5, .9), 40)
-  events <- create_events()
-  states <- create_states(parameters)
+  events <- create_events(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
+  variables$net_time <- mock_double(rep(0, 4))
+  events$throw_away_net <- mock_event(events$throw_away_net)
   correlations <- get_correlation_parameters(parameters)
   process <- distribute_nets(
-    individuals$human,
     variables,
     events$throw_away_net,
     parameters,
     correlations
   )
 
-  api <- mock_api(
-    list(),
-    timestep = 50,
-    parameters = parameters
-  )
-
   target_mock <- mockery::mock(c(FALSE, FALSE, TRUE, TRUE))
   mockery::stub(process, 'sample_intervention', target_mock)
   mockery::stub(process, 'log_uniform', mockery::mock(c(3, 4)))
 
-  process(api)
+  process(timestep)
 
   mockery::expect_args(target_mock, 1, seq(4), 'bednets', .9, correlations)
   mockery::expect_args(
-    api$queue_variable_update,
+    variables$net_time$queue_update,
     1,
-    individuals$human,
-    variables$net_time,
     50,
     c(3, 4)
   )
   mockery::expect_args(
-    api$schedule,
+    events$throw_away_net$schedule,
     1,
-    events$throw_away_net,
     c(3, 4),
     c(3, 4)
   )
 })
 
 test_that('throw_away_bednets process resets net_time correctly', {
+  timestep <- 1
   parameters <- get_parameters(list(human_population = 4))
   parameters <- set_bednets(parameters, c(5, 50), c(.5, .9), 40)
-  events <- create_events()
-  states <- create_states(parameters)
+  events <- create_events(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
-  listener <- throw_away_nets(individuals$human, variables)
+  variables$net_time <- mock_double(rep(0, 4))
+  listener <- throw_away_nets(variables)
 
-  api <- mock_api()
+  listener(timestep, individual::Bitset$new(4)$insert(c(2, 3)))
 
-  listener(api, c(2, 3))
-
-  mockery::expect_args(
-    api$queue_variable_update,
-    1,
-    individuals$human,
-    variables$net_time,
+  expect_bitset_update(
+    variables$net_time$queue_update,
     -1,
     c(2, 3)
   )
 })
 
 test_that('indoor_spraying process sets spray_time correctly', {
+  timestep <- 50
   parameters <- get_parameters(list(human_population = 4))
   parameters <- set_spraying(parameters, c(5, 50), c(.5, .9))
-  events <- create_events()
-  states <- create_states(parameters)
-  variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
+  spray_time <- mock_double(rep(0, 4))
   correlations <- get_correlation_parameters(parameters)
   process <- indoor_spraying(
-    individuals$human,
-    variables$spray_time,
+    spray_time,
     parameters,
     correlations
-  )
-
-  api <- mock_api(
-    list(),
-    timestep = 50,
-    parameters = parameters
   )
 
   target_mock <- mockery::mock(c(FALSE, FALSE, TRUE, TRUE))
   mockery::stub(process, 'sample_intervention', target_mock)
 
-  process(api)
+  process(timestep)
 
   mockery::expect_args(target_mock, 1, seq(4), 'spraying', .9, correlations)
   mockery::expect_args(
-    api$queue_variable_update,
+    spray_time$queue_update,
     1,
-    individuals$human,
-    variables$spray_time,
     50,
     c(3, 4)
   )
 })
 
 test_that('prob_bitten defaults to 1 with no protection', {
+  timestep <- 100
   parameters <- get_parameters(list(human_population = 4))
-  events <- create_events()
-  states <- create_states(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
-
-  api <- mock_api(
-    list(
-      human = list(
-        net_time = c(-1, -1, -1, -1),
-        spray_time = c(-1, -1, -1, -1)
-      )
-    ),
-    timestep = 100,
-    parameters = parameters
-  )
+  variables$net_time <- individual::DoubleVariable$new(rep(-1, 4))
+  variables$spray_time <- individual::DoubleVariable$new(rep(-1, 4))
 
   expect_equal(
-    prob_bitten(individuals, variables, 1, api, parameters),
+    prob_bitten(timestep, variables, 1, parameters),
     list(
       prob_bitten_survives = rep(1, 4),
       prob_bitten = rep(1, 4),
@@ -166,27 +130,19 @@ test_that('prob_bitten defaults to 1 with no protection', {
 })
 
 test_that('prob_bitten correctly calculates net only probabilities', {
+  timestep <- 100
   parameters <- get_parameters(list(
     bednets = TRUE,
     gamman = 25
   ))
-  events <- create_events()
-  states <- create_states(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
-
-  api <- mock_api(
-    list(
-      human = list(
-        net_time = c(-1, 5, 50, 100),
-        spray_time = c(-1, -1, -1, -1)
-      )
-    ),
-    timestep = 100,
-    parameters = parameters
+  variables$net_time <- individual::DoubleVariable$new(
+    c(-1, 5, 50, 100)
   )
+  variables$spray_time <- individual::DoubleVariable$new(rep(-1, 4))
+
   expect_equal(
-    prob_bitten(individuals, variables, 1, api, parameters),
+    prob_bitten(timestep, variables, 1, parameters),
     list(
       prob_bitten_survives = c(1, 0.7694168, 0.6836575, 0.0272300),
       prob_bitten = c(1, 0.7694168, 0.6836575, 0.0272300),
@@ -197,25 +153,17 @@ test_that('prob_bitten correctly calculates net only probabilities', {
 })
 
 test_that('prob_bitten correctly calculates spraying only probabilities', {
+  timestep <- 100
   parameters <- get_parameters(list(spraying = TRUE, gammas = 25))
-  events <- create_events()
-  states <- create_states(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
 
-  api <- mock_api(
-    list(
-      human = list(
-        net_time = c(-1, -1, -1, -1),
-        spray_time = c(-1, 5, 50, 100)
-      )
-    ),
-    timestep = 100,
-    parameters = parameters
+  variables$net_time <- individual::DoubleVariable$new(rep(-1, 4))
+  variables$spray_time <- individual::DoubleVariable$new(
+    c(-1, 5, 50, 100)
   )
 
   expect_equal(
-    prob_bitten(individuals, variables, 1, api, parameters),
+    prob_bitten(timestep, variables, 1, parameters),
     list(
       prob_bitten_survives = c(1, 0.9780972, 0.8699070, 0.1751120),
       prob_bitten = c(1, 0.9956601, 0.9737450, 0.8060000),
@@ -226,25 +174,18 @@ test_that('prob_bitten correctly calculates spraying only probabilities', {
 })
 
 test_that('prob_bitten correctly combines spraying and net probabilities', {
+  timestep <- 100
   parameters <- get_parameters(list(bednets = TRUE, spraying = TRUE, gamman = 25))
-  events <- create_events()
-  states <- create_states(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
-
-  api <- mock_api(
-    list(
-      human = list(
-        net_time = c(100, 50, 5, -1),
-        spray_time = c(-1, 5, 50, 100)
-      )
-    ),
-    timestep = 100,
-    parameters = parameters
+  variables$net_time <- individual::DoubleVariable$new(
+    c(100, 50, 5, -1)
+  )
+  variables$spray_time <- individual::DoubleVariable$new(
+    c(-1, 5, 50, 100)
   )
 
   expect_equal(
-    prob_bitten(individuals, variables, 1, api, parameters),
+    prob_bitten(timestep, variables, 1, parameters),
     list(
       prob_bitten_survives = c(0.0272300, 0.4631212, 0.3765613, 0.1751120),
       prob_bitten = c(0.0272300, 0.6375005, 0.6839200, 0.8060000),

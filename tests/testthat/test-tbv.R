@@ -43,32 +43,23 @@ test_that('TBA is calculated correctly', {
 })
 
 test_that('account_for_tbv integrates tbv functions correctly', {
-  parameters <- get_parameters()
-  events <- create_events()
-  states <- create_states(parameters)
+  timestep <- 55
+  parameters <- get_parameters(list(human_population = 5))
+  events <- create_events(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
-  api <- mock_api(
-    list(
-      human = list(
-        U = 2,
-        A = 3,
-        D = 4,
-        Tr = 5,
-        tbv_vaccinated = c(-1, -1, 50, 50, 50)
-      )
-    ),
-    timestep = 55,
-    parameters = parameters
+  variables$state <- individual::CategoricalVariable$new(
+    c('S', 'A', 'D', 'U', 'Tr'),
+    c('S', 'U', 'A', 'D', 'Tr')
   )
-  infectivity <- c( 0, .1, .15, .5, .3 );
-  expected <- c( 0.0, 0.1, 0.0112133312, 0.2226002769, 0.1137443524 );
+  variables$tbv_vaccinated <- individual::DoubleVariable$new(
+    c(-1, -1, 50, 50, 50)
+  )
+  infectivity <- c( 0, .1, .15, .5, .3 )
+  expected <- c( 0.0, 0.1, 0.0112133312, 0.2226002769, 0.1137443524 )
   expect_equal(
     account_for_tbv(
-      api,
+      timestep,
       infectivity,
-      individuals$human,
-      states,
       variables,
       parameters
     ),

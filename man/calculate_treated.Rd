@@ -4,20 +4,22 @@
 \alias{calculate_treated}
 \title{Calculate treated humans}
 \usage{
-calculate_treated(api, human, states, variables, clinical_infections, recovery)
+calculate_treated(
+  variables,
+  clinical_infections,
+  recovery,
+  parameters,
+  timestep
+)
 }
 \arguments{
-\item{api}{simulation api}
-
-\item{human}{handle for humans}
-
-\item{states}{a list of all of the model states}
-
 \item{variables}{a list of all of the model variables}
 
-\item{clinical_infections}{indices of clinically infected humans}
+\item{clinical_infections}{a bitset of clinically infected humans}
 
 \item{recovery}{the recovery event}
+
+\item{parameters}{model parameters}
 }
 \description{
 Sample treated humans from the clinically infected

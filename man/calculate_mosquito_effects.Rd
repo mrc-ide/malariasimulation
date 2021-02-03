@@ -5,11 +5,9 @@
 \title{Calculate the effects of biting on mosquito individuals}
 \usage{
 calculate_mosquito_effects(
-  api,
+  variables,
   human_infectivity,
   lambda,
-  individuals,
-  states,
   mosquito_infection,
   species,
   susceptible_species,
@@ -17,19 +15,17 @@ calculate_mosquito_effects(
   W,
   Z,
   f,
-  parameters
+  parameters,
+  renderer,
+  timestep
 )
 }
 \arguments{
-\item{api}{the simulation api}
+\item{variables}{a list of variables in this simulation}
 
 \item{human_infectivity}{the infectivity for each human}
 
 \item{lambda}{the effective biting rate for this species on each human}
-
-\item{individuals}{a list of individual handles}
-
-\item{states}{a list of state handles}
 
 \item{mosquito_infection}{an event for mosquito infection}
 

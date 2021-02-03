@@ -4,11 +4,9 @@
 \alias{indoor_spraying}
 \title{Indoor spraying}
 \usage{
-indoor_spraying(human, spray_time, parameters, correlations)
+indoor_spraying(spray_time, parameters, correlations)
 }
 \arguments{
-\item{human}{the handle for the human individual}
-
 \item{spray_time}{the variable for the time of spraying}
 
 \item{parameters}{the model parameters}

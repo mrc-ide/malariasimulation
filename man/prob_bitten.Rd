@@ -4,16 +4,12 @@
 \alias{prob_bitten}
 \title{return the probability of being bitten given vector controls}
 \usage{
-prob_bitten(individuals, variables, species, api, parameters)
+prob_bitten(timestep, variables, species, parameters)
 }
 \arguments{
-\item{individuals}{a list of available individuals}
-
 \item{variables}{a list of available variables}
 
 \item{species}{the species to calculate for}
-
-\item{api}{the simulation api}
 
 \item{parameters}{model parameters}
 }

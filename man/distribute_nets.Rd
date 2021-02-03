@@ -4,11 +4,9 @@
 \alias{distribute_nets}
 \title{Distribute nets}
 \usage{
-distribute_nets(human, variables, throw_away_net, parameters, correlations)
+distribute_nets(variables, throw_away_net, parameters, correlations)
 }
 \arguments{
-\item{human}{the handle for the human individual}
-
 \item{variables}{list of variables in the model}
 
 \item{throw_away_net}{an event to trigger when the net will be removed}
@@ -16,6 +14,8 @@ distribute_nets(human, variables, throw_away_net, parameters, correlations)
 \item{parameters}{the model parameters}
 
 \item{correlations}{correlation parameters}
+
+\item{human}{the handle for the human individual}
 }
 \description{
 distributes nets to individuals according to the strategy

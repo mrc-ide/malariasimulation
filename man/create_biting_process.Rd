@@ -4,16 +4,14 @@
 \alias{create_biting_process}
 \title{Biting process}
 \usage{
-create_biting_process(individuals, states, variables, events)
+create_biting_process(renderer, variables, events, parameters)
 }
 \arguments{
-\item{individuals}{a list of individuals in the model}
-
-\item{states}{a list of all of the model states}
-
 \item{variables}{a list of all of the model variables}
 
 \item{events}{a list of all of the model events}
+
+\item{parameters}{model pararmeters}
 }
 \description{
 This is the biting process. It results in human and mosquito infection and

@@ -4,11 +4,9 @@
 \alias{create_exponential_decay_process}
 \title{Exponentially decaying variables}
 \usage{
-create_exponential_decay_process(individual, variable, rate)
+create_exponential_decay_process(variable, rate)
 }
 \arguments{
-\item{individual}{an individual}
-
 \item{variable}{the variable to update}
 
 \item{rate}{the exponential rate}

@@ -5,8 +5,6 @@
 \title{Create listeners for MDA events}
 \usage{
 create_mda_listeners(
-  human,
-  states,
   variables,
   administer_event,
   drug,
@@ -16,14 +14,12 @@ create_mda_listeners(
   max_age,
   coverage,
   correlations,
-  int_name
+  int_name,
+  parameters,
+  renderer
 )
 }
 \arguments{
-\item{human}{the human individual object}
-
-\item{states}{the states available in the model}
-
 \item{variables}{the variables available in the model}
 
 \item{administer_event}{the event schedule for drug administration}

@@ -4,24 +4,9 @@
 \alias{simulate_infection}
 \title{Simulate malaria infection in humans}
 \usage{
-simulate_infection(
-  api,
-  individuals,
-  states,
-  variables,
-  events,
-  total_eir,
-  age,
-  parameters
-)
+simulate_infection(variables, events, total_eir, age, parameters, timestep)
 }
 \arguments{
-\item{api}{simulation api}
-
-\item{individuals}{a list of individuals in the model}
-
-\item{states}{a list of all of the model states}
-
 \item{variables}{a list of all of the model variables}
 
 \item{events}{a list of all of the model events}

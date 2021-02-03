@@ -152,10 +152,12 @@ simulate_infection <- function(
 
   if (parameters$severe_enabled) {
     update_severe_disease(
+      timestep,
       clinical_infections,
       age[clinical_infections],
       variables,
-      infected_humans
+      infected_humans,
+      parameters
     )
   }
 

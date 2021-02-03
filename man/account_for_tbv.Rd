@@ -4,16 +4,12 @@
 \alias{account_for_tbv}
 \title{Calculate the effect of TBV on infectivity}
 \usage{
-account_for_tbv(api, infectivity, human, states, variables, parameters)
+account_for_tbv(timestep, infectivity, variables, parameters)
 }
 \arguments{
-\item{api}{the simulation API}
+\item{timestep}{current timestep}
 
 \item{infectivity}{a vector of raw infectivities}
-
-\item{human}{a handle for humans}
-
-\item{states}{the available states}
 
 \item{variables}{the available variables}
 

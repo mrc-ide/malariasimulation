@@ -4,14 +4,12 @@
 \alias{initialise_progression}
 \title{Schedule progression of human disease at the start of the simulation}
 \usage{
-initialise_progression(api, event, human, from_state, rate)
+initialise_progression(event, state, from_state, rate)
 }
 \arguments{
-\item{api}{the simulation api}
-
 \item{event}{the event to schedule}
 
-\item{human}{the human handle}
+\item{state}{the human state variable}
 
 \item{from_state}{the state this event applies to}
 

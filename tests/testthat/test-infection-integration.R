@@ -66,10 +66,12 @@ test_that('simulate_infection integrates different types of infection and schedu
   mockery::expect_args(
     severe_infection_mock,
     1,
+    timestep,
     c(1, 3),
     c(20, 5) * 365,
     variables,
-    c(1, 3, 5)
+    c(1, 3, 5),
+    parameters
   )
 
   mockery::expect_args(

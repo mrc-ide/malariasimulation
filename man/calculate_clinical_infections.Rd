@@ -4,16 +4,16 @@
 \alias{calculate_clinical_infections}
 \title{Calculate clinical infections}
 \usage{
-calculate_clinical_infections(api, human, variables, infections)
+calculate_clinical_infections(variables, infections, parameters, timestep)
 }
 \arguments{
-\item{api}{simulation api}
-
-\item{human}{a handle for humans}
-
 \item{variables}{a list of all of the model variables}
 
-\item{infections}{indices of infected humans}
+\item{infections}{bitset of infected humans}
+
+\item{parameters}{model parameters}
+
+\item{timestep}{current timestep}
 }
 \description{
 Sample clinical infections from all infections

@@ -4,18 +4,22 @@
 \alias{schedule_infections}
 \title{Schedule infections}
 \usage{
-schedule_infections(api, events, clinical_infections, treated, infections)
+schedule_infections(
+  events,
+  clinical_infections,
+  treated,
+  infections,
+  parameters
+)
 }
 \arguments{
-\item{api}{simulation api}
-
 \item{events}{a list of all of the model events}
 
-\item{clinical_infections}{indices of clinically infected humans}
+\item{clinical_infections}{bitset of clinically infected humans}
 
-\item{treated}{indices of treated humans}
+\item{treated}{bitset of treated humans}
 
-\item{infections}{indices of infected humans}
+\item{infections}{bitset of infected humans}
 }
 \description{
 Schedule infections in humans after the incubation period

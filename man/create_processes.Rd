@@ -4,12 +4,10 @@
 \alias{create_processes}
 \title{Define model processes}
 \usage{
-create_processes(individuals, states, variables, events, parameters, odes)
+create_processes(renderer, variables, events, parameters, odes)
 }
 \arguments{
-\item{individuals}{a list of individuals in the model}
-
-\item{states}{a list of states in the model}
+\item{renderer}{a renderer object}
 
 \item{variables}{a list of variables in the model}
 
@@ -21,8 +19,5 @@ create_processes(individuals, states, variables, events, parameters, odes)
 }
 \description{
 create_processes, defines the functions which describe how each individual's
-states and variables change over time.
-
-It lists processes from \code{infection.R}, \code{mosquito_emergence.R} and
-\code{mortality.R}; and then exposes them to the model
+variables change over time.
 }

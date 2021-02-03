@@ -4,13 +4,9 @@
 \alias{create_asymptomatic_update_listener}
 \title{Modelling the progression to asymptomatic disease}
 \usage{
-create_asymptomatic_update_listener(human, states, variables)
+create_asymptomatic_update_listener(variables, parameters)
 }
 \arguments{
-\item{human}{the handle for the human individuals}
-
-\item{states}{the available human states}
-
 \item{variables}{the available human variables}
 }
 \description{

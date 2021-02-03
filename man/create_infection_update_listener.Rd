@@ -4,10 +4,10 @@
 \alias{create_infection_update_listener}
 \title{Update the state of an individual as infection events occur}
 \usage{
-create_infection_update_listener(human, to_state, infectivity, new_infectivity)
+create_infection_update_listener(state, to_state, infectivity, new_infectivity)
 }
 \arguments{
-\item{human}{the handle for the human individuals}
+\item{state}{the human state variable}
 
 \item{to_state}{the destination disease state}
 

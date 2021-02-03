@@ -154,7 +154,7 @@ calculate_treated <- function(
   timestep
   ) {
   if (length(parameters$clinical_treatment_coverages) == 0) {
-    return(numeric(0))
+    return(individual::Bitset$new(parameters$human_population))
   }
 
   seek_treatment <- sample_bitset(clinical_infections, parameters$ft)

@@ -41,3 +41,5 @@ get_age <- function(birth_timesteps, current_timestep) {
 remove_keys <- function(x, n) { for (name in n) { x[[name]] <- NULL }; x }
 
 invlogit <- function(x) exp(x) / (1 + exp(x))
+
+to_char_vector <- function(v) vapply(v, function(n) toString(n), character(1))

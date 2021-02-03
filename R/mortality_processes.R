@@ -15,7 +15,7 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
     ) / 365
 
     died <- individual::Bitset$new(parameters$human_population)
-    died <- sample_bitset(died$not(), parameters$mortality_rate)
+    died <- sample_bitset(died$not(), 1 / parameters$average_age)
 
     renderer$render('natural_deaths', died$size(), timestep)
 

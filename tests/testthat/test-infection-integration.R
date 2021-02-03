@@ -88,7 +88,8 @@ test_that('simulate_infection integrates different types of infection and schedu
     events,
     c(1, 3),
     c(3),
-    c(1, 3, 5)
+    c(1, 3, 5),
+    parameters
   )
 })
 

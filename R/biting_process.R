@@ -11,6 +11,7 @@ create_biting_process <- function(renderer, variables, events, parameters) {
     age <- get_age(variables$birth$get_values(), timestep)
 
     total_eir <- simulate_bites(
+      renderer,
       variables,
       events,
       age,
@@ -94,7 +95,8 @@ simulate_bites <- function(renderer, variables, events, age, parameters, timeste
       Z,
       f,
       parameters,
-      renderer
+      renderer,
+      timestep
     )
   }
   total_eir
@@ -169,7 +171,8 @@ simulate_infection <- function(
     events,
     clinical_infections,
     treated,
-    infected_humans
+    infected_humans,
+    parameters
   )
 }
 

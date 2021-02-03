@@ -21,8 +21,7 @@ initial_immunity <- function(parameter, age) {
 #' * birth - an integer representing the timestep when this individual was born
 #' * last_boosted_* - the last timestep at which this individual's immunity was
 #' boosted for tracking grace periods in the boost of immunity
-#' * is_severe - a binary indicator (0 or 1) for if the individual currently has
-#' severe malaria
+#' * is_severe - yes or no if the individual currently has severe malaria
 #' * ICM - Maternal immunity to clinical disease
 #' * IVM - Maternal immunity to severe disease
 #' * IB  - Pre-erythoctic immunity
@@ -41,7 +40,6 @@ initial_immunity <- function(parameter, age) {
 #' * rtss_dl - long-lived antibody delay variable
 #' * tbv_vaccinated - The timstep of the last tbv vaccination (-1 if there
 #' haven't been any
-#' * zeta_group - Discretised heterogeneity of human individuals
 #' * net_time - The timestep when a net was last put up (-1 if never)
 #' * spray_time - The timestep when the house was last sprayed (-1 if never)
 #' * infectivity - The onward infectiousness to mosquitos
@@ -73,7 +71,7 @@ create_variables <- function(parameters) {
   last_boosted_iva <- individual::DoubleVariable$new(rep(-1, size))
   last_boosted_id <- individual::DoubleVariable$new(rep(-1, size))
 
-  is_severe <- individual::DoubleVariable$new(rep(0, size))
+  is_severe <- individual::CategoricalVariable$new(c('yes', 'no'), rep('no', size))
 
   # Maternal immunity
   icm <- individual::DoubleVariable$new(
@@ -108,8 +106,9 @@ create_variables <- function(parameters) {
     )
   )
 
-  zeta_group <- individual::DoubleVariable$new(
-    discretise_normal(zeta_norm, parameters$n_heterogeneity_groups)
+  zeta_group <- individual::CategoricalVariable$new(
+    to_char_vector(seq(parameters$n_heterogeneity_groups)),
+    to_char_vector(discretise_normal(zeta_norm, parameters$n_heterogeneity_groups))
   )
 
   # Initialise infectiousness of humans -> mosquitoes

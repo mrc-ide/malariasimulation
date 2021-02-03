@@ -38,7 +38,8 @@ create_ode_rendering_process <- function(renderer, odes) {
     for (i in seq_along(ODE_INDICES)) {
       renderer$render(
         paste0('mosquito_', names(ODE_INDICES)[[i]], '_count'),
-        counts[[i]]
+        counts[[i]],
+        timestep
       )
     }
   }

@@ -39,6 +39,7 @@ run_simulation <- function(timesteps, parameters = NULL, correlations = NULL) {
     ),
     timesteps = timesteps,
   )
+  renderer$to_dataframe()
 }
 
 #' @title Run the simulation with repetitions

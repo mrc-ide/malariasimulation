@@ -33,6 +33,7 @@ test_that('biting_process integrates mosquito effects and human infection', {
   mockery::expect_args(
     bites_mock,
     1,
+    renderer,
     variables,
     events,
     age,

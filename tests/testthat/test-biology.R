@@ -135,58 +135,52 @@ test_that('mosquito_limit is set to a sensible level', {
 
 test_that('mosquito_effects correctly samples mortalities and infections without interventions', {
   parameters <- get_parameters()
+  events <- create_events(parameters)
   variables <- create_variables(parameters)
   infectivity <- c(.6, 0, .2, .3)
   lambda <- c(.1, .2, .3, .4)
-
   f <- parameters$blood_meal_rates[[1]]
-  infected <- c(1:25)
-  dead <- c(1:15, 51:60, 76:85)
+  infected <- individual::Bitset$new(100)$insert(1:25)
+  dead <- individual::Bitset$new(100)$insert(c(1:15, 51:60, 76:85))
   bernoulli_mock = mockery::mock(infected, dead)
-  mockery::stub(calculate_mosquito_effects, 'bernoulli', bernoulli_mock)
+  mockery::stub(calculate_mosquito_effects, 'sample_bitset', bernoulli_mock)
+  events$mosquito_infection <- mock_event(events$mosquito_infection)
+  variables$mosquito_state <- mock_category(
+    c('Sm', 'Pm', 'Im', 'Unborn'),
+    rep('Sm', 100)
+  )
   calculate_mosquito_effects(
-    api,
+    variables,
     infectivity,
     lambda,
-    individuals,
-    states,
-    events,
+    events$mosquito_infection,
     1,
-    1:50,
-    1:100,
+    individual::Bitset$new(100)$insert(1:50),
+    individual::Bitset$new(100)$insert(1:100),
     1,
     0,
     f,
-    parameters
+    parameters,
+    individual::Render$new(1),
+    timestep = 1
   )
 
   mockery::expect_args(
-    bernoulli_mock,
+    variables$mosquito_state$queue_update,
     1,
-    50,
-    sum(infectivity * lambda)
-  )
-
-  mockery::expect_args(
-    api$queue_state_update,
-    1,
-    individuals$mosquito,
-    states$Pm,
+    'Pm',
     infected
   )
 
-  mockery::expect_args(
-    bernoulli_mock,
-    2,
-    100,
+  expect_equal(
+    mockery::mock_args(bernoulli_mock)[[2]][[2]],
     parameters$mum
   )
 
   mockery::expect_args(
-    api$queue_state_update,
+    variables$mosquito_state$queue_update,
     2,
-    individuals$mosquito,
-    states$Unborn,
+    'Unborn',
     dead
   )
 })

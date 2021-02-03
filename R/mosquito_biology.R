@@ -129,6 +129,7 @@ peak_season_offset <- function(parameters) {
 
 #' @title Calculate the effects of biting on mosquito individuals
 #'
+#' @param variables a list of variables in this simulation
 #' @param human_infectivity the infectivity for each human
 #' @param lambda the effective biting rate for this species on each human
 #' @param mosquito_infection an event for mosquito infection
@@ -143,6 +144,7 @@ peak_season_offset <- function(parameters) {
 #' @param parameters the model parameters
 #' @export
 calculate_mosquito_effects <- function(
+    variables,
     human_infectivity,
     lambda,
     mosquito_infection,
@@ -152,20 +154,16 @@ calculate_mosquito_effects <- function(
     W,
     Z,
     f,
-    parameters
+    parameters,
+    renderer,
+    timestep
   ) {
   # deal with mosquito infections
   lambda <- sum(human_infectivity * lambda)
-  api$render(paste0('FOIM_', species), lambda)
-  target <- susceptible_species[
-    bernoulli(length(susceptible_species), lambda)
-  ]
-  api$queue_state_update(
-    individuals$mosquito,
-    states$Pm,
-    target
-  )
-  api$schedule(mosquito_infection, target, parameters$dem)
+  renderer$render(paste0('FOIM_', species), lambda, timestep)
+  target <- sample_bitset(susceptible_species, lambda)
+  variables$mosquito_state$queue_update('Pm', target)
+  mosquito_infection$schedule(target, parameters$dem)
 
   # deal with mosquito deaths
   p1_0 <- exp(-parameters$mum * parameters$foraging_time)
@@ -173,17 +171,10 @@ calculate_mosquito_effects <- function(
   p2 <- exp(-parameters$mum * gonotrophic_cycle)
   p1 <- p1_0 * W / (1 - Z * p1_0)
   mu <- -f * log(p1 * p2)
-  api$render(paste0('mu_', species), mu)
-  died <- adult_species[
-    bernoulli(length(adult_species), mu)
-  ]
+  died <- sample_bitset(adult_species, mu)
 
-  api$queue_state_update(
-    individuals$mosquito,
-    states$Unborn,
-    died
-  )
-  api$clear_schedule(mosquito_infection, died)
+  variables$mosquito_state$queue_update('Unborn', died)
+  mosquito_infection$clear_schedule(died)
 }
 
 get_gonotrophic_cycle <- function(v, parameters) {

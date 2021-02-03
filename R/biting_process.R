@@ -81,7 +81,9 @@ simulate_bites <- function(renderer, variables, events, age, parameters, timeste
     total_eir <- total_eir + n_infectious * lambda
 
     susceptible_species_index <- susceptible_index$copy()$and(species_index)
+
     calculate_mosquito_effects(
+      variables,
       human_infectivity,
       lambda,
       events$mosquito_infection,
@@ -91,7 +93,8 @@ simulate_bites <- function(renderer, variables, events, age, parameters, timeste
       W,
       Z,
       f,
-      parameters
+      parameters,
+      renderer
     )
   }
   total_eir

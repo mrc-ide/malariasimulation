@@ -47,7 +47,8 @@ simparams <- get_parameters(c(
   translate_jamie(remove_unused_jamie(jamie_params)),
   list(
     human_population = human_population,
-    variety_proportions = 1
+    species_proportions = 1,
+    species = 'All'
   )
 ))
 ```
@@ -104,7 +105,7 @@ for (total_M in initial_Ms) {
 }
 ```
 
-Plot EIR vs Prev
+Plot EIR vs Prevalence
 
 ```{r}
 eirs <- vapply(
@@ -159,20 +160,20 @@ agreement_plots <- lapply(
     state_props <- get_state_proportions(get_equilibrium(estimated_eirs[[i]]))
     equilibrium <- data.frame(
       timestep = seq(sim_length),
-      human_S_count = rep(state_props[['S']] * pop_size, sim_length),
-      human_D_count = rep(state_props[['D']] * pop_size, sim_length),
-      human_A_count = rep(state_props[['A']] * pop_size, sim_length),
-      human_U_count = rep(state_props[['U']] * pop_size, sim_length)
+      S_count = rep(state_props[['S']] * pop_size, sim_length),
+      D_count = rep(state_props[['D']] * pop_size, sim_length),
+      A_count = rep(state_props[['A']] * pop_size, sim_length),
+      U_count = rep(state_props[['U']] * pop_size, sim_length)
     )
     ggplot(
       melt(
         output[c(
           'timestep',
           'repetition',
-          'human_S_count',
-          'human_D_count',
-          'human_A_count',
-          'human_U_count'
+          'S_count',
+          'D_count',
+          'A_count',
+          'U_count'
         )],
         id.vars=c('timestep', 'repetition')
       )
@@ -217,13 +218,13 @@ immunity_plots <- lapply(
   function(i) {
     output <- outputs[[i]]
     eq <- get_equilibrium(estimated_eirs[[i]])
-    w <- eq$states[,'props']
+    w <- eq$states[,'prop']
     equilibrium <- data.frame(
       timestep = seq(sim_length),
-      human_ICA_mean = rep(weighted.mean(eq$states[, 'ICA'], w), sim_length),
-      human_ICM_mean = rep(weighted.mean(eq$states[, 'ICM'], w), sim_length),
-      human_IB_mean = rep(weighted.mean(eq$states[, 'IB'], w), sim_length),
-      human_ID_mean = rep(weighted.mean(eq$states[, 'ID'], w), sim_length)
+      ica_mean = rep(weighted.mean(eq$states[, 'ICA'], w), sim_length),
+      icm_mean = rep(weighted.mean(eq$states[, 'ICM'], w), sim_length),
+      ib_mean = rep(weighted.mean(eq$states[, 'IB'], w), sim_length),
+      id_mean = rep(weighted.mean(eq$states[, 'ID'], w), sim_length)
     )
     
     ggplot(
@@ -231,10 +232,10 @@ immunity_plots <- lapply(
         output[c(
           'timestep',
           'repetition',
-          'human_ICA_mean',
-          'human_ICM_mean',
-          'human_IB_mean',
-          'human_ID_mean'
+          'ica_mean',
+          'icm_mean',
+          'ib_mean',
+          'id_mean'
         )],
         c('timestep', 'repetition')
       )

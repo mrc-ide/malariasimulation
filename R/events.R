@@ -3,7 +3,8 @@ create_events <- function(parameters) {
     # Human infection events
     clinical_infection = individual::TargetedEvent$new(parameters$human_population),
     asymptomatic_infection = individual::TargetedEvent$new(parameters$human_population),
-    infection = individual::TargetedEvent$new(parameters$human_population), # either clinical or asym infection
+    # either clinical or asym infection
+    infection = individual::TargetedEvent$new(parameters$human_population), 
     subpatent_infection = individual::TargetedEvent$new(parameters$human_population),
     recovery = individual::TargetedEvent$new(parameters$human_population),
 
@@ -81,7 +82,8 @@ attach_event_listeners <- function(
   events,
   variables,
   parameters,
-  correlations
+  correlations,
+  renderer
   ) {
 
   # =============
@@ -152,7 +154,9 @@ attach_event_listeners <- function(
   events$infection$add_listener(
     create_incidence_renderer(
       variables$birth,
-      variables$is_severe
+      variables$is_severe,
+      parameters,
+      renderer
     )
   )
 
@@ -214,28 +218,30 @@ attach_event_listeners <- function(
     ))
   }
 
-  events$tbv_vaccination$add_listener(
-    function(timestep, target) {
-      target <- which(trunc(get_age(
-        variables$birth$get_values(),
-        timestep
-      ) / 365) %in% parameters$tbv_ages)
-      to_vaccinate <- which(sample_intervention(
-        target,
-        'tbv',
-        parameters$tbv_coverage,
-        correlations
-      ))
-      renderer$render('n_vaccinated_tbv', length(target))
-      if (length(to_vaccinate) > 0) {
-        variables$tbv_vaccinated$queue_update(
-          timestep,
-          to_vaccinate
-        )
+  if (parameters$tbv == 1) {
+    events$tbv_vaccination$add_listener(
+      function(timestep, target) {
+        target <- which(trunc(get_age(
+          variables$birth$get_values(),
+          timestep
+        ) / 365) %in% parameters$tbv_ages)
+        to_vaccinate <- which(sample_intervention(
+          target,
+          'tbv',
+          parameters$tbv_coverage,
+          correlations
+        ))
+        renderer$render('n_vaccinated_tbv', length(target))
+        if (length(to_vaccinate) > 0) {
+          variables$tbv_vaccinated$queue_update(
+            timestep,
+            to_vaccinate
+          )
+        }
+        if (timestep + parameters$tbv_frequency <= parameters$tbv_end) {
+          events$tbv_vaccination$schedule(parameters$tbv_frequency)
+        }
       }
-      if (timestep + parameters$tbv_frequency <= parameters$tbv_end) {
-        events$tbv_vaccination$schedule(parameters$tbv_frequency)
-      }
-    }
-  )
+    )
+  }
 }

@@ -21,14 +21,15 @@ run_simulation <- function(timesteps, parameters = NULL, correlations = NULL) {
   variables <- create_variables(parameters)
   events <- create_events(parameters)
   initialise_events(events, variables, parameters)
+  renderer <- individual::Render$new(timesteps)
   attach_event_listeners(
     events,
     variables,
     parameters,
-    correlations
+    correlations,
+    renderer
   )
   odes <- parameterise_ode(parameters)
-  renderer <- individual::Render$new(timesteps)
   individual::simulation_loop(
     processes = create_processes(
       renderer,
@@ -37,7 +38,9 @@ run_simulation <- function(timesteps, parameters = NULL, correlations = NULL) {
       parameters,
       odes
     ),
-    timesteps = timesteps,
+    variables = variables,
+    events = events,
+    timesteps = timesteps
   )
   renderer$to_dataframe()
 }

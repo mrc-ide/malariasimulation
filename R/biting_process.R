@@ -67,8 +67,7 @@ simulate_bites <- function(renderer, variables, events, age, parameters, timeste
     renderer$render(paste0('p_feed_survives_', parameters$species[[s_i]]), W, timestep)
     f <- blood_meal_rate(s_i, Z, parameters)
 
-    infectious_species_index <- infectious_index$copy()$and(species_index)
-    n_infectious <- infectious_species_index$size()
+    n_infectious <- infectious_index$copy()$and(species_index)$size()
 
     lambda <- effective_biting_rate(
       .pi,

@@ -46,43 +46,43 @@ create_processes <- function(
     # kill mosquitoes caught in vector control
     create_biting_process(renderer, variables, events, parameters),
 
-    create_mortality_process(variables, events, renderer, parameters)
+    create_mortality_process(variables, events, renderer, parameters),
 
-    ## ===============
-    ## ODE integration
-    ## ===============
-    #create_ode_stepping_process_cpp(
-      #odes,
-      #variables$mosquito_state$.variable,
-      #variables$species$.variable,
-      #parameters$species
-    #),
+    # ===============
+    # ODE integration
+    # ===============
+    create_ode_stepping_process_cpp(
+      odes,
+      variables$mosquito_state$.variable,
+      variables$species$.variable,
+      parameters$species
+    ),
 
-    ## Rendering processes
-    #individual::categorical_count_renderer_process(
-      #renderer,
-      #variables$state,
-      #c('S', 'A', 'D', 'U', 'Tr')
-    #),
-    #create_variable_mean_renderer_process(
-      #renderer,
-      #c('ica', 'icm', 'ib', 'id'),
-      #variables[c('ica', 'icm', 'ib', 'id')]
-    #),
-    #create_prevelance_renderer(
-      #variables$state,
-      #variables$birth,
-      #variables$is_severe,
-      #parameters,
-      #renderer
-    #),
-    #individual::categorical_count_renderer_process(
-      #renderer,
-      #variables$mosquito_state,
-      #c('Sm', 'Pm', 'Im')
-    #),
+    # Rendering processes
+    individual::categorical_count_renderer_process(
+      renderer,
+      variables$state,
+      c('S', 'A', 'D', 'U', 'Tr')
+    ),
+    create_variable_mean_renderer_process(
+      renderer,
+      c('ica', 'icm', 'ib', 'id'),
+      variables[c('ica', 'icm', 'ib', 'id')]
+    ),
+    create_prevelance_renderer(
+      variables$state,
+      variables$birth,
+      variables$is_severe,
+      parameters,
+      renderer
+    ),
+    individual::categorical_count_renderer_process(
+      renderer,
+      variables$mosquito_state,
+      c('Sm', 'Pm', 'Im')
+    ),
     
-    #create_ode_rendering_process(renderer, odes)
+    create_ode_rendering_process(renderer, odes)
   )
 
   if (parameters$bednets) {

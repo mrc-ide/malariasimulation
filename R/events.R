@@ -161,7 +161,7 @@ attach_event_listeners <- function(
   )
 
   events$mosquito_infection$add_listener(
-    individual::update_state_listener(variables$mosquito_state, 'Im')
+    individual::update_category_listener(variables$mosquito_state, 'Im')
   )
 
   if (parameters$bednets == 1) {

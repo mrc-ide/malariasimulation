@@ -12,7 +12,10 @@ sample_bitset_fixed <- function(b, n, replace = TRUE) {
 }
 
 bitset_at <- function(b, i) {
-  individual::Bitset$new(b$max_size)$insert(b$to_vector()[i$to_vector()])
+  if (inherits(i, 'Bitset')) {
+    i <- i$to_vector()
+  }
+  individual::Bitset$new(b$max_size)$insert(b$to_vector()[i])
 }
 
 #' @importFrom stats runif

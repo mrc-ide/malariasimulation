@@ -187,7 +187,7 @@ calculate_treated <- function(
       treated_index
     )
     recovery$schedule(
-      treated_index$to_vector(),
+      treated_index,
       log_uniform(treated_index$size(), parameters$dt)
     )
   }

@@ -135,9 +135,9 @@ peak_season_offset <- function(parameters) {
 #' @param mosquito_infection an event for mosquito infection
 #' @param species the index of the species to calculate for
 #' @param susceptible_species the indices of susceptible mosquitos of the
-#' species at index `species`
+#' species
 #' @param adult_species the indices of adult mosquitos of the
-#' species at index `species`
+#' species
 #' @param W the mean probability that a mosquito feeds and survives
 #' @param Z the mean probability that a mosquito is repelled
 #' @param f the feeding rate for this species of mosquito
@@ -162,7 +162,6 @@ calculate_mosquito_effects <- function(
   lambda <- sum(human_infectivity * lambda)
   renderer$render(paste0('FOIM_', species), lambda, timestep)
   target <- sample_bitset(susceptible_species, lambda)
-  renderer$render(paste0('new_Pm_', species), target$size(), timestep)
   variables$mosquito_state$queue_update('Pm', target)
   mosquito_infection$schedule(target, parameters$dem)
 

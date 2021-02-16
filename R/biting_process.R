@@ -27,7 +27,8 @@ create_biting_process <- function(renderer, variables, events, parameters) {
       total_eir,
       age,
       parameters,
-      timestep
+      timestep,
+      renderer
     )
   }
 }
@@ -36,6 +37,7 @@ simulate_bites <- function(renderer, variables, events, age, parameters, timeste
   total_eir <- 0
 
   human_infectivity <- variables$infectivity$get_values()
+  renderer$render('infectivity', mean(human_infectivity), timestep)
   if (parameters$tbv) {
     human_infectivity <- account_for_tbv(
       timestep,
@@ -117,16 +119,16 @@ simulate_infection <- function(
   total_eir,
   age,
   parameters,
-  timestep
+  timestep,
+  renderer
   ) {
   bitten_humans <- bernoulli_multi_p(total_eir)
 
-  ib <- variables$ib$get_values()
   if (bitten_humans$size() > 0) {
     boost_immunity(
       variables$ib,
       bitten_humans,
-      ib[bitten_humans$to_vector()],
+      variables$ib$get_values(bitten_humans),
       variables$last_boosted_ib,
       timestep,
       parameters$ub
@@ -137,9 +139,9 @@ simulate_infection <- function(
   infected_humans <- calculate_infections(
     variables,
     bitten_humans,
-    ib,
     parameters,
-    timestep
+    timestep,
+    renderer
   )
 
   clinical_infections <- calculate_clinical_infections(
@@ -173,7 +175,9 @@ simulate_infection <- function(
     clinical_infections,
     treated,
     infected_humans,
-    parameters
+    parameters,
+    renderer,
+    timestep
   )
 }
 

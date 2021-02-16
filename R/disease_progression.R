@@ -25,10 +25,10 @@ create_infection_update_listener <- function(
 #' @param from_state the state this event applies to
 #' @param rate the average time spent in this state
 initialise_progression <- function(event, state, from_state, rate) {
-  target <- state$get_index_of(from_state)$to_vector()
+  target <- state$get_index_of(from_state)
   event$schedule(
     target,
-    log_uniform(length(target), rate)
+    log_uniform(target$size(), rate)
   )
 }
 
@@ -39,7 +39,7 @@ initialise_progression <- function(event, state, from_state, rate) {
 #' @param rate the average time spent in this state
 create_progression_listener <- function(event, rate) {
   function(timestep, target) {
-    event$schedule(target$to_vector(), log_uniform(target$size(), rate))
+    event$schedule(target, log_uniform(target$size(), rate))
   }
 }
 

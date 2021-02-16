@@ -9,15 +9,16 @@
 calculate_infections <- function(
   variables,
   bitten_humans,
-  ib,
   parameters,
-  timestep
+  timestep,
+  renderer
   ) {
-  source_humans <- variables$state$get_index_of(c('S', 'A', 'U'))$and(
-    bitten_humans)
-  source_vector <- source_humans$to_vector()
+  source_humans <- variables$state$get_index_of(
+    c('S', 'A', 'U'))$and(bitten_humans)
 
-  b <- blood_immunity(ib[source_vector], parameters)
+  b <- blood_immunity(variables$ib$get_values(source_humans), parameters)
+
+  source_vector <- source_humans$to_vector()
 
   # calculate prophylaxis
   prophylaxis <- rep(0, length(source_vector))
@@ -53,9 +54,10 @@ calculate_infections <- function(
     vaccine_efficacy[vaccinated] <- calculate_rtss_efficacy(antibodies, parameters)
   }
 
-  source_humans$and(bernoulli_multi_p(
-    b * (1 - prophylaxis) * (1 - vaccine_efficacy)
-  ))
+  bitset_at(
+    source_humans,
+    bernoulli_multi_p(b * (1 - prophylaxis) * (1 - vaccine_efficacy))
+  )
 }
 
 #' @title Calculate clinical infections
@@ -89,7 +91,7 @@ calculate_clinical_infections <- function(variables, infections, parameters, tim
   }
 
   phi <- clinical_immunity(ica, icm, parameters)
-  infections$and(bernoulli_multi_p(phi))
+  bitset_at(infections, bernoulli_multi_p(phi))
 }
 
 #' @title Calculate severe infections
@@ -204,34 +206,40 @@ schedule_infections <- function(
   clinical_infections,
   treated,
   infections,
-  parameters
+  parameters,
+  renderer,
+  timestep
   ) {
   included <- events$infection$get_scheduled()$or(treated)$not()
+
+  renderer$render('n_infections', infections$size(), timestep)
+  renderer$render('n_clinical_infections', clinical_infections$size(), timestep)
 
   to_infect <- clinical_infections$and(included)
   to_infect_asym <- clinical_infections$not()$and(infections)$and(included)
 
+  renderer$render('to_infect', to_infect$size(), timestep)
+  renderer$render('to_infect_asym', to_infect_asym$size(), timestep)
+
   # change to symptomatic
   if(to_infect$size() > 0) {
-    to_infect_vector <- to_infect$to_vector()
     infection_times <- log_uniform(to_infect$size(), parameters$de)
     events$clinical_infection$schedule(
-      to_infect_vector,
+      to_infect,
       infection_times
     )
-    events$infection$schedule(to_infect_vector, infection_times)
+    events$infection$schedule(to_infect, infection_times)
     events$subpatent_infection$clear_schedule(to_infect)
     events$recovery$clear_schedule(to_infect)
   }
 
   if(to_infect_asym$size() > 0) {
-    to_infect_vector <- to_infect_asym$to_vector()
     infection_times <- log_uniform(to_infect_asym$size(), parameters$de)
     events$asymptomatic_infection$schedule(
-      to_infect_vector,
+      to_infect_asym,
       infection_times
     )
-    events$infection$schedule(to_infect_vector, infection_times)
+    events$infection$schedule(to_infect_asym, infection_times)
     events$subpatent_infection$clear_schedule(to_infect_asym)
     events$recovery$clear_schedule(to_infect_asym)
   }

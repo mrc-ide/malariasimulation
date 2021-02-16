@@ -11,6 +11,10 @@ sample_bitset_fixed <- function(b, n, replace = TRUE) {
   ret$insert(b$to_vector()[sample.int(b$size(), n, replace = replace)])
 }
 
+bitset_at <- function(b, i) {
+  individual::Bitset$new(b$max_size)$insert(b$to_vector()[i$to_vector()])
+}
+
 #' @importFrom stats runif
 bernoulli_multi_p <- function(p) {
   individual::Bitset$new(from = bernoulli_multi_p_cpp(p))

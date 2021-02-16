@@ -162,6 +162,7 @@ calculate_mosquito_effects <- function(
   lambda <- sum(human_infectivity * lambda)
   renderer$render(paste0('FOIM_', species), lambda, timestep)
   target <- sample_bitset(susceptible_species, lambda)
+  renderer$render(paste0('new_Pm_', species), target$size(), timestep)
   variables$mosquito_state$queue_update('Pm', target)
   mosquito_infection$schedule(target, parameters$dem)
 
@@ -172,6 +173,7 @@ calculate_mosquito_effects <- function(
   p1 <- p1_0 * W / (1 - Z * p1_0)
   mu <- -f * log(p1 * p2)
   died <- sample_bitset(adult_species, mu)
+  renderer$render(paste0('mu_', species), mu, timestep)
 
   variables$mosquito_state$queue_update('Unborn', died)
   mosquito_infection$clear_schedule(died)

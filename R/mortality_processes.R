@@ -46,7 +46,7 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
           mothers <- sample_bitset_fixed(
             group_index$and(sampleable),
             died_group$size()
-          )$to_vector()
+          )
 
           # set their maternal immunities
           birth_icm <- variables$ica$get_values(mothers) * parameters$pcm
@@ -57,11 +57,16 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
       }
 
       events$infection$clear_schedule(died)
+      events$clinical_infection$clear_schedule(died)
       events$asymptomatic_infection$clear_schedule(died)
+      events$subpatent_infection$clear_schedule(died)
+      events$recovery$clear_schedule(died)
+      events$throw_away_net$clear_schedule(died)
 
-      variables$state$queue_update('S', died)
-      variables$is_severe$queue_update('no', died)
+      # new birthday
       variables$birth$queue_update(timestep, died)
+
+      # non-maternal immunity
       variables$last_boosted_ib$queue_update(-1, died)
       variables$last_boosted_ica$queue_update(-1, died)
       variables$last_boosted_iva$queue_update(-1, died)
@@ -70,9 +75,27 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
       variables$ica$queue_update(0, died)
       variables$iva$queue_update(0, died)
       variables$id$queue_update(0, died)
+      variables$state$queue_update('S', died)
+
+      # treatment
       variables$drug$queue_update(0, died)
       variables$drug_time$queue_update(-1, died)
+
+      # vaccination
+      variables$rtss_vaccinated$queue_update(-1, died)
+      variables$rtss_boosted$queue_update(-1, died)
+      variables$tbv_vaccinated$queue_update(-1, died)
+
+
+      # onwards infectiousness
       variables$infectivity$queue_update(0, died)
+
+      # vector control
+      variables$net_time$queue_update(-1, died)
+      variables$spray_time$queue_update(-1, died)
+
+      # misc.
+      variables$is_severe$queue_update('no', died)
       # zeta and zeta group survive rebirth
     }
   }

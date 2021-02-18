@@ -75,7 +75,6 @@ calculate_clinical_infections <- function(variables, infections, parameters, tim
     boost_immunity(
       variables$ica,
       infections,
-      ica,
       variables$last_boosted_ica,
       timestep,
       parameters$uc
@@ -83,7 +82,6 @@ calculate_clinical_infections <- function(variables, infections, parameters, tim
     boost_immunity(
       variables$id,
       infections,
-      variables$id$get_values(infections),
       variables$last_boosted_id,
       timestep,
       parameters$ud
@@ -129,7 +127,6 @@ update_severe_disease <- function(
     boost_immunity(
       variables$iva,
       infections,
-      iva,
       variables$last_boosted_iva,
       timestep,
       parameters$uv
@@ -251,7 +248,6 @@ schedule_infections <- function(
 boost_immunity <- function(
   immunity_variable,
   exposed_index,
-  exposed_values,
   last_boosted_variable,
   timestep,
   delay
@@ -260,16 +256,17 @@ boost_immunity <- function(
   exposed_index_vector <- exposed_index$to_vector()
   last_boosted <- last_boosted_variable$get_values(exposed_index)
   to_boost <- (timestep - last_boosted) >= delay | (last_boosted == -1)
+  exposed_to_boost <- exposed_index_vector[to_boost]
   if (sum(to_boost) > 0) {
     # boost the variable
     immunity_variable$queue_update(
-      exposed_values[to_boost] + 1,
-      exposed_index_vector[to_boost]
+      immunity_variable$get_values(exposed_to_boost) + 1,
+      exposed_to_boost
     )
     # record last boosted
     last_boosted_variable$queue_update(
       timestep,
-      exposed_index_vector[to_boost]
+      exposed_to_boost
     )
   }
 }

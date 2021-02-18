@@ -128,7 +128,6 @@ simulate_infection <- function(
     boost_immunity(
       variables$ib,
       bitten_humans,
-      variables$ib$get_values(bitten_humans),
       variables$last_boosted_ib,
       timestep,
       parameters$ub

@@ -122,7 +122,12 @@ create_processes <- function(
   if (parameters$spraying) {
     processes <- c(
       processes,
-      indoor_spraying(individuals$human, variables$spray_time, parameters)
+      indoor_spraying(
+        individuals$human,
+        variables$spray_time,
+        parameters,
+        correlations
+      )
     )
   }
 

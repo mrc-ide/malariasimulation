@@ -126,7 +126,7 @@ distribute_nets <- function(human, variables, throw_away_net, parameters, correl
         correlations
       ))
       api$queue_variable_update(human, variables$net_time, timestep, target)
-      api$schedule(throw_away_net, target, log_uniform(length(target)))
+      api$schedule(throw_away_net, target, log_uniform(length(target), parameters$bednet_retention))
     }
   }
 }

@@ -17,7 +17,8 @@ create_processes <- function(
   variables,
   events,
   parameters,
-  odes
+  odes,
+  correlations
   ) {
   processes <- list(
     # ========
@@ -114,7 +115,8 @@ create_processes <- function(
         individuals$human,
         variables,
         events$throw_away_net,
-        parameters
+        parameters,
+        correlations
       )
     )
   }

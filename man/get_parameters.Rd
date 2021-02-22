@@ -101,6 +101,7 @@ for sampling mothers
 
 mortality parameters:
 \itemize{
+\item average_age - the average age of humans (in timesteps)
 \item v - mortality scaling factor from severe disease
 \item pcm - new-born clinical immunity relative to mother's
 \item pvm - new-born severe immunity relative to mother's

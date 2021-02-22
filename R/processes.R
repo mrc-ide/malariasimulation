@@ -11,6 +11,7 @@
 #' @param events a list of events in the model
 #' @param parameters a list of model parameters
 #' @param odes a list of vector ode models for each species
+#' @param correlations the intervention correlations object
 create_processes <- function(
   individuals,
   states,

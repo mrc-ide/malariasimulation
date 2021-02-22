@@ -100,6 +100,7 @@ simulate_bites <- function(api, individuals, states, variables, events, age, par
       species,
       p_bitten,
       f,
+      W,
       parameters
     )
 
@@ -229,9 +230,10 @@ simulate_infection <- function(
 #' @param species to model
 #' @param p_bitten the probabilities of feeding given vector controls
 #' @param f blood meal rate
+#' @param W average probability of a successful bite
 #' @param parameters of the model
-effective_biting_rate <- function(api, .pi, age, species, p_bitten, f, parameters) {
-  a <- human_blood_meal_rate(f, species, mean(p_bitten$prob_bitten_survives), parameters)
+effective_biting_rate <- function(api, .pi, age, species, p_bitten, f, W, parameters) {
+  a <- human_blood_meal_rate(f, species, W, parameters)
   a * .pi * p_bitten$prob_bitten / sum(.pi * p_bitten$prob_bitten_survives)
 }
 
@@ -245,8 +247,8 @@ blood_meal_rate <- function(v, z, parameters) {
   1 / (interrupted_foraging_time + gonotrophic_cycle)
 }
 
-human_blood_meal_rate <- function(f, v, w, parameters) {
-  Q <- 1 - (1 - parameters$Q0[[v]]) / w
+human_blood_meal_rate <- function(f, v, W, parameters) {
+  Q <- 1 - (1 - parameters$Q0[[v]]) / W
   Q * f
 }
 

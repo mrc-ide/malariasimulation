@@ -11,13 +11,15 @@
 #' @param events a list of events in the model
 #' @param parameters a list of model parameters
 #' @param odes a list of vector ode models for each species
+#' @param correlations the intervention correlations object
 create_processes <- function(
   individuals,
   states,
   variables,
   events,
   parameters,
-  odes
+  odes,
+  correlations
   ) {
   processes <- list(
     # ========
@@ -114,7 +116,8 @@ create_processes <- function(
         individuals$human,
         variables,
         events$throw_away_net,
-        parameters
+        parameters,
+        correlations
       )
     )
   }

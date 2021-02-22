@@ -118,6 +118,7 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
       prob_repelled = rep(0, population)
     ),
     f,
+    1,
     parameters
   )
 

@@ -5,7 +5,7 @@
 \title{Calculate the effective biting rate for a species on each human given
 vector control interventions}
 \usage{
-effective_biting_rate(api, .pi, age, species, p_bitten, f, parameters)
+effective_biting_rate(api, .pi, age, species, p_bitten, f, W, parameters)
 }
 \arguments{
 \item{api}{simulation api}
@@ -19,6 +19,8 @@ effective_biting_rate(api, .pi, age, species, p_bitten, f, parameters)
 \item{p_bitten}{the probabilities of feeding given vector controls}
 
 \item{f}{blood meal rate}
+
+\item{W}{average probability of a successful bite}
 
 \item{parameters}{of the model}
 }

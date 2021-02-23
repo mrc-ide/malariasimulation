@@ -7,15 +7,11 @@ bernoulli <- function(size, p) sample.int(size, rbinom(1, size, min(p, 1)))
 sample_bitset <- function(b, rate) b$copy()$sample(rate)
 
 sample_bitset_fixed <- function(b, n, replace = TRUE) {
-  ret <- individual::Bitset$new(b$max_size)
-  ret$insert(b$to_vector()[sample.int(b$size(), n, replace = replace)])
+  individual::filter_bitset(b, sample.int(b$size(), n, replace = replace))
 }
 
 bitset_at <- function(b, i) {
-  if (inherits(i, 'Bitset')) {
-    i <- i$to_vector()
-  }
-  individual::Bitset$new(b$max_size)$insert(b$to_vector()[i])
+  individual::filter_bitset(b, i)
 }
 
 #' @importFrom stats runif

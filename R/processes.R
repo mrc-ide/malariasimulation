@@ -8,12 +8,14 @@
 #' @param events a list of events in the model
 #' @param parameters a list of model parameters
 #' @param odes a list of vector ode models for each species
+#' @param correlations the intervention correlations object
 create_processes <- function(
   renderer,
   variables,
   events,
   parameters,
-  odes
+  odes,
+  correlations
   ) {
   processes <- list(
     # ========
@@ -91,7 +93,8 @@ create_processes <- function(
       distribute_nets(
         variables,
         events$throw_away_net,
-        parameters
+        parameters,
+        correlations
       )
     )
   }
@@ -99,7 +102,7 @@ create_processes <- function(
   if (parameters$spraying) {
     processes <- c(
       processes,
-      indoor_spraying(variables$spray_time, parameters)
+      indoor_spraying(variables$spray_time, parameters, correlations)
     )
   }
 

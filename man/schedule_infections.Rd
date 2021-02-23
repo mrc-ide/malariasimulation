@@ -9,7 +9,9 @@ schedule_infections(
   clinical_infections,
   treated,
   infections,
-  parameters
+  parameters,
+  renderer,
+  timestep
 )
 }
 \arguments{

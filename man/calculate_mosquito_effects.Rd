@@ -32,10 +32,10 @@ calculate_mosquito_effects(
 \item{species}{the index of the species to calculate for}
 
 \item{susceptible_species}{the indices of susceptible mosquitos of the
-species at index \code{species}}
+species}
 
 \item{adult_species}{the indices of adult mosquitos of the
-species at index \code{species}}
+species}
 
 \item{W}{the mean probability that a mosquito feeds and survives}
 

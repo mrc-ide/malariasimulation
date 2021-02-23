@@ -118,7 +118,7 @@ distribute_nets <- function(variables, throw_away_net, parameters, correlations)
         correlations
       ))
       variables$net_time$queue_update(timestep, target)
-      throw_away_net$schedule(target, log_uniform(length(target)))
+      throw_away_net$schedule(target, log_uniform(length(target), parameters$bednet_retention))
     }
   }
 }

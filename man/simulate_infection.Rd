@@ -4,7 +4,15 @@
 \alias{simulate_infection}
 \title{Simulate malaria infection in humans}
 \usage{
-simulate_infection(variables, events, total_eir, age, parameters, timestep)
+simulate_infection(
+  variables,
+  events,
+  total_eir,
+  age,
+  parameters,
+  timestep,
+  renderer
+)
 }
 \arguments{
 \item{variables}{a list of all of the model variables}

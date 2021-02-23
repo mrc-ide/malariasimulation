@@ -5,16 +5,17 @@
 \title{Calculate severe infections}
 \usage{
 update_severe_disease(
-  api,
+  timestep,
   clinical_infections,
   infection_age,
   human,
   variables,
-  infections
+  infections,
+  parameters
 )
 }
 \arguments{
-\item{api}{simulation api}
+\item{timestep}{current timestep}
 
 \item{clinical_infections}{indices of clinically infected humans}
 
@@ -25,6 +26,8 @@ update_severe_disease(
 \item{variables}{a list of all of the model variables}
 
 \item{infections}{indices of all infected humans (for immunity boosting)}
+
+\item{parameters}{model parameters}
 }
 \description{
 Sample severely infected humans from clinically infected

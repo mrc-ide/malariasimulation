@@ -4,16 +4,16 @@
 \alias{calculate_infections}
 \title{Calculate overall infections for bitten humans}
 \usage{
-calculate_infections(variables, bitten_humans, ib, parameters, timestep)
+calculate_infections(variables, bitten_humans, parameters, timestep, renderer)
 }
 \arguments{
 \item{variables}{a list of all of the model variables}
 
 \item{bitten_humans}{bitset of bitten humans}
 
-\item{ib}{vector of pre-erythrocytic immunity levels}
-
 \item{timestep}{current timestep}
+
+\item{ib}{vector of pre-erythrocytic immunity levels}
 }
 \description{
 Sample infected humans given prophylaxis and vaccination

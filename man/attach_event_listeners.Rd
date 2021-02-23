@@ -4,7 +4,7 @@
 \alias{attach_event_listeners}
 \title{Define event based processes}
 \usage{
-attach_event_listeners(events, variables, parameters, correlations)
+attach_event_listeners(events, variables, parameters, correlations, renderer)
 }
 \arguments{
 \item{events}{a list of events in the model}

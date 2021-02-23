@@ -4,7 +4,7 @@
 \alias{create_processes}
 \title{Define model processes}
 \usage{
-create_processes(renderer, variables, events, parameters, odes)
+create_processes(renderer, variables, events, parameters, odes, correlations)
 }
 \arguments{
 \item{renderer}{a renderer object}
@@ -16,6 +16,8 @@ create_processes(renderer, variables, events, parameters, odes)
 \item{parameters}{a list of model parameters}
 
 \item{odes}{a list of vector ode models for each species}
+
+\item{correlations}{the intervention correlations object}
 }
 \description{
 create_processes, defines the functions which describe how each individual's

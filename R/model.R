@@ -36,7 +36,8 @@ run_simulation <- function(timesteps, parameters = NULL, correlations = NULL) {
       variables,
       events,
       parameters,
-      odes
+      odes,
+      correlations
     ),
     variables = variables,
     events = events,

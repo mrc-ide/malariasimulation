@@ -30,6 +30,7 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR', {
   psi <- unique_biting_rate(age, parameters)
   .pi <- human_pi(zeta, psi)
   Z <- average_p_repelled(p_bitten$prob_repelled, .pi, parameters$Q0)
+  W <- average_p_successful(p_bitten$prob_bitten_survives, .pi, parameters$Q0)
   f <- blood_meal_rate(1, Z, parameters)
   estimated_eir <- m_eq[[6]] * effective_biting_rate(
     .pi,
@@ -37,6 +38,7 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR', {
     1,
     p_bitten,
     f,
+    W,
     parameters
   )
   expect_equal(
@@ -81,6 +83,7 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR (with h
   psi <- unique_biting_rate(age, parameters)
   .pi <- human_pi(zeta, psi)
   Z <- average_p_repelled(p_bitten$prob_repelled, .pi, parameters$Q0)
+  W <- average_p_successful(p_bitten$prob_bitten_survives, .pi, parameters$Q0)
   f <- blood_meal_rate(1, Z, parameters)
   estimated_eir <- m_eq[[6]] * effective_biting_rate(
     .pi,
@@ -88,6 +91,7 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR (with h
     1,
     p_bitten,
     f,
+    W,
     parameters
   )
 

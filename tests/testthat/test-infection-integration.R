@@ -38,7 +38,6 @@ test_that('simulate_infection integrates different types of infection and schedu
     1,
     variables$ib,
     b,
-    c(.2, .5, .2, .5),
     variables$last_boosted_ib,
     5,
     parameters$ub
@@ -49,7 +48,6 @@ test_that('simulate_infection integrates different types of infection and schedu
     1,
     variables,
     b,
-    c(.2, .3, .5, .9, .2, .3, .5, .9),
     parameters,
     timestep
   )
@@ -113,33 +111,31 @@ test_that('calculate_infections works various combinations of drug and vaccinati
     rtss_cs = individual::DoubleVariable$new(c(1, .5, 1, 1)),
     rtss_rho = individual::DoubleVariable$new(c(.75, .25, .75, .75)),
     rtss_ds = individual::DoubleVariable$new(c(1, .5, 1, 1)),
-    rtss_dl = individual::DoubleVariable$new(c(5, 2, 5, 5))
+    rtss_dl = individual::DoubleVariable$new(c(5, 2, 5, 5)),
+    ib = individual::DoubleVariable$new(c(.2, .3, .5, .9))
   )
         
   immunity_mock <- mockery::mock(c(.2, .3, .4))
   weibull_mock <- mockery::mock(.2)
   rtss_antibodies_mock <- mockery::mock(c(2, 3))
   rtss_efficacy_mock <- mockery::mock(c(.2, .3))
-  b <- individual::Bitset$new(4)
-  b$insert(2)
-  bernoulli_mock <- mockery::mock(b)
+  bernoulli_mock <- mockery::mock(individual::Bitset$new(4)$insert(2))
   mockery::stub(calculate_infections, 'blood_immunity', immunity_mock)
   mockery::stub(calculate_infections, 'dweibull', weibull_mock)
   mockery::stub(calculate_infections, 'calculate_rtss_antibodies', rtss_antibodies_mock)
   mockery::stub(calculate_infections, 'calculate_rtss_efficacy', rtss_efficacy_mock)
   mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
 
-  bitten_humans <- individual::Bitset$new(4)
-  bitten_humans$insert(c(1, 2, 3, 4))
+  bitten_humans <- individual::Bitset$new(4)$insert(c(1, 2, 3, 4))
+
   infections <- calculate_infections(
     variables,
     bitten_humans, 
-    c(.2, .3, .5, .9),
     parameters,
     timestep
   )
 
-  expect_equal(infections$to_vector(), 2)
+  expect_equal(infections$to_vector(), 3)
 
   mockery::expect_args(immunity_mock, 1, c(.3, .5, .9), parameters)
   mockery::expect_args(
@@ -191,12 +187,10 @@ test_that('calculate_clinical_infections correctly samples clinically infected',
   mockery::stub(calculate_clinical_infections, 'boost_immunity', boost_mock)
 
   mockery::stub(calculate_clinical_infections, 'clinical_immunity', immunity_mock)
-  b <- individual::Bitset$new(4)
-  b$insert(c(1, 3))
-  bernoulli_mock <- mockery::mock(b)
+  bernoulli_mock <- mockery::mock(individual::Bitset$new(4)$insert(c(1, 3)))
   mockery::stub(calculate_clinical_infections, 'bernoulli_multi_p', bernoulli_mock)
-  infections <- individual::Bitset$new(4)
-  infections$insert(c(2, 3, 4))
+
+  infections <- individual::Bitset$new(4)$insert(c(2, 3, 4))
 
   clinical_infections <- calculate_clinical_infections(
     variables,
@@ -205,14 +199,13 @@ test_that('calculate_clinical_infections correctly samples clinically infected',
     timestep
   )
 
-  expect_equal(clinical_infections$to_vector(), 3)
+  expect_equal(clinical_infections$to_vector(), c(2, 4))
 
   mockery::expect_args(
     boost_mock,
     1,
     variables$ica,
     infections,
-    c(.3, .5, .9),
     variables$last_boosted_ica,
     5,
     parameters$uc
@@ -223,7 +216,6 @@ test_that('calculate_clinical_infections correctly samples clinically infected',
     2,
     variables$id,
     infections,
-    c(.3, .5, .9),
     variables$last_boosted_id,
     5,
     parameters$ud
@@ -309,9 +301,8 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   expect_bitset_update(variables$drug$queue_update, c(2, 1), c(1, 4))
   expect_bitset_update(variables$drug_time$queue_update, 5, c(1, 4))
 
-  mockery::expect_args(
+  expect_bitset_schedule(
     schedule_mock,
-    1,
     c(1, 4),
     c(3, 4)
   )
@@ -361,32 +352,29 @@ test_that('schedule_infections correctly schedules new infections', {
     parameters
   )
 
-  mockery::expect_args(
+  expect_bitset_schedule(
     clinical_mock,
-    1,
     c(5, 6, 13, 14),
     c(5, 6, 13, 14)
   )
 
-  mockery::expect_args(
+  expect_bitset_schedule(
     all_mock,
-    1,
     c(5, 6, 13, 14),
     c(5, 6, 13, 14)
   )
 
-  mockery::expect_args(
+  expect_bitset_schedule(
     asym_mock,
-    1,
     c(2, 4, 16, 17, 18, 19, 20),
     c(2, 4, 16, 17, 18, 19, 20)
   )
 
-  mockery::expect_args(
+  expect_bitset_schedule(
     all_mock,
-    2,
     c(2, 4, 16, 17, 18, 19, 20),
-    c(2, 4, 16, 17, 18, 19, 20)
+    c(2, 4, 16, 17, 18, 19, 20),
+    call = 2
   )
 })
 
@@ -404,16 +392,15 @@ test_that('prophylaxis is considered for medicated humans', {
     drug = individual::DoubleVariable$new(c(0, 2, 1, 0)),
     drug_time = individual::DoubleVariable$new(c(-1, 49, 40, -1)),
     rtss_vaccinated = individual::DoubleVariable$new(c(-1, -1, -1, -1)),
-    rtss_boosted = individual::DoubleVariable$new(c(-1, -1, -1, -1))
+    rtss_boosted = individual::DoubleVariable$new(c(-1, -1, -1, -1)),
+    ib = individual::DoubleVariable$new(c(.2, .3, .5, .9))
   )
-  ib = c(.2, .3, .5, .9)
 
-  b <- individual::Bitset$new(4)
-  b$insert(seq(4))
-  m <- mockery::mock(b)
+  bitten <- individual::Bitset$new(4)$insert(seq(4))
+  m <- mockery::mock(individual::Bitset$new(4)$insert(seq(3)))
   mockery::stub(calculate_infections, 'bernoulli_multi_p', m)
 
-  calculate_infections(variables, b, ib, parameters, timestep)
+  calculate_infections(variables, bitten, parameters, timestep)
 
   expect_equal(
     mockery::mock_args(m)[[1]][[1]],
@@ -433,15 +420,13 @@ test_that('boost_immunity respects the delay period', {
   last_mock <- mockery::mock()
   mockery::stub(boost_immunity, 'last_boosted_variable$queue_update', last_mock)
 
-  index <- individual::Bitset$new(4)
-  index$insert(seq(4))
+  index <- individual::Bitset$new(4)$insert(seq(4))
   timestep <- 15
   delay <- 4
 
   boost_immunity(
     immunity,
     index,
-    level,
     last_boosted,
     timestep,
     delay
@@ -481,7 +466,6 @@ test_that('boost_immunity respects the delay period', {
   boost_immunity(
     immunity,
     index,
-    level,
     last_boosted,
     timestep,
     delay
@@ -521,7 +505,6 @@ test_that('boost_immunity does not update when there is no-one to update', {
   boost_immunity(
     immunity,
     index,
-    level,
     last_boosted,
     timestep,
     delay

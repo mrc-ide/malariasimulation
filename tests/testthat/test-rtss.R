@@ -100,13 +100,15 @@ test_that('Infection considers vaccine efficacy', {
   variables$drug <- individual::DoubleVariable$new(
     c(-1, -1, -1, -1)
   )
+  variables$ib <- individual::DoubleVariable$new(
+    rep(.2, 4)
+  )
 
   bernoulli_mock <- mockery::mock(individual::Bitset$new(4)$insert(c(1, 2)))
   mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
   calculate_infections(
     variables,
     bitten_humans = individual::Bitset$new(4)$insert(seq(4)),
-    ib = rep(.2, 4),
     parameters,
     timestep
   )

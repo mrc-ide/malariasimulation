@@ -27,8 +27,7 @@ create_biting_process <- function(renderer, variables, events, parameters) {
       total_eir,
       age,
       parameters,
-      timestep,
-      renderer
+      timestep
     )
   }
 }
@@ -120,8 +119,7 @@ simulate_infection <- function(
   total_eir,
   age,
   parameters,
-  timestep,
-  renderer
+  timestep
   ) {
   bitten_humans <- bernoulli_multi_p(total_eir)
 
@@ -140,8 +138,7 @@ simulate_infection <- function(
     variables,
     bitten_humans,
     parameters,
-    timestep,
-    renderer
+    timestep
   )
 
   clinical_infections <- calculate_clinical_infections(
@@ -175,9 +172,7 @@ simulate_infection <- function(
     clinical_infections,
     treated,
     infected_humans,
-    parameters,
-    renderer,
-    timestep
+    parameters
   )
 }
 

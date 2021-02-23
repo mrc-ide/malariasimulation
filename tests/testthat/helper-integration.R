@@ -54,6 +54,11 @@ expect_bitset_update <- function(mock, value, index, call = 1) {
   expect_equal(mockery::mock_args(mock)[[call]][[2]]$to_vector(), index)
 }
 
+expect_bitset_schedule <- function(mock, target, delay, call = 1) {
+  expect_equal(mockery::mock_args(mock)[[call]][[1]]$to_vector(), target)
+  expect_equal(mockery::mock_args(mock)[[call]][[2]], delay)
+}
+
 # Determine if range of vector is FP 0.
 zero_range <- function(x, tol = .Machine$double.eps ^ 0.5) {
   if (length(x) == 1) return(TRUE)

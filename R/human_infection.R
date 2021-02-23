@@ -10,8 +10,7 @@ calculate_infections <- function(
   variables,
   bitten_humans,
   parameters,
-  timestep,
-  renderer
+  timestep
   ) {
   source_humans <- variables$state$get_index_of(
     c('S', 'A', 'U'))$and(bitten_humans)
@@ -203,20 +202,12 @@ schedule_infections <- function(
   clinical_infections,
   treated,
   infections,
-  parameters,
-  renderer,
-  timestep
+  parameters
   ) {
   included <- events$infection$get_scheduled()$or(treated)$not()
 
-  renderer$render('n_infections', infections$size(), timestep)
-  renderer$render('n_clinical_infections', clinical_infections$size(), timestep)
-
   to_infect <- clinical_infections$and(included)
   to_infect_asym <- clinical_infections$not()$and(infections)$and(included)
-
-  renderer$render('to_infect', to_infect$size(), timestep)
-  renderer$render('to_infect_asym', to_infect_asym$size(), timestep)
 
   # change to symptomatic
   if(to_infect$size() > 0) {

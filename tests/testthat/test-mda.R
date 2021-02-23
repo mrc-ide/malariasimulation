@@ -2,7 +2,7 @@
 test_that('MDA moves the diseased and non-diseased population correctly', {
   timestep <- 50
   renderer <- individual::Render$new(timestep)
-  parameters <- get_parameters()
+  parameters <- get_parameters(list(human_population = 4))
   parameters <- set_drugs(parameters, list(SP_AQ_params))
   parameters <- set_mda(
     parameters,

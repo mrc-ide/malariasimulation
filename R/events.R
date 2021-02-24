@@ -199,7 +199,9 @@ attach_event_listeners <- function(
       parameters$mda_max_age,
       parameters$mda_coverage,
       correlations,
-      'mda'
+      'mda',
+      parameters,
+      renderer
     ))
   }
 
@@ -214,7 +216,9 @@ attach_event_listeners <- function(
       parameters$smc_max_age,
       parameters$smc_coverage,
       correlations,
-      'smc'
+      'smc',
+      parameters,
+      renderer
     ))
   }
 

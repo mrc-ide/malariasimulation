@@ -164,7 +164,7 @@ calculate_treated <- function(
   ]
 
   successful <- bernoulli_multi_p(parameters$drug_efficacy[drugs])
-  treated_index <- seek_treatment$and(successful)
+  treated_index <- bitset_at(seek_treatment, successful)
 
   # Update those who have been treated
   if (treated_index$size() > 0) {

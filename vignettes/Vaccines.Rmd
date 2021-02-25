@@ -115,6 +115,7 @@ output <- run_simulation_with_repetitions(
   rtssparams,
   parallel=TRUE
 )
+
 add_intervention_lines(plot_prevalence(output), rtssevents)
 ```
 
@@ -146,5 +147,6 @@ output <- run_simulation_with_repetitions(
   tbvparams,
   parallel=TRUE
 )
+
 add_intervention_lines(plot_prevalence(output), tbvevents)
 ```

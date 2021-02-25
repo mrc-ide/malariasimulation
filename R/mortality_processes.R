@@ -31,6 +31,7 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
       died$or(severe_deaths)
     }
 
+
     if (died$size() > 0) {
       # inherit immunity from parent in group
       sampleable <- individual::Bitset$new(parameters$human_population)

@@ -176,7 +176,8 @@ attach_event_listeners <- function(
         variables,
         events,
         parameters,
-        correlations
+        correlations,
+        renderer
       )
     )
     events$rtss_booster$add_listener(
@@ -235,7 +236,7 @@ attach_event_listeners <- function(
           parameters$tbv_coverage,
           correlations
         ))
-        renderer$render('n_vaccinated_tbv', length(target))
+        renderer$render('n_vaccinated_tbv', length(to_vaccinate), timestep)
         if (length(to_vaccinate) > 0) {
           variables$tbv_vaccinated$queue_update(
             timestep,

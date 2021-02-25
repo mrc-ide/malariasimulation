@@ -36,7 +36,6 @@ simulate_bites <- function(renderer, variables, events, age, parameters, timeste
   total_eir <- 0
 
   human_infectivity <- variables$infectivity$get_values()
-  renderer$render('infectivity', mean(human_infectivity), timestep)
   if (parameters$tbv) {
     human_infectivity <- account_for_tbv(
       timestep,
@@ -45,6 +44,7 @@ simulate_bites <- function(renderer, variables, events, age, parameters, timeste
       parameters
     )
   }
+  renderer$render('infectivity', mean(human_infectivity), timestep)
 
   # Calculate pi (the relative biting rate for each human)
   psi <- unique_biting_rate(age, parameters)
@@ -152,7 +152,6 @@ simulate_infection <- function(
     update_severe_disease(
       timestep,
       clinical_infections,
-      age[clinical_infections],
       variables,
       infected_humans,
       parameters

@@ -96,24 +96,21 @@ calculate_clinical_infections <- function(variables, infections, parameters, tim
 #' Sample severely infected humans from clinically infected
 #' @param timestep current timestep
 #' @param clinical_infections indices of clinically infected humans
-#' @param infection_age ages of individuals in `clinical_infections` (timesteps)
-#' @param human handle for humans
 #' @param variables a list of all of the model variables
 #' @param infections indices of all infected humans (for immunity boosting)
 #' @param parameters model parameters
 update_severe_disease <- function(
   timestep,
   clinical_infections,
-  infection_age,
-  human,
   variables,
   infections,
   parameters
   ) {
-  if (length(clinical_infections) > 0) {
+  if (clinical_infections$size() > 0) {
+    age <- get_age(variables$birth$get_values(clinical_infections), timestep)
     iva <- variables$iva$get_values(clinical_infections)
     theta <- severe_immunity(
-      infection_age,
+      age,
       iva,
       variables$ivm$get_values(clinical_infections),
       parameters
@@ -121,7 +118,7 @@ update_severe_disease <- function(
     develop_severe <- bernoulli_multi_p(theta)
     variables$is_severe$queue_update(
       'yes',
-      clinical_infections$to_vector()[develop_severe$to_vector()]
+      bitset_at(clinical_infections, develop_severe)
     )
     boost_immunity(
       variables$iva,

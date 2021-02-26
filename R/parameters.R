@@ -137,7 +137,8 @@
 #' * beta - the average number of eggs laid per female mosquito per day
 #' * total_M - the initial number of adult mosquitos in the simulation
 #' * init_foim - the FOIM used to calculate the equilibrium state for mosquitoes
-#' * variety_proportions - the relative proportions of each species
+#' * species - names of the species in the simulation
+#' * species_proportions - the relative proportions of each species
 #' * blood_meal_rates - the blood meal rates for each species
 #' * Q0 - proportion of blood meals taken on humans
 #' * foraging_time - time spent taking blood meals
@@ -340,7 +341,8 @@ get_parameters <- function(overrides = list()) {
     total_M  = 1000,
     init_foim= 0,
     # order of species: An gambiae s.s, An arabiensis, An funestus
-    variety_proportions = c(.5, .3, .2),
+    species             = c('gamb', 'arab', 'fun'),
+    species_proportions = c(.5, .3, .2),
     blood_meal_rates    = rep(1/3, 3),
     Q0                  = c(.92, .71, .94),
     endophily           = c(.813, .422, .813),

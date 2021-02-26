@@ -4,8 +4,20 @@ vlapply <- function(X, FUN, ...) vapply(X, FUN, ..., logical(1))
 #' @importFrom stats rbinom 
 bernoulli <- function(size, p) sample.int(size, rbinom(1, size, min(p, 1)))
 
+sample_bitset <- function(b, rate) b$copy()$sample(rate)
+
+sample_bitset_fixed <- function(b, n, replace = TRUE) {
+  individual::filter_bitset(b, sample.int(b$size(), n, replace = replace))
+}
+
+bitset_at <- function(b, i) {
+  individual::filter_bitset(b, i)
+}
+
 #' @importFrom stats runif
-bernoulli_multi_p <- function(size, p) runif(size, 0, 1) < p
+bernoulli_multi_p <- function(p) {
+  individual::Bitset$new(from = bernoulli_multi_p_cpp(p))
+}
 
 #' @importFrom stats runif
 log_uniform <- function(size, rate) -rate * log(runif(size))
@@ -32,3 +44,5 @@ get_age <- function(birth_timesteps, current_timestep) {
 remove_keys <- function(x, n) { for (name in n) { x[[name]] <- NULL }; x }
 
 invlogit <- function(x) exp(x) / (1 + exp(x))
+
+to_char_vector <- function(v) vapply(v, function(n) toString(n), character(1))

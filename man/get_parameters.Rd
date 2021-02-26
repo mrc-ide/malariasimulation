@@ -153,7 +153,8 @@ species specific values are vectors
 \item beta - the average number of eggs laid per female mosquito per day
 \item total_M - the initial number of adult mosquitos in the simulation
 \item init_foim - the FOIM used to calculate the equilibrium state for mosquitoes
-\item variety_proportions - the relative proportions of each species
+\item species - names of the species in the simulation
+\item species_proportions - the relative proportions of each species
 \item blood_meal_rates - the blood meal rates for each species
 \item Q0 - proportion of blood meals taken on humans
 \item foraging_time - time spent taking blood meals

@@ -5,6 +5,7 @@
 #' @param parameters model parameters
 #' @param foim equilibrium foim
 #' @param m (optional) the total number of female adult mosquitos
+#' @noRd
 initial_mosquito_counts <- function(parameters, foim = 0, m = NULL) {
   if (is.null(m)) {
     m <- parameters$total_M
@@ -39,6 +40,7 @@ initial_mosquito_counts <- function(parameters, foim = 0, m = NULL) {
 #' "Modelling the impact of vector control interventions on Anopheles gambiae
 #' population dynamics"
 #' @param parameters model parameters
+#' @noRd
 calculate_omega <- function(parameters) {
   sub_omega <- parameters$gamma * parameters$ml / parameters$me - (
     parameters$del / parameters$dl
@@ -60,6 +62,7 @@ calculate_omega <- function(parameters) {
 #' "Modelling the impact of vector control interventions on Anopheles gambiae
 #' population dynamics"
 #' @param parameters model parameters
+#' @noRd
 calculate_carrying_capacity <- function(parameters) {
   m <- parameters$total_M
   omega <- calculate_omega(parameters)
@@ -75,6 +78,7 @@ calculate_carrying_capacity <- function(parameters) {
 
 #' @title Calculate the mean rainfall throughout the year
 #' @param parameters model parameters
+#' @noRd
 calculate_R_bar <- function(parameters) {
   mean(vnapply(1:365, function(t) rainfall(
 		t,
@@ -89,6 +93,7 @@ calculate_R_bar <- function(parameters) {
 #'
 #' @param parameters to work from
 #' @param EIR equilibrium to use, bites per person per year
+#' @noRd
 equilibrium_total_M <- function(parameters, EIR) {
   if (EIR == 0) {
     return(0)
@@ -101,7 +106,7 @@ equilibrium_total_M <- function(parameters, EIR) {
     parameters$init_foim + parameters$mum
   )
   total_daily_eir / sum(
-    parameters$variety_proportions * parameters$blood_meal_rates * parameters$Q0 * lifetime
+    parameters$species_proportions * parameters$blood_meal_rates * parameters$Q0 * lifetime
   )
 }
 
@@ -129,28 +134,26 @@ peak_season_offset <- function(parameters) {
 
 #' @title Calculate the effects of biting on mosquito individuals
 #'
-#' @param api the simulation api
+#' @param variables a list of variables in this simulation
 #' @param human_infectivity the infectivity for each human
 #' @param lambda the effective biting rate for this species on each human
-#' @param individuals a list of individual handles
-#' @param states a list of state handles
 #' @param mosquito_infection an event for mosquito infection
 #' @param species the index of the species to calculate for
 #' @param susceptible_species the indices of susceptible mosquitos of the
-#' species at index `species`
+#' species
 #' @param adult_species the indices of adult mosquitos of the
-#' species at index `species`
+#' species
 #' @param W the mean probability that a mosquito feeds and survives
 #' @param Z the mean probability that a mosquito is repelled
 #' @param f the feeding rate for this species of mosquito
+#' @param renderer the model renderer object
+#' @param timestep the current timestep
 #' @param parameters the model parameters
-#' @export
+#' @noRd
 calculate_mosquito_effects <- function(
-    api,
+    variables,
     human_infectivity,
     lambda,
-    individuals,
-    states,
     mosquito_infection,
     species,
     susceptible_species,
@@ -158,20 +161,16 @@ calculate_mosquito_effects <- function(
     W,
     Z,
     f,
-    parameters
+    parameters,
+    renderer,
+    timestep
   ) {
   # deal with mosquito infections
   lambda <- sum(human_infectivity * lambda)
-  api$render(paste0('FOIM_', species), lambda)
-  target <- susceptible_species[
-    bernoulli(length(susceptible_species), lambda)
-  ]
-  api$queue_state_update(
-    individuals$mosquito,
-    states$Pm,
-    target
-  )
-  api$schedule(mosquito_infection, target, parameters$dem)
+  renderer$render(paste0('FOIM_', species), lambda, timestep)
+  target <- sample_bitset(susceptible_species, lambda)
+  variables$mosquito_state$queue_update('Pm', target)
+  mosquito_infection$schedule(target, parameters$dem)
 
   # deal with mosquito deaths
   p1_0 <- exp(-parameters$mum * parameters$foraging_time)
@@ -179,17 +178,11 @@ calculate_mosquito_effects <- function(
   p2 <- exp(-parameters$mum * gonotrophic_cycle)
   p1 <- p1_0 * W / (1 - Z * p1_0)
   mu <- -f * log(p1 * p2)
-  api$render(paste0('mu_', species), mu)
-  died <- adult_species[
-    bernoulli(length(adult_species), mu)
-  ]
+  died <- sample_bitset(adult_species, mu)
+  renderer$render(paste0('mu_', species), mu, timestep)
 
-  api$queue_state_update(
-    individuals$mosquito,
-    states$Unborn,
-    died
-  )
-  api$clear_schedule(mosquito_infection, died)
+  variables$mosquito_state$queue_update('Unborn', died)
+  mosquito_infection$clear_schedule(died)
 }
 
 get_gonotrophic_cycle <- function(v, parameters) {

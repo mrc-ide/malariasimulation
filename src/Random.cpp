@@ -15,6 +15,17 @@ std::vector<size_t> Random::bernoulli(size_t size, double p) {
     return Rcpp::as<std::vector<size_t>>(indices);
 }
 
+individual_index_t Random::bernoulli_multi_p(const std::vector<double> p) {
+    auto successes = individual_index_t(p.size());
+    Rcpp::NumericVector r = Rcpp::runif(p.size());
+    for (auto i = 0u; i < p.size(); ++i) {
+        if (r[i] < p[i]) {
+            successes.insert(i);
+        }
+    }
+    return successes;
+}
+
 std::vector<size_t> Random::sample(size_t n, size_t size, bool replacement) {
     //                                                           probs       one_based
     Rcpp::IntegerVector res = Rcpp::sample(n, size, replacement, R_NilValue, false);

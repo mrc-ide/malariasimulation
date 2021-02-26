@@ -4,25 +4,16 @@
 \alias{create_mosquito_emergence_process_cpp}
 \title{Mosquito emergence process}
 \usage{
-create_mosquito_emergence_process_cpp(
-  mosquito,
-  odes,
-  unborn,
-  susceptible,
-  variety,
-  dpl
-)
+create_mosquito_emergence_process_cpp(odes, state, species, species_names, dpl)
 }
 \arguments{
-\item{mosquito}{the handle for the mosquito individual}
+\item{odes}{a list of odes for each species of mosquito}
 
-\item{odes}{a list of odes for each species}
+\item{state}{the variable for the mosquito state}
 
-\item{unborn}{the handle for the unborn mosquito state}
+\item{species}{the variable for the mosquito species}
 
-\item{susceptible}{the handle for the susceptible mosquito state}
-
-\item{variety}{the handle for the variable representing the mosquito species}
+\item{species_names}{a vector of category names for the species variable}
 
 \item{dpl}{the delay for pupal growth (in timesteps)}
 }

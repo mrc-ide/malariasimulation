@@ -40,7 +40,8 @@ simparams <- get_parameters(c(
   translate_jamie(remove_unused_jamie(jamie_params)),
   list(
     human_population = human_population,
-    variety_proportions = 1,
+    species = 'All',
+    species_proportions = 1,
     model_seasonality = TRUE, # Let's try a bi-modal model
     g0 = 0.28605,
     g = c(0.20636, -0.0740318, -0.0009293),
@@ -50,8 +51,7 @@ simparams <- get_parameters(c(
 
 simparams <- set_drugs(simparams, list(SP_AQ_params))
 simparams <- parameterise_human_equilibrium(simparams, eq)
-simparams <- parameterise_mosquito_equilibrium(simparams, starting_EIR, limit_grace = 10)
-
+simparams <- parameterise_mosquito_equilibrium(simparams, starting_EIR)
 
 # Plotting functions
 plot_prevalence <- function(output) {
@@ -66,11 +66,11 @@ plot_state_counts <- function(output) {
       output[c(
         'timestep',
         'repetition',
-        'human_S_count',
-        'human_D_count',
-        'human_A_count',
-        'human_U_count',
-        'human_Tr_count'
+        'S_count',
+        'D_count',
+        'A_count',
+        'U_count',
+        'Tr_count'
       )],
       id.vars=c('timestep', 'repetition')
     )

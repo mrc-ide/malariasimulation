@@ -5,6 +5,7 @@
 #' @param parameters model parameters
 #' @param foim equilibrium foim
 #' @param m (optional) the total number of female adult mosquitos
+#' @noRd
 initial_mosquito_counts <- function(parameters, foim = 0, m = NULL) {
   if (is.null(m)) {
     m <- parameters$total_M
@@ -39,6 +40,7 @@ initial_mosquito_counts <- function(parameters, foim = 0, m = NULL) {
 #' "Modelling the impact of vector control interventions on Anopheles gambiae
 #' population dynamics"
 #' @param parameters model parameters
+#' @noRd
 calculate_omega <- function(parameters) {
   sub_omega <- parameters$gamma * parameters$ml / parameters$me - (
     parameters$del / parameters$dl
@@ -60,6 +62,7 @@ calculate_omega <- function(parameters) {
 #' "Modelling the impact of vector control interventions on Anopheles gambiae
 #' population dynamics"
 #' @param parameters model parameters
+#' @noRd
 calculate_carrying_capacity <- function(parameters) {
   m <- parameters$total_M
   omega <- calculate_omega(parameters)
@@ -75,6 +78,7 @@ calculate_carrying_capacity <- function(parameters) {
 
 #' @title Calculate the mean rainfall throughout the year
 #' @param parameters model parameters
+#' @noRd
 calculate_R_bar <- function(parameters) {
   mean(vnapply(1:365, function(t) rainfall(
 		t,
@@ -89,6 +93,7 @@ calculate_R_bar <- function(parameters) {
 #'
 #' @param parameters to work from
 #' @param EIR equilibrium to use, bites per person per year
+#' @noRd
 equilibrium_total_M <- function(parameters, EIR) {
   if (EIR == 0) {
     return(0)
@@ -141,8 +146,10 @@ peak_season_offset <- function(parameters) {
 #' @param W the mean probability that a mosquito feeds and survives
 #' @param Z the mean probability that a mosquito is repelled
 #' @param f the feeding rate for this species of mosquito
+#' @param renderer the model renderer object
+#' @param timestep the current timestep
 #' @param parameters the model parameters
-#' @export
+#' @noRd
 calculate_mosquito_effects <- function(
     variables,
     human_infectivity,

@@ -51,6 +51,7 @@ initial_immunity <- function(parameter, age) {
 #' * species - the species of mosquito, this is a category gamb|fun|arab
 #'
 #' @param parameters, model parameters created by `get_parameters`
+#' @noRd
 #' @importFrom stats rexp rnorm
 create_variables <- function(parameters) {
   size <- parameters$human_population

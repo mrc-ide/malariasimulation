@@ -3,8 +3,9 @@
 #' Sample infected humans given prophylaxis and vaccination
 #' @param variables a list of all of the model variables
 #' @param bitten_humans bitset of bitten humans
-#' @param ib vector of pre-erythrocytic immunity levels
+#' @param parameters model parameters
 #' @param timestep current timestep
+#' @noRd
 #' @importFrom stats dweibull
 calculate_infections <- function(
   variables,
@@ -66,6 +67,7 @@ calculate_infections <- function(
 #' @param infections bitset of infected humans
 #' @param parameters model parameters
 #' @param timestep current timestep
+#' @noRd
 calculate_clinical_infections <- function(variables, infections, parameters, timestep) {
   ica <- variables$ica$get_values(infections)
   icm <- variables$icm$get_values(infections)
@@ -99,6 +101,7 @@ calculate_clinical_infections <- function(variables, infections, parameters, tim
 #' @param variables a list of all of the model variables
 #' @param infections indices of all infected humans (for immunity boosting)
 #' @param parameters model parameters
+#' @noRd
 update_severe_disease <- function(
   timestep,
   clinical_infections,
@@ -137,7 +140,8 @@ update_severe_disease <- function(
 #' @param clinical_infections a bitset of clinically infected humans
 #' @param recovery the recovery event
 #' @param parameters model parameters
-#' @param timestep
+#' @param timestep the current timestep
+#' @noRd
 calculate_treated <- function(
   variables,
   clinical_infections,
@@ -194,6 +198,8 @@ calculate_treated <- function(
 #' @param clinical_infections bitset of clinically infected humans
 #' @param treated bitset of treated humans
 #' @param infections bitset of infected humans
+#' @param parameters model parameters
+#' @noRd
 schedule_infections <- function(
   events,
   clinical_infections,

@@ -173,6 +173,7 @@ get_correlation_parameters <- function(parameters) {
 #' @param p the probability of being selected
 #' @param correlations correlation parameters
 #' @importFrom stats qnorm
+#' @noRd
 sample_intervention <- function(target, intervention, p, correlations) {
   sigma_squared <- correlations$sigma()[[intervention]]^2
   sd <- sqrt(1 + sigma_squared)

@@ -1,8 +1,10 @@
 
 #' @title return the probability of being bitten given vector controls
+#' @param timestep current timestep
 #' @param variables a list of available variables
 #' @param species the species to calculate for
 #' @param parameters model parameters
+#' @noRd
 prob_bitten <- function(timestep, variables, species, parameters) {
   if (!(parameters$bednets || parameters$spraying)) {
     n <- parameters$human_population
@@ -82,6 +84,7 @@ prob_bitten <- function(timestep, variables, species, parameters) {
 #' @param spray_time the variable for the time of spraying
 #' @param parameters the model parameters
 #' @param correlations correlation parameters
+#' @noRd
 indoor_spraying <- function(spray_time, parameters, correlations) {
   function(timestep) {
     matches <- timestep == parameters$spraying_timesteps
@@ -102,11 +105,11 @@ indoor_spraying <- function(spray_time, parameters, correlations) {
 #' from `set_bednets` and correlation parameters from
 #' `get_correlation_parameters`
 #'
-#' @param human the handle for the human individual
 #' @param variables list of variables in the model
 #' @param throw_away_net an event to trigger when the net will be removed
 #' @param parameters the model parameters
 #' @param correlations correlation parameters
+#' @noRd
 distribute_nets <- function(variables, throw_away_net, parameters, correlations) {
   function(timestep) {
     matches <- timestep == parameters$bednet_timesteps

@@ -9,6 +9,7 @@
 #' @param parameters a list of model parameters
 #' @param odes a list of vector ode models for each species
 #' @param correlations the intervention correlations object
+#' @noRd
 create_processes <- function(
   renderer,
   variables,
@@ -120,6 +121,7 @@ create_processes <- function(
 #'
 #' @param variable the variable to update
 #' @param rate the exponential rate
+#' @noRd
 create_exponential_decay_process <- function(variable, rate) {
   decay_rate <- exp(-1/rate)
   function(timestep) variable$queue_update(variable$get_values() * decay_rate)

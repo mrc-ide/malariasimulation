@@ -8,6 +8,7 @@
 #' @param parameters the model parameters
 #' @param correlations correlation parameters
 #' @param renderer rendering object
+#' @noRd
 create_rtss_vaccination_listener <- function(
   variables,
   events,

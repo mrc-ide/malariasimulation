@@ -78,6 +78,8 @@ initialise_events <- function(events, variables, parameters) {
 #' @param events a list of events in the model
 #' @param parameters the model parameters
 #' @param correlations correlation parameters
+#' @param renderer the model rendering object
+#' @noRd
 attach_event_listeners <- function(
   events,
   variables,

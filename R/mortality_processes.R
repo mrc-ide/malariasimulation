@@ -7,6 +7,7 @@
 #' @param events the model events to reset
 #' @param renderer the model renderer
 #' @param parameters model parameters
+#' @noRd
 create_mortality_process <- function(variables, events, renderer, parameters) {
   function(timestep) {
     age <- get_age(

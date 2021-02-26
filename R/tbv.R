@@ -6,6 +6,7 @@
 #' @param infectivity a vector of raw infectivities
 #' @param variables the available variables
 #' @param parameters model parameters
+#' @noRd
 account_for_tbv <- function(
   timestep,
   infectivity,

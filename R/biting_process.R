@@ -2,9 +2,11 @@
 #' @description
 #' This is the biting process. It results in human and mosquito infection and
 #' mosquito death.
+#' @param renderer the model renderer object
 #' @param variables a list of all of the model variables
 #' @param events a list of all of the model events
 #' @param parameters model pararmeters
+#' @noRd
 create_biting_process <- function(renderer, variables, events, parameters) {
   function(timestep) {
     # Calculate combined EIR
@@ -113,6 +115,8 @@ simulate_bites <- function(renderer, variables, events, age, parameters, timeste
 #' mosquito species
 #' @param age of each human (timesteps)
 #' @param parameters of the model
+#' @param timestep current timestep
+#' @noRd
 simulate_infection <- function(
   variables,
   events,
@@ -190,6 +194,7 @@ simulate_infection <- function(
 #' @param f blood meal rate
 #' @param W average probability of a successful bite
 #' @param parameters of the model
+#' @noRd
 effective_biting_rate <- function(.pi, age, species, p_bitten, f, W, parameters) {
   a <- human_blood_meal_rate(f, species, W, parameters)
   a * .pi * p_bitten$prob_bitten / sum(.pi * p_bitten$prob_bitten_survives)

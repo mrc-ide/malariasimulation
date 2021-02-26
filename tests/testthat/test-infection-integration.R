@@ -66,7 +66,6 @@ test_that('simulate_infection integrates different types of infection and schedu
     1,
     timestep,
     c(1, 3),
-    c(20, 5) * 365,
     variables,
     c(1, 3, 5),
     parameters
@@ -252,8 +251,7 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   schedule_mock <- mockery::mock()
   mockery::stub(calculate_treated, 'recovery$schedule', schedule_mock)
 
-  seek_treatment <- individual::Bitset$new(4)
-  seek_treatment$insert(c(1, 2, 4))
+  seek_treatment <- individual::Bitset$new(4)$insert(c(1, 2, 4))
   mockery::stub(
     calculate_treated,
     'sample_bitset',
@@ -261,9 +259,7 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   )
   sample_mock <- mockery::mock(c(2, 1, 1, 1))
   mockery::stub(calculate_treated, 'sample.int', sample_mock)
-  b <- individual::Bitset$new(4)
-  b$insert(c(1, 4))
-  bernoulli_mock <- mockery::mock(b)
+  bernoulli_mock <- mockery::mock(individual::Bitset$new(4)$insert(c(1, 3)))
   mockery::stub(calculate_treated, 'bernoulli_multi_p', bernoulli_mock)
   mockery::stub(calculate_treated, 'log_uniform', mockery::mock(c(3, 4)))
 

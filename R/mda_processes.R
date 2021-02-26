@@ -9,7 +9,10 @@
 #' @param coverage the proportion of the target population that is covered
 #' @param correlations correlation parameters
 #' @param int_name the name of this intervention (either 'smc' or 'mda')
+#' @param parameters the model parameters
+#' @param renderer the model renderer object
 #' @description will create a listener for administering each round of drugs
+#' @noRd
 create_mda_listeners <- function(
   variables,
   administer_event,

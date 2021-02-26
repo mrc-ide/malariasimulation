@@ -28,10 +28,9 @@ We are going to set the default parameters to run the simulation from an equilib
 ```{r}
 year <- 365
 month <- 30
-sim_length <- 10 * year
+sim_length <- 3 * year
 human_population <- 1000
 starting_EIR <- 50
-repetitions <- 5
 
 jamie_params <- load_parameter_set()
 eq <- human_equilibrium(EIR = starting_EIR, ft = 0, p = jamie_params, age = 0:99)
@@ -67,7 +66,7 @@ simparams <- parameterise_mosquito_equilibrium(simparams, starting_EIR)
 # Plotting functions
 plot_prevalence <- function(output) {
   ggplot(output) + geom_line(
-    aes(x = timestep, y = pv_730_3650, group = repetition, alpha = 1/repetitions)
+    aes(x = timestep, y = pv_730_3650)
   )
 }
 
@@ -97,23 +96,18 @@ We can distribute bed nets once a year for 4 years, 3 months before peak season:
 bednetparams <- simparams
 
 bednet_events = data.frame(
-  timestep = c(4, 7) * year,
+  timestep = c(1, 2) * year,
   name=c("Bednets start", "Bednets end")
 )
 
 bednetparams <- set_bednets(
   bednetparams,
-  timesteps = 4:7 * year,
-  coverages = rep(.8, 4),
+  timesteps = c(1, 2) * year,
+  coverages = rep(.8, 2),
   retention = 5 * year
 )
 
-output <- run_simulation_with_repetitions(
-  sim_length,
-  repetitions,
-  bednetparams,
-  parallel=TRUE
-)
+output <- run_simulation(sim_length, bednetparams)
 
 add_intervention_lines(plot_prevalence(output), bednet_events)
 ```
@@ -127,23 +121,18 @@ sprayingparams <- simparams
 
 peak <- peak_season_offset(sprayingparams)
 spraying_events = data.frame(
-  timestep = c(4, 7) * year + peak - 3 * month,
+  timestep = c(1, 2) * year + peak - 3 * month,
   name=c("Spraying starts", "Spraying ends")
 )
 
 sprayingparams <- set_bednets(
   sprayingparams,
-  timesteps = 4:7 * year,
-  coverages = rep(.8, 4),
+  timesteps = c(1, 2) * year,
+  coverages = rep(.8, 2),
   retention = 5 * year
 )
 
-output <- run_simulation_with_repetitions(
-  sim_length,
-  repetitions,
-  sprayingparams,
-  parallel=TRUE
-)
+output <- run_simulation(sim_length, sprayingparams)
 
 add_intervention_lines(plot_prevalence(output), spraying_events)
 ```

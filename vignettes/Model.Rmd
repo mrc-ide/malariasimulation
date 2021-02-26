@@ -20,9 +20,9 @@ library(DiagrammeR)
 
 This is an individual based model for P. Falciparum and malaria interventions.
 
-#Human Biology
+# Human Biology
 
-The human states and variables are documented in "R/individual.R".
+The human variables are documented in "R/variables.R".
 
 The human biological processes are spread out between the following functions:
 
@@ -56,7 +56,7 @@ DiagrammeR::grViz("digraph {
   }")
 ```
 
-#Mosquito Biology
+# Mosquito Biology
 
 The mosquito biological processes are spread out between the following functions:
 

@@ -6,33 +6,26 @@
 \usage{
 set_rtss(
   parameters,
-  start,
-  end,
-  frequency,
+  timesteps,
+  coverages,
   min_ages,
   max_ages,
   boosters,
-  coverage,
   booster_coverage
 )
 }
 \arguments{
 \item{parameters}{a list of parameters to modify}
 
-\item{start}{the timestep to start}
+\item{timesteps}{a vector of timesteps for each round of vaccinations}
 
-\item{end}{the last timestep for the intervention}
-
-\item{frequency}{the number of timsteps between rounds}
+\item{coverages}{the coverage for each round of vaccinations}
 
 \item{min_ages}{for the target population, inclusive (in timesteps)}
 
 \item{max_ages}{for the target population, inclusive (in timesteps)}
 
 \item{boosters}{the timesteps (following the initial vaccination) at which booster vaccinations are administered}
-
-\item{coverage}{the proportion of the target population who will receive the
-vaccine}
 
 \item{booster_coverage}{the proportion of the vaccinated population who will
 receive each booster vaccine}

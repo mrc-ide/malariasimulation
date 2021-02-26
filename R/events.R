@@ -196,11 +196,10 @@ attach_event_listeners <- function(
       variables,
       events$mda_administer,
       parameters$mda_drug,
-      parameters$mda_end,
-      parameters$mda_frequency,
+      parameters$mda_timesteps,
+      parameters$mda_coverages,
       parameters$mda_min_age,
       parameters$mda_max_age,
-      parameters$mda_coverage,
       correlations,
       'mda',
       parameters,
@@ -213,11 +212,10 @@ attach_event_listeners <- function(
       variables,
       events$smc_administer,
       parameters$smc_drug,
-      parameters$smc_end,
-      parameters$smc_frequency,
+      parameters$smc_timesteps,
+      parameters$smc_coverages,
       parameters$smc_min_age,
       parameters$smc_max_age,
-      parameters$smc_coverage,
       correlations,
       'smc',
       parameters,
@@ -228,6 +226,7 @@ attach_event_listeners <- function(
   if (parameters$tbv == 1) {
     events$tbv_vaccination$add_listener(
       function(timestep, target) {
+        time_index = which(parameters$tbv_timesteps == timestep)
         target <- which(trunc(get_age(
           variables$birth$get_values(),
           timestep
@@ -235,7 +234,7 @@ attach_event_listeners <- function(
         to_vaccinate <- which(sample_intervention(
           target,
           'tbv',
-          parameters$tbv_coverage,
+          parameters$tbv_coverages[[time_index]],
           correlations
         ))
         renderer$render('n_vaccinated_tbv', length(to_vaccinate), timestep)
@@ -245,8 +244,10 @@ attach_event_listeners <- function(
             to_vaccinate
           )
         }
-        if (timestep + parameters$tbv_frequency <= parameters$tbv_end) {
-          events$tbv_vaccination$schedule(parameters$tbv_frequency)
+        if (time_index < length(parameters$tbv_timesteps)) {
+          events$tbv_vaccination$schedule(
+            parameters$tbv_timesteps[[time_index + 1]] - timestep
+          )
         }
       }
     )

@@ -2,11 +2,10 @@
 #' @param variables the variables available in the model
 #' @param administer_event the event schedule for drug administration
 #' @param drug the drug to administer
-#' @param end when to stop distributing (timestep)
-#' @param frequency how often doses are distributed (in timesteps)
+#' @param timesteps timesteps for each round
+#' @param coverages the coverage for each round
 #' @param min_age minimum age for the target population
 #' @param max_age maximum age for the target population
-#' @param coverage the proportion of the target population that is covered
 #' @param correlations correlation parameters
 #' @param int_name the name of this intervention (either 'smc' or 'mda')
 #' @param parameters the model parameters
@@ -17,17 +16,18 @@ create_mda_listeners <- function(
   variables,
   administer_event,
   drug,
-  end,
-  frequency,
+  timesteps,
+  coverages,
   min_age,
   max_age,
-  coverage,
   correlations,
   int_name,
   parameters,
   renderer
   ) {
   function(timestep) {
+    time_index = which(timesteps == timestep)
+    coverage <- coverages[[time_index]]
     age <- get_age(variables$birth$get_values(), timestep)
 
     in_age <- which((age > min_age) & (age < max_age))
@@ -69,8 +69,8 @@ create_mda_listeners <- function(
     }
 
     # Schedule next round
-    if (timestep + frequency <= end) {
-      administer_event$schedule(frequency)
+    if (time_index < length(timesteps)) {
+      administer_event$schedule(timesteps[[time_index + 1]] - timestep)
     }
   }
 }

@@ -2,22 +2,19 @@ test_that('RTS,S strategy parameterisation works', {
   parameters <- get_parameters()
   parameters <- set_rtss(
     parameters,
-    start = 10,
-    end = 100,
-    frequency = 365,
+    timesteps = 10,
+    coverages = 0.8,
     min_ages = 5 * 30,
     max_ages = 17 * 30,
     boosters = c(18, 36) * 30,
-    coverage = 0.8,
     booster_coverage = c(.9, .8)
   )
   expect_equal(parameters$rtss, TRUE)
-  expect_equal(parameters$rtss_start, 10)
-  expect_equal(parameters$rtss_end, 100)
+  expect_equal(parameters$rtss_timesteps, 10)
+  expect_equal(parameters$rtss_coverages, .8)
   expect_equal(parameters$rtss_min_ages, 5 * 30)
   expect_equal(parameters$rtss_max_ages, 17 * 30)
   expect_equal(parameters$rtss_boosters, c(18, 36) * 30)
-  expect_equal(parameters$rtss_coverage, .8)
 })
 
 test_that('RTS,S fails pre-emptively', {
@@ -25,42 +22,25 @@ test_that('RTS,S fails pre-emptively', {
   expect_error(
     set_rtss(
       parameters,
-      start = 100,
-      end = 100,
-      frequency = 365,
+      timesteps = 10,
+      coverages = 0.8,
       min_ages = 5 * 30,
       max_ages = 17 * 30,
       boosters = c(18, 36) * 30,
       coverage = 0.8,
-      booster_coverage = c(.9)
+      booster_coverage = .9
     ),
     '*'
   )
   expect_error(
     set_rtss(
       parameters,
-      start = 100,
-      end = 100,
-      frequency = 365,
+      timesteps = 10,
+      coverages = 0.8,
       min_ages = c(0, 5 * 30),
       max_ages = 17 * 30,
       boosters = c(18, 36) * 30,
-      coverage = 0.8,
-      booster_coverage = c(.9)
-    ),
-    '*'
-  )
-  expect_error(
-    set_rtss(
-      parameters,
-      start = 10,
-      end = 100,
-      frequency = 365,
-      min_ages = 5 * 30,
-      max_ages = 17 * 30,
-      boosters = c(18, 36) * 30,
-      coverage = 0.8,
-      booster_coverage = c(.9)
+      booster_coverage = .9
     ),
     '*'
   )
@@ -125,13 +105,11 @@ test_that('RTS,S vaccinations update vaccination time and schedule boosters', {
   parameters <- get_parameters()
   parameters <- set_rtss(
     parameters,
-    start = 50,
-    end = 100 + 365,
-    frequency = 365,
+    timesteps = c(100, 100 + 365),
+    coverages = rep(0.8, 2),
     min_ages = c(1, 2, 3, 18) * 365,
     max_ages = (c(1, 2, 3, 18) + 1) * 365 - 1,
     boosters = c(18, 36) * 30,
-    coverage = 0.8,
     booster_coverage = c(.9, .8)
   )
   events <- create_events(parameters)
@@ -193,13 +171,11 @@ test_that('RTS,S boosters update antibody params and reschedule correctly', {
   parameters <- get_parameters()
   parameters <- set_rtss(
     parameters,
-    start = 50,
-    end = 200,
-    frequency = 365,
+    timesteps = c(50, 50 + 365),
+    coverages = rep(0.8, 2),
     min_ages = c(1, 2, 3, 18) * 365,
     max_ages = (c(1, 2, 3, 18) + 1) * 365 - 1,
     boosters = c(1, 6) * 30,
-    coverage = 0.8,
     booster_coverage = c(1, 1)
   )
   events <- create_events(parameters)
@@ -264,13 +240,11 @@ test_that('RTS,S booster coverages sample subpopulations correctly', {
   parameters <- get_parameters()
   parameters <- set_rtss(
     parameters,
-    start = 50,
-    end = 200,
-    frequency = 365,
+    timesteps = 50,
+    coverages = 0.8,
     min_ages = c(1, 2, 3, 18) * 365,
     max_ages = (c(1, 2, 3, 18) + 1) * 365 - 1,
     boosters = c(1, 6) * 30,
-    coverage = 0.8,
     booster_coverage = c(.9, .8)
   )
 

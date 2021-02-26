@@ -190,18 +190,8 @@
 #' I recommend setting strategies with the convenience functions in
 #' `vaccine_parameters.R:set_rtss`
 #'
-#' MDA parameters:
-#' I recommend setting these with convenience functions in `mda_parameters.R`
-#'
-#' * mda - whether to apply an MDA or not
-#' * mda_drug - the index of the drug to use
-#' * mda_start - the first timestep for the drug to be distributed
-#' * mda_end - the last timestep for the drug to be distributed
-#' * mda_frequency - how often to distribute drugs
-#' * mda_min_age - the min age of the target population
-#' * mda_max_age - the max age of the target population
-#' * mda_coverage - the proportion of the target population that will be covered
-#' * smc* - as for mda*
+#' MDA and SMC parameters:
+#' We recommend setting these with convenience functions in `mda_parameters.R`
 #'
 #' TBV parameters:
 #'
@@ -378,28 +368,22 @@ get_parameters <- function(overrides = list()) {
     rtss_rho_boost = c(1.03431, 1.02735),
     rtss_ds = c(3.74502, 0.341185),
     rtss_dl = c(6.30365, 0.396515),
-    rtss_start = c(),
-    rtss_end = c(),
-    rtss_frequency = -1,
-    rtss_ages = c(),
-    rtss_coverage = 0,
+    rtss_timeteps = NULL,
+    rtss_coverages = NULL,
+    rtss_ages = NULL,
     # MDA
     mda = FALSE,
     mda_drug = 0,
-    mda_start = -1,
-    mda_end = -1,
-    mda_frequency = -1,
+    mda_timesteps = NULL,
+    mda_coverages = NULL,
     mda_min_age = -1,
     mda_max_age = -1,
-    mda_coverage = 0,
     smc = FALSE,
     smc_drug = 0,
-    smc_start = -1,
-    smc_end = -1,
-    smc_frequency = -1,
+    smc_timesteps = NULL,
+    smc_coverages = NULL,
     smc_min_age = -1,
     smc_max_age = -1,
-    smc_coverage = 0,
     # tbv
     tbv = FALSE,
     tbv_mt = 35,
@@ -414,11 +398,10 @@ get_parameters <- function(overrides = list()) {
     tbv_tra_mu = 12.63,
     tbv_gamma1 = 2.5,
     tbv_gamma2 = .06,
-    tbv_start = c(),
-    tbv_end = c(),
+    tbv_timeteps = NULL,
+    tbv_coverages = NULL,
     tbv_frequency = -1,
-    tbv_ages = c(),
-    tbv_coverage = 0,
+    tbv_ages = NULL,
     # rendering
     prevalence_rendering_min_ages = 2 * 365,
     prevalence_rendering_max_ages = 10 * 365,

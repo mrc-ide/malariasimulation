@@ -210,19 +210,8 @@ RTS,S paramters:
 I recommend setting strategies with the convenience functions in
 \code{vaccine_parameters.R:set_rtss}
 
-MDA parameters:
-I recommend setting these with convenience functions in \code{mda_parameters.R}
-\itemize{
-\item mda - whether to apply an MDA or not
-\item mda_drug - the index of the drug to use
-\item mda_start - the first timestep for the drug to be distributed
-\item mda_end - the last timestep for the drug to be distributed
-\item mda_frequency - how often to distribute drugs
-\item mda_min_age - the min age of the target population
-\item mda_max_age - the max age of the target population
-\item mda_coverage - the proportion of the target population that will be covered
-\item smc* - as for mda*
-}
+MDA and SMC parameters:
+We recommend setting these with convenience functions in \code{mda_parameters.R}
 
 TBV parameters:
 \itemize{

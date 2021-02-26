@@ -1,11 +1,11 @@
 
 #' @title return the probability of being bitten given vector controls
-#' @param individuals a list of available individuals
+#' @param timestep current timestep
 #' @param variables a list of available variables
 #' @param species the species to calculate for
-#' @param api the simulation api
 #' @param parameters model parameters
-prob_bitten <- function(individuals, variables, species, api, parameters) {
+#' @noRd
+prob_bitten <- function(timestep, variables, species, parameters) {
   if (!(parameters$bednets || parameters$spraying)) {
     n <- parameters$human_population
     return(
@@ -17,16 +17,13 @@ prob_bitten <- function(individuals, variables, species, api, parameters) {
     )
   }
 
-  timestep <- api$get_timestep()
-
   if (parameters$bednets) {
     phi_bednets <- parameters$phi_bednets[[species]]
-    net_time <- api$get_variable(individuals$human, variables$net_time)
+    net_time <- variables$net_time$get_values()
     since_net <- timestep - net_time
     rn <- prob_repelled_bednets(since_net, species, parameters)
     sn <- prob_survives_bednets(rn, since_net, species, parameters)
     unused <- net_time == -1
-    api$render('net_usage', sum(!unused) / length(unused))
     sn[unused] <- 1
     rn[unused] <- 0
   } else {
@@ -37,7 +34,7 @@ prob_bitten <- function(individuals, variables, species, api, parameters) {
 
   if (parameters$spraying) {
     phi_indoors <- parameters$phi_indoors[[species]]
-    spray_time <- api$get_variable(individuals$human, variables$spray_time)
+    spray_time <- variables$spray_time$get_values()
     since_spray <- timestep - spray_time
     unused <- spray_time == -1
     rs <- prob_spraying_repels(
@@ -84,13 +81,12 @@ prob_bitten <- function(individuals, variables, species, api, parameters) {
 #' from `set_spraying` and correlation parameters from
 #' `get_correlation_parameters`
 #'
-#' @param human the handle for the human individual
 #' @param spray_time the variable for the time of spraying
 #' @param parameters the model parameters
 #' @param correlations correlation parameters
-indoor_spraying <- function(human, spray_time, parameters, correlations) {
-  function(api) {
-    timestep <- api$get_timestep()
+#' @noRd
+indoor_spraying <- function(spray_time, parameters, correlations) {
+  function(timestep) {
     matches <- timestep == parameters$spraying_timesteps
     if (any(matches)) {
       target <- which(sample_intervention(
@@ -99,7 +95,7 @@ indoor_spraying <- function(human, spray_time, parameters, correlations) {
         parameters$spraying_coverages[matches],
         correlations
       ))
-      api$queue_variable_update(human, spray_time, timestep, target)
+      spray_time$queue_update(timestep, target)
     }
   }
 }
@@ -109,14 +105,13 @@ indoor_spraying <- function(human, spray_time, parameters, correlations) {
 #' from `set_bednets` and correlation parameters from
 #' `get_correlation_parameters`
 #'
-#' @param human the handle for the human individual
 #' @param variables list of variables in the model
 #' @param throw_away_net an event to trigger when the net will be removed
 #' @param parameters the model parameters
 #' @param correlations correlation parameters
-distribute_nets <- function(human, variables, throw_away_net, parameters, correlations) {
-  function(api) {
-    timestep <- api$get_timestep()
+#' @noRd
+distribute_nets <- function(variables, throw_away_net, parameters, correlations) {
+  function(timestep) {
     matches <- timestep == parameters$bednet_timesteps
     if (any(matches)) {
       target <- which(sample_intervention(
@@ -125,15 +120,15 @@ distribute_nets <- function(human, variables, throw_away_net, parameters, correl
         parameters$bednet_coverages[matches],
         correlations
       ))
-      api$queue_variable_update(human, variables$net_time, timestep, target)
-      api$schedule(throw_away_net, target, log_uniform(length(target)))
+      variables$net_time$queue_update(timestep, target)
+      throw_away_net$schedule(target, log_uniform(length(target), parameters$bednet_retention))
     }
   }
 }
 
-throw_away_nets <- function(human, variables) {
-  function(api, target) {
-    api$queue_variable_update(human, variables$net_time, -1, target)
+throw_away_nets <- function(variables) {
+  function(timestep, target) {
+    variables$net_time$queue_update(-1, target)
   }
 }
 

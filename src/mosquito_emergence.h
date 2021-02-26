@@ -11,11 +11,10 @@
 #include <individual.h>
 
 Rcpp::XPtr<process_t> create_mosquito_emergence_process_cpp(
-    std::string,
     Rcpp::List,
-    std::string,
-    std::string,
-    std::string,
+    Rcpp::XPtr<CategoricalVariable>,
+    Rcpp::XPtr<CategoricalVariable>,
+    std::vector<std::string>,
     double
 );
 

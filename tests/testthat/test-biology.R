@@ -7,13 +7,14 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR', {
     jamie_parameters,
     0:99
   )
-  foim <- sum(h_eq[,'inf']*h_eq[,'psi'])
+  foim <- sum(h_eq[,'inf'] * h_eq[,'psi'])
   population <- 100000
   parameters <- get_parameters(c(
     translate_jamie(remove_unused_jamie(jamie_parameters)),
     list(
       init_foim = foim,
-      variety_proportions = 1,
+      species = 'all',
+      species_proportions = 1,
       human_population = population
     )
   ))
@@ -21,30 +22,23 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR', {
   m_eq <- initial_mosquito_counts(parameters, foim)
 
   #set up arguments for EIR calculation
-  events <- create_events()
-  states <- create_states(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
-  age <- get_age(variables$birth$initial_values, 0)
+  age <- get_age(variables$birth$get_values(), 0)
   zeta <- rep(1, length(age))
-  api <- mock_api(
-    list(human = list(
-      zeta = zeta
-    ),
-    parameters = parameters
-  ))
-  p_bitten <- prob_bitten(individuals, variables, 1, api, parameters)
+  variables$zeta <- individual::DoubleVariable$new(zeta)
+  p_bitten <- prob_bitten(0, variables, 1, parameters)
   psi <- unique_biting_rate(age, parameters)
   .pi <- human_pi(zeta, psi)
   Z <- average_p_repelled(p_bitten$prob_repelled, .pi, parameters$Q0)
+  W <- average_p_successful(p_bitten$prob_bitten_survives, .pi, parameters$Q0)
   f <- blood_meal_rate(1, Z, parameters)
   estimated_eir <- m_eq[[6]] * effective_biting_rate(
-    api,
     .pi,
     age,
     1,
     p_bitten,
     f,
+    W,
     parameters
   )
   expect_equal(
@@ -73,7 +67,8 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR (with h
     translate_jamie(remove_unused_jamie(jamie_parameters)),
     list(
       init_foim = foim,
-      variety_proportions = 1,
+      species = 'all',
+      species_proportions = 1,
       human_population = population
     )
   ))
@@ -81,30 +76,22 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR (with h
   m_eq <- initial_mosquito_counts(parameters, foim)
 
   #set up arguments for EIR calculation
-  events <- create_events()
-  states <- create_states(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
-  age <- get_age(variables$birth$initial_values, 0)
-  zeta <- variables$zeta$initial_values
-  api <- mock_api(
-    list(human = list(
-      zeta = zeta
-    ),
-    parameters = parameters
-  ))
-  p_bitten <- prob_bitten(individuals, variables, 1, api, parameters)
+  age <- get_age(variables$birth$get_values(), 0)
+  zeta <- variables$zeta$get_values()
+  p_bitten <- prob_bitten(0, variables, 1, parameters)
   psi <- unique_biting_rate(age, parameters)
   .pi <- human_pi(zeta, psi)
   Z <- average_p_repelled(p_bitten$prob_repelled, .pi, parameters$Q0)
+  W <- average_p_successful(p_bitten$prob_bitten_survives, .pi, parameters$Q0)
   f <- blood_meal_rate(1, Z, parameters)
   estimated_eir <- m_eq[[6]] * effective_biting_rate(
-    api,
     .pi,
     age,
     1,
     p_bitten,
     f,
+    W,
     parameters
   )
 
@@ -152,66 +139,52 @@ test_that('mosquito_limit is set to a sensible level', {
 
 test_that('mosquito_effects correctly samples mortalities and infections without interventions', {
   parameters <- get_parameters()
-  events <- create_events()
-  states <- create_states(parameters)
+  events <- create_events(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
   infectivity <- c(.6, 0, .2, .3)
   lambda <- c(.1, .2, .3, .4)
-
-  api <- mock_api(
-    list(),
-    parameters = parameters
-  )
-
   f <- parameters$blood_meal_rates[[1]]
-  infected <- c(1:25)
-  dead <- c(1:15, 51:60, 76:85)
+  infected <- individual::Bitset$new(100)$insert(1:25)
+  dead <- individual::Bitset$new(100)$insert(c(1:15, 51:60, 76:85))
   bernoulli_mock = mockery::mock(infected, dead)
-  mockery::stub(calculate_mosquito_effects, 'bernoulli', bernoulli_mock)
+  mockery::stub(calculate_mosquito_effects, 'sample_bitset', bernoulli_mock)
+  events$mosquito_infection <- mock_event(events$mosquito_infection)
+  variables$mosquito_state <- mock_category(
+    c('Sm', 'Pm', 'Im', 'Unborn'),
+    rep('Sm', 100)
+  )
   calculate_mosquito_effects(
-    api,
+    variables,
     infectivity,
     lambda,
-    individuals,
-    states,
-    events,
+    events$mosquito_infection,
     1,
-    1:50,
-    1:100,
+    individual::Bitset$new(100)$insert(1:50),
+    individual::Bitset$new(100)$insert(1:100),
     1,
     0,
     f,
-    parameters
+    parameters,
+    individual::Render$new(1),
+    timestep = 1
   )
 
   mockery::expect_args(
-    bernoulli_mock,
+    variables$mosquito_state$queue_update,
     1,
-    50,
-    sum(infectivity * lambda)
-  )
-
-  mockery::expect_args(
-    api$queue_state_update,
-    1,
-    individuals$mosquito,
-    states$Pm,
+    'Pm',
     infected
   )
 
-  mockery::expect_args(
-    bernoulli_mock,
-    2,
-    100,
+  expect_equal(
+    mockery::mock_args(bernoulli_mock)[[2]][[2]],
     parameters$mum
   )
 
   mockery::expect_args(
-    api$queue_state_update,
+    variables$mosquito_state$queue_update,
     2,
-    individuals$mosquito,
-    states$Unborn,
+    'Unborn',
     dead
   )
 })

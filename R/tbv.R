@@ -2,27 +2,23 @@
 #' @description Returns a vector of human infectivity towards mosquitoes
 #' accounting for the reduction in transmission due to vaccination
 #'
-#' @param api the simulation API
+#' @param timestep current timestep
 #' @param infectivity a vector of raw infectivities
-#' @param human a handle for humans
-#' @param states the available states
 #' @param variables the available variables
 #' @param parameters model parameters
+#' @noRd
 account_for_tbv <- function(
-  api,
+  timestep,
   infectivity,
-  human,
-  states,
   variables,
   parameters
 ) {
-  timestep <- api$get_timestep()
-  time_vaccinated <- api$get_variable(human, variables$tbv_vaccinated)
+  time_vaccinated <- variables$tbv_vaccinated$get_values()
   vaccinated <- which(time_vaccinated != -1)
-  affected_states <- c(states$U, states$A, states$D, states$Tr)
+  affected_states <- c('U', 'A', 'D', 'Tr')
   mx <- parameters[c('tbv_mu', 'tbv_ma', 'tbv_md', 'tbv_mt')]
   for (i in seq_along(affected_states)) {
-    in_state <- api$get_state(human, affected_states[[i]])
+    in_state <- variables$state$get_index_of(affected_states[[i]])$to_vector()
     vaccinated_in_state <- intersect(vaccinated, in_state)
     antibodies <- calculate_tbv_antibodies(
       timestep - time_vaccinated[vaccinated_in_state],

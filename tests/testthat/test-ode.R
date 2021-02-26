@@ -1,6 +1,7 @@
 test_that('ODE stays at equilibrium with a constant total_M', {
-  parameters <- get_parameters()
-  parameters$variety_proportions <- 1
+  parameters <- get_parameters(list(
+    species_proportions = 1
+  ))
   total_M <- 1000
   model <- parameterise_ode(parameters)[[1]]
   timesteps <- 365 * 10
@@ -25,7 +26,8 @@ test_that('ODE stays at equilibrium with low total_M', {
   total_M <- 10
   parameters <- get_parameters(list(
     total_M = total_M,
-    variety_proportions = 1
+    species = 'all',
+    species_proportions = 1
   ))
   model <- parameterise_ode(parameters)[[1]]
   timesteps <- 365 * 10
@@ -52,7 +54,8 @@ test_that('Changing total_M stabilises', {
   total_M_1 <- 400
   parameters <- get_parameters(list(
     total_M = total_M_0,
-    variety_proportions = 1
+    species = 'all',
+    species_proportions = 1
   ))
   model <- parameterise_ode(parameters)[[1]]
   timesteps <- 365 * 10

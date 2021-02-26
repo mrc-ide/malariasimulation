@@ -3,7 +3,7 @@ library(malariaEquilibrium)
 library(profvis)
 
 year <- 365
-sim_length <- 5 * year
+sim_length <- 1 * year
 human_population <- 1e3
 eir <- 1e3
 ft <- .5
@@ -14,7 +14,8 @@ simparams <- get_parameters(c(
   translate_jamie(remove_unused_jamie(jamie_params)),
   list(
     human_population = human_population,
-    variety_proportions = 1
+    species = 'All',
+    species_proportions = 1
   )
 ))
 

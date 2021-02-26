@@ -1,25 +1,254 @@
-create_events <- function() {
+create_events <- function(parameters) {
   list(
     # Human infection events
-    clinical_infection = individual::Event$new('clinical_infection'),
-    asymptomatic_infection = individual::Event$new('asymptomatic_infection'),
-    infection = individual::Event$new('infection'), # either clinical or asym infection
-    subpatent_infection = individual::Event$new('subpatent_infection'),
-    recovery = individual::Event$new('recovery'),
+    clinical_infection = individual::TargetedEvent$new(parameters$human_population),
+    asymptomatic_infection = individual::TargetedEvent$new(parameters$human_population),
+    # either clinical or asym infection
+    infection = individual::TargetedEvent$new(parameters$human_population), 
+    subpatent_infection = individual::TargetedEvent$new(parameters$human_population),
+    recovery = individual::TargetedEvent$new(parameters$human_population),
 
     # Vaccination events
-    rtss_vaccination = individual::Event$new('rtss_vaccination'),
-    rtss_booster = individual::Event$new('rtss_booster'),
-    tbv_vaccination = individual::Event$new('tbv_vaccination'),
+    rtss_vaccination = individual::Event$new(),
+    rtss_booster = individual::TargetedEvent$new(parameters$human_population),
+    tbv_vaccination = individual::Event$new(),
 
     # MDA events
-    mda_administer = individual::Event$new('mda_administer'),
-    smc_administer = individual::Event$new('smc_administer'),
+    mda_administer = individual::Event$new(),
+    smc_administer = individual::Event$new(),
 
     # Bednet events
-    throw_away_net = individual::Event$new('throw_away_net'),
+    throw_away_net = individual::TargetedEvent$new(parameters$human_population),
 
     # Mosquito events
-    mosquito_infection = individual::Event$new('mosquito_infection')
+    mosquito_infection = individual::TargetedEvent$new(parameters$mosquito_limit)
   )
+}
+
+initialise_events <- function(events, variables, parameters) {
+  initialise_progression(
+    events$asymptomatic_infection,
+    variables$state,
+    'D',
+    parameters$de
+  )
+  initialise_progression(
+    events$subpatent_infection,
+    variables$state,
+    'A',
+    parameters$da
+  )
+  initialise_progression(
+    events$recovery,
+    variables$state,
+    'U',
+    parameters$du
+  )
+
+  initialise_progression(
+    events$recovery,
+    variables$state,
+    'Tr',
+    parameters$dt
+  )
+
+  events$mosquito_infection$schedule(
+    variables$mosquito_state$get_index_of('Pm'),
+    parameters$dem
+  )
+
+  # Initialise interventions
+  if (parameters$rtss) {
+    events$rtss_vaccination$schedule(parameters$rtss_start)
+  }
+  if (parameters$mda) {
+    events$mda_administer$schedule(parameters$mda_start)
+  }
+  if (parameters$smc) {
+    events$smc_administer$schedule(parameters$smc_start)
+  }
+  if (parameters$tbv) {
+    events$tbv_vaccination$schedule(parameters$tbv_start)
+  }
+}
+
+#' @title Define event based processes
+#' @description defines processes for events that can be scheduled in the future
+#' @param variables list of variables in the model
+#' @param events a list of events in the model
+#' @param parameters the model parameters
+#' @param correlations correlation parameters
+#' @param renderer the model rendering object
+#' @noRd
+attach_event_listeners <- function(
+  events,
+  variables,
+  parameters,
+  correlations,
+  renderer
+  ) {
+
+  # =============
+  # State updates
+  # =============
+  # When infection events fire, update the corresponding states and infectivity
+  # variables
+
+  # Infection events
+  events$clinical_infection$add_listener(
+    create_infection_update_listener(
+      variables$state,
+      'D',
+      variables$infectivity,
+      parameters$cd
+    )
+  )
+
+  events$asymptomatic_infection$add_listener(
+    create_asymptomatic_update_listener(
+      variables,
+      parameters
+    )
+  )
+
+  # Recovery events
+  events$subpatent_infection$add_listener(
+    create_infection_update_listener(
+      variables$state,
+      'U',
+      variables$infectivity,
+      parameters$cu
+    )
+  )
+  events$recovery$add_listener(
+    create_infection_update_listener(
+      variables$state,
+      'S',
+      variables$infectivity,
+      0
+    )
+  )
+
+  # ===========
+  # Progression
+  # ===========
+  # When infection events fire, schedule the next stages of infection
+
+  events$clinical_infection$add_listener(
+    create_progression_listener(
+      events$asymptomatic_infection,
+      parameters$dd
+    )
+  )
+  events$asymptomatic_infection$add_listener(
+    create_progression_listener(
+      events$subpatent_infection,
+      parameters$da
+    )
+  )
+  events$subpatent_infection$add_listener(
+    create_progression_listener(
+      events$recovery,
+      parameters$du
+    )
+  )
+
+  events$infection$add_listener(
+    create_incidence_renderer(
+      variables$birth,
+      variables$is_severe,
+      parameters,
+      renderer
+    )
+  )
+
+  events$mosquito_infection$add_listener(
+    individual::update_category_listener(variables$mosquito_state, 'Im')
+  )
+
+  if (parameters$bednets == 1) {
+    events$throw_away_net$add_listener(
+      throw_away_nets(variables)
+    )
+  }
+
+  if (parameters$rtss == 1) {
+    events$rtss_vaccination$add_listener(
+      create_rtss_vaccination_listener(
+        variables,
+        events,
+        parameters,
+        correlations,
+        renderer
+      )
+    )
+    events$rtss_booster$add_listener(
+      create_rtss_booster_listener(
+        variables,
+        events,
+        parameters
+      )
+    )
+  }
+
+  if (parameters$mda == 1) {
+    events$mda_administer$add_listener(create_mda_listeners(
+      variables,
+      events$mda_administer,
+      parameters$mda_drug,
+      parameters$mda_end,
+      parameters$mda_frequency,
+      parameters$mda_min_age,
+      parameters$mda_max_age,
+      parameters$mda_coverage,
+      correlations,
+      'mda',
+      parameters,
+      renderer
+    ))
+  }
+
+  if (parameters$smc == 1) {
+    events$smc_administer$add_listener(create_mda_listeners(
+      variables,
+      events$smc_administer,
+      parameters$smc_drug,
+      parameters$smc_end,
+      parameters$smc_frequency,
+      parameters$smc_min_age,
+      parameters$smc_max_age,
+      parameters$smc_coverage,
+      correlations,
+      'smc',
+      parameters,
+      renderer
+    ))
+  }
+
+  if (parameters$tbv == 1) {
+    events$tbv_vaccination$add_listener(
+      function(timestep, target) {
+        target <- which(trunc(get_age(
+          variables$birth$get_values(),
+          timestep
+        ) / 365) %in% parameters$tbv_ages)
+        to_vaccinate <- which(sample_intervention(
+          target,
+          'tbv',
+          parameters$tbv_coverage,
+          correlations
+        ))
+        renderer$render('n_vaccinated_tbv', length(to_vaccinate), timestep)
+        if (length(to_vaccinate) > 0) {
+          variables$tbv_vaccinated$queue_update(
+            timestep,
+            to_vaccinate
+          )
+        }
+        if (timestep + parameters$tbv_frequency <= parameters$tbv_end) {
+          events$tbv_vaccination$schedule(parameters$tbv_frequency)
+        }
+      }
+    )
+  }
 }

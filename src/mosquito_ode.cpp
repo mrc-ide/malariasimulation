@@ -144,33 +144,23 @@ std::vector<double> mosquito_model_get_states(Rcpp::XPtr<MosquitoModel> model) {
 //' and makes a step
 //'
 //' @param odes the models to step, one for each species
-//' @param mosquito the mosquito individual handle
-//' @param states a list of all of adult mosquito states (Sm, Pm, Im)
-//' @param variety the handle for the mosquito variety variable
+//' @param state the mosquito state variable
+//' @param species the mosquito species variable
+//' @param species_names the names of the mosquito species
 //[[Rcpp::export]]
 Rcpp::XPtr<process_t> create_ode_stepping_process_cpp(
     Rcpp::List odes,
-    const std::string mosquito,
-    const std::vector<std::string> states,
-    const std::string variety
+    const Rcpp::XPtr<CategoricalVariable> state,
+    const Rcpp::XPtr<CategoricalVariable> species,
+    const std::vector<std::string> species_names
     ) {
     return Rcpp::XPtr<process_t>(
-        new process_t([=] (ProcessAPI& api) {
-            const auto& v = api.get_variable(mosquito, variety);
-            const auto& Sm = api.get_state(mosquito, states[get_idx(ODEState::E)]);
-            const auto& Pm = api.get_state(mosquito, states[get_idx(ODEState::L)]);
-            const auto& Im = api.get_state(mosquito, states[get_idx(ODEState::P)]);
-            auto total_M = std::vector<size_t>(odes.size(), 0);
-            for (auto i = 0ull; i < v.size(); ++i) {
-                if (Sm.find(i) != Sm.cend() || Pm.find(i) != Pm.cend() || Im.find(i) != Im.cend()) {
-                    ++total_M[v[i] - 1];
-                }
-            }
+        new process_t([=] (size_t timestep) {
+            const auto& adult = ~state->get_index_of({"Unborn"});
             for (auto i = 0u; i < odes.size(); ++i) {
-                std::stringstream label;
-                label << "total_M_" << i + 1;
-                api.render(label.str(), total_M[i]);
-                Rcpp::as<Rcpp::XPtr<MosquitoModel>>(odes[i])->step(total_M[i]);
+                const auto& current_species = species->get_index_of({species_names[i]});
+                auto total_M = (adult & current_species).size();
+                Rcpp::as<Rcpp::XPtr<MosquitoModel>>(odes[i])->step(total_M);
             }
         }),
         true

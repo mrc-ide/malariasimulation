@@ -1,4 +1,3 @@
-
 expect_any <- function(X, FUN) {
   for (x in X) {
     if (FUN(x) == TRUE) {
@@ -19,36 +18,45 @@ expect_none <- function(X, FUN) {
   expect(TRUE, 'No match found')
 }
 
-mock_api <- function(values, parameters = list(), timestep = 1) {
+mock_category <- function(...) {
+  v <- individual::CategoricalVariable$new(...)
   list(
-    get_state = function(individual, ...) {
-      subset <- c()
-      for (state in list(...)) {
-        subset <- c(subset, values[[individual$name]][[state$name]])
-      }
-      subset
-    },
-    get_variable = function(individual, variable, index=NULL) {
-      if (!is.null(index)) {
-        return(values[[individual$name]][[variable$name]][index])
-      }
-      values[[individual$name]][[variable$name]]
-    },
-    queue_state_update = mockery::mock(),
-    queue_variable_update = mockery::mock(),
-    schedule = mockery::mock(),
-    clear_schedule = mockery::mock(),
-    get_scheduled = mockery::mock(),
-    get_timestep = function() timestep,
-    get_parameters = function() parameters,
+    get_index_of = v$get_index_of,
+    queue_update = mockery::mock()
+  )
+}
+
+mock_double <- function(...) {
+  v <- individual::DoubleVariable$new(...)
+  list(
+    get_values = v$get_values,
+    queue_update = mockery::mock()
+  )
+}
+
+mock_render <- function(...) {
+  v <- individual::Render$new(...)
+  list(
     render = mockery::mock()
   )
 }
 
-expect_variable_update <- function(args, name, value, index) {
-  expect_equal(args[[2]]$name, name)
-  expect_equal(args[[3]], value)
-  expect_equal(args[[4]], index)
+mock_event <- function(event) {
+  list(
+    get_scheduled = function(...) event$get_scheduled(...),
+    schedule = mockery::mock(),
+    clear_schedule = mockery::mock()
+  )
+}
+
+expect_bitset_update <- function(mock, value, index, call = 1) {
+  expect_equal(mockery::mock_args(mock)[[call]][[1]], value)
+  expect_equal(mockery::mock_args(mock)[[call]][[2]]$to_vector(), index)
+}
+
+expect_bitset_schedule <- function(mock, target, delay, call = 1) {
+  expect_equal(mockery::mock_args(mock)[[call]][[1]]$to_vector(), target)
+  expect_equal(mockery::mock_args(mock)[[call]][[2]], delay)
 }
 
 # Determine if range of vector is FP 0.

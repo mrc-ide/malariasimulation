@@ -6,16 +6,6 @@
 
 using namespace Rcpp;
 
-// create_mortality_process_cpp
-Rcpp::XPtr<process_t> create_mortality_process_cpp();
-RcppExport SEXP _malariasimulation_create_mortality_process_cpp() {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(create_mortality_process_cpp());
-    return rcpp_result_gen;
-END_RCPP
-}
 // carrying_capacity
 double carrying_capacity(const size_t timestep, const bool model_seasonality, const double days_per_timestep, const double g0, const std::vector<double>& g, const std::vector<double>& h, const double K0, const double R_bar);
 RcppExport SEXP _malariasimulation_carrying_capacity(SEXP timestepSEXP, SEXP model_seasonalitySEXP, SEXP days_per_timestepSEXP, SEXP g0SEXP, SEXP gSEXP, SEXP hSEXP, SEXP K0SEXP, SEXP R_barSEXP) {
@@ -50,18 +40,17 @@ BEGIN_RCPP
 END_RCPP
 }
 // create_mosquito_emergence_process_cpp
-Rcpp::XPtr<process_t> create_mosquito_emergence_process_cpp(std::string mosquito, Rcpp::List odes, std::string unborn, std::string susceptible, std::string variety, double dpl);
-RcppExport SEXP _malariasimulation_create_mosquito_emergence_process_cpp(SEXP mosquitoSEXP, SEXP odesSEXP, SEXP unbornSEXP, SEXP susceptibleSEXP, SEXP varietySEXP, SEXP dplSEXP) {
+Rcpp::XPtr<process_t> create_mosquito_emergence_process_cpp(Rcpp::List odes, Rcpp::XPtr<CategoricalVariable> state, Rcpp::XPtr<CategoricalVariable> species, std::vector<std::string> species_names, double dpl);
+RcppExport SEXP _malariasimulation_create_mosquito_emergence_process_cpp(SEXP odesSEXP, SEXP stateSEXP, SEXP speciesSEXP, SEXP species_namesSEXP, SEXP dplSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::string >::type mosquito(mosquitoSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type odes(odesSEXP);
-    Rcpp::traits::input_parameter< std::string >::type unborn(unbornSEXP);
-    Rcpp::traits::input_parameter< std::string >::type susceptible(susceptibleSEXP);
-    Rcpp::traits::input_parameter< std::string >::type variety(varietySEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<CategoricalVariable> >::type state(stateSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<CategoricalVariable> >::type species(speciesSEXP);
+    Rcpp::traits::input_parameter< std::vector<std::string> >::type species_names(species_namesSEXP);
     Rcpp::traits::input_parameter< double >::type dpl(dplSEXP);
-    rcpp_result_gen = Rcpp::wrap(create_mosquito_emergence_process_cpp(mosquito, odes, unborn, susceptible, variety, dpl));
+    rcpp_result_gen = Rcpp::wrap(create_mosquito_emergence_process_cpp(odes, state, species, species_names, dpl));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -104,16 +93,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // create_ode_stepping_process_cpp
-Rcpp::XPtr<process_t> create_ode_stepping_process_cpp(Rcpp::List odes, const std::string mosquito, const std::vector<std::string> states, const std::string variety);
-RcppExport SEXP _malariasimulation_create_ode_stepping_process_cpp(SEXP odesSEXP, SEXP mosquitoSEXP, SEXP statesSEXP, SEXP varietySEXP) {
+Rcpp::XPtr<process_t> create_ode_stepping_process_cpp(Rcpp::List odes, const Rcpp::XPtr<CategoricalVariable> state, const Rcpp::XPtr<CategoricalVariable> species, const std::vector<std::string> species_names);
+RcppExport SEXP _malariasimulation_create_ode_stepping_process_cpp(SEXP odesSEXP, SEXP stateSEXP, SEXP speciesSEXP, SEXP species_namesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List >::type odes(odesSEXP);
-    Rcpp::traits::input_parameter< const std::string >::type mosquito(mosquitoSEXP);
-    Rcpp::traits::input_parameter< const std::vector<std::string> >::type states(statesSEXP);
-    Rcpp::traits::input_parameter< const std::string >::type variety(varietySEXP);
-    rcpp_result_gen = Rcpp::wrap(create_ode_stepping_process_cpp(odes, mosquito, states, variety));
+    Rcpp::traits::input_parameter< const Rcpp::XPtr<CategoricalVariable> >::type state(stateSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::XPtr<CategoricalVariable> >::type species(speciesSEXP);
+    Rcpp::traits::input_parameter< const std::vector<std::string> >::type species_names(species_namesSEXP);
+    rcpp_result_gen = Rcpp::wrap(create_ode_stepping_process_cpp(odes, state, species, species_names));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -128,18 +117,29 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// bernoulli_multi_p_cpp
+Rcpp::XPtr<individual_index_t> bernoulli_multi_p_cpp(const std::vector<double> p);
+RcppExport SEXP _malariasimulation_bernoulli_multi_p_cpp(SEXP pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::vector<double> >::type p(pSEXP);
+    rcpp_result_gen = Rcpp::wrap(bernoulli_multi_p_cpp(p));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 RcppExport SEXP run_testthat_tests();
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_malariasimulation_create_mortality_process_cpp", (DL_FUNC) &_malariasimulation_create_mortality_process_cpp, 0},
     {"_malariasimulation_carrying_capacity", (DL_FUNC) &_malariasimulation_carrying_capacity, 8},
     {"_malariasimulation_rainfall", (DL_FUNC) &_malariasimulation_rainfall, 5},
-    {"_malariasimulation_create_mosquito_emergence_process_cpp", (DL_FUNC) &_malariasimulation_create_mosquito_emergence_process_cpp, 6},
+    {"_malariasimulation_create_mosquito_emergence_process_cpp", (DL_FUNC) &_malariasimulation_create_mosquito_emergence_process_cpp, 5},
     {"_malariasimulation_create_mosquito_model", (DL_FUNC) &_malariasimulation_create_mosquito_model, 17},
     {"_malariasimulation_mosquito_model_get_states", (DL_FUNC) &_malariasimulation_mosquito_model_get_states, 1},
     {"_malariasimulation_create_ode_stepping_process_cpp", (DL_FUNC) &_malariasimulation_create_ode_stepping_process_cpp, 4},
     {"_malariasimulation_mosquito_model_step", (DL_FUNC) &_malariasimulation_mosquito_model_step, 2},
+    {"_malariasimulation_bernoulli_multi_p_cpp", (DL_FUNC) &_malariasimulation_bernoulli_multi_p_cpp, 1},
     {"run_testthat_tests", (DL_FUNC) &run_testthat_tests, 0},
     {NULL, NULL, 0}
 };

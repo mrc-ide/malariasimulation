@@ -1,4 +1,4 @@
 test_that('Simulation runs for a few timesteps', {
-  sim <- run_simulation(2)
-  expect_equal(nrow(sim), 2)
+  sim <- run_simulation(100)
+  expect_equal(nrow(sim), 100)
 })

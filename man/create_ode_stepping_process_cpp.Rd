@@ -4,16 +4,16 @@
 \alias{create_ode_stepping_process_cpp}
 \title{Step mosquito ODE}
 \usage{
-create_ode_stepping_process_cpp(odes, mosquito, states, variety)
+create_ode_stepping_process_cpp(odes, state, species, species_names)
 }
 \arguments{
 \item{odes}{the models to step, one for each species}
 
-\item{mosquito}{the mosquito individual handle}
+\item{state}{the mosquito state variable}
 
-\item{states}{a list of all of adult mosquito states (Sm, Pm, Im)}
+\item{species}{the mosquito species variable}
 
-\item{variety}{the handle for the mosquito variety variable}
+\item{species_names}{the names of the mosquito species}
 }
 \description{
 collects summarises the human state, sends it to the vector ode

@@ -4,7 +4,7 @@ test_that('Seasonality correctly affects P', {
     g0 = 0.285505,
     g = c(-0.325352, -0.0109352, 0.0779865),
     h = c(-0.132815, 0.104675, -0.013919),
-    variety_proportions = 1
+    species_proportions = 1
   ))
   total_M <- 1000
   model <- parameterise_ode(parameters)[[1]]

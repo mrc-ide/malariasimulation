@@ -67,55 +67,61 @@ test_that('RTS,S fails pre-emptively', {
 })
 
 test_that('Infection considers vaccine efficacy', {
+  timestep <- 100
   parameters <- get_parameters()
-  events <- create_events()
-  states <- create_states(parameters)
+  events <- create_events(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
 
-  api <- mock_api(
-    list(
-      human = list(
-        S = seq(4),
-        birth = -c(8, 2.9, 3.2, 18.4) * 365 - 100,
-        rtss_vaccinated = c(-1, -1, 50, 50),
-        rtss_boosted = c(-1, -1, -1, 50 + 30),
-        rtss_cs = exp(
-          c(rep(parameters$rtss_cs[[1]], 3), parameters$rtss_cs_boost[[1]])
-        ),
-        rtss_rho = invlogit(
-          c(rep(parameters$rtss_rho[[1]], 3), parameters$rtss_rho_boost[[1]])
-        ),
-        rtss_ds = exp(rep(parameters$rtss_ds[[1]], 4)),
-        rtss_dl = exp(rep(parameters$rtss_dl[[1]], 4)),
-        drug = c(-1, -1, -1, -1)
-      )
-    ),
-    parameters = parameters,
-    timestep = 100
+  variables$state <- individual::CategoricalVariable$new(
+    c('S', 'A', 'D', 'U', 'Tr'),
+    rep('S', 4)
+  )
+  variables$birth <- individual::DoubleVariable$new(
+    -c(8, 2.9, 3.2, 18.4) * 365 - 100
+  )
+  variables$rtss_vaccinated <- individual::DoubleVariable$new(
+    c(-1, -1, 50, 50)
+  )
+  variables$rtss_boosted <- individual::DoubleVariable$new(
+    c(-1, -1, -1, 50 + 30)
+  )
+  variables$rtss_cs <- individual::DoubleVariable$new(exp(
+    c(rep(parameters$rtss_cs[[1]], 3), parameters$rtss_cs_boost[[1]])
+  ))
+  variables$rtss_rho <- individual::DoubleVariable$new(invlogit(
+    c(rep(parameters$rtss_rho[[1]], 3), parameters$rtss_rho_boost[[1]])
+  ))
+  variables$rtss_ds <- individual::DoubleVariable$new(
+    exp(rep(parameters$rtss_ds[[1]], 4))
+  )
+  variables$rtss_dl <- individual::DoubleVariable$new(
+    exp(rep(parameters$rtss_dl[[1]], 4))
+  )
+  variables$drug <- individual::DoubleVariable$new(
+    c(-1, -1, -1, -1)
+  )
+  variables$ib <- individual::DoubleVariable$new(
+    rep(.2, 4)
   )
 
-  bernoulli_mock <- mockery::mock(c(TRUE, TRUE, FALSE, FALSE))
-  with_mock(
-    'malariasimulation:::bernoulli_multi_p' = bernoulli_mock,
-    calculate_infections(
-      api,
-      individuals$human,
-      states,
-      variables,
-      seq(4),
-      rep(.2, 4)
-    )
+  bernoulli_mock <- mockery::mock(individual::Bitset$new(4)$insert(c(1, 2)))
+  mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
+  calculate_infections(
+    variables,
+    bitten_humans = individual::Bitset$new(4)$insert(seq(4)),
+    parameters,
+    timestep
   )
 
   expect_equal(
-    mockery::mock_args(bernoulli_mock)[[1]][[2]],
+    mockery::mock_args(bernoulli_mock)[[1]][[1]],
     c(0.590, 0.590, 0.215, 0.244),
     tolerance=1e-3
   )
 })
 
 test_that('RTS,S vaccinations update vaccination time and schedule boosters', {
+  timestep <- 100
   parameters <- get_parameters()
   parameters <- set_rtss(
     parameters,
@@ -128,37 +134,33 @@ test_that('RTS,S vaccinations update vaccination time and schedule boosters', {
     coverage = 0.8,
     booster_coverage = c(.9, .8)
   )
-  events <- create_events()
-  states <- create_states(parameters)
+  events <- create_events(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
-
-  api <- mock_api(
-    list(
-      human = list(
-        birth = -c(18.3, 8, 2.9, 3.2, 18.4) * 365 + 100,
-        rtss_vaccinated = c(-1, -1, -1, 50, 50)
-      )
-    ),
-    parameters = parameters,
-    timestep = 100
+  variables$birth <- individual::DoubleVariable$new(
+    -c(18.3, 8, 2.9, 3.2, 18.4) * 365 + 100
+  )
+  variables$rtss_vaccinated <- mock_double(
+    c(-1, -1, -1, 50, 50)
   )
 
+  events$rtss_vaccination <- mock_event(events$rtss_vaccination)
+  events$rtss_booster <- mock_event(events$rtss_booster)
+
+  renderer <- individual::Render$new(100)
+
   listener <- create_rtss_vaccination_listener(
-    individuals$human,
     variables,
     events,
     parameters,
-    get_correlation_parameters(parameters)
+    get_correlation_parameters(parameters),
+    renderer
   )
 
   bernoulli_mock = mockery::mock(2)
 
-  with_mock(
-    'malariasimulation:::bernoulli' = bernoulli_mock,
-    'malariasimulation:::sample_intervention' = mockery::mock(TRUE, TRUE, FALSE),
-    listener(api, c(1))
-  )
+  mockery::stub(listener, 'bernoulli', bernoulli_mock)
+  mockery::stub(listener, 'sample_intervention', mockery::mock(TRUE, TRUE, FALSE))
+  listener(timestep)
 
   mockery::expect_args(
     bernoulli_mock,
@@ -168,25 +170,20 @@ test_that('RTS,S vaccinations update vaccination time and schedule boosters', {
   )
 
   mockery::expect_args(
-    api$queue_variable_update,
+    variables$rtss_vaccinated$queue_update,
     1,
-    individuals$human,
-    variables$rtss_vaccinated,
     100,
     c(1, 3)
   )
 
   mockery::expect_args(
-    api$schedule,
+    events$rtss_vaccination$schedule,
     1,
-    events$rtss_vaccination,
-    c(1),
     365
   )
   mockery::expect_args(
-    api$schedule,
-    2,
-    events$rtss_booster,
+    events$rtss_booster$schedule,
+    1,
     3,
     18 * 30
   )
@@ -205,67 +202,59 @@ test_that('RTS,S boosters update antibody params and reschedule correctly', {
     coverage = 0.8,
     booster_coverage = c(1, 1)
   )
-  events <- create_events()
-  states <- create_states(parameters)
+  events <- create_events(parameters)
   variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
 
-  api <- mock_api(
-    list(
-      human = list(
-        birth = -c(2.9, 3.2, 18.4) * 365 + 100,
-        rtss_vaccinated = c(50, 50, 50),
-        rtss_boosted = c(-1, -1, -1)
-      )
-    ),
-    parameters = parameters,
-    timestep = 50 + 30
+  timestep <- 50 + 30
+
+  variables$birth <- individual::DoubleVariable$new(
+    -c(2.9, 3.2, 18.4) * 365 + 100
   )
+  variables$rtss_vaccinated <- mock_double(
+    c(50, 50, 50)
+  )
+  variables$rtss_boosted <- mock_double(
+    c(-1, -1, -1)
+  )
+  variables$rtss_cs <- mock_double(
+    c(0, 0, 0)
+  )
+  variables$rtss_rho <- mock_double(
+    c(0, 0, 0)
+  )
+  events$rtss_booster <- mock_event(events$rtss_booster)
 
   listener <- create_rtss_booster_listener(
-    individuals$human,
     variables,
     events,
     parameters
   )
 
-  with_mock(
-    "malariasimulation::bernoulli" = mockery::mock(c(1, 2, 3)),
-    rnorm = mockery::mock(c(0, 0, 0), c(0, 0, 0)),
-    listener(api, c(1, 2, 3))
-  )
+  mockery::stub(listener, 'bernoulli', mockery::mock(c(1, 2, 3)))
+  mockery::stub(listener, 'rnorm', mockery::mock(c(0, 0, 0), c(0, 0, 0)))
+  listener(timestep, individual::Bitset$new(3)$insert(c(1, 2, 3)))
 
-  mockery::expect_args(
-    api$queue_variable_update,
-    1,
-    individuals$human,
-    variables$rtss_cs,
+  expect_bitset_update(
+    variables$rtss_cs$queue_update,
     rep(exp(parameters$rtss_cs_boost[[1]]), 3),
     c(1, 2, 3)
   )
 
-  mockery::expect_args(
-    api$queue_variable_update,
-    2,
-    individuals$human,
-    variables$rtss_rho,
+  expect_bitset_update(
+    variables$rtss_rho$queue_update,
     rep(invlogit(parameters$rtss_rho_boost[[1]]), 3),
     c(1, 2, 3)
   )
 
-  mockery::expect_args(
-    api$queue_variable_update,
-    3,
-    individuals$human,
-    variables$rtss_boosted,
-    50 + 30,
+  expect_bitset_update(
+    variables$rtss_boosted$queue_update,
+    timestep,
     c(1, 2, 3)
   )
 
   mockery::expect_args(
-    api$schedule,
+    events$rtss_booster$schedule,
     1,
-    events$rtss_booster,
     c(1, 2, 3),
     5 * 30
   )
@@ -284,25 +273,30 @@ test_that('RTS,S booster coverages sample subpopulations correctly', {
     coverage = 0.8,
     booster_coverage = c(.9, .8)
   )
-  events <- create_events()
-  states <- create_states(parameters)
-  variables <- create_variables(parameters)
-  individuals <- create_individuals(states, variables, events, parameters)
 
-  api <- mock_api(
-    list(
-      human = list(
-        birth = -c(2.9, 3.2, 18.4) * 365 + 100,
-        rtss_vaccinated = c(50, 50, 50),
-        rtss_boosted = c(-1, -1, -1)
-      )
-    ),
-    parameters = parameters,
-    timestep = 50 + 30
+  timestep <- 50 + 30
+
+  events <- create_events(parameters)
+  events$rtss_booster <- mock_event(events$rtss_booster)
+  variables <- create_variables(parameters)
+
+  variables$birth <- individual::DoubleVariable$new(
+    -c(2.9, 3.2, 18.4) * 365 + 100
+  )
+  variables$rtss_vaccinated <- mock_double(
+    c(50, 50, 50)
+  )
+  variables$rtss_boosted <- mock_double(
+    c(-1, -1, -1)
+  )
+  variables$rtss_cs <- mock_double(
+    c(0, 0, 0)
+  )
+  variables$rtss_rho <- mock_double(
+    c(0, 0, 0)
   )
 
   listener <- create_rtss_booster_listener(
-    individuals$human,
     variables,
     events,
     parameters
@@ -310,11 +304,9 @@ test_that('RTS,S booster coverages sample subpopulations correctly', {
 
   bernoulli_mock = mockery::mock(c(2, 3))
 
-  with_mock(
-    rnorm = mockery::mock(c(0, 0, 0), c(0, 0, 0)),
-    'malariasimulation:::bernoulli' = bernoulli_mock,
-    listener(api, c(1, 2, 3))
-  )
+  mockery::stub(listener, 'bernoulli', bernoulli_mock)
+  mockery::stub(listener, 'rnorm', mockery::mock(c(0, 0, 0), c(0, 0, 0)))
+  listener(timestep, individual::Bitset$new(3)$insert(c(1, 2, 3)))
 
   mockery::expect_args(
     bernoulli_mock,
@@ -323,37 +315,27 @@ test_that('RTS,S booster coverages sample subpopulations correctly', {
     .8 #booster coverage for the second booster
   )
 
-  mockery::expect_args(
-    api$queue_variable_update,
-    1,
-    individuals$human,
-    variables$rtss_cs,
+  expect_bitset_update(
+    variables$rtss_cs$queue_update,
     rep(exp(parameters$rtss_cs_boost[[1]]), 3),
     c(1, 2, 3)
   )
 
-  mockery::expect_args(
-    api$queue_variable_update,
-    2,
-    individuals$human,
-    variables$rtss_rho,
+  expect_bitset_update(
+    variables$rtss_rho$queue_update,
     rep(invlogit(parameters$rtss_rho_boost[[1]]), 3),
     c(1, 2, 3)
   )
 
-  mockery::expect_args(
-    api$queue_variable_update,
-    3,
-    individuals$human,
-    variables$rtss_boosted,
-    50 + 30,
+  expect_bitset_update(
+    variables$rtss_boosted$queue_update,
+    timestep,
     c(1, 2, 3)
   )
 
   mockery::expect_args(
-    api$schedule,
+    events$rtss_booster$schedule,
     1,
-    events$rtss_booster,
     c(2, 3),
     5 * 30
   )

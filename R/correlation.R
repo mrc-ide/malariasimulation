@@ -132,13 +132,11 @@ CorrelationParameters <- R6::R6Class(
 #' # Set some rtss strategy
 #' parameters <- set_rtss(
 #'   parameters,
-#'   start = 100,
-#'   end = 1000,
-#'   frequency = 100,
+#'   timesteps = 100,
+#'   coverages = .9,
 #'   min_ages = 100,
 #'   max_ages = 1000,
 #'   boosters = NULL,
-#'   coverage = .9,
 #'   booster_coverage = NULL
 #' )
 #' 
@@ -147,12 +145,10 @@ CorrelationParameters <- R6::R6Class(
 #' parameters <- set_smc(
 #'   parameters,
 #'   drug = 1,
-#'   start = 100,
-#'   end = 1000,
-#'   frequency = 100,
+#'   timesteps = 100,
+#'   coverages = .9,
 #'   min_age = 100,
-#'   max_age = 1000,
-#'   coverage = .9
+#'   max_age = 1000
 #' )
 #' 
 #' # Correlate the rtss and smc targets

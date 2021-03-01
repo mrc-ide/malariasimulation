@@ -4,24 +4,21 @@
 \alias{set_mda}
 \title{Parameterise a Mass Drug Administration}
 \usage{
-set_mda(parameters, drug, start, end, frequency, min_age, max_age, coverage)
+set_mda(parameters, drug, timesteps, coverages, min_age, max_age)
 }
 \arguments{
 \item{parameters}{a list of parameters to modify}
 
 \item{drug}{the index of the drug to administer}
 
-\item{start}{the timestep to start}
+\item{timesteps}{a vector of timesteps for each round of mda}
 
-\item{end}{the last timestep for the intervention}
-
-\item{frequency}{the number of timsteps between doses}
+\item{coverages}{the proportion of the target population who recieve each
+round}
 
 \item{min_age}{the minimum age of the target population exclusive (in timesteps)}
 
-\item{max_age}{the maximum age of the target population exclusive (in timesteps)}
-
-\item{coverage}{the proportion of the target population who will recieve the
+\item{max_age}{the maximum age of the target population exclusive (in timesteps)
 drug}
 }
 \description{

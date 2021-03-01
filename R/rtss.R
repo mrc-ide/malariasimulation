@@ -17,6 +17,7 @@ create_rtss_vaccination_listener <- function(
   renderer
   ) {
   function(timestep) {
+    time_index = which(parameters$rtss_timesteps == timestep)
     age <- get_age(variables$birth$get_values(), timestep)
     not_vaccinated <- variables$rtss_vaccinated$get_values() == -1
     target_indices <- rep(FALSE, length(age))
@@ -31,7 +32,7 @@ create_rtss_vaccination_listener <- function(
       sample_intervention(
         target,
         'rtss',
-        parameters$rtss_coverage,
+        parameters$rtss_coverages[[time_index]],
         correlations
       )
     ]
@@ -42,8 +43,10 @@ create_rtss_vaccination_listener <- function(
         target
       )
     }
-    if (timestep + parameters$rtss_frequency <= parameters$rtss_end) {
-      events$rtss_vaccination$schedule(parameters$rtss_frequency)
+    if (time_index < length(parameters$rtss_timesteps)) {
+      events$rtss_vaccination$schedule(
+        parameters$rtss_timesteps[[time_index + 1]] - timestep
+      )
     }
     if (length(parameters$rtss_boosters) > 0) {
       events$rtss_booster$schedule(

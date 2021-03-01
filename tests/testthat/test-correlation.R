@@ -7,7 +7,7 @@ test_that('1 correlation between rounds gives sensible samples', {
   parameters <- get_parameters(list(
     human_population = pop,
     rtss = TRUE,
-    rtss_coverage = .2
+    rtss_coverages = .2
   ))
   correlations <- get_correlation_parameters(parameters)
   correlations$inter_round_rho('rtss', 1)
@@ -27,7 +27,7 @@ test_that('0 correlation between rounds gives sensible samples', {
   parameters <- get_parameters(list(
     human_population = pop,
     rtss = TRUE,
-    rtss_coverage = .5
+    rtss_coverages = .5
   ))
   correlations <- get_correlation_parameters(parameters)
   correlations$inter_round_rho('rtss', 0)
@@ -51,8 +51,8 @@ test_that('1 correlation between interventions gives sensible samples', {
   )
   parameters <- get_parameters(list(
     human_population = pop,
-    rtss_coverage = .2,
-    mda_coverage = .2,
+    rtss_coverages = .2,
+    mda_coverages = .2,
     rtss = TRUE,
     mda = TRUE
   ))
@@ -60,8 +60,8 @@ test_that('1 correlation between interventions gives sensible samples', {
   correlations$inter_round_rho('rtss', 1)
   correlations$inter_round_rho('mda', 1)
   correlations$inter_intervention_rho('rtss', 'mda', 1)
-  rtss_sample <- sample_intervention(target, 'rtss', parameters$rtss_coverage, correlations)
-  mda_sample <- sample_intervention(target, 'mda', parameters$mda_coverage, correlations)
+  rtss_sample <- sample_intervention(target, 'rtss', parameters$rtss_coverages, correlations)
+  mda_sample <- sample_intervention(target, 'mda', parameters$mda_coverages, correlations)
 
   expect_equal(sum(rtss_sample), pop * .2, tolerance=1e2)
   expect_equal(sum(mda_sample), pop * .2, tolerance=1e2)
@@ -77,8 +77,8 @@ test_that('0 correlation between interventions gives sensible samples', {
   )
   parameters <- get_parameters(list(
     human_population = pop,
-    rtss_coverage = .2,
-    mda_coverage = .2,
+    rtss_coverages = .2,
+    mda_coverages = .2,
     rtss = TRUE,
     mda = TRUE
   ))
@@ -86,8 +86,8 @@ test_that('0 correlation between interventions gives sensible samples', {
   correlations$inter_round_rho('rtss', 1)
   correlations$inter_round_rho('mda', 1)
   correlations$inter_intervention_rho('rtss', 'mda', 0)
-  rtss_sample <- sample_intervention(target, 'rtss', parameters$rtss_coverage, correlations)
-  mda_sample <- sample_intervention(target, 'mda', parameters$mda_coverage, correlations)
+  rtss_sample <- sample_intervention(target, 'rtss', parameters$rtss_coverages, correlations)
+  mda_sample <- sample_intervention(target, 'mda', parameters$mda_coverages, correlations)
   expect_equal(
     length(intersect(which(rtss_sample), which(mda_sample))),
     pop * .5,
@@ -106,8 +106,8 @@ test_that('-1 correlation between interventions gives sensible samples', {
   )
   parameters <- get_parameters(list(
     human_population = pop,
-    rtss_coverage = .2,
-    mda_coverage = .2,
+    rtss_coverages = .2,
+    mda_coverages = .2,
     rtss = TRUE,
     mda = TRUE
   ))
@@ -115,8 +115,8 @@ test_that('-1 correlation between interventions gives sensible samples', {
   correlations$inter_round_rho('rtss', 1)
   correlations$inter_round_rho('mda', 1)
   correlations$inter_intervention_rho('rtss', 'mda', -1)
-  rtss_sample <- sample_intervention(target, 'rtss', parameters$rtss_coverage, correlations)
-  mda_sample <- sample_intervention(target, 'mda', parameters$mda_coverage, correlations)
+  rtss_sample <- sample_intervention(target, 'rtss', parameters$rtss_coverages, correlations)
+  mda_sample <- sample_intervention(target, 'mda', parameters$mda_coverages, correlations)
   expect_equal(length(intersect(which(rtss_sample), which(mda_sample))), 0)
   expect_equal(sum(rtss_sample), .2 * pop, tolerance=1e2)
   expect_equal(sum(mda_sample), .2 * pop, tolerance=1e2)

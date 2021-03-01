@@ -46,9 +46,9 @@ simparams <- get_parameters(c(
     h = c(0.173743, -0.0730962, -0.116019),
     severe_enabled = TRUE,
     incidence_rendering_min_ages = 0,
-    incidence_rendering_max_ages = 100 * year,
+    incidence_rendering_max_ages = 18 * year,
     severe_incidence_rendering_min_ages = 0,
-    severe_incidence_rendering_max_ages = 100 * year
+    severe_incidence_rendering_max_ages = 18 * year
   )
 ))
 
@@ -58,7 +58,7 @@ simparams <- parameterise_mosquito_equilibrium(simparams, starting_EIR)
 # Plotting functions
 plot_prevalence <- function(output) {
   ggplot(output) + geom_line(
-    aes(x = timestep, y = inc_0_36500)
+    aes(x = timestep, y = inc_0_6570)
   )
 }
 
@@ -93,18 +93,16 @@ month <- 30
 # Add RTS,S strategy
 rtssevents = data.frame(
   timestep = c(1, 2) * year + peak - month, #vaccine efficacy kicks off a month before the peak
-  name=c("RTS,S starts", "RTS,S ends")
+  name=c("RTS,S 1", "RTS,S 2")
 )
 
 rtssparams <- set_rtss(
   rtssparams,
-  start = rtssevents$timestep[[1]],
-  end = rtssevents$timestep[[2]],
-  frequency = year,
+  timesteps = rtssevents$timestep,
+  coverages = rep(0.8, 2),
   min_ages = 5 * month,
-  max_ages = 17 * month,
+  max_ages = 17 * year,
   boosters = 18 * month,
-  coverage = 0.8,
   booster_coverage = .7
 )
 
@@ -123,16 +121,14 @@ tbvparams <- simparams
 # Add TBV strategy
 tbvevents = data.frame(
   timestep = c(1, 2) * 365,
-  name=c("TBV starts", "TBV ends")
+  name=c("TBV 1", "TBV 2")
 )
 
 tbvparams <- set_tbv(
   tbvparams,
-  start = tbvevents$timestep[[1]],
-  end = tbvevents$timestep[[2]],
-  frequency = 365,
-  ages = c(1, 2, 3, 18),
-  coverage = 0.8
+  timesteps = tbvevents$timestep,
+  coverages = rep(0.8, 2),
+  ages = seq(18)
 )
 
 output <- run_simulation(sim_length, tbvparams)

@@ -32,9 +32,7 @@ jamie_params <- load_parameter_set()
 simparams <- get_parameters(c(
   translate_jamie(remove_unused_jamie(jamie_params)),
   list(
-    human_population = human_population,
-    species = 'All',
-    species_proportions = 1
+    human_population = human_population
   )
 ))
 simparams <- set_drugs(simparams, list(AL_params, DHC_PQP_params))

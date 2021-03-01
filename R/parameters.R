@@ -331,23 +331,23 @@ get_parameters <- function(overrides = list()) {
     total_M  = 1000,
     init_foim= 0,
     # order of species: An gambiae s.s, An arabiensis, An funestus
-    species             = c('gamb', 'arab', 'fun'),
-    species_proportions = c(.5, .3, .2),
-    blood_meal_rates    = rep(1/3, 3),
-    Q0                  = c(.92, .71, .94),
-    endophily           = c(.813, .422, .813),
+    species             = 'All',
+    species_proportions = 1,
+    blood_meal_rates    = 1/3,
+    Q0                  = .92,
+    endophily           = .813,
     foraging_time       = .69,
     # bed nets
     bednets = FALSE,
-    rn = c(.56, .46, .56),
-    rnm = c(.24, .1, .24),
-    dn0 = rep(.533, 3),
-    phi_bednets = c(.89, .9, .9),
+    rn = .56,
+    rnm = .24,
+    dn0 = .533,
+    phi_bednets = .89,
     gamman = 2.64 * 365,
     # indoor spraying
     spraying = FALSE,
-    rs = rep(.2, 3),
-    phi_indoors = c(.97, .96, .98),
+    rs = .2,
+    phi_indoors = .97,
     gammas = .25 * 365,
     # treatment
     drug_efficacy          = numeric(0),
@@ -478,7 +478,7 @@ parameterise_human_equilibrium <- function(parameters, eq) {
 #' @param EIR to work from
 #' @export
 parameterise_mosquito_equilibrium <- function(parameters, EIR) {
-  parameterise_total_M(parameters. equilibrium_total_M(parameters, EIR))
+  parameterise_total_M(parameters, equilibrium_total_M(parameters, EIR))
 }
 
 #' @title Parameterise total_M

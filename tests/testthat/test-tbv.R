@@ -7,7 +7,7 @@ test_that('TBV strategy parameterisation works', {
     ages = c(1, 2, 3, 18)
   )
   expect_equal(parameters$tbv, TRUE)
-  expect_equal(parameters$tbv_timeteps, 10)
+  expect_equal(parameters$tbv_timesteps, 10)
   expect_equal(parameters$tbv_coverages, .8)
   expect_equal(parameters$tbv_ages, c(1, 2, 3, 18))
 })

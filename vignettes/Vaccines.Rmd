@@ -27,10 +27,9 @@ We are going to set the default parameters to run the simulation from an equilib
 
 ```{r}
 year <- 365
-sim_length <- 30 * year
+sim_length <- 3 * year
 human_population <- 1000
 starting_EIR <- 50
-repetitions <- 5
 
 jamie_params <- load_parameter_set()
 eq <- human_equilibrium(EIR = starting_EIR, ft = 0, p = jamie_params, age = 0:99)
@@ -47,9 +46,9 @@ simparams <- get_parameters(c(
     h = c(0.173743, -0.0730962, -0.116019),
     severe_enabled = TRUE,
     incidence_rendering_min_ages = 0,
-    incidence_rendering_max_ages = 5 * year,
+    incidence_rendering_max_ages = 100 * year,
     severe_incidence_rendering_min_ages = 0,
-    severe_incidence_rendering_max_ages = 5 * year
+    severe_incidence_rendering_max_ages = 100 * year
   )
 ))
 
@@ -59,7 +58,7 @@ simparams <- parameterise_mosquito_equilibrium(simparams, starting_EIR)
 # Plotting functions
 plot_prevalence <- function(output) {
   ggplot(output) + geom_line(
-    aes(x = timestep, y = inc_0_1825, group = repetition, alpha = 1/repetitions)
+    aes(x = timestep, y = inc_0_36500)
   )
 }
 
@@ -93,7 +92,7 @@ month <- 30
 
 # Add RTS,S strategy
 rtssevents = data.frame(
-  timestep = c(10, 20) * year + peak - month, #vaccine efficacy kicks off a month before the peak
+  timestep = c(1, 2) * year + peak - month, #vaccine efficacy kicks off a month before the peak
   name=c("RTS,S starts", "RTS,S ends")
 )
 
@@ -109,12 +108,7 @@ rtssparams <- set_rtss(
   booster_coverage = .7
 )
 
-output <- run_simulation_with_repetitions(
-  sim_length,
-  repetitions,
-  rtssparams,
-  parallel=TRUE
-)
+output <- run_simulation(sim_length, rtssparams)
 
 add_intervention_lines(plot_prevalence(output), rtssevents)
 ```
@@ -128,7 +122,7 @@ tbvparams <- simparams
 
 # Add TBV strategy
 tbvevents = data.frame(
-  timestep = c(10, 20) * 365,
+  timestep = c(1, 2) * 365,
   name=c("TBV starts", "TBV ends")
 )
 
@@ -141,12 +135,7 @@ tbvparams <- set_tbv(
   coverage = 0.8
 )
 
-output <- run_simulation_with_repetitions(
-  sim_length,
-  repetitions,
-  tbvparams,
-  parallel=TRUE
-)
+output <- run_simulation(sim_length, tbvparams)
 
 add_intervention_lines(plot_prevalence(output), tbvevents)
 ```

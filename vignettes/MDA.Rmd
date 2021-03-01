@@ -109,18 +109,16 @@ mdaparams <- simparams
 # Add MDA strategy
 mda_events = data.frame(
   timestep = c(1, 2) * 365,
-  name=c("MDA starts", "MDA ends")
+  name=c("MDA 1", "MDA 2")
 )
 
 mdaparams <- set_mda(
   mdaparams,
-  1,
-  mda_events$timestep[[1]],
-  mda_events$timestep[[2]],
-  365,
-  0,
-  200 * 365,
-  .8
+  drug = 1,
+  timesteps = mda_events$timestep,
+  coverages = rep(.8, 2),
+  min_age = 0,
+  max_age = 200 * 365
 )
 
 output <- run_simulation(sim_length, mdaparams)
@@ -145,17 +143,15 @@ smcparams <- simparams
 peak <- peak_season_offset(smcparams)
 smc_events = data.frame(
   timestep = c(1, 2) * 365 + peak - 30,
-  name=c("SMC starts", "SMC ends")
+  name=c("SMC 1", "SMC 2")
 )
 smcparams <- set_smc(
   smcparams,
-  1,
-  smc_events$timestep[[1]],
-  smc_events$timestep[[2]],
-  365,
-  2 * 365 - 1,
-  11 * 365,
-  .9
+  drug = 1,
+  timesteps = smc_events$timestep,
+  coverages = rep(.9, 2),
+  min_age = 2 * 365 - 1,
+  max_age = 11 * 365
 )
 
 output <- run_simulation(sim_length, smcparams)

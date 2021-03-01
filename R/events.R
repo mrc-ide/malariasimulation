@@ -59,16 +59,16 @@ initialise_events <- function(events, variables, parameters) {
 
   # Initialise interventions
   if (parameters$rtss) {
-    events$rtss_vaccination$schedule(parameters$rtss_start)
+    events$rtss_vaccination$schedule(parameters$rtss_timesteps[[1]] - 1)
   }
   if (parameters$mda) {
-    events$mda_administer$schedule(parameters$mda_start)
+    events$mda_administer$schedule(parameters$mda_timesteps[[1]] - 1)
   }
   if (parameters$smc) {
-    events$smc_administer$schedule(parameters$smc_start)
+    events$smc_administer$schedule(parameters$smc_timesteps[[1]] - 1)
   }
   if (parameters$tbv) {
-    events$tbv_vaccination$schedule(parameters$tbv_start)
+    events$tbv_vaccination$schedule(parameters$tbv_timesteps[[1]] - 1)
   }
 }
 

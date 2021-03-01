@@ -45,7 +45,7 @@ set_smc <- function(
   ) {
   parameters$smc <- TRUE
   parameters$smc_drug <- drug
-  parameters$mda_timesteps <- timesteps
+  parameters$smc_timesteps <- timesteps
   parameters$smc_coverages <- coverages
   parameters$smc_min_age <- min_age
   parameters$smc_max_age <- max_age

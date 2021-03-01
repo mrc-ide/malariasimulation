@@ -24,18 +24,15 @@ Set up some baseline parameters:
 
 ```{r}
 year <- 365
-sim_length <- 50 * year
+sim_length <- 1 * year
 human_population <- 1000
-repetitions <- 5
 
 jamie_params <- load_parameter_set()
 
 simparams <- get_parameters(c(
   translate_jamie(remove_unused_jamie(jamie_params)),
   list(
-    human_population = human_population,
-    species = 'All',
-    species_proportions = 1
+    human_population = human_population
   )
 ))
 simparams <- set_drugs(simparams, list(AL_params, DHC_PQP_params))
@@ -59,11 +56,9 @@ for (ft in fts) {
   simparams <- parameterise_human_equilibrium(simparams, eq)
   simparams <- parameterise_mosquito_equilibrium(simparams, starting_EIR)
   simparams <- set_clinical_treatment(simparams, ft, c(1, 2), c(.5, .5))
-  output <- run_simulation_with_repetitions(
+  output <- run_simulation(
     sim_length,
-    repetitions,
-    simparams,
-    parallel=TRUE
+    simparams
   )
   outputs[[length(outputs) + 1]] <- output
 }
@@ -73,12 +68,12 @@ Let's plot the effect of ft on PfPrev2-10:
 
 ```{r}
 df <- do.call('rbind', lapply(seq_along(outputs), function(i) {
-  df <- outputs[[i]][c('timestep', 'pv_730_3650', 'repetition')]
+  df <- outputs[[i]][c('timestep', 'pv_730_3650')]
   df$ft <- fts[[i]]
   df
 }))
     
 ggplot(df) + geom_line(
-  aes(x = timestep, y = pv_730_3650, group = interaction(ft, repetition), colour = ft)
+  aes(x = timestep, y = pv_730_3650, colour = ft)
 )
 ```

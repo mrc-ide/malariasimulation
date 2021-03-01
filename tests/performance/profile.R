@@ -25,6 +25,6 @@ simparams <- parameterise_mosquito_equilibrium(simparams, EIR=eir)
 simparams <- set_drugs(simparams, list(AL_params, DHC_PQP_params))
 simparams <- set_clinical_treatment(simparams, ft, c(1, 2), c(.5, .5))
 
-profvis({output <- run_simulation(sim_length, simparams)})
-#output <- run_simulation(sim_length, simparams)
+#profvis({output <- run_simulation(sim_length, simparams)})
+output <- run_simulation(sim_length, simparams)
 print('done')

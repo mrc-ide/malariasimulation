@@ -6,13 +6,11 @@ test_that('MDA moves the diseased and non-diseased population correctly', {
   parameters <- set_drugs(parameters, list(SP_AQ_params))
   parameters <- set_mda(
     parameters,
-    1, # drug
-    50, # start timestep
-    50 + 365 * 5, # last timestep
-    100, # frequency
-    5 * 365, # min age
-    10 * 365, # max age
-    1 # coverage
+    drug = 1,
+    timesteps = c(50, 150),
+    coverages= c(1, 1),
+    min_age = 5 * 365,
+    max_age = 10 * 365
   )
   events <- create_events(parameters)
 
@@ -33,11 +31,10 @@ test_that('MDA moves the diseased and non-diseased population correctly', {
     variables,
     events$mda_administer,
     parameters$mda_drug,
-    parameters$mda_end,
-    parameters$mda_frequency,
+    parameters$mda_timesteps,
+    parameters$mda_coverages,
     parameters$mda_min_age,
     parameters$mda_max_age,
-    parameters$mda_coverage,
     get_correlation_parameters(parameters),
     'mda',
     parameters,

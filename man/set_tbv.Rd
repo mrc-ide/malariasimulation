@@ -4,20 +4,16 @@
 \alias{set_tbv}
 \title{Parameterise an TBV strategy}
 \usage{
-set_tbv(parameters, start, end, frequency, ages, coverage)
+set_tbv(parameters, timesteps, coverages, ages)
 }
 \arguments{
 \item{parameters}{a list of parameters to modify}
 
-\item{start}{the timestep to start}
+\item{timesteps}{a vector of timesteps for each round of vaccinations}
 
-\item{end}{the last timestep for the intervention}
+\item{coverages}{the coverage for each round of vaccinations}
 
-\item{frequency}{the number of timsteps between rounds}
-
-\item{ages}{for each round (in years)}
-
-\item{coverage}{the proportion of the target population who will recieve the
+\item{ages}{for each round (in years)
 vaccine}
 }
 \description{

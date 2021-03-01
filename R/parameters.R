@@ -190,18 +190,8 @@
 #' I recommend setting strategies with the convenience functions in
 #' `vaccine_parameters.R:set_rtss`
 #'
-#' MDA parameters:
-#' I recommend setting these with convenience functions in `mda_parameters.R`
-#'
-#' * mda - whether to apply an MDA or not
-#' * mda_drug - the index of the drug to use
-#' * mda_start - the first timestep for the drug to be distributed
-#' * mda_end - the last timestep for the drug to be distributed
-#' * mda_frequency - how often to distribute drugs
-#' * mda_min_age - the min age of the target population
-#' * mda_max_age - the max age of the target population
-#' * mda_coverage - the proportion of the target population that will be covered
-#' * smc* - as for mda*
+#' MDA and SMC parameters:
+#' We recommend setting these with convenience functions in `mda_parameters.R`
 #'
 #' TBV parameters:
 #'
@@ -341,23 +331,23 @@ get_parameters <- function(overrides = list()) {
     total_M  = 1000,
     init_foim= 0,
     # order of species: An gambiae s.s, An arabiensis, An funestus
-    species             = c('gamb', 'arab', 'fun'),
-    species_proportions = c(.5, .3, .2),
-    blood_meal_rates    = rep(1/3, 3),
-    Q0                  = c(.92, .71, .94),
-    endophily           = c(.813, .422, .813),
+    species             = 'All',
+    species_proportions = 1,
+    blood_meal_rates    = 1/3,
+    Q0                  = .92,
+    endophily           = .813,
     foraging_time       = .69,
     # bed nets
     bednets = FALSE,
-    rn = c(.56, .46, .56),
-    rnm = c(.24, .1, .24),
-    dn0 = rep(.533, 3),
-    phi_bednets = c(.89, .9, .9),
+    rn = .56,
+    rnm = .24,
+    dn0 = .533,
+    phi_bednets = .89,
     gamman = 2.64 * 365,
     # indoor spraying
     spraying = FALSE,
-    rs = rep(.2, 3),
-    phi_indoors = c(.97, .96, .98),
+    rs = .2,
+    phi_indoors = .97,
     gammas = .25 * 365,
     # treatment
     drug_efficacy          = numeric(0),
@@ -378,28 +368,22 @@ get_parameters <- function(overrides = list()) {
     rtss_rho_boost = c(1.03431, 1.02735),
     rtss_ds = c(3.74502, 0.341185),
     rtss_dl = c(6.30365, 0.396515),
-    rtss_start = c(),
-    rtss_end = c(),
-    rtss_frequency = -1,
-    rtss_ages = c(),
-    rtss_coverage = 0,
+    rtss_timeteps = NULL,
+    rtss_coverages = NULL,
+    rtss_ages = NULL,
     # MDA
     mda = FALSE,
     mda_drug = 0,
-    mda_start = -1,
-    mda_end = -1,
-    mda_frequency = -1,
+    mda_timesteps = NULL,
+    mda_coverages = NULL,
     mda_min_age = -1,
     mda_max_age = -1,
-    mda_coverage = 0,
     smc = FALSE,
     smc_drug = 0,
-    smc_start = -1,
-    smc_end = -1,
-    smc_frequency = -1,
+    smc_timesteps = NULL,
+    smc_coverages = NULL,
     smc_min_age = -1,
     smc_max_age = -1,
-    smc_coverage = 0,
     # tbv
     tbv = FALSE,
     tbv_mt = 35,
@@ -414,11 +398,10 @@ get_parameters <- function(overrides = list()) {
     tbv_tra_mu = 12.63,
     tbv_gamma1 = 2.5,
     tbv_gamma2 = .06,
-    tbv_start = c(),
-    tbv_end = c(),
+    tbv_timeteps = NULL,
+    tbv_coverages = NULL,
     tbv_frequency = -1,
-    tbv_ages = c(),
-    tbv_coverage = 0,
+    tbv_ages = NULL,
     # rendering
     prevalence_rendering_min_ages = 2 * 365,
     prevalence_rendering_max_ages = 10 * 365,
@@ -482,8 +465,10 @@ parameterise_human_equilibrium <- function(parameters, eq) {
 }
 
 #' @title Parameterise total_M and carrying capacity for mosquitos from EIR
+#'
 #' @description NOTE: the inital EIR is likely to change unless the rest of the
-#' model is in equilibrium
+#' model is in equilibrium. NOTE: please set seasonality first, since the mosquito_limit
+#' will estimate an upper bound from the peak season.
 #'
 #' max_total_M is calculated using the equilibrium solution from "Modelling the
 #' impact of vector control interventions on Anopheles gambiae population
@@ -493,7 +478,20 @@ parameterise_human_equilibrium <- function(parameters, eq) {
 #' @param EIR to work from
 #' @export
 parameterise_mosquito_equilibrium <- function(parameters, EIR) {
-  parameters$total_M <- equilibrium_total_M(parameters, EIR)
+  parameterise_total_M(parameters, equilibrium_total_M(parameters, EIR))
+}
+
+#' @title Parameterise total_M
+#'
+#' @description Sets total_M and an upper bound for the number of mosquitoes in
+#' the simulation. NOTE: please set seasonality first, since the mosquito_limit
+#' will estimate an upper bound from the peak season.
+#'
+#' @param parameters the parameters to modify
+#' @param total_M the initial adult mosquitoes in the simulation
+#' @export
+parameterise_total_M <- function(parameters, total_M) {
+  parameters$total_M <- total_M
   K0 <- calculate_carrying_capacity(parameters)
   R_bar <- calculate_R_bar(parameters)
   max_K <- max(vnapply(seq(365), function(t) {

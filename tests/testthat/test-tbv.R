@@ -2,17 +2,14 @@ test_that('TBV strategy parameterisation works', {
   parameters <- get_parameters()
   parameters <- set_tbv(
     parameters,
-    start = 10,
-    end = 100,
-    frequency = 365,
-    ages = c(1, 2, 3, 18),
-    coverage = 0.8
+    timesteps = 10,
+    coverages = 0.8,
+    ages = c(1, 2, 3, 18)
   )
   expect_equal(parameters$tbv, TRUE)
-  expect_equal(parameters$tbv_start, 10)
-  expect_equal(parameters$tbv_end, 100)
+  expect_equal(parameters$tbv_timesteps, 10)
+  expect_equal(parameters$tbv_coverages, .8)
   expect_equal(parameters$tbv_ages, c(1, 2, 3, 18))
-  expect_equal(parameters$tbv_coverage, .8)
 })
 
 test_that('TBV antibodies are calculated correctly', {

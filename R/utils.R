@@ -4,7 +4,9 @@ vlapply <- function(X, FUN, ...) vapply(X, FUN, ..., logical(1))
 #' @importFrom stats rbinom 
 bernoulli <- function(size, p) sample.int(size, rbinom(1, size, min(p, 1)))
 
-sample_bitset <- function(b, rate) b$copy()$sample(rate)
+sample_bitset <- function(b, rate) {
+  individual::filter_bitset(b, bernoulli(b$size(), rate))
+}
 
 sample_bitset_fixed <- function(b, n, replace = TRUE) {
   individual::filter_bitset(b, sample.int(b$size(), n, replace = replace))

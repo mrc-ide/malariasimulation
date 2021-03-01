@@ -16,7 +16,6 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 suppressPackageStartupMessages(library(ggplot2))
-suppressPackageStartupMessages(library(cowplot))
 library(malariasimulation)
 library(malariaEquilibrium)
 library(reshape2)
@@ -28,10 +27,9 @@ We are going to set the default parameters to run the simulation from an equilib
 
 ```{r}
 year <- 365
-sim_length <- 10 * year
+sim_length <- 3 * year
 human_population <- 1000
 starting_EIR <- 50
-repetitions <- 5
 
 jamie_params <- load_parameter_set()
 eq <- human_equilibrium(EIR = starting_EIR, ft = 0, p = jamie_params, age = 0:99)
@@ -40,8 +38,6 @@ simparams <- get_parameters(c(
   translate_jamie(remove_unused_jamie(jamie_params)),
   list(
     human_population = human_population,
-    species = 'All',
-    species_proportions = 1,
     model_seasonality = TRUE, # Let's try a bi-modal model
     g0 = 0.28605,
     g = c(0.20636, -0.0740318, -0.0009293),
@@ -56,7 +52,7 @@ simparams <- parameterise_mosquito_equilibrium(simparams, starting_EIR)
 # Plotting functions
 plot_prevalence <- function(output) {
   ggplot(output) + geom_line(
-    aes(x = timestep, y = pv_730_3650, group = repetition, alpha = 1/repetitions)
+    aes(x = timestep, y = pv_730_3650)
   )
 }
 
@@ -65,22 +61,20 @@ plot_state_counts <- function(output) {
     melt(
       output[c(
         'timestep',
-        'repetition',
         'S_count',
         'D_count',
         'A_count',
         'U_count',
         'Tr_count'
       )],
-      id.vars=c('timestep', 'repetition')
+      id.vars='timestep'
     )
   ) + geom_line(
     aes(
       x = timestep,
       y = value,
-      group = interaction(variable, repetition),
-      color = variable,
-      alpha = 1/repetitions
+      group = variable,
+      color = variable
     )
   )
 }
@@ -112,27 +106,20 @@ mdaparams <- simparams
 
 # Add MDA strategy
 mda_events = data.frame(
-  timestep = c(4, 7) * 365,
-  name=c("MDA starts", "MDA ends")
+  timestep = c(1, 2) * 365,
+  name=c("MDA 1", "MDA 2")
 )
 
 mdaparams <- set_mda(
   mdaparams,
-  1,
-  mda_events$timestep[[1]],
-  mda_events$timestep[[2]],
-  365,
-  0,
-  200 * 365,
-  .8
+  drug = 1,
+  timesteps = mda_events$timestep,
+  coverages = rep(.8, 2),
+  min_age = 0,
+  max_age = 200 * 365
 )
 
-output <- run_simulation_with_repetitions(
-  sim_length,
-  repetitions,
-  mdaparams,
-  parallel=TRUE
-)
+output <- run_simulation(sim_length, mdaparams)
 ```
 
 ```{r}
@@ -153,26 +140,19 @@ smcparams <- simparams
 # Add SMC strategy
 peak <- peak_season_offset(smcparams)
 smc_events = data.frame(
-  timestep = c(4, 7) * 365 + peak - 30,
-  name=c("SMC starts", "SMC ends")
+  timestep = c(1, 2) * 365 + peak - 30,
+  name=c("SMC 1", "SMC 2")
 )
 smcparams <- set_smc(
   smcparams,
-  1,
-  smc_events$timestep[[1]],
-  smc_events$timestep[[2]],
-  365,
-  2 * 365 - 1,
-  11 * 365,
-  .9
+  drug = 1,
+  timesteps = smc_events$timestep,
+  coverages = rep(.9, 2),
+  min_age = 2 * 365 - 1,
+  max_age = 11 * 365
 )
 
-output <- run_simulation_with_repetitions(
-  sim_length,
-  repetitions,
-  smcparams,
-  parallel=TRUE
-)
+output <- run_simulation(sim_length, smcparams)
 ```
 
 ```{r}

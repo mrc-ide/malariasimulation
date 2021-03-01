@@ -52,8 +52,7 @@ output <- run_simulation(100)
 *model.R* - is the entry point for the model. It creates the different
 components and passes them to the `individual` package for simulation.
 
-*individuals.R* - contains the specifics for the human and mosquito models,
-including states, variables and constants.
+*variables.R* - contains the specific variables we track for each individual.
 
 *processes.R* - defines the changes in individuals over time. It collects
 process functions from "infection.R", "mosquito_emergence.R" and "mortality.R"

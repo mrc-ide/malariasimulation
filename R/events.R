@@ -225,7 +225,7 @@ attach_event_listeners <- function(
 
   if (parameters$tbv == 1) {
     events$tbv_vaccination$add_listener(
-      function(timestep, target) {
+      function(timestep) {
         time_index = which(parameters$tbv_timesteps == timestep)
         target <- which(trunc(get_age(
           variables$birth$get_values(),

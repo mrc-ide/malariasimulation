@@ -47,7 +47,7 @@ set_tbv <- function(
   ages
   ) {
   parameters$tbv <- TRUE
-  parameters$tbv_timeteps <- timesteps
+  parameters$tbv_timesteps <- timesteps
   parameters$tbv_coverages <- coverages
   parameters$tbv_ages <- ages
   parameters

@@ -73,8 +73,8 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
     c(rep('Im', 10), rep('Sm', 15), rep('Unborn', 75))
   )
   variables$species <- individual::CategoricalVariable$new(
-    c('gamb', 'arab', 'fun'),
-    c(rep('gamb', 25), rep('arab', 25), rep('fun', 50))
+    c('All'),
+    rep('All', 100)
   )
 
   total_eir <- 5

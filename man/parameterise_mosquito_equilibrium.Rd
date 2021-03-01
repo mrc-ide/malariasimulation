@@ -13,7 +13,8 @@ parameterise_mosquito_equilibrium(parameters, EIR)
 }
 \description{
 NOTE: the inital EIR is likely to change unless the rest of the
-model is in equilibrium
+model is in equilibrium. NOTE: please set seasonality first, since the mosquito_limit
+will estimate an upper bound from the peak season.
 
 max_total_M is calculated using the equilibrium solution from "Modelling the
 impact of vector control interventions on Anopheles gambiae population

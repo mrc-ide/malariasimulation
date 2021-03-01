@@ -465,8 +465,10 @@ parameterise_human_equilibrium <- function(parameters, eq) {
 }
 
 #' @title Parameterise total_M and carrying capacity for mosquitos from EIR
+#'
 #' @description NOTE: the inital EIR is likely to change unless the rest of the
-#' model is in equilibrium
+#' model is in equilibrium. NOTE: please set seasonality first, since the mosquito_limit
+#' will estimate an upper bound from the peak season.
 #'
 #' max_total_M is calculated using the equilibrium solution from "Modelling the
 #' impact of vector control interventions on Anopheles gambiae population
@@ -476,7 +478,20 @@ parameterise_human_equilibrium <- function(parameters, eq) {
 #' @param EIR to work from
 #' @export
 parameterise_mosquito_equilibrium <- function(parameters, EIR) {
-  parameters$total_M <- equilibrium_total_M(parameters, EIR)
+  parameterise_total_M(parameters. equilibrium_total_M(parameters, EIR))
+}
+
+#' @title Parameterise total_M
+#'
+#' @description Sets total_M and an upper bound for the number of mosquitoes in
+#' the simulation. NOTE: please set seasonality first, since the mosquito_limit
+#' will estimate an upper bound from the peak season.
+#'
+#' @param parameters the parameters to modify
+#' @param total_M the initial adult mosquitoes in the simulation
+#' @export
+parameterise_total_M <- function(parameters, total_M) {
+  parameters$total_M <- total_M
   K0 <- calculate_carrying_capacity(parameters)
   R_bar <- calculate_R_bar(parameters)
   max_K <- max(vnapply(seq(365), function(t) {

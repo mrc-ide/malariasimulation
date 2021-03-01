@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Parameterise drugs to use in the model — set_drugs • malariasimulation</title>
+<title>Parameterise total_M — parameterise_total_M • malariasimulation</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,10 @@
 
 
 
-<meta property="og:title" content="Parameterise drugs to use in the model — set_drugs" />
-<meta property="og:description" content="Parameterise drugs to use in the model" />
+<meta property="og:title" content="Parameterise total_M — parameterise_total_M" />
+<meta property="og:description" content="Sets total_M and an upper bound for the number of mosquitoes in
+the simulation. NOTE: please set seasonality first, since the mosquito_limit
+will estimate an upper bound from the peak season." />
 
 
 
@@ -127,27 +129,29 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Parameterise drugs to use in the model</h1>
+    <h1>Parameterise total_M</h1>
     
-    <div class="hidden name"><code>set_drugs.Rd</code></div>
+    <div class="hidden name"><code>parameterise_total_M.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Parameterise drugs to use in the model</p>
+    <p>Sets total_M and an upper bound for the number of mosquitoes in
+the simulation. NOTE: please set seasonality first, since the mosquito_limit
+will estimate an upper bound from the peak season.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>set_drugs</span><span class='op'>(</span><span class='va'>parameters</span>, <span class='va'>drugs</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>parameterise_total_M</span><span class='op'>(</span><span class='va'>parameters</span>, <span class='va'>total_M</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>parameters</th>
-      <td><p>the model parameters</p></td>
+      <td><p>the parameters to modify</p></td>
     </tr>
     <tr>
-      <th>drugs</th>
-      <td><p>a list of drug parameters, can be set using the above presets</p></td>
+      <th>total_M</th>
+      <td><p>the initial adult mosquitoes in the simulation</p></td>
     </tr>
     </table>
 

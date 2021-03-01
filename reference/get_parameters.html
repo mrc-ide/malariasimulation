@@ -75,7 +75,7 @@ and mortality: A modelling study.&quot;" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.4</span>
       </span>
     </div>
 
@@ -83,7 +83,7 @@ and mortality: A modelling study.&quot;" />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -110,7 +110,7 @@ and mortality: A modelling study.&quot;" />
       <a href="../articles/Vaccines.html">Vaccines</a>
     </li>
     <li>
-      <a href="../articles/Validation.html">Validation</a>
+      <a href="../articles/VectorControl.html">Vector Control</a>
     </li>
   </ul>
 </li>
@@ -142,7 +142,7 @@ parameters are passed to process functions. These parameters are explained in
 and mortality: A modelling study."</p>
     </div>
 
-    <pre class="usage"><span class='fu'>get_parameters</span>(<span class='kw'>overrides</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>())</pre>
+    <pre class="usage"><span class='fu'>get_parameters</span><span class='op'>(</span>overrides <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='op'>)</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -232,7 +232,7 @@ for sampling mothers</p></li>
 </ul>
 
 <p>mortality parameters:</p><ul>
-<li><p>mortality_rate - human mortality rate across age groups</p></li>
+<li><p>average_age - the average age of humans (in timesteps)</p></li>
 <li><p>v - mortality scaling factor from severe disease</p></li>
 <li><p>pcm - new-born clinical immunity relative to mother's</p></li>
 <li><p>pvm - new-born severe immunity relative to mother's</p></li>
@@ -274,14 +274,34 @@ subpatents</p></li>
 <li><p>dem - delay for infection in mosquitoes</p></li>
 </ul>
 
-<p>vector biology:</p><ul>
+<p>vector biology:
+species specific values are vectors</p><ul>
 <li><p>beta - the average number of eggs laid per female mosquito per day</p></li>
 <li><p>total_M - the initial number of adult mosquitos in the simulation</p></li>
 <li><p>init_foim - the FOIM used to calculate the equilibrium state for mosquitoes</p></li>
-<li><p>variety_proportions - the relative proportions of each species</p></li>
+<li><p>species - names of the species in the simulation</p></li>
+<li><p>species_proportions - the relative proportions of each species</p></li>
 <li><p>blood_meal_rates - the blood meal rates for each species</p></li>
+<li><p>Q0 - proportion of blood meals taken on humans</p></li>
+<li><p>foraging_time - time spent taking blood meals</p></li>
 </ul>
 
+<p>feeding cycle:</p><ul>
+<li><p>bednets - boolean for if bednets are enabled</p></li>
+<li><p>rn - probability mosquito is repelled by the bednet</p></li>
+<li><p>rnm - minimum probability mosquito is repelled by the bednet</p></li>
+<li><p>dn0 - probability killed by the bednet</p></li>
+<li><p>spraying - boolean for if indoor spraying is enabled</p></li>
+<li><p>rs - probability repelled by indoor spraying</p></li>
+<li><p>phi_indoors - proportion of bites taken indoors</p></li>
+<li><p>phi_bednets - proportion of bites taken in bed</p></li>
+<li><p>endophily - proportion of mosquitoes resting indoors after feeding with no
+intervention</p></li>
+<li><p>gammas - the half-life of spraying efficacy (timesteps)</p></li>
+<li><p>gamman - the half-life of bednet efficacy (timesteps)</p></li>
+</ul>
+
+<p>please set vector control strategies using <code>set_betnets</code> and <code>set_spraying</code></p>
 <p>treatment parameters:
 I recommend setting these with the convenience functions in
 <code>drug_parameters.R</code></p><ul>
@@ -311,19 +331,8 @@ clinically diseased (these values refer to the index in drug_* parameters)</p></
 
 <p>I recommend setting strategies with the convenience functions in
 <code>vaccine_parameters.R:set_rtss</code></p>
-<p>MDA parameters:
-I recommend setting these with convenience functions in <code>mda_parameters.R</code></p><ul>
-<li><p>mda - whether to apply an MDA or not</p></li>
-<li><p>mda_drug - the index of the drug to use</p></li>
-<li><p>mda_start - the first timestep for the drug to be distributed</p></li>
-<li><p>mda_end - the last timestep for the drug to be distributed</p></li>
-<li><p>mda_frequency - how often to distribute drugs</p></li>
-<li><p>mda_min_age - the min age of the target population</p></li>
-<li><p>mda_max_age - the max age of the target population</p></li>
-<li><p>mda_coverage - the proportion of the target population that will be covered</p></li>
-<li><p>smc* - as for mda*</p></li>
-</ul>
-
+<p>MDA and SMC parameters:
+We recommend setting these with convenience functions in <code>mda_parameters.R</code></p>
 <p>TBV parameters:</p><ul>
 <li><p>tbv_mt - effect on treated infectiousness</p></li>
 <li><p>tbv_md - effect on diseased infectiousness</p></li>
@@ -382,7 +391,7 @@ simulation</p></li>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

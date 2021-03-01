@@ -1,6 +1,11 @@
-pandoc: '2.5'
-pkgdown: 1.5.1
+pandoc: 2.7.3
+pkgdown: 1.6.1
 pkgdown_sha: ~
-articles: []
-last_built: 2020-09-28T17:19Z
+articles:
+  MDA: MDA.html
+  Model: Model.html
+  Treatment: Treatment.html
+  Vaccines: Vaccines.html
+  VectorControl: VectorControl.html
+last_built: 2021-03-01T13:53Z
 

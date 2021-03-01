@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Parameterise drugs to use in the model — set_drugs • malariasimulation</title>
+<title>Parameterise the mosquito species to use in the model — set_species • malariasimulation</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Parameterise drugs to use in the model — set_drugs" />
-<meta property="og:description" content="Parameterise drugs to use in the model" />
+<meta property="og:title" content="Parameterise the mosquito species to use in the model — set_species" />
+<meta property="og:description" content="Parameterise the mosquito species to use in the model" />
 
 
 
@@ -127,16 +127,16 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Parameterise drugs to use in the model</h1>
+    <h1>Parameterise the mosquito species to use in the model</h1>
     
-    <div class="hidden name"><code>set_drugs.Rd</code></div>
+    <div class="hidden name"><code>set_species.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Parameterise drugs to use in the model</p>
+    <p>Parameterise the mosquito species to use in the model</p>
     </div>
 
-    <pre class="usage"><span class='fu'>set_drugs</span><span class='op'>(</span><span class='va'>parameters</span>, <span class='va'>drugs</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>set_species</span><span class='op'>(</span><span class='va'>parameters</span>, <span class='va'>species</span>, <span class='va'>proportions</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -146,8 +146,12 @@
       <td><p>the model parameters</p></td>
     </tr>
     <tr>
-      <th>drugs</th>
-      <td><p>a list of drug parameters, can be set using the above presets</p></td>
+      <th>species</th>
+      <td><p>a list of species presets</p></td>
+    </tr>
+    <tr>
+      <th>proportions</th>
+      <td><p>a vector of proportions for each species</p></td>
     </tr>
     </table>
 

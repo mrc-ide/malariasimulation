@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Parameterise drugs to use in the model — set_drugs • malariasimulation</title>
+<title>Get default correlation parameters — get_correlation_parameters • malariasimulation</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,9 @@
 
 
 
-<meta property="og:title" content="Parameterise drugs to use in the model — set_drugs" />
-<meta property="og:description" content="Parameterise drugs to use in the model" />
+<meta property="og:title" content="Get default correlation parameters — get_correlation_parameters" />
+<meta property="og:description" content="returns a CorrelationParameters object for you edit. By
+default, all correlations are set to 0" />
 
 
 
@@ -127,31 +128,64 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Parameterise drugs to use in the model</h1>
+    <h1>Get default correlation parameters</h1>
     
-    <div class="hidden name"><code>set_drugs.Rd</code></div>
+    <div class="hidden name"><code>get_correlation_parameters.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Parameterise drugs to use in the model</p>
+    <p>returns a <code>CorrelationParameters</code> object for you edit. By
+default, all correlations are set to 0</p>
     </div>
 
-    <pre class="usage"><span class='fu'>set_drugs</span><span class='op'>(</span><span class='va'>parameters</span>, <span class='va'>drugs</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>get_correlation_parameters</span><span class='op'>(</span><span class='va'>parameters</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>parameters</th>
-      <td><p>the model parameters</p></td>
-    </tr>
-    <tr>
-      <th>drugs</th>
-      <td><p>a list of drug parameters, can be set using the above presets</p></td>
+      <td><p>model parameters</p></td>
     </tr>
     </table>
 
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'>
+<span class='co'># get the default model parameters</span>
+<span class='va'>parameters</span> <span class='op'>&lt;-</span> <span class='fu'><a href='get_parameters.html'>get_parameters</a></span><span class='op'>(</span><span class='op'>)</span>
+
+<span class='co'># Set some rtss strategy</span>
+<span class='va'>parameters</span> <span class='op'>&lt;-</span> <span class='fu'><a href='set_rtss.html'>set_rtss</a></span><span class='op'>(</span>
+  <span class='va'>parameters</span>,
+  timesteps <span class='op'>=</span> <span class='fl'>100</span>,
+  coverages <span class='op'>=</span> <span class='fl'>.9</span>,
+  min_ages <span class='op'>=</span> <span class='fl'>100</span>,
+  max_ages <span class='op'>=</span> <span class='fl'>1000</span>,
+  boosters <span class='op'>=</span> <span class='cn'>NULL</span>,
+  booster_coverage <span class='op'>=</span> <span class='cn'>NULL</span>
+<span class='op'>)</span>
+
+<span class='co'># Set some smc strategy</span>
+<span class='va'>parameters</span> <span class='op'>&lt;-</span> <span class='fu'><a href='set_drugs.html'>set_drugs</a></span><span class='op'>(</span><span class='va'>parameters</span>, <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='va'>SP_AQ_params</span><span class='op'>)</span><span class='op'>)</span>
+<span class='va'>parameters</span> <span class='op'>&lt;-</span> <span class='fu'><a href='set_smc.html'>set_smc</a></span><span class='op'>(</span>
+  <span class='va'>parameters</span>,
+  drug <span class='op'>=</span> <span class='fl'>1</span>,
+  timesteps <span class='op'>=</span> <span class='fl'>100</span>,
+  coverages <span class='op'>=</span> <span class='fl'>.9</span>,
+  min_age <span class='op'>=</span> <span class='fl'>100</span>,
+  max_age <span class='op'>=</span> <span class='fl'>1000</span>
+<span class='op'>)</span>
+
+<span class='co'># Correlate the rtss and smc targets</span>
+<span class='va'>correlations</span> <span class='op'>&lt;-</span> <span class='fu'>get_correlation_parameters</span><span class='op'>(</span><span class='va'>parameters</span><span class='op'>)</span>
+<span class='va'>correlations</span><span class='op'>$</span><span class='fu'>inter_intervention_rho</span><span class='op'>(</span><span class='st'>'rtss'</span>, <span class='st'>'smc'</span>, <span class='fl'>1</span><span class='op'>)</span>
+
+<span class='co'># Correlate the rounds of smc</span>
+<span class='va'>correlations</span><span class='op'>$</span><span class='fu'>inter_round_rho</span><span class='op'>(</span><span class='st'>'smc'</span>, <span class='fl'>1</span><span class='op'>)</span>
+
+<span class='co'># You can now pass the correlation parameters to the run_simulation function</span>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

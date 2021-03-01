@@ -41,7 +41,11 @@
 
 <meta property="og:title" content="Parameterise total_M and carrying capacity for mosquitos from EIR — parameterise_mosquito_equilibrium" />
 <meta property="og:description" content="NOTE: the inital EIR is likely to change unless the rest of the
-model is in equilibrium" />
+model is in equilibrium. NOTE: please set seasonality first, since the mosquito_limit
+will estimate an upper bound from the peak season.
+max_total_M is calculated using the equilibrium solution from &quot;Modelling the
+impact of vector control interventions on Anopheles gambiae population
+dynamics&quot;" />
 
 
 
@@ -73,7 +77,7 @@ model is in equilibrium" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.4</span>
       </span>
     </div>
 
@@ -81,7 +85,7 @@ model is in equilibrium" />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -108,7 +112,7 @@ model is in equilibrium" />
       <a href="../articles/Vaccines.html">Vaccines</a>
     </li>
     <li>
-      <a href="../articles/Validation.html">Validation</a>
+      <a href="../articles/VectorControl.html">Vector Control</a>
     </li>
   </ul>
 </li>
@@ -135,10 +139,14 @@ model is in equilibrium" />
 
     <div class="ref-description">
     <p>NOTE: the inital EIR is likely to change unless the rest of the
-model is in equilibrium</p>
+model is in equilibrium. NOTE: please set seasonality first, since the mosquito_limit
+will estimate an upper bound from the peak season.</p>
+<p>max_total_M is calculated using the equilibrium solution from "Modelling the
+impact of vector control interventions on Anopheles gambiae population
+dynamics"</p>
     </div>
 
-    <pre class="usage"><span class='fu'>parameterise_mosquito_equilibrium</span>(<span class='no'>parameters</span>, <span class='no'>EIR</span>, <span class='kw'>limit_grace</span> <span class='kw'>=</span> <span class='fl'>1.5</span>)</pre>
+    <pre class="usage"><span class='fu'>parameterise_mosquito_equilibrium</span><span class='op'>(</span><span class='va'>parameters</span>, <span class='va'>EIR</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -150,12 +158,6 @@ model is in equilibrium</p>
     <tr>
       <th>EIR</th>
       <td><p>to work from</p></td>
-    </tr>
-    <tr>
-      <th>limit_grace</th>
-      <td><p>the number of mosquitos to allocate to the simulation as a
-proportion of total_M. e.g. 10 will allocate total_M * 10 mosquitos. High
-values of <code>limit_grace</code> are required for simulations with seasonality.</p></td>
     </tr>
     </table>
 
@@ -175,7 +177,7 @@ values of <code>limit_grace</code> are required for simulations with seasonality
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

@@ -40,7 +40,15 @@
 
 
 <meta property="og:title" content="Parameterise a bed net strategy — set_bednets" />
-<meta property="og:description" content="Parameterise a bed net strategy" />
+<meta property="og:description" content="The model will distribute bednets at timesteps to a random
+sample of the entire human population. The sample size will be a proportion
+of the human population taken from the corresponding coverages.
+The sample can contain humans who already have bednets.
+All of the sample &quot;use&quot; their bednets on the timestep after they are
+distributed. Incomplete usage is not part of this model.
+If a human in the sample already has a bednet, their bednet will be replaced
+by a new one.
+Bednets will be randomly removed each timestep with a rate of 1 - exp(-1/retention)" />
 
 
 
@@ -72,7 +80,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.4</span>
       </span>
     </div>
 
@@ -80,7 +88,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -105,9 +113,6 @@
     </li>
     <li>
       <a href="../articles/Vaccines.html">Vaccines</a>
-    </li>
-    <li>
-      <a href="../articles/Validation.html">Validation</a>
     </li>
     <li>
       <a href="../articles/VectorControl.html">Vector Control</a>
@@ -136,10 +141,18 @@
     </div>
 
     <div class="ref-description">
-    <p>Parameterise a bed net strategy</p>
+    <p>The model will distribute bednets at <code>timesteps</code> to a random
+sample of the entire human population. The sample size will be a proportion
+of the human population taken from the corresponding <code>coverages</code>.
+The sample <em>can</em> contain humans who already have bednets.</p>
+<p>All of the sample "use" their bednets on the timestep after they are
+distributed. Incomplete usage is not part of this model.</p>
+<p>If a human in the sample already has a bednet, their bednet will be replaced
+by a new one.</p>
+<p>Bednets will be randomly removed each timestep with a rate of <code>1 - exp(-1/retention)</code></p>
     </div>
 
-    <pre class="usage"><span class='fu'>set_bednets</span>(<span class='no'>parameters</span>, <span class='no'>timesteps</span>, <span class='no'>coverages</span>, <span class='no'>retention</span>)</pre>
+    <pre class="usage"><span class='fu'>set_bednets</span><span class='op'>(</span><span class='va'>parameters</span>, <span class='va'>timesteps</span>, <span class='va'>coverages</span>, <span class='va'>retention</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -154,7 +167,7 @@
     </tr>
     <tr>
       <th>coverages</th>
-      <td><p>the proportion of the target population who receive bednets</p></td>
+      <td><p>the proportion of the human population who receive bednets</p></td>
     </tr>
     <tr>
       <th>retention</th>
@@ -178,7 +191,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

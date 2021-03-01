@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.4</span>
       </span>
     </div>
 
@@ -39,7 +39,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -66,7 +66,7 @@
       <a href="../articles/Vaccines.html">Vaccines</a>
     </li>
     <li>
-      <a href="../articles/Validation.html">Validation</a>
+      <a href="../articles/VectorControl.html">Vector Control</a>
     </li>
   </ul>
 </li>
@@ -81,7 +81,7 @@
 
       
 
-      </header><div class="row">
+      </header><script src="Vaccines_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Vaccines</h1>
@@ -94,132 +94,120 @@
 
     
     
-<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">ggplot2</span>))
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">malariasimulation</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">malariaEquilibrium</span>)
-<span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">reshape2</span>)</pre></body></html></div>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">malariasimulation</span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">malariaEquilibrium</span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/hadley/reshape">reshape2</a></span><span class="op">)</span></code></pre></div>
 <div id="parameterisation" class="section level1">
 <h1 class="hasAnchor">
 <a href="#parameterisation" class="anchor"></a>Parameterisation</h1>
 <p>We are going to set the default parameters to run the simulation from an equilibrium.</p>
-<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="no">year</span> <span class="kw">&lt;-</span> <span class="fl">365</span>
-<span class="no">sim_length</span> <span class="kw">&lt;-</span> <span class="fl">30</span> * <span class="no">year</span>
-<span class="no">human_population</span> <span class="kw">&lt;-</span> <span class="fl">1000</span>
-<span class="no">starting_EIR</span> <span class="kw">&lt;-</span> <span class="fl">50</span>
-<span class="no">repetitions</span> <span class="kw">&lt;-</span> <span class="fl">5</span>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">year</span> <span class="op">&lt;-</span> <span class="fl">365</span>
+<span class="va">sim_length</span> <span class="op">&lt;-</span> <span class="fl">3</span> <span class="op">*</span> <span class="va">year</span>
+<span class="va">human_population</span> <span class="op">&lt;-</span> <span class="fl">1000</span>
+<span class="va">starting_EIR</span> <span class="op">&lt;-</span> <span class="fl">50</span>
 
-<span class="no">jamie_params</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariaEquilibrium/man/load_parameter_set.html">load_parameter_set</a></span>()
-<span class="no">eq</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariaEquilibrium/man/human_equilibrium.html">human_equilibrium</a></span>(<span class="kw">EIR</span> <span class="kw">=</span> <span class="no">starting_EIR</span>, <span class="kw">ft</span> <span class="kw">=</span> <span class="fl">0</span>, <span class="kw">p</span> <span class="kw">=</span> <span class="no">jamie_params</span>, <span class="kw">age</span> <span class="kw">=</span> <span class="fl">0</span>:<span class="fl">99</span>)
+<span class="va">jamie_params</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariaEquilibrium/man/load_parameter_set.html">load_parameter_set</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">eq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariaEquilibrium/man/human_equilibrium.html">human_equilibrium</a></span><span class="op">(</span>EIR <span class="op">=</span> <span class="va">starting_EIR</span>, ft <span class="op">=</span> <span class="fl">0</span>, p <span class="op">=</span> <span class="va">jamie_params</span>, age <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">99</span><span class="op">)</span>
 
-<span class="no">simparams</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/get_parameters.html">get_parameters</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(
-  <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/translate_jamie.html">translate_jamie</a></span>(<span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/remove_unused_jamie.html">remove_unused_jamie</a></span>(<span class="no">jamie_params</span>)),
-  <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
-    <span class="kw">human_population</span> <span class="kw">=</span> <span class="no">human_population</span>,
-    <span class="kw">variety_proportions</span> <span class="kw">=</span> <span class="fl">1</span>,
-    <span class="kw">model_seasonality</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="co"># Let's try a bi-modal model</span>
-    <span class="kw">g0</span> <span class="kw">=</span> <span class="fl">0.28605</span>,
-    <span class="kw">g</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.20636</span>, -<span class="fl">0.0740318</span>, -<span class="fl">0.0009293</span>),
-    <span class="kw">h</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">0.173743</span>, -<span class="fl">0.0730962</span>, -<span class="fl">0.116019</span>),
-    <span class="kw">severe_enabled</span> <span class="kw">=</span> <span class="fl">TRUE</span>,
-    <span class="kw">incidence_rendering_min_ages</span> <span class="kw">=</span> <span class="fl">0</span>,
-    <span class="kw">incidence_rendering_max_ages</span> <span class="kw">=</span> <span class="fl">5</span> * <span class="no">year</span>,
-    <span class="kw">severe_incidence_rendering_min_ages</span> <span class="kw">=</span> <span class="fl">0</span>,
-    <span class="kw">severe_incidence_rendering_max_ages</span> <span class="kw">=</span> <span class="fl">5</span> * <span class="no">year</span>
-  )
-))
+<span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_parameters.html">get_parameters</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>
+  <span class="fu"><a href="../reference/translate_jamie.html">translate_jamie</a></span><span class="op">(</span><span class="fu"><a href="../reference/remove_unused_jamie.html">remove_unused_jamie</a></span><span class="op">(</span><span class="va">jamie_params</span><span class="op">)</span><span class="op">)</span>,
+  <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
+    human_population <span class="op">=</span> <span class="va">human_population</span>,
+    model_seasonality <span class="op">=</span> <span class="cn">TRUE</span>, <span class="co"># Let's try a bi-modal model</span>
+    g0 <span class="op">=</span> <span class="fl">0.28605</span>,
+    g <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.20636</span>, <span class="op">-</span><span class="fl">0.0740318</span>, <span class="op">-</span><span class="fl">0.0009293</span><span class="op">)</span>,
+    h <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.173743</span>, <span class="op">-</span><span class="fl">0.0730962</span>, <span class="op">-</span><span class="fl">0.116019</span><span class="op">)</span>,
+    severe_enabled <span class="op">=</span> <span class="cn">TRUE</span>,
+    incidence_rendering_min_ages <span class="op">=</span> <span class="fl">0</span>,
+    incidence_rendering_max_ages <span class="op">=</span> <span class="fl">18</span> <span class="op">*</span> <span class="va">year</span>,
+    severe_incidence_rendering_min_ages <span class="op">=</span> <span class="fl">0</span>,
+    severe_incidence_rendering_max_ages <span class="op">=</span> <span class="fl">18</span> <span class="op">*</span> <span class="va">year</span>
+  <span class="op">)</span>
+<span class="op">)</span><span class="op">)</span>
 
-<span class="no">simparams</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/parameterise_human_equilibrium.html">parameterise_human_equilibrium</a></span>(<span class="no">simparams</span>, <span class="no">eq</span>)
-<span class="no">simparams</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/parameterise_mosquito_equilibrium.html">parameterise_mosquito_equilibrium</a></span>(<span class="no">simparams</span>, <span class="no">starting_EIR</span>, <span class="kw">limit_grace</span> <span class="kw">=</span> <span class="fl">10</span>)
-
+<span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/parameterise_human_equilibrium.html">parameterise_human_equilibrium</a></span><span class="op">(</span><span class="va">simparams</span>, <span class="va">eq</span><span class="op">)</span>
+<span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/parameterise_mosquito_equilibrium.html">parameterise_mosquito_equilibrium</a></span><span class="op">(</span><span class="va">simparams</span>, <span class="va">starting_EIR</span><span class="op">)</span>
 
 <span class="co"># Plotting functions</span>
-<span class="no">plot_prevalence</span> <span class="kw">&lt;-</span> <span class="kw">function</span>(<span class="no">output</span>) {
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(<span class="no">output</span>) + <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span>(
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">timestep</span>, <span class="kw">y</span> <span class="kw">=</span> <span class="no">inc_0_1825</span>, <span class="kw">group</span> <span class="kw">=</span> <span class="no">repetition</span>, <span class="kw">alpha</span> <span class="kw">=</span> <span class="fl">1</span>/<span class="no">repetitions</span>)
-  )
-}
+<span class="va">plot_prevalence</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">output</span><span class="op">)</span> <span class="op">{</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">output</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span><span class="op">(</span>
+    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">timestep</span>, y <span class="op">=</span> <span class="va">inc_0_6570</span><span class="op">)</span>
+  <span class="op">)</span>
+<span class="op">}</span>
 
-<span class="no">add_intervention_lines</span> <span class="kw">&lt;-</span> <span class="kw">function</span>(<span class="no">plot</span>, <span class="no">events</span>) {
-  <span class="no">plot</span> + <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html">geom_vline</a></span>(
-    <span class="kw">data</span> <span class="kw">=</span> <span class="no">events</span>,
-    <span class="kw">mapping</span> <span class="kw">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="kw">xintercept</span><span class="kw">=</span><span class="no">timestep</span>),
-    <span class="kw">color</span><span class="kw">=</span><span class="st">"blue"</span>
-  ) + <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html">geom_text</a></span>(
-    <span class="kw">data</span> <span class="kw">=</span> <span class="no">events</span>,
-    <span class="kw">mapping</span> <span class="kw">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(<span class="kw">x</span> <span class="kw">=</span> <span class="no">timestep</span>, <span class="kw">y</span> <span class="kw">=</span> <span class="fl">0</span>, <span class="kw">label</span> <span class="kw">=</span> <span class="no">name</span>),
-    <span class="kw">size</span> <span class="kw">=</span> <span class="fl">4</span>,
-    <span class="kw">angle</span> <span class="kw">=</span> <span class="fl">90</span>,
-    <span class="kw">vjust</span> <span class="kw">=</span> -<span class="fl">0.4</span>,
-    <span class="kw">hjust</span> <span class="kw">=</span> <span class="fl">0</span>
-  )
-}</pre></body></html></div>
+<span class="va">add_intervention_lines</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">plot</span>, <span class="va">events</span><span class="op">)</span> <span class="op">{</span>
+  <span class="va">plot</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html">geom_vline</a></span><span class="op">(</span>
+    data <span class="op">=</span> <span class="va">events</span>,
+    mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>xintercept<span class="op">=</span><span class="va">timestep</span><span class="op">)</span>,
+    color<span class="op">=</span><span class="st">"blue"</span>
+  <span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html">geom_text</a></span><span class="op">(</span>
+    data <span class="op">=</span> <span class="va">events</span>,
+    mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">timestep</span>, y <span class="op">=</span> <span class="fl">0</span>, label <span class="op">=</span> <span class="va">name</span><span class="op">)</span>,
+    size <span class="op">=</span> <span class="fl">4</span>,
+    angle <span class="op">=</span> <span class="fl">90</span>,
+    vjust <span class="op">=</span> <span class="op">-</span><span class="fl">0.4</span>,
+    hjust <span class="op">=</span> <span class="fl">0</span>
+  <span class="op">)</span>
+<span class="op">}</span></code></pre></div>
 <p>Then we can run the simulation for a variety of Vaccination strategies:</p>
 <div id="rtss" class="section level2">
 <h2 class="hasAnchor">
 <a href="#rtss" class="anchor"></a>RTS,S</h2>
 <p>This is a round of RTS,S vaccine for individuals between 5 - 17 months and a booster after 18 months; coverage of 80%; for 10 years:</p>
-<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="no">rtssparams</span> <span class="kw">&lt;-</span> <span class="no">simparams</span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">rtssparams</span> <span class="op">&lt;-</span> <span class="va">simparams</span>
 
-<span class="no">peak</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/peak_season_offset.html">peak_season_offset</a></span>(<span class="no">rtssparams</span>)
-<span class="no">month</span> <span class="kw">&lt;-</span> <span class="fl">30</span>
+<span class="va">peak</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/peak_season_offset.html">peak_season_offset</a></span><span class="op">(</span><span class="va">rtssparams</span><span class="op">)</span>
+<span class="va">month</span> <span class="op">&lt;-</span> <span class="fl">30</span>
 
 <span class="co"># Add RTS,S strategy</span>
-<span class="no">rtssevents</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(
-  <span class="kw">timestep</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">10</span>, <span class="fl">20</span>) * <span class="no">year</span> + <span class="no">peak</span> - <span class="no">month</span>, <span class="co">#vaccine efficacy kicks off a month before the peak</span>
-  <span class="kw">name</span><span class="kw">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"RTS,S starts"</span>, <span class="st">"RTS,S ends"</span>)
-)
+<span class="va">rtssevents</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>
+  timestep <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span> <span class="op">*</span> <span class="va">year</span> <span class="op">+</span> <span class="va">peak</span> <span class="op">-</span> <span class="va">month</span>, <span class="co">#vaccine efficacy kicks off a month before the peak</span>
+  name<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"RTS,S 1"</span>, <span class="st">"RTS,S 2"</span><span class="op">)</span>
+<span class="op">)</span>
 
-<span class="no">rtssparams</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/set_rtss.html">set_rtss</a></span>(
-  <span class="no">rtssparams</span>,
-  <span class="kw">start</span> <span class="kw">=</span> <span class="no">rtssevents</span>$<span class="no">timestep</span><span class="kw">[[</span><span class="fl">1</span>]],
-  <span class="kw">end</span> <span class="kw">=</span> <span class="no">rtssevents</span>$<span class="no">timestep</span><span class="kw">[[</span><span class="fl">2</span>]],
-  <span class="kw">frequency</span> <span class="kw">=</span> <span class="no">year</span>,
-  <span class="kw">min_ages</span> <span class="kw">=</span> <span class="fl">5</span> * <span class="no">month</span>,
-  <span class="kw">max_ages</span> <span class="kw">=</span> <span class="fl">17</span> * <span class="no">month</span>,
-  <span class="kw">boosters</span> <span class="kw">=</span> <span class="fl">18</span> * <span class="no">month</span>,
-  <span class="kw">coverage</span> <span class="kw">=</span> <span class="fl">0.8</span>,
-  <span class="kw">booster_coverage</span> <span class="kw">=</span> <span class="fl">.7</span>
-)
+<span class="va">rtssparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_rtss.html">set_rtss</a></span><span class="op">(</span>
+  <span class="va">rtssparams</span>,
+  timesteps <span class="op">=</span> <span class="va">rtssevents</span><span class="op">$</span><span class="va">timestep</span>,
+  coverages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">0.8</span>, <span class="fl">2</span><span class="op">)</span>,
+  min_ages <span class="op">=</span> <span class="fl">5</span> <span class="op">*</span> <span class="va">month</span>,
+  max_ages <span class="op">=</span> <span class="fl">17</span> <span class="op">*</span> <span class="va">year</span>,
+  boosters <span class="op">=</span> <span class="fl">18</span> <span class="op">*</span> <span class="va">month</span>,
+  booster_coverage <span class="op">=</span> <span class="fl">.7</span>
+<span class="op">)</span>
 
-<span class="no">output</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/run_simulation_with_repetitions.html">run_simulation_with_repetitions</a></span>(
-  <span class="no">sim_length</span>,
-  <span class="no">repetitions</span>,
-  <span class="no">rtssparams</span>,
-  <span class="kw">parallel</span><span class="kw">=</span><span class="fl">TRUE</span>
-)
-<span class="fu">add_intervention_lines</span>(<span class="fu">plot_prevalence</span>(<span class="no">output</span>), <span class="no">rtssevents</span>)
-<span class="co">#&gt; Warning: Removed 60 row(s) containing missing values (geom_path).</span></pre></body></html></div>
+<span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_simulation.html">run_simulation</a></span><span class="op">(</span><span class="va">sim_length</span>, <span class="va">rtssparams</span><span class="op">)</span>
+
+<span class="fu">add_intervention_lines</span><span class="op">(</span><span class="fu">plot_prevalence</span><span class="op">(</span><span class="va">output</span><span class="op">)</span>, <span class="va">rtssevents</span><span class="op">)</span>
+<span class="co">#&gt; Warning: Removed 1 row(s) containing missing values (geom_path).</span></code></pre></div>
 <p><img src="Vaccines_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
 </div>
 <div id="tbv" class="section level2">
 <h2 class="hasAnchor">
 <a href="#tbv" class="anchor"></a>TBV</h2>
 <p>This is a round of the TBV (transmission blocking) vaccine at ages 1, 2, 3 and 18; coverage of 80%; for 10 years:</p>
-<div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="no">tbvparams</span> <span class="kw">&lt;-</span> <span class="no">simparams</span>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">tbvparams</span> <span class="op">&lt;-</span> <span class="va">simparams</span>
 
 <span class="co"># Add TBV strategy</span>
-<span class="no">tbvevents</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(
-  <span class="kw">timestep</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">10</span>, <span class="fl">20</span>) * <span class="fl">365</span>,
-  <span class="kw">name</span><span class="kw">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"TBV starts"</span>, <span class="st">"TBV ends"</span>)
-)
+<span class="va">tbvevents</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>
+  timestep <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span> <span class="op">*</span> <span class="fl">365</span>,
+  name<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"TBV 1"</span>, <span class="st">"TBV 2"</span><span class="op">)</span>
+<span class="op">)</span>
 
-<span class="no">tbvparams</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/set_tbv.html">set_tbv</a></span>(
-  <span class="no">tbvparams</span>,
-  <span class="kw">start</span> <span class="kw">=</span> <span class="no">tbvevents</span>$<span class="no">timestep</span><span class="kw">[[</span><span class="fl">1</span>]],
-  <span class="kw">end</span> <span class="kw">=</span> <span class="no">tbvevents</span>$<span class="no">timestep</span><span class="kw">[[</span><span class="fl">2</span>]],
-  <span class="kw">frequency</span> <span class="kw">=</span> <span class="fl">365</span>,
-  <span class="kw">ages</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">18</span>),
-  <span class="kw">coverage</span> <span class="kw">=</span> <span class="fl">0.8</span>
-)
+<span class="va">tbvparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_tbv.html">set_tbv</a></span><span class="op">(</span>
+  <span class="va">tbvparams</span>,
+  timesteps <span class="op">=</span> <span class="va">tbvevents</span><span class="op">$</span><span class="va">timestep</span>,
+  coverages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">0.8</span>, <span class="fl">2</span><span class="op">)</span>,
+  ages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">18</span><span class="op">)</span>
+<span class="op">)</span>
 
-<span class="no">output</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariasimulation/man/run_simulation_with_repetitions.html">run_simulation_with_repetitions</a></span>(
-  <span class="no">sim_length</span>,
-  <span class="no">repetitions</span>,
-  <span class="no">tbvparams</span>,
-  <span class="kw">parallel</span><span class="kw">=</span><span class="fl">TRUE</span>
-)
-<span class="fu">add_intervention_lines</span>(<span class="fu">plot_prevalence</span>(<span class="no">output</span>), <span class="no">tbvevents</span>)
-<span class="co">#&gt; Warning: Removed 60 row(s) containing missing values (geom_path).</span></pre></body></html></div>
+<span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_simulation.html">run_simulation</a></span><span class="op">(</span><span class="va">sim_length</span>, <span class="va">tbvparams</span><span class="op">)</span>
+
+<span class="fu">add_intervention_lines</span><span class="op">(</span><span class="fu">plot_prevalence</span><span class="op">(</span><span class="va">output</span><span class="op">)</span>, <span class="va">tbvevents</span><span class="op">)</span></code></pre></div>
 <p><img src="Vaccines_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
 </div>
 </div>
@@ -240,7 +228,7 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

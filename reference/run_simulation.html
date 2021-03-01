@@ -76,7 +76,7 @@ out what kind of outputs we would like to report from the simulation." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.4</span>
       </span>
     </div>
 
@@ -84,7 +84,7 @@ out what kind of outputs we would like to report from the simulation." />
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -111,7 +111,7 @@ out what kind of outputs we would like to report from the simulation." />
       <a href="../articles/Vaccines.html">Vaccines</a>
     </li>
     <li>
-      <a href="../articles/Validation.html">Validation</a>
+      <a href="../articles/VectorControl.html">Vector Control</a>
     </li>
   </ul>
 </li>
@@ -144,7 +144,7 @@ dataframe with the number of individuals in each state at each timestep</p>
 out what kind of outputs we would like to report from the simulation.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>run_simulation</span>(<span class='no'>timesteps</span>, <span class='kw'>parameters</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>run_simulation</span><span class='op'>(</span><span class='va'>timesteps</span>, parameters <span class='op'>=</span> <span class='cn'>NULL</span>, correlations <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -156,6 +156,10 @@ out what kind of outputs we would like to report from the simulation.</p>
     <tr>
       <th>parameters</th>
       <td><p>a named list of parameters to use</p></td>
+    </tr>
+    <tr>
+      <th>correlations</th>
+      <td><p>correlation parameters</p></td>
     </tr>
     </table>
 
@@ -175,7 +179,7 @@ out what kind of outputs we would like to report from the simulation.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

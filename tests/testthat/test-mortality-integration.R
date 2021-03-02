@@ -53,10 +53,10 @@ test_that('mortality_process resets humans correctly', {
 
   mockery::stub( # mothers
     mortality_process,
-    'sample_bitset_fixed',
+    'sample.int',
     mockery::mock(
-      individual::Bitset$new(4)$insert(1), # for 2
-      individual::Bitset$new(4)$insert(3) # for 4
+      1, # for 2
+      1 # for 4
     )
   )
 

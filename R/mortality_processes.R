@@ -45,10 +45,14 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
 
         if (died_group$size() > 0) {
           # find their mothers
-          mothers <- sample_bitset_fixed(
-            group_index$and(sampleable),
-            died_group$size()
-          )
+          potential_mothers <- group_index$and(sampleable)$to_vector()
+          mothers <- potential_mothers[
+            sample.int(
+              length(potential_mothers),
+              died_group$size(),
+              replace = TRUE
+            )
+          ]
 
           # set their maternal immunities
           birth_icm <- variables$ica$get_values(mothers) * parameters$pcm

@@ -90,7 +90,7 @@ simulate_bites <- function(renderer, variables, events, age, parameters, timeste
       variables,
       human_infectivity,
       lambda,
-      events$mosquito_infection,
+      events,
       s_i,
       susceptible_species_index,
       species_index$and(adult_index),

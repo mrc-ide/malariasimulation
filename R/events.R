@@ -21,7 +21,8 @@ create_events <- function(parameters) {
     throw_away_net = individual::TargetedEvent$new(parameters$human_population),
 
     # Mosquito events
-    mosquito_infection = individual::TargetedEvent$new(parameters$mosquito_limit)
+    mosquito_infection = individual::TargetedEvent$new(parameters$mosquito_limit),
+    mosquito_death = individual::TargetedEvent$new(parameters$mosquito_limit)
   )
 }
 
@@ -52,9 +53,10 @@ initialise_events <- function(events, variables, parameters) {
     parameters$dt
   )
 
+  incubating <- variables$mosquito_state$get_index_of('Pm')
   events$mosquito_infection$schedule(
-    variables$mosquito_state$get_index_of('Pm'),
-    parameters$dem
+    incubating,
+    log_uniform(incubating$size(), parameters$dem)
   )
 
   # Initialise interventions
@@ -164,6 +166,14 @@ attach_event_listeners <- function(
 
   events$mosquito_infection$add_listener(
     individual::update_category_listener(variables$mosquito_state, 'Im')
+  )
+
+  events$mosquito_death$add_listener(
+    function(timestep, target) {
+      variables$mosquito_state$queue_update('Unborn', target)
+      events$mosquito_infection$clear_schedule(target)
+      renderer$render('mosquito_deaths', target$size(), timestep)
+    }
   )
 
   if (parameters$bednets == 1) {

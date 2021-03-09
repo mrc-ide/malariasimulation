@@ -92,20 +92,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// create_ode_stepping_process_cpp
-Rcpp::XPtr<process_t> create_ode_stepping_process_cpp(Rcpp::List odes, const Rcpp::XPtr<CategoricalVariable> state, const Rcpp::XPtr<CategoricalVariable> species, const std::vector<std::string> species_names);
-RcppExport SEXP _malariasimulation_create_ode_stepping_process_cpp(SEXP odesSEXP, SEXP stateSEXP, SEXP speciesSEXP, SEXP species_namesSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::List >::type odes(odesSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::XPtr<CategoricalVariable> >::type state(stateSEXP);
-    Rcpp::traits::input_parameter< const Rcpp::XPtr<CategoricalVariable> >::type species(speciesSEXP);
-    Rcpp::traits::input_parameter< const std::vector<std::string> >::type species_names(species_namesSEXP);
-    rcpp_result_gen = Rcpp::wrap(create_ode_stepping_process_cpp(odes, state, species, species_names));
-    return rcpp_result_gen;
-END_RCPP
-}
 // mosquito_model_step
 void mosquito_model_step(Rcpp::XPtr<MosquitoModel> model, size_t total_M);
 RcppExport SEXP _malariasimulation_mosquito_model_step(SEXP modelSEXP, SEXP total_MSEXP) {
@@ -137,7 +123,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_malariasimulation_create_mosquito_emergence_process_cpp", (DL_FUNC) &_malariasimulation_create_mosquito_emergence_process_cpp, 5},
     {"_malariasimulation_create_mosquito_model", (DL_FUNC) &_malariasimulation_create_mosquito_model, 17},
     {"_malariasimulation_mosquito_model_get_states", (DL_FUNC) &_malariasimulation_mosquito_model_get_states, 1},
-    {"_malariasimulation_create_ode_stepping_process_cpp", (DL_FUNC) &_malariasimulation_create_ode_stepping_process_cpp, 4},
     {"_malariasimulation_mosquito_model_step", (DL_FUNC) &_malariasimulation_mosquito_model_step, 2},
     {"_malariasimulation_bernoulli_multi_p_cpp", (DL_FUNC) &_malariasimulation_bernoulli_multi_p_cpp, 1},
     {"run_testthat_tests", (DL_FUNC) &run_testthat_tests, 0},

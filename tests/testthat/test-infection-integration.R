@@ -12,9 +12,7 @@ test_that('simulate_infection integrates different types of infection and schedu
   total_eir <- 5
   eir <- rep(total_eir / population, population)
 
-  b <- individual::Bitset$new(population)
-  b$insert(c(1, 3, 5, 7))
-  bernoulli_mock <- mockery::mock(b)
+  bitten <- individual::Bitset$new(population)$insert(c(1, 3, 5, 7))
   boost_immunity_mock <- mockery::mock()
   infection_mock <- mockery::mock(c(1, 3, 5))
   clinical_infection_mock <- mockery::mock(c(1, 3))
@@ -22,22 +20,19 @@ test_that('simulate_infection integrates different types of infection and schedu
   treated_mock <- mockery::mock(c(3))
   schedule_mock <- mockery::mock()
 
-  mockery::stub(simulate_infection, 'bernoulli_multi_p', bernoulli_mock)
   mockery::stub(simulate_infection, 'boost_immunity', boost_immunity_mock)
   mockery::stub(simulate_infection, 'calculate_infections', infection_mock)
   mockery::stub(simulate_infection, 'calculate_clinical_infections', clinical_infection_mock)
   mockery::stub(simulate_infection, 'update_severe_disease', severe_infection_mock)
   mockery::stub(simulate_infection, 'calculate_treated', treated_mock)
   mockery::stub(simulate_infection, 'schedule_infections', schedule_mock)
-  simulate_infection(variables, events, eir, age, parameters, timestep)
-
-  mockery::expect_args(bernoulli_mock, 1, eir)
+  simulate_infection(variables, events, bitten, age, parameters, timestep)
 
   mockery::expect_args(
     boost_immunity_mock,
     1,
     variables$ib,
-    b,
+    bitten,
     variables$last_boosted_ib,
     5,
     parameters$ub
@@ -47,7 +42,7 @@ test_that('simulate_infection integrates different types of infection and schedu
     infection_mock,
     1,
     variables,
-    b,
+    bitten,
     parameters,
     timestep
   )

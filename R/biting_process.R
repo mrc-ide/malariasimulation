@@ -27,12 +27,12 @@ create_biting_process <- function(renderer, variables, events, parameters) {
       bitten_humans,
       age,
       parameters,
-      timestep,
-      renderer
+      timestep
     )
   }
 }
 
+#' @importFrom stats rpois
 simulate_bites <- function(renderer, variables, events, age, parameters, timestep) {
   bitten_humans <- individual::Bitset$new(parameters$human_population)
 
@@ -135,8 +135,7 @@ simulate_infection <- function(
   bitten_humans,
   age,
   parameters,
-  timestep,
-  renderer
+  timestep
   ) {
 
   if (bitten_humans$size() > 0) {

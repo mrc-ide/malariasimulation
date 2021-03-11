@@ -53,9 +53,6 @@ set_species <- function(parameters, species, proportions) {
   if (length(species) != length(proportions)) {
     stop('You must give proportions for each species')
   }
-  if (any(proportions <= 0)) {
-    stop('All proportions must be > 0')
-  }
   if (!approx_sum(proportions, 1)) {
     stop('Proportions do not sum to 1')
   }

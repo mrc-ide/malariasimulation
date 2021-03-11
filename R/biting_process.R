@@ -53,7 +53,7 @@ simulate_bites <- function(renderer, variables, events, age, parameters, timeste
   .pi <- human_pi(variables$zeta$get_values(), psi)
   infectious_index <- variables$mosquito_state$get_index_of('Im')
   susceptible_index <- variables$mosquito_state$get_index_of('Sm')
-  adult_index <- variables$mosquito_state$get_index_of('Unborn')$not()
+  adult_index <- variables$mosquito_state$get_index_of('NonExistent')$not()
 
   for (s_i in seq_along(parameters$species)) {
     # Calculate the probabilities of each human being bitten (given

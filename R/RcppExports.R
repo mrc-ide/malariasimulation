@@ -10,7 +10,7 @@ rainfall <- function(t, days_per_timestep, g0, g, h) {
 }
 
 #' @title Mosquito emergence process
-#' @description Move mosquitos from Unborn to Sm in line with the number of
+#' @description Move mosquitos from NonExistent to Sm in line with the number of
 #' pupals in the ODE models
 #'
 #' @param odes a list of odes for each species of mosquito

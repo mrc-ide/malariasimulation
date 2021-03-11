@@ -69,8 +69,8 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
   variables$zeta <- individual::DoubleVariable$new((c(.2, .3, .5, .9)))
   variables$infectivity <- individual::DoubleVariable$new(infectivity)
   variables$mosquito_state <- individual::CategoricalVariable$new(
-    c('Sm', 'Pm', 'Im', 'Unborn'),
-    c(rep('Im', 10), rep('Sm', 15), rep('Unborn', 75))
+    c('Sm', 'Pm', 'Im', 'NonExistent'),
+    c(rep('Im', 10), rep('Sm', 15), rep('NonExistent', 75))
   )
   variables$species <- individual::CategoricalVariable$new(
     c('All'),
@@ -112,7 +112,7 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
   expect_equal(effects_args[[1]][[1]], variables)
   expect_equal(effects_args[[1]][[2]], infectivity)
   expect_equal(effects_args[[1]][[3]], .5)
-  expect_equal(effects_args[[1]][[4]], events$mosquito_infection)
+  expect_equal(effects_args[[1]][[4]], events)
   expect_equal(effects_args[[1]][[5]], 1)
   expect_equal(effects_args[[1]][[6]]$to_vector(), 11:25)
   expect_equal(effects_args[[1]][[7]]$to_vector(), c(1:10, 11:25))

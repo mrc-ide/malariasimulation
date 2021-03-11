@@ -149,15 +149,16 @@ test_that('mosquito_effects correctly samples mortalities and infections without
   bernoulli_mock = mockery::mock(infected, dead)
   mockery::stub(calculate_mosquito_effects, 'sample_bitset', bernoulli_mock)
   events$mosquito_infection <- mock_event(events$mosquito_infection)
+  events$mosquito_death <- mock_event(events$mosquito_death)
   variables$mosquito_state <- mock_category(
-    c('Sm', 'Pm', 'Im', 'Unborn'),
+    c('Sm', 'Pm', 'Im', 'NonExistent'),
     rep('Sm', 100)
   )
   calculate_mosquito_effects(
     variables,
     infectivity,
     lambda,
-    events$mosquito_infection,
+    events,
     1,
     individual::Bitset$new(100)$insert(1:50),
     individual::Bitset$new(100)$insert(1:100),
@@ -182,9 +183,9 @@ test_that('mosquito_effects correctly samples mortalities and infections without
   )
 
   mockery::expect_args(
-    variables$mosquito_state$queue_update,
-    2,
-    'Unborn',
-    dead
+    events$mosquito_death$schedule,
+    1,
+    dead,
+    0
   )
 })

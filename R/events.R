@@ -170,7 +170,7 @@ attach_event_listeners <- function(
 
   events$mosquito_death$add_listener(
     function(timestep, target) {
-      variables$mosquito_state$queue_update('Unborn', target)
+      variables$mosquito_state$queue_update('NonExistent', target)
       events$mosquito_infection$clear_schedule(target)
       renderer$render('mosquito_deaths', target$size(), timestep)
     }

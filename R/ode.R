@@ -56,7 +56,7 @@ create_ode_rendering_process <- function(renderer, odes) {
 #' @noRd
 create_ode_stepping_process <- function(odes, state, species, species_names, renderer) {
   function(timestep) {
-    adult <- state$get_index_of("Unborn")$not()
+    adult <- state$get_index_of("NonExistent")$not()
     for (s_i in seq_along(species_names)) {
       total_M <- species$get_index_of(species_names[[s_i]])$and(adult)$size()
       renderer$render(paste0('total_M_', s_i), total_M, timestep)

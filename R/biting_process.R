@@ -12,7 +12,7 @@ create_biting_process <- function(renderer, variables, events, parameters) {
     # Calculate combined EIR
     age <- get_age(variables$birth$get_values(), timestep)
 
-    total_eir <- simulate_bites(
+    bitten_humans <- simulate_bites(
       renderer,
       variables,
       events,
@@ -21,21 +21,20 @@ create_biting_process <- function(renderer, variables, events, parameters) {
       timestep
     )
 
-    renderer$render("mean_EIR", mean(total_eir), timestep)
-
     simulate_infection(
       variables,
       events,
-      total_eir,
+      bitten_humans,
       age,
       parameters,
-      timestep
+      timestep,
+      renderer
     )
   }
 }
 
 simulate_bites <- function(renderer, variables, events, age, parameters, timestep) {
-  total_eir <- 0
+  bitten_humans <- individual::Bitset$new(parameters$human_population)
 
   human_infectivity <- variables$infectivity$get_values()
   if (parameters$tbv) {
@@ -82,7 +81,19 @@ simulate_bites <- function(renderer, variables, events, age, parameters, timeste
       parameters
     )
 
-    total_eir <- total_eir + n_infectious * lambda
+    renderer$render(paste0('lambda_', parameters$species[[s_i]]), mean(lambda), timestep)
+
+    n_bites <- rpois(1, n_infectious * sum(lambda))
+    if (n_bites > 0) {
+      bitten_humans$insert(
+        sample.int(
+          parameters$human_population,
+          n_bites,
+          replace = TRUE,
+          prob=lambda
+        )
+      )
+    }
 
     susceptible_species_index <- susceptible_index$copy()$and(species_index)
 
@@ -102,7 +113,9 @@ simulate_bites <- function(renderer, variables, events, age, parameters, timeste
       timestep
     )
   }
-  total_eir
+
+  renderer$render('EIR', bitten_humans$size(), timestep)
+  bitten_humans
 }
 
 #' @title Simulate malaria infection in humans
@@ -111,8 +124,7 @@ simulate_bites <- function(renderer, variables, events, age, parameters, timeste
 #' and treated malaria; and resulting boosts in immunity
 #' @param variables a list of all of the model variables
 #' @param events a list of all of the model events
-#' @param total_eir a vector of eirs for each human summed across each
-#' mosquito species
+#' @param bitten_humans a bitset of bitten humans
 #' @param age of each human (timesteps)
 #' @param parameters of the model
 #' @param timestep current timestep
@@ -120,12 +132,12 @@ simulate_bites <- function(renderer, variables, events, age, parameters, timeste
 simulate_infection <- function(
   variables,
   events,
-  total_eir,
+  bitten_humans,
   age,
   parameters,
-  timestep
+  timestep,
+  renderer
   ) {
-  bitten_humans <- bernoulli_multi_p(total_eir)
 
   if (bitten_humans$size() > 0) {
     boost_immunity(

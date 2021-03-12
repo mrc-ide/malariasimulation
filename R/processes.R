@@ -54,11 +54,12 @@ create_processes <- function(
     # ===============
     # ODE integration
     # ===============
-    create_ode_stepping_process_cpp(
+    create_ode_stepping_process(
       odes,
-      variables$mosquito_state$.variable,
-      variables$species$.variable,
-      parameters$species
+      variables$mosquito_state,
+      variables$species,
+      parameters$species,
+      renderer
     ),
 
     # Rendering processes

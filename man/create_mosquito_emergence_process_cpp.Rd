@@ -18,6 +18,6 @@ create_mosquito_emergence_process_cpp(odes, state, species, species_names, dpl)
 \item{dpl}{the delay for pupal growth (in timesteps)}
 }
 \description{
-Move mosquitos from Unborn to Sm in line with the number of
+Move mosquitos from NonExistent to Sm in line with the number of
 pupals in the ODE models
 }

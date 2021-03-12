@@ -82,3 +82,33 @@ test_that('Changing total_M stabilises', {
   expect_false(isTRUE(all.equal(initial_eq, final_eq)))
   expect_false(any(is.na(counts)))
 })
+
+test_that('You can parameterise Total_M = 0 🤯', {
+  total_M <- 1000
+  parameters <- get_parameters()
+  parameters <- set_species(
+    parameters,
+    species = list(arab_params, fun_params),
+    proportions = c(1, 0)
+  )
+  parameters <- parameterise_total_M(
+    parameters,
+    total_M
+  )
+  model <- parameterise_ode(parameters)[[2]]
+  timesteps <- 365 * 10
+
+  counts <- c()
+  
+  for (t in seq(timesteps)) {
+    counts <- rbind(counts, c(t, mosquito_model_get_states(model)))
+    mosquito_model_step(model, 0)
+  }
+
+  expected <- cbind(
+    seq(timesteps),
+    matrix(0, nrow=timesteps, ncol=3)
+  )
+
+  expect_equal(counts, expected)
+})

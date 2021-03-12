@@ -139,36 +139,6 @@ std::vector<double> mosquito_model_get_states(Rcpp::XPtr<MosquitoModel> model) {
     return std::vector<double>(state.cbegin(), state.cend());
 }
 
-//' @title Step mosquito ODE
-//' @description collects summarises the human state, sends it to the vector ode
-//' and makes a step
-//'
-//' @param odes the models to step, one for each species
-//' @param state the mosquito state variable
-//' @param species the mosquito species variable
-//' @param species_names the names of the mosquito species
-//[[Rcpp::export]]
-Rcpp::XPtr<process_t> create_ode_stepping_process_cpp(
-    Rcpp::List odes,
-    const Rcpp::XPtr<CategoricalVariable> state,
-    const Rcpp::XPtr<CategoricalVariable> species,
-    const std::vector<std::string> species_names
-    ) {
-    return Rcpp::XPtr<process_t>(
-        new process_t([=] (size_t timestep) {
-            const auto& adult = ~state->get_index_of({"Unborn"});
-            for (auto i = 0u; i < odes.size(); ++i) {
-                const auto& current_species = species->get_index_of({species_names[i]});
-                auto total_M = (adult & current_species).size();
-                Rcpp::as<Rcpp::XPtr<MosquitoModel>>(odes[i])->step(total_M);
-            }
-        }),
-        true
-    );
-}
-
-
-//Exported for testing purposes
 //[[Rcpp::export]]
 void mosquito_model_step(Rcpp::XPtr<MosquitoModel> model, size_t total_M) {
     model->step(total_M);

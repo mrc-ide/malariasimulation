@@ -23,7 +23,7 @@ double carrying_capacity(
         double r = rainfall(timestep, days_per_timestep, g0, g, h);
         return std::max(K0 * r / R_bar, .01);
     }
-    return K0;
+    return std::max(K0, .01);
 }
 
 //[[Rcpp::export]]

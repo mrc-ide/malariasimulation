@@ -10,7 +10,7 @@ rainfall <- function(t, days_per_timestep, g0, g, h) {
 }
 
 #' @title Mosquito emergence process
-#' @description Move mosquitos from Unborn to Sm in line with the number of
+#' @description Move mosquitos from NonExistent to Sm in line with the number of
 #' pupals in the ODE models
 #'
 #' @param odes a list of odes for each species of mosquito
@@ -28,18 +28,6 @@ create_mosquito_model <- function(init, beta, de, mue, K0, gamma, dl, mul, dp, m
 
 mosquito_model_get_states <- function(model) {
     .Call(`_malariasimulation_mosquito_model_get_states`, model)
-}
-
-#' @title Step mosquito ODE
-#' @description collects summarises the human state, sends it to the vector ode
-#' and makes a step
-#'
-#' @param odes the models to step, one for each species
-#' @param state the mosquito state variable
-#' @param species the mosquito species variable
-#' @param species_names the names of the mosquito species
-create_ode_stepping_process_cpp <- function(odes, state, species, species_names) {
-    .Call(`_malariasimulation_create_ode_stepping_process_cpp`, odes, state, species, species_names)
 }
 
 mosquito_model_step <- function(model, total_M) {

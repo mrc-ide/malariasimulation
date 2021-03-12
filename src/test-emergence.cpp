@@ -16,7 +16,7 @@ context("Emergence works") {
             state_values[n] = "Sm";
         }
         MockCategory state(
-            {"Sm", "Unborn"},
+            {"Sm", "NonExistent"},
             state_values
         );
         MockCategory species(
@@ -45,10 +45,10 @@ context("Emergence works") {
             state_values[n] = "Sm";
         }
         for (auto n = 1000; n < 1024; ++n) {
-            state_values[n] = "Unborn";
+            state_values[n] = "NonExistent";
         }
         MockCategory state(
-            {"Sm", "Unborn"},
+            {"Sm", "NonExistent"},
             state_values
         );
         MockCategory species(
@@ -78,10 +78,10 @@ context("Emergence works") {
             state_values[n] = "Sm";
         }
         for (auto n = 1000; n < 2000; ++n) {
-            state_values[n] = "Unborn";
+            state_values[n] = "NonExistent";
         }
         MockCategory state(
-            {"Sm", "Unborn"},
+            {"Sm", "NonExistent"},
             state_values
         );
         MockCategory species(
@@ -120,10 +120,10 @@ context("Emergence works") {
         }
         auto expected_to_emerge = 25u;
         for (auto n = 1000; n < 1000 + expected_to_emerge; ++n) {
-            state_values[n] = "Unborn";
+            state_values[n] = "NonExistent";
         }
         MockCategory state(
-            {"Sm", "Unborn"},
+            {"Sm", "NonExistent"},
             state_values
         );
         MockCategory species(

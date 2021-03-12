@@ -47,7 +47,7 @@ initial_immunity <- function(parameter, age) {
 #' * drug_time - The timestep of the last drug
 #'
 #' Mosquito variables are: 
-#' * mosquito_state - the state of the mosquito, a category Sm|Pm|Im|Unborn
+#' * mosquito_state - the state of the mosquito, a category Sm|Pm|Im|NonExistent
 #' * species - the species of mosquito, this is a category gamb|fun|arab
 #'
 #' @param parameters, model parameters created by `get_parameters`
@@ -204,16 +204,16 @@ create_variables <- function(parameters) {
     initial_mosquito_counts(parameters, parameters$init_foim)
   )
 
-  n_Unborn <- parameters$mosquito_limit - sum(mosquito_counts[c(4, 5, 6)])
+  spare <- parameters$mosquito_limit - sum(mosquito_counts[c(4, 5, 6)])
 
-  if (n_Unborn < 0) {
-    stop(paste('Mosquito limit not high enough. Short by', -n_Unborn, sep=' '))
+  if (spare < 0) {
+    stop(paste('Mosquito limit not high enough. Short by', -spare, sep=' '))
   }
 
-  mosquito_states <- c('Sm', 'Pm', 'Im', 'Unborn')
+  mosquito_states <- c('Sm', 'Pm', 'Im', 'NonExistent')
   mosquito_state <- individual::CategoricalVariable$new(
     mosquito_states,
-    rep(mosquito_states, times = c(mosquito_counts[c(4, 5, 6)], n_Unborn))
+    rep(mosquito_states, times = c(mosquito_counts[c(4, 5, 6)], spare))
   )
 
   variables <- c(

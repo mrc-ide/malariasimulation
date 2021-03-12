@@ -10,7 +10,7 @@
 #include <sstream>
 
 //' @title Mosquito emergence process
-//' @description Move mosquitos from Unborn to Sm in line with the number of
+//' @description Move mosquitos from NonExistent to Sm in line with the number of
 //' pupals in the ODE models
 //'
 //' @param odes a list of odes for each species of mosquito
@@ -33,7 +33,7 @@ Rcpp::XPtr<process_t> create_mosquito_emergence_process_cpp(
             for (Rcpp::XPtr<MosquitoModel> ode : odes) {
                 n += ode->get_state()[get_idx(ODEState::P)] * rate;
             }
-            auto source = state->get_index_of({"Unborn"});
+            auto source = state->get_index_of({"NonExistent"});
             if (source.size() < n) {
                 std::stringstream m;
                 m << "Not enough mosquitos (short by ";

@@ -154,7 +154,7 @@ calculate_mosquito_effects <- function(
     variables,
     human_infectivity,
     lambda,
-    mosquito_infection,
+    events,
     species,
     susceptible_species,
     adult_species,
@@ -170,7 +170,10 @@ calculate_mosquito_effects <- function(
   renderer$render(paste0('FOIM_', species), lambda, timestep)
   target <- sample_bitset(susceptible_species, lambda)
   variables$mosquito_state$queue_update('Pm', target)
-  mosquito_infection$schedule(target, parameters$dem)
+  events$mosquito_infection$schedule(
+    target,
+    log_uniform(target$size(), parameters$dem)
+  )
 
   # deal with mosquito deaths
   p1_0 <- exp(-parameters$mum * parameters$foraging_time)
@@ -181,8 +184,7 @@ calculate_mosquito_effects <- function(
   died <- sample_bitset(adult_species, mu)
   renderer$render(paste0('mu_', species), mu, timestep)
 
-  variables$mosquito_state$queue_update('Unborn', died)
-  mosquito_infection$clear_schedule(died)
+  events$mosquito_death$schedule(died, 0)
 }
 
 get_gonotrophic_cycle <- function(v, parameters) {

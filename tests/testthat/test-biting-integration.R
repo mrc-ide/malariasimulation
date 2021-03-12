@@ -17,13 +17,8 @@ test_that('biting_process integrates mosquito effects and human infection', {
     parameters
   )
 
-  total_eir <- 5
-  eir <- rep(
-    total_eir / population / length(parameters$blood_meal_rates),
-    population
-  )
-
-  bites_mock <- mockery::mock(eir)
+  bitten <- individual::Bitset$new(parameters$human_population)
+  bites_mock <- mockery::mock(bitten)
   infection_mock <- mockery::mock()
 
   mockery::stub(biting_process, 'simulate_bites', bites_mock)
@@ -46,7 +41,7 @@ test_that('biting_process integrates mosquito effects and human infection', {
     1,
     variables,
     events,
-    eir,
+    bitten,
     age,
     parameters,
     timestep
@@ -77,17 +72,18 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
     rep('All', 100)
   )
 
-  total_eir <- 5
   lambda_mock <- mockery::mock(.5, .5, .5)
   mosquito_effects_mock <- mockery::mock()
 
   mockery::stub(simulate_bites, 'effective_biting_rate', lambda_mock)
   mockery::stub(simulate_bites, 'calculate_mosquito_effects', mosquito_effects_mock)
+  mockery::stub(simulate_bites, 'rpois', mockery::mock(2))
+  mockery::stub(simulate_bites, 'sample.int', mockery::mock(c(2, 3)))
   .pi <- rep(1 / population, population)
   mockery::stub(simulate_bites, 'human_pi', mockery::mock(.pi))
-  total_eir <- simulate_bites(renderer, variables, events, age, parameters, timestep)
+  bitten <- simulate_bites(renderer, variables, events, age, parameters, timestep)
 
-  expect_equal(total_eir, 5)
+  expect_equal(bitten$to_vector(), c(2, 3))
 
   f <- parameters$blood_meal_rates[[1]]
 

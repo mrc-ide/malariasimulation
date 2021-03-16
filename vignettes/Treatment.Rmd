@@ -55,11 +55,9 @@ for (ft in fts) {
   eq <- get_equilibrium(starting_EIR, ft)
   simparams <- parameterise_human_equilibrium(simparams, eq)
   simparams <- parameterise_mosquito_equilibrium(simparams, starting_EIR)
-  simparams <- set_clinical_treatment(simparams, ft, c(1, 2), c(.5, .5))
-  output <- run_simulation(
-    sim_length,
-    simparams
-  )
+  simparams <- set_clinical_treatment(simparams, 1, 1, ft / 2)
+  simparams <- set_clinical_treatment(simparams, 2, 1, ft / 2)
+  output <- run_simulation(sim_length, simparams)
   outputs[[length(outputs) + 1]] <- output
 }
 ```

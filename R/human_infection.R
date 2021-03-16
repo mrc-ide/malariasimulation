@@ -149,15 +149,16 @@ calculate_treated <- function(
   parameters,
   timestep
   ) {
-  if (length(parameters$clinical_treatment_coverages) == 0) {
-    return(individual::Bitset$new(parameters$human_population))
-  }
-
   treatment_coverages <- get_treatment_coverages(parameters, timestep)
   ft <- sum(treatment_coverages)
   if (ft > 1) {
     stop('Drug coverages need to be < 1 at all timesteps')
   }
+
+  if (ft == 0) {
+    return(individual::Bitset$new(parameters$human_population))
+  }
+
   seek_treatment <- sample_bitset(clinical_infections, ft)
   n_treat <- seek_treatment$size()
   drugs <- as.numeric(parameters$clinical_treatment_drugs[

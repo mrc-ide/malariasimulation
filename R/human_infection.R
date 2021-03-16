@@ -153,16 +153,21 @@ calculate_treated <- function(
     return(individual::Bitset$new(parameters$human_population))
   }
 
-  seek_treatment <- sample_bitset(clinical_infections, parameters$ft)
+  treatment_coverages <- get_treatment_coverages(parameters, timestep)
+  ft <- sum(treatment_coverages)
+  if (ft > 1) {
+    stop('Drug coverages need to be < 1 at all timesteps')
+  }
+  seek_treatment <- sample_bitset(clinical_infections, ft)
   n_treat <- seek_treatment$size()
-  drugs <- parameters$clinical_treatment_drugs[
+  drugs <- as.numeric(parameters$clinical_treatment_drugs[
     sample.int(
       length(parameters$clinical_treatment_drugs),
       n_treat,
-      prob = parameters$clinical_treatment_coverages,
+      prob = treatment_coverages,
       replace = TRUE
     )
-  ]
+  ])
 
   successful <- bernoulli_multi_p(parameters$drug_efficacy[drugs])
   treated_index <- bitset_at(seek_treatment, successful)

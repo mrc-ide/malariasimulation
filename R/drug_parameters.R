@@ -35,19 +35,37 @@ set_drugs <- function(parameters, drugs) {
 #' @title Parameterise clinical treatment
 #'
 #' @param parameters the model parameters
-#' @param ft probability of seeking treatment
-#' @param drugs vector of drugs indecies that are available
-#' @param coverages vector of coverages for those drugs
+#' @param drug the index of the drug to set as a treatment
+#' @param timesteps vector of timesteps for each coverage change
+#' @param coverages vector of coverages for this drug
 #' @export
-set_clinical_treatment <- function(parameters, ft, drugs, coverages) {
-  parameters$ft <- ft
-  if (any(drugs < 1 | drugs > length(parameters$drug_efficacy))) {
-    stop('Drug indices are invalid')
+set_clinical_treatment <- function(parameters, drug, timesteps, coverages) {
+  n_drugs <- length(parameters$drug_efficacy)
+  if (drug < 1 | drug > n_drugs) {
+    stop('Drug index is invalid, please set drugs using set_drugs')
   }
-  parameters$clinical_treatment_drugs <- drugs
-  if (!approx_sum(coverages, 1)) {
-    stop('Drug coverages do not sum to 1')
+  drug_index <- which(parameters$clinical_treatment_drugs == drug)
+  if (length(drug_index) == 0) {
+    drug_index <- length(parameters$clinical_treatment_drugs) + 1
   }
-  parameters$clinical_treatment_coverages <- coverages
+  parameters$clinical_treatment_drugs[[drug_index]] <- drug
+  parameters$clinical_treatment_timesteps[[drug_index]] <- timesteps
+  parameters$clinical_treatment_coverages[[drug_index]] <- coverages
   parameters
+}
+
+get_treatment_coverages <- function(parameters, timestep) {
+  vnapply(
+    seq_along(parameters$clinical_treatment_drugs),
+    function(drug_index) {
+      previous <- which(
+        parameters$clinical_treatment_timesteps[[drug_index]] <= timestep
+      )
+      if (length(previous) == 0) {
+        return(0)
+      }
+      last_set <- max(previous)
+      parameters$clinical_treatment_coverages[[drug_index]][[last_set]]
+    }
+  )
 }

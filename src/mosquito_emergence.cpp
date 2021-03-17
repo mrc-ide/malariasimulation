@@ -33,7 +33,7 @@ Rcpp::XPtr<process_t> create_mosquito_emergence_process_cpp(
             for (Rcpp::XPtr<MosquitoModel> ode : odes) {
                 n += ode->get_state()[get_idx(ODEState::P)] * rate;
             }
-            auto source = state->get_index_of({"NonExistent"});
+            auto source = state->get_index_of(std::vector<std::string>{"NonExistent"});
             if (source.size() < n) {
                 std::stringstream m;
                 m << "Not enough mosquitos (short by ";

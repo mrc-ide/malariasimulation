@@ -12,6 +12,8 @@ the [individual](https://github.com/mrc-ide/individual) package.
 
 ## Installation
 
+Please note, malariasimulation is only compatible with R >= 4.0.0
+
 The package can be installed from github using the "remotes" library
 
 ```R

@@ -24,11 +24,11 @@ This is an individual based model for P. Falciparum and malaria interventions.
 
 The human variables are documented in "R/variables.R".
 
-The human biological processes are spread out between the following functions:
+The human biological processes are spread out between the following files:
 
- 1. 'create_infection_process' (orange)
- 2. 'create_event_based_process' (green)
- 3. 'create_mortality_process'(red)
+ 1. 'human_infection.R' (orange)
+ 2. 'disease_progression.R' (green)
+ 3. 'mortality_processes.R'(red)
 
 ```{r echo=FALSE}
 DiagrammeR::grViz("digraph {
@@ -39,6 +39,7 @@ DiagrammeR::grViz("digraph {
   D
   A
   U
+  Tr
   
   node [shape = circle]
   i [label = '']
@@ -47,7 +48,9 @@ DiagrammeR::grViz("digraph {
   S -> i [color='orange']
   i -> D [color='orange']
   i -> A [color='orange']
+  i -> Tr [color='orange']
   D -> A -> U -> S [color='green']
+  Tr -> s [color='green']
   A -> i [color='orange']
   U -> i [color='orange']
   U -> S [color='red']
@@ -58,12 +61,12 @@ DiagrammeR::grViz("digraph {
 
 # Mosquito Biology
 
-The mosquito biological processes are spread out between the following functions:
+The mosquito biological processes are spread out between the following files:
 
- 1. 'create_ode' (green)
- 2. 'create_mosquito_emergence_process' (green)
- 3. 'create_mosquito_infection_process' (orange)
- 4. 'create_processes' (red)
+ 1. 'src/mosquito_ode.cpp' (green)
+ 2. 'src/mosquito_emergence.cpp' (green)
+ 3. 'R/mosquito_biology.R' (orange)
+ 4. 'R/mosquito_biology.R' (red)
 
 ```{r echo=FALSE}
 DiagrammeR::grViz("digraph {
@@ -83,14 +86,14 @@ DiagrammeR::grViz("digraph {
   Sm
   Pm
   Im
-  Unborn
+  NonExistent
   
   # edge definitions with the node IDs
   E -> L -> P [color='green', label='1']
   P -> Sm [color='green', label='2']
   Sm -> Pm -> Im [color='orange', label='3']
-  Sm -> Unborn [color='red', label='4']
-  Pm -> Unborn [color='red', label='4']
-  Im -> Unborn [color='red', label='4']
+  Sm -> NonExistent [color='red', label='4']
+  Pm -> NonExistent [color='red', label='4']
+  Im -> NonExistent [color='red', label='4']
   }")
 ```

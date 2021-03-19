@@ -7,7 +7,8 @@
 #' @param variables a list of variables in the model
 #' @param events a list of events in the model
 #' @param parameters a list of model parameters
-#' @param odes a list of vector ode models for each species
+#' @param models a list of vector models, one for each species
+#' @param solvers a list of ode solvers, one for each species
 #' @param correlations the intervention correlations object
 #' @noRd
 create_processes <- function(
@@ -15,7 +16,8 @@ create_processes <- function(
   variables,
   events,
   parameters,
-  odes,
+  models,
+  solvers,
   correlations
   ) {
   processes <- list(

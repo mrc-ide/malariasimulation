@@ -20,7 +20,7 @@
 //' @param dpl the delay for pupal growth (in timesteps)
 //[[Rcpp::export]]
 Rcpp::XPtr<process_t> create_mosquito_emergence_process_cpp(
-    Rcpp::List odes,
+    Rcpp::List solvers,
     Rcpp::XPtr<CategoricalVariable> state,
     Rcpp::XPtr<CategoricalVariable> species,
     std::vector<std::string> species_names,
@@ -30,8 +30,8 @@ Rcpp::XPtr<process_t> create_mosquito_emergence_process_cpp(
     return Rcpp::XPtr<process_t>(
         new process_t([=] (size_t t) {
             auto n = 0u;
-            for (Rcpp::XPtr<MosquitoModel> ode : odes) {
-                n += ode->get_state()[get_idx(ODEState::P)] * rate;
+            for (Rcpp::XPtr<Solver> solver: solvers) {
+                n += solver->state[get_idx(ODEState::P)] * rate;
             }
             auto source = state->get_index_of(std::vector<std::string>{"NonExistent"});
             if (source.size() < n) {
@@ -46,8 +46,10 @@ Rcpp::XPtr<process_t> create_mosquito_emergence_process_cpp(
             if (n > 0) {
                 auto species_i = 0u;
                 auto sourceit = source.begin();
-                for (Rcpp::XPtr<MosquitoModel> ode : odes) {
-                    auto to_set = static_cast<size_t>(ode->get_state()[get_idx(ODEState::P)] * rate);
+                for (Rcpp::XPtr<Solver> solver : solvers) {
+                    auto to_set = static_cast<size_t>(
+                        solver->state[get_idx(ODEState::P)] * rate
+                    );
                     auto target = individual_index_t(state->size);
                     for (auto i = 0u; i < to_set; ++i) {
                         target.insert(*sourceit);

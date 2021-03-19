@@ -8,17 +8,11 @@
 #ifndef SRC_MOSQUITO_ODE_H_
 #define SRC_MOSQUITO_ODE_H_
 
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-// [[Rcpp::depends(BH)]]
-#include <boost/numeric/odeint.hpp>
-#pragma GCC diagnostic pop
-
-#include <array>
-#include <queue>
+#include <vector>
 #include <cmath>
-#include <functional>
 #include <type_traits>
 #include "mosquito_biology.h"
+#include "solver.h"
 
 /*
  * The states are:
@@ -34,9 +28,6 @@ constexpr auto get_idx(T value)
 {
     return static_cast<std::underlying_type_t<T>>(value);
 }
-
-using state_t = std::array<double, 3>;
-using integration_function_t = std::function<void (const state_t&, state_t&, double)>;
 
 struct MosquitoModel {
     /* Parameters */
@@ -56,10 +47,8 @@ struct MosquitoModel {
     const std::vector<double> g; //fourier shape parameters
     const std::vector<double> h; //fourier shape parameters
     const double R_bar; //average rainfall
-    std::queue<double> lagged_incubating; //last tau values for incubating mosquitos
 
     MosquitoModel(
-        std::vector<double> init,
         double beta,
         double de,
         double mue,
@@ -77,23 +66,7 @@ struct MosquitoModel {
         std::vector<double> h,
         double R_bar
     );
-    virtual void step(size_t);
-    virtual state_t get_state();
     virtual ~MosquitoModel() {};
-private:
-    //solver fields
-    boost::numeric::odeint::dense_output_runge_kutta<
-        boost::numeric::odeint::controlled_runge_kutta<
-            boost::numeric::odeint::runge_kutta_dopri5<state_t>
-        >
-    >rk;
-    const double r_tolerance = 1.0e-6;
-    const double a_tolerance = 1.0e-6;
-    integration_function_t ode;
-
-    double t = 0.;
-    const double dt = 1.;
-    state_t state;
 };
 
 integration_function_t create_ode(MosquitoModel& model);

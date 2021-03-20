@@ -11,25 +11,20 @@
 AdultMosquitoModel::AdultMosquitoModel(
     MosquitoModel growth_model,
     double mu,
-    double tau) : growth_model(growth_model), mu(mu), tau(tau)
-{}
+    double tau,
+    double susceptible
+    ) : growth_model(growth_model), mu(mu), tau(tau)
+{
+    for (auto i = 0u; i < tau + 1; ++i) {
+        lagged_incubating.push(susceptible * foim);
+    }
+}
 
 integration_function_t create_ode(AdultMosquitoModel& model) {
     //create original ode
     auto growth_ode = create_ode(model.growth_model);
     return [&model, growth_ode](const state_t& x, state_t& dxdt, double t) {
         //set submodel total_M
-        Rcpp::Rcerr << "current_total_M " << model.growth_model.total_M << std::endl;
-        Rcpp::Rcerr << "state size " << x.size() << std::endl;
-        for (auto i : x) {
-            Rcpp::Rcerr << "in state " << i << std::endl;
-        }
-        Rcpp::Rcerr << "indices " << get_idx(AdultODEState::S) << std::endl;
-        Rcpp::Rcerr << "indices " << get_idx(AdultODEState::E) << std::endl;
-        Rcpp::Rcerr << "indices " << get_idx(AdultODEState::I) << std::endl;
-        Rcpp::Rcerr << "values " << x[get_idx(AdultODEState::S)] << std::endl;
-        Rcpp::Rcerr << "values " << x[get_idx(AdultODEState::E)] << std::endl;
-        Rcpp::Rcerr << "values " << x[get_idx(AdultODEState::I)] << std::endl;
         model.growth_model.total_M =
             x[get_idx(AdultODEState::S)] +
             x[get_idx(AdultODEState::E)] +
@@ -57,9 +52,10 @@ integration_function_t create_ode(AdultMosquitoModel& model) {
 Rcpp::XPtr<AdultMosquitoModel> create_adult_mosquito_model(
     Rcpp::XPtr<MosquitoModel> growth_model,
     double mu,
-    double tau
+    double tau,
+    double susceptible
     ) {
-    auto model = new AdultMosquitoModel(*growth_model, mu, tau);
+    auto model = new AdultMosquitoModel(*growth_model, mu, tau, susceptible);
     return Rcpp::XPtr<AdultMosquitoModel>(model, true);
 }
 
@@ -72,8 +68,10 @@ void adult_mosquito_model_update(
     ) {
     model->mu = mu;
     model->foim = foim;
-    model->lagged_incubating.pop();
     model->lagged_incubating.push(susceptible * foim);
+    if (model->lagged_incubating.size() > 0) {
+        model->lagged_incubating.pop();
+    }
 }
 
 //[[Rcpp::export]]

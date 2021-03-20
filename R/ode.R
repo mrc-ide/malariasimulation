@@ -26,7 +26,11 @@ parameterise_mosquito_models <- function(parameters) {
       )
 
       if (!parameters$hybrid_mosquitoes) {
-        susceptible <- initial_mosquito_counts(parameters, 0, m)[ADULT_ODE_INDICES['Sm']]
+        susceptible <- initial_mosquito_counts(
+          parameters,
+          parameters$init_foim,
+          m
+        )[ADULT_ODE_INDICES['Sm']]
         return(
           create_adult_mosquito_model(
             growth_model,
@@ -46,18 +50,13 @@ parameterise_solvers <- function(models, parameters) {
     seq_along(models),
     function(i) {
       m <- parameters$species_proportions[[i]] * parameters$total_M
+      init <- initial_mosquito_counts(parameters, parameters$init_foim, m)
       if (!parameters$hybrid_mosquitoes) {
         return(
-          create_adult_solver(
-            models[[i]], 
-            initial_mosquito_counts(parameters, 0, m)
-          )
+          create_adult_solver(models[[i]], init)
         )
       }
-      create_solver(
-        models[[i]], 
-        initial_mosquito_counts(parameters, 0, m)[ODE_INDICES]
-      )
+      create_solver(models[[i]], init[ODE_INDICES])
     }
   )
 }

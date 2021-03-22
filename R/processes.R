@@ -36,7 +36,7 @@ create_processes <- function(
     create_exponential_decay_process(variables$id, parameters$rid),
 
     create_mosquito_emergence_process_cpp(
-      odes,
+      solvers,
       variables$mosquito_state$.variable,
       variables$species$.variable,
       parameters$species,
@@ -49,22 +49,44 @@ create_processes <- function(
     # schedule infections for humans and set last_boosted_*
     # move mosquitoes into incubating state
     # kill mosquitoes caught in vector control
-    create_biting_process(renderer, variables, events, parameters),
+    create_biting_process(
+      renderer,
+      solvers,
+      models,
+      variables,
+      events,
+      parameters
+    ),
 
-    create_mortality_process(variables, events, renderer, parameters),
+    create_mortality_process(variables, events, renderer, parameters)
+  )
 
-    # ===============
-    # ODE integration
-    # ===============
-    create_ode_stepping_process(
-      odes,
+  # ===============
+  # ODE integration
+  # ===============
+  if (parameters$hybrid_mosquitoes) {
+    stepper <- create_solver_stepping_process(
+      models,
+      solvers,
       variables$mosquito_state,
       variables$species,
       parameters$species,
       renderer
-    ),
+    )
+  } else {
+    stepper <- create_adult_stepping_process(
+      solvers,
+      renderer
+    )
+  }
 
-    # Rendering processes
+  processes <- c(processes, stepper)
+
+  # =========
+  # Rendering
+  # =========
+  processes <- c(
+    processes,
     individual::categorical_count_renderer_process(
       renderer,
       variables$state,
@@ -82,14 +104,23 @@ create_processes <- function(
       parameters,
       renderer
     ),
-    individual::categorical_count_renderer_process(
-      renderer,
-      variables$mosquito_state,
-      c('Sm', 'Pm', 'Im')
-    ),
-    
-    create_ode_rendering_process(renderer, odes)
+    create_ode_rendering_process(renderer, solvers, parameters)
   )
+
+  if (parameters$hybrid_mosquitoes) {
+    processes <- c(
+      processes,
+      individual::categorical_count_renderer_process(
+        renderer,
+        variables$mosquito_state,
+        c('Sm', 'Pm', 'Im')
+      )
+    )
+  }
+
+  # ======================
+  # Intervention processes
+  # ======================
 
   if (parameters$bednets) {
     processes <- c(

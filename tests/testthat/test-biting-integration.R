@@ -12,6 +12,8 @@ test_that('biting_process integrates mosquito effects and human infection', {
 
   biting_process <- create_biting_process(
     renderer,
+    list(), #solvers
+    list(), #models
     variables,
     events,
     parameters
@@ -29,6 +31,8 @@ test_that('biting_process integrates mosquito effects and human infection', {
     bites_mock,
     1,
     renderer,
+    list(),
+    list(),
     variables,
     events,
     age,
@@ -76,12 +80,21 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
   mosquito_effects_mock <- mockery::mock()
 
   mockery::stub(simulate_bites, 'effective_biting_rate', lambda_mock)
-  mockery::stub(simulate_bites, 'calculate_mosquito_effects', mosquito_effects_mock)
+  mockery::stub(simulate_bites, 'biting_effects_individual', mosquito_effects_mock)
   mockery::stub(simulate_bites, 'rpois', mockery::mock(2))
   mockery::stub(simulate_bites, 'sample.int', mockery::mock(c(2, 3)))
   .pi <- rep(1 / population, population)
   mockery::stub(simulate_bites, 'human_pi', mockery::mock(.pi))
-  bitten <- simulate_bites(renderer, variables, events, age, parameters, timestep)
+  bitten <- simulate_bites(
+    renderer,
+    list(), #solvers
+    list(), #models
+    variables,
+    events,
+    age,
+    parameters,
+    timestep
+  )
 
   expect_equal(bitten$to_vector(), c(2, 3))
 
@@ -106,15 +119,12 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
   effects_args <- mockery::mock_args(mosquito_effects_mock)
 
   expect_equal(effects_args[[1]][[1]], variables)
-  expect_equal(effects_args[[1]][[2]], infectivity)
-  expect_equal(effects_args[[1]][[3]], .5)
-  expect_equal(effects_args[[1]][[4]], events)
-  expect_equal(effects_args[[1]][[5]], 1)
-  expect_equal(effects_args[[1]][[6]]$to_vector(), 11:25)
-  expect_equal(effects_args[[1]][[7]]$to_vector(), c(1:10, 11:25))
-  expect_equal(effects_args[[1]][[8]], 1)
-  expect_equal(effects_args[[1]][[9]], 0)
-  expect_equal(effects_args[[1]][[10]], f)
-  expect_equal(effects_args[[1]][[11]], parameters)
-  expect_equal(effects_args[[1]][[12]], renderer)
+  expect_equal(effects_args[[1]][[2]], .55)
+  expect_equal(effects_args[[1]][[3]], events)
+  expect_equal(effects_args[[1]][[4]], 1)
+  expect_equal(effects_args[[1]][[5]]$to_vector(), 11:25)
+  expect_equal(effects_args[[1]][[6]]$to_vector(), c(1:10, 11:25))
+  expect_equal(effects_args[[1]][[7]], parameters$mum)
+  expect_equal(effects_args[[1]][[8]], parameters)
+  expect_equal(effects_args[[1]][[9]], timestep)
 })

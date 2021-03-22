@@ -132,43 +132,52 @@ peak_season_offset <- function(parameters) {
   }))[[1]]
 }
 
-#' @title Calculate the effects of biting on mosquito individuals
+#' @title Calculate the death rate of mosquitoes given interventions
+#'
+#' @param f the feeding rate for this species of mosquito
+#' @param W the mean probability that a mosquito feeds and survives
+#' @param Z the mean probability that a mosquito is repelled
+#' @param Z the mean probability that a mosquito is repelled
+#' @noRd
+death_rate <- function(f, W, Z, species, parameters) {
+  p1_0 <- exp(-parameters$mum * parameters$foraging_time)
+  gonotrophic_cycle <- get_gonotrophic_cycle(species, parameters)
+  p2 <- exp(-parameters$mum * gonotrophic_cycle)
+  p1 <- p1_0 * W / (1 - Z * p1_0)
+  -f * log(p1 * p2)
+}
+
+get_gonotrophic_cycle <- function(v, parameters) {
+  f <- parameters$blood_meal_rates[[v]]
+  gonotrophic_cycle <- 1 / f - parameters$foraging_time
+}
+
+#' @title Update the individual mosquito model after biting
 #'
 #' @param variables a list of variables in this simulation
-#' @param human_infectivity the infectivity for each human
-#' @param lambda the effective biting rate for this species on each human
-#' @param mosquito_infection an event for mosquito infection
+#' @param foim force of infection towards mosquitoes
+#' @param events events in the simulation
 #' @param species the index of the species to calculate for
 #' @param susceptible_species the indices of susceptible mosquitos of the
 #' species
-#' @param adult_species the indices of adult mosquitos of the
-#' species
-#' @param W the mean probability that a mosquito feeds and survives
-#' @param Z the mean probability that a mosquito is repelled
-#' @param f the feeding rate for this species of mosquito
-#' @param renderer the model renderer object
-#' @param timestep the current timestep
+#' @param adult_species the indices of adult mosquitos of the species
+#' @param mu the death rate of the current species
 #' @param parameters the model parameters
+#' @param timestep the current timestep
 #' @noRd
-calculate_mosquito_effects <- function(
+biting_effects_individual <- function(
     variables,
-    human_infectivity,
-    lambda,
+    foim,
     events,
     species,
     susceptible_species,
     adult_species,
-    W,
-    Z,
-    f,
+    mu,
     parameters,
-    renderer,
     timestep
   ) {
   # deal with mosquito infections
-  lambda <- sum(human_infectivity * lambda)
-  renderer$render(paste0('FOIM_', species), lambda, timestep)
-  target <- sample_bitset(susceptible_species, lambda)
+  target <- sample_bitset(susceptible_species, foim)
   variables$mosquito_state$queue_update('Pm', target)
   events$mosquito_infection$schedule(
     target,
@@ -176,18 +185,7 @@ calculate_mosquito_effects <- function(
   )
 
   # deal with mosquito deaths
-  p1_0 <- exp(-parameters$mum * parameters$foraging_time)
-  gonotrophic_cycle <- get_gonotrophic_cycle(species, parameters)
-  p2 <- exp(-parameters$mum * gonotrophic_cycle)
-  p1 <- p1_0 * W / (1 - Z * p1_0)
-  mu <- -f * log(p1 * p2)
   died <- sample_bitset(adult_species, mu)
-  renderer$render(paste0('mu_', species), mu, timestep)
 
   events$mosquito_death$schedule(died, 0)
-}
-
-get_gonotrophic_cycle <- function(v, parameters) {
-  f <- parameters$blood_meal_rates[[v]]
-  gonotrophic_cycle <- 1 / f - parameters$foraging_time
 }

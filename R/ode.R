@@ -61,7 +61,7 @@ parameterise_solvers <- function(models, parameters) {
   )
 }
 
-create_ode_rendering_process <- function(renderer, solvers) {
+create_ode_rendering_process <- function(renderer, solvers, parameters) {
   if (parameters$hybrid_mosquitoes) {
     indices <- c(ODE_INDICES, ADULT_ODE_INDICES)
   } else {
@@ -70,8 +70,8 @@ create_ode_rendering_process <- function(renderer, solvers) {
 
   function(timestep) {
     counts <- rep(0, length(indices))
-    for (ode in odes) {
-      row <- solver_get_states(ode)
+    for (solver in solvers) {
+      row <- solver_get_states(solver)
       counts <- counts + row
     }
     for (i in seq_along(indices)) {
@@ -95,7 +95,7 @@ create_ode_rendering_process <- function(renderer, solvers) {
 #' @param renderer the model renderer
 #' @noRd
 create_solver_stepping_process <- function(
-  modles,
+  models,
   solvers,
   state,
   species,
@@ -113,7 +113,6 @@ create_solver_stepping_process <- function(
     renderer$render('total_M', adult$size(), timestep)
   }
 }
-
 
 #' @title Step adult mosquito solver
 #' @description steps the full vector ODE (not just growth)

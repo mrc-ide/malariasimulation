@@ -190,37 +190,40 @@ create_variables <- function(parameters) {
     spray_time = spray_time
   )
 
-  species <- individual::CategoricalVariable$new(
-    parameters$species,
-    sample(
+  # Add variables for individual mosquitoes
+  if (parameters$hybrid_mosquitoes) {
+    species <- individual::CategoricalVariable$new(
       parameters$species,
-      parameters$mosquito_limit,
-      prob = parameters$species_proportions,
-      replace = TRUE
+      sample(
+        parameters$species,
+        parameters$mosquito_limit,
+        prob = parameters$species_proportions,
+        replace = TRUE
+      )
     )
-  )
 
-  mosquito_counts <- floor(
-    initial_mosquito_counts(parameters, parameters$init_foim)
-  )
+    mosquito_counts <- floor(
+      initial_mosquito_counts(parameters, parameters$init_foim)
+    )
 
-  spare <- parameters$mosquito_limit - sum(mosquito_counts[c(4, 5, 6)])
+    spare <- parameters$mosquito_limit - sum(mosquito_counts[c(4, 5, 6)])
 
-  if (spare < 0) {
-    stop(paste('Mosquito limit not high enough. Short by', -spare, sep=' '))
+    if (spare < 0) {
+      stop(paste('Mosquito limit not high enough. Short by', -spare, sep=' '))
+    }
+
+    mosquito_states <- c('Sm', 'Pm', 'Im', 'NonExistent')
+    mosquito_state <- individual::CategoricalVariable$new(
+      mosquito_states,
+      rep(mosquito_states, times = c(mosquito_counts[c(4, 5, 6)], spare))
+    )
+
+    variables <- c(
+      variables,
+      species = species,
+      mosquito_state = mosquito_state
+    )
   }
-
-  mosquito_states <- c('Sm', 'Pm', 'Im', 'NonExistent')
-  mosquito_state <- individual::CategoricalVariable$new(
-    mosquito_states,
-    rep(mosquito_states, times = c(mosquito_counts[c(4, 5, 6)], spare))
-  )
-
-  variables <- c(
-    variables,
-    species = species,
-    mosquito_state = mosquito_state
-  )
 
   variables
 }

@@ -21,15 +21,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // adult_mosquito_model_update
-void adult_mosquito_model_update(Rcpp::XPtr<AdultMosquitoModel> model, double mu, double foim, double incubating);
-RcppExport SEXP _malariasimulation_adult_mosquito_model_update(SEXP modelSEXP, SEXP muSEXP, SEXP foimSEXP, SEXP incubatingSEXP) {
+void adult_mosquito_model_update(Rcpp::XPtr<AdultMosquitoModel> model, double mu, double foim, double susceptible);
+RcppExport SEXP _malariasimulation_adult_mosquito_model_update(SEXP modelSEXP, SEXP muSEXP, SEXP foimSEXP, SEXP susceptibleSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::XPtr<AdultMosquitoModel> >::type model(modelSEXP);
     Rcpp::traits::input_parameter< double >::type mu(muSEXP);
     Rcpp::traits::input_parameter< double >::type foim(foimSEXP);
-    Rcpp::traits::input_parameter< double >::type incubating(incubatingSEXP);
-    adult_mosquito_model_update(model, mu, foim, incubating);
+    Rcpp::traits::input_parameter< double >::type susceptible(susceptibleSEXP);
+    adult_mosquito_model_update(model, mu, foim, susceptible);
     return R_NilValue;
 END_RCPP
 }

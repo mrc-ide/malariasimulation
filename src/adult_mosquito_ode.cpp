@@ -67,11 +67,11 @@ void adult_mosquito_model_update(
     Rcpp::XPtr<AdultMosquitoModel> model,
     double mu,
     double foim,
-    double incubating
+    double susceptible
     ) {
     model->mu = mu;
     model->foim = foim;
-    model->lagged_incubating.push(incubating);
+    model->lagged_incubating.push(susceptible * foim);
     if (model->lagged_incubating.size() > 0) {
         model->lagged_incubating.pop();
     }

@@ -26,17 +26,17 @@ parameterise_mosquito_models <- function(parameters) {
       )
 
       if (!parameters$hybrid_mosquitoes) {
-        incubating <- initial_mosquito_counts(
+        susceptible <- initial_mosquito_counts(
           parameters,
           parameters$init_foim,
           m
-        )[ADULT_ODE_INDICES['Pm']]
+        )[ADULT_ODE_INDICES['Sm']]
         return(
           create_adult_mosquito_model(
             growth_model,
             parameters$mum,
             parameters$dem,
-            incubating
+            susceptible * parameters$init_foim
           )
         )
       }

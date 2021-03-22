@@ -45,37 +45,21 @@ test_that('Adult ODE stays at equilibrium with a constant foim and mu', {
       models[[1]],
       parameters$mum,
       foim,
-      states[ADULT_ODE_INDICES['Pm']]
+      states[ADULT_ODE_INDICES['Sm']]
     )
     solver_step(solvers[[1]])
   }
 
   expected <- c()
-  equilibrium <- initial_mosquito_counts(parameters, parameters$init_foim, total_M)
+  equilibrium <- initial_mosquito_counts(
+    parameters,
+    parameters$init_foim,
+    total_M
+  )
 
   for (t in seq(timesteps)) {
     expected <- rbind(expected, c(t, equilibrium))
   }
-
-  #png("ode_S.png")
-  #plot(seq(timesteps), counts[, ADULT_ODE_INDICES['Sm'] + 1], type='l', col='red')
-  #lines(seq(timesteps), expected[, ADULT_ODE_INDICES['Sm'] + 1], type='l', col='blue')
-  #dev.off()
-
-  #png("ode_E.png")
-  #plot(seq(timesteps), counts[, ADULT_ODE_INDICES['Pm'] + 1], type='l', col='red')
-  #lines(seq(timesteps), expected[, ADULT_ODE_INDICES['Pm'] + 1], type='l', col='blue')
-  #dev.off()
-  
-  #png("ode_I.png")
-  #plot(seq(timesteps), counts[, ADULT_ODE_INDICES['Im'] + 1], type='l', col='red')
-  #lines(seq(timesteps), expected[, ADULT_ODE_INDICES['Im'] + 1], type='l', col='blue')
-  #dev.off()
-  
-  #png("ode_total_M.png")
-  #plot(seq(timesteps), rowSums(counts[, ADULT_ODE_INDICES + 1]), type='l', col='red')
-  #lines(seq(timesteps), rowSums(expected[, ADULT_ODE_INDICES + 1]), type='l', col='blue')
-  #dev.off()
 
   expect_equal(counts, expected, tolerance=1e-4)
 })

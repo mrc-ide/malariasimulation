@@ -5,8 +5,8 @@ create_adult_mosquito_model <- function(growth_model, mu, tau, susceptible) {
     .Call(`_malariasimulation_create_adult_mosquito_model`, growth_model, mu, tau, susceptible)
 }
 
-adult_mosquito_model_update <- function(model, mu, foim, susceptible) {
-    invisible(.Call(`_malariasimulation_adult_mosquito_model_update`, model, mu, foim, susceptible))
+adult_mosquito_model_update <- function(model, mu, foim, incubating) {
+    invisible(.Call(`_malariasimulation_adult_mosquito_model_update`, model, mu, foim, incubating))
 }
 
 create_adult_solver <- function(model, init) {

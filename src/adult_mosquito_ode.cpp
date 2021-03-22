@@ -12,11 +12,11 @@ AdultMosquitoModel::AdultMosquitoModel(
     MosquitoModel growth_model,
     double mu,
     double tau,
-    double susceptible
+    double incubating
     ) : growth_model(growth_model), mu(mu), tau(tau)
 {
-    for (auto i = 0u; i < tau + 1; ++i) {
-        lagged_incubating.push(susceptible * foim);
+    for (auto i = 0u; i < tau; ++i) {
+        lagged_incubating.push(incubating);
     }
 }
 
@@ -35,14 +35,17 @@ integration_function_t create_ode(AdultMosquitoModel& model) {
 
         //run the adult ode
         auto incubation_survival = exp(-model.mu * model.tau);
+
         dxdt[get_idx(AdultODEState::S)] =
             .5 * x[get_idx(ODEState::P)] / model.growth_model.dp //growth to adult female
             - x[get_idx(AdultODEState::S)] * model.foim //infections
             - x[get_idx(AdultODEState::S)] * model.mu; //deaths   
+
         dxdt[get_idx(AdultODEState::E)] =
             x[get_idx(AdultODEState::S)] * model.foim  //infections
             - model.lagged_incubating.front() * incubation_survival //survived incubation period
             - x[get_idx(AdultODEState::E)] * model.mu; // deaths
+
         dxdt[get_idx(AdultODEState::I)] = model.lagged_incubating.front() * incubation_survival //survived incubation period
             - x[get_idx(AdultODEState::I)] * model.mu; // deaths
     };
@@ -64,11 +67,11 @@ void adult_mosquito_model_update(
     Rcpp::XPtr<AdultMosquitoModel> model,
     double mu,
     double foim,
-    double susceptible
+    double incubating
     ) {
     model->mu = mu;
     model->foim = foim;
-    model->lagged_incubating.push(susceptible * foim);
+    model->lagged_incubating.push(incubating);
     if (model->lagged_incubating.size() > 0) {
         model->lagged_incubating.pop();
     }

@@ -4,7 +4,7 @@
 #' population dynamics"
 #' @param parameters model parameters
 #' @param foim equilibrium foim
-#' @param m (optional) the total number of female adult mosquitos
+#' @param m the total number of female adult mosquitos
 #' @noRd
 initial_mosquito_counts <- function(parameters, foim = 0, m = NULL) {
   if (is.null(m)) {

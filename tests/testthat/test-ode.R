@@ -176,7 +176,7 @@ test_that('You can parameterise Total_M = 0 🤯', {
       models[[2]],
       total_M * parameters$species_proportions[[2]],
       f,
-      parameters$mum
+      parameters$mum[[2]]
     )
     solver_step(solvers[[2]])
   }

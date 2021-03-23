@@ -248,7 +248,7 @@ get_parameters <- function(overrides = list()) {
     dl    = 3.72,
     dpl   = .643,
     mup   = .249,
-    mum   = .249, #NOTE: set from sitefile
+    mum   = .1253333,
     sigma_squared   = 1.67,
     n_heterogeneity_groups = 5,
     # immunity decay rates

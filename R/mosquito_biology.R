@@ -9,25 +9,26 @@
 #' @noRd
 initial_mosquito_counts <- function(parameters, species, foim, m) {
   omega <- calculate_omega(parameters, species)
-  n_E <- 2 * omega * parameters$mum * parameters$dl * (
+  mum <- parameters$mum[[species]]
+  n_E <- 2 * omega * mum * parameters$dl * (
     1. + parameters$dpl * parameters$mup
   ) * m
 
-  n_L <- 2 * parameters$mum * parameters$dl * (
+  n_L <- 2 * mum * parameters$dl * (
     1. + parameters$dpl * parameters$mup
   ) * m
 
-  n_P <- 2 * parameters$dpl * parameters$mum * m
+  n_P <- 2 * parameters$dpl * mum * m
 
-  n_Sm <- m * parameters$mum / (foim + parameters$mum)
+  n_Sm <- m * parameters$mum / (foim + mum)
 
-  incubation_survival <- exp(-parameters$mum * parameters$dem)
+  incubation_survival <- exp(-mum * parameters$dem)
 
-  n_Pm <- m * foim / (foim + parameters$mum) * (
+  n_Pm <- m * foim / (foim + mum) * (
     1. - incubation_survival
   )
 
-  n_Im <- m * foim / (foim + parameters$mum) * incubation_survival
+  n_Im <- m * foim / (foim + mum) * incubation_survival
 
   c(n_E, n_L, n_P, n_Sm, n_Pm, n_Im)
 }
@@ -47,16 +48,18 @@ calculate_omega <- function(parameters, species) {
     (parameters$gamma - 1) * parameters$ml * parameters$del
   )
 
+  mum <- parameters$mum[[species]]
+
   beta <- eggs_laid(
     parameters$beta,
-    parameters$mum,
+    mum,
     parameters$blood_meal_rates[[species]]
   )
 
   -.5 * sub_omega + sqrt(
     .25 * sub_omega**2 +
-      .5 * parameters$gamma * parameters$beta * parameters$ml * parameters$del /
-      (parameters$me * parameters$mum * parameters$dl * (
+      .5 * parameters$gamma * beta * parameters$ml * parameters$del /
+      (parameters$me * mum * parameters$dl * (
         1. + parameters$dpl * parameters$mup
       ))
   )
@@ -73,7 +76,7 @@ calculate_omega <- function(parameters, species) {
 calculate_carrying_capacity <- function(parameters, m, species) {
   omega <- calculate_omega(parameters, species)
 
-  m * 2 * parameters$dl * parameters$mum * (
+  m * 2 * parameters$dl * parameters$mum[[species]] * (
     1. + parameters$dpl * parameters$mup
   ) * parameters$gamma * (omega + 1) / (
     omega / (parameters$ml * parameters$del) - (
@@ -107,9 +110,10 @@ equilibrium_total_M <- function(parameters, EIR) {
   if (parameters$init_foim == 0) {
     stop('init_foim must be > 0 to calculate a non-zero equilibrium total_M')
   }
+  mum <- mean(parameters$mum)
   total_daily_eir <- EIR * parameters$human_population / 365
-  lifetime <- parameters$init_foim * exp(-parameters$mum * parameters$dem) / (
-    parameters$init_foim + parameters$mum
+  lifetime <- parameters$init_foim * exp(-mum * parameters$dem) / (
+    parameters$init_foim + mum
   )
   total_daily_eir / sum(
     parameters$species_proportions * parameters$blood_meal_rates * parameters$Q0 * lifetime
@@ -144,9 +148,10 @@ peak_season_offset <- function(parameters) {
 #' @param Z the mean probability that a mosquito is repelled
 #' @noRd
 death_rate <- function(f, W, Z, species, parameters) {
-  p1_0 <- exp(-parameters$mum * parameters$foraging_time)
+  mum <- parameters$mum[[species]]
+  p1_0 <- exp(-mum * parameters$foraging_time)
   gonotrophic_cycle <- get_gonotrophic_cycle(species, parameters)
-  p2 <- exp(-parameters$mum * gonotrophic_cycle)
+  p2 <- exp(-mum * gonotrophic_cycle)
   p1 <- p1_0 * W / (1 - Z * p1_0)
   -f * log(p1 * p2)
 }

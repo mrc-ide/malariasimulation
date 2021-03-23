@@ -36,7 +36,7 @@ parameterise_mosquito_models <- function(parameters) {
         return(
           create_adult_mosquito_model(
             growth_model,
-            parameters$mum,
+            parameters$mum[[i]],
             parameters$dem,
             susceptible * parameters$init_foim
           )

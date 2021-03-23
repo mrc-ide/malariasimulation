@@ -10,7 +10,8 @@ gamb_params <- list(
   dn0 = .533,
   phi_bednets = .89,
   rs = .2,
-  phi_indoors = .97
+  phi_indoors = .97,
+  mum = .132
 )
 
 #' @title Preset parameters for the An. arabiensis vector
@@ -25,7 +26,8 @@ arab_params <- list(
   dn0 = .533,
   phi_bednets = .9,
   rs = .2,
-  phi_indoors = .96
+  phi_indoors = .96,
+  mum = .132
 )
 
 #' @title Preset parameters for the An. funestus vector
@@ -40,7 +42,8 @@ fun_params <- list(
   dn0 = .533,
   phi_bednets = .9,
   rs = .2,
-  phi_indoors = .98
+  phi_indoors = .98,
+  mum = .112
 )
 
 #' @title Parameterise the mosquito species to use in the model
@@ -66,7 +69,8 @@ set_species <- function(parameters, species, proportions) {
     'dn0',
     'phi_bednets',
     'rs',
-    'phi_indoors'
+    'phi_indoors',
+    'mum'
   )
   for (key in keys) {
     parameters[[key]] <- rep(NA, length(species))

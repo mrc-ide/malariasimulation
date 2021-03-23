@@ -63,9 +63,9 @@ parameterise_solvers <- function(models, parameters) {
 
 create_ode_rendering_process <- function(renderer, solvers, parameters) {
   if (parameters$hybrid_mosquitoes) {
-    indices <- c(ODE_INDICES, ADULT_ODE_INDICES)
-  } else {
     indices <- ODE_INDICES
+  } else {
+    indices <- c(ODE_INDICES, ADULT_ODE_INDICES)
   }
 
   function(timestep) {

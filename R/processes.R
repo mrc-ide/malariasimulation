@@ -20,11 +20,10 @@ create_processes <- function(
   solvers,
   correlations
   ) {
+  # ========
+  # Immunity
+  # ========
   processes <- list(
-    # ========
-    # Immunity
-    # ========
-
     # Maternal immunity
     create_exponential_decay_process(variables$icm, parameters$rm),
     create_exponential_decay_process(variables$ivm, parameters$rvm),
@@ -33,22 +32,30 @@ create_processes <- function(
     # Acquired immunity
     create_exponential_decay_process(variables$ica, parameters$rc),
     create_exponential_decay_process(variables$iva, parameters$rva),
-    create_exponential_decay_process(variables$id, parameters$rid),
+    create_exponential_decay_process(variables$id, parameters$rid)
+  )
 
-    create_mosquito_emergence_process_cpp(
-      solvers,
-      variables$mosquito_state$.variable,
-      variables$species$.variable,
-      parameters$species,
-      parameters$dpl
-    ),
+  if (parameters$hybrid_mosquitoes) {
+    processes <- c(
+      processes,
+      create_mosquito_emergence_process_cpp(
+        solvers,
+        variables$mosquito_state$.variable,
+        variables$species$.variable,
+        parameters$species,
+        parameters$dpl
+      )
+    )
+  }
 
-    # ==============
-    # Biting process
-    # ==============
-    # schedule infections for humans and set last_boosted_*
-    # move mosquitoes into incubating state
-    # kill mosquitoes caught in vector control
+  # ==============================
+  # Biting and mortality processes
+  # ==============================
+  # schedule infections for humans and set last_boosted_*
+  # move mosquitoes into incubating state
+  # kill mosquitoes caught in vector control
+  processes <- c(
+    processes,
     create_biting_process(
       renderer,
       solvers,

@@ -19,7 +19,7 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR', {
     )
   ))
   parameters <- parameterise_mosquito_equilibrium(parameters, EIR)
-  m_eq <- initial_mosquito_counts(parameters, foim)
+  m_eq <- initial_mosquito_counts(parameters, 1, foim, parameters$total_M)
 
   #set up arguments for EIR calculation
   variables <- create_variables(parameters)
@@ -73,7 +73,7 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR (with h
     )
   ))
   parameters <- parameterise_mosquito_equilibrium(parameters, EIR)
-  m_eq <- initial_mosquito_counts(parameters, foim)
+  m_eq <- initial_mosquito_counts(parameters, 1, foim, parameters$total_M)
 
   #set up arguments for EIR calculation
   variables <- create_variables(parameters)

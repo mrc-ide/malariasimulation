@@ -41,6 +41,8 @@ struct MosquitoModel {
     const double dp; //delay for for pupal growth
     const double mup; //death rate for pupae
     size_t total_M; //the number of adult female mosquitos in the model
+    double f; //biting rate
+    double mum; //adult mortality rate
     const bool model_seasonality; //whether to model seasonality
     const double days_per_timestep; //scale of the fourier model for seasonality
     const double g0; //fourier shape parameter

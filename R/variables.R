@@ -192,32 +192,48 @@ create_variables <- function(parameters) {
 
   # Add variables for individual mosquitoes
   if (parameters$hybrid_mosquitoes) {
-    species <- individual::CategoricalVariable$new(
-      parameters$species,
-      sample(
-        parameters$species,
-        parameters$mosquito_limit,
-        prob = parameters$species_proportions,
-        replace = TRUE
+    species_values <- rep(NA, parameters$mosquito_limit)
+    state_values <- rep(NA, parameters$mosquito_limit)
+    n_initialised <- 0
+    for (i in seq_along(parameters$species)) {
+      mosquito_counts <- floor(
+        initial_mosquito_counts(
+          parameters,
+          i,
+          parameters$init_foim,
+          parameters$total_M * parameters$species_proportions[[i]]
+        )
       )
-    )
 
-    mosquito_counts <- floor(
-      initial_mosquito_counts(parameters, parameters$init_foim)
-    )
+      species_M <- sum(mosquito_counts[ADULT_ODE_INDICES])
 
-    spare <- parameters$mosquito_limit - sum(mosquito_counts[c(4, 5, 6)])
+      if (n_initialised + species_M > parameters$mosquito_limit) {
+        stop('Mosquito limit not high enough')
+      }
 
-    if (spare < 0) {
-      stop(paste('Mosquito limit not high enough. Short by', -spare, sep=' '))
+      species_range <- seq(n_initialised, n_initialised + species_M)
+      species_values[species_range] <- parameters$species[[i]]
+      state_values[species_range] <- rep(
+        c('Sm', 'Pm', 'Im'),
+        times = mosquito_counts[ADULT_ODE_INDICES]
+      )
+
+      n_initialised <- n_initialised + species_M
     }
 
-    mosquito_states <- c('Sm', 'Pm', 'Im', 'NonExistent')
-    mosquito_state <- individual::CategoricalVariable$new(
-      mosquito_states,
-      rep(mosquito_states, times = c(mosquito_counts[c(4, 5, 6)], spare))
-    )
+    # fill excess mosquitoes
+    species_values[is.na(species_values)] <- parameters$species[[1]]
+    state_values[is.na(state_values)] <- 'NonExistent'
 
+    # initialise variables
+    species <- individual::CategoricalVariable$new(
+      parameters$species,
+      species_values
+    )
+    mosquito_state <- individual::CategoricalVariable$new(
+      c('Sm', 'Pm', 'Im', 'NonExistent'),
+      state_values
+    )
     variables <- c(
       variables,
       species = species,

@@ -3,6 +3,7 @@ test_that('ODE stays at equilibrium with a constant total_M', {
     species_proportions = 1
   ))
   total_M <- 1000
+  f <- parameters$blood_meal_rates
   models <- parameterise_mosquito_models(parameters)
   solvers <- parameterise_solvers(models, parameters)
   timesteps <- 365 * 10
@@ -11,12 +12,17 @@ test_that('ODE stays at equilibrium with a constant total_M', {
   
   for (t in seq(timesteps)) {
     counts <- rbind(counts, c(t, solver_get_states(solvers[[1]])))
-    mosquito_model_update(models[[1]], total_M)
+    mosquito_model_update(models[[1]], total_M, f, parameters$mum)
     solver_step(solvers[[1]])
   }
 
   expected <- c()
-  equilibrium <- initial_mosquito_counts(parameters)[seq(3)]
+  equilibrium <- initial_mosquito_counts(
+    parameters,
+    1,
+    parameters$init_foim,
+    parameters$total_M
+  )[ODE_INDICES]
   for (t in seq(timesteps)) {
     expected <- rbind(expected, c(t, equilibrium))
   }
@@ -32,6 +38,7 @@ test_that('Adult ODE stays at equilibrium with a constant foim and mu', {
     init_foim = foim
   ))
   total_M <- 1000
+  f <- parameters$blood_meal_rates
   models <- parameterise_mosquito_models(parameters)
   solvers <- parameterise_solvers(models, parameters)
   timesteps <- 365 * 10
@@ -45,7 +52,8 @@ test_that('Adult ODE stays at equilibrium with a constant foim and mu', {
       models[[1]],
       parameters$mum,
       foim,
-      states[ADULT_ODE_INDICES['Sm']]
+      states[ADULT_ODE_INDICES['Sm']],
+      f
     )
     solver_step(solvers[[1]])
   }
@@ -53,6 +61,7 @@ test_that('Adult ODE stays at equilibrium with a constant foim and mu', {
   expected <- c()
   equilibrium <- initial_mosquito_counts(
     parameters,
+    1,
     parameters$init_foim,
     total_M
   )
@@ -71,6 +80,7 @@ test_that('ODE stays at equilibrium with low total_M', {
     species = 'all',
     species_proportions = 1
   ))
+  f <- parameters$blood_meal_rates
   models <- parameterise_mosquito_models(parameters)
   solvers <- parameterise_solvers(models, parameters)
   timesteps <- 365 * 10
@@ -79,12 +89,18 @@ test_that('ODE stays at equilibrium with low total_M', {
 
   for (t in seq(timesteps)) {
     counts <- rbind(counts, c(t, solver_get_states(solvers[[1]])))
-    mosquito_model_update(models[[1]], total_M)
+    mosquito_model_update(models[[1]], total_M, f, parameters$mum)
     solver_step(solvers[[1]])
   }
 
   expected <- c()
-  equilibrium <- initial_mosquito_counts(parameters)[seq(3)]
+  equilibrium <- initial_mosquito_counts(
+    parameters,
+    1,
+    parameters$init_foim,
+    parameters$total_M
+  )[ODE_INDICES]
+
   for (t in seq(timesteps)) {
     expected <- rbind(expected, c(t, equilibrium))
   }
@@ -101,6 +117,7 @@ test_that('Changing total_M stabilises', {
     species = 'all',
     species_proportions = 1
   ))
+  f <- parameters$blood_meal_rates
   models <- parameterise_mosquito_models(parameters)
   solvers <- parameterise_solvers(models, parameters)
   timesteps <- 365 * 10
@@ -116,12 +133,17 @@ test_that('Changing total_M stabilises', {
     } else {
       total_M <- total_M_1
     }
-    mosquito_model_update(models[[1]], total_M)
+    mosquito_model_update(models[[1]], total_M, f, parameters$mum)
     solver_step(solvers[[1]])
   }
 
-  initial_eq <- initial_mosquito_counts(parameters)[seq(3)]
-  final_eq <- counts[burn_in, seq(3) + 1]
+  initial_eq <- initial_mosquito_counts(
+    parameters,
+    1,
+    parameters$init_foim,
+    parameters$total_M
+  )[ODE_INDICES]
+  final_eq <- counts[burn_in, ODE_INDICES + 1]
 
   expect_equal(counts[1,], c(1, initial_eq), tolerance=1e-4)
   expect_equal(counts[timesteps,], c(timesteps, final_eq), tolerance=1e-4)
@@ -132,6 +154,7 @@ test_that('Changing total_M stabilises', {
 test_that('You can parameterise Total_M = 0 🤯', {
   total_M <- 1000
   parameters <- get_parameters()
+  f <- parameters$blood_meal_rates
   parameters <- set_species(
     parameters,
     species = list(arab_params, fun_params),
@@ -149,7 +172,12 @@ test_that('You can parameterise Total_M = 0 🤯', {
   
   for (t in seq(timesteps)) {
     counts <- rbind(counts, c(t, solver_get_states(solvers[[2]])))
-    mosquito_model_update(models[[2]], total_M * parameters$species_proportions[[2]])
+    mosquito_model_update(
+      models[[2]],
+      total_M * parameters$species_proportions[[2]],
+      f,
+      parameters$mum
+    )
     solver_step(solvers[[2]])
   }
 

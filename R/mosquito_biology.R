@@ -3,14 +3,12 @@
 #' "Modelling the impact of vector control interventions on Anopheles gambiae
 #' population dynamics"
 #' @param parameters model parameters
+#' @param species the index of the species to find the equilibrium for
 #' @param foim equilibrium foim
 #' @param m the total number of female adult mosquitos
 #' @noRd
-initial_mosquito_counts <- function(parameters, foim = 0, m = NULL) {
-  if (is.null(m)) {
-    m <- parameters$total_M
-  }
-  omega <- calculate_omega(parameters)
+initial_mosquito_counts <- function(parameters, species, foim, m) {
+  omega <- calculate_omega(parameters, species)
   n_E <- 2 * omega * parameters$mum * parameters$dl * (
     1. + parameters$dpl * parameters$mup
   ) * m
@@ -40,12 +38,19 @@ initial_mosquito_counts <- function(parameters, foim = 0, m = NULL) {
 #' "Modelling the impact of vector control interventions on Anopheles gambiae
 #' population dynamics"
 #' @param parameters model parameters
+#' @param species the index of the species to calculate for
 #' @noRd
-calculate_omega <- function(parameters) {
+calculate_omega <- function(parameters, species) {
   sub_omega <- parameters$gamma * parameters$ml / parameters$me - (
     parameters$del / parameters$dl
   ) + (
     (parameters$gamma - 1) * parameters$ml * parameters$del
+  )
+
+  beta <- eggs_laid(
+    parameters$beta,
+    parameters$mum,
+    parameters$blood_meal_rates[[species]]
   )
 
   -.5 * sub_omega + sqrt(
@@ -62,10 +67,11 @@ calculate_omega <- function(parameters) {
 #' "Modelling the impact of vector control interventions on Anopheles gambiae
 #' population dynamics"
 #' @param parameters model parameters
+#' @param m number of adult mosquitoes
+#' @param species index of the species to calculate for
 #' @noRd
-calculate_carrying_capacity <- function(parameters) {
-  m <- parameters$total_M
-  omega <- calculate_omega(parameters)
+calculate_carrying_capacity <- function(parameters, m, species) {
+  omega <- calculate_omega(parameters, species)
 
   m * 2 * parameters$dl * parameters$mum * (
     1. + parameters$dpl * parameters$mup
@@ -116,18 +122,16 @@ equilibrium_total_M <- function(parameters, EIR) {
 #' @param parameters to work from
 #' @export
 peak_season_offset <- function(parameters) {
-  K0 <- calculate_carrying_capacity(parameters)
-  R_bar <- calculate_R_bar(parameters)
+  if (!parameters$model_seasonality) {
+    return(0)
+  }
   which.max(vnapply(seq(365), function(t) {
-    carrying_capacity(
+    rainfall(
       t,
-      parameters$model_seasonality,
       parameters$days_per_timestep,
       parameters$g0,
       parameters$g,
-      parameters$h,
-      K0,
-      R_bar
+      parameters$h
     )
   }))[[1]]
 }

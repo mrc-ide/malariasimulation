@@ -29,4 +29,6 @@ double rainfall(
     const std::vector<double>&
 );
 
+double eggs_laid(double, double, double);
+
 #endif /* SRC_MOSQUITO_BIOLOGY_H_ */

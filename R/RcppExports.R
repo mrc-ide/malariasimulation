@@ -5,8 +5,8 @@ create_adult_mosquito_model <- function(growth_model, mu, tau, susceptible) {
     .Call(`_malariasimulation_create_adult_mosquito_model`, growth_model, mu, tau, susceptible)
 }
 
-adult_mosquito_model_update <- function(model, mu, foim, susceptible) {
-    invisible(.Call(`_malariasimulation_adult_mosquito_model_update`, model, mu, foim, susceptible))
+adult_mosquito_model_update <- function(model, mu, foim, susceptible, f) {
+    invisible(.Call(`_malariasimulation_adult_mosquito_model_update`, model, mu, foim, susceptible, f))
 }
 
 create_adult_solver <- function(model, init) {
@@ -15,6 +15,10 @@ create_adult_solver <- function(model, init) {
 
 carrying_capacity <- function(timestep, model_seasonality, days_per_timestep, g0, g, h, K0, R_bar) {
     .Call(`_malariasimulation_carrying_capacity`, timestep, model_seasonality, days_per_timestep, g0, g, h, K0, R_bar)
+}
+
+eggs_laid <- function(beta, mu, f) {
+    .Call(`_malariasimulation_eggs_laid`, beta, mu, f)
 }
 
 rainfall <- function(t, days_per_timestep, g0, g, h) {
@@ -38,8 +42,8 @@ create_mosquito_model <- function(beta, de, mue, K0, gamma, dl, mul, dp, mup, to
     .Call(`_malariasimulation_create_mosquito_model`, beta, de, mue, K0, gamma, dl, mul, dp, mup, total_M, model_seasonality, days_per_timestep, g0, g, h, R_bar)
 }
 
-mosquito_model_update <- function(model, total_M) {
-    invisible(.Call(`_malariasimulation_mosquito_model_update`, model, total_M))
+mosquito_model_update <- function(model, total_M, f, mum) {
+    invisible(.Call(`_malariasimulation_mosquito_model_update`, model, total_M, f, mum))
 }
 
 create_solver <- function(model, init) {

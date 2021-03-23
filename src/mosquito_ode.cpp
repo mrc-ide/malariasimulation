@@ -20,7 +20,8 @@ integration_function_t create_ode(MosquitoModel& model) {
             model.K0,
             model.R_bar
         );
-        dxdt[get_idx(ODEState::E)] = model.beta * (model.total_M) //new eggs
+        auto beta = eggs_laid(model.beta, model.mum, model.f);
+        dxdt[get_idx(ODEState::E)] = beta * (model.total_M) //new eggs
             - x[get_idx(ODEState::E)] / model.de //growth to late larval stage
             - x[get_idx(ODEState::E)] * model.mue * (1 + (x[get_idx(ODEState::E)] + x[get_idx(ODEState::L)]) / K); //early larval deaths
 
@@ -113,8 +114,15 @@ Rcpp::XPtr<MosquitoModel> create_mosquito_model(
 }
 
 //[[Rcpp::export]]
-void mosquito_model_update(Rcpp::XPtr<MosquitoModel> model, size_t total_M) {
+void mosquito_model_update(
+    Rcpp::XPtr<MosquitoModel> model,
+    size_t total_M,
+    double f,
+    double mum
+    ) {
     model->total_M = total_M;
+    model->f = f;
+    model->mum = mum;
 }
 
 //[[Rcpp::export]]

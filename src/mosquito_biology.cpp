@@ -27,6 +27,16 @@ double carrying_capacity(
 }
 
 //[[Rcpp::export]]
+double eggs_laid(
+    double beta,
+    double mu,
+    double f
+) {
+    auto eov = beta / mu * (exp(mu / f) - 1);
+    return eov * mu * exp(-mu / f) / (1 - exp(-mu / f));
+}
+
+//[[Rcpp::export]]
 double rainfall(
     const size_t t,
     const double days_per_timestep,

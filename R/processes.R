@@ -71,23 +71,10 @@ create_processes <- function(
   # ===============
   # ODE integration
   # ===============
-  if (parameters$hybrid_mosquitoes) {
-    stepper <- create_solver_stepping_process(
-      models,
-      solvers,
-      variables$mosquito_state,
-      variables$species,
-      parameters$species,
-      renderer
-    )
-  } else {
-    stepper <- create_adult_stepping_process(
-      solvers,
-      renderer
-    )
-  }
-
-  processes <- c(processes, stepper)
+  processes <- c(
+    processes,
+    create_solver_stepping_process(solvers)
+  )
 
   # =========
   # Rendering

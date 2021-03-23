@@ -78,6 +78,7 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
 
   lambda_mock <- mockery::mock(.5, .5, .5)
   mosquito_effects_mock <- mockery::mock()
+  ode_update <- mockery::mock()
 
   mockery::stub(simulate_bites, 'effective_biting_rate', lambda_mock)
   mockery::stub(simulate_bites, 'biting_effects_individual', mosquito_effects_mock)
@@ -85,10 +86,12 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
   mockery::stub(simulate_bites, 'sample.int', mockery::mock(c(2, 3)))
   .pi <- rep(1 / population, population)
   mockery::stub(simulate_bites, 'human_pi', mockery::mock(.pi))
+  mockery::stub(simulate_bites, 'mosquito_model_update', ode_update)
+  ode_model <- mockery::mock()
   bitten <- simulate_bites(
     renderer,
     list(), #solvers
-    list(), #models
+    list(ode_model), #models
     variables,
     events,
     age,
@@ -127,4 +130,6 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
   expect_equal(effects_args[[1]][[7]], parameters$mum)
   expect_equal(effects_args[[1]][[8]], parameters)
   expect_equal(effects_args[[1]][[9]], timestep)
+
+  mockery::expect_args(ode_update, 1, ode_model, 25, f, parameters$mum)
 })

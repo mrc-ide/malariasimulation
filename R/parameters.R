@@ -495,34 +495,40 @@ parameterise_mosquito_equilibrium <- function(parameters, EIR) {
 #' @export
 parameterise_total_M <- function(parameters, total_M) {
   parameters$total_M <- total_M
-  K0 <- calculate_carrying_capacity(parameters)
-  R_bar <- calculate_R_bar(parameters)
-  max_K <- max(vnapply(seq(365), function(t) {
-    carrying_capacity(
-      t,
-      parameters$model_seasonality,
-      parameters$days_per_timestep,
-      parameters$g0,
-      parameters$g,
-      parameters$h,
-      K0,
-      R_bar
-    )
-  }))
-  omega <- calculate_omega(parameters)
-  max_total_M <- max_K * (
-    1 / (
-      2 * parameters$dl * parameters$mum * (
-        1 + parameters$dpl * parameters$mup
+  max_total_M <- 0
+  for (i in seq_along(parameters$species)) {
+    species_M <- total_M * parameters$species_proportions[[i]]
+    K0 <- calculate_carrying_capacity(parameters, species_M, i)
+    R_bar <- calculate_R_bar(parameters)
+    max_K <- max(vnapply(seq(365), function(t) {
+      carrying_capacity(
+        t,
+        parameters$model_seasonality,
+        parameters$days_per_timestep,
+        parameters$g0,
+        parameters$g,
+        parameters$h,
+        K0,
+        R_bar
       )
+    }))
+    omega <- calculate_omega(parameters, i)
+    max_total_M <- max_total_M + max_K * (
+      1 / (
+        2 * parameters$dl * parameters$mum * (
+          1 + parameters$dpl * parameters$mup
+        )
+      )
+    ) * (
+      1 / (
+        parameters$gamma * (omega + 1)
+      )
+    ) * (
+      omega / (parameters$ml * parameters$del) - (
+        1 / (parameters$ml * parameters$dl)
+      ) - 1
     )
-  ) * (
-    1 / (
-      parameters$gamma * (omega + 1)
-    )
-  ) * (
-    omega / (parameters$ml * parameters$del) - (1 / (parameters$ml * parameters$dl)) - 1
-  )
+  }
   parameters$mosquito_limit <- ceiling(max_total_M * 5) #Allow for random fluctuations
   parameters
 }

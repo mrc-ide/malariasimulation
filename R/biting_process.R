@@ -76,19 +76,21 @@ simulate_bites <- function(
     infectious_index <- variables$mosquito_state$get_index_of('Im')
     susceptible_index <- variables$mosquito_state$get_index_of('Sm')
     adult_index <- variables$mosquito_state$get_index_of('NonExistent')$not()
+    renderer$render('total_M', adult_index$size(), timestep)
   }
 
   for (s_i in seq_along(parameters$species)) {
+    if (!parameters$hybrid_mosquitoes) {
+      solver_states <- solver_get_states(solvers[[s_i]])
+    }
 
     if (parameters$hybrid_mosquitoes) {
       species_index <- variables$species$get_index_of(
         parameters$species[[s_i]]
-      )
+      )$and(adult_index)
       n_infectious <- infectious_index$copy()$and(species_index)$size()
     } else {
-      n_infectious <- solver_get_states(
-        solvers[[s_i]]
-      )[[ADULT_ODE_INDICES['Im']]]
+      n_infectious <- solver_states[[ADULT_ODE_INDICES['Im']]]
     }
 
     p_bitten <- prob_bitten(timestep, variables, s_i, parameters)
@@ -142,6 +144,14 @@ simulate_bites <- function(
     renderer$render(paste0('mu_', s_i), mu, timestep)
 
     if (parameters$hybrid_mosquitoes) {
+      # update the ODE with stats for ovoposition calculations
+      if (parameters$hybrid_mosquitoes) {
+        total_M <- species_index$size()
+        mosquito_model_update(models[[s_i]], total_M, f, mu)
+        renderer$render(paste0('total_M_', s_i), total_M, timestep)
+      }
+
+      # update the individual mosquitoes
       susceptible_species_index <- susceptible_index$copy()$and(species_index)
 
       biting_effects_individual(
@@ -150,7 +160,7 @@ simulate_bites <- function(
         events,
         s_i,
         susceptible_species_index,
-        species_index$and(adult_index),
+        species_index,
         mu,
         parameters,
         timestep
@@ -160,9 +170,13 @@ simulate_bites <- function(
         models[[s_i]],
         mu,
         foim,
-        solver_get_states(
-          solvers[[s_i]]
-        )[[ADULT_ODE_INDICES['Sm']]]
+        solver_states[[ADULT_ODE_INDICES['Sm']]],
+        f
+      )
+      renderer$render(
+        paste0('total_M_', s_i),
+        sum(solver_states[ADULT_ODE_INDICES]),
+        timestep
       )
     }
   }

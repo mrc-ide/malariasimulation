@@ -13,16 +13,16 @@ create_adult_solver <- function(model, init) {
     .Call(`_malariasimulation_create_adult_solver`, model, init)
 }
 
-carrying_capacity <- function(timestep, model_seasonality, days_per_timestep, g0, g, h, K0, R_bar) {
-    .Call(`_malariasimulation_carrying_capacity`, timestep, model_seasonality, days_per_timestep, g0, g, h, K0, R_bar)
+carrying_capacity <- function(timestep, model_seasonality, g0, g, h, K0, R_bar) {
+    .Call(`_malariasimulation_carrying_capacity`, timestep, model_seasonality, g0, g, h, K0, R_bar)
 }
 
 eggs_laid <- function(beta, mu, f) {
     .Call(`_malariasimulation_eggs_laid`, beta, mu, f)
 }
 
-rainfall <- function(t, days_per_timestep, g0, g, h) {
-    .Call(`_malariasimulation_rainfall`, t, days_per_timestep, g0, g, h)
+rainfall <- function(t, g0, g, h) {
+    .Call(`_malariasimulation_rainfall`, t, g0, g, h)
 }
 
 #' @title Mosquito emergence process
@@ -38,8 +38,8 @@ create_mosquito_emergence_process_cpp <- function(solvers, state, species, speci
     .Call(`_malariasimulation_create_mosquito_emergence_process_cpp`, solvers, state, species, species_names, dpl)
 }
 
-create_mosquito_model <- function(beta, de, mue, K0, gamma, dl, mul, dp, mup, total_M, model_seasonality, days_per_timestep, g0, g, h, R_bar) {
-    .Call(`_malariasimulation_create_mosquito_model`, beta, de, mue, K0, gamma, dl, mul, dp, mup, total_M, model_seasonality, days_per_timestep, g0, g, h, R_bar)
+create_mosquito_model <- function(beta, de, mue, K0, gamma, dl, mul, dp, mup, total_M, model_seasonality, g0, g, h, R_bar) {
+    .Call(`_malariasimulation_create_mosquito_model`, beta, de, mue, K0, gamma, dl, mul, dp, mup, total_M, model_seasonality, g0, g, h, R_bar)
 }
 
 mosquito_model_update <- function(model, total_M, f, mum) {

@@ -1,7 +1,5 @@
 test_that('ODE stays at equilibrium with a constant total_M', {
-  parameters <- get_parameters(list(
-    species_proportions = 1
-  ))
+  parameters <- get_parameters()
   total_M <- 1000
   f <- parameters$blood_meal_rates
   models <- parameterise_mosquito_models(parameters)
@@ -33,7 +31,6 @@ test_that('ODE stays at equilibrium with a constant total_M', {
 test_that('Adult ODE stays at equilibrium with a constant foim and mu', {
   foim = 0.5
   parameters <- get_parameters(list(
-    species_proportions = 1,
     hybrid_mosquitoes = FALSE,
     init_foim = foim
   ))
@@ -76,9 +73,7 @@ test_that('Adult ODE stays at equilibrium with a constant foim and mu', {
 test_that('ODE stays at equilibrium with low total_M', {
   total_M <- 10
   parameters <- get_parameters(list(
-    total_M = total_M,
-    species = 'all',
-    species_proportions = 1
+    total_M = total_M
   ))
   f <- parameters$blood_meal_rates
   models <- parameterise_mosquito_models(parameters)
@@ -113,9 +108,7 @@ test_that('Changing total_M stabilises', {
   total_M_0 <- 500
   total_M_1 <- 400
   parameters <- get_parameters(list(
-    total_M = total_M_0,
-    species = 'all',
-    species_proportions = 1
+    total_M = total_M_0
   ))
   f <- parameters$blood_meal_rates
   models <- parameterise_mosquito_models(parameters)

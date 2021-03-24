@@ -44,7 +44,6 @@ struct MosquitoModel {
     double f; //biting rate
     double mum; //adult mortality rate
     const bool model_seasonality; //whether to model seasonality
-    const double days_per_timestep; //scale of the fourier model for seasonality
     const double g0; //fourier shape parameter
     const std::vector<double> g; //fourier shape parameters
     const std::vector<double> h; //fourier shape parameters
@@ -62,7 +61,6 @@ struct MosquitoModel {
         double mup,
         size_t total_M,
         bool model_seasonality,
-        double days_per_timestep,
         double g0,
         std::vector<double> g,
         std::vector<double> h,

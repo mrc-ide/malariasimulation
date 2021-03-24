@@ -12,7 +12,6 @@
 double carrying_capacity(
     const size_t timestep,
     const bool model_seasonality,
-    const double days_per_timestep,
     const double g0,
     const std::vector<double>& g,
     const std::vector<double>& h,
@@ -20,7 +19,7 @@ double carrying_capacity(
     const double R_bar
 ) {
     if (model_seasonality) {
-        double r = rainfall(timestep, days_per_timestep, g0, g, h);
+        double r = rainfall(timestep, g0, g, h);
         return std::max(K0 * r / R_bar, .01);
     }
     return std::max(K0, .01);
@@ -39,7 +38,6 @@ double eggs_laid(
 //[[Rcpp::export]]
 double rainfall(
     const size_t t,
-    const double days_per_timestep,
     const double g0,
     const std::vector<double>& g,
     const std::vector<double>& h
@@ -47,8 +45,8 @@ double rainfall(
     double result = g0;
     for (auto i = 0u; i < g.size(); ++i) {
         result +=
-            g[i] * cos(2 * M_PI * t * days_per_timestep / 365 * (i + 1)) +
-            h[i] * sin(2 * M_PI * t * days_per_timestep / 365 * (i + 1));
+            g[i] * cos(2 * M_PI * t * (i + 1) / 365) +
+            h[i] * sin(2 * M_PI * t * (i + 1) / 365);
     }
     return result;
 }

@@ -91,7 +91,6 @@ calculate_carrying_capacity <- function(parameters, m, species) {
 calculate_R_bar <- function(parameters) {
   mean(vnapply(1:365, function(t) rainfall(
 		t,
-		parameters$days_per_timestep,
     parameters$g0,
     parameters$g,
     parameters$h
@@ -132,7 +131,6 @@ peak_season_offset <- function(parameters) {
   which.max(vnapply(seq(365), function(t) {
     rainfall(
       t,
-      parameters$days_per_timestep,
       parameters$g0,
       parameters$g,
       parameters$h

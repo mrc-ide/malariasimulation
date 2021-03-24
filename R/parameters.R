@@ -234,11 +234,9 @@
 #' simulation
 #' * hybrid_mosquitoes - boolean whether adult mosquitoes are modelled
 #' individually or compartmentaly
-#' * days_per_timestep - the number of days to model per timestep
 #'
 #' @export
 get_parameters <- function(overrides = list()) {
-  days_per_timestep <- 1
   parameters <- list(
     dd    = 5,
     dt    = 5,
@@ -302,7 +300,7 @@ get_parameters <- function(overrides = list()) {
     id0   = 1.577533,
     kd    = .476614,
     # mortality parameters
-    average_age = 7663 / days_per_timestep,
+    average_age = 7663,
     v     = .065, # NOTE: there are two definitions of this in the literature: one on line 124 and one in the parameters table
     pcm   = .774368,
     pvm   = .195768,
@@ -416,8 +414,7 @@ get_parameters <- function(overrides = list()) {
     # misc
     human_population = 100,
     mosquito_limit   = 100 * 1000,
-    hybrid_mosquitoes = TRUE,
-    days_per_timestep  = days_per_timestep
+    hybrid_mosquitoes = TRUE
   )
 
   # Override parameters with any client specified ones
@@ -495,6 +492,9 @@ parameterise_mosquito_equilibrium <- function(parameters, EIR) {
 #' @export
 parameterise_total_M <- function(parameters, total_M) {
   parameters$total_M <- total_M
+  if (!parameters$hybrid_mosquitoes) {
+    return(parameters)
+  }
   max_total_M <- 0
   for (i in seq_along(parameters$species)) {
     species_M <- total_M * parameters$species_proportions[[i]]
@@ -504,7 +504,6 @@ parameterise_total_M <- function(parameters, total_M) {
       carrying_capacity(
         t,
         parameters$model_seasonality,
-        parameters$days_per_timestep,
         parameters$g0,
         parameters$g,
         parameters$h,

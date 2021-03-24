@@ -19,7 +19,6 @@ parameterise_mosquito_models <- function(parameters) {
         parameters$mup,
         m,
         parameters$model_seasonality,
-        parameters$days_per_timestep,
         parameters$g0,
         parameters$g,
         parameters$h,

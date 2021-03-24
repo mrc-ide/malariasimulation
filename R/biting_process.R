@@ -173,11 +173,6 @@ simulate_bites <- function(
         solver_states[[ADULT_ODE_INDICES['Sm']]],
         f
       )
-      renderer$render(
-        paste0('total_M_', s_i),
-        sum(solver_states[ADULT_ODE_INDICES]),
-        timestep
-      )
     }
   }
 

@@ -71,10 +71,21 @@ create_ode_rendering_process <- function(renderer, solvers, parameters) {
 
   function(timestep) {
     counts <- rep(0, length(indices))
-    for (solver in solvers) {
-      row <- solver_get_states(solver)
+    total_M <- 0
+    for (i in seq_along(solvers)) {
+      row <- solver_get_states(solvers[[i]])
       counts <- counts + row
+      if (!parameters$hybrid_mosquitoes) {
+        species_M <- sum(row[ADULT_ODE_INDICES])
+        total_M <- total_M + species_M
+        renderer$render(paste0('total_M_', i), species_M, timestep)
+      }
     }
+
+    if (!parameters$hybrid_mosquitoes) {
+      renderer$render('total_M', total_M, timestep)
+    }
+
     for (i in seq_along(indices)) {
       renderer$render(
         paste0(names(indices)[[i]], '_count'),

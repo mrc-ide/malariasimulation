@@ -225,6 +225,11 @@ average_p_successful <- function(prob_bitten_survives, .pi, Q0) {
   (1 - Q0) + Q0 * sum(.pi *  prob_bitten_survives)
 }
 
+# Unique biting rate (psi) for a human of a given age
+unique_biting_rate <- function(age, parameters) {
+  1 - parameters$rho * exp(- age / parameters$a0)
+}
+
 #' @title Calculate the force of infection towards mosquitoes
 #'
 #' @param human_infectivity a vector of infectivities for each human

@@ -400,11 +400,6 @@ asymptomatic_infectivity <- function(age, immunity, parameters) {
   parameters$cu + (parameters$cd - parameters$cu) * q ** parameters$gamma1
 }
 
-# Unique biting rate (psi) for a human of a given age
-unique_biting_rate <- function(age, parameters) {
-  1 - parameters$rho * exp(- age / parameters$a0)
-}
-
 # Implemented from Winskill 2017 - Supplementary Information page 4
 blood_immunity <- function(ib, parameters) {
   parameters$b0 * (

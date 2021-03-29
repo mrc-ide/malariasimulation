@@ -51,6 +51,13 @@ set_clinical_treatment <- function(parameters, drug, timesteps, coverages) {
   parameters$clinical_treatment_drugs[[drug_index]] <- drug
   parameters$clinical_treatment_timesteps[[drug_index]] <- timesteps
   parameters$clinical_treatment_coverages[[drug_index]] <- coverages
+  last_timestep <- max(unlist(parameters$clinical_treatment_timesteps))
+
+  for (t in seq(last_timestep)) {
+    if (sum(get_treatment_coverages(parameters, t)) > 1) {
+      stop('The sum of drug coverages cannot be greater than 1 at any timestep')
+    }
+  }
   parameters
 }
 

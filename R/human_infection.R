@@ -151,9 +151,6 @@ calculate_treated <- function(
   ) {
   treatment_coverages <- get_treatment_coverages(parameters, timestep)
   ft <- sum(treatment_coverages)
-  if (ft > 1) {
-    stop('Drug coverages need to be < 1 at all timesteps')
-  }
 
   if (ft == 0) {
     return(individual::Bitset$new(parameters$human_population))

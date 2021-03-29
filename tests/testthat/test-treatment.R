@@ -40,3 +40,22 @@ test_that('You can set time varying clinical treatment', {
     c(.2, .4)
   )
 })
+
+test_that('You cannot set invalid coverages', {
+  parameters <- get_parameters()
+  parameters <- set_drugs(parameters, list(DHC_PQP_params, AL_params))
+  parameters <- set_clinical_treatment(
+    parameters,
+    drug = 1,
+    timesteps = c(50, 100),
+    coverages = c(.2, .5)
+  )
+  expect_error(
+    set_clinical_treatment(
+      parameters,
+      drug = 2,
+      timesteps = c(25, 75),
+      coverages = c(.3, .6)
+    )
+  )
+})

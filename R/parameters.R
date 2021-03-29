@@ -354,9 +354,9 @@ get_parameters <- function(overrides = list()) {
     drug_rel_c             = numeric(0),
     drug_prophilaxis_shape = numeric(0),
     drug_prophilaxis_scale = numeric(0),
-    clinical_treatment_drugs     = numeric(0),
-    clinical_treatment_coverages = numeric(0),
-    ft = 0,
+    clinical_treatment_drugs     = list(),
+    clinical_treatment_timesteps = list(),
+    clinical_treatment_coverages = list(),
     # rts,s
     rtss = FALSE,
     rtss_vmax = .93,

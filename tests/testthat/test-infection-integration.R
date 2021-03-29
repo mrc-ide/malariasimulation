@@ -91,7 +91,7 @@ test_that('calculate_infections works various combinations of drug and vaccinati
   timestep <- 50
   parameters <- get_parameters()
   parameters <- set_drugs(parameters, list(AL_params, DHC_PQP_params))
-  parameters <- set_clinical_treatment(parameters, .5, 2, 1)
+  parameters <- set_clinical_treatment(parameters, 2, 1, .5)
 
   variables <- list(
     state = individual::CategoricalVariable$new(
@@ -233,7 +233,8 @@ test_that('calculate_clinical_infections correctly samples clinically infected',
 test_that('calculate_treated correctly samples treated and updates the drug state', {
   parameters <- get_parameters()
   parameters <- set_drugs(parameters, list(AL_params, DHC_PQP_params))
-  parameters <- set_clinical_treatment(parameters, .5, c(1, 2), c(.5, .5))
+  parameters <- set_clinical_treatment(parameters, 1, 1, .25)
+  parameters <- set_clinical_treatment(parameters, 2, 1, .25)
   timestep <- 5
   events <- create_events(parameters)
   variables <- list(
@@ -273,7 +274,7 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
     1,
     2,
     3,
-    c(.5, .5),
+    c(.25, .25),
     TRUE
   )
 

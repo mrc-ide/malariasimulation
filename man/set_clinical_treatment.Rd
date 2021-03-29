@@ -4,16 +4,16 @@
 \alias{set_clinical_treatment}
 \title{Parameterise clinical treatment}
 \usage{
-set_clinical_treatment(parameters, ft, drugs, coverages)
+set_clinical_treatment(parameters, drug, timesteps, coverages)
 }
 \arguments{
 \item{parameters}{the model parameters}
 
-\item{ft}{probability of seeking treatment}
+\item{drug}{the index of the drug to set as a treatment}
 
-\item{drugs}{vector of drugs indecies that are available}
+\item{timesteps}{vector of timesteps for each coverage change}
 
-\item{coverages}{vector of coverages for those drugs}
+\item{coverages}{vector of coverages for this drug}
 }
 \description{
 Parameterise clinical treatment

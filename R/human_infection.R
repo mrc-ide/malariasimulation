@@ -1,3 +1,81 @@
+#' @title Simulate malaria infection in humans
+#' @description
+#' Updates human states and variables to represent asymptomatic/clinical/severe
+#' and treated malaria; and resulting boosts in immunity
+#' @param variables a list of all of the model variables
+#' @param events a list of all of the model events
+#' @param bitten_humans a bitset of bitten humans
+#' @param age of each human (timesteps)
+#' @param parameters of the model
+#' @param timestep current timestep
+#' @noRd
+simulate_infection <- function(
+  variables,
+  events,
+  bitten_humans,
+  age,
+  parameters,
+  timestep,
+  renderer
+  ) {
+
+  if (bitten_humans$size() > 0) {
+    boost_immunity(
+      variables$ib,
+      bitten_humans,
+      variables$last_boosted_ib,
+      timestep,
+      parameters$ub
+    )
+  }
+
+  # Calculate Infected
+  infected_humans <- calculate_infections(
+    variables,
+    bitten_humans,
+    parameters,
+    timestep
+  )
+
+  clinical_infections <- calculate_clinical_infections(
+    variables,
+    infected_humans,
+    parameters,
+    timestep
+  )
+
+  if (parameters$severe_enabled) {
+    update_severe_disease(
+      timestep,
+      clinical_infections,
+      variables,
+      infected_humans,
+      parameters
+    )
+  }
+
+
+  treated <- calculate_treated(
+    variables,
+    clinical_infections,
+    events$recovery,
+    parameters,
+    timestep,
+    renderer
+  )
+
+  renderer$render('n_treated', treated$size(), timestep)
+
+  schedule_infections(
+    events,
+    clinical_infections,
+    treated,
+    infected_humans,
+    parameters,
+    variables$state$get_index_of('A')
+  )
+}
+
 #' @title Calculate overall infections for bitten humans
 #' @description
 #' Sample infected humans given prophylaxis and vaccination
@@ -147,7 +225,8 @@ calculate_treated <- function(
   clinical_infections,
   recovery,
   parameters,
-  timestep
+  timestep,
+  renderer
   ) {
   treatment_coverages <- get_treatment_coverages(parameters, timestep)
   ft <- sum(treatment_coverages)
@@ -156,6 +235,7 @@ calculate_treated <- function(
     return(individual::Bitset$new(parameters$human_population))
   }
 
+  renderer$render('ft', ft, timestep)
   seek_treatment <- sample_bitset(clinical_infections, ft)
   n_treat <- seek_treatment$size()
   drugs <- as.numeric(parameters$clinical_treatment_drugs[
@@ -208,12 +288,19 @@ schedule_infections <- function(
   clinical_infections,
   treated,
   infections,
-  parameters
+  parameters,
+  asymptomatics
   ) {
   included <- events$infection$get_scheduled()$or(treated)$not()
 
   to_infect <- clinical_infections$and(included)
-  to_infect_asym <- clinical_infections$not()$and(infections)$and(included)
+  to_infect_asym <- clinical_infections$not()$and(
+    infections
+  )$and(
+    included
+  )$and(
+    asymptomatics$not()
+  )
 
   # change to symptomatic
   if(to_infect$size() > 0) {

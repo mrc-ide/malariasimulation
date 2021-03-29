@@ -38,7 +38,8 @@ create_biting_process <- function(
       bitten_humans,
       age,
       parameters,
-      timestep
+      timestep,
+      renderer
     )
   }
 }
@@ -178,78 +179,6 @@ simulate_bites <- function(
 
   renderer$render('EIR', bitten_humans$size(), timestep)
   bitten_humans
-}
-
-#' @title Simulate malaria infection in humans
-#' @description
-#' Updates human states and variables to represent asymptomatic/clinical/severe
-#' and treated malaria; and resulting boosts in immunity
-#' @param variables a list of all of the model variables
-#' @param events a list of all of the model events
-#' @param bitten_humans a bitset of bitten humans
-#' @param age of each human (timesteps)
-#' @param parameters of the model
-#' @param timestep current timestep
-#' @noRd
-simulate_infection <- function(
-  variables,
-  events,
-  bitten_humans,
-  age,
-  parameters,
-  timestep
-  ) {
-
-  if (bitten_humans$size() > 0) {
-    boost_immunity(
-      variables$ib,
-      bitten_humans,
-      variables$last_boosted_ib,
-      timestep,
-      parameters$ub
-    )
-  }
-
-  # Calculate Infected
-  infected_humans <- calculate_infections(
-    variables,
-    bitten_humans,
-    parameters,
-    timestep
-  )
-
-  clinical_infections <- calculate_clinical_infections(
-    variables,
-    infected_humans,
-    parameters,
-    timestep
-  )
-
-  if (parameters$severe_enabled) {
-    update_severe_disease(
-      timestep,
-      clinical_infections,
-      variables,
-      infected_humans,
-      parameters
-    )
-  }
-
-  treated <- calculate_treated(
-    variables,
-    clinical_infections,
-    events$recovery,
-    parameters,
-    timestep
-  )
-
-  schedule_infections(
-    events,
-    clinical_infections,
-    treated,
-    infected_humans,
-    parameters
-  )
 }
 
 # =================

@@ -254,7 +254,8 @@ miscellaneous:
 \item human_population - the number of humans to model
 \item mosquito_limit - the maximum number of mosquitos to allow for in the
 simulation
-\item days_per_timestep - the number of days to model per timestep
+\item hybrid_mosquitoes - boolean whether adult mosquitoes are modelled
+individually or compartmentaly
 }}
 }
 \description{

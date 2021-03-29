@@ -61,8 +61,6 @@
 #' * ad - scale parameter relating age to immunity
 #' * gammad - shape parameter relating age to immunity
 #' * d1 - minimum probability due to immunity
-#' * dmin - minimum probability due to immunity NOTE: there appears to be a
-#' mistake here!
 #' * id0 - scale parameter 
 #' * kd - shape parameter
 #'

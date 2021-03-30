@@ -95,6 +95,7 @@ create_processes <- function(
       variables$state,
       variables$birth,
       variables$is_severe,
+      variables$id,
       parameters,
       renderer
     ),

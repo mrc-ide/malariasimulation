@@ -3,8 +3,8 @@ create_events <- function(parameters) {
     # Human infection events
     clinical_infection = individual::TargetedEvent$new(parameters$human_population),
     asymptomatic_infection = individual::TargetedEvent$new(parameters$human_population),
-    # either clinical or asym infection
-    infection = individual::TargetedEvent$new(parameters$human_population), 
+    # whether the infection is detected
+    detection = individual::TargetedEvent$new(parameters$human_population), 
     subpatent_infection = individual::TargetedEvent$new(parameters$human_population),
     recovery = individual::TargetedEvent$new(parameters$human_population),
 
@@ -162,7 +162,7 @@ attach_event_listeners <- function(
     )
   )
 
-  events$infection$add_listener(
+  events$detection$add_listener(
     create_incidence_renderer(
       variables$birth,
       variables$is_severe,

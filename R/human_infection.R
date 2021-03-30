@@ -18,7 +18,6 @@ simulate_infection <- function(
   timestep,
   renderer
   ) {
-
   if (bitten_humans$size() > 0) {
     boost_immunity(
       variables$ib,
@@ -59,6 +58,7 @@ simulate_infection <- function(
     variables,
     clinical_infections,
     events$recovery,
+    events$detection,
     parameters,
     timestep,
     renderer
@@ -224,6 +224,7 @@ calculate_treated <- function(
   variables,
   clinical_infections,
   recovery,
+  detection,
   parameters,
   timestep,
   renderer
@@ -252,14 +253,13 @@ calculate_treated <- function(
 
   # Update those who have been treated
   if (treated_index$size() > 0) {
-    successful_vector <- successful$to_vector()
     variables$state$queue_update('Tr', treated_index)
     variables$infectivity$queue_update(
-      parameters$cd * parameters$drug_rel_c[drugs[successful_vector]],
+      parameters$cd * parameters$drug_rel_c[drugs[successful]],
       treated_index
     )
     variables$drug$queue_update(
-      drugs[successful_vector],
+      drugs[successful],
       treated_index
     )
     variables$drug_time$queue_update(
@@ -270,6 +270,7 @@ calculate_treated <- function(
       treated_index,
       log_uniform(treated_index$size(), parameters$dt)
     )
+    detection$schedule(treated_index, 0)
   }
   treated_index
 }
@@ -290,7 +291,9 @@ schedule_infections <- function(
   infections,
   parameters
   ) {
-  included <- events$infection$get_scheduled()$or(treated)$not()
+  included <- events$clinical_infection$get_scheduled()$or(
+    events$asymptomatic_infection$get_scheduled()
+  )$or(treated)$not()
 
   to_infect <- clinical_infections$and(included)
   to_infect_asym <- clinical_infections$not()$and(infections)$and(included)
@@ -302,7 +305,7 @@ schedule_infections <- function(
       to_infect,
       infection_times
     )
-    events$infection$schedule(to_infect, infection_times)
+    events$detection$schedule(to_infect, infection_times)
     events$subpatent_infection$clear_schedule(to_infect)
     events$recovery$clear_schedule(to_infect)
   }
@@ -313,7 +316,19 @@ schedule_infections <- function(
       to_infect_asym,
       infection_times
     )
-    events$infection$schedule(to_infect_asym, infection_times)
+    asym_vector <- to_infect_asym$to_vector()
+    detected <- bernoulli_multi_p(
+      probability_of_detection(
+        age[asym_vector],
+        immunity[asym_vector],
+        parameters
+      )
+    )
+    detected_index <- bitset_at(
+      to_infect_asym,
+      detected
+    )
+    events$detection$schedule(detected_index, infection_times[detected])
     events$subpatent_infection$clear_schedule(to_infect_asym)
     events$recovery$clear_schedule(to_infect_asym)
   }

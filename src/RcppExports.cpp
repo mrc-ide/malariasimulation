@@ -177,7 +177,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // bernoulli_multi_p_cpp
-Rcpp::XPtr<individual_index_t> bernoulli_multi_p_cpp(const std::vector<double> p);
+std::vector<size_t> bernoulli_multi_p_cpp(const std::vector<double> p);
 RcppExport SEXP _malariasimulation_bernoulli_multi_p_cpp(SEXP pSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

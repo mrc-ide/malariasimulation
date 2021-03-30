@@ -14,18 +14,32 @@ create_prevelance_renderer <- function(
   state,
   birth,
   is_severe,
+  immunity,
   parameters,
   renderer
   ) {
   function(timestep) {
-    infected <- state$get_index_of(c('D', 'A'))
-    severe <- is_severe$get_index_of('yes')$and(infected)
     age <- get_age(birth$get_values(), timestep)
+    asymptomatic <- state$get_index_of('A')
+    asymptomatic_vector <- asymptomatic$to_vector()
+    asymptomatic_detected <- bernoulli_multi_p(
+      probability_of_detection(
+        age[asymptomatic_vector],
+        immunity$get_values(asymptomatic),
+        parameters
+      )
+    )
+
+    detected <- state$get_index_of(c('Tr', 'D'))$or(
+      bitset_at(asymptomatic, asymptomatic_detected)
+    )
+
+    severe <- is_severe$get_index_of('yes')$and(detected)
     for (i in seq_along(parameters$prevalence_rendering_min_ages)) {
       lower <- parameters$prevalence_rendering_min_ages[[i]]
       upper <- parameters$prevalence_rendering_max_ages[[i]]
       p <- epi_from_subpopulation(
-        infected,
+        detected,
         age,
         lower,
         upper

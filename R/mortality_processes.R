@@ -62,7 +62,7 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
         }
       }
 
-      events$infection$clear_schedule(died)
+      events$detection$clear_schedule(died)
       events$clinical_infection$clear_schedule(died)
       events$asymptomatic_infection$clear_schedule(died)
       events$subpatent_infection$clear_schedule(died)

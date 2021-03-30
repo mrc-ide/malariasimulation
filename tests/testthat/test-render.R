@@ -2,26 +2,30 @@ test_that('that default rendering works', {
   timestep <- 0
   parameters <- get_parameters()
   state <- individual::CategoricalVariable$new(
-    c('U', 'A', 'D', 'S'),
+    c('U', 'A', 'D', 'S', 'Tr'),
     c('U', 'A', 'D', 'S')
   )
   birth <- individual::DoubleVariable$new(
     -c(2, 5, 10, 11) * 365
   )
+  immunity <- individual::DoubleVariable$new(rep(1, 4))
   is_severe <- individual::CategoricalVariable$new(
     c('yes', 'no'),
     rep('no', 4)
   )
+
 
   renderer <- mock_render(1)
   process <- create_prevelance_renderer(
     state,
     birth,
     is_severe,
+    immunity,
     parameters,
     renderer
   )
 
+  mockery::stub(process, 'bernoulli_multi_p', mockery::mock(1))
   process(timestep)
 
   mockery::expect_args(
@@ -37,12 +41,13 @@ test_that('that default rendering works when no one is in the age range', {
   timestep <- 0
   parameters <- get_parameters()
   state <- individual::CategoricalVariable$new(
-    c('U', 'A', 'D', 'S'),
+    c('U', 'A', 'D', 'S', 'Tr'),
     rep('S', 4)
   )
   birth <- individual::DoubleVariable$new(
     -c(1, 11, 21, 11) * 365
   )
+  immunity <- individual::DoubleVariable$new(rep(1, 4))
   is_severe <- individual::CategoricalVariable$new(
     c('yes', 'no'),
     rep('no', 4)
@@ -53,10 +58,12 @@ test_that('that default rendering works when no one is in the age range', {
     state,
     birth,
     is_severe,
+    immunity,
     parameters,
     renderer
   )
   process(timestep)
+  mockery::stub(process, 'bernoulli_multi_p', mockery::mock(1))
 
   mockery::expect_args(
     renderer$render,
@@ -77,12 +84,13 @@ test_that('that severe rendering works', {
     prevalence_rendering_max_ages = NULL
   ))
   state <- individual::CategoricalVariable$new(
-    c('U', 'A', 'D', 'S'),
+    c('U', 'A', 'D', 'S', 'Tr'),
     c('U', 'D', 'D', 'S')
   )
   birth <- individual::DoubleVariable$new(
     -c(2, 5, 10, 11) * 365
   )
+  immunity <- individual::DoubleVariable$new(rep(1, 4))
   is_severe <- individual::CategoricalVariable$new(
     c('yes', 'no'),
     c('no', 'yes', 'no', 'no')
@@ -92,6 +100,7 @@ test_that('that severe rendering works', {
     state,
     birth,
     is_severe,
+    immunity,
     parameters,
     renderer
   )

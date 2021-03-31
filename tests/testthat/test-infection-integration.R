@@ -72,8 +72,7 @@ test_that('simulate_infection integrates different types of infection and schedu
     1,
     variables,
     infected,
-    parameters,
-    timestep
+    parameters
   )
 
   mockery::expect_args(
@@ -211,31 +210,10 @@ test_that('calculate_clinical_infections correctly samples clinically infected',
   clinical_infections <- calculate_clinical_infections(
     variables,
     infections,
-    parameters,
-    timestep
+    parameters
   )
 
   expect_equal(clinical_infections$to_vector(), c(2, 4))
-
-  mockery::expect_args(
-    boost_mock,
-    1,
-    variables$ica,
-    infections,
-    variables$last_boosted_ica,
-    5,
-    parameters$uc
-  )
-
-  mockery::expect_args(
-    boost_mock,
-    2,
-    variables$id,
-    infections,
-    variables$last_boosted_id,
-    5,
-    parameters$ud
-  )
 
   mockery::expect_args(
     immunity_mock,
@@ -403,8 +381,8 @@ test_that('schedule_infections correctly schedules new infections', {
 
   expect_bitset_schedule(
     detection_mock,
-    c(2, 16, 20),
-    c(2, 16, 20),
+    c(2, 4, 16, 18, 19, 20),
+    c(2, 4, 16, 18, 19, 20),
     call = 2
   )
 })

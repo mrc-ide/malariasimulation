@@ -36,11 +36,27 @@ simulate_infection <- function(
     timestep
   )
 
+  if (infected_humans$size() > 0) {
+    boost_immunity(
+      variables$ica,
+      infected_humans,
+      variables$last_boosted_ica,
+      timestep,
+      parameters$uc
+    )
+    boost_immunity(
+      variables$id,
+      infected_humans,
+      variables$last_boosted_id,
+      timestep,
+      parameters$ud
+    )
+  }
+
   clinical_infections <- calculate_clinical_infections(
     variables,
     infected_humans,
-    parameters,
-    timestep
+    parameters
   )
 
   if (parameters$severe_enabled) {
@@ -143,29 +159,10 @@ calculate_infections <- function(
 #' @param variables a list of all of the model variables
 #' @param infections bitset of infected humans
 #' @param parameters model parameters
-#' @param timestep current timestep
 #' @noRd
-calculate_clinical_infections <- function(variables, infections, parameters, timestep) {
+calculate_clinical_infections <- function(variables, infections, parameters) {
   ica <- variables$ica$get_values(infections)
   icm <- variables$icm$get_values(infections)
-
-  if (infections$size() > 0) {
-    boost_immunity(
-      variables$ica,
-      infections,
-      variables$last_boosted_ica,
-      timestep,
-      parameters$uc
-    )
-    boost_immunity(
-      variables$id,
-      infections,
-      variables$last_boosted_id,
-      timestep,
-      parameters$ud
-    )
-  }
-
   phi <- clinical_immunity(ica, icm, parameters)
   bitset_at(infections, bernoulli_multi_p(phi))
 }
@@ -316,19 +313,7 @@ schedule_infections <- function(
       to_infect_asym,
       infection_times
     )
-    asym_vector <- to_infect_asym$to_vector()
-    detected <- bernoulli_multi_p(
-      probability_of_detection(
-        age[asym_vector],
-        immunity[asym_vector],
-        parameters
-      )
-    )
-    detected_index <- bitset_at(
-      to_infect_asym,
-      detected
-    )
-    events$detection$schedule(detected_index, infection_times[detected])
+    events$detection$schedule(to_infect_asym, infection_times)
     events$subpatent_infection$clear_schedule(to_infect_asym)
     events$recovery$clear_schedule(to_infect_asym)
   }

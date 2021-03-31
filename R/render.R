@@ -79,12 +79,29 @@ create_incidence_renderer <- function(birth, is_severe, parameters, renderer) {
       lower <- parameters$severe_incidence_rendering_min_ages[[i]]
       upper <- parameters$severe_incidence_rendering_max_ages[[i]]
       p <- epi_from_subpopulation(
-        severe,
+        severe$copy()$and(target),
         age,
         lower,
         upper
       )
       renderer$render(paste0('inc_severe_', lower, '_', upper), p, timestep)
+    }
+  }
+}
+
+create_clinical_incidence_renderer <- function(birth, parameters, renderer) {
+  function(timestep, target) {
+    age <- get_age(birth$get_values(), timestep)
+    for (i in seq_along(parameters$clinical_incidence_rendering_min_ages)) {
+      lower <- parameters$clinical_incidence_rendering_min_ages[[i]]
+      upper <- parameters$clinical_incidence_rendering_max_ages[[i]]
+      p <- epi_from_subpopulation(
+        target,
+        age,
+        lower,
+        upper
+      )
+      renderer$render(paste0('clin_inc_', lower, '_', upper), p, timestep)
     }
   }
 }

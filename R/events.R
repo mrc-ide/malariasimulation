@@ -149,6 +149,14 @@ attach_event_listeners <- function(
       parameters$dd
     )
   )
+  events$clinical_infection$add_listener(
+    create_clinical_incidence_renderer(
+      variables$birth,
+      parameters,
+      renderer
+    )
+  )
+
   events$asymptomatic_infection$add_listener(
     create_progression_listener(
       events$subpatent_infection,

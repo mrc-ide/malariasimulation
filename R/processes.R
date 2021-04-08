@@ -35,7 +35,7 @@ create_processes <- function(
     create_exponential_decay_process(variables$id, parameters$rid)
   )
 
-  if (parameters$hybrid_mosquitoes) {
+  if (parameters$individual_mosquitoes) {
     processes <- c(
       processes,
       create_mosquito_emergence_process_cpp(
@@ -101,7 +101,7 @@ create_processes <- function(
     create_ode_rendering_process(renderer, solvers, parameters)
   )
 
-  if (parameters$hybrid_mosquitoes) {
+  if (parameters$individual_mosquitoes) {
     processes <- c(
       processes,
       individual::categorical_count_renderer_process(

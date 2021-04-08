@@ -73,7 +73,7 @@ simulate_bites <- function(
   .pi <- human_pi(variables$zeta$get_values(), psi)
 
   # Get some indices for later
-  if (parameters$hybrid_mosquitoes) {
+  if (parameters$individual_mosquitoes) {
     infectious_index <- variables$mosquito_state$get_index_of('Im')
     susceptible_index <- variables$mosquito_state$get_index_of('Sm')
     adult_index <- variables$mosquito_state$get_index_of('NonExistent')$not()
@@ -82,11 +82,11 @@ simulate_bites <- function(
   EIR <- 0
 
   for (s_i in seq_along(parameters$species)) {
-    if (!parameters$hybrid_mosquitoes) {
+    if (!parameters$individual_mosquitoes) {
       solver_states <- solver_get_states(solvers[[s_i]])
     }
 
-    if (parameters$hybrid_mosquitoes) {
+    if (parameters$individual_mosquitoes) {
       species_index <- variables$species$get_index_of(
         parameters$species[[s_i]]
       )$and(adult_index)
@@ -146,7 +146,7 @@ simulate_bites <- function(
     mu <- death_rate(f, W, Z, s_i, parameters)
     renderer$render(paste0('mu_', s_i), mu, timestep)
 
-    if (parameters$hybrid_mosquitoes) {
+    if (parameters$individual_mosquitoes) {
       # update the ODE with stats for ovoposition calculations
       mosquito_model_update(models[[s_i]], species_index$size(), f, mu)
 

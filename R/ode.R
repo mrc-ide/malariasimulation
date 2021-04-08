@@ -25,7 +25,7 @@ parameterise_mosquito_models <- function(parameters) {
         calculate_R_bar(parameters)
       )
 
-      if (!parameters$hybrid_mosquitoes) {
+      if (!parameters$individual_mosquitoes) {
         susceptible <- initial_mosquito_counts(
           parameters,
           i,
@@ -52,7 +52,7 @@ parameterise_solvers <- function(models, parameters) {
     function(i) {
       m <- parameters$species_proportions[[i]] * parameters$total_M
       init <- initial_mosquito_counts(parameters, i, parameters$init_foim, m)
-      if (!parameters$hybrid_mosquitoes) {
+      if (!parameters$individual_mosquitoes) {
         return(
           create_adult_solver(models[[i]], init)
         )
@@ -63,7 +63,7 @@ parameterise_solvers <- function(models, parameters) {
 }
 
 create_ode_rendering_process <- function(renderer, solvers, parameters) {
-  if (parameters$hybrid_mosquitoes) {
+  if (parameters$individual_mosquitoes) {
     indices <- ODE_INDICES
   } else {
     indices <- c(ODE_INDICES, ADULT_ODE_INDICES)

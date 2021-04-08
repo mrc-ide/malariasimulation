@@ -230,7 +230,7 @@
 #' * human_population - the number of humans to model
 #' * mosquito_limit - the maximum number of mosquitos to allow for in the
 #' simulation
-#' * hybrid_mosquitoes - boolean whether adult mosquitoes are modelled
+#' * individual_mosquitoes - boolean whether adult mosquitoes are modelled
 #' individually or compartmentaly
 #'
 #' @export
@@ -412,7 +412,7 @@ get_parameters <- function(overrides = list()) {
     # misc
     human_population = 100,
     mosquito_limit   = 100 * 1000,
-    hybrid_mosquitoes = TRUE
+    individual_mosquitoes = TRUE
   )
 
   # Override parameters with any client specified ones
@@ -490,7 +490,7 @@ parameterise_mosquito_equilibrium <- function(parameters, EIR) {
 #' @export
 parameterise_total_M <- function(parameters, total_M) {
   parameters$total_M <- total_M
-  if (!parameters$hybrid_mosquitoes) {
+  if (!parameters$individual_mosquitoes) {
     return(parameters)
   }
   max_total_M <- 0

@@ -31,7 +31,7 @@ test_that('ODE stays at equilibrium with a constant total_M', {
 test_that('Adult ODE stays at equilibrium with a constant foim and mu', {
   foim = 0.5
   parameters <- get_parameters(list(
-    hybrid_mosquitoes = FALSE,
+    individual_mosquitoes = FALSE,
     init_foim = foim
   ))
   total_M <- 1000

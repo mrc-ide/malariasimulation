@@ -191,7 +191,7 @@ create_variables <- function(parameters) {
   )
 
   # Add variables for individual mosquitoes
-  if (parameters$hybrid_mosquitoes) {
+  if (parameters$individual_mosquitoes) {
     species_values <- rep(NA, parameters$mosquito_limit)
     state_values <- rep(NA, parameters$mosquito_limit)
     n_initialised <- 0

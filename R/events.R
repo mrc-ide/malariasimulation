@@ -20,7 +20,7 @@ create_events <- function(parameters) {
     # Bednet events
     throw_away_net = individual::TargetedEvent$new(parameters$human_population)
   )
-  if (parameters$hybrid_mosquitoes) {
+  if (parameters$individual_mosquitoes) {
     events <- c(
       events,
       # Mosquito events
@@ -58,7 +58,7 @@ initialise_events <- function(events, variables, parameters) {
     parameters$dt
   )
 
-  if (parameters$hybrid_mosquitoes) {
+  if (parameters$individual_mosquitoes) {
     incubating <- variables$mosquito_state$get_index_of('Pm')
     events$mosquito_infection$schedule(
       incubating,
@@ -171,7 +171,7 @@ attach_event_listeners <- function(
     )
   )
 
-  if (parameters$hybrid_mosquitoes) {
+  if (parameters$individual_mosquitoes) {
     events$mosquito_infection$add_listener(
       individual::update_category_listener(variables$mosquito_state, 'Im')
     )

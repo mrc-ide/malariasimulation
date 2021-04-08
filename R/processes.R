@@ -7,7 +7,8 @@
 #' @param variables a list of variables in the model
 #' @param events a list of events in the model
 #' @param parameters a list of model parameters
-#' @param odes a list of vector ode models for each species
+#' @param models a list of vector models, one for each species
+#' @param solvers a list of ode solvers, one for each species
 #' @param correlations the intervention correlations object
 #' @noRd
 create_processes <- function(
@@ -15,14 +16,14 @@ create_processes <- function(
   variables,
   events,
   parameters,
-  odes,
+  models,
+  solvers,
   correlations
   ) {
+  # ========
+  # Immunity
+  # ========
   processes <- list(
-    # ========
-    # Immunity
-    # ========
-
     # Maternal immunity
     create_exponential_decay_process(variables$icm, parameters$rm),
     create_exponential_decay_process(variables$ivm, parameters$rvm),
@@ -31,38 +32,55 @@ create_processes <- function(
     # Acquired immunity
     create_exponential_decay_process(variables$ica, parameters$rc),
     create_exponential_decay_process(variables$iva, parameters$rva),
-    create_exponential_decay_process(variables$id, parameters$rid),
+    create_exponential_decay_process(variables$id, parameters$rid)
+  )
 
-    create_mosquito_emergence_process_cpp(
-      odes,
-      variables$mosquito_state$.variable,
-      variables$species$.variable,
-      parameters$species,
-      parameters$dpl
+  if (parameters$individual_mosquitoes) {
+    processes <- c(
+      processes,
+      create_mosquito_emergence_process_cpp(
+        solvers,
+        variables$mosquito_state$.variable,
+        variables$species$.variable,
+        parameters$species,
+        parameters$dpl
+      )
+    )
+  }
+
+  # ==============================
+  # Biting and mortality processes
+  # ==============================
+  # schedule infections for humans and set last_boosted_*
+  # move mosquitoes into incubating state
+  # kill mosquitoes caught in vector control
+  processes <- c(
+    processes,
+    create_biting_process(
+      renderer,
+      solvers,
+      models,
+      variables,
+      events,
+      parameters
     ),
 
-    # ==============
-    # Biting process
-    # ==============
-    # schedule infections for humans and set last_boosted_*
-    # move mosquitoes into incubating state
-    # kill mosquitoes caught in vector control
-    create_biting_process(renderer, variables, events, parameters),
+    create_mortality_process(variables, events, renderer, parameters)
+  )
 
-    create_mortality_process(variables, events, renderer, parameters),
+  # ===============
+  # ODE integration
+  # ===============
+  processes <- c(
+    processes,
+    create_solver_stepping_process(solvers)
+  )
 
-    # ===============
-    # ODE integration
-    # ===============
-    create_ode_stepping_process(
-      odes,
-      variables$mosquito_state,
-      variables$species,
-      parameters$species,
-      renderer
-    ),
-
-    # Rendering processes
+  # =========
+  # Rendering
+  # =========
+  processes <- c(
+    processes,
     individual::categorical_count_renderer_process(
       renderer,
       variables$state,
@@ -80,14 +98,37 @@ create_processes <- function(
       parameters,
       renderer
     ),
-    individual::categorical_count_renderer_process(
-      renderer,
-      variables$mosquito_state,
-      c('Sm', 'Pm', 'Im')
-    ),
-    
-    create_ode_rendering_process(renderer, odes)
+    create_ode_rendering_process(renderer, solvers, parameters)
   )
+
+  if (parameters$individual_mosquitoes) {
+    processes <- c(
+      processes,
+      individual::categorical_count_renderer_process(
+        renderer,
+        variables$mosquito_state,
+        c('Sm', 'Pm', 'Im')
+      ),
+      create_total_M_renderer_individual(
+        variables$mosquito_state,
+        variables$species,
+        renderer,
+        parameters
+      )
+    )
+  } else {
+    processes <- c(
+      processes,
+      create_total_M_renderer_compartmental(
+        renderer,
+        solvers
+      )
+    )
+  }
+
+  # ======================
+  # Intervention processes
+  # ======================
 
   if (parameters$bednets) {
     processes <- c(

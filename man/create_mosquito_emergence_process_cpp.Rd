@@ -4,10 +4,16 @@
 \alias{create_mosquito_emergence_process_cpp}
 \title{Mosquito emergence process}
 \usage{
-create_mosquito_emergence_process_cpp(odes, state, species, species_names, dpl)
+create_mosquito_emergence_process_cpp(
+  solvers,
+  state,
+  species,
+  species_names,
+  dpl
+)
 }
 \arguments{
-\item{odes}{a list of odes for each species of mosquito}
+\item{solvers}{a list of solver objects for each species of mosquito}
 
 \item{state}{the variable for the mosquito state}
 

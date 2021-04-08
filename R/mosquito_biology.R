@@ -3,33 +3,32 @@
 #' "Modelling the impact of vector control interventions on Anopheles gambiae
 #' population dynamics"
 #' @param parameters model parameters
+#' @param species the index of the species to find the equilibrium for
 #' @param foim equilibrium foim
-#' @param m (optional) the total number of female adult mosquitos
+#' @param m the total number of female adult mosquitos
 #' @noRd
-initial_mosquito_counts <- function(parameters, foim = 0, m = NULL) {
-  if (is.null(m)) {
-    m <- parameters$total_M
-  }
-  omega <- calculate_omega(parameters)
-  n_E <- 2 * omega * parameters$mum * parameters$dl * (
+initial_mosquito_counts <- function(parameters, species, foim, m) {
+  omega <- calculate_omega(parameters, species)
+  mum <- parameters$mum[[species]]
+  n_E <- 2 * omega * mum * parameters$dl * (
     1. + parameters$dpl * parameters$mup
   ) * m
 
-  n_L <- 2 * parameters$mum * parameters$dl * (
+  n_L <- 2 * mum * parameters$dl * (
     1. + parameters$dpl * parameters$mup
   ) * m
 
-  n_P <- 2 * parameters$dpl * parameters$mum * m
+  n_P <- 2 * parameters$dpl * mum * m
 
-  n_Sm <- m * parameters$mum / (foim + parameters$mum)
+  n_Sm <- m * parameters$mum / (foim + mum)
 
-  incubation_survival <- exp(-parameters$mum * parameters$dem)
+  incubation_survival <- exp(-mum * parameters$dem)
 
-  n_Pm <- m * foim / (foim + parameters$mum) * (
+  n_Pm <- m * foim / (foim + mum) * (
     1. - incubation_survival
   )
 
-  n_Im <- m * foim / (foim + parameters$mum) * incubation_survival
+  n_Im <- m * foim / (foim + mum) * incubation_survival
 
   c(n_E, n_L, n_P, n_Sm, n_Pm, n_Im)
 }
@@ -40,18 +39,27 @@ initial_mosquito_counts <- function(parameters, foim = 0, m = NULL) {
 #' "Modelling the impact of vector control interventions on Anopheles gambiae
 #' population dynamics"
 #' @param parameters model parameters
+#' @param species the index of the species to calculate for
 #' @noRd
-calculate_omega <- function(parameters) {
+calculate_omega <- function(parameters, species) {
   sub_omega <- parameters$gamma * parameters$ml / parameters$me - (
     parameters$del / parameters$dl
   ) + (
     (parameters$gamma - 1) * parameters$ml * parameters$del
   )
 
+  mum <- parameters$mum[[species]]
+
+  beta <- eggs_laid(
+    parameters$beta,
+    mum,
+    parameters$blood_meal_rates[[species]]
+  )
+
   -.5 * sub_omega + sqrt(
     .25 * sub_omega**2 +
-      .5 * parameters$gamma * parameters$beta * parameters$ml * parameters$del /
-      (parameters$me * parameters$mum * parameters$dl * (
+      .5 * parameters$gamma * beta * parameters$ml * parameters$del /
+      (parameters$me * mum * parameters$dl * (
         1. + parameters$dpl * parameters$mup
       ))
   )
@@ -62,12 +70,13 @@ calculate_omega <- function(parameters) {
 #' "Modelling the impact of vector control interventions on Anopheles gambiae
 #' population dynamics"
 #' @param parameters model parameters
+#' @param m number of adult mosquitoes
+#' @param species index of the species to calculate for
 #' @noRd
-calculate_carrying_capacity <- function(parameters) {
-  m <- parameters$total_M
-  omega <- calculate_omega(parameters)
+calculate_carrying_capacity <- function(parameters, m, species) {
+  omega <- calculate_omega(parameters, species)
 
-  m * 2 * parameters$dl * parameters$mum * (
+  m * 2 * parameters$dl * parameters$mum[[species]] * (
     1. + parameters$dpl * parameters$mup
   ) * parameters$gamma * (omega + 1) / (
     omega / (parameters$ml * parameters$del) - (
@@ -82,7 +91,6 @@ calculate_carrying_capacity <- function(parameters) {
 calculate_R_bar <- function(parameters) {
   mean(vnapply(1:365, function(t) rainfall(
 		t,
-		parameters$days_per_timestep,
     parameters$g0,
     parameters$g,
     parameters$h
@@ -93,6 +101,7 @@ calculate_R_bar <- function(parameters) {
 #'
 #' @param parameters to work from
 #' @param EIR equilibrium to use, bites per person per year
+#' @importFrom stats weighted.mean
 #' @noRd
 equilibrium_total_M <- function(parameters, EIR) {
   if (EIR == 0) {
@@ -101,9 +110,10 @@ equilibrium_total_M <- function(parameters, EIR) {
   if (parameters$init_foim == 0) {
     stop('init_foim must be > 0 to calculate a non-zero equilibrium total_M')
   }
+  mum <- weighted.mean(parameters$mum, parameters$species_proportions)
   total_daily_eir <- EIR * parameters$human_population / 365
-  lifetime <- parameters$init_foim * exp(-parameters$mum * parameters$dem) / (
-    parameters$init_foim + parameters$mum
+  lifetime <- parameters$init_foim * exp(-mum * parameters$dem) / (
+    parameters$init_foim + mum
   )
   total_daily_eir / sum(
     parameters$species_proportions * parameters$blood_meal_rates * parameters$Q0 * lifetime
@@ -116,59 +126,66 @@ equilibrium_total_M <- function(parameters, EIR) {
 #' @param parameters to work from
 #' @export
 peak_season_offset <- function(parameters) {
-  K0 <- calculate_carrying_capacity(parameters)
-  R_bar <- calculate_R_bar(parameters)
+  if (!parameters$model_seasonality) {
+    return(0)
+  }
   which.max(vnapply(seq(365), function(t) {
-    carrying_capacity(
+    rainfall(
       t,
-      parameters$model_seasonality,
-      parameters$days_per_timestep,
       parameters$g0,
       parameters$g,
-      parameters$h,
-      K0,
-      R_bar
+      parameters$h
     )
   }))[[1]]
 }
 
-#' @title Calculate the effects of biting on mosquito individuals
+#' @title Calculate the death rate of mosquitoes given interventions
+#'
+#' @param f the feeding rate for this species of mosquito
+#' @param W the mean probability that a mosquito feeds and survives
+#' @param Z the mean probability that a mosquito is repelled
+#' @param Z the mean probability that a mosquito is repelled
+#' @noRd
+death_rate <- function(f, W, Z, species, parameters) {
+  mum <- parameters$mum[[species]]
+  p1_0 <- exp(-mum * parameters$foraging_time)
+  gonotrophic_cycle <- get_gonotrophic_cycle(species, parameters)
+  p2 <- exp(-mum * gonotrophic_cycle)
+  p1 <- p1_0 * W / (1 - Z * p1_0)
+  -f * log(p1 * p2)
+}
+
+get_gonotrophic_cycle <- function(v, parameters) {
+  f <- parameters$blood_meal_rates[[v]]
+  gonotrophic_cycle <- 1 / f - parameters$foraging_time
+}
+
+#' @title Update the individual mosquito model after biting
 #'
 #' @param variables a list of variables in this simulation
-#' @param human_infectivity the infectivity for each human
-#' @param lambda the effective biting rate for this species on each human
-#' @param mosquito_infection an event for mosquito infection
+#' @param foim force of infection towards mosquitoes
+#' @param events events in the simulation
 #' @param species the index of the species to calculate for
 #' @param susceptible_species the indices of susceptible mosquitos of the
 #' species
-#' @param adult_species the indices of adult mosquitos of the
-#' species
-#' @param W the mean probability that a mosquito feeds and survives
-#' @param Z the mean probability that a mosquito is repelled
-#' @param f the feeding rate for this species of mosquito
-#' @param renderer the model renderer object
-#' @param timestep the current timestep
+#' @param adult_species the indices of adult mosquitos of the species
+#' @param mu the death rate of the current species
 #' @param parameters the model parameters
+#' @param timestep the current timestep
 #' @noRd
-calculate_mosquito_effects <- function(
+biting_effects_individual <- function(
     variables,
-    human_infectivity,
-    lambda,
+    foim,
     events,
     species,
     susceptible_species,
     adult_species,
-    W,
-    Z,
-    f,
+    mu,
     parameters,
-    renderer,
     timestep
   ) {
   # deal with mosquito infections
-  lambda <- sum(human_infectivity * lambda)
-  renderer$render(paste0('FOIM_', species), lambda, timestep)
-  target <- sample_bitset(susceptible_species, lambda)
+  target <- sample_bitset(susceptible_species, foim)
   variables$mosquito_state$queue_update('Pm', target)
   events$mosquito_infection$schedule(
     target,
@@ -176,18 +193,7 @@ calculate_mosquito_effects <- function(
   )
 
   # deal with mosquito deaths
-  p1_0 <- exp(-parameters$mum * parameters$foraging_time)
-  gonotrophic_cycle <- get_gonotrophic_cycle(species, parameters)
-  p2 <- exp(-parameters$mum * gonotrophic_cycle)
-  p1 <- p1_0 * W / (1 - Z * p1_0)
-  mu <- -f * log(p1 * p2)
   died <- sample_bitset(adult_species, mu)
-  renderer$render(paste0('mu_', species), mu, timestep)
 
   events$mosquito_death$schedule(died, 0)
-}
-
-get_gonotrophic_cycle <- function(v, parameters) {
-  f <- parameters$blood_meal_rates[[v]]
-  gonotrophic_cycle <- 1 / f - parameters$foraging_time
 }

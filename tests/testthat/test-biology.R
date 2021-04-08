@@ -19,7 +19,7 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR', {
     )
   ))
   parameters <- parameterise_mosquito_equilibrium(parameters, EIR)
-  m_eq <- initial_mosquito_counts(parameters, foim)
+  m_eq <- initial_mosquito_counts(parameters, 1, foim, parameters$total_M)
 
   #set up arguments for EIR calculation
   variables <- create_variables(parameters)
@@ -73,7 +73,7 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR (with h
     )
   ))
   parameters <- parameterise_mosquito_equilibrium(parameters, EIR)
-  m_eq <- initial_mosquito_counts(parameters, foim)
+  m_eq <- initial_mosquito_counts(parameters, 1, foim, parameters$total_M)
 
   #set up arguments for EIR calculation
   variables <- create_variables(parameters)
@@ -141,32 +141,25 @@ test_that('mosquito_effects correctly samples mortalities and infections without
   parameters <- get_parameters()
   events <- create_events(parameters)
   variables <- create_variables(parameters)
-  infectivity <- c(.6, 0, .2, .3)
-  lambda <- c(.1, .2, .3, .4)
-  f <- parameters$blood_meal_rates[[1]]
   infected <- individual::Bitset$new(100)$insert(1:25)
   dead <- individual::Bitset$new(100)$insert(c(1:15, 51:60, 76:85))
   bernoulli_mock = mockery::mock(infected, dead)
-  mockery::stub(calculate_mosquito_effects, 'sample_bitset', bernoulli_mock)
+  mockery::stub(biting_effects_individual, 'sample_bitset', bernoulli_mock)
   events$mosquito_infection <- mock_event(events$mosquito_infection)
   events$mosquito_death <- mock_event(events$mosquito_death)
   variables$mosquito_state <- mock_category(
     c('Sm', 'Pm', 'Im', 'NonExistent'),
     rep('Sm', 100)
   )
-  calculate_mosquito_effects(
+  biting_effects_individual(
     variables,
-    infectivity,
-    lambda,
+    .5,
     events,
     1,
     individual::Bitset$new(100)$insert(1:50),
     individual::Bitset$new(100)$insert(1:100),
-    1,
-    0,
-    f,
+    parameters$mum,
     parameters,
-    individual::Render$new(1),
     timestep = 1
   )
 

@@ -1,7 +1,7 @@
-#' @title Preset parameters for the DHC-PQP drug
+#' @title Preset parameters for the DHA-PQP drug
 #' @description From SI of Commun. 5:5606 doi: 10.1038/ncomms6606 (2014)
 #' @export
-DHC_PQP_params <- c(.95, 0.09434, 4.4, 28.1)
+DHA_PQP_params <- c(.95, 0.09434, 4.4, 28.1)
 
 #' @title Preset parameters for the AL drug
 #' @description From SI of Commun. 5:5606 doi: 10.1038/ncomms6606 (2014)

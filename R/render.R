@@ -90,3 +90,37 @@ create_variable_mean_renderer_process <- function(
     }
   }
 }
+
+create_total_M_renderer_individual <- function(
+  mosquito_state,
+  species,
+  renderer,
+  parameters
+  ) {
+  function(timestep) {
+    adult <- mosquito_state$get_index_of('NonExistent')$not()
+    for (i in seq_along(parameters$species)) {
+      renderer$render(
+        paste0('total_M_', i),
+        species$get_index_of(parameters$species[[i]])$and(adult)$size(),
+        timestep
+      )
+    }
+
+    renderer$render('total_M', adult$size(), timestep)
+  }
+}
+
+create_total_M_renderer_compartmental <- function(renderer, solvers) {
+  function(timestep) {
+    total_M <- 0
+    for (i in seq_along(solvers)) {
+      row <- solver_get_states(solvers[[i]])
+      species_M <- sum(row[ADULT_ODE_INDICES])
+      total_M <- total_M + species_M
+      renderer$render(paste0('total_M_', i), species_M, timestep)
+    }
+
+    renderer$render('total_M', total_M, timestep)
+  }
+}

@@ -3,6 +3,7 @@ test_that('simulate_infection integrates different types of infection and schedu
   timestep <- 5
   parameters <- get_parameters(list(human_population = population, severe_enabled = TRUE))
   events <- create_events(parameters)
+  renderer <- mock_render(timestep)
 
   age <- c(20, 24, 5, 39, 20, 24, 5, 39) * 365
   variables <- list(
@@ -17,7 +18,8 @@ test_that('simulate_infection integrates different types of infection and schedu
   infection_mock <- mockery::mock(c(1, 3, 5))
   clinical_infection_mock <- mockery::mock(c(1, 3))
   severe_infection_mock <- mockery::mock(c(1))
-  treated_mock <- mockery::mock(c(3))
+  treated <- individual::Bitset$new(population)$insert(3)
+  treated_mock <- mockery::mock(treated)
   schedule_mock <- mockery::mock()
 
   mockery::stub(simulate_infection, 'boost_immunity', boost_immunity_mock)
@@ -26,7 +28,7 @@ test_that('simulate_infection integrates different types of infection and schedu
   mockery::stub(simulate_infection, 'update_severe_disease', severe_infection_mock)
   mockery::stub(simulate_infection, 'calculate_treated', treated_mock)
   mockery::stub(simulate_infection, 'schedule_infections', schedule_mock)
-  simulate_infection(variables, events, bitten, age, parameters, timestep)
+  simulate_infection(variables, events, bitten, age, parameters, timestep, renderer)
 
   mockery::expect_args(
     boost_immunity_mock,
@@ -73,7 +75,8 @@ test_that('simulate_infection integrates different types of infection and schedu
     c(1, 3),
     events$recovery,
     parameters,
-    timestep
+    timestep,
+    renderer
   )
 
   mockery::expect_args(
@@ -81,7 +84,7 @@ test_that('simulate_infection integrates different types of infection and schedu
     1,
     events,
     c(1, 3),
-    c(3),
+    treated,
     c(1, 3, 5),
     parameters
   )
@@ -90,7 +93,7 @@ test_that('simulate_infection integrates different types of infection and schedu
 test_that('calculate_infections works various combinations of drug and vaccination', {
   timestep <- 50
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters, list(AL_params, DHC_PQP_params))
+  parameters <- set_drugs(parameters, list(AL_params, DHA_PQP_params))
   parameters <- set_clinical_treatment(parameters, 2, 1, .5)
 
   variables <- list(
@@ -232,7 +235,7 @@ test_that('calculate_clinical_infections correctly samples clinically infected',
 
 test_that('calculate_treated correctly samples treated and updates the drug state', {
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters, list(AL_params, DHC_PQP_params))
+  parameters <- set_drugs(parameters, list(AL_params, DHA_PQP_params))
   parameters <- set_clinical_treatment(parameters, 1, 1, .25)
   parameters <- set_clinical_treatment(parameters, 2, 1, .25)
   timestep <- 5
@@ -266,7 +269,8 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
     clinical_infections,
     events$recovery,
     parameters,
-    timestep
+    timestep,
+    mock_render(timestep)
   )
 
   mockery::expect_args(
@@ -372,7 +376,7 @@ test_that('schedule_infections correctly schedules new infections', {
 
 test_that('prophylaxis is considered for medicated humans', {
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters, list(AL_params, DHC_PQP_params))
+  parameters <- set_drugs(parameters, list(AL_params, DHA_PQP_params))
   events <- create_events(parameters)
   timestep <- 50
 

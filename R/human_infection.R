@@ -1,3 +1,80 @@
+#' @title Simulate malaria infection in humans
+#' @description
+#' Updates human states and variables to represent asymptomatic/clinical/severe
+#' and treated malaria; and resulting boosts in immunity
+#' @param variables a list of all of the model variables
+#' @param events a list of all of the model events
+#' @param bitten_humans a bitset of bitten humans
+#' @param age of each human (timesteps)
+#' @param parameters of the model
+#' @param timestep current timestep
+#' @noRd
+simulate_infection <- function(
+  variables,
+  events,
+  bitten_humans,
+  age,
+  parameters,
+  timestep,
+  renderer
+  ) {
+
+  if (bitten_humans$size() > 0) {
+    boost_immunity(
+      variables$ib,
+      bitten_humans,
+      variables$last_boosted_ib,
+      timestep,
+      parameters$ub
+    )
+  }
+
+  # Calculate Infected
+  infected_humans <- calculate_infections(
+    variables,
+    bitten_humans,
+    parameters,
+    timestep
+  )
+
+  clinical_infections <- calculate_clinical_infections(
+    variables,
+    infected_humans,
+    parameters,
+    timestep
+  )
+
+  if (parameters$severe_enabled) {
+    update_severe_disease(
+      timestep,
+      clinical_infections,
+      variables,
+      infected_humans,
+      parameters
+    )
+  }
+
+
+  treated <- calculate_treated(
+    variables,
+    clinical_infections,
+    events$recovery,
+    parameters,
+    timestep,
+    renderer
+  )
+
+  renderer$render('n_treated', treated$size(), timestep)
+
+  schedule_infections(
+    events,
+    clinical_infections,
+    treated,
+    infected_humans,
+    parameters
+  )
+}
+
 #' @title Calculate overall infections for bitten humans
 #' @description
 #' Sample infected humans given prophylaxis and vaccination
@@ -141,13 +218,15 @@ update_severe_disease <- function(
 #' @param recovery the recovery event
 #' @param parameters model parameters
 #' @param timestep the current timestep
+#' @param renderer simulation renderer
 #' @noRd
 calculate_treated <- function(
   variables,
   clinical_infections,
   recovery,
   parameters,
-  timestep
+  timestep,
+  renderer
   ) {
   treatment_coverages <- get_treatment_coverages(parameters, timestep)
   ft <- sum(treatment_coverages)
@@ -156,6 +235,7 @@ calculate_treated <- function(
     return(individual::Bitset$new(parameters$human_population))
   }
 
+  renderer$render('ft', ft, timestep)
   seek_treatment <- sample_bitset(clinical_infections, ft)
   n_treat <- seek_treatment$size()
   drugs <- as.numeric(parameters$clinical_treatment_drugs[
@@ -311,11 +391,6 @@ probability_of_detection <- function(age, immunity, parameters) {
 asymptomatic_infectivity <- function(age, immunity, parameters) {
   q <- probability_of_detection(age, immunity, parameters)
   parameters$cu + (parameters$cd - parameters$cu) * q ** parameters$gamma1
-}
-
-# Unique biting rate (psi) for a human of a given age
-unique_biting_rate <- function(age, parameters) {
-  1 - parameters$rho * exp(- age / parameters$a0)
 }
 
 # Implemented from Winskill 2017 - Supplementary Information page 4

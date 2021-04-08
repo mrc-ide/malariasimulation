@@ -14,7 +14,6 @@ double carrying_capacity(
     const size_t,
     const bool,
     const double,
-    const double,
     const std::vector<double>&,
     const std::vector<double>&,
     const double,
@@ -24,9 +23,10 @@ double carrying_capacity(
 double rainfall(
     const size_t,
     const double,
-    const double,
     const std::vector<double>&,
     const std::vector<double>&
 );
+
+double eggs_laid(double, double, double);
 
 #endif /* SRC_MOSQUITO_BIOLOGY_H_ */

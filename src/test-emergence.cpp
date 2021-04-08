@@ -1,7 +1,7 @@
 // All test files should include the <testthat.h>
 // header file.
 
-#include "mosquito_ode.h"
+#include "solver.h"
 #include <testthat.h>
 #include "test-mock.h"
 #include "mosquito_emergence.h"
@@ -9,7 +9,9 @@
 context("Emergence works") {
 
     test_that("emergence process fails when there are not enough individuals") {
-        MockODE ode;
+        //mock a solver
+        Solver solver(state_t{1000, 500, 100}, mock_integration);
+
         //mock my variables
         auto state_values = std::vector<std::string>(2000);
         for (auto n = 0; n < 2000; ++n) {
@@ -25,20 +27,19 @@ context("Emergence works") {
         );
 
         auto process = create_mosquito_emergence_process_cpp(
-            Rcpp::List::create(Rcpp::XPtr<MosquitoModel>(&ode, false)),
+            Rcpp::List::create(Rcpp::XPtr<Solver>(&solver, false)),
             Rcpp::XPtr<CategoricalVariable>(&state, false),
             Rcpp::XPtr<CategoricalVariable>(&species, false),
             {"gamb"},
             2
         );
-        REQUIRE_CALL(ode, get_state())
-        .RETURN(state_t{1000, 500, 100})
-        .TIMES(AT_LEAST(1));
         CATCH_REQUIRE_THROWS((*process)(1));
     }
 
     test_that("emergence process fails at the boundary") {
-        MockODE ode;
+        //mock a solver
+        Solver solver(state_t{1000, 500, 100}, mock_integration);
+
         //mock my variables
         auto state_values = std::vector<std::string>(2000);
         for (auto n = 0; n < 2000; ++n) {
@@ -57,20 +58,18 @@ context("Emergence works") {
         );
 
         auto process = create_mosquito_emergence_process_cpp(
-            Rcpp::List::create(Rcpp::XPtr<MosquitoModel>(&ode, false)),
+            Rcpp::List::create(Rcpp::XPtr<Solver>(&solver, false)),
             Rcpp::XPtr<CategoricalVariable>(&state, false),
             Rcpp::XPtr<CategoricalVariable>(&species, false),
             {"gamb"},
             2
         );
-        REQUIRE_CALL(ode, get_state())
-        .RETURN(state_t{1000, 500, 100})
-        .TIMES(AT_LEAST(1));
         CATCH_REQUIRE_THROWS((*process)(1));
     }
 
     test_that("emergence process creates the correct number of susceptibles") {
-        MockODE ode;
+        //mock a solver
+        Solver solver(state_t{1000, 500, 100}, mock_integration);
 
         //mock my variables
         auto state_values = std::vector<std::string>(2000);
@@ -90,7 +89,7 @@ context("Emergence works") {
         );
 
         auto process = create_mosquito_emergence_process_cpp(
-            Rcpp::List::create(Rcpp::XPtr<MosquitoModel>(&ode, false)),
+            Rcpp::List::create(Rcpp::XPtr<Solver>(&solver, false)),
             Rcpp::XPtr<CategoricalVariable>(&state, false),
             Rcpp::XPtr<CategoricalVariable>(&species, false),
             {"gamb"},
@@ -103,16 +102,15 @@ context("Emergence works") {
             target.insert(i + 1000);
         }
 
-        REQUIRE_CALL(ode, get_state())
-        .RETURN(state_t{1000, 500, 100})
-        .TIMES(AT_LEAST(1));
         REQUIRE_CALL(state, queue_update("Sm", target));
         REQUIRE_CALL(species, queue_update("gamb", target));
         (*process)(1);
     }
 
     test_that("emergence process works at the boundary") {
-        MockODE ode;
+        //mock a solver
+        Solver solver(state_t{1000, 500, 100}, mock_integration);
+
         //mock my variables
         auto state_values = std::vector<std::string>(2000);
         for (auto n = 0; n < 2000; ++n) {
@@ -132,7 +130,7 @@ context("Emergence works") {
         );
 
         auto process = create_mosquito_emergence_process_cpp(
-            Rcpp::List::create(Rcpp::XPtr<MosquitoModel>(&ode, false)),
+            Rcpp::List::create(Rcpp::XPtr<Solver>(&solver, false)),
             Rcpp::XPtr<CategoricalVariable>(&state, false),
             Rcpp::XPtr<CategoricalVariable>(&species, false),
             {"gamb"},
@@ -143,9 +141,6 @@ context("Emergence works") {
             target.insert(i + 1000);
         }
 
-        REQUIRE_CALL(ode, get_state())
-        .RETURN(state_t{1000, 500, 100})
-        .TIMES(AT_LEAST(1));
         REQUIRE_CALL(state, queue_update("Sm", target));
         REQUIRE_CALL(species, queue_update("gamb", target));
         (*process)(1);

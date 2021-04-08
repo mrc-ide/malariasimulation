@@ -273,8 +273,8 @@ get_parameters <- function(overrides = list()) {
     a0    = 8 * 365,
     rho   = .85,
     # clinical immunity parameters
-    phi0  = .0749886,
-    phi1  = .0001191,
+    phi0 = .792,
+    phi1 = .00074,
     ic0   = 18.02366,
     kc    = 2.36949,
     # severe disease immunity parameters

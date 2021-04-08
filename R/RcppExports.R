@@ -29,7 +29,7 @@ rainfall <- function(t, g0, g, h) {
 #' @description Move mosquitos from NonExistent to Sm in line with the number of
 #' pupals in the ODE models
 #'
-#' @param odes a list of odes for each species of mosquito
+#' @param solvers a list of solver objects for each species of mosquito
 #' @param state the variable for the mosquito state
 #' @param species the variable for the mosquito species
 #' @param species_names a vector of category names for the species variable

@@ -13,6 +13,8 @@ create_mosquito_emergence_process_cpp(
 )
 }
 \arguments{
+\item{solvers}{a list of solver objects for each species of mosquito}
+
 \item{state}{the variable for the mosquito state}
 
 \item{species}{the variable for the mosquito species}
@@ -20,8 +22,6 @@ create_mosquito_emergence_process_cpp(
 \item{species_names}{a vector of category names for the species variable}
 
 \item{dpl}{the delay for pupal growth (in timesteps)}
-
-\item{odes}{a list of odes for each species of mosquito}
 }
 \description{
 Move mosquitos from NonExistent to Sm in line with the number of

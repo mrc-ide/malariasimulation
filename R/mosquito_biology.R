@@ -101,6 +101,7 @@ calculate_R_bar <- function(parameters) {
 #'
 #' @param parameters to work from
 #' @param EIR equilibrium to use, bites per person per year
+#' @importFrom stats weighted.mean
 #' @noRd
 equilibrium_total_M <- function(parameters, EIR) {
   if (EIR == 0) {

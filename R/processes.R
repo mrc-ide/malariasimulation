@@ -108,6 +108,20 @@ create_processes <- function(
         renderer,
         variables$mosquito_state,
         c('Sm', 'Pm', 'Im')
+      ),
+      create_total_M_renderer_individual(
+        variables$mosquito_state,
+        variables$species,
+        renderer,
+        parameters
+      )
+    )
+  } else {
+    processes <- c(
+      processes,
+      create_total_M_renderer_compartmental(
+        renderer,
+        solvers
       )
     )
   }

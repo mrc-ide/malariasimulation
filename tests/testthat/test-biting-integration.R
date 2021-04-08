@@ -48,7 +48,8 @@ test_that('biting_process integrates mosquito effects and human infection', {
     bitten,
     age,
     parameters,
-    timestep
+    timestep,
+    renderer
   )
 })
 

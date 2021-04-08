@@ -1,7 +1,7 @@
 
 test_that('You can set time varying clinical treatment', {
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters, list(DHC_PQP_params, AL_params))
+  parameters <- set_drugs(parameters, list(DHA_PQP_params, AL_params))
   parameters <- set_clinical_treatment(
     parameters,
     drug = 1,

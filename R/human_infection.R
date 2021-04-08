@@ -218,6 +218,7 @@ update_severe_disease <- function(
 #' @param recovery the recovery event
 #' @param parameters model parameters
 #' @param timestep the current timestep
+#' @param renderer simulation renderer
 #' @noRd
 calculate_treated <- function(
   variables,

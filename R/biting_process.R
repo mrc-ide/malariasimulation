@@ -77,7 +77,6 @@ simulate_bites <- function(
     infectious_index <- variables$mosquito_state$get_index_of('Im')
     susceptible_index <- variables$mosquito_state$get_index_of('Sm')
     adult_index <- variables$mosquito_state$get_index_of('NonExistent')$not()
-    renderer$render('total_M', adult_index$size(), timestep)
   }
 
   EIR <- 0
@@ -137,7 +136,7 @@ simulate_bites <- function(
           parameters$human_population,
           n_bites,
           replace = TRUE,
-          prob=lambda
+          prob = lambda
         )
       )
     }
@@ -149,11 +148,7 @@ simulate_bites <- function(
 
     if (parameters$hybrid_mosquitoes) {
       # update the ODE with stats for ovoposition calculations
-      if (parameters$hybrid_mosquitoes) {
-        total_M <- species_index$size()
-        mosquito_model_update(models[[s_i]], total_M, f, mu)
-        renderer$render(paste0('total_M_', s_i), total_M, timestep)
-      }
+      mosquito_model_update(models[[s_i]], species_index$size(), f, mu)
 
       # update the individual mosquitoes
       susceptible_species_index <- susceptible_index$copy()$and(species_index)

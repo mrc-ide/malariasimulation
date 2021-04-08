@@ -336,7 +336,7 @@ test_that('schedule_infections correctly schedules new infections', {
     'log_uniform',
     mockery::mock(
       c(5, 6, 13, 14),
-      c(2, 4, 16, 18, 19, 20)
+      c(2, 4, 16, 17, 18, 19, 20)
     )
   )
 
@@ -355,10 +355,7 @@ test_that('schedule_infections correctly schedules new infections', {
     clinical_infections,
     treated,
     infections,
-    parameters,
-    seq(20),
-    rep(1, 20),
-    individual::Bitset$new(20)$insert(17)
+    parameters
   )
 
   expect_bitset_schedule(
@@ -375,14 +372,14 @@ test_that('schedule_infections correctly schedules new infections', {
 
   expect_bitset_schedule(
     asym_mock,
-    c(2, 4, 16, 18, 19, 20),
-    c(2, 4, 16, 18, 19, 20)
+    c(2, 4, 16, 17, 18, 19, 20),
+    c(2, 4, 16, 17, 18, 19, 20)
   )
 
   expect_bitset_schedule(
     detection_mock,
-    c(2, 4, 16, 18, 19, 20),
-    c(2, 4, 16, 18, 19, 20),
+    c(2, 4, 16, 17, 18, 19, 20),
+    c(2, 4, 16, 17, 18, 19, 20),
     call = 2
   )
 })

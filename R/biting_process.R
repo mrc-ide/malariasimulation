@@ -80,6 +80,8 @@ simulate_bites <- function(
     renderer$render('total_M', adult_index$size(), timestep)
   }
 
+  EIR <- 0
+
   for (s_i in seq_along(parameters$species)) {
     if (!parameters$hybrid_mosquitoes) {
       solver_states <- solver_get_states(solvers[[s_i]])
@@ -128,6 +130,7 @@ simulate_bites <- function(
     )
 
     n_bites <- rpois(1, n_infectious * sum(lambda))
+    EIR <- EIR + n_bites
     if (n_bites > 0) {
       bitten_humans$insert(
         sample.int(
@@ -177,7 +180,8 @@ simulate_bites <- function(
     }
   }
 
-  renderer$render('EIR', bitten_humans$size(), timestep)
+  renderer$render('EIR', EIR, timestep)
+  renderer$render('n_bitten', bitten_humans$size(), timestep)
   bitten_humans
 }
 

@@ -109,7 +109,7 @@ equilibrium_total_M <- function(parameters, EIR) {
   if (parameters$init_foim == 0) {
     stop('init_foim must be > 0 to calculate a non-zero equilibrium total_M')
   }
-  mum <- mean(parameters$mum)
+  mum <- weighted.mean(parameters$mum, parameters$species_proportions)
   total_daily_eir <- EIR * parameters$human_population / 365
   lifetime <- parameters$init_foim * exp(-mum * parameters$dem) / (
     parameters$init_foim + mum

@@ -51,7 +51,6 @@ initialise_events <- function(events, variables, parameters) {
     'U',
     parameters$du
   )
-
   initialise_progression(
     events$recovery,
     variables$state,

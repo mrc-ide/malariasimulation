@@ -18,7 +18,6 @@ simulate_infection <- function(
   timestep,
   renderer
   ) {
-
   if (bitten_humans$size() > 0) {
     boost_immunity(
       variables$ib,
@@ -37,11 +36,27 @@ simulate_infection <- function(
     timestep
   )
 
+  if (infected_humans$size() > 0) {
+    boost_immunity(
+      variables$ica,
+      infected_humans,
+      variables$last_boosted_ica,
+      timestep,
+      parameters$uc
+    )
+    boost_immunity(
+      variables$id,
+      infected_humans,
+      variables$last_boosted_id,
+      timestep,
+      parameters$ud
+    )
+  }
+
   clinical_infections <- calculate_clinical_infections(
     variables,
     infected_humans,
-    parameters,
-    timestep
+    parameters
   )
 
   if (parameters$severe_enabled) {
@@ -59,6 +74,7 @@ simulate_infection <- function(
     variables,
     clinical_infections,
     events$recovery,
+    events$detection,
     parameters,
     timestep,
     renderer
@@ -143,29 +159,10 @@ calculate_infections <- function(
 #' @param variables a list of all of the model variables
 #' @param infections bitset of infected humans
 #' @param parameters model parameters
-#' @param timestep current timestep
 #' @noRd
-calculate_clinical_infections <- function(variables, infections, parameters, timestep) {
+calculate_clinical_infections <- function(variables, infections, parameters) {
   ica <- variables$ica$get_values(infections)
   icm <- variables$icm$get_values(infections)
-
-  if (infections$size() > 0) {
-    boost_immunity(
-      variables$ica,
-      infections,
-      variables$last_boosted_ica,
-      timestep,
-      parameters$uc
-    )
-    boost_immunity(
-      variables$id,
-      infections,
-      variables$last_boosted_id,
-      timestep,
-      parameters$ud
-    )
-  }
-
   phi <- clinical_immunity(ica, icm, parameters)
   bitset_at(infections, bernoulli_multi_p(phi))
 }
@@ -224,6 +221,7 @@ calculate_treated <- function(
   variables,
   clinical_infections,
   recovery,
+  detection,
   parameters,
   timestep,
   renderer
@@ -252,14 +250,13 @@ calculate_treated <- function(
 
   # Update those who have been treated
   if (treated_index$size() > 0) {
-    successful_vector <- successful$to_vector()
     variables$state$queue_update('Tr', treated_index)
     variables$infectivity$queue_update(
-      parameters$cd * parameters$drug_rel_c[drugs[successful_vector]],
+      parameters$cd * parameters$drug_rel_c[drugs[successful]],
       treated_index
     )
     variables$drug$queue_update(
-      drugs[successful_vector],
+      drugs[successful],
       treated_index
     )
     variables$drug_time$queue_update(
@@ -270,6 +267,7 @@ calculate_treated <- function(
       treated_index,
       log_uniform(treated_index$size(), parameters$dt)
     )
+    detection$schedule(treated_index, 0)
   }
   treated_index
 }
@@ -290,7 +288,9 @@ schedule_infections <- function(
   infections,
   parameters
   ) {
-  included <- events$infection$get_scheduled()$or(treated)$not()
+  included <- events$clinical_infection$get_scheduled()$or(
+    events$asymptomatic_infection$get_scheduled()
+  )$or(treated)$not()
 
   to_infect <- clinical_infections$and(included)
   to_infect_asym <- clinical_infections$not()$and(infections)$and(included)
@@ -302,7 +302,7 @@ schedule_infections <- function(
       to_infect,
       infection_times
     )
-    events$infection$schedule(to_infect, infection_times)
+    events$detection$schedule(to_infect, infection_times)
     events$subpatent_infection$clear_schedule(to_infect)
     events$recovery$clear_schedule(to_infect)
   }
@@ -313,7 +313,7 @@ schedule_infections <- function(
       to_infect_asym,
       infection_times
     )
-    events$infection$schedule(to_infect_asym, infection_times)
+    events$detection$schedule(to_infect_asym, infection_times)
     events$subpatent_infection$clear_schedule(to_infect_asym)
     events$recovery$clear_schedule(to_infect_asym)
   }

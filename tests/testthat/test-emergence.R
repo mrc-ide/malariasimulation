@@ -3,7 +3,6 @@ test_that('carrying_capacity is calculated correctly', {
     carrying_capacity(
       100,
       TRUE,
-      1,
       2,
       c(.3, .6, .9),
       c(.1, .4, .7),
@@ -15,23 +14,6 @@ test_that('carrying_capacity is calculated correctly', {
   )
 })
 
-test_that('carrying_capacity is takes into account the timescale', {
-  expect_equal(
-    carrying_capacity(
-      100,
-      TRUE,
-      5,
-      2,
-      c(.3, .6, .9),
-      c(.1, .4, .7),
-      10,
-      2
-    ),
-    12.8,
-    tolerance = 1e-1
-  )
-})
-
 test_that('carrying_capacity cycles every year', {
   time_points <- c(1, 30, 160, 240, 365)
   for (t in time_points) {
@@ -40,7 +22,6 @@ test_that('carrying_capacity cycles every year', {
         carrying_capacity(
           t,
           TRUE,
-          5,
           2,
           c(.3, .6, .9),
           c(.1, .4, .7),
@@ -50,7 +31,6 @@ test_that('carrying_capacity cycles every year', {
         carrying_capacity(
           t + 365 * y,
           TRUE,
-          5,
           2,
           c(.3, .6, .9),
           c(.1, .4, .7),
@@ -72,7 +52,6 @@ test_that('carrying_capacity can avoid seasonality', {
         carrying_capacity(
           t + 365 * y,
           FALSE,
-          5,
           2,
           c(.3, .6, .9),
           c(.1, .4, .7),

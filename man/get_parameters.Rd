@@ -68,8 +68,6 @@ immunity reducing probability of detection:
 \item ad - scale parameter relating age to immunity
 \item gammad - shape parameter relating age to immunity
 \item d1 - minimum probability due to immunity
-\item dmin - minimum probability due to immunity NOTE: there appears to be a
-mistake here!
 \item id0 - scale parameter
 \item kd - shape parameter
 }
@@ -254,7 +252,8 @@ miscellaneous:
 \item human_population - the number of humans to model
 \item mosquito_limit - the maximum number of mosquitos to allow for in the
 simulation
-\item days_per_timestep - the number of days to model per timestep
+\item individual_mosquitoes - boolean whether adult mosquitoes are modelled
+individually or compartmentaly
 }}
 }
 \description{

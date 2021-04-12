@@ -3,17 +3,28 @@
 #' This is the biting process. It results in human and mosquito infection and
 #' mosquito death.
 #' @param renderer the model renderer object
+#' @param solvers mosquito ode solvers
+#' @param models mosquito ode models
 #' @param variables a list of all of the model variables
 #' @param events a list of all of the model events
 #' @param parameters model pararmeters
 #' @noRd
-create_biting_process <- function(renderer, variables, events, parameters) {
+create_biting_process <- function(
+  renderer,
+  solvers,
+  models,
+  variables,
+  events,
+  parameters
+  ) {
   function(timestep) {
     # Calculate combined EIR
     age <- get_age(variables$birth$get_values(), timestep)
 
     bitten_humans <- simulate_bites(
       renderer,
+      solvers,
+      models,
       variables,
       events,
       age,
@@ -27,13 +38,23 @@ create_biting_process <- function(renderer, variables, events, parameters) {
       bitten_humans,
       age,
       parameters,
-      timestep
+      timestep,
+      renderer
     )
   }
 }
 
 #' @importFrom stats rpois
-simulate_bites <- function(renderer, variables, events, age, parameters, timestep) {
+simulate_bites <- function(
+  renderer,
+  solvers,
+  models,
+  variables,
+  events,
+  age,
+  parameters,
+  timestep
+  ) {
   bitten_humans <- individual::Bitset$new(parameters$human_population)
 
   human_infectivity <- variables$infectivity$get_values()
@@ -50,26 +71,46 @@ simulate_bites <- function(renderer, variables, events, age, parameters, timeste
   # Calculate pi (the relative biting rate for each human)
   psi <- unique_biting_rate(age, parameters)
   .pi <- human_pi(variables$zeta$get_values(), psi)
-  infectious_index <- variables$mosquito_state$get_index_of('Im')
-  susceptible_index <- variables$mosquito_state$get_index_of('Sm')
-  adult_index <- variables$mosquito_state$get_index_of('NonExistent')$not()
+
+  # Get some indices for later
+  if (parameters$individual_mosquitoes) {
+    infectious_index <- variables$mosquito_state$get_index_of('Im')
+    susceptible_index <- variables$mosquito_state$get_index_of('Sm')
+    adult_index <- variables$mosquito_state$get_index_of('NonExistent')$not()
+  }
+
+  EIR <- 0
 
   for (s_i in seq_along(parameters$species)) {
-    # Calculate the probabilities of each human being bitten (given
-    # interventions)
-    species_index <- variables$species$get_index_of(
-      parameters$species[[s_i]]
-    )
+    if (!parameters$individual_mosquitoes) {
+      solver_states <- solver_get_states(solvers[[s_i]])
+    }
+
+    if (parameters$individual_mosquitoes) {
+      species_index <- variables$species$get_index_of(
+        parameters$species[[s_i]]
+      )$and(adult_index)
+      n_infectious <- infectious_index$copy()$and(species_index)$size()
+    } else {
+      n_infectious <- solver_states[[ADULT_ODE_INDICES['Im']]]
+    }
+
     p_bitten <- prob_bitten(timestep, variables, s_i, parameters)
 
     Q0 <- parameters$Q0[[s_i]]
     Z <- average_p_repelled(p_bitten$prob_repelled, .pi, Q0)
     W <- average_p_successful(p_bitten$prob_bitten_survives, .pi, Q0)
-    renderer$render(paste0('p_repelled_', parameters$species[[s_i]]), Z, timestep)
-    renderer$render(paste0('p_feed_survives_', parameters$species[[s_i]]), W, timestep)
+    renderer$render(
+      paste0('p_repelled_', parameters$species[[s_i]]),
+      Z,
+      timestep
+    )
+    renderer$render(
+      paste0('p_feed_survives_', parameters$species[[s_i]]),
+      W,
+      timestep
+    )
     f <- blood_meal_rate(s_i, Z, parameters)
-
-    n_infectious <- infectious_index$copy()$and(species_index)$size()
 
     lambda <- effective_biting_rate(
       .pi,
@@ -81,113 +122,62 @@ simulate_bites <- function(renderer, variables, events, age, parameters, timeste
       parameters
     )
 
-    renderer$render(paste0('lambda_', parameters$species[[s_i]]), mean(lambda), timestep)
+    renderer$render(
+      paste0('lambda_', parameters$species[[s_i]]),
+      mean(lambda),
+      timestep
+    )
 
     n_bites <- rpois(1, n_infectious * sum(lambda))
+    EIR <- EIR + n_bites
     if (n_bites > 0) {
       bitten_humans$insert(
         sample.int(
           parameters$human_population,
           n_bites,
           replace = TRUE,
-          prob=lambda
+          prob = lambda
         )
       )
     }
 
-    susceptible_species_index <- susceptible_index$copy()$and(species_index)
+    foim <- calculate_foim(human_infectivity, lambda)
+    renderer$render(paste0('FOIM_', s_i), foim, timestep)
+    mu <- death_rate(f, W, Z, s_i, parameters)
+    renderer$render(paste0('mu_', s_i), mu, timestep)
 
-    calculate_mosquito_effects(
-      variables,
-      human_infectivity,
-      lambda,
-      events,
-      s_i,
-      susceptible_species_index,
-      species_index$and(adult_index),
-      W,
-      Z,
-      f,
-      parameters,
-      renderer,
-      timestep
-    )
+    if (parameters$individual_mosquitoes) {
+      # update the ODE with stats for ovoposition calculations
+      mosquito_model_update(models[[s_i]], species_index$size(), f, mu)
+
+      # update the individual mosquitoes
+      susceptible_species_index <- susceptible_index$copy()$and(species_index)
+
+      biting_effects_individual(
+        variables,
+        foim,
+        events,
+        s_i,
+        susceptible_species_index,
+        species_index,
+        mu,
+        parameters,
+        timestep
+      )
+    } else {
+      adult_mosquito_model_update(
+        models[[s_i]],
+        mu,
+        foim,
+        solver_states[[ADULT_ODE_INDICES['Sm']]],
+        f
+      )
+    }
   }
 
-  renderer$render('EIR', bitten_humans$size(), timestep)
+  renderer$render('EIR', EIR, timestep)
+  renderer$render('n_bitten', bitten_humans$size(), timestep)
   bitten_humans
-}
-
-#' @title Simulate malaria infection in humans
-#' @description
-#' Updates human states and variables to represent asymptomatic/clinical/severe
-#' and treated malaria; and resulting boosts in immunity
-#' @param variables a list of all of the model variables
-#' @param events a list of all of the model events
-#' @param bitten_humans a bitset of bitten humans
-#' @param age of each human (timesteps)
-#' @param parameters of the model
-#' @param timestep current timestep
-#' @noRd
-simulate_infection <- function(
-  variables,
-  events,
-  bitten_humans,
-  age,
-  parameters,
-  timestep
-  ) {
-
-  if (bitten_humans$size() > 0) {
-    boost_immunity(
-      variables$ib,
-      bitten_humans,
-      variables$last_boosted_ib,
-      timestep,
-      parameters$ub
-    )
-  }
-
-  # Calculate Infected
-  infected_humans <- calculate_infections(
-    variables,
-    bitten_humans,
-    parameters,
-    timestep
-  )
-
-  clinical_infections <- calculate_clinical_infections(
-    variables,
-    infected_humans,
-    parameters,
-    timestep
-  )
-
-  if (parameters$severe_enabled) {
-    update_severe_disease(
-      timestep,
-      clinical_infections,
-      variables,
-      infected_humans,
-      parameters
-    )
-  }
-
-  treated <- calculate_treated(
-    variables,
-    clinical_infections,
-    events$recovery,
-    parameters,
-    timestep
-  )
-
-  schedule_infections(
-    events,
-    clinical_infections,
-    treated,
-    infected_humans,
-    parameters
-  )
 }
 
 # =================
@@ -232,4 +222,18 @@ average_p_repelled <- function(p_repelled, .pi, Q0) {
 
 average_p_successful <- function(prob_bitten_survives, .pi, Q0) {
   (1 - Q0) + Q0 * sum(.pi *  prob_bitten_survives)
+}
+
+# Unique biting rate (psi) for a human of a given age
+unique_biting_rate <- function(age, parameters) {
+  1 - parameters$rho * exp(- age / parameters$a0)
+}
+
+#' @title Calculate the force of infection towards mosquitoes
+#'
+#' @param human_infectivity a vector of infectivities for each human
+#' @param lambda a vector of biting rates for each human
+#' @noRd
+calculate_foim <- function(human_infectivity, lambda) {
+  sum(human_infectivity * lambda)
 }

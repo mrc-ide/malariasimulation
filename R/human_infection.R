@@ -1,3 +1,96 @@
+#' @title Simulate malaria infection in humans
+#' @description
+#' Updates human states and variables to represent asymptomatic/clinical/severe
+#' and treated malaria; and resulting boosts in immunity
+#' @param variables a list of all of the model variables
+#' @param events a list of all of the model events
+#' @param bitten_humans a bitset of bitten humans
+#' @param age of each human (timesteps)
+#' @param parameters of the model
+#' @param timestep current timestep
+#' @noRd
+simulate_infection <- function(
+  variables,
+  events,
+  bitten_humans,
+  age,
+  parameters,
+  timestep,
+  renderer
+  ) {
+  if (bitten_humans$size() > 0) {
+    boost_immunity(
+      variables$ib,
+      bitten_humans,
+      variables$last_boosted_ib,
+      timestep,
+      parameters$ub
+    )
+  }
+
+  # Calculate Infected
+  infected_humans <- calculate_infections(
+    variables,
+    bitten_humans,
+    parameters,
+    timestep
+  )
+
+  if (infected_humans$size() > 0) {
+    boost_immunity(
+      variables$ica,
+      infected_humans,
+      variables$last_boosted_ica,
+      timestep,
+      parameters$uc
+    )
+    boost_immunity(
+      variables$id,
+      infected_humans,
+      variables$last_boosted_id,
+      timestep,
+      parameters$ud
+    )
+  }
+
+  clinical_infections <- calculate_clinical_infections(
+    variables,
+    infected_humans,
+    parameters
+  )
+
+  if (parameters$severe_enabled) {
+    update_severe_disease(
+      timestep,
+      clinical_infections,
+      variables,
+      infected_humans,
+      parameters
+    )
+  }
+
+
+  treated <- calculate_treated(
+    variables,
+    clinical_infections,
+    events$recovery,
+    events$detection,
+    parameters,
+    timestep,
+    renderer
+  )
+
+  renderer$render('n_treated', treated$size(), timestep)
+
+  schedule_infections(
+    events,
+    clinical_infections,
+    treated,
+    infected_humans,
+    parameters
+  )
+}
+
 #' @title Calculate overall infections for bitten humans
 #' @description
 #' Sample infected humans given prophylaxis and vaccination
@@ -66,29 +159,10 @@ calculate_infections <- function(
 #' @param variables a list of all of the model variables
 #' @param infections bitset of infected humans
 #' @param parameters model parameters
-#' @param timestep current timestep
 #' @noRd
-calculate_clinical_infections <- function(variables, infections, parameters, timestep) {
+calculate_clinical_infections <- function(variables, infections, parameters) {
   ica <- variables$ica$get_values(infections)
   icm <- variables$icm$get_values(infections)
-
-  if (infections$size() > 0) {
-    boost_immunity(
-      variables$ica,
-      infections,
-      variables$last_boosted_ica,
-      timestep,
-      parameters$uc
-    )
-    boost_immunity(
-      variables$id,
-      infections,
-      variables$last_boosted_id,
-      timestep,
-      parameters$ud
-    )
-  }
-
   phi <- clinical_immunity(ica, icm, parameters)
   bitset_at(infections, bernoulli_multi_p(phi))
 }
@@ -141,42 +215,48 @@ update_severe_disease <- function(
 #' @param recovery the recovery event
 #' @param parameters model parameters
 #' @param timestep the current timestep
+#' @param renderer simulation renderer
 #' @noRd
 calculate_treated <- function(
   variables,
   clinical_infections,
   recovery,
+  detection,
   parameters,
-  timestep
+  timestep,
+  renderer
   ) {
-  if (length(parameters$clinical_treatment_coverages) == 0) {
+  treatment_coverages <- get_treatment_coverages(parameters, timestep)
+  ft <- sum(treatment_coverages)
+
+  if (ft == 0) {
     return(individual::Bitset$new(parameters$human_population))
   }
 
-  seek_treatment <- sample_bitset(clinical_infections, parameters$ft)
+  renderer$render('ft', ft, timestep)
+  seek_treatment <- sample_bitset(clinical_infections, ft)
   n_treat <- seek_treatment$size()
-  drugs <- parameters$clinical_treatment_drugs[
+  drugs <- as.numeric(parameters$clinical_treatment_drugs[
     sample.int(
       length(parameters$clinical_treatment_drugs),
       n_treat,
-      prob = parameters$clinical_treatment_coverages,
+      prob = treatment_coverages,
       replace = TRUE
     )
-  ]
+  ])
 
   successful <- bernoulli_multi_p(parameters$drug_efficacy[drugs])
   treated_index <- bitset_at(seek_treatment, successful)
 
   # Update those who have been treated
   if (treated_index$size() > 0) {
-    successful_vector <- successful$to_vector()
     variables$state$queue_update('Tr', treated_index)
     variables$infectivity$queue_update(
-      parameters$cd * parameters$drug_rel_c[drugs[successful_vector]],
+      parameters$cd * parameters$drug_rel_c[drugs[successful]],
       treated_index
     )
     variables$drug$queue_update(
-      drugs[successful_vector],
+      drugs[successful],
       treated_index
     )
     variables$drug_time$queue_update(
@@ -187,6 +267,7 @@ calculate_treated <- function(
       treated_index,
       log_uniform(treated_index$size(), parameters$dt)
     )
+    detection$schedule(treated_index, 0)
   }
   treated_index
 }
@@ -207,7 +288,9 @@ schedule_infections <- function(
   infections,
   parameters
   ) {
-  included <- events$infection$get_scheduled()$or(treated)$not()
+  included <- events$clinical_infection$get_scheduled()$or(
+    events$asymptomatic_infection$get_scheduled()
+  )$or(treated)$not()
 
   to_infect <- clinical_infections$and(included)
   to_infect_asym <- clinical_infections$not()$and(infections)$and(included)
@@ -219,7 +302,7 @@ schedule_infections <- function(
       to_infect,
       infection_times
     )
-    events$infection$schedule(to_infect, infection_times)
+    events$detection$schedule(to_infect, infection_times)
     events$subpatent_infection$clear_schedule(to_infect)
     events$recovery$clear_schedule(to_infect)
   }
@@ -230,7 +313,7 @@ schedule_infections <- function(
       to_infect_asym,
       infection_times
     )
-    events$infection$schedule(to_infect_asym, infection_times)
+    events$detection$schedule(to_infect_asym, infection_times)
     events$subpatent_infection$clear_schedule(to_infect_asym)
     events$recovery$clear_schedule(to_infect_asym)
   }
@@ -308,11 +391,6 @@ probability_of_detection <- function(age, immunity, parameters) {
 asymptomatic_infectivity <- function(age, immunity, parameters) {
   q <- probability_of_detection(age, immunity, parameters)
   parameters$cu + (parameters$cd - parameters$cu) * q ** parameters$gamma1
-}
-
-# Unique biting rate (psi) for a human of a given age
-unique_biting_rate <- function(age, parameters) {
-  1 - parameters$rho * exp(- age / parameters$a0)
 }
 
 # Implemented from Winskill 2017 - Supplementary Information page 4

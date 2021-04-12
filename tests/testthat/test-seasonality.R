@@ -7,14 +7,21 @@ test_that('Seasonality correctly affects P', {
     species_proportions = 1
   ))
   total_M <- 1000
-  model <- parameterise_ode(parameters)[[1]]
+  models <- parameterise_mosquito_models(parameters)
+  solvers <- parameterise_solvers(models, parameters)
   timesteps <- 365 * 40
 
   counts <- c()
   
   for (t in seq(timesteps)) {
-    counts <- rbind(counts, c(t, mosquito_model_get_states(model)))
-    mosquito_model_step(model, total_M)
+    counts <- rbind(counts, c(t, solver_get_states(solvers[[1]])))
+    mosquito_model_update(
+      models[[1]],
+      total_M,
+      parameters$blood_meal_rates,
+      parameters$mum
+    )
+    solver_step(solvers[[1]])
   }
 
   burn_in <- 20

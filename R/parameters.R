@@ -61,8 +61,6 @@
 #' * ad - scale parameter relating age to immunity
 #' * gammad - shape parameter relating age to immunity
 #' * d1 - minimum probability due to immunity
-#' * dmin - minimum probability due to immunity NOTE: there appears to be a
-#' mistake here!
 #' * id0 - scale parameter 
 #' * kd - shape parameter
 #'
@@ -232,11 +230,11 @@
 #' * human_population - the number of humans to model
 #' * mosquito_limit - the maximum number of mosquitos to allow for in the
 #' simulation
-#' * days_per_timestep - the number of days to model per timestep
+#' * individual_mosquitoes - boolean whether adult mosquitoes are modelled
+#' individually or compartmentaly
 #'
 #' @export
 get_parameters <- function(overrides = list()) {
-  days_per_timestep <- 1
   parameters <- list(
     dd    = 5,
     dt    = 5,
@@ -246,7 +244,7 @@ get_parameters <- function(overrides = list()) {
     dl    = 3.72,
     dpl   = .643,
     mup   = .249,
-    mum   = .249, #NOTE: set from sitefile
+    mum   = .1253333,
     sigma_squared   = 1.67,
     n_heterogeneity_groups = 5,
     # immunity decay rates
@@ -275,8 +273,8 @@ get_parameters <- function(overrides = list()) {
     a0    = 8 * 365,
     rho   = .85,
     # clinical immunity parameters
-    phi0  = .0749886,
-    phi1  = .0001191,
+    phi0 = .792,
+    phi1 = .00074,
     ic0   = 18.02366,
     kc    = 2.36949,
     # severe disease immunity parameters
@@ -300,7 +298,7 @@ get_parameters <- function(overrides = list()) {
     id0   = 1.577533,
     kd    = .476614,
     # mortality parameters
-    average_age = 7663 / days_per_timestep,
+    average_age = 7663,
     v     = .065, # NOTE: there are two definitions of this in the literature: one on line 124 and one in the parameters table
     pcm   = .774368,
     pvm   = .195768,
@@ -354,9 +352,9 @@ get_parameters <- function(overrides = list()) {
     drug_rel_c             = numeric(0),
     drug_prophilaxis_shape = numeric(0),
     drug_prophilaxis_scale = numeric(0),
-    clinical_treatment_drugs     = numeric(0),
-    clinical_treatment_coverages = numeric(0),
-    ft = 0,
+    clinical_treatment_drugs     = list(),
+    clinical_treatment_timesteps = list(),
+    clinical_treatment_coverages = list(),
     # rts,s
     rtss = FALSE,
     rtss_vmax = .93,
@@ -407,6 +405,8 @@ get_parameters <- function(overrides = list()) {
     prevalence_rendering_max_ages = 10 * 365,
     incidence_rendering_min_ages = numeric(0),
     incidence_rendering_max_ages = numeric(0),
+    clinical_incidence_rendering_min_ages = numeric(0),
+    clinical_incidence_rendering_max_ages = numeric(0),
     severe_prevalence_rendering_min_ages = numeric(0),
     severe_prevalence_rendering_max_ages = numeric(0),
     severe_incidence_rendering_min_ages = numeric(0),
@@ -414,7 +414,7 @@ get_parameters <- function(overrides = list()) {
     # misc
     human_population = 100,
     mosquito_limit   = 100 * 1000,
-    days_per_timestep  = days_per_timestep
+    individual_mosquitoes = TRUE
   )
 
   # Override parameters with any client specified ones
@@ -492,34 +492,42 @@ parameterise_mosquito_equilibrium <- function(parameters, EIR) {
 #' @export
 parameterise_total_M <- function(parameters, total_M) {
   parameters$total_M <- total_M
-  K0 <- calculate_carrying_capacity(parameters)
-  R_bar <- calculate_R_bar(parameters)
-  max_K <- max(vnapply(seq(365), function(t) {
-    carrying_capacity(
-      t,
-      parameters$model_seasonality,
-      parameters$days_per_timestep,
-      parameters$g0,
-      parameters$g,
-      parameters$h,
-      K0,
-      R_bar
-    )
-  }))
-  omega <- calculate_omega(parameters)
-  max_total_M <- max_K * (
-    1 / (
-      2 * parameters$dl * parameters$mum * (
-        1 + parameters$dpl * parameters$mup
+  if (!parameters$individual_mosquitoes) {
+    return(parameters)
+  }
+  max_total_M <- 0
+  for (i in seq_along(parameters$species)) {
+    species_M <- total_M * parameters$species_proportions[[i]]
+    K0 <- calculate_carrying_capacity(parameters, species_M, i)
+    R_bar <- calculate_R_bar(parameters)
+    max_K <- max(vnapply(seq(365), function(t) {
+      carrying_capacity(
+        t,
+        parameters$model_seasonality,
+        parameters$g0,
+        parameters$g,
+        parameters$h,
+        K0,
+        R_bar
       )
+    }))
+    omega <- calculate_omega(parameters, i)
+    max_total_M <- max_total_M + max_K * (
+      1 / (
+        2 * parameters$dl * parameters$mum * (
+          1 + parameters$dpl * parameters$mup
+        )
+      )
+    ) * (
+      1 / (
+        parameters$gamma * (omega + 1)
+      )
+    ) * (
+      omega / (parameters$ml * parameters$del) - (
+        1 / (parameters$ml * parameters$dl)
+      ) - 1
     )
-  ) * (
-    1 / (
-      parameters$gamma * (omega + 1)
-    )
-  ) * (
-    omega / (parameters$ml * parameters$del) - (1 / (parameters$ml * parameters$dl)) - 1
-  )
+  }
   parameters$mosquito_limit <- ceiling(max_total_M * 5) #Allow for random fluctuations
   parameters
 }

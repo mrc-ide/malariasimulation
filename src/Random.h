@@ -10,12 +10,11 @@
 #define SRC_RANDOM_H_
 
 #include <vector>
-#include <individual.h>
 
 class RandomInterface {
 public:
     virtual std::vector<size_t> bernoulli(size_t, double) = 0;
-    virtual individual_index_t bernoulli_multi_p(const std::vector<double>) = 0;
+    virtual std::vector<size_t> bernoulli_multi_p(const std::vector<double>) = 0;
     virtual std::vector<size_t> sample(size_t, size_t, bool) = 0;
     virtual ~RandomInterface() = default;
 };
@@ -27,7 +26,7 @@ public:
         return instance;
     }
     virtual std::vector<size_t> bernoulli(size_t, double);
-    virtual individual_index_t bernoulli_multi_p(const std::vector<double>);
+    virtual std::vector<size_t> bernoulli_multi_p(const std::vector<double>);
     virtual std::vector<size_t> sample(size_t, size_t, bool);
     virtual ~Random() = default;
     Random(const Random &other) = delete;

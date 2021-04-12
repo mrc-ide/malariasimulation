@@ -5,7 +5,7 @@
 \alias{arab_params}
 \title{Preset parameters for the An. arabiensis vector}
 \format{
-An object of class \code{list} of length 10.
+An object of class \code{list} of length 11.
 }
 \usage{
 arab_params

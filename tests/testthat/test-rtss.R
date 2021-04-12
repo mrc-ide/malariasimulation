@@ -84,7 +84,7 @@ test_that('Infection considers vaccine efficacy', {
     rep(.2, 4)
   )
 
-  bernoulli_mock <- mockery::mock(individual::Bitset$new(4)$insert(c(1, 2)))
+  bernoulli_mock <- mockery::mock(c(1, 2))
   mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
   calculate_infections(
     variables,

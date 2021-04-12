@@ -1,10 +1,10 @@
 create_events <- function(parameters) {
-  list(
+  events <- list(
     # Human infection events
     clinical_infection = individual::TargetedEvent$new(parameters$human_population),
     asymptomatic_infection = individual::TargetedEvent$new(parameters$human_population),
-    # either clinical or asym infection
-    infection = individual::TargetedEvent$new(parameters$human_population), 
+    # whether the infection is detected
+    detection = individual::TargetedEvent$new(parameters$human_population), 
     subpatent_infection = individual::TargetedEvent$new(parameters$human_population),
     recovery = individual::TargetedEvent$new(parameters$human_population),
 
@@ -18,12 +18,18 @@ create_events <- function(parameters) {
     smc_administer = individual::Event$new(),
 
     # Bednet events
-    throw_away_net = individual::TargetedEvent$new(parameters$human_population),
-
-    # Mosquito events
-    mosquito_infection = individual::TargetedEvent$new(parameters$mosquito_limit),
-    mosquito_death = individual::TargetedEvent$new(parameters$mosquito_limit)
+    throw_away_net = individual::TargetedEvent$new(parameters$human_population)
   )
+  if (parameters$individual_mosquitoes) {
+    events <- c(
+      events,
+      # Mosquito events
+      mosquito_infection = individual::TargetedEvent$new(parameters$mosquito_limit),
+      mosquito_death = individual::TargetedEvent$new(parameters$mosquito_limit)
+    )
+  }
+
+  events
 }
 
 initialise_events <- function(events, variables, parameters) {
@@ -45,7 +51,6 @@ initialise_events <- function(events, variables, parameters) {
     'U',
     parameters$du
   )
-
   initialise_progression(
     events$recovery,
     variables$state,
@@ -53,11 +58,13 @@ initialise_events <- function(events, variables, parameters) {
     parameters$dt
   )
 
-  incubating <- variables$mosquito_state$get_index_of('Pm')
-  events$mosquito_infection$schedule(
-    incubating,
-    log_uniform(incubating$size(), parameters$dem)
-  )
+  if (parameters$individual_mosquitoes) {
+    incubating <- variables$mosquito_state$get_index_of('Pm')
+    events$mosquito_infection$schedule(
+      incubating,
+      log_uniform(incubating$size(), parameters$dem)
+    )
+  }
 
   # Initialise interventions
   if (parameters$rtss) {
@@ -142,6 +149,14 @@ attach_event_listeners <- function(
       parameters$dd
     )
   )
+  events$clinical_infection$add_listener(
+    create_clinical_incidence_renderer(
+      variables$birth,
+      parameters,
+      renderer
+    )
+  )
+
   events$asymptomatic_infection$add_listener(
     create_progression_listener(
       events$subpatent_infection,
@@ -155,7 +170,7 @@ attach_event_listeners <- function(
     )
   )
 
-  events$infection$add_listener(
+  events$detection$add_listener(
     create_incidence_renderer(
       variables$birth,
       variables$is_severe,
@@ -164,17 +179,19 @@ attach_event_listeners <- function(
     )
   )
 
-  events$mosquito_infection$add_listener(
-    individual::update_category_listener(variables$mosquito_state, 'Im')
-  )
+  if (parameters$individual_mosquitoes) {
+    events$mosquito_infection$add_listener(
+      individual::update_category_listener(variables$mosquito_state, 'Im')
+    )
 
-  events$mosquito_death$add_listener(
-    function(timestep, target) {
-      variables$mosquito_state$queue_update('NonExistent', target)
-      events$mosquito_infection$clear_schedule(target)
-      renderer$render('mosquito_deaths', target$size(), timestep)
-    }
-  )
+    events$mosquito_death$add_listener(
+      function(timestep, target) {
+        variables$mosquito_state$queue_update('NonExistent', target)
+        events$mosquito_infection$clear_schedule(target)
+        renderer$render('mosquito_deaths', target$size(), timestep)
+      }
+    )
+  }
 
   if (parameters$bednets == 1) {
     events$throw_away_net$add_listener(

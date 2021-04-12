@@ -12,10 +12,7 @@ bitset_at <- function(b, i) {
   individual::filter_bitset(b, i)
 }
 
-#' @importFrom stats runif
-bernoulli_multi_p <- function(p) {
-  individual::Bitset$new(from = bernoulli_multi_p_cpp(p))
-}
+bernoulli_multi_p <- function(p) bernoulli_multi_p_cpp(p)
 
 #' @importFrom stats runif
 log_uniform <- function(size, rate) -rate * log(runif(size))

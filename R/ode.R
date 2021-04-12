@@ -1,16 +1,17 @@
 ODE_INDICES <- c(E = 1, L = 2, P = 3)
+ADULT_ODE_INDICES <- c(Sm = 4, Pm = 5, Im = 6)
 
-parameterise_ode <- function(parameters) {
+parameterise_mosquito_models <- function(parameters) {
   lapply(
-    parameters$species_proportions,
-    function(p) {
+    seq_along(parameters$species),
+    function(i) {
+      p <- parameters$species_proportions[[i]]
       m <- p * parameters$total_M
-      create_mosquito_model(
-        initial_mosquito_counts(parameters, 0, m)[ODE_INDICES],
+      growth_model <- create_mosquito_model(
         parameters$beta,
         parameters$del,
         parameters$me,
-        p * calculate_carrying_capacity(parameters),
+        calculate_carrying_capacity(parameters, m, i),
         parameters$gamma,
         parameters$dl,
         parameters$ml,
@@ -18,26 +19,66 @@ parameterise_ode <- function(parameters) {
         parameters$mup,
         m,
         parameters$model_seasonality,
-        parameters$days_per_timestep,
         parameters$g0,
         parameters$g,
         parameters$h,
         calculate_R_bar(parameters)
       )
+
+      if (!parameters$individual_mosquitoes) {
+        susceptible <- initial_mosquito_counts(
+          parameters,
+          i,
+          parameters$init_foim,
+          m
+        )[ADULT_ODE_INDICES['Sm']]
+        return(
+          create_adult_mosquito_model(
+            growth_model,
+            parameters$mum[[i]],
+            parameters$dem,
+            susceptible * parameters$init_foim
+          )
+        )
+      }
+      growth_model
     }
   )
 }
 
-create_ode_rendering_process <- function(renderer, odes) {
+parameterise_solvers <- function(models, parameters) {
+  lapply(
+    seq_along(models),
+    function(i) {
+      m <- parameters$species_proportions[[i]] * parameters$total_M
+      init <- initial_mosquito_counts(parameters, i, parameters$init_foim, m)
+      if (!parameters$individual_mosquitoes) {
+        return(
+          create_adult_solver(models[[i]], init)
+        )
+      }
+      create_solver(models[[i]], init[ODE_INDICES])
+    }
+  )
+}
+
+create_ode_rendering_process <- function(renderer, solvers, parameters) {
+  if (parameters$individual_mosquitoes) {
+    indices <- ODE_INDICES
+  } else {
+    indices <- c(ODE_INDICES, ADULT_ODE_INDICES)
+  }
+
   function(timestep) {
-    counts <- rep(0, length(ODE_INDICES))
-    for (ode in odes) {
-      row <- mosquito_model_get_states(ode)
+    counts <- rep(0, length(indices))
+    for (i in seq_along(solvers)) {
+      row <- solver_get_states(solvers[[i]])
       counts <- counts + row
     }
-    for (i in seq_along(ODE_INDICES)) {
+
+    for (i in seq_along(indices)) {
       renderer$render(
-        paste0('mosquito_', names(ODE_INDICES)[[i]], '_count'),
+        paste0(names(indices)[[i]], '_count'),
         counts[[i]],
         timestep
       )
@@ -45,23 +86,15 @@ create_ode_rendering_process <- function(renderer, odes) {
   }
 }
 
-#' @title Step mosquito ODE
+#' @title Step mosquito solver
 #' @description calculates total_M per species and updates the vector ode
 #'
-#' @param odes the models to step, one for each species
-#' @param state the mosquito state variable
-#' @param species the mosquito species variable
-#' @param species_names the names of the mosquito species
-#' @param renderer the model renderer
+#' @param solvers for each species
 #' @noRd
-create_ode_stepping_process <- function(odes, state, species, species_names, renderer) {
+create_solver_stepping_process <- function(solvers) {
   function(timestep) {
-    adult <- state$get_index_of("NonExistent")$not()
-    for (s_i in seq_along(species_names)) {
-      total_M <- species$get_index_of(species_names[[s_i]])$and(adult)$size()
-      renderer$render(paste0('total_M_', s_i), total_M, timestep)
-      mosquito_model_step(odes[[s_i]], total_M)
+    for (solver in solvers) {
+      solver_step(solver)
     }
-    renderer$render('total_M', adult$size(), timestep)
   }
 }

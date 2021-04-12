@@ -29,14 +29,16 @@ run_simulation <- function(timesteps, parameters = NULL, correlations = NULL) {
     correlations,
     renderer
   )
-  odes <- parameterise_ode(parameters)
+  vector_models <- parameterise_mosquito_models(parameters)
+  solvers <- parameterise_solvers(vector_models, parameters)
   individual::simulation_loop(
     processes = create_processes(
       renderer,
       variables,
       events,
       parameters,
-      odes,
+      vector_models,
+      solvers,
       correlations
     ),
     variables = variables,

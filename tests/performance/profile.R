@@ -22,7 +22,7 @@ simparams <- get_parameters(c(
 eq <- human_equilibrium(EIR = eir, ft = ft, p = jamie_params, age = 0:99)
 simparams <- parameterise_human_equilibrium(simparams, eq)
 simparams <- parameterise_mosquito_equilibrium(simparams, EIR=eir)
-simparams <- set_drugs(simparams, list(AL_params, DHC_PQP_params))
+simparams <- set_drugs(simparams, list(AL_params, DHA_PQP_params))
 simparams <- set_clinical_treatment(simparams, ft, c(1, 2), c(.5, .5))
 
 #profvis({output <- run_simulation(sim_length, simparams)})

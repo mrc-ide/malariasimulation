@@ -123,6 +123,43 @@ test_that('that severe rendering works', {
   )
 })
 
+test_that('that clinical incidence rendering works', {
+  timestep <- 0
+  year <- 365
+  parameters <- get_parameters(list(
+    clinical_incidence_rendering_min_ages = c(0, 2) * year,
+    clinical_incidence_rendering_max_ages = c(5, 10) * year,
+    prevalence_rendering_min_ages = NULL,
+    prevalence_rendering_max_ages = NULL
+  ))
+
+  birth <- individual::DoubleVariable$new(
+    -c(2, 5, 10, 11) * year
+  )
+
+  renderer <- mock_render(1)
+  process <- create_clinical_incidence_renderer(birth, parameters, renderer)
+
+  process(timestep, individual::Bitset$new(4)$insert(c(1, 2, 4)))
+
+  mockery::expect_args(
+    renderer$render,
+    1,
+    'clin_inc_0_1825',
+    1,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render,
+    2,
+    'clin_inc_730_3650',
+    2/3,
+    timestep
+  )
+})
+
+
 test_that('that incidence rendering works', {
   timestep <- 0
   year <- 365

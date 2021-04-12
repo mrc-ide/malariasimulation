@@ -136,7 +136,7 @@
     <p>Parameterise clinical treatment</p>
     </div>
 
-    <pre class="usage"><span class='fu'>set_clinical_treatment</span><span class='op'>(</span><span class='va'>parameters</span>, <span class='va'>ft</span>, <span class='va'>drugs</span>, <span class='va'>coverages</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>set_clinical_treatment</span><span class='op'>(</span><span class='va'>parameters</span>, <span class='va'>drug</span>, <span class='va'>timesteps</span>, <span class='va'>coverages</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -146,16 +146,16 @@
       <td><p>the model parameters</p></td>
     </tr>
     <tr>
-      <th>ft</th>
-      <td><p>probability of seeking treatment</p></td>
+      <th>drug</th>
+      <td><p>the index of the drug to set as a treatment</p></td>
     </tr>
     <tr>
-      <th>drugs</th>
-      <td><p>vector of drugs indecies that are available</p></td>
+      <th>timesteps</th>
+      <td><p>vector of timesteps for each coverage change</p></td>
     </tr>
     <tr>
       <th>coverages</th>
-      <td><p>vector of coverages for those drugs</p></td>
+      <td><p>vector of coverages for this drug</p></td>
     </tr>
     </table>
 

@@ -112,7 +112,7 @@
     human_population <span class="op">=</span> <span class="va">human_population</span>
   <span class="op">)</span>
 <span class="op">)</span><span class="op">)</span>
-<span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_drugs.html">set_drugs</a></span><span class="op">(</span><span class="va">simparams</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">AL_params</span>, <span class="va">DHC_PQP_params</span><span class="op">)</span><span class="op">)</span>
+<span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_drugs.html">set_drugs</a></span><span class="op">(</span><span class="va">simparams</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">AL_params</span>, <span class="va">DHA_PQP_params</span><span class="op">)</span><span class="op">)</span>
 
 <span class="co"># NOTE: this equilibrium is calculated using a different prophylaxis model</span>
 <span class="co"># it is just used as a starting point</span>
@@ -129,11 +129,9 @@
   <span class="va">eq</span> <span class="op">&lt;-</span> <span class="fu">get_equilibrium</span><span class="op">(</span><span class="va">starting_EIR</span>, <span class="va">ft</span><span class="op">)</span>
   <span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/parameterise_human_equilibrium.html">parameterise_human_equilibrium</a></span><span class="op">(</span><span class="va">simparams</span>, <span class="va">eq</span><span class="op">)</span>
   <span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/parameterise_mosquito_equilibrium.html">parameterise_mosquito_equilibrium</a></span><span class="op">(</span><span class="va">simparams</span>, <span class="va">starting_EIR</span><span class="op">)</span>
-  <span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_clinical_treatment.html">set_clinical_treatment</a></span><span class="op">(</span><span class="va">simparams</span>, <span class="va">ft</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">.5</span>, <span class="fl">.5</span><span class="op">)</span><span class="op">)</span>
-  <span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_simulation.html">run_simulation</a></span><span class="op">(</span>
-    <span class="va">sim_length</span>,
-    <span class="va">simparams</span>
-  <span class="op">)</span>
+  <span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_clinical_treatment.html">set_clinical_treatment</a></span><span class="op">(</span><span class="va">simparams</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="va">ft</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span>
+  <span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_clinical_treatment.html">set_clinical_treatment</a></span><span class="op">(</span><span class="va">simparams</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="va">ft</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span>
+  <span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_simulation.html">run_simulation</a></span><span class="op">(</span><span class="va">sim_length</span>, <span class="va">simparams</span><span class="op">)</span>
   <span class="va">outputs</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">outputs</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">output</span>
 <span class="op">}</span></code></pre></div>
 <p>Let’s plot the effect of ft on PfPrev2-10:</p>

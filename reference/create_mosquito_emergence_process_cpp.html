@@ -138,14 +138,20 @@ pupals in the ODE models" />
 pupals in the ODE models</p>
     </div>
 
-    <pre class="usage"><span class='fu'>create_mosquito_emergence_process_cpp</span><span class='op'>(</span><span class='va'>odes</span>, <span class='va'>state</span>, <span class='va'>species</span>, <span class='va'>species_names</span>, <span class='va'>dpl</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>create_mosquito_emergence_process_cpp</span><span class='op'>(</span>
+  <span class='va'>solvers</span>,
+  <span class='va'>state</span>,
+  <span class='va'>species</span>,
+  <span class='va'>species_names</span>,
+  <span class='va'>dpl</span>
+<span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>odes</th>
-      <td><p>a list of odes for each species of mosquito</p></td>
+      <th>solvers</th>
+      <td><p>a list of solver objects for each species of mosquito</p></td>
     </tr>
     <tr>
       <th>state</th>

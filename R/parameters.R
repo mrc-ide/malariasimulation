@@ -255,7 +255,7 @@ get_parameters <- function(overrides = list()) {
     rva   = 30 * 365,
     rid   = 10 * 365,
     # blood immunity parameters
-    b0    = 0.590076,
+    b0    = 0.59,
     b1    = 0.5,
     ib0   = 43.8787,
     kb    = 2.15506,

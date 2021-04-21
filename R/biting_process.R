@@ -152,8 +152,8 @@ simulate_bites <- function(
       timestep
     )
 
-    n_bites <- rpois(1, n_infectious * sum(lambda))
-    EIR <- EIR + n_bites
+    n_bites <- rpois(1, n_infectious * sum(lambda * psi))
+    EIR <- EIR + n_infectious * sum(lambda)
     if (n_bites > 0) {
       bitten_humans$insert(
         sample.int(

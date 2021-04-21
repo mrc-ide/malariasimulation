@@ -33,11 +33,6 @@ create_events <- function(parameters) {
     )
   }
 
-  events <- c(
-    events,
-    death = individual::TargetedEvent$new(parameters$human_population)
-  )
-
   events
 }
 

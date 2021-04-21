@@ -1,12 +1,16 @@
 create_events <- function(parameters) {
   events <- list(
+    # Disease progression events
+    asymptomatic_progression = individual::TargetedEvent$new(parameters$human_population),
+    subpatent_progression = individual::TargetedEvent$new(parameters$human_population),
+    recovery = individual::TargetedEvent$new(parameters$human_population),
+
     # Human infection events
     clinical_infection = individual::TargetedEvent$new(parameters$human_population),
     asymptomatic_infection = individual::TargetedEvent$new(parameters$human_population),
+
     # whether the infection is detected
     detection = individual::TargetedEvent$new(parameters$human_population), 
-    subpatent_infection = individual::TargetedEvent$new(parameters$human_population),
-    recovery = individual::TargetedEvent$new(parameters$human_population),
 
     # Vaccination events
     rtss_vaccination = individual::Event$new(),
@@ -29,35 +33,15 @@ create_events <- function(parameters) {
     )
   }
 
+  events <- c(
+    events,
+    death = individual::TargetedEvent$new(parameters$human_population)
+  )
+
   events
 }
 
 initialise_events <- function(events, variables, parameters) {
-  initialise_progression(
-    events$asymptomatic_infection,
-    variables$state,
-    'D',
-    parameters$de
-  )
-  initialise_progression(
-    events$subpatent_infection,
-    variables$state,
-    'A',
-    parameters$da
-  )
-  initialise_progression(
-    events$recovery,
-    variables$state,
-    'U',
-    parameters$du
-  )
-  initialise_progression(
-    events$recovery,
-    variables$state,
-    'Tr',
-    parameters$dt
-  )
-
   if (parameters$individual_mosquitoes) {
     incubating <- variables$mosquito_state$get_index_of('Pm')
     events$mosquito_infection$schedule(
@@ -113,6 +97,15 @@ attach_event_listeners <- function(
     )
   )
 
+  events$asymptomatic_progression$add_listener(
+    create_asymptomatic_update_listener(
+      variables,
+      parameters
+    )
+  )
+  events$asymptomatic_progression$add_listener(
+    create_rate_listener('D', 'A', renderer)
+  )
   events$asymptomatic_infection$add_listener(
     create_asymptomatic_update_listener(
       variables,
@@ -121,7 +114,7 @@ attach_event_listeners <- function(
   )
 
   # Recovery events
-  events$subpatent_infection$add_listener(
+  events$subpatent_progression$add_listener(
     create_infection_update_listener(
       variables$state,
       'U',
@@ -129,6 +122,10 @@ attach_event_listeners <- function(
       parameters$cu
     )
   )
+  events$subpatent_progression$add_listener(
+    create_rate_listener('A', 'U', renderer)
+  )
+
   events$recovery$add_listener(
     create_infection_update_listener(
       variables$state,
@@ -137,6 +134,9 @@ attach_event_listeners <- function(
       0
     )
   )
+  events$recovery$add_listener(
+    create_rate_listener('U', 'S', renderer)
+  )
 
   # ===========
   # Progression
@@ -144,29 +144,10 @@ attach_event_listeners <- function(
   # When infection events fire, schedule the next stages of infection
 
   events$clinical_infection$add_listener(
-    create_progression_listener(
-      events$asymptomatic_infection,
-      parameters$dd
-    )
-  )
-  events$clinical_infection$add_listener(
     create_clinical_incidence_renderer(
       variables$birth,
       parameters,
       renderer
-    )
-  )
-
-  events$asymptomatic_infection$add_listener(
-    create_progression_listener(
-      events$subpatent_infection,
-      parameters$da
-    )
-  )
-  events$subpatent_infection$add_listener(
-    create_progression_listener(
-      events$recovery,
-      parameters$du
     )
   )
 

@@ -309,8 +309,6 @@ schedule_infections <- function(
       infection_times
     )
     events$detection$schedule(to_infect, infection_times)
-    events$subpatent_infection$clear_schedule(to_infect)
-    events$recovery$clear_schedule(to_infect)
   }
 
   if(to_infect_asym$size() > 0) {
@@ -320,8 +318,6 @@ schedule_infections <- function(
       infection_times
     )
     events$detection$schedule(to_infect_asym, infection_times)
-    events$subpatent_infection$clear_schedule(to_infect_asym)
-    events$recovery$clear_schedule(to_infect_asym)
   }
 }
 

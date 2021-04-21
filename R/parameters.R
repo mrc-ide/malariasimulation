@@ -232,6 +232,8 @@
 #' simulation
 #' * individual_mosquitoes - boolean whether adult mosquitoes are modelled
 #' individually or compartmentaly
+#' * enable_heterogeneity - boolean whether to include heterogeneity in biting
+#' rates
 #'
 #' @export
 get_parameters <- function(overrides = list()) {
@@ -414,7 +416,8 @@ get_parameters <- function(overrides = list()) {
     # misc
     human_population = 100,
     mosquito_limit   = 100 * 1000,
-    individual_mosquitoes = TRUE
+    individual_mosquitoes = TRUE,
+    enable_heterogeneity = TRUE
   )
 
   # Override parameters with any client specified ones

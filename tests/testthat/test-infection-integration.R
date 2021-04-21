@@ -104,7 +104,8 @@ test_that('simulate_infection integrates different types of infection and schedu
     clinical,
     treated,
     infected,
-    parameters
+    parameters,
+    asymptomatics
   )
 })
 
@@ -336,7 +337,7 @@ test_that('schedule_infections correctly schedules new infections', {
     'log_uniform',
     mockery::mock(
       c(5, 6, 13, 14),
-      c(2, 4, 16, 17, 18, 19, 20)
+      c(2, 4, 16, 18, 19, 20)
     )
   )
 
@@ -349,13 +350,15 @@ test_that('schedule_infections correctly schedules new infections', {
   infections <- individual::Bitset$new(20)$insert(1:20)
   clinical_infections <- individual::Bitset$new(20)$insert(5:15)
   treated <- individual::Bitset$new(20)$insert(7:12)
+  asymptomatics <- individual::Bitset$new(20)$insert(17)
 
   schedule_infections(
     events,
     clinical_infections,
     treated,
     infections,
-    parameters
+    parameters,
+    asymptomatics
   )
 
   expect_bitset_schedule(
@@ -372,14 +375,14 @@ test_that('schedule_infections correctly schedules new infections', {
 
   expect_bitset_schedule(
     asym_mock,
-    c(2, 4, 16, 17, 18, 19, 20),
-    c(2, 4, 16, 17, 18, 19, 20)
+    c(2, 4, 16, 18, 19, 20),
+    c(2, 4, 16, 18, 19, 20)
   )
 
   expect_bitset_schedule(
     detection_mock,
-    c(2, 4, 16, 17, 18, 19, 20),
-    c(2, 4, 16, 17, 18, 19, 20),
+    c(2, 4, 16, 18, 19, 20),
+    c(2, 4, 16, 18, 19, 20),
     call = 2
   )
 })

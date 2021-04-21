@@ -100,17 +100,25 @@ create_variables <- function(parameters) {
     initial_immunity(parameters$init_id, initial_age)
   )
 
-  zeta_norm <- rnorm(size)
-  zeta <- individual::DoubleVariable$new(
-    exp(
-      zeta_norm * sqrt(parameters$sigma_squared) - parameters$sigma_squared/2
+  if (parameters$enable_heterogeneity) {
+    zeta_norm <- rnorm(size)
+    zeta <- individual::DoubleVariable$new(
+      exp(
+        zeta_norm * sqrt(parameters$sigma_squared) - parameters$sigma_squared/2
+      )
     )
-  )
 
-  zeta_group <- individual::CategoricalVariable$new(
-    to_char_vector(seq(parameters$n_heterogeneity_groups)),
-    to_char_vector(discretise_normal(zeta_norm, parameters$n_heterogeneity_groups))
-  )
+    zeta_group <- individual::CategoricalVariable$new(
+      to_char_vector(seq(parameters$n_heterogeneity_groups)),
+      to_char_vector(discretise_normal(zeta_norm, parameters$n_heterogeneity_groups))
+    )
+  } else {
+    zeta <- individual::DoubleVariable$new(rep(1, size))
+    zeta_group <- individual::CategoricalVariable$new(
+      to_char_vector(seq(parameters$n_heterogeneity_groups)),
+      rep('1', size)
+    )
+  }
 
   # Initialise infectiousness of humans -> mosquitoes
   # NOTE: not yet supporting initialisation of infectiousness of Treated individuals

@@ -64,21 +64,21 @@ create_processes <- function(
       events,
       parameters
     ),
-    create_mortality_process(variables, events$death, renderer, parameters),
+    create_mortality_process(variables, events, renderer, parameters),
     create_progression_process(
-      events$asymptomatic_progression, 
+      events$asymptomatic_progression,
       variables$state,
       'D',
       parameters$dd
     ),
     create_progression_process(
-      events$subpatent_progression, 
+      events$subpatent_progression,
       variables$state,
       'A',
       parameters$da
     ),
     create_progression_process(
-      events$recovery, 
+      events$recovery,
       variables$state,
       'U',
       parameters$du

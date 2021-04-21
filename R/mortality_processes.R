@@ -93,7 +93,6 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
       variables$rtss_boosted$queue_update(-1, died)
       variables$tbv_vaccinated$queue_update(-1, died)
 
-
       # onwards infectiousness
       variables$infectivity$queue_update(0, died)
 

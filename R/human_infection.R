@@ -87,7 +87,8 @@ simulate_infection <- function(
     clinical_infections,
     treated,
     infected_humans,
-    parameters
+    parameters,
+    variables$state$get_index_of('A')
   )
 }
 
@@ -286,14 +287,19 @@ schedule_infections <- function(
   clinical_infections,
   treated,
   infections,
-  parameters
+  parameters,
+  asymptomatics
   ) {
   included <- events$clinical_infection$get_scheduled()$or(
     events$asymptomatic_infection$get_scheduled()
   )$or(treated)$not()
 
   to_infect <- clinical_infections$and(included)
-  to_infect_asym <- clinical_infections$not()$and(infections)$and(included)
+  to_infect_asym <- clinical_infections$not()$and(infections)$and(
+    included
+  )$and(
+    asymptomatics$not()
+  )
 
   # change to symptomatic
   if(to_infect$size() > 0) {

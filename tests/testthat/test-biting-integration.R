@@ -1,4 +1,4 @@
-test_that('biting_process integrates mosquito effects and human infection', {
+test_that('competing_disease_update_process integrates competing outcome calculations', {
   population <- 4
   timestep <- 5
   parameters <- get_parameters(
@@ -6,11 +6,17 @@ test_that('biting_process integrates mosquito effects and human infection', {
   )
 
   renderer <- individual::Render$new(5)
-  events <- mockery::mock()
+  events <- create_events(parameters)
   age <- c(20, 24, 5, 39) * 365
-  variables <- list(birth = individual::DoubleVariable$new((-age + timestep)))
+  variables <- list(
+    birth = individual::DoubleVariable$new((-age + timestep)),
+    state = individual::CategoricalVariable$new(
+      c('A', 'U', 'S'),
+      c('A', 'U', 'S', 'S')
+    )
+  )
 
-  biting_process <- create_biting_process(
+  process <- competing_disease_update_process(
     renderer,
     list(), #solvers
     list(), #models
@@ -21,11 +27,15 @@ test_that('biting_process integrates mosquito effects and human infection', {
 
   bitten <- individual::Bitset$new(parameters$human_population)
   bites_mock <- mockery::mock(bitten)
-  infection_mock <- mockery::mock()
+  prob_infection <- c(0, 0, .2, .3)
+  infection_mock <- mockery::mock(prob_infection)
+  outcomes_mock <- mockery::mock(c(2, 3, 1, 1))
 
-  mockery::stub(biting_process, 'simulate_bites', bites_mock)
-  mockery::stub(biting_process, 'simulate_infection', infection_mock)
-  biting_process(timestep)
+  mockery::stub(process, 'simulate_bites', bites_mock)
+  mockery::stub(process, 'get_prob_infection', infection_mock)
+  mockery::stub(process, 'simulate_competing_outcomes', outcomes_mock)
+  mockery::stub(process, 'simulate_infection', mockery::mock())
+  process(timestep)
 
   mockery::expect_args(
     bites_mock,
@@ -44,12 +54,18 @@ test_that('biting_process integrates mosquito effects and human infection', {
     infection_mock,
     1,
     variables,
-    events,
     bitten,
-    age,
     parameters,
-    timestep,
-    renderer
+    timestep
+  )
+
+  expect_equivalent(
+    mockery::mock_args(outcomes_mock)[[1]][[1]],
+    matrix(c(
+      0, 0, .2, .3,
+      1/parameters$da, 0, 0, 0,
+      0, 1/parameters$du, 0, 0
+    ), ncol=3, nrow=4)
   )
 })
 

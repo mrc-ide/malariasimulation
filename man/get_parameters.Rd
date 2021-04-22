@@ -254,6 +254,8 @@ miscellaneous:
 simulation
 \item individual_mosquitoes - boolean whether adult mosquitoes are modelled
 individually or compartmentaly
+\item enable_heterogeneity - boolean whether to include heterogeneity in biting
+rates
 }}
 }
 \description{

@@ -20,10 +20,7 @@ test_that('simulate_infection integrates different types of infection and schedu
   total_eir <- 5
   eir <- rep(total_eir / population, population)
 
-  bitten <- individual::Bitset$new(population)$insert(c(1, 3, 5, 7))
   boost_immunity_mock <- mockery::mock()
-  infected <- individual::Bitset$new(population)$insert(c(1, 3, 5))
-  infection_mock <- mockery::mock(infected)
   clinical <- individual::Bitset$new(population)$insert(c(1, 3))
   clinical_infection_mock <- mockery::mock(clinical)
   severe <- individual::Bitset$new(population)$insert(1)
@@ -33,38 +30,21 @@ test_that('simulate_infection integrates different types of infection and schedu
   schedule_mock <- mockery::mock()
 
   mockery::stub(simulate_infection, 'boost_immunity', boost_immunity_mock)
-  mockery::stub(simulate_infection, 'calculate_infections', infection_mock)
   mockery::stub(simulate_infection, 'calculate_clinical_infections', clinical_infection_mock)
   mockery::stub(simulate_infection, 'update_severe_disease', severe_infection_mock)
   mockery::stub(simulate_infection, 'calculate_treated', treated_mock)
   mockery::stub(simulate_infection, 'schedule_infections', schedule_mock)
+
+  infected <- individual::Bitset$new(population)$insert(c(1, 3, 5))
+
   simulate_infection(
     variables,
     events,
-    bitten,
+    infected,
     age,
     parameters,
     timestep,
     renderer
-  )
-
-  mockery::expect_args(
-    boost_immunity_mock,
-    1,
-    variables$ib,
-    bitten,
-    variables$last_boosted_ib,
-    5,
-    parameters$ub
-  )
-
-  mockery::expect_args(
-    infection_mock,
-    1,
-    variables,
-    bitten,
-    parameters,
-    timestep
   )
 
   mockery::expect_args(
@@ -109,9 +89,9 @@ test_that('simulate_infection integrates different types of infection and schedu
   )
 })
 
-test_that('calculate_infections works various combinations of drug and vaccination', {
+test_that('get_prob_infection works with various combinations of drug and vaccination', {
   timestep <- 50
-  parameters <- get_parameters()
+  parameters <- get_parameters(list(human_population = 4))
   parameters <- set_drugs(parameters, list(AL_params, DHA_PQP_params))
   parameters <- set_clinical_treatment(parameters, 2, 1, .5)
 
@@ -135,23 +115,21 @@ test_that('calculate_infections works various combinations of drug and vaccinati
   weibull_mock <- mockery::mock(.2)
   rtss_antibodies_mock <- mockery::mock(c(2, 3))
   rtss_efficacy_mock <- mockery::mock(c(.2, .3))
-  bernoulli_mock <- mockery::mock(2)
-  mockery::stub(calculate_infections, 'blood_immunity', immunity_mock)
-  mockery::stub(calculate_infections, 'dweibull', weibull_mock)
-  mockery::stub(calculate_infections, 'calculate_rtss_antibodies', rtss_antibodies_mock)
-  mockery::stub(calculate_infections, 'calculate_rtss_efficacy', rtss_efficacy_mock)
-  mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
-
+  mockery::stub(get_prob_infection, 'blood_immunity', immunity_mock)
+  mockery::stub(get_prob_infection, 'dweibull', weibull_mock)
+  mockery::stub(get_prob_infection, 'calculate_rtss_antibodies', rtss_antibodies_mock)
+  mockery::stub(get_prob_infection, 'calculate_rtss_efficacy', rtss_efficacy_mock)
   bitten_humans <- individual::Bitset$new(4)$insert(c(1, 2, 3, 4))
 
-  infections <- calculate_infections(
-    variables,
-    bitten_humans, 
-    parameters,
-    timestep
+  expect_equal(
+    get_prob_infection(
+      variables,
+      bitten_humans,
+      parameters,
+      timestep
+    ),
+    c(0, .2 * .8 * .8, .3 * .7, .4)
   )
-
-  expect_equal(infections$to_vector(), 3)
 
   mockery::expect_args(immunity_mock, 1, c(.3, .5, .9), parameters)
   mockery::expect_args(
@@ -177,12 +155,6 @@ test_that('calculate_infections works various combinations of drug and vaccinati
     c(2, 3),
     parameters
   )
-  mockery::expect_args(
-    bernoulli_mock,
-    1,
-    c(.2 * .8 * .8, .3 * .7, .4)
-  )
-
 })
 
 
@@ -388,7 +360,7 @@ test_that('schedule_infections correctly schedules new infections', {
 })
 
 test_that('prophylaxis is considered for medicated humans', {
-  parameters <- get_parameters()
+  parameters <- get_parameters(list(human_population = 4))
   parameters <- set_drugs(parameters, list(AL_params, DHA_PQP_params))
   events <- create_events(parameters)
   timestep <- 50
@@ -406,14 +378,10 @@ test_that('prophylaxis is considered for medicated humans', {
   )
 
   bitten <- individual::Bitset$new(4)$insert(seq(4))
-  m <- mockery::mock(seq(3))
-  mockery::stub(calculate_infections, 'bernoulli_multi_p', m)
-
-  calculate_infections(variables, bitten, parameters, timestep)
 
   expect_equal(
-    mockery::mock_args(m)[[1]][[1]],
-    c(.590, .384, .590),
+    c(0, .590, .384, .590),
+    get_prob_infection(variables, bitten, parameters, timestep),
     tolerance = 1e-3
   )
 })

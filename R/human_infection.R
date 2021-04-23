@@ -1,3 +1,65 @@
+#' @title Calculate the probability of infection for each individual
+#' @description
+#' Give the probability of each human becoming infected
+#' @param variables a list of all of the model variables
+#' @param bitten_humans bitset of bitten humans
+#' @param parameters model parameters
+#' @param timestep current timestep
+#' @noRd
+#' @importFrom stats dweibull
+get_prob_infection <- function(
+  variables,
+  bitten_humans,
+  parameters,
+  timestep
+  ) {
+  source_vector <- variables$state$get_index_of(
+    c('S', 'A', 'U'))$and(bitten_humans)$to_vector()
+
+  b <- blood_immunity(variables$ib$get_values(source_vector), parameters)
+
+  # calculate prophylaxis
+  prophylaxis <- rep(0, length(source_vector))
+  drug <- variables$drug$get_values(source_vector)
+  medicated <- (drug > 0)
+  if (any(medicated)) {
+    drug <- drug[medicated]
+    drug_time <- variables$drug_time$get_values(source_vector[medicated])
+    prophylaxis[medicated] <- dweibull(
+      timestep - drug_time,
+      parameters$drug_prophylaxis_shape[drug],
+      parameters$drug_prophylaxis_scale[drug]
+    )
+  }
+
+  # calculate vaccine efficacy
+  vaccine_efficacy <- rep(0, length(source_vector))
+  vaccine_times <- pmax(
+    variables$rtss_vaccinated$get_values(source_vector),
+    variables$rtss_boosted$get_values(source_vector)
+  )
+  vaccinated <- which(vaccine_times > -1)
+  if (length(vaccinated) > 0) {
+    vaccinated_index <- source_vector[vaccine_times > -1]
+    antibodies <- calculate_rtss_antibodies(
+      timestep - vaccine_times[vaccinated],
+      variables$rtss_cs$get_values(vaccinated_index),
+      variables$rtss_rho$get_values(vaccinated_index),
+      variables$rtss_ds$get_values(vaccinated_index),
+      variables$rtss_dl$get_values(vaccinated_index),
+      parameters
+    )
+    vaccine_efficacy[vaccinated] <- calculate_rtss_efficacy(
+      antibodies,
+      parameters
+    )
+  }
+
+  prob_infection <- rep(0, parameters$human_population)
+  prob_infection[source_vector] <- b * (1 - prophylaxis) * (1 - vaccine_efficacy)
+  prob_infection
+}
+
 #' @title Simulate malaria infection in humans
 #' @description
 #' Updates human states and variables to represent asymptomatic/clinical/severe
@@ -12,30 +74,12 @@
 simulate_infection <- function(
   variables,
   events,
-  bitten_humans,
+  infected_humans,
   age,
   parameters,
   timestep,
   renderer
   ) {
-  if (bitten_humans$size() > 0) {
-    boost_immunity(
-      variables$ib,
-      bitten_humans,
-      variables$last_boosted_ib,
-      timestep,
-      parameters$ub
-    )
-  }
-
-  # Calculate Infected
-  infected_humans <- calculate_infections(
-    variables,
-    bitten_humans,
-    parameters,
-    timestep
-  )
-
   if (infected_humans$size() > 0) {
     boost_immunity(
       variables$ica,
@@ -69,7 +113,6 @@ simulate_infection <- function(
     )
   }
 
-
   treated <- calculate_treated(
     variables,
     clinical_infections,
@@ -89,68 +132,6 @@ simulate_infection <- function(
     infected_humans,
     parameters,
     variables$state$get_index_of('A')
-  )
-}
-
-#' @title Calculate overall infections for bitten humans
-#' @description
-#' Sample infected humans given prophylaxis and vaccination
-#' @param variables a list of all of the model variables
-#' @param bitten_humans bitset of bitten humans
-#' @param parameters model parameters
-#' @param timestep current timestep
-#' @noRd
-#' @importFrom stats dweibull
-calculate_infections <- function(
-  variables,
-  bitten_humans,
-  parameters,
-  timestep
-  ) {
-  source_humans <- variables$state$get_index_of(
-    c('S', 'A', 'U'))$and(bitten_humans)
-
-  b <- blood_immunity(variables$ib$get_values(source_humans), parameters)
-
-  source_vector <- source_humans$to_vector()
-
-  # calculate prophylaxis
-  prophylaxis <- rep(0, length(source_vector))
-  drug <- variables$drug$get_values(source_vector)
-  medicated <- (drug > 0)
-  if (any(medicated)) {
-    drug <- drug[medicated]
-    drug_time <- variables$drug_time$get_values(source_vector[medicated])
-    prophylaxis[medicated] <- dweibull(
-      timestep - drug_time,
-      parameters$drug_prophylaxis_shape[drug],
-      parameters$drug_prophylaxis_scale[drug]
-    )
-  }
-
-  # calculate vaccine efficacy
-  vaccine_efficacy <- rep(0, length(source_vector))
-  vaccine_times <- pmax(
-    variables$rtss_vaccinated$get_values(source_vector),
-    variables$rtss_boosted$get_values(source_vector)
-  )
-  vaccinated <- which(vaccine_times > -1)
-  if (length(vaccinated) > 0) {
-    vaccinated_index <- source_vector[vaccine_times > -1]
-    antibodies <- calculate_rtss_antibodies(
-      timestep - vaccine_times[vaccinated],
-      variables$rtss_cs$get_values(vaccinated_index),
-      variables$rtss_rho$get_values(vaccinated_index),
-      variables$rtss_ds$get_values(vaccinated_index),
-      variables$rtss_dl$get_values(vaccinated_index),
-      parameters
-    )
-    vaccine_efficacy[vaccinated] <- calculate_rtss_efficacy(antibodies, parameters)
-  }
-
-  bitset_at(
-    source_humans,
-    bernoulli_multi_p(b * (1 - prophylaxis) * (1 - vaccine_efficacy))
   )
 }
 
@@ -309,8 +290,6 @@ schedule_infections <- function(
       infection_times
     )
     events$detection$schedule(to_infect, infection_times)
-    events$subpatent_infection$clear_schedule(to_infect)
-    events$recovery$clear_schedule(to_infect)
   }
 
   if(to_infect_asym$size() > 0) {
@@ -320,8 +299,6 @@ schedule_infections <- function(
       infection_times
     )
     events$detection$schedule(to_infect_asym, infection_times)
-    events$subpatent_infection$clear_schedule(to_infect_asym)
-    events$recovery$clear_schedule(to_infect_asym)
   }
 }
 

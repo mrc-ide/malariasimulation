@@ -1,7 +1,7 @@
-#' @title Biting process
-#' @description
-#' This is the biting process. It results in human and mosquito infection and
-#' mosquito death.
+#' @title Competing disease update process
+#' @description This process manages the infection, asymptomatic progression and
+#' recovery transitions.
+#' 
 #' @param renderer the model renderer object
 #' @param solvers mosquito ode solvers
 #' @param models mosquito ode models
@@ -9,7 +9,7 @@
 #' @param events a list of all of the model events
 #' @param parameters model pararmeters
 #' @noRd
-create_biting_process <- function(
+competing_disease_update_process <- function(
   renderer,
   solvers,
   models,
@@ -18,29 +18,53 @@ create_biting_process <- function(
   parameters
   ) {
   function(timestep) {
-    # Calculate combined EIR
     age <- get_age(variables$birth$get_values(), timestep)
-
-    bitten_humans <- simulate_bites(
-      renderer,
-      solvers,
-      models,
+    prob_infection <- get_prob_infection(
       variables,
-      events,
-      age,
+      simulate_bites(
+        renderer,
+        solvers,
+        models,
+        variables,
+        events,
+        age,
+        parameters,
+        timestep
+      ),
       parameters,
       timestep
     )
-
+    prob_asymptomatic_progression <- get_prob_progression(
+      'A',
+      variables$state,
+      1 / parameters$da,
+      parameters
+    )
+    prob_subpatent_progression <- get_prob_progression(
+      'U',
+      variables$state,
+      1 / parameters$du,
+      parameters
+    )
+    prob_outcome <- cbind(
+      prob_infection,
+      prob_asymptomatic_progression,
+      prob_subpatent_progression
+    )
+    outcomes <- simulate_competing_outcomes(prob_outcome)
     simulate_infection(
       variables,
       events,
-      bitten_humans,
+      individual::Bitset$new(
+        parameters$human_population
+      )$insert(which(outcomes == 1)),
       age,
       parameters,
       timestep,
       renderer
     )
+    events$subpatent_progression$schedule(which(outcomes == 2), 0)
+    events$recovery$schedule(which(outcomes == 3), 0)
   }
 }
 
@@ -173,6 +197,16 @@ simulate_bites <- function(
         f
       )
     }
+  }
+
+  if (bitten_humans$size() > 0) {
+    boost_immunity(
+      variables$ib,
+      bitten_humans,
+      variables$last_boosted_ib,
+      timestep,
+      parameters$ub
+    )
   }
 
   renderer$render('EIR', EIR, timestep)

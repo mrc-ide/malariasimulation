@@ -240,7 +240,7 @@ get_parameters <- function(overrides = list()) {
   parameters <- list(
     dd    = 5,
     dt    = 5,
-    da    = 195,
+    da    = 200,
     du    = 110,
     del   = 6.64,
     dl    = 3.72,
@@ -259,8 +259,8 @@ get_parameters <- function(overrides = list()) {
     # blood immunity parameters
     b0    = 0.59,
     b1    = 0.5,
-    ib0   = 43.8787,
-    kb    = 2.15506,
+    ib0   = 43.9,
+    kb    = 2.16,
     # immunity boost grace periods
     ub    = 7.2,
     uc    = 6.06,

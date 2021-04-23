@@ -49,14 +49,11 @@ create_processes <- function(
   }
 
   # ==============================
-  # Biting and mortality processes
+  # Infection, progression and mortality processes
   # ==============================
-  # schedule infections for humans and set last_boosted_*
-  # move mosquitoes into incubating state
-  # kill mosquitoes caught in vector control
   processes <- c(
     processes,
-    create_biting_process(
+    competing_disease_update_process(
       renderer,
       solvers,
       models,
@@ -64,7 +61,12 @@ create_processes <- function(
       events,
       parameters
     ),
-
+    create_progression_process(
+      events$asymptomatic_progression,
+      variables$state,
+      'D',
+      parameters$dd
+    ),
     create_mortality_process(variables, events, renderer, parameters)
   )
 

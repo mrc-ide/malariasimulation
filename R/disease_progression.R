@@ -19,30 +19,25 @@ create_infection_update_listener <- function(
   }
 }
 
-#' @title Schedule progression of human disease at the start of the simulation
-#'
-#' @param event the event to schedule
-#' @param state the human state variable
-#' @param from_state the state this event applies to
-#' @param rate the average time spent in this state
-#' @noRd
-initialise_progression <- function(event, state, from_state, rate) {
-  target <- state$get_index_of(from_state)
-  event$schedule(
-    target,
-    log_uniform(target$size(), rate)
-  )
+create_progression_process <- function(event, state, from_state, rate) {
+  function(timestep) {
+    event$schedule(state$get_index_of(from_state)$sample(1/rate), 0)
+  }
 }
 
-#' @title Modelling the progression of the human disease
-#' @description schedules follow up infection events with the log uniform dist.
-#'
-#' @param event the event to schedule
-#' @param rate the average time spent in this state
-#' @noRd
-create_progression_listener <- function(event, rate) {
+get_prob_progression <- function(from_state, state, rate, parameters) {
+  prob <- rep(0, parameters$human_population)
+  prob[state$get_index_of(from_state)$to_vector()] <- rate
+  prob
+}
+
+create_rate_listener <- function(from_state, to_state, renderer) {
   function(timestep, target) {
-    event$schedule(target, log_uniform(target$size(), rate))
+    renderer$render(
+      paste0('rate_', from_state, '_', to_state),
+      target$size(),
+      timestep
+    )
   }
 }
 

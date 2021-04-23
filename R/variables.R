@@ -56,7 +56,7 @@ initial_immunity <- function(parameter, age) {
 create_variables <- function(parameters) {
   size <- parameters$human_population
 
-  initial_age <- floor(rexp(size, rate=1/parameters$average_age))
+  initial_age <- round(rexp(size, rate=1/parameters$average_age))
 
   initial_counts <- calculate_initial_counts(parameters)
 

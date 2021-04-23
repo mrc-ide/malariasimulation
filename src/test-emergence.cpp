@@ -6,6 +6,12 @@
 #include "test-mock.h"
 #include "mosquito_emergence.h"
 
+integration_function_t mock_integration = [](
+    const state_t&,
+    state_t&,
+    double t
+) {};
+
 context("Emergence works") {
 
     test_that("emergence process fails when there are not enough individuals") {

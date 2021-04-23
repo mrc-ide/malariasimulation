@@ -62,3 +62,7 @@ bernoulli_multi_p_cpp <- function(p) {
     .Call(`_malariasimulation_bernoulli_multi_p_cpp`, p)
 }
 
+simulate_competing_outcomes <- function(p) {
+    .Call(`_malariasimulation_simulate_competing_outcomes`, p)
+}
+

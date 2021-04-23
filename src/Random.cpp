@@ -31,3 +31,11 @@ std::vector<size_t> Random::sample(size_t n, size_t size, bool replacement) {
     Rcpp::IntegerVector res = Rcpp::sample(n, size, replacement, R_NilValue, false);
     return Rcpp::as<std::vector<size_t>>(res);
 }
+
+size_t Random::sample_int(size_t max, std::vector<double> prob) {
+    return Rcpp::sample(max, 1, false, Rcpp::wrap(prob), false)[0];
+}
+
+std::vector<double> Random::runif(size_t n) {
+    return Rcpp::as<std::vector<double>>(Rcpp::runif(n));
+}

@@ -187,6 +187,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// simulate_competing_outcomes
+Rcpp::IntegerVector simulate_competing_outcomes(Rcpp::NumericMatrix p);
+RcppExport SEXP _malariasimulation_simulate_competing_outcomes(SEXP pSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type p(pSEXP);
+    rcpp_result_gen = Rcpp::wrap(simulate_competing_outcomes(p));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 RcppExport SEXP run_testthat_tests();
 
@@ -204,6 +215,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_malariasimulation_solver_get_states", (DL_FUNC) &_malariasimulation_solver_get_states, 1},
     {"_malariasimulation_solver_step", (DL_FUNC) &_malariasimulation_solver_step, 1},
     {"_malariasimulation_bernoulli_multi_p_cpp", (DL_FUNC) &_malariasimulation_bernoulli_multi_p_cpp, 1},
+    {"_malariasimulation_simulate_competing_outcomes", (DL_FUNC) &_malariasimulation_simulate_competing_outcomes, 1},
     {"run_testthat_tests", (DL_FUNC) &run_testthat_tests, 0},
     {NULL, NULL, 0}
 };

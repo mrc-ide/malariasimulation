@@ -68,6 +68,30 @@ competing_disease_update_process <- function(
   }
 }
 
+#' @importFrom stats runif 
+simulate_competing_outcomes <- function(prob_outcome) {
+  prob_occurs <- apply(prob_outcome, 1, function(p) {
+    1 - prod(1 - p)
+  })
+  occurs <- runif(nrow(prob_outcome)) < prob_occurs
+  outcomes <- rep(NA, nrow(prob_outcome))
+  n_occurances <- sum(occurs)
+  if (n_occurances == 0) {
+    return(outcomes)
+  }
+
+  if (n_occurances == 1) {
+    # apply doesn't work for vectors in the same way
+    p <- prob_outcome[occurs, ]
+    outcomes[occurs] <- sample.int(n = length(p), size = 1, prob = p)
+  } else {
+    outcomes[occurs] <- apply(prob_outcome[occurs, ], 1, function(p) {
+      sample.int(n = length(p), size = 1, prob = p)
+    })
+  }
+  outcomes
+}
+
 #' @importFrom stats rpois
 simulate_bites <- function(
   renderer,

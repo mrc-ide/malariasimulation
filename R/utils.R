@@ -1,5 +1,6 @@
 vnapply <- function(X, FUN, ...) vapply(X, FUN, ..., numeric(1))
 vlapply <- function(X, FUN, ...) vapply(X, FUN, ..., logical(1))
+vcapply <- function(X, FUN, ...) vapply(X, FUN, ..., character(1))
 
 #' @importFrom stats rbinom 
 bernoulli <- function(size, p) sample.int(size, rbinom(1, size, min(p, 1)))

@@ -48,7 +48,7 @@ test_that('RTS,S fails pre-emptively', {
 
 test_that('Infection considers vaccine efficacy', {
   timestep <- 100
-  parameters <- get_parameters(list(human_population = 4))
+  parameters <- get_parameters()
   events <- create_events(parameters)
   variables <- create_variables(parameters)
 
@@ -84,13 +84,17 @@ test_that('Infection considers vaccine efficacy', {
     rep(.2, 4)
   )
 
+  bernoulli_mock <- mockery::mock(c(1, 2))
+  mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
+  calculate_infections(
+    variables,
+    bitten_humans = individual::Bitset$new(4)$insert(seq(4)),
+    parameters,
+    timestep
+  )
+
   expect_equal(
-    get_prob_infection(
-      variables,
-      bitten_humans = individual::Bitset$new(4)$insert(seq(4)),
-      parameters,
-      timestep
-    ),
+    mockery::mock_args(bernoulli_mock)[[1]][[1]],
     c(0.590, 0.590, 0.215, 0.244),
     tolerance=1e-3
   )

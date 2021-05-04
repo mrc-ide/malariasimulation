@@ -8,7 +8,6 @@
 #ifndef SRC_MOSQUITO_EMERGENCE_H_
 #define SRC_MOSQUITO_EMERGENCE_H_
 
-#include "solver.h"
 #include <individual.h>
 
 Rcpp::XPtr<process_t> create_mosquito_emergence_process_cpp(

@@ -16,8 +16,6 @@ public:
     virtual std::vector<size_t> bernoulli(size_t, double) = 0;
     virtual std::vector<size_t> bernoulli_multi_p(const std::vector<double>) = 0;
     virtual std::vector<size_t> sample(size_t, size_t, bool) = 0;
-    virtual size_t sample_int(size_t, std::vector<double>) = 0;
-    virtual std::vector<double> runif(size_t) = 0;
     virtual ~RandomInterface() = default;
 };
 
@@ -30,8 +28,6 @@ public:
     virtual std::vector<size_t> bernoulli(size_t, double);
     virtual std::vector<size_t> bernoulli_multi_p(const std::vector<double>);
     virtual std::vector<size_t> sample(size_t, size_t, bool);
-    virtual size_t sample_int(size_t, std::vector<double>);
-    virtual std::vector<double> runif(size_t);
     virtual ~Random() = default;
     Random(const Random &other) = delete;
     Random(Random &&other) = delete;

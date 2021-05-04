@@ -25,12 +25,6 @@ create_progression_process <- function(event, state, from_state, rate) {
   }
 }
 
-get_prob_progression <- function(from_state, state, rate, parameters) {
-  prob <- rep(0, parameters$human_population)
-  prob[state$get_index_of(from_state)$to_vector()] <- rate
-  prob
-}
-
 create_rate_listener <- function(from_state, to_state, renderer) {
   function(timestep, target) {
     renderer$render(

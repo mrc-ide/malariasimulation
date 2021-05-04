@@ -25,11 +25,14 @@ struct MockCategory : public CategoricalVariable {
 class MockRandom : public RandomInterface {
 public:
     MAKE_MOCK2(bernoulli, std::vector<size_t>(size_t, double), override);
-    MAKE_MOCK1(bernoulli_multi_p, std::vector<size_t>(const std::vector<double>), override);
     MAKE_MOCK3(sample, std::vector<size_t>(size_t, size_t, bool), override);
-    MAKE_MOCK2(sample_int, size_t(size_t, std::vector<double>), override);
-    MAKE_MOCK1(runif, std::vector<double>(size_t), override);
 };
 
+
+integration_function_t mock_integration = [](
+    const state_t&,
+    state_t&,
+    double t
+) {};
 
 #endif /* SRC_TEST_MOCK_H_ */

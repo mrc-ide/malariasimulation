@@ -11,7 +11,9 @@
 Solver::Solver(
     const std::vector<double>& init,
     const integration_function_t& ode
-    ) : state(init), ode(ode)
+    ) :
+    state(init),
+    ode(ode)
 {
     rk = boost::numeric::odeint::make_dense_output(
         a_tolerance,
@@ -20,15 +22,37 @@ Solver::Solver(
     );
 }
 
+Solver::Solver(
+    const std::vector<double>& init,
+    const integration_function_t& ode,
+    const observer_t& observer
+    ) :
+    Solver(init, ode)
+{
+    this->observer = observer;
+}
+
 void Solver::step() {
-    boost::numeric::odeint::integrate_adaptive(
-        rk,
-        ode,
-        state,
-        t,
-        t + dt,
-        dt
-    );
+    if (observer) {
+        boost::numeric::odeint::integrate_adaptive(
+            rk,
+            ode,
+            state,
+            t,
+            t + dt,
+            dt,
+            observer
+        );
+    } else {
+        boost::numeric::odeint::integrate_adaptive(
+            rk,
+            ode,
+            state,
+            t,
+            t + dt,
+            dt
+        );
+    }
     ++t;
 }
 

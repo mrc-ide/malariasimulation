@@ -9,6 +9,7 @@
 #define SRC_ADULT_MOSQUITO_ODE_H_
 
 #include "mosquito_ode.h"
+#include "history.h"
 
 /*
  * The adult states are:
@@ -20,11 +21,11 @@ enum class AdultODEState : size_t {S = 3, E = 4, I = 5};
 
 struct AdultMosquitoModel {
     MosquitoModel growth_model;
-    std::queue<double> lagged_incubating; //last tau values for incubating mosquitos
     double mu; //death rate for adult female mosquitoes
     const double tau; //extrinsic incubation period
-    double foim; //force of infection towards mosquitoes
-    AdultMosquitoModel(MosquitoModel, double, double, double);
+    History susceptible; //history for susceptible counts
+    History foim; //history for force of infection towards mosquitoes
+    AdultMosquitoModel(MosquitoModel, double, double, double, double);
 };
 
 integration_function_t create_ode(AdultMosquitoModel& model);

@@ -18,11 +18,17 @@
 
 using state_t = std::vector<double>;
 using integration_function_t = std::function<void (const state_t&, state_t&, double)>;
+using observer_t = std::function<void (const state_t&, double)>;
 
 struct Solver {
     Solver(
         const std::vector<double>& init,
         const integration_function_t& ode
+    );
+    Solver(
+        const std::vector<double>& init,
+        const integration_function_t& ode,
+        const observer_t& observer
     );
     //solver fields
     boost::numeric::odeint::dense_output_runge_kutta<
@@ -37,6 +43,7 @@ struct Solver {
     const double dt = 1.;
     state_t state;
     integration_function_t ode;
+    observer_t observer;
 };
 
 #endif /* SRC_SOLVER_H_ */

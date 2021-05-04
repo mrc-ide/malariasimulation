@@ -37,7 +37,8 @@ parameterise_mosquito_models <- function(parameters) {
             growth_model,
             parameters$mum[[i]],
             parameters$dem,
-            susceptible * parameters$init_foim
+            susceptible,
+            parameters$init_foim
           )
         )
       }

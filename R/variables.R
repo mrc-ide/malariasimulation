@@ -1,12 +1,31 @@
-initial_immunity <- function(parameter, age) {
-  if (length(parameter) == 1) {
-    return(rep(parameter, length(age)))
-  } else if (length(parameter) == 100) {
-    age <- floor(age / 365)
-    age[age > 99] <- 99
-    return(parameter[age + 1])
+initial_immunity <- function(parameter, age, eq = NULL, eq_name = NULL) {
+  if (!is.null(eq) && !is.null(eq_name)) {
+    return(vnapply(
+      age / 365,
+      function(a) {
+        eq[which.max(a < eq[,'age']), eq_name]
+      }
+    ))
   }
-  stop('unsupported immunity parameter')
+  rep(parameter, length(age))
+}
+
+initial_state <- function(parameters, age) {
+  ibm_states <- c('S', 'A', 'D', 'U', 'Tr')
+  if (!is.null(parameters$eq)) {
+    eq_states <- c('S', 'A', 'D', 'U', 'T')
+    return(vcapply(
+      age / 365,
+      function(a) {
+        sample(
+          ibm_states,
+          size = 1,
+          prob = parameters$eq[which.max(a < parameters$eq[, 'age']), eq_states]
+        )
+      }
+    ))
+  }
+  rep(ibm_states, times = calculate_initial_counts(parameters))
 }
 
 #' @title Define model variables
@@ -58,13 +77,11 @@ create_variables <- function(parameters) {
 
   initial_age <- round(rexp(size, rate=1/parameters$average_age))
 
-  initial_counts <- calculate_initial_counts(parameters)
-
   # Define variables
   states <- c('S', 'D', 'A', 'U', 'Tr')
   state <- individual::CategoricalVariable$new(
     states,
-    rep(states, times = initial_counts)
+    initial_state(parameters, initial_age)
   )
   birth <- individual::DoubleVariable$new(-initial_age)
   last_boosted_ib <- individual::DoubleVariable$new(rep(-1, size) )
@@ -76,7 +93,7 @@ create_variables <- function(parameters) {
 
   # Maternal immunity
   icm <- individual::DoubleVariable$new(
-    initial_immunity(parameters$init_icm, initial_age)
+    initial_immunity(parameters$init_icm, initial_age, parameters$eq, 'ICM')
   )
 
   ivm <- individual::DoubleVariable$new(
@@ -85,11 +102,11 @@ create_variables <- function(parameters) {
 
   # Pre-erythoctic immunity
   ib  <- individual::DoubleVariable$new(
-    initial_immunity(parameters$init_ib, initial_age)
+    initial_immunity(parameters$init_ib, initial_age, parameters$eq, 'IB')
   )
   # Acquired immunity to clinical disease
   ica <- individual::DoubleVariable$new(
-    initial_immunity(parameters$init_ica, initial_age)
+    initial_immunity(parameters$init_ica, initial_age, parameters$eq, 'ICA')
   )
   # Acquired immunity to severe disease
   iva <- individual::DoubleVariable$new(
@@ -97,7 +114,7 @@ create_variables <- function(parameters) {
   )
   # Acquired immunity to detectability
   id <- individual::DoubleVariable$new(
-    initial_immunity(parameters$init_id, initial_age)
+    initial_immunity(parameters$init_id, initial_age, parameters$eq, 'ID')
   )
 
   if (parameters$enable_heterogeneity) {

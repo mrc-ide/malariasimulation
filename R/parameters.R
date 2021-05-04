@@ -454,15 +454,7 @@ get_parameters <- function(overrides = list()) {
 #' @param eq the equilibrium solution output
 #' @export
 parameterise_human_equilibrium <- function(parameters, eq) {
-  state_props <- colSums(eq$states[,c('S', 'D', 'A', 'U')])
-  parameters$s_proportion <- state_props[['S']]
-  parameters$d_proportion <- state_props[['D']]
-  parameters$a_proportion <- state_props[['A']]
-  parameters$u_proportion <- state_props[['U']]
-  parameters$init_ica <- eq$states[,'ICA']
-  parameters$init_icm <- eq$states[,'ICM']
-  parameters$init_ib <- eq$states[,'IB']
-  parameters$init_id <- eq$states[,'ID']
+  parameters$eq <- eq$states
   parameters$init_foim <- eq$FOIM
   parameters
 }

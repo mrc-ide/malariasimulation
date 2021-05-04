@@ -1,5 +1,5 @@
-initial_immunity <- function(parameter, age, eq, eq_name) {
-  if (!missing(eq) && !missing(eq_name)) {
+initial_immunity <- function(parameter, age, eq = NULL, eq_name = NULL) {
+  if (!is.null(eq) && !is.null(eq_name)) {
     return(vnapply(
       age / 365,
       function(a) {
@@ -11,8 +11,8 @@ initial_immunity <- function(parameter, age, eq, eq_name) {
 }
 
 initial_state <- function(parameters, age) {
+  ibm_states <- c('S', 'A', 'D', 'U', 'Tr')
   if (!is.null(parameters$eq)) {
-    ibm_states <- c('S', 'A', 'D', 'U', 'Tr')
     eq_states <- c('S', 'A', 'D', 'U', 'T')
     return(vcapply(
       age / 365,
@@ -25,7 +25,7 @@ initial_state <- function(parameters, age) {
       }
     ))
   }
-  rep(states, times = calculate_initial_counts(parameters))
+  rep(ibm_states, times = calculate_initial_counts(parameters))
 }
 
 #' @title Define model variables

@@ -1,25 +1,30 @@
 test_that('total_M and EIR functions are consistent with equilibrium EIR', {
   EIR <- 5
-  jamie_parameters <- malariaEquilibrium::load_parameter_set()
-  h_eq <- malariaEquilibrium::human_equilibrium_no_het(
+  eq_params <- malariaEquilibrium::load_parameter_set()
+  omega <- 1 - eq_params$rho * eq_params$eta / (eq_params$eta + 1/eq_params$a0)
+  alpha <- eq_params$f * eq_params$Q0
+  states <- malariaEquilibrium::human_equilibrium_no_het(
     EIR,
     0,
-    jamie_parameters,
+    eq_params,
     0:99
   )
-  foim <- sum(h_eq[,'inf'] * h_eq[,'psi'])
+  eq <- list(
+    states = states,
+    FOIM = sum(states[,'inf'] * states[,'psi']) * alpha / omega
+  )
   population <- 100000
   parameters <- get_parameters(c(
-    translate_jamie(remove_unused_jamie(jamie_parameters)),
+    translate_jamie(remove_unused_jamie(eq_params)),
     list(
-      init_foim = foim,
+      init_foim = eq$FOIM,
       species = 'all',
       species_proportions = 1,
       human_population = population
     )
   ))
   parameters <- parameterise_mosquito_equilibrium(parameters, EIR)
-  m_eq <- initial_mosquito_counts(parameters, 1, foim, parameters$total_M)
+  m_eq <- initial_mosquito_counts(parameters, 1, eq$FOIM, parameters$total_M)
 
   #set up arguments for EIR calculation
   variables <- create_variables(parameters)

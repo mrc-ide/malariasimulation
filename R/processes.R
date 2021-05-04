@@ -18,7 +18,8 @@ create_processes <- function(
   parameters,
   models,
   solvers,
-  correlations
+  correlations,
+  sa_render
   ) {
   # ========
   # Immunity
@@ -32,7 +33,15 @@ create_processes <- function(
     # Acquired immunity
     create_exponential_decay_process(variables$ica, parameters$rc),
     create_exponential_decay_process(variables$iva, parameters$rva),
-    create_exponential_decay_process(variables$id, parameters$rid)
+    create_exponential_decay_process(variables$id, parameters$rid),
+    function(timestep) {
+      if (!is.null(sa_render)) {
+        sa_render$render(
+          variables,
+          timestep
+        )
+      }
+    }
   )
 
   if (parameters$individual_mosquitoes) {
@@ -54,6 +63,22 @@ create_processes <- function(
   # schedule infections for humans and set last_boosted_*
   # move mosquitoes into incubating state
   # kill mosquitoes caught in vector control
+  init_eir <- lapply(
+    seq_along(parameters$species),
+    function(species) {
+      LaggedValue$new(
+        parameters$de,
+        calculate_eir(
+          species,
+          solvers,
+          variables,
+          parameters,
+          0
+        )
+      )
+    }
+  )
+
   processes <- c(
     processes,
     create_biting_process(
@@ -62,7 +87,9 @@ create_processes <- function(
       models,
       variables,
       events,
-      parameters
+      parameters,
+      LaggedValue$new(parameters$delay_gam + 1, parameters$init_foim), # lagged FOIM
+      init_eir # lagged EIR
     ),
     create_mortality_process(variables, events, renderer, parameters),
     create_progression_process(

@@ -290,9 +290,7 @@ schedule_infections <- function(
   parameters,
   asymptomatics
   ) {
-  included <- events$clinical_infection$get_scheduled()$or(
-    events$asymptomatic_infection$get_scheduled()
-  )$or(treated)$not()
+  included <- treated$not()
 
   to_infect <- clinical_infections$and(included)
   to_infect_asym <- clinical_infections$not()$and(infections)$and(
@@ -304,20 +302,14 @@ schedule_infections <- function(
   # change to symptomatic
   if(to_infect$size() > 0) {
     infection_times <- log_uniform(to_infect$size(), parameters$de)
-    events$clinical_infection$schedule(
-      to_infect,
-      infection_times
-    )
-    events$detection$schedule(to_infect, infection_times)
+    events$clinical_infection$schedule(to_infect, 0)
+    events$detection$schedule(to_infect, 0)
   }
 
   if(to_infect_asym$size() > 0) {
     infection_times <- log_uniform(to_infect_asym$size(), parameters$de)
-    events$asymptomatic_infection$schedule(
-      to_infect_asym,
-      infection_times
-    )
-    events$detection$schedule(to_infect_asym, infection_times)
+    events$asymptomatic_infection$schedule(to_infect_asym, 0)
+    events$detection$schedule(to_infect_asym, 0)
   }
 }
 

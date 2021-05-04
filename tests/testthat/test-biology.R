@@ -20,7 +20,8 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR', {
       init_foim = eq$FOIM,
       species = 'all',
       species_proportions = 1,
-      human_population = population
+      human_population = population,
+      enable_heterogeneity = FALSE
     )
   ))
   parameters <- parameterise_mosquito_equilibrium(parameters, EIR)
@@ -28,28 +29,12 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR', {
 
   #set up arguments for EIR calculation
   variables <- create_variables(parameters)
-  age <- get_age(variables$birth$get_values(), 0)
-  zeta <- rep(1, length(age))
-  variables$zeta <- individual::DoubleVariable$new(zeta)
-  p_bitten <- prob_bitten(0, variables, 1, parameters)
-  psi <- unique_biting_rate(age, parameters)
-  .pi <- human_pi(zeta, psi)
-  Z <- average_p_repelled(p_bitten$prob_repelled, .pi, parameters$Q0)
-  W <- average_p_successful(p_bitten$prob_bitten_survives, .pi, parameters$Q0)
-  f <- blood_meal_rate(1, Z, parameters)
-  estimated_eir <- m_eq[[6]] * effective_biting_rate(
-    .pi,
-    age,
-    1,
-    p_bitten,
-    f,
-    W,
-    parameters
-  )
+  vector_models <- parameterise_mosquito_models(parameters)
+  solvers <- parameterise_solvers(vector_models, parameters)
+  estimated_eir <- calculate_eir(1, solvers, variables, parameters, 0)
   expect_equal(
     mean(estimated_eir) * 365,
-    EIR,
-    tolerance = 1
+    EIR
   )
 })
 
@@ -82,28 +67,12 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR (with h
 
   #set up arguments for EIR calculation
   variables <- create_variables(parameters)
-  age <- get_age(variables$birth$get_values(), 0)
-  zeta <- variables$zeta$get_values()
-  p_bitten <- prob_bitten(0, variables, 1, parameters)
-  psi <- unique_biting_rate(age, parameters)
-  .pi <- human_pi(zeta, psi)
-  Z <- average_p_repelled(p_bitten$prob_repelled, .pi, parameters$Q0)
-  W <- average_p_successful(p_bitten$prob_bitten_survives, .pi, parameters$Q0)
-  f <- blood_meal_rate(1, Z, parameters)
-  estimated_eir <- m_eq[[6]] * effective_biting_rate(
-    .pi,
-    age,
-    1,
-    p_bitten,
-    f,
-    W,
-    parameters
-  )
-
+  vector_models <- parameterise_mosquito_models(parameters)
+  solvers <- parameterise_solvers(vector_models, parameters)
+  estimated_eir <- calculate_eir(1, solvers, variables, parameters, 0)
   expect_equal(
     mean(estimated_eir) * 365,
-    EIR,
-    tolerance = 1
+    EIR
   )
 })
 

@@ -13,6 +13,18 @@ create_adult_solver <- function(model, init) {
     .Call(`_malariasimulation_create_adult_solver`, model, init)
 }
 
+create_history <- function(size, default_value) {
+    .Call(`_malariasimulation_create_history`, size, default_value)
+}
+
+history_at <- function(history, timestep) {
+    .Call(`_malariasimulation_history_at`, history, timestep)
+}
+
+history_push <- function(history, value, timestep) {
+    invisible(.Call(`_malariasimulation_history_push`, history, value, timestep))
+}
+
 carrying_capacity <- function(timestep, model_seasonality, g0, g, h, K0, R_bar) {
     .Call(`_malariasimulation_carrying_capacity`, timestep, model_seasonality, g0, g, h, K0, R_bar)
 }

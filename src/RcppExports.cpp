@@ -46,6 +46,42 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// create_history
+Rcpp::XPtr<History> create_history(size_t size, double default_value);
+RcppExport SEXP _malariasimulation_create_history(SEXP sizeSEXP, SEXP default_valueSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< size_t >::type size(sizeSEXP);
+    Rcpp::traits::input_parameter< double >::type default_value(default_valueSEXP);
+    rcpp_result_gen = Rcpp::wrap(create_history(size, default_value));
+    return rcpp_result_gen;
+END_RCPP
+}
+// history_at
+double history_at(Rcpp::XPtr<History> history, double timestep);
+RcppExport SEXP _malariasimulation_history_at(SEXP historySEXP, SEXP timestepSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<History> >::type history(historySEXP);
+    Rcpp::traits::input_parameter< double >::type timestep(timestepSEXP);
+    rcpp_result_gen = Rcpp::wrap(history_at(history, timestep));
+    return rcpp_result_gen;
+END_RCPP
+}
+// history_push
+void history_push(Rcpp::XPtr<History> history, double value, double timestep);
+RcppExport SEXP _malariasimulation_history_push(SEXP historySEXP, SEXP valueSEXP, SEXP timestepSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<History> >::type history(historySEXP);
+    Rcpp::traits::input_parameter< double >::type value(valueSEXP);
+    Rcpp::traits::input_parameter< double >::type timestep(timestepSEXP);
+    history_push(history, value, timestep);
+    return R_NilValue;
+END_RCPP
+}
 // carrying_capacity
 double carrying_capacity(const size_t timestep, const bool model_seasonality, const double g0, const std::vector<double>& g, const std::vector<double>& h, const double K0, const double R_bar);
 RcppExport SEXP _malariasimulation_carrying_capacity(SEXP timestepSEXP, SEXP model_seasonalitySEXP, SEXP g0SEXP, SEXP gSEXP, SEXP hSEXP, SEXP K0SEXP, SEXP R_barSEXP) {
@@ -194,6 +230,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_malariasimulation_create_adult_mosquito_model", (DL_FUNC) &_malariasimulation_create_adult_mosquito_model, 4},
     {"_malariasimulation_adult_mosquito_model_update", (DL_FUNC) &_malariasimulation_adult_mosquito_model_update, 5},
     {"_malariasimulation_create_adult_solver", (DL_FUNC) &_malariasimulation_create_adult_solver, 2},
+    {"_malariasimulation_create_history", (DL_FUNC) &_malariasimulation_create_history, 2},
+    {"_malariasimulation_history_at", (DL_FUNC) &_malariasimulation_history_at, 2},
+    {"_malariasimulation_history_push", (DL_FUNC) &_malariasimulation_history_push, 3},
     {"_malariasimulation_carrying_capacity", (DL_FUNC) &_malariasimulation_carrying_capacity, 7},
     {"_malariasimulation_eggs_laid", (DL_FUNC) &_malariasimulation_eggs_laid, 3},
     {"_malariasimulation_rainfall", (DL_FUNC) &_malariasimulation_rainfall, 4},

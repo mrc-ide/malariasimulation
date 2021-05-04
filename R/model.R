@@ -11,7 +11,7 @@
 #' @param parameters a named list of parameters to use
 #' @param correlations correlation parameters
 #' @export
-run_simulation <- function(timesteps, parameters = NULL, correlations = NULL) {
+run_simulation <- function(timesteps, parameters = NULL, correlations = NULL, sa_render = NULL) {
   if (is.null(parameters)) {
     parameters <- get_parameters()
   }
@@ -39,7 +39,8 @@ run_simulation <- function(timesteps, parameters = NULL, correlations = NULL) {
       parameters,
       vector_models,
       solvers,
-      correlations
+      correlations,
+      sa_render
     ),
     variables = variables,
     events = events,

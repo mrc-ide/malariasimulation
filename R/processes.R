@@ -18,8 +18,7 @@ create_processes <- function(
   parameters,
   models,
   solvers,
-  correlations,
-  sa_render
+  correlations
   ) {
   # ========
   # Immunity
@@ -33,24 +32,16 @@ create_processes <- function(
     # Acquired immunity
     create_exponential_decay_process(variables$ica, parameters$rc),
     create_exponential_decay_process(variables$iva, parameters$rva),
-    create_exponential_decay_process(variables$id, parameters$rid),
-    function(timestep) {
-      if (!is.null(sa_render)) {
-        sa_render$render(
-          variables,
-          timestep
-        )
-      }
-    }
+    create_exponential_decay_process(variables$id, parameters$rid)
   )
 
   if (parameters$individual_mosquitoes) {
     processes <- c(
       processes,
-      create_mosquito_emergence_process_cpp(
+      create_mosquito_emergence_process(
         solvers,
-        variables$mosquito_state$.variable,
-        variables$species$.variable,
+        variables$mosquito_state,
+        variables$species,
         parameters$species,
         parameters$dpl
       )

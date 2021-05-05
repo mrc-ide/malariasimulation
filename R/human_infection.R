@@ -81,14 +81,14 @@ simulate_infection <- function(
   )
 
   renderer$render('n_treated', treated$size(), timestep)
+  renderer$render('n_infections', infected_humans$size(), timestep)
 
   schedule_infections(
     events,
     clinical_infections,
     treated,
     infected_humans,
-    parameters,
-    variables$state$get_index_of('A')
+    parameters
   )
 }
 
@@ -295,8 +295,6 @@ schedule_infections <- function(
   to_infect <- clinical_infections$and(included)
   to_infect_asym <- clinical_infections$not()$and(infections)$and(
     included
-  )$and(
-    asymptomatics$not()
   )
 
   # change to symptomatic

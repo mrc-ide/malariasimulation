@@ -76,7 +76,8 @@ simulate_bites <- function(
 
   # Calculate pi (the relative biting rate for each human)
   psi <- unique_biting_rate(age, parameters)
-  .pi <- human_pi(variables$zeta$get_values(), psi)
+  zeta <- variables$zeta$get_values()
+  .pi <- human_pi(zeta, psi)
 
   # Get some indices for later
   if (parameters$individual_mosquitoes) {
@@ -88,7 +89,12 @@ simulate_bites <- function(
   EIR <- 0
 
   for (s_i in seq_along(parameters$species)) {
-    solver_states <- solver_get_states(solvers[[species]])
+    solver_states <- solver_get_states(solvers[[s_i]])
+    p_bitten <- prob_bitten(timestep, variables, s_i, parameters)
+    Q0 <- parameters$Q0[[s_i]]
+    W <- average_p_successful(p_bitten$prob_bitten_survives, .pi, Q0)
+    Z <- average_p_repelled(p_bitten$prob_repelled, .pi, Q0)
+    f <- blood_meal_rate(s_i, Z, parameters)
 
     lambda <- .effective_biting_rates(
       s_i,
@@ -96,6 +102,9 @@ simulate_bites <- function(
       .pi,
       zeta,
       p_bitten,
+      W,
+      Z,
+      f,
       parameters
     )
 
@@ -106,20 +115,25 @@ simulate_bites <- function(
     )
 
     if (parameters$individual_mosquitoes) {
+      species_index <- variables$species$get_index_of(
+        parameters$species[[s_i]]
+      )$and(adult_index)
       n_infectious <- calculate_infectious_individual(
         s_i,
+        variables,
         infectious_index,
         adult_index,
+        species_index,
         parameters
       )
     } else {
       n_infectious <- calculate_infectious_compartmental(solver_states)
     }
 
-    species_eir <- n_infectious * sum(lambda)
-    EIR <- EIR + species_eir
-    lagged_eir[[s_i]]$save(species_eir, timestep)
-    n_bites <- rpois(1, lagged_eir[[s_i]]$get(timestep - parameters$de))
+    lagged_eir[[s_i]]$save(n_infectious * sum(lambda), timestep)
+    species_eir <- lagged_eir[[s_i]]$get(timestep - parameters$de)
+    EIR <- EIR + species_eir / sum(psi)
+    n_bites <- rpois(1, species_eir)
     if (n_bites > 0) {
       bitten_humans$insert(
         sample.int(
@@ -159,7 +173,7 @@ simulate_bites <- function(
       adult_mosquito_model_update(
         models[[s_i]],
         mu,
-        lagged_foim$get(timestep - parameters$delayGam),
+        lagged_foim$get(timestep - parameters$delay_gam),
         solver_states[[ADULT_ODE_INDICES['Sm']]],
         f
       )
@@ -188,26 +202,40 @@ effective_biting_rates <- function(species, variables, parameters, timestep) {
   zeta <- variables$zeta$get_values()
   p_bitten <- prob_bitten(timestep, variables, species, parameters)
   .pi <- human_pi(zeta, psi)
-  .effective_biting_rates(species, psi, .pi, zeta, p_bitten, parameters)
+  Q0 <- parameters$Q0[[species]]
+  W <- average_p_successful(p_bitten$prob_bitten_survives, .pi, Q0)
+  Z <- average_p_repelled(p_bitten$prob_repelled, .pi, Q0)
+  f <- blood_meal_rate(species, Z, parameters)
+  .effective_biting_rates(species, psi, .pi, zeta, p_bitten, W, Z, f, parameters)
 }
 
-.effective_biting_rates <- function(species, psi, .pi, zeta, p_bitten, parameters) {
-  Q0 <- parameters$Q0[[species]]
-  Z <- average_p_repelled(p_bitten$prob_repelled, .pi, Q0)
-  W <- average_p_successful(p_bitten$prob_bitten_survives, .pi, Q0)
-  f <- blood_meal_rate(species, Z, parameters)
+.effective_biting_rates <- function(
+  species,
+  psi,
+  .pi,
+  zeta,
+  p_bitten,
+  W,
+  Z,
+  f,
+  parameters
+  ) {
   a <- human_blood_meal_rate(f, species, W, parameters)
-  omega <- sum(psi)
-  a * intervention_coefficient(p_bitten) * zeta * psi / omega
+  a * intervention_coefficient(p_bitten) * zeta * psi
 }
 
 calculate_infectious <- function(species, solvers, variables, parameters) {
   if (parameters$individual_mosquitoes) {
+    adult_index <- variables$mosquito_state$get_index_of('NonExistent')$not()
     return(
       calculate_infectious_individual(
         species,
+        variables,
         variables$mosquito_state$get_index_of('Im'),
-        variables$mosquito_state$get_index_of('NonExistent')$not(),
+        adult_index,
+        variables$species$get_index_of(
+          parameters$species[[species]]
+        )$and(adult_index),
         parameters
       )
     )
@@ -217,13 +245,13 @@ calculate_infectious <- function(species, solvers, variables, parameters) {
 
 calculate_infectious_individual <- function(
   species,
+  variables,
   infectious_index,
   adult_index,
+  species_index,
   parameters
   ) {
-  species_index <- variables$species$get_index_of(
-    parameters$species[[species]]
-  )$and(adult_index)
+  
   infectious_index$copy()$and(species_index)$size()
 }
 

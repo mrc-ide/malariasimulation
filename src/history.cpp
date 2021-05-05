@@ -26,6 +26,9 @@ void History::push(double time, double value) {
 double History::at(double time) const {
     auto it = values.lower_bound(time);
     if (it == values.end()) {
+        if (has_default) {
+            return default_value;
+        }
         Rcpp::stop("`time` is later than the stored history");
     }
 

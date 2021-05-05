@@ -37,19 +37,6 @@ rainfall <- function(t, g0, g, h) {
     .Call(`_malariasimulation_rainfall`, t, g0, g, h)
 }
 
-#' @title Mosquito emergence process
-#' @description Move mosquitos from NonExistent to Sm in line with the number of
-#' pupals in the ODE models
-#'
-#' @param solvers a list of solver objects for each species of mosquito
-#' @param state the variable for the mosquito state
-#' @param species the variable for the mosquito species
-#' @param species_names a vector of category names for the species variable
-#' @param dpl the delay for pupal growth (in timesteps)
-create_mosquito_emergence_process_cpp <- function(solvers, state, species, species_names, dpl) {
-    .Call(`_malariasimulation_create_mosquito_emergence_process_cpp`, solvers, state, species, species_names, dpl)
-}
-
 create_mosquito_model <- function(beta, de, mue, K0, gamma, dl, mul, dp, mup, total_M, model_seasonality, g0, g, h, R_bar) {
     .Call(`_malariasimulation_create_mosquito_model`, beta, de, mue, K0, gamma, dl, mul, dp, mup, total_M, model_seasonality, g0, g, h, R_bar)
 }

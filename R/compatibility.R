@@ -43,7 +43,8 @@ translations = list(
   PM = 'pcm',
   tau = 'dem',
   Q0 = 'Q0',
-  f = 'blood_meal_rates'
+  f = 'blood_meal_rates',
+  tl = 'delay_gam'
 )
 
 #' @title translate parameter keys from jamie's format to ones compatible
@@ -77,9 +78,8 @@ remove_unused_jamie <- function(params) {
     params,
     c(
       'rP', # Prophylaxis state is no longer used, see `drug_parameters.R`
-      'tl', # unused!
-      'aA', # used for microscopy and pcr calculations
-      'aU', # used for microscopy and pcr calculations
+      'aA', # used for pcr calculations
+      'aU', # used for pcr calculations
       'cd_w', # unused!
       'cd_p'  # unused!
     )

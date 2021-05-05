@@ -197,3 +197,50 @@ biting_effects_individual <- function(
 
   events$mosquito_death$schedule(died, 0)
 }
+#' @title Mosquito emergence process
+#' @description Move mosquitos from NonExistent to Sm in line with the number of
+#' pupals in the ODE models
+#'
+#' @param solvers a list of solver objects for each species of mosquito
+#' @param state the variable for the mosquito state
+#' @param species the variable for the mosquito species
+#' @param species_names a character vector of species names for each solver
+#' @param dpl the delay for pupal growth (in timesteps)
+#' @noRd
+create_mosquito_emergence_process <- function(
+  solvers,
+  state,
+  species,
+  species_names,
+  dpl
+  ) {
+  rate <- .5 * 1 / dpl
+  function(timestep) {
+    p_counts <- vnapply(
+      solvers,
+      function(solver) {
+        solver_get_states(solver)[[ODE_INDICES[['P']]]]
+      }
+    )
+    n <- sum(p_counts) * rate
+    available <- state$get_size_of('NonExistent')
+    if (n > available) {
+      stop(paste0(
+        'Not enough mosquitoes (short by ',
+        n - available,
+        '). Please raise parameters$mosquito_limit. ',
+        'If you have used parameterise_mosquito_equilibrium,',
+        'your seasonality parameters lead to more mosquitoes than expected.'
+      ))
+    }
+    non_existent <- state$get_index_of('NonExistent')
+    latest <- 1
+    for (i in seq_along(species_names)) {
+      to_hatch <- p_counts[[i]] * rate
+      hatched <- bitset_at(non_existent, seq(latest, latest + to_hatch))
+      state$queue_update('Sm', hatched)
+      species$queue_update(species_names[[i]], hatched)
+      latest <- latest + to_hatch + 1
+    }
+  }
+}

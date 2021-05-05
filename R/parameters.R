@@ -126,8 +126,9 @@
 #'
 #' incubation periods:
 #'
-#' * de - delay for infection
-#' * dem - delay for infection in mosquitoes
+#' * de - Duration of the human latent period of infection
+#' * delay_gam - Lag from parasites to infectious gametocytes
+#' * dem - Extrinsic incubation period in mosquito population model
 #'
 #' vector biology:
 #' species specific values are vectors
@@ -290,8 +291,9 @@ get_parameters <- function(overrides = list()) {
     gammav  = 2.91282,
     iv0     = 1.09629,
     # delay for infection
-    de      = 12,
-    dem     = 10,
+    de        = 12,
+    delay_gam = 12.5,
+    dem       = 10,
     # asymptomatic immunity parameters
     fd0   = 0.007055,
     ad    = 21.9 * 365,

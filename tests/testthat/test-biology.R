@@ -3,11 +3,12 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR', {
   eq_params <- malariaEquilibrium::load_parameter_set()
   omega <- 1 - eq_params$rho * eq_params$eta / (eq_params$eta + 1/eq_params$a0)
   alpha <- eq_params$f * eq_params$Q0
+  ages <- 0:999 / 10
   states <- malariaEquilibrium::human_equilibrium_no_het(
     EIR,
     0,
     eq_params,
-    0:99
+    ages
   )
   eq <- list(
     states = states,
@@ -20,7 +21,8 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR', {
       init_foim = eq$FOIM,
       species = 'all',
       species_proportions = 1,
-      human_population = population
+      human_population = population,
+      enable_heterogeneity = FALSE
     )
   ))
   parameters <- parameterise_mosquito_equilibrium(parameters, EIR)
@@ -28,28 +30,14 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR', {
 
   #set up arguments for EIR calculation
   variables <- create_variables(parameters)
-  age <- get_age(variables$birth$get_values(), 0)
-  zeta <- rep(1, length(age))
-  variables$zeta <- individual::DoubleVariable$new(zeta)
-  p_bitten <- prob_bitten(0, variables, 1, parameters)
-  psi <- unique_biting_rate(age, parameters)
-  .pi <- human_pi(zeta, psi)
-  Z <- average_p_repelled(p_bitten$prob_repelled, .pi, parameters$Q0)
-  W <- average_p_successful(p_bitten$prob_bitten_survives, .pi, parameters$Q0)
-  f <- blood_meal_rate(1, Z, parameters)
-  estimated_eir <- m_eq[[6]] * effective_biting_rate(
-    .pi,
-    age,
-    1,
-    p_bitten,
-    f,
-    W,
-    parameters
-  )
+  vector_models <- parameterise_mosquito_models(parameters)
+  solvers <- parameterise_solvers(vector_models, parameters)
+  omega <- sum(unique_biting_rate(-variables$birth$get_values(), parameters))
+  estimated_eir <- calculate_eir(1, solvers, variables, parameters, 0) / omega
   expect_equal(
     mean(estimated_eir) * 365,
     EIR,
-    tolerance = 1
+    tolerance=1e-2
   )
 })
 
@@ -60,11 +48,12 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR (with h
 
   jamie_parameters <- malariaEquilibrium::load_parameter_set()
 
+  ages <- 0:999 / 10
   h_eq <- malariaEquilibrium::human_equilibrium(
     EIR,
     0,
     jamie_parameters,
-    0:99
+    ages
   )
   foim <- h_eq$FOIM
 
@@ -82,28 +71,96 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR (with h
 
   #set up arguments for EIR calculation
   variables <- create_variables(parameters)
-  age <- get_age(variables$birth$get_values(), 0)
-  zeta <- variables$zeta$get_values()
-  p_bitten <- prob_bitten(0, variables, 1, parameters)
-  psi <- unique_biting_rate(age, parameters)
-  .pi <- human_pi(zeta, psi)
-  Z <- average_p_repelled(p_bitten$prob_repelled, .pi, parameters$Q0)
-  W <- average_p_successful(p_bitten$prob_bitten_survives, .pi, parameters$Q0)
-  f <- blood_meal_rate(1, Z, parameters)
-  estimated_eir <- m_eq[[6]] * effective_biting_rate(
-    .pi,
-    age,
-    1,
-    p_bitten,
-    f,
-    W,
-    parameters
-  )
-
+  vector_models <- parameterise_mosquito_models(parameters)
+  solvers <- parameterise_solvers(vector_models, parameters)
+  omega <- sum(unique_biting_rate(-variables$birth$get_values(), parameters))
+  estimated_eir <- calculate_eir(1, solvers, variables, parameters, 0) / omega
   expect_equal(
     mean(estimated_eir) * 365,
     EIR,
-    tolerance = 1
+    tolerance=1
+  )
+})
+
+test_that('FOIM is consistent with equilibrium', {
+  population <- 1e5
+
+  EIR <- 5
+
+  jamie_parameters <- malariaEquilibrium::load_parameter_set()
+
+  ages <- 0:999 / 10
+  eq <- malariaEquilibrium::human_equilibrium(
+    EIR,
+    0,
+    jamie_parameters,
+    ages
+  )
+  foim <- eq$FOIM
+
+  parameters <- get_parameters(c(
+    translate_jamie(remove_unused_jamie(jamie_parameters)),
+    list(
+      init_foim = foim,
+      species = 'all',
+      species_proportions = 1,
+      human_population = population
+    )
+  ))
+  parameters <- parameterise_mosquito_equilibrium(parameters, EIR)
+  parameters <- parameterise_human_equilibrium(parameters, eq)
+  m_eq <- initial_mosquito_counts(parameters, 1, foim, parameters$total_M)
+
+  #set up arguments for EIR calculation
+  variables <- create_variables(parameters)
+  vector_models <- parameterise_mosquito_models(parameters)
+  solvers <- parameterise_solvers(vector_models, parameters)
+  lambda <- effective_biting_rates(1, variables, parameters, 0)
+  expect_equal(
+    calculate_foim(variables$infectivity$get_values(), lambda),
+    foim,
+    tolerance=1e-2
+  )
+})
+
+test_that('FOI is consistent with equilibrium', {
+  population <- 1e5
+
+  EIR <- 5
+
+  jamie_parameters <- malariaEquilibrium::load_parameter_set()
+
+  ages <- 0:999 / 10
+  eq <- malariaEquilibrium::human_equilibrium(
+    EIR,
+    0,
+    jamie_parameters,
+    ages
+  )
+  foim <- eq$FOIM
+
+  parameters <- get_parameters(c(
+    translate_jamie(remove_unused_jamie(jamie_parameters)),
+    list(
+      init_foim = foim,
+      species = 'all',
+      species_proportions = 1,
+      human_population = population
+    )
+  ))
+  parameters <- parameterise_mosquito_equilibrium(parameters, EIR)
+  parameters <- parameterise_human_equilibrium(parameters, eq)
+  m_eq <- initial_mosquito_counts(parameters, 1, foim, parameters$total_M)
+
+  #set up arguments for EIR calculation
+  variables <- create_variables(parameters)
+  lambda <- effective_biting_rates(1, variables, parameters, 0)
+  ib <- blood_immunity(variables$ib$get_values(), parameters)
+  foi <- weighted.mean(eq$states[,'FOI'], eq$states[,'prop'])
+  expect_equal(
+    mean(lambda * ib),
+    foi,
+    tolerance=1e-2
   )
 })
 

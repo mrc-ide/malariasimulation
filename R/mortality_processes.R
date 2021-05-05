@@ -10,10 +10,10 @@
 #' @noRd
 create_mortality_process <- function(variables, events, renderer, parameters) {
   function(timestep) {
-    age <- get_age(
+    age <- trunc(get_age(
       variables$birth$get_values(),
       timestep
-    ) / 365
+    ) / 365)
 
     died <- individual::Bitset$new(parameters$human_population)
     died <- sample_bitset(died$not(), 1 / parameters$average_age)
@@ -36,7 +36,7 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
     if (died$size() > 0) {
       # inherit immunity from parent in group
       sampleable <- individual::Bitset$new(parameters$human_population)
-      sampleable$insert(which(age >= 15 | age <= 35))
+      sampleable$insert(which(age > 15 & age < 30))
       for (group in seq(parameters$n_heterogeneity_groups)) {
 
         # get the individuals who died in this group
@@ -46,6 +46,9 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
         if (died_group$size() > 0) {
           # find their mothers
           potential_mothers <- group_index$and(sampleable)$to_vector()
+          if (length(potential_mothers) == 0) {
+            potential_mothers = seq(parameters$human_population)
+          }
           mothers <- potential_mothers[
             sample.int(
               length(potential_mothers),

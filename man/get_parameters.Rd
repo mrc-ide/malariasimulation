@@ -141,8 +141,9 @@ initial immunity values:
 
 incubation periods:
 \itemize{
-\item de - delay for infection
-\item dem - delay for infection in mosquitoes
+\item de - Duration of the human latent period of infection
+\item delay_gam - Lag from parasites to infectious gametocytes
+\item dem - Extrinsic incubation period in mosquito population model
 }
 
 vector biology:
@@ -254,6 +255,8 @@ miscellaneous:
 simulation
 \item individual_mosquitoes - boolean whether adult mosquitoes are modelled
 individually or compartmentaly
+\item enable_heterogeneity - boolean whether to include heterogeneity in biting
+rates
 }}
 }
 \description{

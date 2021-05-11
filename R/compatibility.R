@@ -1,3 +1,4 @@
+EQUILIBRIUM_AGES <- 0:999 / 10
 
 inverse_param <- function(name, new_name) {
   function(params) { list(new_name, 1 / params[[name]]) }
@@ -47,11 +48,11 @@ translations = list(
   tl = 'delay_gam'
 )
 
-#' @title translate parameter keys from jamie's format to ones compatible
+#' @title translate parameter keys from the malariaEquilibrium format to ones compatible
 #' with this IBM 
-#' @param params with keys in the jamie's format
-#' @export
-translate_jamie <- function(params) {
+#' @param params with keys in the malariaEquilibrium format
+#' @noRd
+translate_equilibrium <- function(params) {
   translated <- list()
   for (name in names(params)) {
     if(!name %in% names(translations)) {
@@ -69,11 +70,11 @@ translate_jamie <- function(params) {
   translated
 }
 
-#' @title remove parameter keys from jamie's format that are not used
+#' @title remove parameter keys from the malariaEquilibrium format that are not used
 #' in this IBM 
-#' @param params with keys in the jamie's format
-#' @export
-remove_unused_jamie <- function(params) {
+#' @param params with keys in the malariaEquilibrium format
+#' @noRd
+remove_unused_equilibrium <- function(params) {
   remove_keys(
     params,
     c(
@@ -84,4 +85,36 @@ remove_unused_jamie <- function(params) {
       'cd_p'  # unused!
     )
   )
+}
+
+#' @title Set equilibrium
+#' @description This will update the IBM parameters to match the
+#' equilibrium parameters and set up the initial human and mosquito population
+#' to acheive init_EIR
+#' @param parameters model parameters to update
+#' @param init_EIR the desired initial EIR
+#' @param eq_params parameters from the malariaEquilibrium package, if null.
+#' The default malariaEquilibrium parameters will be used
+#' @export
+set_equilibrium <- function(parameters, init_EIR, eq_params = NULL) {
+  if (is.null(eq_params)) {
+    eq_params <- malariaEquilibrium::load_parameter_set()
+  }
+  eq <- malariaEquilibrium::human_equilibrium(
+    EIR = init_EIR,
+    ft = sum(get_treatment_coverages(parameters, 1)),
+    p = eq_params,
+    age = EQUILIBRIUM_AGES,
+    h = malariaEquilibrium::gq_normal(parameters$n_heterogeneity_groups)
+  )
+  parameters <- c(
+    translate_equilibrium(remove_unused_equilibrium(eq_params)),
+    list(
+      init_foim = eq$FOIM,
+      init_EIR = init_EIR,
+      eq_params = eq_params
+    ),
+    parameters
+  )
+  parameterise_mosquito_equilibrium(parameters, init_EIR)
 }

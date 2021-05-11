@@ -36,7 +36,7 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
     if (died$size() > 0) {
       # inherit immunity from parent in group
       sampleable <- individual::Bitset$new(parameters$human_population)
-      sampleable$insert(which(age > 15 & age < 30))
+      sampleable$insert(which(age == 20))
       for (group in seq(parameters$n_heterogeneity_groups)) {
 
         # get the individuals who died in this group

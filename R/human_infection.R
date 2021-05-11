@@ -264,10 +264,6 @@ calculate_treated <- function(
       timestep,
       treated_index
     )
-    recovery$schedule(
-      treated_index,
-      log_uniform(treated_index$size(), parameters$dt)
-    )
     detection$schedule(treated_index, 0)
   }
   treated_index

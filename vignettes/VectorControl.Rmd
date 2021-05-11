@@ -52,7 +52,6 @@ simparams <- get_parameters(
   )
 )
 
-simparams <- set_drugs(simparams, list(SP_AQ_params))
 simparams <- set_equilibrium(simparams, starting_EIR)
 
 # Plotting functions

@@ -14,7 +14,7 @@ History::History(size_t max_size) : max_size(max_size), has_default(false) {}
 History::History(size_t max_size, double default_value)
     : max_size(max_size), has_default(true), default_value(default_value) {}
 
-void History::push(double time, double value) {
+void History::push(double value, double time) {
     values.insert({time, value});
     if (max_size != -1) {
         while(values.size() > max_size) {

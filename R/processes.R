@@ -100,6 +100,12 @@ create_processes <- function(
       variables$state,
       'U',
       parameters$du
+    ),
+    create_progression_process(
+      events$recovery,
+      variables$state,
+      'Tr',
+      parameters$dt
     )
   )
 

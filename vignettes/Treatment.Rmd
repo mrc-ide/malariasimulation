@@ -27,14 +27,7 @@ year <- 365
 sim_length <- 1 * year
 human_population <- 1000
 
-jamie_params <- load_parameter_set()
-
-simparams <- get_parameters(c(
-  translate_jamie(remove_unused_jamie(jamie_params)),
-  list(
-    human_population = human_population
-  )
-))
+simparams <- get_parameters(list(human_population = human_population))
 simparams <- set_drugs(simparams, list(AL_params, DHA_PQP_params))
 
 # NOTE: this equilibrium is calculated using a different prophylaxis model
@@ -52,11 +45,10 @@ starting_EIR <- 10
 fts <- c(0, .25, .5, .75, 1.)
 
 for (ft in fts) {
-  eq <- get_equilibrium(starting_EIR, ft)
-  simparams <- parameterise_human_equilibrium(simparams, eq)
-  simparams <- parameterise_mosquito_equilibrium(simparams, starting_EIR)
+  eq_params <- load_parameter_set()
   simparams <- set_clinical_treatment(simparams, 1, 1, ft / 2)
   simparams <- set_clinical_treatment(simparams, 2, 1, ft / 2)
+  simparams <- set_equilibrium(simparams, starting_EIR, eq_params)
   output <- run_simulation(sim_length, simparams)
   outputs[[length(outputs) + 1]] <- output
 }

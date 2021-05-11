@@ -449,18 +449,6 @@ get_parameters <- function(overrides = list()) {
   parameters
 }
 
-#' @title Parameterise equilibrium proportions
-#' @description parameterise equilibrium proportions from a list
-#'
-#' @param parameters the model parameters
-#' @param eq the equilibrium solution output
-#' @export
-parameterise_human_equilibrium <- function(parameters, eq) {
-  parameters$eq <- eq$states
-  parameters$init_foim <- eq$FOIM
-  parameters
-}
-
 #' @title Parameterise total_M and carrying capacity for mosquitos from EIR
 #'
 #' @description NOTE: the inital EIR is likely to change unless the rest of the

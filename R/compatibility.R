@@ -4,6 +4,12 @@ inverse_param <- function(name, new_name) {
   function(params) { list(new_name, 1 / params[[name]]) }
 }
 
+mean_param <- function(new_name, name, weights) {
+  function(params) {
+    list(new_name, weighted.mean(params[[name]], params[[weights]]))
+  }
+}
+
 translations = list(
   eta = inverse_param('eta', 'average_age'),
   rho = 'rho',
@@ -48,8 +54,52 @@ translations = list(
   tl = 'delay_gam'
 )
 
-#' @title translate parameter keys from the malariaEquilibrium format to ones compatible
-#' with this IBM 
+back_translations = list(
+  average_age = inverse_param('average_age', 'eta'),
+  rho = 'rho',
+  a0  = 'a0',
+  da = inverse_param('da', 'rA'),
+  dd = inverse_param('dd', 'rD'),
+  du  = inverse_param('du', 'rU'),
+  dt  = inverse_param('dt', 'rT'),
+  de  = 'dE',
+  cd  = 'cD',
+  cu  = 'cU',
+  ct  = 'cT',
+  d1  = 'd1',
+  rid = 'dd',
+  id0 = 'ID0',
+  kd  = 'kd',
+  ud  = 'ud',
+  ad  = 'ad0',
+  gammad  = 'gd',
+  b0  = 'b0',
+  b1  = 'b1',
+  d1  = 'd1',
+  rb  = 'db',
+  ib0 = 'IB0',
+  kb  = 'kb',
+  ub  = 'ub',
+  phi0= 'phi0',
+  phi1= 'phi1',
+  rc  = 'dc',
+  ic0 = 'IC0',
+  kc  = 'kc',
+  uc  = 'uc',
+  rm  = 'dm',
+  mum  = mean_param('mu', 'mum', 'species_proportions'),
+  sigma_squared = 's2',
+  fd0 = 'fd0',
+  gamma1 = 'g_inf',
+  pcm = 'PM',
+  dem = 'tau',
+  Q0 = mean_param('Q0', 'Q0', 'species_proportions'),
+  blood_meal_rates = mean_param('f', 'blood_meal_rates', 'species_proportions'),
+  delay_gam = 'tl'
+)
+
+#' @description translate parameter keys from the malariaEquilibrium format
+#' to ones compatible with this IBM 
 #' @param params with keys in the malariaEquilibrium format
 #' @noRd
 translate_equilibrium <- function(params) {
@@ -65,6 +115,26 @@ translate_equilibrium <- function(params) {
     if (is.function(translation)) {
       t <- translation(params)
       translated[[t[[1]]]] <- t[[2]]
+    }
+  }
+  translated
+}
+
+#' @description translate model parameters to the malariaEquilibrium format
+#' @param params model params
+#' @noRd
+translate_parameters <- function(params) {
+  translated <- malariaEquilibrium::load_parameter_set()
+  for (name in names(params)) {
+    if(name %in% names(back_translations)) {
+      translation <- back_translations[[name]]
+      if (is.character(translation)) {
+        translated[[translation]] <- params[[name]]
+      }
+      if (is.function(translation)) {
+        t <- translation(params)
+        translated[[t[[1]]]] <- t[[2]]
+      }
     }
   }
   translated
@@ -98,7 +168,12 @@ remove_unused_equilibrium <- function(params) {
 #' @export
 set_equilibrium <- function(parameters, init_EIR, eq_params = NULL) {
   if (is.null(eq_params)) {
-    eq_params <- malariaEquilibrium::load_parameter_set()
+    eq_params <- translate_parameters(parameters)
+  } else {
+    parameters <- c(
+      translate_equilibrium(remove_unused_equilibrium(eq_params)),
+      parameters
+    )
   }
   eq <- malariaEquilibrium::human_equilibrium(
     EIR = init_EIR,
@@ -108,7 +183,6 @@ set_equilibrium <- function(parameters, init_EIR, eq_params = NULL) {
     h = malariaEquilibrium::gq_normal(parameters$n_heterogeneity_groups)
   )
   parameters <- c(
-    translate_equilibrium(remove_unused_equilibrium(eq_params)),
     list(
       init_foim = eq$FOIM,
       init_EIR = init_EIR,

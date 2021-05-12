@@ -58,7 +58,7 @@ create_processes <- function(
     seq_along(parameters$species),
     function(species) {
       LaggedValue$new(
-        parameters$de,
+        parameters$de + 1,
         calculate_eir(
           species,
           solvers,
@@ -79,7 +79,10 @@ create_processes <- function(
       variables,
       events,
       parameters,
-      LaggedValue$new(parameters$delay_gam + 1, parameters$init_foim), # lagged FOIM
+      LaggedValue$new(
+        parameters$delay_gam + 1,
+        parameters$init_foim
+      ), # lagged FOIM
       init_eir # lagged EIR
     ),
     create_mortality_process(variables, events, renderer, parameters),

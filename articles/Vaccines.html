@@ -109,12 +109,7 @@
 <span class="va">human_population</span> <span class="op">&lt;-</span> <span class="fl">1000</span>
 <span class="va">starting_EIR</span> <span class="op">&lt;-</span> <span class="fl">50</span>
 
-<span class="va">jamie_params</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariaEquilibrium/man/load_parameter_set.html">load_parameter_set</a></span><span class="op">(</span><span class="op">)</span>
-<span class="va">eq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/malariaEquilibrium/man/human_equilibrium.html">human_equilibrium</a></span><span class="op">(</span>EIR <span class="op">=</span> <span class="va">starting_EIR</span>, ft <span class="op">=</span> <span class="fl">0</span>, p <span class="op">=</span> <span class="va">jamie_params</span>, age <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">99</span><span class="op">)</span>
-
-<span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_parameters.html">get_parameters</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>
-  <span class="fu"><a href="../reference/translate_jamie.html">translate_jamie</a></span><span class="op">(</span><span class="fu"><a href="../reference/remove_unused_jamie.html">remove_unused_jamie</a></span><span class="op">(</span><span class="va">jamie_params</span><span class="op">)</span><span class="op">)</span>,
-  <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
+<span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_parameters.html">get_parameters</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
     human_population <span class="op">=</span> <span class="va">human_population</span>,
     model_seasonality <span class="op">=</span> <span class="cn">TRUE</span>, <span class="co"># Let's try a bi-modal model</span>
     g0 <span class="op">=</span> <span class="fl">0.28605</span>,
@@ -126,10 +121,9 @@
     severe_incidence_rendering_min_ages <span class="op">=</span> <span class="fl">0</span>,
     severe_incidence_rendering_max_ages <span class="op">=</span> <span class="fl">18</span> <span class="op">*</span> <span class="va">year</span>
   <span class="op">)</span>
-<span class="op">)</span><span class="op">)</span>
+<span class="op">)</span>
 
-<span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/parameterise_human_equilibrium.html">parameterise_human_equilibrium</a></span><span class="op">(</span><span class="va">simparams</span>, <span class="va">eq</span><span class="op">)</span>
-<span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/parameterise_mosquito_equilibrium.html">parameterise_mosquito_equilibrium</a></span><span class="op">(</span><span class="va">simparams</span>, <span class="va">starting_EIR</span><span class="op">)</span>
+<span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_equilibrium.html">set_equilibrium</a></span><span class="op">(</span><span class="va">simparams</span>, <span class="va">starting_EIR</span><span class="op">)</span>
 
 <span class="co"># Plotting functions</span>
 <span class="va">plot_prevalence</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">output</span><span class="op">)</span> <span class="op">{</span>

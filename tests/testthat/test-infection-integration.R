@@ -298,11 +298,6 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   expect_bitset_update(variables$drug_time$queue_update, 5, c(1, 4))
 
   expect_bitset_schedule(
-    recovery_mock,
-    c(1, 4),
-    c(3, 4)
-  )
-  expect_bitset_schedule(
     detection_mock,
     c(1, 4),
     0

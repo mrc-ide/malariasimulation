@@ -22,7 +22,9 @@ mock_category <- function(...) {
   v <- individual::CategoricalVariable$new(...)
   list(
     get_index_of = v$get_index_of,
-    queue_update = mockery::mock()
+    get_size_of = v$get_size_of,
+    queue_update = mockery::mock(),
+    get_categories = v$get_categories
   )
 }
 

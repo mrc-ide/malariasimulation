@@ -38,10 +38,10 @@ create_processes <- function(
   if (parameters$individual_mosquitoes) {
     processes <- c(
       processes,
-      create_mosquito_emergence_process_cpp(
+      create_mosquito_emergence_process(
         solvers,
-        variables$mosquito_state$.variable,
-        variables$species$.variable,
+        variables$mosquito_state,
+        variables$species,
         parameters$species,
         parameters$dpl
       )
@@ -54,6 +54,22 @@ create_processes <- function(
   # schedule infections for humans and set last_boosted_*
   # move mosquitoes into incubating state
   # kill mosquitoes caught in vector control
+  init_eir <- lapply(
+    seq_along(parameters$species),
+    function(species) {
+      LaggedValue$new(
+        parameters$de + 1,
+        calculate_eir(
+          species,
+          solvers,
+          variables,
+          parameters,
+          0
+        )
+      )
+    }
+  )
+
   processes <- c(
     processes,
     create_biting_process(
@@ -62,10 +78,38 @@ create_processes <- function(
       models,
       variables,
       events,
-      parameters
+      parameters,
+      LaggedValue$new(
+        parameters$delay_gam + 1,
+        parameters$init_foim
+      ), # lagged FOIM
+      init_eir # lagged EIR
     ),
-
-    create_mortality_process(variables, events, renderer, parameters)
+    create_mortality_process(variables, events, renderer, parameters),
+    create_progression_process(
+      events$asymptomatic_progression,
+      variables$state,
+      'D',
+      parameters$dd
+    ),
+    create_progression_process(
+      events$subpatent_progression,
+      variables$state,
+      'A',
+      parameters$da
+    ),
+    create_progression_process(
+      events$recovery,
+      variables$state,
+      'U',
+      parameters$du
+    ),
+    create_progression_process(
+      events$recovery,
+      variables$state,
+      'Tr',
+      parameters$dt
+    )
   )
 
   # ===============

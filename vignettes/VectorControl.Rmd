@@ -32,11 +32,7 @@ sim_length <- 3 * year
 human_population <- 1000
 starting_EIR <- 50
 
-jamie_params <- load_parameter_set()
-eq <- human_equilibrium(EIR = starting_EIR, ft = 0, p = jamie_params, age = 0:99)
-
-simparams <- get_parameters(c(
-  translate_jamie(remove_unused_jamie(jamie_params)),
+simparams <- get_parameters(
   list(
     human_population = human_population,
     model_seasonality = TRUE, # Let's try a bi-modal model
@@ -54,12 +50,9 @@ simparams <- get_parameters(c(
     gammas = .5 * 365,
     endophily = .813
   )
-))
+)
 
-simparams <- set_drugs(simparams, list(SP_AQ_params))
-simparams <- parameterise_human_equilibrium(simparams, eq)
-simparams <- parameterise_mosquito_equilibrium(simparams, starting_EIR)
-
+simparams <- set_equilibrium(simparams, starting_EIR)
 
 # Plotting functions
 plot_prevalence <- function(output) {

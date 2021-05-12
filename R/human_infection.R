@@ -81,6 +81,7 @@ simulate_infection <- function(
   )
 
   renderer$render('n_treated', treated$size(), timestep)
+  renderer$render('n_infections', infected_humans$size(), timestep)
 
   schedule_infections(
     events,
@@ -263,10 +264,6 @@ calculate_treated <- function(
       timestep,
       treated_index
     )
-    recovery$schedule(
-      treated_index,
-      log_uniform(treated_index$size(), parameters$dt)
-    )
     detection$schedule(treated_index, 0)
   }
   treated_index
@@ -286,36 +283,27 @@ schedule_infections <- function(
   clinical_infections,
   treated,
   infections,
-  parameters
+  parameters,
+  asymptomatics
   ) {
-  included <- events$clinical_infection$get_scheduled()$or(
-    events$asymptomatic_infection$get_scheduled()
-  )$or(treated)$not()
+  included <- treated$not()
 
   to_infect <- clinical_infections$and(included)
-  to_infect_asym <- clinical_infections$not()$and(infections)$and(included)
+  to_infect_asym <- clinical_infections$not()$and(infections)$and(
+    included
+  )
 
   # change to symptomatic
   if(to_infect$size() > 0) {
     infection_times <- log_uniform(to_infect$size(), parameters$de)
-    events$clinical_infection$schedule(
-      to_infect,
-      infection_times
-    )
-    events$detection$schedule(to_infect, infection_times)
-    events$subpatent_infection$clear_schedule(to_infect)
-    events$recovery$clear_schedule(to_infect)
+    events$clinical_infection$schedule(to_infect, 0)
+    events$detection$schedule(to_infect, 0)
   }
 
   if(to_infect_asym$size() > 0) {
     infection_times <- log_uniform(to_infect_asym$size(), parameters$de)
-    events$asymptomatic_infection$schedule(
-      to_infect_asym,
-      infection_times
-    )
-    events$detection$schedule(to_infect_asym, infection_times)
-    events$subpatent_infection$clear_schedule(to_infect_asym)
-    events$recovery$clear_schedule(to_infect_asym)
+    events$asymptomatic_infection$schedule(to_infect_asym, 0)
+    events$detection$schedule(to_infect_asym, 0)
   }
 }
 

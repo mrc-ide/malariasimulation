@@ -12,5 +12,6 @@
 #include "mosquito_ode.h"
 #include "adult_mosquito_ode.h"
 #include "solver.h"
+#include "history.h"
 
 #endif /* MALARIASIMULATION_TYPES_H_ */

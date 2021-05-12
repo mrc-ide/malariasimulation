@@ -298,11 +298,6 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   expect_bitset_update(variables$drug_time$queue_update, 5, c(1, 4))
 
   expect_bitset_schedule(
-    recovery_mock,
-    c(1, 4),
-    c(3, 4)
-  )
-  expect_bitset_schedule(
     detection_mock,
     c(1, 4),
     0
@@ -312,7 +307,6 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
 test_that('schedule_infections correctly schedules new infections', {
   parameters <- get_parameters()
 
-  scheduled <- individual::Bitset$new(20)$insert(c(1, 3, 7, 15))
   clinical_mock <- mockery::mock()
   asym_mock <- mockery::mock()
   detection_mock <- mockery::mock()
@@ -320,30 +314,13 @@ test_that('schedule_infections correctly schedules new infections', {
   events <- list(
     detection = list(schedule = detection_mock),
     clinical_infection = list(
-      schedule = clinical_mock,
-      get_scheduled = mockery::mock(individual::Bitset$new(20)$insert(c(1, 3)))
+      schedule = clinical_mock
     ),
     asymptomatic_infection = list(
-      schedule = asym_mock,
-      get_scheduled = mockery::mock(individual::Bitset$new(20)$insert(c(7, 15)))
+      schedule = asym_mock
     ),
     subpatent_infection = list(clear_schedule = mockery::mock()),
     recovery = list(clear_schedule = mockery::mock())
-  )
-
-  mockery::stub(
-    schedule_infections,
-    'log_uniform',
-    mockery::mock(
-      c(5, 6, 13, 14),
-      c(2, 4, 16, 17, 18, 19, 20)
-    )
-  )
-
-  mockery::stub(
-    schedule_infections,
-    'bernoulli_multi_p',
-    mockery::mock(c(1, 3, 6))
   )
 
   infections <- individual::Bitset$new(20)$insert(1:20)
@@ -360,26 +337,26 @@ test_that('schedule_infections correctly schedules new infections', {
 
   expect_bitset_schedule(
     clinical_mock,
-    c(5, 6, 13, 14),
-    c(5, 6, 13, 14)
+    c(5, 6, 13, 14, 15),
+    0
   )
 
   expect_bitset_schedule(
     detection_mock,
-    c(5, 6, 13, 14),
-    c(5, 6, 13, 14)
+    c(5, 6, 13, 14, 15),
+    0
   )
 
   expect_bitset_schedule(
     asym_mock,
-    c(2, 4, 16, 17, 18, 19, 20),
-    c(2, 4, 16, 17, 18, 19, 20)
+    c(1, 2, 3, 4, 16, 17, 18, 19, 20),
+    0,
   )
 
   expect_bitset_schedule(
     detection_mock,
-    c(2, 4, 16, 17, 18, 19, 20),
-    c(2, 4, 16, 17, 18, 19, 20),
+    c(1, 2, 3, 4, 16, 17, 18, 19, 20),
+    0,
     call = 2
   )
 })

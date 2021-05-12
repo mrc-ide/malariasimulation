@@ -126,8 +126,9 @@
 #'
 #' incubation periods:
 #'
-#' * de - delay for infection
-#' * dem - delay for infection in mosquitoes
+#' * de - Duration of the human latent period of infection
+#' * delay_gam - Lag from parasites to infectious gametocytes
+#' * dem - Extrinsic incubation period in mosquito population model
 #'
 #' vector biology:
 #' species specific values are vectors
@@ -232,13 +233,15 @@
 #' simulation
 #' * individual_mosquitoes - boolean whether adult mosquitoes are modelled
 #' individually or compartmentaly
+#' * enable_heterogeneity - boolean whether to include heterogeneity in biting
+#' rates
 #'
 #' @export
 get_parameters <- function(overrides = list()) {
   parameters <- list(
     dd    = 5,
     dt    = 5,
-    da    = 195,
+    da    = 200,
     du    = 110,
     del   = 6.64,
     dl    = 3.72,
@@ -255,10 +258,10 @@ get_parameters <- function(overrides = list()) {
     rva   = 30 * 365,
     rid   = 10 * 365,
     # blood immunity parameters
-    b0    = 0.590076,
+    b0    = 0.59,
     b1    = 0.5,
-    ib0   = 43.8787,
-    kb    = 2.15506,
+    ib0   = 43.9,
+    kb    = 2.16,
     # immunity boost grace periods
     ub    = 7.2,
     uc    = 6.06,
@@ -288,8 +291,9 @@ get_parameters <- function(overrides = list()) {
     gammav  = 2.91282,
     iv0     = 1.09629,
     # delay for infection
-    de      = 12,
-    dem     = 10,
+    de        = 12,
+    delay_gam = 12.5,
+    dem       = 10,
     # asymptomatic immunity parameters
     fd0   = 0.007055,
     ad    = 21.9 * 365,
@@ -414,7 +418,8 @@ get_parameters <- function(overrides = list()) {
     # misc
     human_population = 100,
     mosquito_limit   = 100 * 1000,
-    individual_mosquitoes = TRUE
+    individual_mosquitoes = TRUE,
+    enable_heterogeneity = TRUE
   )
 
   # Override parameters with any client specified ones
@@ -441,26 +446,6 @@ get_parameters <- function(overrides = list()) {
     stop("Starting proportions do not sum to 1")
   }
 
-  parameters
-}
-
-#' @title Parameterise equilibrium proportions
-#' @description parameterise equilibrium proportions from a list
-#'
-#' @param parameters the model parameters
-#' @param eq the equilibrium solution output
-#' @export
-parameterise_human_equilibrium <- function(parameters, eq) {
-  state_props <- colSums(eq$states[,c('S', 'D', 'A', 'U')])
-  parameters$s_proportion <- state_props[['S']]
-  parameters$d_proportion <- state_props[['D']]
-  parameters$a_proportion <- state_props[['A']]
-  parameters$u_proportion <- state_props[['U']]
-  parameters$init_ica <- eq$states[,'ICA']
-  parameters$init_icm <- eq$states[,'ICM']
-  parameters$init_ib <- eq$states[,'IB']
-  parameters$init_id <- eq$states[,'ID']
-  parameters$init_foim <- eq$FOIM
   parameters
 }
 

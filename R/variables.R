@@ -1,14 +1,3 @@
-initial_immunity <- function(parameter, age) {
-  if (length(parameter) == 1) {
-    return(rep(parameter, length(age)))
-  } else if (length(parameter) == 100) {
-    age <- floor(age / 365)
-    age[age > 99] <- 99
-    return(parameter[age + 1])
-  }
-  stop('unsupported immunity parameter')
-}
-
 #' @title Define model variables
 #' @description
 #' create_variables creates the human and mosquito variables for
@@ -56,27 +45,81 @@ initial_immunity <- function(parameter, age) {
 create_variables <- function(parameters) {
   size <- parameters$human_population
 
-  initial_age <- floor(rexp(size, rate=1/parameters$average_age))
+  initial_age <- round(rexp(size, rate=1/parameters$average_age))
 
-  initial_counts <- calculate_initial_counts(parameters)
+  if (parameters$enable_heterogeneity) {
+    #zeta_norm <- rnorm(size)
+    #het_nodes <- gaussian_quadrature(parameters$n_heterogeneity_groups)
+    quads <- statmod::gauss.quad.prob(
+      parameters$n_heterogeneity_groups,
+      dist='normal'
+    )
+    groups <- sample.int(
+      parameters$n_heterogeneity_groups,
+      size,
+      replace = TRUE,
+      prob = quads$weights
+    )
+    zeta_norm <- quads$nodes[groups]
+    zeta <- individual::DoubleVariable$new(
+      calculate_zeta(zeta_norm, parameters)
+    )
+    zeta_group <- individual::CategoricalVariable$new(
+      to_char_vector(seq(parameters$n_heterogeneity_groups)),
+      to_char_vector(groups)
+    )
+    if (!is.null(parameters$init_EIR)) {
+      eq <- calculate_eq(quads$nodes, parameters)
+    } else {
+      eq <- NULL
+    }
+  } else {
+    zeta <- individual::DoubleVariable$new(rep(1, size))
+    groups <- rep(1, size)
+    zeta_group <- individual::CategoricalVariable$new(
+      to_char_vector(seq(parameters$n_heterogeneity_groups)),
+      to_char_vector(groups)
+    )
+    if (!is.null(parameters$init_EIR)) {
+      eq <-	list(
+        malariaEquilibrium::human_equilibrium_no_het(
+          parameters$init_EIR,
+          sum(get_treatment_coverages(parameters, 0)),
+          parameters$eq_params,
+          EQUILIBRIUM_AGES
+        )
+      )
+    } else {
+      eq <- NULL
+    }
+  }
 
-  # Define variables
   states <- c('S', 'D', 'A', 'U', 'Tr')
   state <- individual::CategoricalVariable$new(
     states,
-    rep(states, times = initial_counts)
+    initial_state(parameters, initial_age, groups, eq)
   )
   birth <- individual::DoubleVariable$new(-initial_age)
-  last_boosted_ib <- individual::DoubleVariable$new(rep(-1, size) )
+  last_boosted_ib <- individual::DoubleVariable$new(rep(-1, size))
   last_boosted_ica <- individual::DoubleVariable$new(rep(-1, size))
   last_boosted_iva <- individual::DoubleVariable$new(rep(-1, size))
   last_boosted_id <- individual::DoubleVariable$new(rep(-1, size))
 
-  is_severe <- individual::CategoricalVariable$new(c('yes', 'no'), rep('no', size))
+  is_severe <- individual::CategoricalVariable$new(
+    c('yes', 'no'),
+    rep('no', size)
+  )
 
   # Maternal immunity
   icm <- individual::DoubleVariable$new(
-    initial_immunity(parameters$init_icm, initial_age)
+    initial_immunity(
+      parameters$init_icm,
+      initial_age,
+      groups,
+      eq,
+      parameters,
+      'ICM'
+    )
   )
 
   ivm <- individual::DoubleVariable$new(
@@ -85,11 +128,25 @@ create_variables <- function(parameters) {
 
   # Pre-erythoctic immunity
   ib  <- individual::DoubleVariable$new(
-    initial_immunity(parameters$init_ib, initial_age)
+    initial_immunity(
+      parameters$init_ib,
+      initial_age,
+      groups,
+      eq,
+      parameters,
+      'IB'
+    )
   )
   # Acquired immunity to clinical disease
   ica <- individual::DoubleVariable$new(
-    initial_immunity(parameters$init_ica, initial_age)
+    initial_immunity(
+      parameters$init_ica,
+      initial_age,
+      groups,
+      eq,
+      parameters,
+      'ICA'
+    )
   )
   # Acquired immunity to severe disease
   iva <- individual::DoubleVariable$new(
@@ -97,19 +154,14 @@ create_variables <- function(parameters) {
   )
   # Acquired immunity to detectability
   id <- individual::DoubleVariable$new(
-    initial_immunity(parameters$init_id, initial_age)
-  )
-
-  zeta_norm <- rnorm(size)
-  zeta <- individual::DoubleVariable$new(
-    exp(
-      zeta_norm * sqrt(parameters$sigma_squared) - parameters$sigma_squared/2
+    initial_immunity(
+      parameters$init_id,
+      initial_age,
+      groups,
+      eq,
+      parameters,
+      'ID'
     )
-  )
-
-  zeta_group <- individual::CategoricalVariable$new(
-    to_char_vector(seq(parameters$n_heterogeneity_groups)),
-    to_char_vector(discretise_normal(zeta_norm, parameters$n_heterogeneity_groups))
   )
 
   # Initialise infectiousness of humans -> mosquitoes
@@ -244,6 +296,53 @@ create_variables <- function(parameters) {
   variables
 }
 
+# =========
+# Utilities
+# =========
+
+initial_immunity <- function(
+  parameter,
+  age,
+  groups = NULL,
+  eq = NULL,
+  parameters = NULL,
+  eq_name = NULL
+  ) {
+  if (!is.null(eq)) {
+    age <- age / 365
+    return(vnapply(
+      seq_along(age),
+      function(i) {
+        g <- groups[[i]]
+        a <- age[[i]]
+        eq[[g]][which.max(a < eq[[g]][, 'age']), eq_name]
+      }
+    ))
+  }
+  rep(parameter, length(age))
+}
+
+initial_state <- function(parameters, age, groups, eq) {
+  ibm_states <- c('S', 'A', 'D', 'U', 'Tr')
+  if (!is.null(eq)) {
+    eq_states <- c('S', 'A', 'D', 'U', 'T')
+    age <- age / 365
+    return(vcapply(
+      seq_along(age),
+      function(i) {
+        g <- groups[[i]]
+        a <- age[[i]]
+        sample(
+          ibm_states,
+          size = 1,
+          prob = eq[[g]][which.max(a < eq[[g]][, 'age']), eq_states]
+        )
+      }
+    ))
+  }
+  rep(ibm_states, times = calculate_initial_counts(parameters))
+}
+
 calculate_initial_counts <- function(parameters) {
   initial_counts <- round(
     c(
@@ -257,4 +356,25 @@ calculate_initial_counts <- function(parameters) {
   left_over <- parameters$human_population - sum(initial_counts)
   initial_counts[[1]] <- initial_counts[[1]] + left_over
   initial_counts
+}
+
+calculate_eq <- function(het_nodes, parameters) {
+  ft <- sum(get_treatment_coverages(parameters, 0))
+	lapply(
+		het_nodes,
+		function(n) {
+			malariaEquilibrium::human_equilibrium_no_het(
+				parameters$init_EIR * calculate_zeta(n, parameters),
+				ft,
+				parameters$eq_params,
+        EQUILIBRIUM_AGES
+			)
+		}
+	)
+}
+
+calculate_zeta <- function(zeta_norm, parameters) {
+  exp(
+    zeta_norm * sqrt(parameters$sigma_squared) - parameters$sigma_squared/2
+  )
 }

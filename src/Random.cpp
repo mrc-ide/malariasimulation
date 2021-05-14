@@ -8,11 +8,15 @@
 
 #include "Random.h"
 #include <Rcpp.h>
+#include <dqrng_distribution.h>
+
+void Random::seed(size_t seed) {
+    rng = dqrng::generator<dqrng::xoroshiro128plus>(seed);
+}
 
 std::vector<size_t> Random::bernoulli(size_t size, double p) {
     auto successes = R::rbinom(size, p);
-    Rcpp::IntegerVector indices = Rcpp::sample(size, successes, false, R_NilValue, false);
-    return Rcpp::as<std::vector<size_t>>(indices);
+    return sample(size, successes, false);
 }
 
 std::vector<size_t> Random::bernoulli_multi_p(const std::vector<double> p) {
@@ -30,4 +34,97 @@ std::vector<size_t> Random::sample(size_t n, size_t size, bool replacement) {
     //                                                           probs       one_based
     Rcpp::IntegerVector res = Rcpp::sample(n, size, replacement, R_NilValue, false);
     return Rcpp::as<std::vector<size_t>>(res);
+}
+
+// Performs a weighted sample of `probs.size()` integers with:
+//  *  a distribution of `probs`
+//  *  replacement
+//  *  dqrng::xoroshiro128plus as the random number generator
+//
+// please see https://arxiv.org/pdf/1903.00227.pdf sweepingAliasTable for the
+// method.
+std::vector<size_t> Random::prop_sample_bucket(
+    size_t size,
+    std::vector<double> probs
+    ) {
+    auto n = probs.size();
+    auto total = std::accumulate(
+        probs.begin(),
+        probs.end(),
+        0.
+    );
+
+    // create alias table
+    auto dividing_probs = probs;
+    auto alternative_index = std::vector<size_t>(n);
+
+    auto bucket_weight = total / n;
+
+    // get first heavy
+    auto heavy = 0u;
+    while (heavy < n && probs[heavy] <= bucket_weight)
+        ++heavy;
+
+    // get first light
+    auto light = 0u;
+    while (probs[light] > bucket_weight)
+        ++light;
+
+    auto residual = probs[heavy];
+    size_t next_heavy;
+    double packing_weight;
+    while (heavy < n) {
+        if (residual > bucket_weight) {
+            // pack a light bucket with the residual
+            alternative_index[light] = heavy;
+
+            // update residual
+            packing_weight = (light == n) ? 0 : probs[light];
+            residual = residual + packing_weight - bucket_weight;
+
+            // find the next light element
+            ++light;
+            while(light < n && probs[light] > bucket_weight)
+                ++light;
+        } else {
+            // find the next heavy
+            next_heavy = heavy + 1;
+            while(next_heavy < n && probs[next_heavy] <= bucket_weight)
+                ++next_heavy;
+
+            // pack this (ex-)heavy bucket with the next heavy
+            dividing_probs[heavy] = residual;
+            alternative_index[heavy] = next_heavy;
+
+            // update the residual for the next heavy
+            packing_weight = (next_heavy == n) ? 0 : probs[next_heavy];
+            residual = residual + packing_weight - bucket_weight;
+
+            heavy = next_heavy;
+        }
+    }
+
+    // normalise the dividing_probs
+    for (auto& p : dividing_probs) {
+        p /= bucket_weight;
+    }
+
+    // sample
+    auto results = std::vector<size_t>(size);
+
+    for (auto i = 0; i < size; ++i) {
+        size_t bucket = (*rng)(n);
+        double acceptance = dqrng::uniform01((*rng)());
+        if (acceptance < dividing_probs[bucket]) {
+            results[i] = bucket;
+        } else {
+            if (alternative_index[bucket] < n) {
+                results[i] = alternative_index[bucket];
+            } else { //forgive the rounding error
+                results[i] = bucket;
+            }
+        }
+    }
+
+    return results;
 }

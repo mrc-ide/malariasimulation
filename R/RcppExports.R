@@ -57,7 +57,15 @@ solver_step <- function(solver) {
     invisible(.Call(`_malariasimulation_solver_step`, solver))
 }
 
+random_seed <- function(seed) {
+    invisible(.Call(`_malariasimulation_random_seed`, seed))
+}
+
 bernoulli_multi_p_cpp <- function(p) {
     .Call(`_malariasimulation_bernoulli_multi_p_cpp`, p)
+}
+
+fast_weighted_sample <- function(size, probs) {
+    .Call(`_malariasimulation_fast_weighted_sample`, size, probs)
 }
 

@@ -10,8 +10,16 @@
 #' @param timesteps the number of timesteps to run the simulation for
 #' @param parameters a named list of parameters to use
 #' @param correlations correlation parameters
+#' @param seed rng seed
 #' @export
-run_simulation <- function(timesteps, parameters = NULL, correlations = NULL) {
+run_simulation <- function(
+  timesteps,
+  parameters = NULL,
+  correlations = NULL,
+  seed = 42
+  ) {
+  set.seed(seed)
+  random_seed(seed)
   if (is.null(parameters)) {
     parameters <- get_parameters()
   }

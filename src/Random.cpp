@@ -65,6 +65,17 @@ std::vector<size_t> Random::prop_sample_bucket(
     while (heavy < n && probs[heavy] <= bucket_weight)
         ++heavy;
 
+    // all probabilities are the same
+    if (heavy == n) {
+        auto results = std::vector<size_t>(size);
+
+        for (auto i = 0; i < size; ++i) {
+            results[i] = (*rng)(n);
+        }
+
+        return results;
+    }
+
     // get first light
     auto light = 0u;
     while (probs[light] > bucket_weight)
@@ -73,7 +84,7 @@ std::vector<size_t> Random::prop_sample_bucket(
     auto residual = probs[heavy];
     size_t next_heavy;
     double packing_weight;
-    while (heavy < n) {
+    while (true) {
         if (residual > bucket_weight) {
             // pack a light bucket with the residual
             alternative_index[light] = heavy;
@@ -92,14 +103,18 @@ std::vector<size_t> Random::prop_sample_bucket(
             while(next_heavy < n && probs[next_heavy] <= bucket_weight)
                 ++next_heavy;
 
-            // pack this (ex-)heavy bucket with the next heavy
             dividing_probs[heavy] = residual;
+
+            // check if we're done
+            if (next_heavy == n) {
+                alternative_index[heavy] = heavy;
+                break;
+            }
+
+            // pack this (ex-)heavy bucket with the next heavy
             alternative_index[heavy] = next_heavy;
-
             // update the residual for the next heavy
-            packing_weight = (next_heavy == n) ? 0 : probs[next_heavy];
-            residual = residual + packing_weight - bucket_weight;
-
+            residual = residual + probs[next_heavy] - bucket_weight;
             heavy = next_heavy;
         }
     }
@@ -115,15 +130,8 @@ std::vector<size_t> Random::prop_sample_bucket(
     for (auto i = 0; i < size; ++i) {
         size_t bucket = (*rng)(n);
         double acceptance = dqrng::uniform01((*rng)());
-        if (acceptance < dividing_probs[bucket]) {
-            results[i] = bucket;
-        } else {
-            if (alternative_index[bucket] < n) {
-                results[i] = alternative_index[bucket];
-            } else { //forgive the rounding error
-                results[i] = bucket;
-            }
-        }
+        results[i] = (acceptance < dividing_probs[bucket]) ? bucket :
+            alternative_index[bucket];
     }
 
     return results;

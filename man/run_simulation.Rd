@@ -4,7 +4,7 @@
 \alias{run_simulation}
 \title{Run the simulation}
 \usage{
-run_simulation(timesteps, parameters = NULL, correlations = NULL)
+run_simulation(timesteps, parameters = NULL, correlations = NULL, seed = 42)
 }
 \arguments{
 \item{timesteps}{the number of timesteps to run the simulation for}
@@ -12,6 +12,8 @@ run_simulation(timesteps, parameters = NULL, correlations = NULL)
 \item{parameters}{a named list of parameters to use}
 
 \item{correlations}{correlation parameters}
+
+\item{seed}{rng seed}
 }
 \description{
 The main entrypoint for the simulation. run_simulation puts together the

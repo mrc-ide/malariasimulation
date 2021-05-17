@@ -93,7 +93,7 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
 
   mockery::stub(simulate_bites, 'biting_effects_individual', mosquito_effects_mock)
   mockery::stub(simulate_bites, 'rpois', pois_mock)
-  mockery::stub(simulate_bites, 'sample.int', sample_mock)
+  mockery::stub(simulate_bites, 'fast_weighted_sample', sample_mock)
   mockery::stub(simulate_bites, '.effective_biting_rates', lambda_mock)
   mockery::stub(simulate_bites, 'mosquito_model_update', ode_update)
   models <- parameterise_mosquito_models(parameters)
@@ -134,9 +134,7 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
   mockery::expect_args(
     sample_mock,
     1,
-    parameters$human_population,
     2,
-    replace=TRUE,
-    prob=c(.5, .5, .5, .5)
+    c(.5, .5, .5, .5)
   )
 })

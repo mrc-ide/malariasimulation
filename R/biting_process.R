@@ -136,12 +136,7 @@ simulate_bites <- function(
     n_bites <- rpois(1, species_eir)
     if (n_bites > 0) {
       bitten_humans$insert(
-        sample.int(
-          parameters$human_population,
-          n_bites,
-          replace = TRUE,
-          prob = lambda
-        )
+        fast_weighted_sample(n_bites, lambda)
       )
     }
 

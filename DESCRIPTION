@@ -25,7 +25,10 @@ Imports:
   individual,
   Rcpp,
   statmod,
-  MASS
+  MASS,
+  dqrng,
+  sitmo,
+  BH
 Suggests: 
   testthat,
   malariaEquilibrium,
@@ -43,5 +46,7 @@ LinkingTo:
   Rcpp,
   individual,
   BH,
-  testthat
+  testthat,
+  dqrng,
+  sitmo
 VignetteBuilder: knitr

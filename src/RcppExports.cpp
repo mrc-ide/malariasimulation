@@ -197,6 +197,16 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// random_seed
+void random_seed(size_t seed);
+RcppExport SEXP _malariasimulation_random_seed(SEXP seedSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< size_t >::type seed(seedSEXP);
+    random_seed(seed);
+    return R_NilValue;
+END_RCPP
+}
 // bernoulli_multi_p_cpp
 std::vector<size_t> bernoulli_multi_p_cpp(const std::vector<double> p);
 RcppExport SEXP _malariasimulation_bernoulli_multi_p_cpp(SEXP pSEXP) {
@@ -205,6 +215,17 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::vector<double> >::type p(pSEXP);
     rcpp_result_gen = Rcpp::wrap(bernoulli_multi_p_cpp(p));
+    return rcpp_result_gen;
+END_RCPP
+}
+// fast_weighted_sample
+Rcpp::IntegerVector fast_weighted_sample(size_t size, std::vector<double> probs);
+RcppExport SEXP _malariasimulation_fast_weighted_sample(SEXP sizeSEXP, SEXP probsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< size_t >::type size(sizeSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type probs(probsSEXP);
+    rcpp_result_gen = Rcpp::wrap(fast_weighted_sample(size, probs));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -226,7 +247,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_malariasimulation_create_solver", (DL_FUNC) &_malariasimulation_create_solver, 2},
     {"_malariasimulation_solver_get_states", (DL_FUNC) &_malariasimulation_solver_get_states, 1},
     {"_malariasimulation_solver_step", (DL_FUNC) &_malariasimulation_solver_step, 1},
+    {"_malariasimulation_random_seed", (DL_FUNC) &_malariasimulation_random_seed, 1},
     {"_malariasimulation_bernoulli_multi_p_cpp", (DL_FUNC) &_malariasimulation_bernoulli_multi_p_cpp, 1},
+    {"_malariasimulation_fast_weighted_sample", (DL_FUNC) &_malariasimulation_fast_weighted_sample, 2},
     {"run_testthat_tests", (DL_FUNC) &run_testthat_tests, 0},
     {NULL, NULL, 0}
 };

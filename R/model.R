@@ -11,7 +11,12 @@
 #' @param parameters a named list of parameters to use
 #' @param correlations correlation parameters
 #' @export
-run_simulation <- function(timesteps, parameters = NULL, correlations = NULL) {
+run_simulation <- function(
+  timesteps,
+  parameters = NULL,
+  correlations = NULL
+  ) {
+  random_seed(ceiling(runif(1) * .Machine$integer.max))
   if (is.null(parameters)) {
     parameters <- get_parameters()
   }

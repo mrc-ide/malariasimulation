@@ -145,7 +145,10 @@ calculate_infections <- function(
       variables$rtss_dl$get_values(vaccinated_index),
       parameters
     )
-    vaccine_efficacy[vaccinated] <- calculate_rtss_efficacy(antibodies, parameters)
+    vaccine_efficacy[vaccinated] <- calculate_rtss_efficacy(
+      antibodies,
+      parameters
+    )
   }
 
   bitset_at(

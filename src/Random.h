@@ -11,14 +11,20 @@
 
 // [[Rcpp::depends(dqrng, sitmo, BH)]]
 #include <vector>
+#include <numeric>
 #include <dqrng_generator.h>
+#include <dqrng_distribution.h>
 
 class RandomInterface {
 public:
     virtual std::vector<size_t> bernoulli(size_t, double) = 0;
     virtual std::vector<size_t> bernoulli_multi_p(const std::vector<double>) = 0;
     virtual std::vector<size_t> sample(size_t, size_t, bool) = 0;
-    virtual std::vector<size_t> prop_sample_bucket(size_t, std::vector<double>) = 0;
+    virtual void prop_sample_bucket(
+        size_t size,
+        std::vector<double> probs,
+        int* result
+    ) = 0;
     virtual void seed(size_t) = 0;
     virtual ~RandomInterface() = default;
 };
@@ -34,14 +40,26 @@ public:
     virtual std::vector<size_t> bernoulli(size_t, double);
     virtual std::vector<size_t> bernoulli_multi_p(const std::vector<double>);
     virtual std::vector<size_t> sample(size_t, size_t, bool);
-    virtual std::vector<size_t> prop_sample_bucket(size_t, std::vector<double>);
+
+    // Performs a weighted sample of `probs.size()` integers with:
+    //  *  a distribution of `probs`
+    //  *  replacement
+    //  *  dqrng::xoroshiro128plus as the random number generator
+    //
+    // please see https://arxiv.org/pdf/1903.00227.pdf sweepingAliasTable for the
+    // method.
+    virtual void prop_sample_bucket(
+        size_t,
+        std::vector<double>,
+        int*
+    );
     virtual ~Random() = default;
     Random(const Random &other) = delete;
     Random(Random &&other) = delete;
     Random& operator=(const Random &other) = delete;
     Random& operator=(Random &&other) = delete;
 private:
-    Random() : rng(dqrng::generator<dqrng::xoroshiro128plus>(42)) {};
+    Random() : rng(dqrng::generator<dqrng::xoshiro256plus>(42)) {};
 };
 
 #endif /* SRC_RANDOM_H_ */

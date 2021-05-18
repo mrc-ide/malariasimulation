@@ -17,16 +17,16 @@ std::vector<size_t> bernoulli_multi_p_cpp(const std::vector<double> p) {
 }
 
 //[[Rcpp::export(rng = false)]]
-std::vector<size_t> fast_weighted_sample(
+Rcpp::IntegerVector fast_weighted_sample(
     size_t size,
     std::vector<double> probs
     ) {
-    auto values = Random::get_instance().prop_sample_bucket(
+    Rcpp::IntegerVector values(size);
+    Random::get_instance().prop_sample_bucket(
         size,
-        probs
+        probs,
+        INTEGER(values)
     );
-    for (auto i = 0u; i < values.size(); ++i) {
-        values[i]++;
-    }
+    values = values + 1;
     return values;
 }

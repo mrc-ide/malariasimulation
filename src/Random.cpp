@@ -8,10 +8,9 @@
 
 #include "Random.h"
 #include <Rcpp.h>
-#include <dqrng_distribution.h>
 
 void Random::seed(size_t seed) {
-    rng = dqrng::generator<dqrng::xoroshiro128plus>(seed);
+    rng = dqrng::generator<dqrng::xoshiro256plus>(seed);
 }
 
 std::vector<size_t> Random::bernoulli(size_t size, double p) {
@@ -36,16 +35,10 @@ std::vector<size_t> Random::sample(size_t n, size_t size, bool replacement) {
     return Rcpp::as<std::vector<size_t>>(res);
 }
 
-// Performs a weighted sample of `probs.size()` integers with:
-//  *  a distribution of `probs`
-//  *  replacement
-//  *  dqrng::xoroshiro128plus as the random number generator
-//
-// please see https://arxiv.org/pdf/1903.00227.pdf sweepingAliasTable for the
-// method.
-std::vector<size_t> Random::prop_sample_bucket(
-    size_t size,
-    std::vector<double> probs
+void Random::prop_sample_bucket(
+        size_t size,
+        std::vector<double> probs,
+        int* result
     ) {
     auto n = probs.size();
     auto total = std::accumulate(
@@ -67,13 +60,11 @@ std::vector<size_t> Random::prop_sample_bucket(
 
     // all probabilities are the same
     if (heavy == n) {
-        auto results = std::vector<size_t>(size);
-
         for (auto i = 0; i < size; ++i) {
-            results[i] = (*rng)(n);
+            *result = (*rng)(n);
+            ++result;
         }
-
-        return results;
+        return;
     }
 
     // get first light
@@ -86,6 +77,11 @@ std::vector<size_t> Random::prop_sample_bucket(
     double packing_weight;
     while (true) {
         if (residual > bucket_weight) {
+            // check if we're done
+            if (light == n) {
+                break;
+            }
+
             // pack a light bucket with the residual
             alternative_index[light] = heavy;
 
@@ -125,14 +121,11 @@ std::vector<size_t> Random::prop_sample_bucket(
     }
 
     // sample
-    auto results = std::vector<size_t>(size);
-
     for (auto i = 0; i < size; ++i) {
         size_t bucket = (*rng)(n);
         double acceptance = dqrng::uniform01((*rng)());
-        results[i] = (acceptance < dividing_probs[bucket]) ? bucket :
+        *result = (acceptance < dividing_probs[bucket]) ? bucket :
             alternative_index[bucket];
+        ++result;
     }
-
-    return results;
 }

@@ -219,7 +219,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // fast_weighted_sample
-std::vector<size_t> fast_weighted_sample(size_t size, std::vector<double> probs);
+Rcpp::IntegerVector fast_weighted_sample(size_t size, std::vector<double> probs);
 RcppExport SEXP _malariasimulation_fast_weighted_sample(SEXP sizeSEXP, SEXP probsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

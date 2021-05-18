@@ -176,7 +176,9 @@ test_that('mosquito_limit is set to 1 for 0 EIR', {
 })
 
 test_that('mosquito_limit is set to a sensible level', {
-  EIRs <- c(5, 50, 1000)
+  #EIRs <- c(5, 50, 1000)
+  #EIRs <- 1000
+  EIRs <- 5
 
   seasonalities <- list(
     list(
@@ -199,7 +201,7 @@ test_that('mosquito_limit is set to a sensible level', {
         init_foim = .1
       ))
       parameters <- parameterise_mosquito_equilibrium(parameters, EIR)
-      run_simulation(365, parameters)
+      run_simulation(5, parameters)
     }
   }
   expect_true(TRUE)

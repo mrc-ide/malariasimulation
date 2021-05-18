@@ -45,19 +45,7 @@
 create_variables <- function(parameters) {
   size <- parameters$human_population
 
-  initial_age <- round(rexp(size, rate=1/parameters$average_age))
-  
-  calculate_initial_ages <- function(parameters) {
-    # calculate proportions in each age group
-    if (i == 1) {
-      prop[i] <- p$eta/(r[i] + p$eta) # birth rate inflow / (aging out + deathrate)
-    } else {
-      prop[i] <- prop[i-1]*r[i-1]/(r[i] + p$eta)
-    }
-    
-    # if not, sample from the exponential dist
-    initial_age <- round(rexp(size, rate=1/parameters$average_age))
-  }
+  initial_age <- calculate_initial_ages(parameters)
 
   if (parameters$enable_heterogeneity) {
     quads <- statmod::gauss.quad.prob(
@@ -395,5 +383,52 @@ calculate_eq <- function(het_nodes, parameters) {
 calculate_zeta <- function(zeta_norm, parameters) {
   exp(
     zeta_norm * sqrt(parameters$sigma_squared) - parameters$sigma_squared/2
+  )
+}
+
+calculate_initial_ages <- function(parameters) {
+  # check if we've set up a custom demography
+  if (is.null(parameters$demography_agegroups)) {
+    return(round(rexp(
+      parameters$human_population,
+      rate=1/parameters$average_age
+    )))
+  }
+
+  n_age <- length(parameters$demography_agegroups)
+  birthrate <- parameters$demography_birthrates[[1]]
+  deathrate <- parameters$demography_deathrates[,1]
+
+  aging_rate <- rep(0, n_age)
+  age_days <- parameters$demography_agegroups * 365
+  for (i in seq(n_age)) {
+    # r[i] can be thought of as the rate of ageing in this age group, i.e.
+    # 1/r[i] is the duration of this group
+    if (i == n_age) {
+      aging_rate[i] <- 0
+    } else {
+      age_width <- age_days[i+1] - age_days[i]
+      aging_rate[i] <- 1 / age_width
+    }
+  }
+
+  prop <- rep(0, n_age)
+  for (i in seq_along(parameters$demography_agegroups)) {
+    # calculate proportions in each age group
+    # birth rate inflow / (aging out + deathrate)
+    if (i == 1) {
+      prop[i] <- birthrate / (aging_rate[[i]] + deathrate[[i]])
+    } else {
+      prop[i] <- prop[[i-1]]*aging_rate[[i-1]]/(aging_rate[i] + deathrate[[i]])
+    }
+  }
+
+  age_days_midpoint <- c((age_days[-n_age] + age_days[-1])/2, age_days[n_age])
+
+  sample(
+    age_days_midpoint,
+    parameters$human_population,
+    replace = TRUE,
+    prob = prob
   )
 }

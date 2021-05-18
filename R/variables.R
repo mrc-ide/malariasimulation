@@ -46,6 +46,18 @@ create_variables <- function(parameters) {
   size <- parameters$human_population
 
   initial_age <- round(rexp(size, rate=1/parameters$average_age))
+  
+  calculate_initial_ages <- function(parameters) {
+    # calculate proportions in each age group
+    if (i == 1) {
+      prop[i] <- p$eta/(r[i] + p$eta) # birth rate inflow / (aging out + deathrate)
+    } else {
+      prop[i] <- prop[i-1]*r[i-1]/(r[i] + p$eta)
+    }
+    
+    # if not, sample from the exponential dist
+    initial_age <- round(rexp(size, rate=1/parameters$average_age))
+  }
 
   if (parameters$enable_heterogeneity) {
     quads <- statmod::gauss.quad.prob(

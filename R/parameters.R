@@ -370,7 +370,7 @@ get_parameters <- function(overrides = list()) {
     rtss_rho_boost = c(1.03431, 1.02735),
     rtss_ds = c(3.74502, 0.341185),
     rtss_dl = c(6.30365, 0.396515),
-    rtss_timeteps = NULL,
+    rtss_timesteps = NULL,
     rtss_coverages = NULL,
     rtss_ages = NULL,
     # MDA
@@ -400,7 +400,7 @@ get_parameters <- function(overrides = list()) {
     tbv_tra_mu = 12.63,
     tbv_gamma1 = 2.5,
     tbv_gamma2 = .06,
-    tbv_timeteps = NULL,
+    tbv_timesteps = NULL,
     tbv_coverages = NULL,
     tbv_frequency = -1,
     tbv_ages = NULL,

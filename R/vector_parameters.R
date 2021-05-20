@@ -50,7 +50,7 @@ kol_params <- list(
   species = 'kol',
   blood_meal_rates = 1/3,
   Q0 = .73,
-  endophily = .905,
+  endophily = .93,
   rn = .56,
   rnm = .1,
   dn0 = .533,

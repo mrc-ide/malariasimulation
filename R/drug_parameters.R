@@ -1,5 +1,7 @@
 #' @title Preset parameters for the DHA-PQP drug
 #' @description From SI of Commun. 5:5606 doi: 10.1038/ncomms6606 (2014)
+#' @details Use a vector of preset parameters for DHA-PQP drug
+#' @details Default parameters, from L to R, are: drug_efficacy: 0.95, drug_rel_c: 0.09434, drug_prophylaxis_shape: 4.4, drug_prophylaxis_scale: 28.1
 #' @export
 DHA_PQP_params <- c(.95, 0.09434, 4.4, 28.1)
 

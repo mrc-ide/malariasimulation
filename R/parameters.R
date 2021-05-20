@@ -1,6 +1,6 @@
 #' @title Get model parameters
 #' @description
-#' get_paramaters creates a named list of parameters for use in the model. These
+#' get_parameters creates a named list of parameters for use in the model. These
 #' parameters are passed to process functions. These parameters are explained in
 #' "The US President's Malaria Initiative, Plasmodium falciparum transmission
 #' and mortality: A modelling study."
@@ -10,231 +10,231 @@
 #'
 #' fixed state transitions:
 #'
-#' * dd - the delay for humans to move from state D to A
-#' * dt - the delay for humans to move from state Tr to Ph
-#' * da - the delay for humans to move from state A to U
-#' * du - the delay for humans to move from state U to S
-#' * del - the delay for mosquitos to move from state E to L
-#' * dl - the delay for mosquitos to move from state L to P
-#' * dpl - the delay mosquitos to move from state P to Sm
-#' * mup - the rate at which pupal mosquitos die
-#' * mum - the rate at which developed mosquitos die
+#' * dd - the delay for humans to move from state D to A; default = 5
+#' * dt - the delay for humans to move from state Tr to Ph; default = 5
+#' * da - the delay for humans to move from state A to U; default = 200
+#' * du - the delay for humans to move from state U to S; default = 110
+#' * del - the delay for mosquitoes to move from state E to L; default = 6.64
+#' * dl - the delay for mosquitoes to move from state L to P; default = 3.72
+#' * dpl - the delay mosquitoes to move from state P to Sm; default = 0.643
+#' * mup - the rate at which pupal mosquitoes die; default = 0.249
+#' * mum - the rate at which developed mosquitoes die; default = 0.1253333
 #'
 #' immunity decay rates:
 #'
-#' * rm - decay rate for maternal immunity to clinical disease
-#' * rvm - decay rate for maternal immunity to severe disease
-#' * rb - decay rate for acquired pre-erytrhrocytic immunity
-#' * rc - decay rate for acquired immunity to clinical disease
-#' * rva - decay rate for acquired immunity to severe disease
-#' * rid - decay rate for acquired immunity to detectability
+#' * rm - decay rate for maternal immunity to clinical disease; default = 67.6952
+#' * rvm - decay rate for maternal immunity to severe disease; default = 76.8365
+#' * rb - decay rate for acquired pre-erythrocytic immunity; default = 3650
+#' * rc - decay rate for acquired immunity to clinical disease; default = 10950
+#' * rva - decay rate for acquired immunity to severe disease; default = 10950
+#' * rid - decay rate for acquired immunity to detectability; default = 3650
 #'
 #' probability of pre-erythrocytic infection:
 #'
-#' * b0 - maximum probability due to no immunity
-#' * b1 - maximum reduction due to immunity
-#' * ib0 - scale parameter
-#' * kb - shape parameter
+#' * b0 - maximum probability due to no immunity; default = 0.59
+#' * b1 - maximum reduction due to immunity; default = 0.5
+#' * ib0 - scale parameter; default = 43.9
+#' * kb - shape parameter; default = 2.16
 #'
 #' probability of clinical infection:
 #'
-#' * phi0 - maximum probability due to no immunity
-#' * phi1 - maximum reduction due to immunity
-#' * ic0 - scale parameter
-#' * kc - shape parameter
+#' * phi0 - maximum probability due to no immunity; default = 0.792
+#' * phi1 - maximum reduction due to immunity; default = 0.00074
+#' * ic0 - scale parameter; default = 18.02366
+#' * kc - shape parameter; default = 2.36949
 #'
 #' probability of severe infection:
 #'
-#' * severe_enabled - whether to model severe disease
-#' * theta0 - maximum probability due to no immunity
-#' * theta1 - maximum reduction due to immunity
-#' * iv0 - scale parameter
-#' * kv - shape parameter
-#' * fv0 - age dependent modifier
-#' * fvt - reduced probability of death due to treatment
-#' * av - age dependent modifier
-#' * gammav - age dependent modifier
+#' * severe_enabled - whether to model severe disease; default = 0
+#' * theta0 - maximum probability due to no immunity; default = 0.0749886
+#' * theta1 - maximum reduction due to immunity; default = 0.0001191
+#' * iv0 - scale parameter; default = 1.09629
+#' * kv - shape parameter; default = 2.00048
+#' * fv0 - age dependent modifier; default = 0.141195
+#' * fvt - reduced probability of death due to treatment; default = 0.5
+#' * av - age dependent modifier; default = 2493.41
+#' * gammav - age dependent modifier; default = 2.91282
 #'
 #' immunity reducing probability of detection:
 #'
-#' * fd0 - time-scale at which immunity changes with age
-#' * ad - scale parameter relating age to immunity
-#' * gammad - shape parameter relating age to immunity
-#' * d1 - minimum probability due to immunity
-#' * id0 - scale parameter 
-#' * kd - shape parameter
+#' * fd0 - time-scale at which immunity changes with age; default = 0.007055
+#' * ad - scale parameter relating age to immunity; default = 7993.5
+#' * gammad - shape parameter relating age to immunity; default = 4.8183
+#' * d1 - minimum probability due to immunity; default = 0.160527
+#' * id0 - scale parameter; default = 1.577533
+#' * kd - shape parameter; default = 0.476614
 #'
 #' immunity boost grace periods:
 #'
-#' * ub - period in which pre-erythrocytic immunity cannot be boosted
-#' * uc - period in which clinical immunity cannot be boosted
-#' * uv - period in which severe immunity cannot be boosted
-#' * ud - period in which immunity to detectability cannot be boosted
+#' * ub - period in which pre-erythrocytic immunity cannot be boosted; default = 7.2
+#' * uc - period in which clinical immunity cannot be boosted; default = 6.06
+#' * uv - period in which severe immunity cannot be boosted; default = 11.4321
+#' * ud - period in which immunity to detectability cannot be boosted; default = 9.44512
 #'
-#' infectivity towards mosquitos:
+#' infectivity towards mosquitoes:
 #'
-#' * cd - infectivity of clinically diseased humans towards mosquitos
-#' * gamma1 - parameter for infectivity of asymptomatic humans
-#' * cu - infectivity of sub-patent infection
-#' * ct - infectivity of treated infection
+#' * cd - infectivity of clinically diseased humans towards mosquitoes; default = 0.068
+#' * gamma1 - parameter for infectivity of asymptomatic humans; default = 1.82425
+#' * cu - infectivity of sub-patent infection; default = 0.0062
+#' * ct - infectivity of treated infection; default = 0.021896
 #'
 #' unique biting rate:
 #'
-#' * a0 - age dependent biting parameter
-#' * rho - age dependent biting parameter
-#' * sigma_squared - heterogeneity parameter
+#' * a0 - age dependent biting parameter; default = 2920
+#' * rho - age dependent biting parameter; default = 0.85
+#' * sigma_squared - heterogeneity parameter; default = 1.67
 #' * n_heterogeneity_groups - number discretised groups for heterogeneity, used
-#' for sampling mothers
+#' for sampling mothers; default = 5
 #'
 #' mortality parameters:
 #'
-#' * average_age - the average age of humans (in timesteps)
-#' * v - mortality scaling factor from severe disease
-#' * pcm - new-born clinical immunity relative to mother's
-#' * pvm - new-born severe immunity relative to mother's
-#' * me - early stage larval mortality rate
-#' * ml - late stage larval mortality rate
+#' * average_age - the average age of humans (in timesteps); default = 7663
+#' * v - mortality scaling factor from severe disease; default = 0.065
+#' * pcm - new-born clinical immunity relative to mother's; default = 0.774368
+#' * pvm - new-born severe immunity relative to mother's; default = 0.195768
+#' * me - early stage larval mortality rate; default = 0.0338
+#' * ml - late stage larval mortality rate; default = 0.0348
 #'
 #' carrying capacity parameters:
 #'
-#' * model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall
-#' * g0 - rainfall fourier parameter
-#' * g - rainfall fourier parameter
-#' * h - rainfall fourier parameters
+#' * model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall; default = FALSE 
+#' * g0 - rainfall fourier parameter; default = 2
+#' * g - rainfall fourier parameter; default = 0.3, 0.6, 0.9
+#' * h - rainfall fourier parameters; default = 0.1, 0.4, 0.7
 #' * gamma - effect of density dependence on late instars relative to early
-#' instars
+#' instars; default = 13.25
 #'
 #' initial state proportions:
 #'
-#' * s_proportion - the proportion of `human_population` that begin as Susceptable
+#' * s_proportion - the proportion of `human_population` that begin as susceptible; default = 0.420433246
 #' * d_proportion - the proportion of `human_population` that begin with
-#' clinical disease
+#' clinical disease; default = 0.007215064
 #' * a_proportion - the proportion of `human_population` that begin as
-#' Asymptomatic
+#' asymptomatic; default = 0.439323667
 #' * u_proportion - the proportion of `human_population` that begin as
-#' subpatents
-#' * t_proportion - the proportion of `human_population` that begin treated
+#' subpatents; default = 0.133028023
+#' * t_proportion - the proportion of `human_population` that begin treated; default = 0
 #'
 #' initial immunity values:
 #'
-#' * init_icm - the immunity from clinical disease at birth
-#' * init_ivm - the immunity from severe disease at birth
-#' * init_ib  - the initial pre-erythrocitic immunity
-#' * init_ica - the initial acquired immunity from clinical disease
-#' * init_iva - the initial acquired immunity from severe disease
-#' * init_id  - the initial acquired immunity to detectability
+#' * init_icm - the immunity from clinical disease at birth; default = 0
+#' * init_ivm - the immunity from severe disease at birth; default = 0
+#' * init_ib  - the initial pre-erythrocitic immunity; default = 0
+#' * init_ica - the initial acquired immunity from clinical disease; default = 0
+#' * init_iva - the initial acquired immunity from severe disease; default = 0
+#' * init_id  - the initial acquired immunity to detectability; default = 0
 #'
 #' incubation periods:
 #'
-#' * de - Duration of the human latent period of infection
-#' * delay_gam - Lag from parasites to infectious gametocytes
-#' * dem - Extrinsic incubation period in mosquito population model
+#' * de - Duration of the human latent period of infection; default = 12
+#' * delay_gam - Lag from parasites to infectious gametocytes; default = 12.5
+#' * dem - Extrinsic incubation period in mosquito population model; default = 10
 #'
 #' vector biology:
 #' species specific values are vectors
 #'
-#' * beta - the average number of eggs laid per female mosquito per day
-#' * total_M - the initial number of adult mosquitos in the simulation
-#' * init_foim - the FOIM used to calculate the equilibrium state for mosquitoes
-#' * species - names of the species in the simulation
-#' * species_proportions - the relative proportions of each species
-#' * blood_meal_rates - the blood meal rates for each species
-#' * Q0 - proportion of blood meals taken on humans
-#' * foraging_time - time spent taking blood meals
+#' * beta - the average number of eggs laid per female mosquito per day; default = 21.2
+#' * total_M - the initial number of adult mosquitos in the simulation; default = 1000
+#' * init_foim - the FOIM used to calculate the equilibrium state for mosquitoes; default = 0
+#' * species - names of the species in the simulation; default = "All" 
+#' * species_proportions - the relative proportions of each species; default = 1
+#' * blood_meal_rates - the blood meal rates for each species; default = 0.3333333333
+#' * Q0 - proportion of blood meals taken on humans; default = 0.92
+#' * foraging_time - time spent taking blood meals; default = 0.69
 #'
 #' feeding cycle:
 #'
-#' * bednets - boolean for if bednets are enabled
-#' * rn - probability mosquito is repelled by the bednet
-#' * rnm - minimum probability mosquito is repelled by the bednet 
-#' * dn0 - probability killed by the bednet
-#' * spraying - boolean for if indoor spraying is enabled
-#' * rs - probability repelled by indoor spraying
-#' * phi_indoors - proportion of bites taken indoors
-#' * phi_bednets - proportion of bites taken in bed
+#' * bednets - boolean for if bednets are enabled; default = FALSE 
+#' * rn - probability mosquito is repelled by the bednet; default = 0.56
+#' * rnm - minimum probability mosquito is repelled by the bednet ; default = 0.24
+#' * dn0 - probability killed by the bednet; default = 0.533
+#' * spraying - boolean for if indoor spraying is enabled; default = FALSE 
+#' * rs - probability repelled by indoor spraying; default = 0.2
+#' * phi_indoors - proportion of bites taken indoors; default = 0.97
+#' * phi_bednets - proportion of bites taken in bed; default = 0.89
 #' * endophily - proportion of mosquitoes resting indoors after feeding with no
-#' intervention
-#' * gammas - the half-life of spraying efficacy (timesteps)
-#' * gamman - the half-life of bednet efficacy (timesteps)
+#' intervention; default = 0.813
+#' * gammas - the half-life of spraying efficacy (timesteps); default = 91.25
+#' * gamman - the half-life of bednet efficacy (timesteps); default = 963.6
 #'
 #' please set vector control strategies using `set_betnets` and `set_spraying`
 #'
 #' treatment parameters:
-#' I recommend setting these with the convenience functions in
+#' please set treatment parameters with the convenience functions in
 #' `drug_parameters.R`
 #'
-#' * drug_efficacy - a vector of efficacies for available drugs
-#' * drug_rel_c - a vector of relative onwards infectiousness values for drugs
+#' * drug_efficacy - a vector of efficacies for available drugs; default = 
+#' * drug_rel_c - a vector of relative onward infectiousness values for drugs; default = 
 #' * drug_prophylaxis_shape - a vector of shape parameters for weibull curves to
-#' model prophylaxis for each drug
+#' model prophylaxis for each drug; default = 
 #' * drug_prophylaxis_scale - a vector of scale parameters for weibull curves to
-#' model prophylaxis for each drug
-#' * ft - probability of seeking treatment if clinically diseased
-#' * clinical_treatment_drugs - a vector of drugs that are avaliable for
-#' clinically diseased (these values refer to the index in drug_* parameters)
-#' * clinical_treatment_coverage - a vector of coverage values for each drug
+#' model prophylaxis for each drug; default = 
+#' * ft - probability of seeking treatment if clinically diseased; default = 
+#' * clinical_treatment_drugs - a vector of drugs that are available for
+#' clinically diseased (these values refer to the index in drug_* parameters); default = NULL, NULL, NULL
+#' * clinical_treatment_coverage - a vector of coverage values for each drug; default = NULL, NULL, NULL
 #'
 #' RTS,S paramters:
 #'
-#' * rtss_vmax - the maximum efficacy of the vaccine
-#' * rtss_alpha - shape parameter for the vaccine efficacy model
-#' * rtss_beta - scale parameter for the vaccine efficacy model
-#' * rtss_cs - peak parameters for the antibody model (mean and std. dev)
-#' * rtss_cs_boost - peak parameters for the antibody model for booster rounds (mean and std. dev)
-#' * rtss_rho - delay parameters for the antibody model (mean and std. dev)
-#' * rtss_rho_boost - delay parameters for the antibody model for booster rounds (mean and std. dev)
-#' * rtss_ds - delay parameters for the antibody model (mean and std. dev)
-#' * rtss_dl - delay parameters for the antibody model (mean and std. dev)
+#' * rtss_vmax - the maximum efficacy of the vaccine; default = 0.93
+#' * rtss_alpha - shape parameter for the vaccine efficacy model; default = 0.74
+#' * rtss_beta - scale parameter for the vaccine efficacy model; default = 99.4
+#' * rtss_cs - peak parameters for the antibody model (mean and std. dev); default = 6.37008, 0.35
+#' * rtss_cs_boost - peak parameters for the antibody model for booster rounds (mean and std. dev); default = 5.56277, 0.35
+#' * rtss_rho - delay parameters for the antibody model (mean and std. dev); default = 2.37832, 1.00813
+#' * rtss_rho_boost - delay parameters for the antibody model for booster rounds (mean and std. dev); default = 1.03431, 1.02735
+#' * rtss_ds - delay parameters for the antibody model (mean and std. dev); default = 3.74502, 0.341185
+#' * rtss_dl - delay parameters for the antibody model (mean and std. dev); default = 6.30365, 0.396515
 #'
-#' I recommend setting strategies with the convenience functions in
+#' please set these strategies with the convenience functions in
 #' `vaccine_parameters.R:set_rtss`
 #'
 #' MDA and SMC parameters:
-#' We recommend setting these with convenience functions in `mda_parameters.R`
+#' please set these parameters with the convenience functions in `mda_parameters.R`
 #'
 #' TBV parameters:
 #'
-#' * tbv_mt - effect on treated infectiousness
-#' * tbv_md - effect on diseased infectiousness
-#' * tbv_ma - effect on asymptomatic infectiousness
-#' * tbv_mu - effect on subpatent infectiousness
-#' * tbv_k  - scale parameter for effect on infectiousness
-#' * tbv_tau - peak antibody parameter
-#' * tbv_rho - antibody component parameter
-#' * tbv_ds - antibody short-term delay parameter
-#' * tbv_dl - antibody long-term delay parameter
-#' * tbv_tra_mu - transmission reduction parameter
-#' * tbv_gamma1 - transmission reduction parameter
-#' * tbv_gamma2 - transmission reduction parameter
+#' * tbv_mt - effect on treated infectiousness; default = 35
+#' * tbv_md - effect on diseased infectiousness; default = 46.7
+#' * tbv_ma - effect on asymptomatic infectiousness; default = 3.6
+#' * tbv_mu - effect on subpatent infectiousness; default = 0.8
+#' * tbv_k  - scale parameter for effect on infectiousness; default = 0.9
+#' * tbv_tau - peak antibody parameter; default = 22
+#' * tbv_rho - antibody component parameter; default = 0.7
+#' * tbv_ds - antibody short-term delay parameter; default = 45
+#' * tbv_dl - antibody long-term delay parameter; default = 591
+#' * tbv_tra_mu - transmission reduction parameter; default = 12.63
+#' * tbv_gamma1 - transmission reduction parameter; default = 2.5
+#' * tbv_gamma2 - transmission reduction parameter; default = 0.06
 #'
-#' I recommend setting tbv strategies with the convenience functions in
+#' please set tbv strategies with the convenience functions in
 #' `vaccine_parameters.R`, these are the same as for RTS,S
 #'
 #' rendering:
 #' All values are in timesteps and all ranges are inclusive
 #'
 #' * prevalence_rendering_min_ages - the minimum ages for clinical prevalence
-#' outputs
-#' * prevalence_rendering_max_ages - the corresponding max ages
+#' outputs; default = 730
+#' * prevalence_rendering_max_ages - the corresponding max ages; default = 3650
 #' * incidence_rendering_min_ages - the minimum ages for clinical incidence
-#' outputs
-#' * incidence_rendering_max_ages - the corresponding max ages
+#' outputs; default = 
+#' * incidence_rendering_max_ages - the corresponding max ages; default = 
 #' * severe_prevalence_rendering_min_ages - the minimum ages for severe
-#' prevalence outputs
-#' * severe_prevalence_rendering_max_ages - the corresponding max ages
+#' prevalence outputs; default = 
+#' * severe_prevalence_rendering_max_ages - the corresponding max ages; default = 
 #' * severe_incidence_rendering_min_ages - the minimum ages for severe incidence
-#' outputs
-#' * severe_incidence_rendering_max_ages - the corresponding max ages
+#' outputs; default = 
+#' * severe_incidence_rendering_max_ages - the corresponding max ages; default = 
 #'
 #' miscellaneous:
 #'
-#' * human_population - the number of humans to model
+#' * human_population - the number of humans to model; default = 100
 #' * mosquito_limit - the maximum number of mosquitos to allow for in the
-#' simulation
-#' * individual_mosquitoes - boolean whether adult mosquitoes are modelled
-#' individually or compartmentaly
+#' simulation; default = 1.00E+05
+#' * individual_mosquitoes - boolean whether adult mosquitoes are modeled
+#' individually or compartmentally; default = TRUE 
 #' * enable_heterogeneity - boolean whether to include heterogeneity in biting
-#' rates
+#' rates; default = TRUE 
 #'
 #' @export
 get_parameters <- function(overrides = list()) {

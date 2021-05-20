@@ -142,7 +142,8 @@
 #' * Q0 - proportion of blood meals taken on humans; default = 0.92
 #' * foraging_time - time spent taking blood meals; default = 0.69
 #'
-#' feeding cycle:
+#' feeding cycle: 
+#' please set vector control strategies using `set_betnets` and `set_spraying`
 #'
 #' * bednets - boolean for if bednets are enabled; default = FALSE 
 #' * rn - probability mosquito is repelled by the bednet; default = 0.56
@@ -157,24 +158,23 @@
 #' * gammas - the half-life of spraying efficacy (timesteps); default = 91.25
 #' * gamman - the half-life of bednet efficacy (timesteps); default = 963.6
 #'
-#' please set vector control strategies using `set_betnets` and `set_spraying`
-#'
 #' treatment parameters:
 #' please set treatment parameters with the convenience functions in
 #' `drug_parameters.R`
 #'
-#' * drug_efficacy - a vector of efficacies for available drugs; default = 
-#' * drug_rel_c - a vector of relative onward infectiousness values for drugs; default = 
+#' * drug_efficacy - a vector of efficacies for available drugs; default = turned off
+#' * drug_rel_c - a vector of relative onward infectiousness values for drugs; default = turned off
 #' * drug_prophylaxis_shape - a vector of shape parameters for weibull curves to
-#' model prophylaxis for each drug; default = 
+#' model prophylaxis for each drug; default = turned off
 #' * drug_prophylaxis_scale - a vector of scale parameters for weibull curves to
-#' model prophylaxis for each drug; default = 
-#' * ft - probability of seeking treatment if clinically diseased; default = 
+#' model prophylaxis for each drug; default = turned off
 #' * clinical_treatment_drugs - a vector of drugs that are available for
 #' clinically diseased (these values refer to the index in drug_* parameters); default = NULL, NULL, NULL
 #' * clinical_treatment_coverage - a vector of coverage values for each drug; default = NULL, NULL, NULL
 #'
-#' RTS,S paramters:
+#' RTS,S paramters: 
+#' please set RTS,S parameters with the convenience functions in
+#' `vaccine_parameters.R:set_rtss`
 #'
 #' * rtss_vmax - the maximum efficacy of the vaccine; default = 0.93
 #' * rtss_alpha - shape parameter for the vaccine efficacy model; default = 0.74
@@ -183,16 +183,15 @@
 #' * rtss_cs_boost - peak parameters for the antibody model for booster rounds (mean and std. dev); default = 5.56277, 0.35
 #' * rtss_rho - delay parameters for the antibody model (mean and std. dev); default = 2.37832, 1.00813
 #' * rtss_rho_boost - delay parameters for the antibody model for booster rounds (mean and std. dev); default = 1.03431, 1.02735
-#' * rtss_ds - delay parameters for the antibody model (mean and std. dev); default = 3.74502, 0.341185
-#' * rtss_dl - delay parameters for the antibody model (mean and std. dev); default = 6.30365, 0.396515
-#'
-#' please set these strategies with the convenience functions in
-#' `vaccine_parameters.R:set_rtss`
+#' * rtss_ds - delay parameters for the antibody model, short-term weaning (mean and std. dev); default = 3.74502, 0.341185 (White MT et al. 2015 Lancet ID)
+#' * rtss_dl - delay parameters for the antibody model, long-term weaning (mean and std. dev); default = 6.30365, 0.396515 (White MT et al. 2015 Lancet ID)
 #'
 #' MDA and SMC parameters:
 #' please set these parameters with the convenience functions in `mda_parameters.R`
 #'
-#' TBV parameters:
+#' TBV parameters: 
+#' please set TBV parameters with the convenience functions in
+#' `vaccine_parameters.R:set_tbv`
 #'
 #' * tbv_mt - effect on treated infectiousness; default = 35
 #' * tbv_md - effect on diseased infectiousness; default = 46.7
@@ -207,29 +206,28 @@
 #' * tbv_gamma1 - transmission reduction parameter; default = 2.5
 #' * tbv_gamma2 - transmission reduction parameter; default = 0.06
 #'
-#' please set tbv strategies with the convenience functions in
-#' `vaccine_parameters.R`, these are the same as for RTS,S
-#'
 #' rendering:
 #' All values are in timesteps and all ranges are inclusive
 #'
 #' * prevalence_rendering_min_ages - the minimum ages for clinical prevalence
 #' outputs; default = 730
 #' * prevalence_rendering_max_ages - the corresponding max ages; default = 3650
-#' * incidence_rendering_min_ages - the minimum ages for clinical incidence
-#' outputs; default = 
-#' * incidence_rendering_max_ages - the corresponding max ages; default = 
+#' * incidence_rendering_min_ages - the minimum ages for incidence
+#' outputs (includes asymptomatic microscopy +); default = turned off
+#' * incidence_rendering_max_ages - the corresponding max ages; default = turned off 
+#' clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = 0
+#' clinical_incidence_rendering_max_ages - the corresponding max ages; default = 1825
 #' * severe_prevalence_rendering_min_ages - the minimum ages for severe
-#' prevalence outputs; default = 
-#' * severe_prevalence_rendering_max_ages - the corresponding max ages; default = 
+#' prevalence outputs; default = turned off
+#' * severe_prevalence_rendering_max_ages - the corresponding max ages; default = turned off
 #' * severe_incidence_rendering_min_ages - the minimum ages for severe incidence
-#' outputs; default = 
-#' * severe_incidence_rendering_max_ages - the corresponding max ages; default = 
+#' outputs; default = turned off
+#' * severe_incidence_rendering_max_ages - the corresponding max ages; default = turned off
 #'
 #' miscellaneous:
 #'
 #' * human_population - the number of humans to model; default = 100
-#' * mosquito_limit - the maximum number of mosquitos to allow for in the
+#' * mosquito_limit - the maximum number of mosquitoes to allow for in the
 #' simulation; default = 1.00E+05
 #' * individual_mosquitoes - boolean whether adult mosquitoes are modeled
 #' individually or compartmentally; default = TRUE 
@@ -372,7 +370,6 @@ get_parameters <- function(overrides = list()) {
     rtss_dl = c(6.30365, 0.396515),
     rtss_timesteps = NULL,
     rtss_coverages = NULL,
-    rtss_ages = NULL,
     # MDA
     mda = FALSE,
     mda_drug = 0,
@@ -402,7 +399,6 @@ get_parameters <- function(overrides = list()) {
     tbv_gamma2 = .06,
     tbv_timesteps = NULL,
     tbv_coverages = NULL,
-    tbv_frequency = -1,
     tbv_ages = NULL,
     # rendering
     prevalence_rendering_min_ages = 2 * 365,
@@ -410,7 +406,7 @@ get_parameters <- function(overrides = list()) {
     incidence_rendering_min_ages = numeric(0),
     incidence_rendering_max_ages = numeric(0),
     clinical_incidence_rendering_min_ages = numeric(0),
-    clinical_incidence_rendering_max_ages = numeric(0),
+    clinical_incidence_rendering_max_ages = 5 * 365,
     severe_prevalence_rendering_min_ages = numeric(0),
     severe_prevalence_rendering_max_ages = numeric(0),
     severe_incidence_rendering_min_ages = numeric(0),

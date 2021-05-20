@@ -46,6 +46,20 @@ fun_params <- list(
   mum = .112
 )
 
+kol_params <- list(
+  species = 'kol',
+  blood_meal_rates = 1/3,
+  Q0 = .73,
+  endophily = .905,
+  rn = .56,
+  rnm = .1,
+  dn0 = .533,
+  phi_bednets = .9,
+  rs = .2,
+  phi_indoors = .98,
+  mum = .112
+)
+
 #' @title Parameterise the mosquito species to use in the model
 #'
 #' @param parameters the model parameters

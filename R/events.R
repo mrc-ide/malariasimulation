@@ -228,31 +228,7 @@ attach_event_listeners <- function(
 
   if (parameters$tbv == 1) {
     events$tbv_vaccination$add_listener(
-      function(timestep) {
-        time_index = which(parameters$tbv_timesteps == timestep)
-        target <- which(trunc(get_age(
-          variables$birth$get_values(),
-          timestep
-        ) / 365) %in% parameters$tbv_ages)
-        to_vaccinate <- which(sample_intervention(
-          target,
-          'tbv',
-          parameters$tbv_coverages[[time_index]],
-          correlations
-        ))
-        renderer$render('n_vaccinated_tbv', length(to_vaccinate), timestep)
-        if (length(to_vaccinate) > 0) {
-          variables$tbv_vaccinated$queue_update(
-            timestep,
-            to_vaccinate
-          )
-        }
-        if (time_index < length(parameters$tbv_timesteps)) {
-          events$tbv_vaccination$schedule(
-            parameters$tbv_timesteps[[time_index + 1]] - timestep
-          )
-        }
-      }
+      create_tbv_listener(variables, events, parameters, correlations, renderer)
     )
   }
 }

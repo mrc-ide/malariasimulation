@@ -12,6 +12,19 @@ test_that('TBV strategy parameterisation works', {
   expect_equal(parameters$tbv_ages, c(1, 2, 3, 18))
 })
 
+test_that('TBV scheduler works on first timestep', {
+  parameters <- get_parameters()
+  parameters <- set_tbv(
+    parameters,
+    timesteps = 10,
+    coverages = 0.8,
+    ages = c(1, 2, 3, 18)
+  )
+  output <- run_simulation(10, parameters)
+  expect_equal(output$n_vaccinated_tbv[1:9], as.numeric(rep(NA, 9)))
+  expect_gt(output$n_vaccinated_tbv[[10]], 0)
+})
+
 test_that('TBV antibodies are calculated correctly', {
   tau <- 22
   rho <- .7

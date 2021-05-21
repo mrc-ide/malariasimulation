@@ -80,7 +80,7 @@ create_processes <- function(
       events,
       parameters,
       LaggedValue$new(
-        parameters$delay_gam + 1,
+        parameters$delay_gam + 2,
         parameters$init_foim
       ), # lagged FOIM
       init_eir # lagged EIR

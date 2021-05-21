@@ -115,11 +115,8 @@
     g0 <span class="op">=</span> <span class="fl">0.28605</span>,
     g <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.20636</span>, <span class="op">-</span><span class="fl">0.0740318</span>, <span class="op">-</span><span class="fl">0.0009293</span><span class="op">)</span>,
     h <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.173743</span>, <span class="op">-</span><span class="fl">0.0730962</span>, <span class="op">-</span><span class="fl">0.116019</span><span class="op">)</span>,
-    severe_enabled <span class="op">=</span> <span class="cn">TRUE</span>,
     incidence_rendering_min_ages <span class="op">=</span> <span class="fl">0</span>,
-    incidence_rendering_max_ages <span class="op">=</span> <span class="fl">18</span> <span class="op">*</span> <span class="va">year</span>,
-    severe_incidence_rendering_min_ages <span class="op">=</span> <span class="fl">0</span>,
-    severe_incidence_rendering_max_ages <span class="op">=</span> <span class="fl">18</span> <span class="op">*</span> <span class="va">year</span>
+    incidence_rendering_max_ages <span class="op">=</span> <span class="fl">18</span> <span class="op">*</span> <span class="va">year</span>
   <span class="op">)</span>
 <span class="op">)</span>
 
@@ -194,7 +191,7 @@
 <span class="va">tbvparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_tbv.html">set_tbv</a></span><span class="op">(</span>
   <span class="va">tbvparams</span>,
   timesteps <span class="op">=</span> <span class="va">tbvevents</span><span class="op">$</span><span class="va">timestep</span>,
-  coverages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">0.8</span>, <span class="fl">2</span><span class="op">)</span>,
+  coverages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">0.9</span>, <span class="fl">2</span><span class="op">)</span>,
   ages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span><span class="op">(</span><span class="fl">18</span><span class="op">)</span>
 <span class="op">)</span>
 

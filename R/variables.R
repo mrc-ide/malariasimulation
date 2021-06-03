@@ -209,8 +209,17 @@ create_variables <- function(parameters) {
   tbv_vaccinated <- individual::DoubleVariable$new(rep(-1, size))
 
   # Init vector controls
-  net_time <- individual::DoubleVariable$new(rep(-1, size))
-  spray_time <- individual::DoubleVariable$new(rep(-1, size))
+  net_time <- individual::IntegerVariable$new(rep(-1, size))
+  dn0 <- individual::DoubleVariable$new(rep(-1, size))
+  rn <- individual::DoubleVariable$new(rep(-1, size))
+  gamman <- individual::DoubleVariable$new(rep(-1, size))
+  spray_time <- individual::IntegerVariable$new(rep(-1, size))
+  ls_theta <- individual::DoubleVariable$new(rep(-1, size))
+  ls_gamma <- individual::DoubleVariable$new(rep(-1, size))
+  ks_theta <- individual::DoubleVariable$new(rep(-1, size))
+  ks_gamma <- individual::DoubleVariable$new(rep(-1, size))
+  ms_theta <- individual::DoubleVariable$new(rep(-1, size))
+  ms_gamma <- individual::DoubleVariable$new(rep(-1, size))
 
   variables <- list(
     state = state,
@@ -239,7 +248,16 @@ create_variables <- function(parameters) {
     tbv_vaccinated = tbv_vaccinated,
     is_severe = is_severe,
     net_time = net_time,
-    spray_time = spray_time
+    dn0 = dn0,
+    rn = rn,
+    gamman = gamman,
+    spray_time = spray_time,
+    ls_theta = ls_theta,
+    ls_gamma = ls_gamma,
+    ks_theta = ks_theta,
+    ks_gamma = ks_gamma,
+    ms_theta = ms_theta,
+    ms_gamma = ms_gamma
   )
 
   # Add variables for individual mosquitoes

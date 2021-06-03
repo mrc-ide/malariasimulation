@@ -146,17 +146,10 @@
 #' please set vector control strategies using `set_betnets` and `set_spraying`
 #'
 #' * bednets - boolean for if bednets are enabled; default = FALSE 
-#' * rn - probability mosquito is repelled by the bednet; default = 0.56
-#' * rnm - minimum probability mosquito is repelled by the bednet ; default = 0.24
-#' * dn0 - probability killed by the bednet; default = 0.533
-#' * spraying - boolean for if indoor spraying is enabled; default = FALSE 
-#' * rs - probability repelled by indoor spraying; default = 0.2
-#' * phi_indoors - proportion of bites taken indoors; default = 0.97
 #' * phi_bednets - proportion of bites taken in bed; default = 0.89
-#' * endophily - proportion of mosquitoes resting indoors after feeding with no
-#' intervention; default = 0.813
-#' * gammas - the half-life of spraying efficacy (timesteps); default = 91.25
-#' * gamman - the half-life of bednet efficacy (timesteps); default = 963.6
+#' * rnm - minimum probability mosquito is repelled by the bednet ; default = 0.24
+#' * spraying - boolean for if indoor spraying is enabled; default = FALSE 
+#' * phi_indoors - proportion of bites taken indoors; default = 0.97
 #'
 #' treatment parameters:
 #' please set treatment parameters with the convenience functions in

@@ -6,8 +6,8 @@
 #' @param parameters model parameters
 #' @noRd
 prob_bitten <- function(timestep, variables, species, parameters) {
+  n <- parameters$human_population
   if (!(parameters$bednets || parameters$spraying)) {
-    n <- parameters$human_population
     return(
       list(
         prob_bitten_survives = rep(1, n),
@@ -34,22 +34,38 @@ prob_bitten <- function(timestep, variables, species, parameters) {
 
   if (parameters$spraying) {
     phi_indoors <- parameters$phi_indoors[[species]]
-    spray_time <- variables$spray_time$get_values()
+    unprotected <- variables$spray_time$get_index_of(-1)
+    protected <- unprotected$not()
+    spray_time <- variables$spray_time$get_values(protected)
+    ls_theta <- variables$ls_theta$get_values(protected)
+    ls_gamma <- variables$ls_gamma$get_values(protected)
+    ks_theta <- variables$ls_theta$get_values(protected)
+    ks_gamma <- variables$ls_gamma$get_values(protected)
+    ms_theta <- variables$ls_theta$get_values(protected)
+    ms_gamma <- variables$ls_gamma$get_values(protected)
     since_spray <- timestep - spray_time
-    unused <- spray_time == -1
-    rs <- prob_spraying_repels(
-      since_spray,
-      parameters$rs[[species]],
-      parameters$gammas
+    ls <- spraying_decay(since_spray, ls_theta, ls_gamma)
+    ks <- spraying_decay(since_spray, ks_theta, ks_gamma)
+    ms <- spraying_decay(since_spray, ms_theta, ms_gamma)
+    js <- 1 - ls - ks
+    ms_comp <- (1 - ms)
+    ls_prime <- ls * ms_comp
+    ks_prime <- ks * ms_comp
+    js_prime <- js * ms_comp + ms
+    protected_index <- protected$to_vector()
+    rs <- rep(0, n)
+    rs[protected_index] <- prob_spraying_repels(
+      ks_prime,
+      js_prime,
+      ls_prime,
+      parameters$k0
     )
-    rs[unused] <- 0
     rs_comp <- 1 - rs
-    ss <- prob_survives_spraying(
-      since_spray,
-      parameters$endophily[[species]],
-      parameters$gammas
+    ss <- rep(1, n)
+    ss[protected_index] <- prob_survives_spraying(
+      ks_prime,
+      parameters$k0
     )
-    ss[unused] <- 1
   } else {
     phi_indoors <- 0
     rs <- 0
@@ -57,7 +73,6 @@ prob_bitten <- function(timestep, variables, species, parameters) {
     ss <- 1
   }
 
-  
   list(
     prob_bitten_survives = (
       1 - phi_indoors +
@@ -121,7 +136,10 @@ distribute_nets <- function(variables, throw_away_net, parameters, correlations)
         correlations
       ))
       variables$net_time$queue_update(timestep, target)
-      throw_away_net$schedule(target, log_uniform(length(target), parameters$bednet_retention))
+      throw_away_net$schedule(
+        target,
+        log_uniform(length(target), parameters$bednet_retention)
+      )
     }
   }
 }
@@ -135,26 +153,29 @@ throw_away_nets <- function(variables) {
 # =================
 # Utility functions
 # =================
-prob_spraying_repels <- function(t, rs0, gammas) {
-  rs0 * vector_control_decay(t, gammas)
+prob_spraying_repels <- function(ls_prime, ks_prime, js_prime, k0) {
+  (1 - ks_prime / k0) * (js_prime / (ls_prime + js_prime))
 }
 
-prob_survives_spraying <- function(t, endophily, gammas) {
-  ds <- endophily * vector_control_decay(t, gammas)
-  1 - ds
+prob_survives_spraying <- function(ks_prime, k0) {
+  ks_prime / k0
 }
 
 prob_repelled_bednets <- function(t, species, parameters) {
   rnm <- parameters$rnm[[species]]
   gamman <- parameters$gamman
-  (parameters$rn[[species]] - rnm) * vector_control_decay(t, gamman) + rnm
+  (parameters$rn[[species]] - rnm) * bednet_decay(t, gamman) + rnm
 }
 
 prob_survives_bednets <- function(rn, t, species, parameters) {
-  dn <- parameters$dn0[[species]] * vector_control_decay(t, parameters$gamman)
+  dn <- parameters$dn0[[species]] * bednet_decay(t, parameters$gamman)
   1 - rn - dn
 }
 
-vector_control_decay <- function(t, gamma) {
+bednet_decay <- function(t, gamma) {
   exp(-t / gamma)
+}
+
+spraying_decay <- function(t, theta, gamma) {
+  1 / (1 + exp(theta + gamma * t))
 }

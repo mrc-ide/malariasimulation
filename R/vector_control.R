@@ -1,11 +1,15 @@
-
-#' @title return the probability of being bitten given vector controls
+#' @title The probability of being bitten given vector controls
 #' @param timestep current timestep
 #' @param variables a list of available variables
 #' @param species the species to calculate for
 #' @param parameters model parameters
 #' @noRd
-prob_bitten <- function(timestep, variables, species, parameters) {
+prob_bitten <- function(
+  timestep,
+  variables,
+  species,
+  parameters
+  ) {
   n <- parameters$human_population
   if (!(parameters$bednets || parameters$spraying)) {
     return(
@@ -21,8 +25,9 @@ prob_bitten <- function(timestep, variables, species, parameters) {
     phi_bednets <- parameters$phi_bednets[[species]]
     net_time <- variables$net_time$get_values()
     since_net <- timestep - net_time
-    rn <- prob_repelled_bednets(since_net, species, parameters)
-    sn <- prob_survives_bednets(rn, since_net, species, parameters)
+    matches <- match(net_time, parameters$bednet_timesteps)
+    rn <- prob_repelled_bednets(matches, since_net, species, parameters)
+    sn <- prob_survives_bednets(rn, matches, since_net, species, parameters)
     unused <- net_time == -1
     sn[unused] <- 1
     rn[unused] <- 0
@@ -37,12 +42,13 @@ prob_bitten <- function(timestep, variables, species, parameters) {
     unprotected <- variables$spray_time$get_index_of(-1)
     protected <- unprotected$not()
     spray_time <- variables$spray_time$get_values(protected)
-    ls_theta <- variables$ls_theta$get_values(protected)
-    ls_gamma <- variables$ls_gamma$get_values(protected)
-    ks_theta <- variables$ls_theta$get_values(protected)
-    ks_gamma <- variables$ls_gamma$get_values(protected)
-    ms_theta <- variables$ls_theta$get_values(protected)
-    ms_gamma <- variables$ls_gamma$get_values(protected)
+    matches <- match(spray_time, parameters$spraying_timesteps)
+    ls_theta <- parameters$ls_theta[matches]
+    ls_gamma <- parameters$ls_gamma[matches]
+    ks_theta <- parameters$ks_theta[matches]
+    ks_gamma <- parameters$ks_gamma[matches]
+    ms_theta <- parameters$ms_theta[matches]
+    ms_gamma <- parameters$ms_gamma[matches]
     since_spray <- timestep - spray_time
     ls <- spraying_decay(since_spray, ls_theta, ls_gamma)
     ks <- spraying_decay(since_spray, ks_theta, ks_gamma)
@@ -161,14 +167,15 @@ prob_survives_spraying <- function(ks_prime, k0) {
   ks_prime / k0
 }
 
-prob_repelled_bednets <- function(t, species, parameters) {
-  rnm <- parameters$rnm[[species]]
-  gamman <- parameters$gamman
-  (parameters$rn[[species]] - rnm) * bednet_decay(t, gamman) + rnm
+prob_repelled_bednets <- function(matches, dt, species, parameters) {
+  rnm <- parameters$bednet_rnm[species, matches]
+  gamman <- parameters$bednet_gamman[matches]
+  (parameters$bednet_rn[species, matches] - rnm) * bednet_decay(dt, gamman) + rnm
 }
 
-prob_survives_bednets <- function(rn, t, species, parameters) {
-  dn <- parameters$dn0[[species]] * bednet_decay(t, parameters$gamman)
+prob_survives_bednets <- function(rn, matches, dt, species, parameters) {
+  dn0 <- parameters$bednet_dn0[species, matches]
+  dn <- dn0 * bednet_decay(dt, parameters$bednet_gamman[matches])
   1 - rn - dn
 }
 

@@ -48,8 +48,6 @@ create_variables <- function(parameters) {
   initial_age <- round(rexp(size, rate=1/parameters$average_age))
 
   if (parameters$enable_heterogeneity) {
-    #zeta_norm <- rnorm(size)
-    #het_nodes <- gaussian_quadrature(parameters$n_heterogeneity_groups)
     quads <- statmod::gauss.quad.prob(
       parameters$n_heterogeneity_groups,
       dist='normal'
@@ -210,16 +208,7 @@ create_variables <- function(parameters) {
 
   # Init vector controls
   net_time <- individual::IntegerVariable$new(rep(-1, size))
-  dn0 <- individual::DoubleVariable$new(rep(-1, size))
-  rn <- individual::DoubleVariable$new(rep(-1, size))
-  gamman <- individual::DoubleVariable$new(rep(-1, size))
   spray_time <- individual::IntegerVariable$new(rep(-1, size))
-  ls_theta <- individual::DoubleVariable$new(rep(-1, size))
-  ls_gamma <- individual::DoubleVariable$new(rep(-1, size))
-  ks_theta <- individual::DoubleVariable$new(rep(-1, size))
-  ks_gamma <- individual::DoubleVariable$new(rep(-1, size))
-  ms_theta <- individual::DoubleVariable$new(rep(-1, size))
-  ms_gamma <- individual::DoubleVariable$new(rep(-1, size))
 
   variables <- list(
     state = state,
@@ -248,16 +237,7 @@ create_variables <- function(parameters) {
     tbv_vaccinated = tbv_vaccinated,
     is_severe = is_severe,
     net_time = net_time,
-    dn0 = dn0,
-    rn = rn,
-    gamman = gamman,
-    spray_time = spray_time,
-    ls_theta = ls_theta,
-    ls_gamma = ls_gamma,
-    ks_theta = ks_theta,
-    ks_gamma = ks_gamma,
-    ms_theta = ms_theta,
-    ms_gamma = ms_gamma
+    spray_time = spray_time
   )
 
   # Add variables for individual mosquitoes

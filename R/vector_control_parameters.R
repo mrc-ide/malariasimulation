@@ -21,10 +21,12 @@
 #' @param timesteps the timesteps at which to distribute bed nets
 #' @param coverages the proportion of the human population who receive bed nets
 #' @param retention the average number of timesteps a net is kept for
-#' @param dn0 a vector of death probabilities for mosquitoes on interaction with
-#' a bed net
-#' @param rn a vector of repelling probabilities for mosquitoes on interaction with
-#' a bednet
+#' @param dn0 a matrix of death probabilities for each species over time.
+#' With dimensions length(species) x length(timesteps)
+#' @param rn a matrix of repelling probabilities for each species over time
+#' With dimensions length(species) x length(timesteps)
+#' @param rn a matrix of minimum repelling probabilities for each species over time
+#' With dimensions length(species) x length(timesteps)
 #' @param gamman a vector of bednet half-lives for each distribution timestep
 #' @export
 set_bednets <- function(
@@ -34,17 +36,27 @@ set_bednets <- function(
   retention,
   dn0,
   rn,
+  rnm,
   gamman
   ) {
-  lengths <- vnapply(list(coverages, dn0, rn, gamman), length)
+  lengths <- vnapply(list(coverages, gamman), length)
   if (!all(lengths == length(timesteps))) {
     stop('timesteps and time-varying parameters must align')
+  }
+  for (x in list(dn0, rn, rnm, gamman)) {
+    if (nrow(x) != length(parameters$species)) {
+      stop('death and repelling probabilities rows need to align with species')
+    }
+    if (ncol(x) != length(timesteps)) {
+      stop('death and repelling probabilities columns need to align with timesteps')
+    }
   }
   parameters$bednets <- TRUE
   parameters$bednet_timesteps <- timesteps
   parameters$bednet_coverages <- coverages
   parameters$bednet_dn0 <- dn0
   parameters$bednet_rn <- rn
+  parameters$bednet_rnm <- rnm
   parameters$bednet_gamman <- gamman
   parameters$bednet_retention <- retention
   parameters

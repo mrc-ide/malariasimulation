@@ -1,6 +1,6 @@
 Package: malariasimulation
 Title: An individual based model for malaria
-Version: 0.0.4
+Version: 1.0.0
 Authors@R: c(
   person(
     given = "Giovanni",
@@ -19,7 +19,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Remotes:
-  mrc-ide/individual@dev,
+  mrc-ide/individual,
   mrc-ide/malariaEquilibrium
 Imports:
   individual,

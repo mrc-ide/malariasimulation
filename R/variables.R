@@ -244,8 +244,8 @@ create_variables <- function(parameters) {
 
   # Add variables for individual mosquitoes
   if (parameters$individual_mosquitoes) {
-    species_values <- rep(NA, parameters$mosquito_limit)
-    state_values <- rep(NA, parameters$mosquito_limit)
+    species_values <- NULL
+    state_values <- NULL
     n_initialised <- 0
     for (i in seq_along(parameters$species)) {
       mosquito_counts <- floor(
@@ -259,23 +259,32 @@ create_variables <- function(parameters) {
 
       species_M <- sum(mosquito_counts[ADULT_ODE_INDICES])
 
-      if (n_initialised + species_M > parameters$mosquito_limit) {
-        stop('Mosquito limit not high enough')
+      if (species_M > 0) {
+        if (length(species_values) > parameters$mosquito_limit) {
+          stop('Mosquito limit not high enough')
+        }
+
+        species_values <- c(
+          species_values,
+          rep(parameters$species[[i]], species_M)
+        )
+        state_values <- c(
+          state_values,
+          rep(
+            c('Sm', 'Pm', 'Im'),
+            times = mosquito_counts[ADULT_ODE_INDICES]
+          )
+        )
       }
-
-      species_range <- seq(n_initialised, n_initialised + species_M)
-      species_values[species_range] <- parameters$species[[i]]
-      state_values[species_range] <- rep(
-        c('Sm', 'Pm', 'Im'),
-        times = mosquito_counts[ADULT_ODE_INDICES]
-      )
-
-      n_initialised <- n_initialised + species_M
     }
 
     # fill excess mosquitoes
-    species_values[is.na(species_values)] <- parameters$species[[1]]
-    state_values[is.na(state_values)] <- 'NonExistent'
+    excess <- parameters$mosquito_limit - length(species_values)
+    species_values <- c(
+      species_values,
+      rep(parameters$species[[1]], excess)
+    )
+    state_values <- c(state_values, rep('NonExistent', excess))
 
     # initialise variables
     species <- individual::CategoricalVariable$new(

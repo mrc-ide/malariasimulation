@@ -147,7 +147,7 @@
 #'
 #' * bednets - boolean for if bednets are enabled; default = FALSE 
 #' * phi_bednets - proportion of bites taken in bed; default = 0.89
-#' * rnm - minimum probability mosquito is repelled by the bednet ; default = 0.24
+#' * k0 - proportion of females bloodfed with no net; default = 0.699
 #' * spraying - boolean for if indoor spraying is enabled; default = FALSE 
 #' * phi_indoors - proportion of bites taken indoors; default = 0.97
 #'
@@ -334,16 +334,11 @@ get_parameters <- function(overrides = list()) {
     foraging_time       = .69,
     # bed nets
     bednets = FALSE,
-    rn = .56,
-    rnm = .24,
-    dn0 = .533,
     phi_bednets = .89,
-    gamman = 2.64 * 365,
+    k0 = .699,
     # indoor spraying
     spraying = FALSE,
-    rs = .2,
     phi_indoors = .97,
-    gammas = .25 * 365,
     # treatment
     drug_efficacy          = numeric(0),
     drug_rel_c             = numeric(0),

@@ -43,11 +43,11 @@ set_bednets <- function(
   if (!all(lengths == length(timesteps))) {
     stop('timesteps and time-varying parameters must align')
   }
-  for (x in list(dn0, rn, rnm, gamman)) {
-    if (nrow(x) != length(parameters$species)) {
+  for (x in list(dn0, rn, rnm)) {
+    if (ncol(x) != length(parameters$species)) {
       stop('death and repelling probabilities rows need to align with species')
     }
-    if (ncol(x) != length(timesteps)) {
+    if (nrow(x) != length(timesteps)) {
       stop('death and repelling probabilities columns need to align with timesteps')
     }
   }

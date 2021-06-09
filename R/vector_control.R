@@ -39,16 +39,16 @@ prob_bitten <- function(
 
   if (parameters$spraying) {
     phi_indoors <- parameters$phi_indoors[[species]]
-    unprotected <- variables$spray_time$get_index_of(-1)
+    unprotected <- variables$spray_time$get_index_of(set=-1)
     protected <- unprotected$not()
     spray_time <- variables$spray_time$get_values(protected)
     matches <- match(spray_time, parameters$spraying_timesteps)
-    ls_theta <- parameters$ls_theta[matches]
-    ls_gamma <- parameters$ls_gamma[matches]
-    ks_theta <- parameters$ks_theta[matches]
-    ks_gamma <- parameters$ks_gamma[matches]
-    ms_theta <- parameters$ms_theta[matches]
-    ms_gamma <- parameters$ms_gamma[matches]
+    ls_theta <- parameters$spraying_ls_theta[matches]
+    ls_gamma <- parameters$spraying_ls_gamma[matches]
+    ks_theta <- parameters$spraying_ks_theta[matches]
+    ks_gamma <- parameters$spraying_ks_gamma[matches]
+    ms_theta <- parameters$spraying_ms_theta[matches]
+    ms_gamma <- parameters$spraying_ms_gamma[matches]
     since_spray <- timestep - spray_time
     ls <- spraying_decay(since_spray, ls_theta, ls_gamma)
     ks <- spraying_decay(since_spray, ks_theta, ks_gamma)
@@ -61,9 +61,9 @@ prob_bitten <- function(
     protected_index <- protected$to_vector()
     rs <- rep(0, n)
     rs[protected_index] <- prob_spraying_repels(
+      ls_prime,
       ks_prime,
       js_prime,
-      ls_prime,
       parameters$k0
     )
     rs_comp <- 1 - rs
@@ -168,13 +168,13 @@ prob_survives_spraying <- function(ks_prime, k0) {
 }
 
 prob_repelled_bednets <- function(matches, dt, species, parameters) {
-  rnm <- parameters$bednet_rnm[species, matches]
+  rnm <- parameters$bednet_rnm[matches, species]
   gamman <- parameters$bednet_gamman[matches]
-  (parameters$bednet_rn[species, matches] - rnm) * bednet_decay(dt, gamman) + rnm
+  (parameters$bednet_rn[matches, species] - rnm) * bednet_decay(dt, gamman) + rnm
 }
 
 prob_survives_bednets <- function(rn, matches, dt, species, parameters) {
-  dn0 <- parameters$bednet_dn0[species, matches]
+  dn0 <- parameters$bednet_dn0[matches, species]
   dn <- dn0 * bednet_decay(dt, parameters$bednet_gamman[matches])
   1 - rn - dn
 }
@@ -184,5 +184,5 @@ bednet_decay <- function(t, gamma) {
 }
 
 spraying_decay <- function(t, theta, gamma) {
-  1 / (1 + exp(theta + gamma * t))
+  1 / (1 + exp(-(theta + gamma * t)))
 }

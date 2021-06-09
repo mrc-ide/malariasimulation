@@ -1,14 +1,48 @@
-test_that('set_bednets validates parameters', {
+test_that('set_bednets validates coverages', {
   parameters <- get_parameters()
   expect_error(
-    set_bednets(parameters, c(5, 50), .8, 40),
-    '*'
+    set_bednets(
+      parameters,
+      timesteps = c(5, 50),
+      coverages = c(.5),
+      retention = 40,
+      dn0 = matrix(c(.533, .533), nrow=2, ncol=1),
+      rn = matrix(c(.56, .56), nrow=2, ncol=1),
+      rnm = matrix(c(.24, .24), nrow=2, ncol=1),
+      gamman = c(963.6, 963.6)
+    )
+  )
+})
+
+test_that('set_bednets validates matrices', {
+  parameters <- get_parameters()
+  parameters <- set_species(parameters, list(gamb_params, fun_params), c(.1, .9))
+  expect_error(
+    set_bednets(
+      parameters,
+      timesteps = c(5, 50),
+      coverages = c(.5, .9),
+      retention = 40,
+      dn0 = matrix(c(.533, .533), nrow=2, ncol=1),
+      rn = matrix(c(.56, .56), nrow=2, ncol=1),
+      rnm = matrix(c(.24, .24), nrow=2, ncol=1),
+      gamman = c(963.6, 963.6)
+    )
   )
 })
 
 test_that('set_bednets sets parameters', {
   parameters <- get_parameters()
-  parameters <- set_bednets(parameters, c(5, 50), c(.5, .9), 40)
+  parameters <- set_bednets(
+    parameters,
+    timesteps = c(5, 50),
+    coverages = c(.5, .9),
+    retention = 40,
+    dn0 = matrix(c(.533, .533), nrow=2, ncol=1),
+    rn = matrix(c(.56, .56), nrow=2, ncol=1),
+    rnm = matrix(c(.24, .24), nrow=2, ncol=1),
+    gamman = c(963.6, 963.6)
+  )
   expect_true(parameters$bednets)
   expect_equal(parameters$bednet_timesteps, c(5, 50))
   expect_equal(parameters$bednet_coverages, c(.5, .9))
@@ -18,14 +52,33 @@ test_that('set_bednets sets parameters', {
 test_that('set_spraying validates parameters', {
   parameters <- get_parameters()
   expect_error(
-    set_spraying(parameters, c(5, 50), .8),
-    '*'
+    set_spraying(
+      parameters,
+      timesteps = c(5, 50),
+      coverages = c(.5, .9),
+      ls_theta = c(2.025, 2.025),
+      ls_gamma = c(-0.009, -0.009),
+      ks_theta = c(-2.222, -2.222),
+      ks_gamma = c(0.008, 0.008),
+      ms_theta = c(-1.232, -1.232),
+      ms_gamma = c(-0.009)
+    )
   )
 })
 
 test_that('set_spraying sets parameters', {
   parameters <- get_parameters()
-  parameters <- set_spraying(parameters, c(5, 50), c(.5, .9))
+  parameters <- set_spraying(
+    parameters,
+    timesteps = c(5, 50),
+    coverages = c(.5, .9),
+    ls_theta = c(2.025, 2.025),
+    ls_gamma = c(-0.009, -0.009),
+    ks_theta = c(-2.222, -2.222),
+    ks_gamma = c(0.008, 0.008),
+    ms_theta = c(-1.232, -1.232),
+    ms_gamma = c(-0.009, -0.009)
+  )
   expect_true(parameters$spraying)
   expect_equal(parameters$spraying_timesteps, c(5, 50))
   expect_equal(parameters$spraying_coverages, c(.5, .9))
@@ -34,7 +87,16 @@ test_that('set_spraying sets parameters', {
 test_that('distribute_bednets process sets net_time correctly', {
   timestep <- 50
   parameters <- get_parameters(list(human_population = 4))
-  parameters <- set_bednets(parameters, c(5, 50), c(.5, .9), 40)
+  parameters <- set_bednets(
+    parameters,
+    timesteps = c(5, 50),
+    coverages = c(.5, .9),
+    retention = 40,
+    dn0 = matrix(c(.533, .533), nrow=2, ncol=1),
+    rn = matrix(c(.56, .56), nrow=2, ncol=1),
+    rnm = matrix(c(.24, .24), nrow=2, ncol=1),
+    gamman = c(963.6, 963.6)
+  )
   events <- create_events(parameters)
   variables <- create_variables(parameters)
   variables$net_time <- mock_double(rep(0, 4))
@@ -71,7 +133,16 @@ test_that('distribute_bednets process sets net_time correctly', {
 test_that('throw_away_bednets process resets net_time correctly', {
   timestep <- 1
   parameters <- get_parameters(list(human_population = 4))
-  parameters <- set_bednets(parameters, c(5, 50), c(.5, .9), 40)
+  parameters <- set_bednets(
+    parameters,
+    timesteps = c(5, 50),
+    coverages = c(.5, .9),
+    retention = 40,
+    dn0 = matrix(c(.533, .533), nrow=2, ncol=1),
+    rn = matrix(c(.56, .56), nrow=2, ncol=1),
+    rnm = matrix(c(.24, .24), nrow=2, ncol=1),
+    gamman = c(963.6, 963.6)
+  )
   events <- create_events(parameters)
   variables <- create_variables(parameters)
   variables$net_time <- mock_double(rep(0, 4))
@@ -89,7 +160,17 @@ test_that('throw_away_bednets process resets net_time correctly', {
 test_that('indoor_spraying process sets spray_time correctly', {
   timestep <- 50
   parameters <- get_parameters(list(human_population = 4))
-  parameters <- set_spraying(parameters, c(5, 50), c(.5, .9))
+  parameters <- set_spraying(
+    parameters,
+    timesteps = c(5, 50),
+    coverages = c(.5, .9),
+    ls_theta = c(2.025, 2.025),
+    ls_gamma = c(-0.009, -0.009),
+    ks_theta = c(-2.222, -2.222),
+    ks_gamma = c(0.008, 0.008),
+    ms_theta = c(-1.232, -1.232),
+    ms_gamma = c(-0.009, -0.009)
+  )
   spray_time <- mock_double(rep(0, 4))
   correlations <- get_correlation_parameters(parameters)
   process <- indoor_spraying(
@@ -131,10 +212,17 @@ test_that('prob_bitten defaults to 1 with no protection', {
 
 test_that('prob_bitten correctly calculates net only probabilities', {
   timestep <- 100
-  parameters <- get_parameters(list(
-    bednets = TRUE,
-    gamman = 25
-  ))
+  parameters <- get_parameters()
+  parameters <- set_bednets(
+    parameters,
+    timesteps = c(5, 50, 100),
+    coverages = c(.5, .9, .2),
+    retention = 40,
+    dn0 = matrix(rep(.533, 3), nrow=3, ncol=1),
+    rn = matrix(rep(.56, 3), nrow=3, ncol=1),
+    rnm = matrix(rep(.24, 3), nrow=3, ncol=1),
+    gamman = rep(25, 3)
+  )
   variables <- create_variables(parameters)
   variables$net_time <- individual::DoubleVariable$new(
     c(-1, 5, 50, 100)
@@ -154,20 +242,31 @@ test_that('prob_bitten correctly calculates net only probabilities', {
 
 test_that('prob_bitten correctly calculates spraying only probabilities', {
   timestep <- 100
-  parameters <- get_parameters(list(spraying = TRUE, gammas = 25))
+  parameters <- get_parameters(list(human_population = 4))
+  parameters <- set_spraying(
+    parameters,
+    timesteps = c(5, 50, 100),
+    coverages = c(.5, .9, .2),
+    ls_theta = rep(2.025, 3),
+    ls_gamma = rep(-0.009, 3),
+    ks_theta = rep(-2.222, 3),
+    ks_gamma = rep(0.008, 3),
+    ms_theta = rep(-1.232, 3),
+    ms_gamma = rep(-0.009, 3)
+  )
   variables <- create_variables(parameters)
 
-  variables$net_time <- individual::DoubleVariable$new(rep(-1, 4))
-  variables$spray_time <- individual::DoubleVariable$new(
+  variables$net_time <- individual::IntegerVariable$new(rep(-1, 4))
+  variables$spray_time <- individual::IntegerVariable$new(
     c(-1, 5, 50, 100)
   )
 
   expect_equal(
     prob_bitten(timestep, variables, 1, parameters),
     list(
-      prob_bitten_survives = c(1, 0.9780972, 0.8699070, 0.1751120),
-      prob_bitten = c(1, 0.9956601, 0.9737450, 0.8060000),
-      prob_repelled = c(0, 0.00433993, 0.02625504, 0.19400000)
+      prob_bitten_survives = c(1, 0.2296838, 0.1646030, 0.1106944),
+      prob_bitten = c(1, 0.8638308, 0.8316717, 0.7750422),
+      prob_repelled = c(0, 0.1361692, 0.1683283, 0.2249578)
     ),
     tolerance = 1e-5
   )
@@ -175,21 +274,42 @@ test_that('prob_bitten correctly calculates spraying only probabilities', {
 
 test_that('prob_bitten correctly combines spraying and net probabilities', {
   timestep <- 100
-  parameters <- get_parameters(list(bednets = TRUE, spraying = TRUE, gamman = 25))
+  parameters <- get_parameters(list(human_population = 4))
+  parameters <- set_bednets(
+    parameters,
+    timesteps = c(5, 50, 100),
+    coverages = c(.5, .9, .2),
+    retention = 40,
+    dn0 = matrix(rep(.533, 3), nrow=3, ncol=1),
+    rn = matrix(rep(.56, 3), nrow=3, ncol=1),
+    rnm = matrix(rep(.24, 3), nrow=3, ncol=1),
+    gamman = rep(25, 3)
+  )
+  parameters <- set_spraying(
+    parameters,
+    timesteps = c(5, 50, 100),
+    coverages = c(.5, .9, .2),
+    ls_theta = rep(2.025, 3),
+    ls_gamma = rep(-0.009, 3),
+    ks_theta = rep(-2.222, 3),
+    ks_gamma = rep(0.008, 3),
+    ms_theta = rep(-1.232, 3),
+    ms_gamma = rep(-0.009, 3)
+  )
   variables <- create_variables(parameters)
-  variables$net_time <- individual::DoubleVariable$new(
+  variables$net_time <- individual::IntegerVariable$new(
     c(100, 50, 5, -1)
   )
-  variables$spray_time <- individual::DoubleVariable$new(
+  variables$spray_time <- individual::IntegerVariable$new(
     c(-1, 5, 50, 100)
   )
 
   expect_equal(
     prob_bitten(timestep, variables, 1, parameters),
     list(
-      prob_bitten_survives = c(0.0272300, 0.4631212, 0.3765613, 0.1751120),
-      prob_bitten = c(0.0272300, 0.6375005, 0.6839200, 0.8060000),
-      prob_repelled = c(0.4984000, 0.3028339, 0.3066950, 0.1940000)
+      prob_bitten_survives = c(0.0272300, 0.1645616, 0.1326059, 0.1106944),
+      prob_bitten = c(0.0272300, 0.5918966, 0.6411026, 0.7750422),
+      prob_repelled = c(0.4984000, 0.3529167, 0.3501269, 0.2249578)
     ),
     tolerance=1e-4
   )

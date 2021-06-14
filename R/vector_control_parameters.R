@@ -25,7 +25,7 @@
 #' With dimensions length(species) x length(timesteps)
 #' @param rn a matrix of repelling probabilities for each species over time
 #' With dimensions length(species) x length(timesteps)
-#' @param rn a matrix of minimum repelling probabilities for each species over time
+#' @param rnm a matrix of minimum repelling probabilities for each species over time
 #' With dimensions length(species) x length(timesteps)
 #' @param gamman a vector of bednet half-lives for each distribution timestep
 #' @export

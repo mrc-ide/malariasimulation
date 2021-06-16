@@ -18,8 +18,11 @@ Default parameters:
 species: "arab"
 blood_meal_rates: 0.3333333
 Q0: 0.71
-phi_bednets: 0.9
-phi_indoors: 0.96
+phi_bednets: 0.8
+phi_indoors: 0.86
 mum: 0.132
+
+parameters from:
+https://www.pnas.org/content/pnas/early/2019/07/02/1820646116.full.pdf
 }
 \keyword{datasets}

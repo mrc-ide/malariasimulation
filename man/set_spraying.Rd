@@ -24,17 +24,23 @@ set_spraying(
 \item{coverages}{the proportion of the population who get indoor
 spraying}
 
-\item{ls_theta}{vector of mortality parameters per timestep}
+\item{ls_theta}{matrix of mortality parameters
+With dimensions length(species) x length(timesteps)}
 
-\item{ls_gamma}{vector of mortality parameters per timestep}
+\item{ls_gamma}{matrix of mortality parameters per timestep
+With dimensions length(species) x length(timesteps)}
 
-\item{ks_theta}{vector of feeding success parameters per timestep}
+\item{ks_theta}{matrix of feeding success parameters per timestep
+With dimensions length(species) x length(timesteps)}
 
-\item{ks_gamma}{vector of feeding success parameters per timestep}
+\item{ks_gamma}{matrix of feeding success parameters per timestep
+With dimensions length(species) x length(timesteps)}
 
-\item{ms_theta}{vector of deterrence parameters per timestep}
+\item{ms_theta}{matrix of deterrence parameters per timestep
+With dimensions length(species) x length(timesteps)}
 
-\item{ms_gamma}{vector of deterrence parameters per timestep}
+\item{ms_gamma}{matrix of deterrence parameters per timestep
+With dimensions length(species) x length(timesteps)}
 }
 \description{
 The model will apply indoor spraying at \code{timesteps} to a random

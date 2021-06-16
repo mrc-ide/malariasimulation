@@ -79,12 +79,18 @@ set_bednets <- function(
 #' @param timesteps the timesteps at which to spray
 #' @param coverages the proportion of the population who get indoor
 #' spraying
-#' @param ls_theta vector of mortality parameters per timestep
-#' @param ls_gamma vector of mortality parameters per timestep
-#' @param ks_theta vector of feeding success parameters per timestep 
-#' @param ks_gamma vector of feeding success parameters per timestep 
-#' @param ms_theta vector of deterrence parameters per timestep 
-#' @param ms_gamma vector of deterrence parameters per timestep 
+#' @param ls_theta matrix of mortality parameters
+#' With dimensions length(species) x length(timesteps)
+#' @param ls_gamma matrix of mortality parameters per timestep
+#' With dimensions length(species) x length(timesteps)
+#' @param ks_theta matrix of feeding success parameters per timestep 
+#' With dimensions length(species) x length(timesteps)
+#' @param ks_gamma matrix of feeding success parameters per timestep 
+#' With dimensions length(species) x length(timesteps)
+#' @param ms_theta matrix of deterrence parameters per timestep 
+#' With dimensions length(species) x length(timesteps)
+#' @param ms_gamma matrix of deterrence parameters per timestep 
+#' With dimensions length(species) x length(timesteps)
 #' @export
 set_spraying <- function(
   parameters,
@@ -97,20 +103,24 @@ set_spraying <- function(
   ms_theta,
   ms_gamma
   ) {
-  lengths <- vnapply(
-    list(
-      coverages,
-      ls_theta,
-      ls_gamma,
-      ks_theta,
-      ks_gamma,
-      ms_theta,
-      ms_gamma
-    ),
-    length
+  if (length(coverages) != length(timesteps)) {
+    stop('coverages and timesteps must must align')
+  }
+  decays <- list(
+    ls_theta,
+    ls_gamma,
+    ks_theta,
+    ks_gamma,
+    ms_theta,
+    ms_gamma
   )
-  if (!all(lengths == length(timesteps))) {
-    stop('timesteps and time-varying parameters must align')
+  for (x in decays) {
+    if (ncol(x) != length(parameters$species)) {
+      stop('theta and gamma rows need to align with species')
+    }
+    if (nrow(x) != length(timesteps)) {
+      stop('theta and gamma cols need to align with timesteps')
+    }
   }
   parameters$spraying <- TRUE
   parameters$spraying_timesteps <- timesteps

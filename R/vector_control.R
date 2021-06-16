@@ -43,12 +43,12 @@ prob_bitten <- function(
     protected <- unprotected$not()
     spray_time <- variables$spray_time$get_values(protected)
     matches <- match(spray_time, parameters$spraying_timesteps)
-    ls_theta <- parameters$spraying_ls_theta[matches]
-    ls_gamma <- parameters$spraying_ls_gamma[matches]
-    ks_theta <- parameters$spraying_ks_theta[matches]
-    ks_gamma <- parameters$spraying_ks_gamma[matches]
-    ms_theta <- parameters$spraying_ms_theta[matches]
-    ms_gamma <- parameters$spraying_ms_gamma[matches]
+    ls_theta <- parameters$spraying_ls_theta[matches, species]
+    ls_gamma <- parameters$spraying_ls_gamma[matches, species]
+    ks_theta <- parameters$spraying_ks_theta[matches, species]
+    ks_gamma <- parameters$spraying_ks_gamma[matches, species]
+    ms_theta <- parameters$spraying_ms_theta[matches, species]
+    ms_gamma <- parameters$spraying_ms_gamma[matches, species]
     since_spray <- timestep - spray_time
     ls <- spraying_decay(since_spray, ls_theta, ls_gamma)
     ks <- spraying_decay(since_spray, ks_theta, ks_gamma)

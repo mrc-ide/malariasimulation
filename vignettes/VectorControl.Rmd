@@ -79,12 +79,12 @@ bednetparams <- simparams
 
 bednet_events = data.frame(
   timestep = c(1, 2) * year,
-  name=c("Bednets start", "Bednets end")
+  name=c("Bednets 1", "Bednets 2")
 )
 
 bednetparams <- set_bednets(
   bednetparams,
-  timesteps = c(1, 2) * year,
+  timesteps = bednet_events$timestep,
   coverages = c(.8, .8),
   retention = 5 * year,
   dn0 = matrix(c(.533, .45), nrow=2, ncol=1),
@@ -108,19 +108,19 @@ sprayingparams <- simparams
 peak <- peak_season_offset(sprayingparams)
 spraying_events = data.frame(
   timestep = c(1, 2) * year + peak - 3 * month,
-  name=c("Spraying starts", "Spraying ends")
+  name=c("Spraying 1", "Spraying 2")
 )
 
 sprayingparams <- set_spraying(
   sprayingparams,
   timesteps = spraying_events$timestep,
   coverages = rep(.8, 2),
-  ls_theta = c(2.025, 2.025),
-  ls_gamma = c(-0.009, -0.009),
-  ks_theta = c(-2.222, -2.222),
-  ks_gamma = c(0.008, 0.008),
-  ms_theta = c(-1.232, -1.232),
-  ms_gamma = c(-0.009, -0.009)
+  ls_theta = matrix(c(2.025, 2.025), nrow=2, ncol=1),
+  ls_gamma = matrix(c(-0.009, -0.009), nrow=2, ncol=1),
+  ks_theta = matrix(c(-2.222, -2.222), nrow=2, ncol=1),
+  ks_gamma = matrix(c(0.008, 0.008), nrow=2, ncol=1),
+  ms_theta = matrix(c(-1.232, -1.232), nrow=2, ncol=1),
+  ms_gamma = matrix(c(-0.009, -0.009), nrow=2, ncol=1)
 )
 
 output <- run_simulation(sim_length, sprayingparams)

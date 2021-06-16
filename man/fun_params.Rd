@@ -18,8 +18,11 @@ Default parameters:
 species: "fun"
 blood_meal_rates: 0.3333333
 Q0: 0.94
-phi_bednets: 0.9
-phi_indoors: 0.98
+phi_bednets: 0.78
+phi_indoors: 0.87
 mum: 0.112
+
+parameters from:
+https://www.pnas.org/content/pnas/early/2019/07/02/1820646116.full.pdf
 }
 \keyword{datasets}

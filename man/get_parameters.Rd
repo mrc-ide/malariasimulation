@@ -163,10 +163,10 @@ feeding cycle:
 please set vector control strategies using \code{set_betnets} and \code{set_spraying}
 \itemize{
 \item bednets - boolean for if bednets are enabled; default = FALSE
-\item phi_bednets - proportion of bites taken in bed; default = 0.89
+\item phi_bednets - proportion of bites taken in bed; default = 0.85
 \item k0 - proportion of females bloodfed with no net; default = 0.699
 \item spraying - boolean for if indoor spraying is enabled; default = FALSE
-\item phi_indoors - proportion of bites taken indoors; default = 0.97
+\item phi_indoors - proportion of bites taken indoors; default = 0.90
 }
 
 treatment parameters:

@@ -18,8 +18,11 @@ Default parameters:
 species: "gamb"
 blood_meal_rates: 0.3333333
 Q0: 0.92
-phi_bednets: 0.89
-phi_indoors: 0.97
+phi_bednets: 0.85
+phi_indoors: 0.90
 mum: 0.132
+
+parameters from:
+https://www.pnas.org/content/pnas/early/2019/07/02/1820646116.full.pdf
 }
 \keyword{datasets}

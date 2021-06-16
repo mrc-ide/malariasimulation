@@ -146,10 +146,10 @@
 #' please set vector control strategies using `set_betnets` and `set_spraying`
 #'
 #' * bednets - boolean for if bednets are enabled; default = FALSE 
-#' * phi_bednets - proportion of bites taken in bed; default = 0.89
+#' * phi_bednets - proportion of bites taken in bed; default = 0.85
 #' * k0 - proportion of females bloodfed with no net; default = 0.699
 #' * spraying - boolean for if indoor spraying is enabled; default = FALSE 
-#' * phi_indoors - proportion of bites taken indoors; default = 0.97
+#' * phi_indoors - proportion of bites taken indoors; default = 0.90
 #'
 #' treatment parameters:
 #' please set treatment parameters with the convenience functions in
@@ -330,15 +330,14 @@ get_parameters <- function(overrides = list()) {
     species_proportions = 1,
     blood_meal_rates    = 1/3,
     Q0                  = .92,
-    endophily           = .813,
     foraging_time       = .69,
     # bed nets
     bednets = FALSE,
-    phi_bednets = .89,
+    phi_bednets = .85,
     k0 = .699,
     # indoor spraying
     spraying = FALSE,
-    phi_indoors = .97,
+    phi_indoors = .90,
     # treatment
     drug_efficacy          = numeric(0),
     drug_rel_c             = numeric(0),

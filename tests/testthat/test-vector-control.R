@@ -56,12 +56,12 @@ test_that('set_spraying validates parameters', {
       parameters,
       timesteps = c(5, 50),
       coverages = c(.5, .9),
-      ls_theta = c(2.025, 2.025),
-      ls_gamma = c(-0.009, -0.009),
-      ks_theta = c(-2.222, -2.222),
-      ks_gamma = c(0.008, 0.008),
-      ms_theta = c(-1.232, -1.232),
-      ms_gamma = c(-0.009)
+      ls_theta = matrix(c(2.025, 2.025), nrow=2, ncol=1),
+      ls_gamma = matrix(c(-0.009, -0.009), nrow=2, ncol=1),
+      ks_theta = matrix(c(-2.222, -2.222), nrow=2, ncol=1),
+      ks_gamma = matrix(c(0.008, 0.008), nrow=2, ncol=1),
+      ms_theta = matrix(c(-1.232, -1.232), nrow=2, ncol=1),
+      ms_gamma = matrix(c(-0.009), nrow=1, ncol=1)
     )
   )
 })
@@ -72,12 +72,12 @@ test_that('set_spraying sets parameters', {
     parameters,
     timesteps = c(5, 50),
     coverages = c(.5, .9),
-    ls_theta = c(2.025, 2.025),
-    ls_gamma = c(-0.009, -0.009),
-    ks_theta = c(-2.222, -2.222),
-    ks_gamma = c(0.008, 0.008),
-    ms_theta = c(-1.232, -1.232),
-    ms_gamma = c(-0.009, -0.009)
+    ls_theta = matrix(c(2.025, 2.025), nrow=2, ncol=1),
+    ls_gamma = matrix(c(-0.009, -0.009), nrow=2, ncol=1),
+    ks_theta = matrix(c(-2.222, -2.222), nrow=2, ncol=1),
+    ks_gamma = matrix(c(0.008, 0.008), nrow=2, ncol=1),
+    ms_theta = matrix(c(-1.232, -1.232), nrow=2, ncol=1),
+    ms_gamma = matrix(c(-0.009, -0.009), nrow=2, ncol=1)
   )
   expect_true(parameters$spraying)
   expect_equal(parameters$spraying_timesteps, c(5, 50))
@@ -164,12 +164,12 @@ test_that('indoor_spraying process sets spray_time correctly', {
     parameters,
     timesteps = c(5, 50),
     coverages = c(.5, .9),
-    ls_theta = c(2.025, 2.025),
-    ls_gamma = c(-0.009, -0.009),
-    ks_theta = c(-2.222, -2.222),
-    ks_gamma = c(0.008, 0.008),
-    ms_theta = c(-1.232, -1.232),
-    ms_gamma = c(-0.009, -0.009)
+    ls_theta = matrix(c(2.025, 2.025), nrow=2, ncol=1),
+    ls_gamma = matrix(c(-0.009, -0.009), nrow=2, ncol=1),
+    ks_theta = matrix(c(-2.222, -2.222), nrow=2, ncol=1),
+    ks_gamma = matrix(c(0.008, 0.008), nrow=2, ncol=1),
+    ms_theta = matrix(c(-1.232, -1.232), nrow=2, ncol=1),
+    ms_gamma = matrix(c(-0.009, -0.009), nrow=2, ncol=1)
   )
   spray_time <- mock_double(rep(0, 4))
   correlations <- get_correlation_parameters(parameters)
@@ -232,9 +232,9 @@ test_that('prob_bitten correctly calculates net only probabilities', {
   expect_equal(
     prob_bitten(timestep, variables, 1, parameters),
     list(
-      prob_bitten_survives = c(1, 0.7694168, 0.6836575, 0.0272300),
-      prob_bitten = c(1, 0.7694168, 0.6836575, 0.0272300),
-      prob_repelled = c(0, 0.2199712, 0.2521435, 0.4984000)
+      prob_bitten_survives = c(1, 0.7797801, 0.6978752, 0.0709500),
+      prob_bitten = c(1, 0.7797801, 0.6978752, 0.0709500),
+      prob_repelled = c(0, 0.2100848, 0.2408112, 0.4760000)
     ),
     tolerance = 1e-5
   )
@@ -247,12 +247,12 @@ test_that('prob_bitten correctly calculates spraying only probabilities', {
     parameters,
     timesteps = c(5, 50, 100),
     coverages = c(.5, .9, .2),
-    ls_theta = rep(2.025, 3),
-    ls_gamma = rep(-0.009, 3),
-    ks_theta = rep(-2.222, 3),
-    ks_gamma = rep(0.008, 3),
-    ms_theta = rep(-1.232, 3),
-    ms_gamma = rep(-0.009, 3)
+    ls_theta = matrix(rep(2.025, 3), nrow=3, ncol=1),
+    ls_gamma = matrix(rep(-0.009, 3), nrow=3, ncol=1),
+    ks_theta = matrix(rep(-2.222, 3), nrow=3, ncol=1),
+    ks_gamma = matrix(rep(0.008, 3), nrow=3, ncol=1),
+    ms_theta = matrix(rep(-1.232, 3), nrow=3, ncol=1),
+    ms_gamma = matrix(rep(-0.009, 3), nrow=3, ncol=1)
   )
   variables <- create_variables(parameters)
 
@@ -264,9 +264,9 @@ test_that('prob_bitten correctly calculates spraying only probabilities', {
   expect_equal(
     prob_bitten(timestep, variables, 1, parameters),
     list(
-      prob_bitten_survives = c(1, 0.2296838, 0.1646030, 0.1106944),
-      prob_bitten = c(1, 0.8638308, 0.8316717, 0.7750422),
-      prob_repelled = c(0, 0.1361692, 0.1683283, 0.2249578)
+      prob_bitten_survives = c(1, 0.2852736, 0.2248894, 0.1748711),
+      prob_bitten = c(1, 0.8736574, 0.8438191, 0.7912762),
+      prob_repelled = c(0, 0.1263426, 0.1561809, 0.2087238)
     ),
     tolerance = 1e-5
   )
@@ -289,12 +289,12 @@ test_that('prob_bitten correctly combines spraying and net probabilities', {
     parameters,
     timesteps = c(5, 50, 100),
     coverages = c(.5, .9, .2),
-    ls_theta = rep(2.025, 3),
-    ls_gamma = rep(-0.009, 3),
-    ks_theta = rep(-2.222, 3),
-    ks_gamma = rep(0.008, 3),
-    ms_theta = rep(-1.232, 3),
-    ms_gamma = rep(-0.009, 3)
+    ls_theta = matrix(rep(2.025, 3), nrow=3, ncol=1),
+    ls_gamma = matrix(rep(-0.009, 3), nrow=3, ncol=1),
+    ks_theta = matrix(rep(-2.222, 3), nrow=3, ncol=1),
+    ks_gamma = matrix(rep(0.008, 3), nrow=3, ncol=1),
+    ms_theta = matrix(rep(-1.232, 3), nrow=3, ncol=1),
+    ms_gamma = matrix(rep(-0.009, 3), nrow=3, ncol=1)
   )
   variables <- create_variables(parameters)
   variables$net_time <- individual::IntegerVariable$new(
@@ -307,9 +307,9 @@ test_that('prob_bitten correctly combines spraying and net probabilities', {
   expect_equal(
     prob_bitten(timestep, variables, 1, parameters),
     list(
-      prob_bitten_survives = c(0.0272300, 0.1645616, 0.1326059, 0.1106944),
-      prob_bitten = c(0.0272300, 0.5918966, 0.6411026, 0.7750422),
-      prob_repelled = c(0.4984000, 0.3529167, 0.3501269, 0.2249578)
+      prob_bitten_survives = c(0.07095, 0.2230783, 0.1943304, 0.1748711),
+      prob_bitten = c(0.07095, 0.6139450, 0.6618149, 0.7912762),
+      prob_repelled = c(0.476, 0.3333486, 0.3298088, 0.2087238)
     ),
     tolerance=1e-4
   )

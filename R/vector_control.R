@@ -51,7 +51,7 @@ prob_bitten <- function(
     ms_gamma <- parameters$spraying_ms_gamma[matches, species]
     since_spray <- timestep - spray_time
     ls <- spraying_decay(since_spray, ls_theta, ls_gamma)
-    ks <- spraying_decay(since_spray, ks_theta, ks_gamma)
+    ks <- parameters$k0 * spraying_decay(since_spray, ks_theta, ks_gamma)
     ms <- spraying_decay(since_spray, ms_theta, ms_gamma)
     js <- 1 - ls - ks
     ms_comp <- (1 - ms)

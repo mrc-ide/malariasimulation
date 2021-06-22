@@ -13,4 +13,9 @@ SP_AQ_params
 \description{
 Preset parameters for the SP-AQ drug
 }
+\details{
+Use a vector of preset parameters for the SP-AQ drug (sulphadoxine-pyrimethamine and amodiaquine)
+
+Default parameters, from L to R, are: drug_efficacy: 0.9, drug_rel_c: 0.32, drug_prophylaxis_shape: 4.3, drug_prophylaxis_scale: 38.1
+}
 \keyword{datasets}

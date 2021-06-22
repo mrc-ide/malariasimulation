@@ -170,15 +170,15 @@ create_variables <- function(parameters) {
   counts <- calculate_initial_counts(parameters)
 
   # Calculate the indices of individuals in each infectious state
-  diseased <- counts[[1]]:sum(counts[1:2])  # The index of individuals in the D state
-  asymptomatic <- sum(counts[1:2]):sum(counts[1:3]) # The index of individuals in the A state
-  subpatent <- sum(counts[1:3]):sum(counts[1:4]) # The index of individuals in the U state 
+  diseased <- state$get_index_of('D')$to_vector()
+  asymptomatic <- state$get_index_of('A')$to_vector()
+  subpatent <- state$get_index_of('U')$to_vector()
 
   # Set the initial infectivity values for each individual
   infectivity_values[diseased] <- parameters$cd
   infectivity_values[asymptomatic] <- asymptomatic_infectivity(
     initial_age[asymptomatic],
-    initial_immunity(parameters$init_id, initial_age)[asymptomatic],
+    id$get_values(asymptomatic),
     parameters
   )
   infectivity_values[subpatent] <- parameters$cu

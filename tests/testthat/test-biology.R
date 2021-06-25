@@ -64,8 +64,9 @@ test_that('FOIM is consistent with equilibrium', {
   vector_models <- parameterise_mosquito_models(parameters)
   solvers <- parameterise_solvers(vector_models, parameters)
   lambda <- effective_biting_rates(1, variables, parameters, 0)
+  psi <- unique_biting_rate(-variables$birth$get_values(), parameters)
   expect_equal(
-    calculate_foim(variables$infectivity$get_values(), lambda),
+    calculate_foim(variables$infectivity$get_values(), lambda, psi),
     foim,
     tolerance=1e-2
   )

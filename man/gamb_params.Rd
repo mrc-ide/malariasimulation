@@ -13,4 +13,18 @@ gamb_params
 \description{
 Preset parameters for the An. gambiae s.s vector
 }
+\details{
+Default parameters:
+species: "gamb"
+blood_meal_rates: 0.3333333
+Q0: 0.92
+endophily: 0.813
+rn: 0.56
+rnm: 0.24
+dn0: 0.533
+phi_bednets: 0.89
+rs: 0.2
+phi_indoors: 0.97
+mum: 0.132"
+}
 \keyword{datasets}

@@ -110,7 +110,13 @@ simulate_bites <- function(
 
     renderer$render(
       paste0('lambda_', parameters$species[[s_i]]),
-      mean(lambda),
+      sum(lambda),
+      timestep
+    )
+
+    renderer$render(
+      paste0('normal_lambda_', parameters$species[[s_i]]),
+      sum(lambda) / mean(psi),
       timestep
     )
 
@@ -140,7 +146,7 @@ simulate_bites <- function(
       )
     }
 
-    foim <- calculate_foim(human_infectivity, lambda)
+    foim <- calculate_foim(human_infectivity, lambda, psi)
     lagged_foim$save(foim, timestep)
     renderer$render(paste0('FOIM_', s_i), foim, timestep)
     mu <- death_rate(f, W, Z, s_i, parameters)
@@ -290,7 +296,8 @@ unique_biting_rate <- function(age, parameters) {
 #'
 #' @param human_infectivity a vector of infectivities for each human
 #' @param lambda a vector of biting rates for each human
+#' @param psi a vector of age-based relative biting rates for each human
 #' @noRd
-calculate_foim <- function(human_infectivity, lambda) {
-  sum(human_infectivity * lambda)
+calculate_foim <- function(human_infectivity, lambda, psi) {
+  sum(human_infectivity * lambda) / mean(psi)
 }

@@ -100,7 +100,6 @@ simulate_infection <- function(
 #' @param parameters model parameters
 #' @param timestep current timestep
 #' @noRd
-#' @importFrom stats dweibull
 calculate_infections <- function(
   variables,
   bitten_humans,
@@ -121,7 +120,7 @@ calculate_infections <- function(
   if (any(medicated)) {
     drug <- drug[medicated]
     drug_time <- variables$drug_time$get_values(source_vector[medicated])
-    prophylaxis[medicated] <- dweibull(
+    prophylaxis[medicated] <- weibull_survival(
       timestep - drug_time,
       parameters$drug_prophylaxis_shape[drug],
       parameters$drug_prophylaxis_scale[drug]

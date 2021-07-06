@@ -1,15 +1,54 @@
 #' @title Run the simulation
 #' @description
-#' The main entrypoint for the simulation. run_simulation puts together the
-#' model components and runs the malaria simulation. This currently returns a
-#' dataframe with the number of individuals in each state at each timestep
+#' Run the simulation for some time given some parameters.
 #'
-#' Warning: the columns of the output dataframe is likely to change as we figure
-#' out what kind of outputs we would like to report from the simulation.
+#' The resulting dataframe contains the following columns:
 #'
-#' @param timesteps the number of timesteps to run the simulation for
+#' timestep: the timestep for the row
+#' infectivity: the infectivity from humans towards mosquitoes
+#' lambda: the effective biting rate on humans (per timestep) (per
+#' species)
+#' normal_lambda: the effective biting rate on adult humans (per
+#' timestep) (per species)
+#' FOIM: the force of infection towards mosquitoes (per species)
+#' mu: the death rate of adult mosquitoes (per species)
+#' EIR: the Entomological Inoculation Rate (per timestep, per adult human)
+#' n_bitten: number of humans bitten by an infectious mosquito
+#' n_treated: number of humans treated for clinical or severe malaria this timestep
+#' n_infections: number of humans who get an asymptomatic, clinical or severe malaria this timestep
+#' natural_deaths: number of humans who die from aging
+#' S_count: number of humans who are Susceptible
+#' A_count: number of humans who are Asymptomatic
+#' D_count: number of humans who have the clinical malaria
+#' U_count: number of subpatent infections in humans
+#' Tr_count: number of infections being treated in humans
+#' ica_mean: the mean acquired immunity to clinical infection over the population of humans
+#' icm_mean: the mean maternal immunity to clinical infection over the population of humans
+#' ib_mean: the mean blood immunity to all infection over the population of humans
+#' id_mean: the mean immunity from detection over the population of humans
+#' pv: prevalence for humans between an inclusive age range (in timesteps)
+#' inc: incidence for humans between an inclusive age range (in timesteps)
+#' clin_inc: clinical incidence for humans between an inclusive age range (in timesteps)
+#' sev_inc: severe incidence for humans between an inclusive age range (in timesteps)
+#' E_count: number of mosquitoes in the early larval stage
+#' L_count: number of mosquitoes in the late larval stage
+#' P_count: number of mosquitoes in the pupal stage
+#' Sm_count: number of adult female mosquitoes who are Susceptible
+#' Pm_count: number of adult female mosquitoes who are incubating
+#' Im_count: number of adult female mosquitoes who are infectious
+#' total_M: number of adult female mosquitoes
+#' rate_D_A: rate that humans who transition from clinical disease to
+#' asymptomatic
+#' rate_A_U: rate that humans who transition from asymptomatic to
+#' subpatent
+#' rate_U_S: rate that humans who transition from subpatent to
+#' susceptible
+#' mosquito_deaths: number of adult female mosquitoes who die this timestep
+#'
+#' @param timesteps the number of timesteps to run the simulation for (in days)
 #' @param parameters a named list of parameters to use
 #' @param correlations correlation parameters
+#' @return dataframe of results
 #' @export
 run_simulation <- function(
   timesteps,

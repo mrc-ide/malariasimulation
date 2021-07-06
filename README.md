@@ -14,7 +14,21 @@ the [individual](https://github.com/mrc-ide/individual) package.
 
 Please note, malariasimulation is only compatible with R >= 4.0.0
 
-The package can be installed from github using the "remotes" library
+You can install the binary package on Windows and Mac using the following
+command:
+
+```R
+# Enable this universe
+options(repos = c(
+    mrcide = 'https://mrc-ide.r-universe.dev',
+    CRAN = 'https://cloud.r-project.org'))
+
+# Install some packages
+install.packages('malariasimulation')
+```
+
+The package can be installed from github using the "remotes" library. Note, this
+method requires [RBuildTools](https://cran.r-project.org/bin/windows/Rtools/)
 
 ```R
 library('remotes')

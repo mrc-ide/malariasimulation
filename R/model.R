@@ -33,17 +33,17 @@
 #' prevalence_rendering_mix_ages and prevalence_rendering_max_ages parameters.
 #' pv_severe: prevalence for severe malaria in humans between an inclusive age range (in timesteps).
 #' These columns can be set with the
-#' severe_prevalence_rendering_mix_ages and severe_prevalence_rendering_max_ages parameters.
+#' severe_prevalence_rendering_min_ages and severe_prevalence_rendering_max_ages parameters.
 #' inc: incidence for humans between an inclusive age range (in timesteps).
 #' incidence columns can be set with
-#' incidence_rendering_mix_ages and incidence_rendering_max_ages parameters.
+#' incidence_rendering_min_ages and incidence_rendering_max_ages parameters.
 #' clin_inc: clinical incidence for humans between an inclusive age range (in timesteps)
 #' clinical incidence columns can be set with
-#' clinical_incidence_rendering_mix_ages and clinical_incidence_rendering_max_ages parameters.
+#' clinical_incidence_rendering_min_ages and clinical_incidence_rendering_max_ages parameters.
 #' inc_severe: severe incidence for humans between an inclusive age range (in
 #' timesteps).
 #' severe incidence columns can be set with
-#' severe_incidence_rendering_mix_ages and severe_incidence_rendering_max_ages parameters.
+#' severe_incidence_rendering_min_ages and severe_incidence_rendering_max_ages parameters.
 #' severe_deaths: number of deaths due to severe malaria. severe_enabled must be
 #' set to TRUE
 #' E_count: number of mosquitoes in the early larval stage

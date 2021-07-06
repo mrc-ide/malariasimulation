@@ -1,15 +1,17 @@
 #' @title Run the simulation
 #' @description
-#' Run the simulation for some time given some parameters.
+#' Run the simulation for some time given some parameters. This currently
+#' returns a dataframe with the number of individuals in each state at each
+#' timestep.
 #'
 #' The resulting dataframe contains the following columns:
 #'
 #' timestep: the timestep for the row
 #' infectivity: the infectivity from humans towards mosquitoes
 #' lambda: the effective biting rate on humans (per timestep) (per
-#' species)
+#' species). This defaults to lambda_All
 #' normal_lambda: the effective biting rate on adult humans (per
-#' timestep) (per species)
+#' timestep) (per species). This defaults to normal_lambda_All
 #' FOIM: the force of infection towards mosquitoes (per species)
 #' mu: the death rate of adult mosquitoes (per species)
 #' EIR: the Entomological Inoculation Rate (per timestep, per adult human)
@@ -25,11 +27,25 @@
 #' ica_mean: the mean acquired immunity to clinical infection over the population of humans
 #' icm_mean: the mean maternal immunity to clinical infection over the population of humans
 #' ib_mean: the mean blood immunity to all infection over the population of humans
-#' id_mean: the mean immunity from detection over the population of humans
-#' pv: prevalence for humans between an inclusive age range (in timesteps)
-#' inc: incidence for humans between an inclusive age range (in timesteps)
+#' id_mean: the mean immunity from detection through microscopy over the population of humans
+#' pv: prevalence for humans between an inclusive age range (in timesteps). This
+#' defaults to pv_730_3650. Other prevalence columns can be set with
+#' prevalence_rendering_mix_ages and prevalence_rendering_max_ages parameters.
+#' pv_severe: prevalence for severe malaria in humans between an inclusive age range (in timesteps).
+#' These columns can be set with the
+#' severe_prevalence_rendering_mix_ages and severe_prevalence_rendering_max_ages parameters.
+#' inc: incidence for humans between an inclusive age range (in timesteps).
+#' incidence columns can be set with
+#' incidence_rendering_mix_ages and incidence_rendering_max_ages parameters.
 #' clin_inc: clinical incidence for humans between an inclusive age range (in timesteps)
-#' sev_inc: severe incidence for humans between an inclusive age range (in timesteps)
+#' clinical incidence columns can be set with
+#' clinical_incidence_rendering_mix_ages and clinical_incidence_rendering_max_ages parameters.
+#' inc_severe: severe incidence for humans between an inclusive age range (in
+#' timesteps).
+#' severe incidence columns can be set with
+#' severe_incidence_rendering_mix_ages and severe_incidence_rendering_max_ages parameters.
+#' severe_deaths: number of deaths due to severe malaria. severe_enabled must be
+#' set to TRUE
 #' E_count: number of mosquitoes in the early larval stage
 #' L_count: number of mosquitoes in the late larval stage
 #' P_count: number of mosquitoes in the pupal stage
@@ -37,11 +53,11 @@
 #' Pm_count: number of adult female mosquitoes who are incubating
 #' Im_count: number of adult female mosquitoes who are infectious
 #' total_M: number of adult female mosquitoes
-#' rate_D_A: rate that humans who transition from clinical disease to
+#' rate_D_A: rate that humans transition from clinical disease to
 #' asymptomatic
-#' rate_A_U: rate that humans who transition from asymptomatic to
+#' rate_A_U: rate that humans transition from asymptomatic to
 #' subpatent
-#' rate_U_S: rate that humans who transition from subpatent to
+#' rate_U_S: rate that humans transition from subpatent to
 #' susceptible
 #' mosquito_deaths: number of adult female mosquitoes who die this timestep
 #'

@@ -4,28 +4,42 @@
 \alias{set_bednets}
 \title{Parameterise a bed net strategy}
 \usage{
-set_bednets(parameters, timesteps, coverages, retention)
+set_bednets(parameters, timesteps, coverages, retention, dn0, rn, rnm, gamman)
 }
 \arguments{
 \item{parameters}{a list of parameters to modify}
 
-\item{timesteps}{the timesteps at which to distribute bednets}
+\item{timesteps}{the timesteps at which to distribute bed nets}
 
-\item{coverages}{the proportion of the human population who receive bednets}
+\item{coverages}{the proportion of the human population who receive bed nets}
 
 \item{retention}{the average number of timesteps a net is kept for}
+
+\item{dn0}{a matrix of death probabilities for each species over time.
+With dimensions length(species) x length(timesteps)}
+
+\item{rn}{a matrix of repelling probabilities for each species over time
+With dimensions length(species) x length(timesteps)}
+
+\item{rnm}{a matrix of minimum repelling probabilities for each species over time
+With dimensions length(species) x length(timesteps)}
+
+\item{gamman}{a vector of bednet half-lives for each distribution timestep}
 }
 \description{
-The model will distribute bednets at \code{timesteps} to a random
+The model will distribute bed nets at \code{timesteps} to a random
 sample of the entire human population. The sample size will be a proportion
 of the human population taken from the corresponding \code{coverages}.
-The sample \emph{can} contain humans who already have bednets.
+The sample \emph{can} contain humans who already have bed nets.
 
-All of the sample "use" their bednets on the timestep after they are
+All of the sample "use" their bed nets on the timestep after they are
 distributed. Incomplete usage is not part of this model.
 
-If a human in the sample already has a bednet, their bednet will be replaced
+If a human in the sample already has a bed net, their bed net will be replaced
 by a new one.
 
-Bednets will be randomly removed each timestep with a rate of \code{1 - exp(-1/retention)}
+Bed nets will be randomly removed each timestep with a rate of \code{1 - exp(-1/retention)}
+
+The structure for the bed net model is documented in the
+S.I. of 10.1038/s41467-018-07357-w
 }

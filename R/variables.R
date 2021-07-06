@@ -48,8 +48,6 @@ create_variables <- function(parameters) {
   initial_age <- round(rexp(size, rate=1/parameters$average_age))
 
   if (parameters$enable_heterogeneity) {
-    #zeta_norm <- rnorm(size)
-    #het_nodes <- gaussian_quadrature(parameters$n_heterogeneity_groups)
     quads <- statmod::gauss.quad.prob(
       parameters$n_heterogeneity_groups,
       dist='normal'
@@ -209,8 +207,8 @@ create_variables <- function(parameters) {
   tbv_vaccinated <- individual::DoubleVariable$new(rep(-1, size))
 
   # Init vector controls
-  net_time <- individual::DoubleVariable$new(rep(-1, size))
-  spray_time <- individual::DoubleVariable$new(rep(-1, size))
+  net_time <- individual::IntegerVariable$new(rep(-1, size))
+  spray_time <- individual::IntegerVariable$new(rep(-1, size))
 
   variables <- list(
     state = state,

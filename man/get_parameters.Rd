@@ -163,17 +163,10 @@ feeding cycle:
 please set vector control strategies using \code{set_betnets} and \code{set_spraying}
 \itemize{
 \item bednets - boolean for if bednets are enabled; default = FALSE
-\item rn - probability mosquito is repelled by the bednet; default = 0.56
-\item rnm - minimum probability mosquito is repelled by the bednet ; default = 0.24
-\item dn0 - probability killed by the bednet; default = 0.533
+\item phi_bednets - proportion of bites taken in bed; default = 0.85
+\item k0 - proportion of females bloodfed with no net; default = 0.699
 \item spraying - boolean for if indoor spraying is enabled; default = FALSE
-\item rs - probability repelled by indoor spraying; default = 0.2
-\item phi_indoors - proportion of bites taken indoors; default = 0.97
-\item phi_bednets - proportion of bites taken in bed; default = 0.89
-\item endophily - proportion of mosquitoes resting indoors after feeding with no
-intervention; default = 0.813
-\item gammas - the half-life of spraying efficacy (timesteps); default = 91.25
-\item gamman - the half-life of bednet efficacy (timesteps); default = 963.6
+\item phi_indoors - proportion of bites taken indoors; default = 0.90
 }
 
 treatment parameters:

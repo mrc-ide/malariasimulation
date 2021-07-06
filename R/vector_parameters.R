@@ -3,26 +3,19 @@
 #' species: "gamb"
 #' blood_meal_rates: 0.3333333
 #' Q0: 0.92
-#' endophily: 0.813
-#' rn: 0.56
-#' rnm: 0.24
-#' dn0: 0.533
-#' phi_bednets: 0.89
-#' rs: 0.2
-#' phi_indoors: 0.97
-#' mum: 0.132"
+#' phi_bednets: 0.85
+#' phi_indoors: 0.90
+#' mum: 0.132
+#'
+#' parameters from:
+#' https://www.pnas.org/content/pnas/early/2019/07/02/1820646116.full.pdf
 #' @export
 gamb_params <- list(
   species = 'gamb',
   blood_meal_rates = 1/3,
   Q0 = .92,
-  endophily = .813,
-  rn = .56,
-  rnm = .24,
-  dn0 = .533,
-  phi_bednets = .89,
-  rs = .2,
-  phi_indoors = .97,
+  phi_bednets = .85,
+  phi_indoors = .90,
   mum = .132
 )
 
@@ -31,26 +24,19 @@ gamb_params <- list(
 #' species: "arab"
 #' blood_meal_rates: 0.3333333
 #' Q0: 0.71
-#' endophily: 0.422
-#' rn: 0.46
-#' rnm: 0.1
-#' dn0: 0.533
-#' phi_bednets: 0.9
-#' rs: 0.2
-#' phi_indoors: 0.96
+#' phi_bednets: 0.8
+#' phi_indoors: 0.86
 #' mum: 0.132
+#'
+#' parameters from:
+#' https://www.pnas.org/content/pnas/early/2019/07/02/1820646116.full.pdf
 #' @export
 arab_params <- list(
   species = 'arab',
   blood_meal_rates = 1/3,
   Q0 = .71,
-  endophily = .422,
-  rn = .46,
-  rnm = .1,
-  dn0 = .533,
-  phi_bednets = .9,
-  rs = .2,
-  phi_indoors = .96,
+  phi_bednets = .8,
+  phi_indoors = .86,
   mum = .132
 )
 
@@ -59,26 +45,19 @@ arab_params <- list(
 #' species: "fun"
 #' blood_meal_rates: 0.3333333
 #' Q0: 0.94
-#' endophily: 0.813
-#' rn: 0.56
-#' rnm: 0.1
-#' dn0: 0.533
-#' phi_bednets: 0.9
-#' rs: 0.2
-#' phi_indoors: 0.98
+#' phi_bednets: 0.78
+#' phi_indoors: 0.87
 #' mum: 0.112
+#'
+#' parameters from:
+#' https://www.pnas.org/content/pnas/early/2019/07/02/1820646116.full.pdf
 #' @export
 fun_params <- list(
   species = 'fun',
   blood_meal_rates = 1/3,
   Q0 = .94,
-  endophily = .813,
-  rn = .56,
-  rnm = .1,
-  dn0 = .533,
-  phi_bednets = .9,
-  rs = .2,
-  phi_indoors = .98,
+  phi_bednets = .78,
+  phi_indoors = .87,
   mum = .112
 )
 
@@ -99,12 +78,7 @@ set_species <- function(parameters, species, proportions) {
     'species',
     'blood_meal_rates',
     'Q0',
-    'endophily',
-    'rn',
-    'rnm',
-    'dn0',
     'phi_bednets',
-    'rs',
     'phi_indoors',
     'mum'
   )

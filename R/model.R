@@ -30,7 +30,7 @@
 #' id_mean: the mean immunity from detection through microscopy over the population of humans
 #' pv: prevalence for humans between an inclusive age range (in timesteps). This
 #' defaults to pv_730_3650. Other prevalence columns can be set with
-#' prevalence_rendering_mix_ages and prevalence_rendering_max_ages parameters.
+#' prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
 #' pv_severe: prevalence for severe malaria in humans between an inclusive age range (in timesteps).
 #' These columns can be set with the
 #' severe_prevalence_rendering_min_ages and severe_prevalence_rendering_max_ages parameters.

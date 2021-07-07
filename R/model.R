@@ -52,7 +52,8 @@
 #' Sm_count: number of adult female mosquitoes who are Susceptible
 #' Pm_count: number of adult female mosquitoes who are incubating
 #' Im_count: number of adult female mosquitoes who are infectious
-#' total_M: number of adult female mosquitoes
+#' total_M: number of adult female mosquitoes. Variables with suffixes total_M_# refer to the number of adult 
+#' female mosquitoes from the different indicies of the set_species() vector
 #' rate_D_A: rate that humans transition from clinical disease to
 #' asymptomatic
 #' rate_A_U: rate that humans transition from asymptomatic to

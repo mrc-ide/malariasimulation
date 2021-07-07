@@ -9,7 +9,7 @@ set_drugs(parameters, drugs)
 \arguments{
 \item{parameters}{the model parameters}
 
-\item{drugs}{a list of drug parameters, can be set using the above presets}
+\item{drugs}{a list of drug parameters, can be set using presets}
 }
 \description{
 Parameterise drugs to use in the model

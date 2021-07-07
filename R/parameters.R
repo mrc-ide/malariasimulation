@@ -493,9 +493,10 @@ parameterise_total_M <- function(parameters, total_M) {
       )
     }))
     omega <- calculate_omega(parameters, i)
+    mum <- weighted.mean(parameters$mum, parameters$species_proportions)
     max_total_M <- max_total_M + max_K * (
       1 / (
-        2 * parameters$dl * parameters$mum * (
+        2 * parameters$dl * mum * (
           1 + parameters$dpl * parameters$mup
         )
       )

@@ -13,4 +13,18 @@ arab_params
 \description{
 Preset parameters for the An. arabiensis vector
 }
+\details{
+Default parameters:
+species: "arab"
+blood_meal_rates: 0.3333333
+Q0: 0.71
+endophily: 0.422
+rn: 0.46
+rnm: 0.1
+dn0: 0.533
+phi_bednets: 0.9
+rs: 0.2
+phi_indoors: 0.96
+mum: 0.132
+}
 \keyword{datasets}

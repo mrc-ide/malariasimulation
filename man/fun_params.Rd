@@ -13,4 +13,18 @@ fun_params
 \description{
 Preset parameters for the An. funestus vector
 }
+\details{
+Default parameters:
+species: "fun"
+blood_meal_rates: 0.3333333
+Q0: 0.94
+endophily: 0.813
+rn: 0.56
+rnm: 0.1
+dn0: 0.533
+phi_bednets: 0.9
+rs: 0.2
+phi_indoors: 0.98
+mum: 0.112
+}
 \keyword{datasets}

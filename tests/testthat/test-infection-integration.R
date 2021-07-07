@@ -136,7 +136,7 @@ test_that('calculate_infections works various combinations of drug and vaccinati
   rtss_efficacy_mock <- mockery::mock(c(.2, .3))
   bernoulli_mock <- mockery::mock(2)
   mockery::stub(calculate_infections, 'blood_immunity', immunity_mock)
-  mockery::stub(calculate_infections, 'dweibull', weibull_mock)
+  mockery::stub(calculate_infections, 'weibull_survival', weibull_mock)
   mockery::stub(calculate_infections, 'calculate_rtss_antibodies', rtss_antibodies_mock)
   mockery::stub(calculate_infections, 'calculate_rtss_efficacy', rtss_efficacy_mock)
   mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
@@ -387,7 +387,7 @@ test_that('prophylaxis is considered for medicated humans', {
 
   expect_equal(
     mockery::mock_args(m)[[1]][[1]],
-    c(.590, .384, .590),
+    c(2.491951e-07, 2.384032e-01, 5.899334e-01),
     tolerance = 1e-3
   )
 })

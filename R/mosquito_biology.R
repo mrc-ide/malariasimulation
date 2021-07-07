@@ -20,7 +20,7 @@ initial_mosquito_counts <- function(parameters, species, foim, m) {
 
   n_P <- 2 * parameters$dpl * mum * m
 
-  n_Sm <- m * parameters$mum / (foim + mum)
+  n_Sm <- m * mum / (foim + mum)
 
   incubation_survival <- exp(-mum * parameters$dem)
 

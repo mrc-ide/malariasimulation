@@ -69,7 +69,9 @@ prob_bitten <- function(
     rs_comp <- 1 - rs
     ss <- rep(1, n)
     ss[protected_index] <- prob_survives_spraying(
+      ls_prime,
       ks_prime,
+      js_prime,
       parameters$k0
     )
   } else {
@@ -163,8 +165,8 @@ prob_spraying_repels <- function(ls_prime, ks_prime, js_prime, k0) {
   (1 - ks_prime / k0) * (js_prime / (ls_prime + js_prime))
 }
 
-prob_survives_spraying <- function(ks_prime, k0) {
-  ks_prime / k0
+prob_survives_spraying <- function(ls_prime, ks_prime, js_prime, k0) {
+  1 - (1 - ks_prime / k0) * (ls_prime / (ls_prime + js_prime))
 }
 
 prob_repelled_bednets <- function(matches, dt, species, parameters) {

@@ -27,7 +27,7 @@ options(repos = c(
 install.packages('malariasimulation')
 ```
 
-The package can be installed from github using the "remotes" library. Note, this
+The package can also be installed from github using the "remotes" library. Note, this
 method requires [RBuildTools](https://cran.r-project.org/bin/windows/Rtools/)
 
 ```R

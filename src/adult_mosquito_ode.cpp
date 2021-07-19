@@ -83,9 +83,12 @@ void adult_mosquito_model_update(
 //[[Rcpp::export]]
 Rcpp::XPtr<Solver> create_adult_solver(
     Rcpp::XPtr<AdultMosquitoModel> model,
-    std::vector<double> init) {
+    std::vector<double> init,
+    const double r_tol,
+    const double a_tol
+    ) {
     return Rcpp::XPtr<Solver>(
-        new Solver(init, create_ode(*model)),
+        new Solver(init, create_ode(*model), r_tol, a_tol),
         true
     );
 }

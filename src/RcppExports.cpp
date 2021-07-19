@@ -35,14 +35,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // create_adult_solver
-Rcpp::XPtr<Solver> create_adult_solver(Rcpp::XPtr<AdultMosquitoModel> model, std::vector<double> init);
-RcppExport SEXP _malariasimulation_create_adult_solver(SEXP modelSEXP, SEXP initSEXP) {
+Rcpp::XPtr<Solver> create_adult_solver(Rcpp::XPtr<AdultMosquitoModel> model, std::vector<double> init, double r_tol, double a_tol);
+RcppExport SEXP _malariasimulation_create_adult_solver(SEXP modelSEXP, SEXP initSEXP, SEXP r_tolSEXP, SEXP a_tolSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::XPtr<AdultMosquitoModel> >::type model(modelSEXP);
     Rcpp::traits::input_parameter< std::vector<double> >::type init(initSEXP);
-    rcpp_result_gen = Rcpp::wrap(create_adult_solver(model, init));
+    Rcpp::traits::input_parameter< double >::type r_tol(r_tolSEXP);
+    Rcpp::traits::input_parameter< double >::type a_tol(a_tolSEXP);
+    rcpp_result_gen = Rcpp::wrap(create_adult_solver(model, init, r_tol, a_tol));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -165,14 +167,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // create_solver
-Rcpp::XPtr<Solver> create_solver(Rcpp::XPtr<MosquitoModel> model, std::vector<double> init);
-RcppExport SEXP _malariasimulation_create_solver(SEXP modelSEXP, SEXP initSEXP) {
+Rcpp::XPtr<Solver> create_solver(Rcpp::XPtr<MosquitoModel> model, std::vector<double> init, double r_tol, double a_tol);
+RcppExport SEXP _malariasimulation_create_solver(SEXP modelSEXP, SEXP initSEXP, SEXP r_tolSEXP, SEXP a_tolSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::XPtr<MosquitoModel> >::type model(modelSEXP);
     Rcpp::traits::input_parameter< std::vector<double> >::type init(initSEXP);
-    rcpp_result_gen = Rcpp::wrap(create_solver(model, init));
+    Rcpp::traits::input_parameter< double >::type r_tol(r_tolSEXP);
+    Rcpp::traits::input_parameter< double >::type a_tol(a_tolSEXP);
+    rcpp_result_gen = Rcpp::wrap(create_solver(model, init, r_tol, a_tol));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -235,7 +239,7 @@ RcppExport SEXP run_testthat_tests();
 static const R_CallMethodDef CallEntries[] = {
     {"_malariasimulation_create_adult_mosquito_model", (DL_FUNC) &_malariasimulation_create_adult_mosquito_model, 4},
     {"_malariasimulation_adult_mosquito_model_update", (DL_FUNC) &_malariasimulation_adult_mosquito_model_update, 5},
-    {"_malariasimulation_create_adult_solver", (DL_FUNC) &_malariasimulation_create_adult_solver, 2},
+    {"_malariasimulation_create_adult_solver", (DL_FUNC) &_malariasimulation_create_adult_solver, 4},
     {"_malariasimulation_create_history", (DL_FUNC) &_malariasimulation_create_history, 2},
     {"_malariasimulation_history_at", (DL_FUNC) &_malariasimulation_history_at, 2},
     {"_malariasimulation_history_push", (DL_FUNC) &_malariasimulation_history_push, 3},
@@ -244,7 +248,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_malariasimulation_rainfall", (DL_FUNC) &_malariasimulation_rainfall, 4},
     {"_malariasimulation_create_mosquito_model", (DL_FUNC) &_malariasimulation_create_mosquito_model, 15},
     {"_malariasimulation_mosquito_model_update", (DL_FUNC) &_malariasimulation_mosquito_model_update, 4},
-    {"_malariasimulation_create_solver", (DL_FUNC) &_malariasimulation_create_solver, 2},
+    {"_malariasimulation_create_solver", (DL_FUNC) &_malariasimulation_create_solver, 4},
     {"_malariasimulation_solver_get_states", (DL_FUNC) &_malariasimulation_solver_get_states, 1},
     {"_malariasimulation_solver_step", (DL_FUNC) &_malariasimulation_solver_step, 1},
     {"_malariasimulation_random_seed", (DL_FUNC) &_malariasimulation_random_seed, 1},

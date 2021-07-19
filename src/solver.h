@@ -22,7 +22,9 @@ using integration_function_t = std::function<void (const state_t&, state_t&, dou
 struct Solver {
     Solver(
         const std::vector<double>& init,
-        const integration_function_t& ode
+        const integration_function_t& ode,
+        const double r_tol,
+        const double a_tol
     );
     //solver fields
     boost::numeric::odeint::dense_output_runge_kutta<

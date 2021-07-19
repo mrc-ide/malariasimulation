@@ -127,8 +127,8 @@ void mosquito_model_update(
 Rcpp::XPtr<Solver> create_solver(
     Rcpp::XPtr<MosquitoModel> model,
     std::vector<double> init,
-    const double r_tol,
-    const double a_tol
+    double r_tol,
+    double a_tol
     ) {
     return Rcpp::XPtr<Solver>(
         new Solver(init, create_ode(*model), r_tol, a_tol),

@@ -1,5 +1,5 @@
 /*
- * mosquito_ode.cpp
+ * solver.cpp
  *
  *  Created on: 11 Jun 2020
  *      Author: gc1610

@@ -9,8 +9,8 @@ adult_mosquito_model_update <- function(model, mu, foim, susceptible, f) {
     invisible(.Call(`_malariasimulation_adult_mosquito_model_update`, model, mu, foim, susceptible, f))
 }
 
-create_adult_solver <- function(model, init) {
-    .Call(`_malariasimulation_create_adult_solver`, model, init)
+create_adult_solver <- function(model, init, r_tol, a_tol) {
+    .Call(`_malariasimulation_create_adult_solver`, model, init, r_tol, a_tol)
 }
 
 create_history <- function(size, default_value) {
@@ -45,8 +45,8 @@ mosquito_model_update <- function(model, total_M, f, mum) {
     invisible(.Call(`_malariasimulation_mosquito_model_update`, model, total_M, f, mum))
 }
 
-create_solver <- function(model, init) {
-    .Call(`_malariasimulation_create_solver`, model, init)
+create_solver <- function(model, init, r_tol, a_tol) {
+    .Call(`_malariasimulation_create_solver`, model, init, r_tol, a_tol)
 }
 
 solver_get_states <- function(solver) {

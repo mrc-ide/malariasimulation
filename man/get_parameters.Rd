@@ -253,6 +253,8 @@ miscellaneous:
 simulation; default = 1.00E+05
 \item individual_mosquitoes - boolean whether adult mosquitoes are modeled
 individually or compartmentally; default = TRUE
+\item r_tol - the relative tolerance for the ode solver; default = 1e-4
+\item a_tol - the absolute tolerance for the ode solver; default = 1e-4
 \item enable_heterogeneity - boolean whether to include heterogeneity in biting
 rates; default = TRUE
 }}

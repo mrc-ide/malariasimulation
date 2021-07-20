@@ -1,5 +1,5 @@
 /*
- * mosquito_ode.cpp
+ * solver.cpp
  *
  *  Created on: 11 Jun 2020
  *      Author: gc1610
@@ -10,8 +10,10 @@
 
 Solver::Solver(
     const std::vector<double>& init,
-    const integration_function_t& ode
-    ) : state(init), ode(ode)
+    const integration_function_t& ode,
+    double r_tol,
+    double a_tol
+    ) : r_tolerance(r_tol), a_tolerance(a_tol), state(init), ode(ode)
 {
     rk = boost::numeric::odeint::make_dense_output(
         a_tolerance,

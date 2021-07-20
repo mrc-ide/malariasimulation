@@ -231,6 +231,8 @@
 #' simulation; default = 1.00E+05
 #' * individual_mosquitoes - boolean whether adult mosquitoes are modeled
 #' individually or compartmentally; default = TRUE 
+#' * r_tol - the relative tolerance for the ode solver; default = 1e-4
+#' * a_tol - the absolute tolerance for the ode solver; default = 1e-4
 #' * enable_heterogeneity - boolean whether to include heterogeneity in biting
 #' rates; default = TRUE 
 #'
@@ -415,7 +417,9 @@ get_parameters <- function(overrides = list()) {
     human_population = 100,
     mosquito_limit   = 100 * 1000,
     individual_mosquitoes = TRUE,
-    enable_heterogeneity = TRUE
+    enable_heterogeneity = TRUE,
+    r_tol = 1e-4,
+    a_tol = 1e-4 
   )
 
   # Override parameters with any client specified ones

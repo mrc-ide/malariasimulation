@@ -54,10 +54,20 @@ parameterise_solvers <- function(models, parameters) {
       init <- initial_mosquito_counts(parameters, i, parameters$init_foim, m)
       if (!parameters$individual_mosquitoes) {
         return(
-          create_adult_solver(models[[i]], init)
+          create_adult_solver(
+            models[[i]],
+            init,
+            parameters$r_tol,
+            parameters$a_tol
+          )
         )
       }
-      create_solver(models[[i]], init[ODE_INDICES])
+      create_solver(
+        models[[i]],
+        init[ODE_INDICES],
+        parameters$r_tol,
+        parameters$a_tol
+      )
     }
   )
 }

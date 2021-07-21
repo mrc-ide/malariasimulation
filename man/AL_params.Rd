@@ -13,4 +13,9 @@ AL_params
 \description{
 From SI of Commun. 5:5606 doi: 10.1038/ncomms6606 (2014)
 }
+\details{
+Use a vector of preset parameters for the AL drug (artemether-lumefantrine)
+
+Default parameters, from L to R, are: drug_efficacy: 0.95, drug_rel_c: 0.05094, drug_prophylaxis_shape: 11.3, drug_prophylaxis_scale: 10.6
+}
 \keyword{datasets}

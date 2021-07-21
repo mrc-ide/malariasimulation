@@ -170,15 +170,15 @@ create_variables <- function(parameters) {
   counts <- calculate_initial_counts(parameters)
 
   # Calculate the indices of individuals in each infectious state
-  diseased <- counts[[1]]:sum(counts[1:2])  # The index of individuals in the D state
-  asymptomatic <- sum(counts[1:2]):sum(counts[1:3]) # The index of individuals in the A state
-  subpatent <- sum(counts[1:3]):sum(counts[1:4]) # The index of individuals in the U state 
+  diseased <- state$get_index_of('D')$to_vector()
+  asymptomatic <- state$get_index_of('A')$to_vector()
+  subpatent <- state$get_index_of('U')$to_vector()
 
   # Set the initial infectivity values for each individual
   infectivity_values[diseased] <- parameters$cd
   infectivity_values[asymptomatic] <- asymptomatic_infectivity(
     initial_age[asymptomatic],
-    initial_immunity(parameters$init_id, initial_age)[asymptomatic],
+    id$get_values(asymptomatic),
     parameters
   )
   infectivity_values[subpatent] <- parameters$cu
@@ -244,8 +244,8 @@ create_variables <- function(parameters) {
 
   # Add variables for individual mosquitoes
   if (parameters$individual_mosquitoes) {
-    species_values <- rep(NA, parameters$mosquito_limit)
-    state_values <- rep(NA, parameters$mosquito_limit)
+    species_values <- NULL
+    state_values <- NULL
     n_initialised <- 0
     for (i in seq_along(parameters$species)) {
       mosquito_counts <- floor(
@@ -259,23 +259,32 @@ create_variables <- function(parameters) {
 
       species_M <- sum(mosquito_counts[ADULT_ODE_INDICES])
 
-      if (n_initialised + species_M > parameters$mosquito_limit) {
-        stop('Mosquito limit not high enough')
+      if (species_M > 0) {
+        if (length(species_values) > parameters$mosquito_limit) {
+          stop('Mosquito limit not high enough')
+        }
+
+        species_values <- c(
+          species_values,
+          rep(parameters$species[[i]], species_M)
+        )
+        state_values <- c(
+          state_values,
+          rep(
+            c('Sm', 'Pm', 'Im'),
+            times = mosquito_counts[ADULT_ODE_INDICES]
+          )
+        )
       }
-
-      species_range <- seq(n_initialised, n_initialised + species_M)
-      species_values[species_range] <- parameters$species[[i]]
-      state_values[species_range] <- rep(
-        c('Sm', 'Pm', 'Im'),
-        times = mosquito_counts[ADULT_ODE_INDICES]
-      )
-
-      n_initialised <- n_initialised + species_M
     }
 
     # fill excess mosquitoes
-    species_values[is.na(species_values)] <- parameters$species[[1]]
-    state_values[is.na(state_values)] <- 'NonExistent'
+    excess <- parameters$mosquito_limit - length(species_values)
+    species_values <- c(
+      species_values,
+      rep(parameters$species[[1]], excess)
+    )
+    state_values <- c(state_values, rep('NonExistent', excess))
 
     # initialise variables
     species <- individual::CategoricalVariable$new(

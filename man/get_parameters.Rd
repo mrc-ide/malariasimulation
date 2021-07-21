@@ -12,255 +12,255 @@ The parameters are defined below.
 
 fixed state transitions:
 \itemize{
-\item dd - the delay for humans to move from state D to A
-\item dt - the delay for humans to move from state Tr to Ph
-\item da - the delay for humans to move from state A to U
-\item du - the delay for humans to move from state U to S
-\item del - the delay for mosquitos to move from state E to L
-\item dl - the delay for mosquitos to move from state L to P
-\item dpl - the delay mosquitos to move from state P to Sm
-\item mup - the rate at which pupal mosquitos die
-\item mum - the rate at which developed mosquitos die
+\item dd - the delay for humans to move from state D to A; default = 5
+\item dt - the delay for humans to move from state Tr to Ph; default = 5
+\item da - the delay for humans to move from state A to U; default = 200
+\item du - the delay for humans to move from state U to S; default = 110
+\item del - the delay for mosquitoes to move from state E to L; default = 6.64
+\item dl - the delay for mosquitoes to move from state L to P; default = 3.72
+\item dpl - the delay mosquitoes to move from state P to Sm; default = 0.643
+\item mup - the rate at which pupal mosquitoes die; default = 0.249
+\item mum - the rate at which developed mosquitoes die; default = 0.1253333
 }
 
 immunity decay rates:
 \itemize{
-\item rm - decay rate for maternal immunity to clinical disease
-\item rvm - decay rate for maternal immunity to severe disease
-\item rb - decay rate for acquired pre-erytrhrocytic immunity
-\item rc - decay rate for acquired immunity to clinical disease
-\item rva - decay rate for acquired immunity to severe disease
-\item rid - decay rate for acquired immunity to detectability
+\item rm - decay rate for maternal immunity to clinical disease; default = 67.6952
+\item rvm - decay rate for maternal immunity to severe disease; default = 76.8365
+\item rb - decay rate for acquired pre-erythrocytic immunity; default = 3650
+\item rc - decay rate for acquired immunity to clinical disease; default = 10950
+\item rva - decay rate for acquired immunity to severe disease; default = 10950
+\item rid - decay rate for acquired immunity to detectability; default = 3650
 }
 
 probability of pre-erythrocytic infection:
 \itemize{
-\item b0 - maximum probability due to no immunity
-\item b1 - maximum reduction due to immunity
-\item ib0 - scale parameter
-\item kb - shape parameter
+\item b0 - maximum probability due to no immunity; default = 0.59
+\item b1 - maximum reduction due to immunity; default = 0.5
+\item ib0 - scale parameter; default = 43.9
+\item kb - shape parameter; default = 2.16
 }
 
 probability of clinical infection:
 \itemize{
-\item phi0 - maximum probability due to no immunity
-\item phi1 - maximum reduction due to immunity
-\item ic0 - scale parameter
-\item kc - shape parameter
+\item phi0 - maximum probability due to no immunity; default = 0.792
+\item phi1 - maximum reduction due to immunity; default = 0.00074
+\item ic0 - scale parameter; default = 18.02366
+\item kc - shape parameter; default = 2.36949
 }
 
 probability of severe infection:
 \itemize{
-\item severe_enabled - whether to model severe disease
-\item theta0 - maximum probability due to no immunity
-\item theta1 - maximum reduction due to immunity
-\item iv0 - scale parameter
-\item kv - shape parameter
-\item fv0 - age dependent modifier
-\item fvt - reduced probability of death due to treatment
-\item av - age dependent modifier
-\item gammav - age dependent modifier
+\item severe_enabled - whether to model severe disease; default = 0
+\item theta0 - maximum probability due to no immunity; default = 0.0749886
+\item theta1 - maximum reduction due to immunity; default = 0.0001191
+\item iv0 - scale parameter; default = 1.09629
+\item kv - shape parameter; default = 2.00048
+\item fv0 - age dependent modifier; default = 0.141195
+\item fvt - reduced probability of death due to treatment; default = 0.5
+\item av - age dependent modifier; default = 2493.41
+\item gammav - age dependent modifier; default = 2.91282
 }
 
 immunity reducing probability of detection:
 \itemize{
-\item fd0 - time-scale at which immunity changes with age
-\item ad - scale parameter relating age to immunity
-\item gammad - shape parameter relating age to immunity
-\item d1 - minimum probability due to immunity
-\item id0 - scale parameter
-\item kd - shape parameter
+\item fd0 - time-scale at which immunity changes with age; default = 0.007055
+\item ad - scale parameter relating age to immunity; default = 7993.5
+\item gammad - shape parameter relating age to immunity; default = 4.8183
+\item d1 - minimum probability due to immunity; default = 0.160527
+\item id0 - scale parameter; default = 1.577533
+\item kd - shape parameter; default = 0.476614
 }
 
 immunity boost grace periods:
 \itemize{
-\item ub - period in which pre-erythrocytic immunity cannot be boosted
-\item uc - period in which clinical immunity cannot be boosted
-\item uv - period in which severe immunity cannot be boosted
-\item ud - period in which immunity to detectability cannot be boosted
+\item ub - period in which pre-erythrocytic immunity cannot be boosted; default = 7.2
+\item uc - period in which clinical immunity cannot be boosted; default = 6.06
+\item uv - period in which severe immunity cannot be boosted; default = 11.4321
+\item ud - period in which immunity to detectability cannot be boosted; default = 9.44512
 }
 
-infectivity towards mosquitos:
+infectivity towards mosquitoes:
 \itemize{
-\item cd - infectivity of clinically diseased humans towards mosquitos
-\item gamma1 - parameter for infectivity of asymptomatic humans
-\item cu - infectivity of sub-patent infection
-\item ct - infectivity of treated infection
+\item cd - infectivity of clinically diseased humans towards mosquitoes; default = 0.068
+\item gamma1 - parameter for infectivity of asymptomatic humans; default = 1.82425
+\item cu - infectivity of sub-patent infection; default = 0.0062
+\item ct - infectivity of treated infection; default = 0.021896
 }
 
 unique biting rate:
 \itemize{
-\item a0 - age dependent biting parameter
-\item rho - age dependent biting parameter
-\item sigma_squared - heterogeneity parameter
+\item a0 - age dependent biting parameter; default = 2920
+\item rho - age dependent biting parameter; default = 0.85
+\item sigma_squared - heterogeneity parameter; default = 1.67
 \item n_heterogeneity_groups - number discretised groups for heterogeneity, used
-for sampling mothers
+for sampling mothers; default = 5
 }
 
 mortality parameters:
 \itemize{
-\item average_age - the average age of humans (in timesteps)
-\item v - mortality scaling factor from severe disease
-\item pcm - new-born clinical immunity relative to mother's
-\item pvm - new-born severe immunity relative to mother's
-\item me - early stage larval mortality rate
-\item ml - late stage larval mortality rate
+\item average_age - the average age of humans (in timesteps); default = 7663
+\item v - mortality scaling factor from severe disease; default = 0.065
+\item pcm - new-born clinical immunity relative to mother's; default = 0.774368
+\item pvm - new-born severe immunity relative to mother's; default = 0.195768
+\item me - early stage larval mortality rate; default = 0.0338
+\item ml - late stage larval mortality rate; default = 0.0348
 }
 
 carrying capacity parameters:
 \itemize{
-\item model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall
-\item g0 - rainfall fourier parameter
-\item g - rainfall fourier parameter
-\item h - rainfall fourier parameters
+\item model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall; default = FALSE
+\item g0 - rainfall fourier parameter; default = 2
+\item g - rainfall fourier parameter; default = 0.3, 0.6, 0.9
+\item h - rainfall fourier parameters; default = 0.1, 0.4, 0.7
 \item gamma - effect of density dependence on late instars relative to early
-instars
+instars; default = 13.25
 }
 
 initial state proportions:
 \itemize{
-\item s_proportion - the proportion of \code{human_population} that begin as Susceptable
+\item s_proportion - the proportion of \code{human_population} that begin as susceptible; default = 0.420433246
 \item d_proportion - the proportion of \code{human_population} that begin with
-clinical disease
+clinical disease; default = 0.007215064
 \item a_proportion - the proportion of \code{human_population} that begin as
-Asymptomatic
+asymptomatic; default = 0.439323667
 \item u_proportion - the proportion of \code{human_population} that begin as
-subpatents
-\item t_proportion - the proportion of \code{human_population} that begin treated
+subpatents; default = 0.133028023
+\item t_proportion - the proportion of \code{human_population} that begin treated; default = 0
 }
 
 initial immunity values:
 \itemize{
-\item init_icm - the immunity from clinical disease at birth
-\item init_ivm - the immunity from severe disease at birth
-\item init_ib  - the initial pre-erythrocitic immunity
-\item init_ica - the initial acquired immunity from clinical disease
-\item init_iva - the initial acquired immunity from severe disease
-\item init_id  - the initial acquired immunity to detectability
+\item init_icm - the immunity from clinical disease at birth; default = 0
+\item init_ivm - the immunity from severe disease at birth; default = 0
+\item init_ib  - the initial pre-erythrocitic immunity; default = 0
+\item init_ica - the initial acquired immunity from clinical disease; default = 0
+\item init_iva - the initial acquired immunity from severe disease; default = 0
+\item init_id  - the initial acquired immunity to detectability; default = 0
 }
 
 incubation periods:
 \itemize{
-\item de - Duration of the human latent period of infection
-\item delay_gam - Lag from parasites to infectious gametocytes
-\item dem - Extrinsic incubation period in mosquito population model
+\item de - Duration of the human latent period of infection; default = 12
+\item delay_gam - Lag from parasites to infectious gametocytes; default = 12.5
+\item dem - Extrinsic incubation period in mosquito population model; default = 10
 }
 
 vector biology:
 species specific values are vectors
 \itemize{
-\item beta - the average number of eggs laid per female mosquito per day
-\item total_M - the initial number of adult mosquitos in the simulation
-\item init_foim - the FOIM used to calculate the equilibrium state for mosquitoes
-\item species - names of the species in the simulation
-\item species_proportions - the relative proportions of each species
-\item blood_meal_rates - the blood meal rates for each species
-\item Q0 - proportion of blood meals taken on humans
-\item foraging_time - time spent taking blood meals
+\item beta - the average number of eggs laid per female mosquito per day; default = 21.2
+\item total_M - the initial number of adult mosquitos in the simulation; default = 1000
+\item init_foim - the FOIM used to calculate the equilibrium state for mosquitoes; default = 0
+\item species - names of the species in the simulation; default = "All"
+\item species_proportions - the relative proportions of each species; default = 1
+\item blood_meal_rates - the blood meal rates for each species; default = 0.3333333333
+\item Q0 - proportion of blood meals taken on humans; default = 0.92
+\item foraging_time - time spent taking blood meals; default = 0.69
 }
 
 feeding cycle:
+please set vector control strategies using \code{set_betnets} and \code{set_spraying}
 \itemize{
-\item bednets - boolean for if bednets are enabled
-\item rn - probability mosquito is repelled by the bednet
-\item rnm - minimum probability mosquito is repelled by the bednet
-\item dn0 - probability killed by the bednet
-\item spraying - boolean for if indoor spraying is enabled
-\item rs - probability repelled by indoor spraying
-\item phi_indoors - proportion of bites taken indoors
-\item phi_bednets - proportion of bites taken in bed
+\item bednets - boolean for if bednets are enabled; default = FALSE
+\item rn - probability mosquito is repelled by the bednet; default = 0.56
+\item rnm - minimum probability mosquito is repelled by the bednet ; default = 0.24
+\item dn0 - probability killed by the bednet; default = 0.533
+\item spraying - boolean for if indoor spraying is enabled; default = FALSE
+\item rs - probability repelled by indoor spraying; default = 0.2
+\item phi_indoors - proportion of bites taken indoors; default = 0.97
+\item phi_bednets - proportion of bites taken in bed; default = 0.89
 \item endophily - proportion of mosquitoes resting indoors after feeding with no
-intervention
-\item gammas - the half-life of spraying efficacy (timesteps)
-\item gamman - the half-life of bednet efficacy (timesteps)
+intervention; default = 0.813
+\item gammas - the half-life of spraying efficacy (timesteps); default = 91.25
+\item gamman - the half-life of bednet efficacy (timesteps); default = 963.6
 }
 
-please set vector control strategies using \code{set_betnets} and \code{set_spraying}
-
 treatment parameters:
-I recommend setting these with the convenience functions in
+please set treatment parameters with the convenience functions in
 \code{drug_parameters.R}
 \itemize{
-\item drug_efficacy - a vector of efficacies for available drugs
-\item drug_rel_c - a vector of relative onwards infectiousness values for drugs
+\item drug_efficacy - a vector of efficacies for available drugs; default = turned off
+\item drug_rel_c - a vector of relative onward infectiousness values for drugs; default = turned off
 \item drug_prophylaxis_shape - a vector of shape parameters for weibull curves to
-model prophylaxis for each drug
+model prophylaxis for each drug; default = turned off
 \item drug_prophylaxis_scale - a vector of scale parameters for weibull curves to
-model prophylaxis for each drug
-\item ft - probability of seeking treatment if clinically diseased
-\item clinical_treatment_drugs - a vector of drugs that are avaliable for
-clinically diseased (these values refer to the index in drug_* parameters)
-\item clinical_treatment_coverage - a vector of coverage values for each drug
+model prophylaxis for each drug; default = turned off
+\item clinical_treatment_drugs - a vector of drugs that are available for
+clinically diseased (these values refer to the index in drug_* parameters); default = NULL, NULL, NULL
+\item clinical_treatment_coverage - a vector of coverage values for each drug; default = NULL, NULL, NULL
 }
 
 RTS,S paramters:
-\itemize{
-\item rtss_vmax - the maximum efficacy of the vaccine
-\item rtss_alpha - shape parameter for the vaccine efficacy model
-\item rtss_beta - scale parameter for the vaccine efficacy model
-\item rtss_cs - peak parameters for the antibody model (mean and std. dev)
-\item rtss_cs_boost - peak parameters for the antibody model for booster rounds (mean and std. dev)
-\item rtss_rho - delay parameters for the antibody model (mean and std. dev)
-\item rtss_rho_boost - delay parameters for the antibody model for booster rounds (mean and std. dev)
-\item rtss_ds - delay parameters for the antibody model (mean and std. dev)
-\item rtss_dl - delay parameters for the antibody model (mean and std. dev)
-}
-
-I recommend setting strategies with the convenience functions in
+please set RTS,S parameters with the convenience functions in
 \code{vaccine_parameters.R:set_rtss}
+\itemize{
+\item rtss_vmax - the maximum efficacy of the vaccine; default = 0.93
+\item rtss_alpha - shape parameter for the vaccine efficacy model; default = 0.74
+\item rtss_beta - scale parameter for the vaccine efficacy model; default = 99.4
+\item rtss_cs - peak parameters for the antibody model (mean and std. dev); default = 6.37008, 0.35
+\item rtss_cs_boost - peak parameters for the antibody model for booster rounds (mean and std. dev); default = 5.56277, 0.35
+\item rtss_rho - delay parameters for the antibody model (mean and std. dev); default = 2.37832, 1.00813
+\item rtss_rho_boost - delay parameters for the antibody model for booster rounds (mean and std. dev); default = 1.03431, 1.02735
+\item rtss_ds - delay parameters for the antibody model, short-term weaning (mean and std. dev); default = 3.74502, 0.341185 (White MT et al. 2015 Lancet ID)
+\item rtss_dl - delay parameters for the antibody model, long-term weaning (mean and std. dev); default = 6.30365, 0.396515 (White MT et al. 2015 Lancet ID)
+}
 
 MDA and SMC parameters:
-We recommend setting these with convenience functions in \code{mda_parameters.R}
+please set these parameters with the convenience functions in \code{mda_parameters.R}
 
 TBV parameters:
+please set TBV parameters with the convenience functions in
+\code{vaccine_parameters.R:set_tbv}
 \itemize{
-\item tbv_mt - effect on treated infectiousness
-\item tbv_md - effect on diseased infectiousness
-\item tbv_ma - effect on asymptomatic infectiousness
-\item tbv_mu - effect on subpatent infectiousness
-\item tbv_k  - scale parameter for effect on infectiousness
-\item tbv_tau - peak antibody parameter
-\item tbv_rho - antibody component parameter
-\item tbv_ds - antibody short-term delay parameter
-\item tbv_dl - antibody long-term delay parameter
-\item tbv_tra_mu - transmission reduction parameter
-\item tbv_gamma1 - transmission reduction parameter
-\item tbv_gamma2 - transmission reduction parameter
+\item tbv_mt - effect on treated infectiousness; default = 35
+\item tbv_md - effect on diseased infectiousness; default = 46.7
+\item tbv_ma - effect on asymptomatic infectiousness; default = 3.6
+\item tbv_mu - effect on subpatent infectiousness; default = 0.8
+\item tbv_k  - scale parameter for effect on infectiousness; default = 0.9
+\item tbv_tau - peak antibody parameter; default = 22
+\item tbv_rho - antibody component parameter; default = 0.7
+\item tbv_ds - antibody short-term delay parameter; default = 45
+\item tbv_dl - antibody long-term delay parameter; default = 591
+\item tbv_tra_mu - transmission reduction parameter; default = 12.63
+\item tbv_gamma1 - transmission reduction parameter; default = 2.5
+\item tbv_gamma2 - transmission reduction parameter; default = 0.06
 }
-
-I recommend setting tbv strategies with the convenience functions in
-\code{vaccine_parameters.R}, these are the same as for RTS,S
 
 rendering:
 All values are in timesteps and all ranges are inclusive
 \itemize{
 \item prevalence_rendering_min_ages - the minimum ages for clinical prevalence
-outputs
-\item prevalence_rendering_max_ages - the corresponding max ages
-\item incidence_rendering_min_ages - the minimum ages for clinical incidence
-outputs
-\item incidence_rendering_max_ages - the corresponding max ages
+outputs; default = 730
+\item prevalence_rendering_max_ages - the corresponding max ages; default = 3650
+\item incidence_rendering_min_ages - the minimum ages for incidence
+outputs (includes asymptomatic microscopy +); default = turned off
+\item incidence_rendering_max_ages - the corresponding max ages; default = turned off
+clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = 0
+clinical_incidence_rendering_max_ages - the corresponding max ages; default = 1825
 \item severe_prevalence_rendering_min_ages - the minimum ages for severe
-prevalence outputs
-\item severe_prevalence_rendering_max_ages - the corresponding max ages
+prevalence outputs; default = turned off
+\item severe_prevalence_rendering_max_ages - the corresponding max ages; default = turned off
 \item severe_incidence_rendering_min_ages - the minimum ages for severe incidence
-outputs
-\item severe_incidence_rendering_max_ages - the corresponding max ages
+outputs; default = turned off
+\item severe_incidence_rendering_max_ages - the corresponding max ages; default = turned off
 }
 
 miscellaneous:
 \itemize{
-\item human_population - the number of humans to model
-\item mosquito_limit - the maximum number of mosquitos to allow for in the
-simulation
-\item individual_mosquitoes - boolean whether adult mosquitoes are modelled
-individually or compartmentaly
+\item human_population - the number of humans to model; default = 100
+\item mosquito_limit - the maximum number of mosquitoes to allow for in the
+simulation; default = 1.00E+05
+\item individual_mosquitoes - boolean whether adult mosquitoes are modeled
+individually or compartmentally; default = TRUE
+\item r_tol - the relative tolerance for the ode solver; default = 1e-4
+\item a_tol - the absolute tolerance for the ode solver; default = 1e-4
 \item enable_heterogeneity - boolean whether to include heterogeneity in biting
-rates
+rates; default = TRUE
 }}
 }
 \description{
-get_paramaters creates a named list of parameters for use in the model. These
+get_parameters creates a named list of parameters for use in the model. These
 parameters are passed to process functions. These parameters are explained in
 "The US President's Malaria Initiative, Plasmodium falciparum transmission
 and mortality: A modelling study."

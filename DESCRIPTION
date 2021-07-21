@@ -23,6 +23,7 @@ Remotes:
   mrc-ide/malariaEquilibrium
 Imports:
   individual,
+  malariaEquilibrium,
   Rcpp,
   statmod,
   MASS,
@@ -31,7 +32,6 @@ Imports:
   BH
 Suggests: 
   testthat,
-  malariaEquilibrium,
   mockery,
   knitr,
   rmarkdown,

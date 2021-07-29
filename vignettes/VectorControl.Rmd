@@ -38,17 +38,7 @@ simparams <- get_parameters(
     model_seasonality = TRUE, # Let's try a bi-modal model
     g0 = 0.28605,
     g = c(0.20636, -0.0740318, -0.0009293),
-    h = c(0.173743, -0.0730962, -0.116019),
-    # vector control parameters
-    rn = .31,
-    rnm = .24,
-    dn0 = .51,
-    phi_bednets = .89,
-    gamman = 2.64 * 365,
-    rs = .2,
-    phi_indoors = .97,
-    gammas = .5 * 365,
-    endophily = .813
+    h = c(0.173743, -0.0730962, -0.116019)
   )
 )
 
@@ -81,21 +71,26 @@ Then we can run the simulation for a variety of vector control strategies:
 
 ## Bed nets
 
-We can distribute bed nets once a year for 4 years, 3 months before peak season:
+We can distribute bed nets once a year for two years, changing the
+characteristics of the bed nets on each distribution...
 
 ```{r}
 bednetparams <- simparams
 
 bednet_events = data.frame(
   timestep = c(1, 2) * year,
-  name=c("Bednets start", "Bednets end")
+  name=c("Bednets 1", "Bednets 2")
 )
 
 bednetparams <- set_bednets(
   bednetparams,
-  timesteps = c(1, 2) * year,
-  coverages = rep(.8, 2),
-  retention = 5 * year
+  timesteps = bednet_events$timestep,
+  coverages = c(.8, .8),
+  retention = 5 * year,
+  dn0 = matrix(c(.533, .45), nrow=2, ncol=1),
+  rn = matrix(c(.56, .5), nrow=2, ncol=1),
+  rnm = matrix(c(.24, .24), nrow=2, ncol=1),
+  gamman = rep(2.64 * 365, 2)
 )
 
 output <- run_simulation(sim_length, bednetparams)
@@ -105,7 +100,7 @@ add_intervention_lines(plot_prevalence(output), bednet_events)
 
 ## Indoor spraying
 
-We can spray indoors once a year for 4 years, 3 months before peak season:
+We can do the same for IRS...
 
 ```{r}
 sprayingparams <- simparams
@@ -113,14 +108,19 @@ sprayingparams <- simparams
 peak <- peak_season_offset(sprayingparams)
 spraying_events = data.frame(
   timestep = c(1, 2) * year + peak - 3 * month,
-  name=c("Spraying starts", "Spraying ends")
+  name=c("Spraying 1", "Spraying 2")
 )
 
-sprayingparams <- set_bednets(
+sprayingparams <- set_spraying(
   sprayingparams,
-  timesteps = c(1, 2) * year,
+  timesteps = spraying_events$timestep,
   coverages = rep(.8, 2),
-  retention = 5 * year
+  ls_theta = matrix(c(2.025, 2.025), nrow=2, ncol=1),
+  ls_gamma = matrix(c(-0.009, -0.009), nrow=2, ncol=1),
+  ks_theta = matrix(c(-2.222, -2.222), nrow=2, ncol=1),
+  ks_gamma = matrix(c(0.008, 0.008), nrow=2, ncol=1),
+  ms_theta = matrix(c(-1.232, -1.232), nrow=2, ncol=1),
+  ms_gamma = matrix(c(-0.009, -0.009), nrow=2, ncol=1)
 )
 
 output <- run_simulation(sim_length, sprayingparams)

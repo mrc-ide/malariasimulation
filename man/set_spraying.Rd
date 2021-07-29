@@ -4,7 +4,17 @@
 \alias{set_spraying}
 \title{Parameterise an indoor spraying strategy}
 \usage{
-set_spraying(parameters, timesteps, coverages)
+set_spraying(
+  parameters,
+  timesteps,
+  coverages,
+  ls_theta,
+  ls_gamma,
+  ks_theta,
+  ks_gamma,
+  ms_theta,
+  ms_gamma
+)
 }
 \arguments{
 \item{parameters}{a list of parameters to modify}
@@ -13,13 +23,34 @@ set_spraying(parameters, timesteps, coverages)
 
 \item{coverages}{the proportion of the population who get indoor
 spraying}
+
+\item{ls_theta}{matrix of mortality parameters
+With dimensions length(species) x length(timesteps)}
+
+\item{ls_gamma}{matrix of mortality parameters per timestep
+With dimensions length(species) x length(timesteps)}
+
+\item{ks_theta}{matrix of feeding success parameters per timestep
+With dimensions length(species) x length(timesteps)}
+
+\item{ks_gamma}{matrix of feeding success parameters per timestep
+With dimensions length(species) x length(timesteps)}
+
+\item{ms_theta}{matrix of deterrence parameters per timestep
+With dimensions length(species) x length(timesteps)}
+
+\item{ms_gamma}{matrix of deterrence parameters per timestep
+With dimensions length(species) x length(timesteps)}
 }
 \description{
 The model will apply indoor spraying at \code{timesteps} to a random
 sample of the entire human population. The sample size will be a proportion
 of the human population taken from the corresponding \code{coverages}.
-The sample \emph{can} contain humans who have already benefitted from spraying.
+The sample \emph{can} contain humans who have already benefited from spraying.
 
 If a human in the sample lives in a sprayed house, the efficacy of the
 spraying will be returned to the maximum.
+
+The structure for the indoor residual spraying model is documented in the
+S.I. of 10.1038/s41467-018-07357-w
 }

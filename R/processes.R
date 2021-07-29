@@ -54,12 +54,12 @@ create_processes <- function(
   # schedule infections for humans and set last_boosted_*
   # move mosquitoes into incubating state
   # kill mosquitoes caught in vector control
-  init_eir <- lapply(
+  lagged_eir <- lapply(
     seq_along(parameters$species),
     function(species) {
       LaggedValue$new(
-        parameters$de + 1,
-        calculate_eir(
+        max_lag = parameters$de + 1,
+        default = calculate_eir(
           species,
           solvers,
           variables,
@@ -68,6 +68,15 @@ create_processes <- function(
         )
       )
     }
+  )
+
+  age <- get_age(variables$birth$get_values(), 0)
+  psi <- unique_biting_rate(age, parameters)
+  .pi <- human_pi(psi, variables$zeta$get_values())
+  init_infectivity <- sum(.pi * variables$infectivity$get_values())
+  lagged_infectivity <- LaggedValue$new(
+    max_lag = parameters$delay_gam + 2,
+    default = init_infectivity
   )
 
   processes <- c(
@@ -79,11 +88,8 @@ create_processes <- function(
       variables,
       events,
       parameters,
-      LaggedValue$new(
-        parameters$delay_gam + 2,
-        parameters$init_foim
-      ), # lagged FOIM
-      init_eir # lagged EIR
+      lagged_infectivity,
+      lagged_eir
     ),
     create_mortality_process(variables, events, renderer, parameters),
     create_progression_process(

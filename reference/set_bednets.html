@@ -40,15 +40,17 @@
 
 
 <meta property="og:title" content="Parameterise a bed net strategy — set_bednets" />
-<meta property="og:description" content="The model will distribute bednets at timesteps to a random
+<meta property="og:description" content="The model will distribute bed nets at timesteps to a random
 sample of the entire human population. The sample size will be a proportion
 of the human population taken from the corresponding coverages.
-The sample can contain humans who already have bednets.
-All of the sample &quot;use&quot; their bednets on the timestep after they are
+The sample can contain humans who already have bed nets.
+All of the sample &quot;use&quot; their bed nets on the timestep after they are
 distributed. Incomplete usage is not part of this model.
-If a human in the sample already has a bednet, their bednet will be replaced
+If a human in the sample already has a bed net, their bed net will be replaced
 by a new one.
-Bednets will be randomly removed each timestep with a rate of 1 - exp(-1/retention)" />
+Bed nets will be randomly removed each timestep with a rate of 1 - exp(-1/retention)
+The structure for the bed net model is documented in the
+S.I. of 10.1038/s41467-018-07357-w" />
 
 
 
@@ -80,7 +82,7 @@ Bednets will be randomly removed each timestep with a rate of 1 - exp(-1/retenti
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -141,18 +143,20 @@ Bednets will be randomly removed each timestep with a rate of 1 - exp(-1/retenti
     </div>
 
     <div class="ref-description">
-    <p>The model will distribute bednets at <code>timesteps</code> to a random
+    <p>The model will distribute bed nets at <code>timesteps</code> to a random
 sample of the entire human population. The sample size will be a proportion
 of the human population taken from the corresponding <code>coverages</code>.
-The sample <em>can</em> contain humans who already have bednets.</p>
-<p>All of the sample "use" their bednets on the timestep after they are
+The sample <em>can</em> contain humans who already have bed nets.</p>
+<p>All of the sample "use" their bed nets on the timestep after they are
 distributed. Incomplete usage is not part of this model.</p>
-<p>If a human in the sample already has a bednet, their bednet will be replaced
+<p>If a human in the sample already has a bed net, their bed net will be replaced
 by a new one.</p>
-<p>Bednets will be randomly removed each timestep with a rate of <code>1 - exp(-1/retention)</code></p>
+<p>Bed nets will be randomly removed each timestep with a rate of <code>1 - exp(-1/retention)</code></p>
+<p>The structure for the bed net model is documented in the
+S.I. of 10.1038/s41467-018-07357-w</p>
     </div>
 
-    <pre class="usage"><span class='fu'>set_bednets</span><span class='op'>(</span><span class='va'>parameters</span>, <span class='va'>timesteps</span>, <span class='va'>coverages</span>, <span class='va'>retention</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>set_bednets</span><span class='op'>(</span><span class='va'>parameters</span>, <span class='va'>timesteps</span>, <span class='va'>coverages</span>, <span class='va'>retention</span>, <span class='va'>dn0</span>, <span class='va'>rn</span>, <span class='va'>rnm</span>, <span class='va'>gamman</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -163,15 +167,34 @@ by a new one.</p>
     </tr>
     <tr>
       <th>timesteps</th>
-      <td><p>the timesteps at which to distribute bednets</p></td>
+      <td><p>the timesteps at which to distribute bed nets</p></td>
     </tr>
     <tr>
       <th>coverages</th>
-      <td><p>the proportion of the human population who receive bednets</p></td>
+      <td><p>the proportion of the human population who receive bed nets</p></td>
     </tr>
     <tr>
       <th>retention</th>
       <td><p>the average number of timesteps a net is kept for</p></td>
+    </tr>
+    <tr>
+      <th>dn0</th>
+      <td><p>a matrix of death probabilities for each species over time.
+With dimensions length(species) x length(timesteps)</p></td>
+    </tr>
+    <tr>
+      <th>rn</th>
+      <td><p>a matrix of repelling probabilities for each species over time
+With dimensions length(species) x length(timesteps)</p></td>
+    </tr>
+    <tr>
+      <th>rnm</th>
+      <td><p>a matrix of minimum repelling probabilities for each species over time
+With dimensions length(species) x length(timesteps)</p></td>
+    </tr>
+    <tr>
+      <th>gamman</th>
+      <td><p>a vector of bednet half-lives for each distribution timestep</p></td>
     </tr>
     </table>
 

@@ -75,7 +75,7 @@ and mortality: A modelling study.&quot;" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -288,17 +288,10 @@ species specific values are vectors</p><ul>
 <p>feeding cycle:
 please set vector control strategies using <code>set_betnets</code> and <code>set_spraying</code></p><ul>
 <li><p>bednets - boolean for if bednets are enabled; default = FALSE</p></li>
-<li><p>rn - probability mosquito is repelled by the bednet; default = 0.56</p></li>
-<li><p>rnm - minimum probability mosquito is repelled by the bednet ; default = 0.24</p></li>
-<li><p>dn0 - probability killed by the bednet; default = 0.533</p></li>
+<li><p>phi_bednets - proportion of bites taken in bed; default = 0.85</p></li>
+<li><p>k0 - proportion of females bloodfed with no net; default = 0.699</p></li>
 <li><p>spraying - boolean for if indoor spraying is enabled; default = FALSE</p></li>
-<li><p>rs - probability repelled by indoor spraying; default = 0.2</p></li>
-<li><p>phi_indoors - proportion of bites taken indoors; default = 0.97</p></li>
-<li><p>phi_bednets - proportion of bites taken in bed; default = 0.89</p></li>
-<li><p>endophily - proportion of mosquitoes resting indoors after feeding with no
-intervention; default = 0.813</p></li>
-<li><p>gammas - the half-life of spraying efficacy (timesteps); default = 91.25</p></li>
-<li><p>gamman - the half-life of bednet efficacy (timesteps); default = 963.6</p></li>
+<li><p>phi_indoors - proportion of bites taken indoors; default = 0.90</p></li>
 </ul>
 
 <p>treatment parameters:

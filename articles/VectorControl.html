@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
       </span>
     </div>
 
@@ -116,17 +116,7 @@
     model_seasonality <span class="op">=</span> <span class="cn">TRUE</span>, <span class="co"># Let's try a bi-modal model</span>
     g0 <span class="op">=</span> <span class="fl">0.28605</span>,
     g <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.20636</span>, <span class="op">-</span><span class="fl">0.0740318</span>, <span class="op">-</span><span class="fl">0.0009293</span><span class="op">)</span>,
-    h <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.173743</span>, <span class="op">-</span><span class="fl">0.0730962</span>, <span class="op">-</span><span class="fl">0.116019</span><span class="op">)</span>,
-    <span class="co"># vector control parameters</span>
-    rn <span class="op">=</span> <span class="fl">.31</span>,
-    rnm <span class="op">=</span> <span class="fl">.24</span>,
-    dn0 <span class="op">=</span> <span class="fl">.51</span>,
-    phi_bednets <span class="op">=</span> <span class="fl">.89</span>,
-    gamman <span class="op">=</span> <span class="fl">2.64</span> <span class="op">*</span> <span class="fl">365</span>,
-    rs <span class="op">=</span> <span class="fl">.2</span>,
-    phi_indoors <span class="op">=</span> <span class="fl">.97</span>,
-    gammas <span class="op">=</span> <span class="fl">.5</span> <span class="op">*</span> <span class="fl">365</span>,
-    endophily <span class="op">=</span> <span class="fl">.813</span>
+    h <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.173743</span>, <span class="op">-</span><span class="fl">0.0730962</span>, <span class="op">-</span><span class="fl">0.116019</span><span class="op">)</span>
   <span class="op">)</span>
 <span class="op">)</span>
 
@@ -157,20 +147,24 @@
 <div id="bed-nets" class="section level2">
 <h2 class="hasAnchor">
 <a href="#bed-nets" class="anchor"></a>Bed nets</h2>
-<p>We can distribute bed nets once a year for 4 years, 3 months before peak season:</p>
+<p>We can distribute bed nets once a year for two years, changing the characteristics of the bed nets on each distribution…</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">bednetparams</span> <span class="op">&lt;-</span> <span class="va">simparams</span>
 
 <span class="va">bednet_events</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>
   timestep <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span> <span class="op">*</span> <span class="va">year</span>,
-  name<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Bednets start"</span>, <span class="st">"Bednets end"</span><span class="op">)</span>
+  name<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Bednets 1"</span>, <span class="st">"Bednets 2"</span><span class="op">)</span>
 <span class="op">)</span>
 
 <span class="va">bednetparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_bednets.html">set_bednets</a></span><span class="op">(</span>
   <span class="va">bednetparams</span>,
-  timesteps <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span> <span class="op">*</span> <span class="va">year</span>,
-  coverages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">.8</span>, <span class="fl">2</span><span class="op">)</span>,
-  retention <span class="op">=</span> <span class="fl">5</span> <span class="op">*</span> <span class="va">year</span>
+  timesteps <span class="op">=</span> <span class="va">bednet_events</span><span class="op">$</span><span class="va">timestep</span>,
+  coverages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">.8</span>, <span class="fl">.8</span><span class="op">)</span>,
+  retention <span class="op">=</span> <span class="fl">5</span> <span class="op">*</span> <span class="va">year</span>,
+  dn0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">.533</span>, <span class="fl">.45</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,
+  rn <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">.56</span>, <span class="fl">.5</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,
+  rnm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">.24</span>, <span class="fl">.24</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,
+  gamman <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">2.64</span> <span class="op">*</span> <span class="fl">365</span>, <span class="fl">2</span><span class="op">)</span>
 <span class="op">)</span>
 
 <span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_simulation.html">run_simulation</a></span><span class="op">(</span><span class="va">sim_length</span>, <span class="va">bednetparams</span><span class="op">)</span>
@@ -181,21 +175,26 @@
 <div id="indoor-spraying" class="section level2">
 <h2 class="hasAnchor">
 <a href="#indoor-spraying" class="anchor"></a>Indoor spraying</h2>
-<p>We can spray indoors once a year for 4 years, 3 months before peak season:</p>
+<p>We can do the same for IRS…</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">sprayingparams</span> <span class="op">&lt;-</span> <span class="va">simparams</span>
 
 <span class="va">peak</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/peak_season_offset.html">peak_season_offset</a></span><span class="op">(</span><span class="va">sprayingparams</span><span class="op">)</span>
 <span class="va">spraying_events</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>
   timestep <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span> <span class="op">*</span> <span class="va">year</span> <span class="op">+</span> <span class="va">peak</span> <span class="op">-</span> <span class="fl">3</span> <span class="op">*</span> <span class="va">month</span>,
-  name<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Spraying starts"</span>, <span class="st">"Spraying ends"</span><span class="op">)</span>
+  name<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Spraying 1"</span>, <span class="st">"Spraying 2"</span><span class="op">)</span>
 <span class="op">)</span>
 
-<span class="va">sprayingparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_bednets.html">set_bednets</a></span><span class="op">(</span>
+<span class="va">sprayingparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_spraying.html">set_spraying</a></span><span class="op">(</span>
   <span class="va">sprayingparams</span>,
-  timesteps <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span> <span class="op">*</span> <span class="va">year</span>,
+  timesteps <span class="op">=</span> <span class="va">spraying_events</span><span class="op">$</span><span class="va">timestep</span>,
   coverages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">.8</span>, <span class="fl">2</span><span class="op">)</span>,
-  retention <span class="op">=</span> <span class="fl">5</span> <span class="op">*</span> <span class="va">year</span>
+  ls_theta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2.025</span>, <span class="fl">2.025</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,
+  ls_gamma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.009</span>, <span class="op">-</span><span class="fl">0.009</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,
+  ks_theta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2.222</span>, <span class="op">-</span><span class="fl">2.222</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,
+  ks_gamma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.008</span>, <span class="fl">0.008</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,
+  ms_theta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.232</span>, <span class="op">-</span><span class="fl">1.232</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,
+  ms_gamma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.009</span>, <span class="op">-</span><span class="fl">0.009</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>
 <span class="op">)</span>
 
 <span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_simulation.html">run_simulation</a></span><span class="op">(</span><span class="va">sim_length</span>, <span class="va">sprayingparams</span><span class="op">)</span>

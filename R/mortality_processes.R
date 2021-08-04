@@ -65,13 +65,16 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
         }
       }
 
-      events$detection$clear_schedule(died)
-      events$clinical_infection$clear_schedule(died)
-      events$asymptomatic_infection$clear_schedule(died)
-      events$asymptomatic_progression$clear_schedule(died)
-      events$subpatent_progression$clear_schedule(died)
-      events$recovery$clear_schedule(died)
-      events$throw_away_net$clear_schedule(died)
+      # clear events
+      for (event in event) {
+        if (is.list(event)) {
+          for (sub_event in event) {
+            sub_event$clear_schedule(died)
+          }
+        } else {
+          event$clear_schedule(died)
+        }
+      }
 
       # new birthday
       variables$birth$queue_update(timestep, died)

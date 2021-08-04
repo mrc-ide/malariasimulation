@@ -97,7 +97,7 @@ create_variables <- function(parameters) {
     states,
     initial_state(parameters, initial_age, groups, eq)
   )
-  birth <- individual::DoubleVariable$new(-initial_age)
+  birth <- individual::IntegerVariable$new(-initial_age)
   last_boosted_ib <- individual::DoubleVariable$new(rep(-1, size))
   last_boosted_ica <- individual::DoubleVariable$new(rep(-1, size))
   last_boosted_iva <- individual::DoubleVariable$new(rep(-1, size))
@@ -187,8 +187,8 @@ create_variables <- function(parameters) {
   drug <- individual::DoubleVariable$new(rep(0, size))
   drug_time <- individual::DoubleVariable$new(rep(-1, size))
 
-  rtss_vaccinated <- individual::DoubleVariable$new(rep(-1, size))
-  rtss_boosted <- individual::DoubleVariable$new(rep(-1, size))
+  rtss_vaccinated <- individual::IntegerVariable$new(rep(-1, size))
+  rtss_boosted <- individual::IntegerVariable$new(rep(-1, size))
 
   rtss_cs <- individual::DoubleVariable$new(
     exp(rnorm(size, parameters$rtss_cs[[1]], parameters$rtss_cs[[2]]))

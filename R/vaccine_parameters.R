@@ -1,4 +1,42 @@
-#' @title Parameterise an RTS,S strategy
+#' @title Parameterise an RTS,S epi strategy
+#'
+#' @description distribute RTS,S vaccine when an individual becomes a certain
+#' age. Efficacy will take effect after the last dose
+#'
+#' @param parameters a list of parameters to modify
+#' @param timestep when to turn on epi vaccination
+#' @param coverage the coverage for the starter doses
+#' @param age for the target population, (in timesteps)
+#' @param boosters the timesteps (following the final dose) at which booster vaccinations are administered
+#' @param booster_coverage the proportion of the vaccinated population who will
+#' receive each booster vaccine
+#' @export
+set_rtss_epi <- function(
+  parameters,
+  timestep,
+  coverage,
+  age,
+  min_wait,
+  boosters,
+  booster_coverage
+  ) {
+  stopifnot(length(timestep) == 1 && timestep > 1)
+  if (length(booster_coverage) != length(boosters)) {
+    stop('booster and booster_coverage does not align')
+  }
+  parameters$rtss_epi_timestep <- timestep
+  parameters$rtss_epi_coverage <- coverage
+  parameters$rtss_epi_age <- age
+  parameters$rtss_epi_boosters <- boosters
+  parameters$rtss_epi_booster_coverage <- booster_coverage
+  parameters
+}
+
+#' @title Parameterise an RTS,S mass distribution strategy
+#'
+#' @description distribute RTS,S vaccine to a population in an age range.
+#' Efficacy will take effect after the last dose
+#'
 #' @param parameters a list of parameters to modify
 #' @param timesteps a vector of timesteps for each round of vaccinations
 #' @param coverages the coverage for each round of vaccinations
@@ -8,28 +46,29 @@
 #' @param booster_coverage the proportion of the vaccinated population who will
 #' receive each booster vaccine
 #' @export
-set_rtss <- function(
+set_mass_rtss <- function(
   parameters,
   timesteps,
   coverages,
   min_ages,
   max_ages,
+  min_wait,
   boosters,
   booster_coverage
   ) {
+  stopifnot(all(timesteps > 1))
   if (length(min_ages) != length(max_ages)) {
     stop('min and max ages do not align')
   }
   if (length(booster_coverage) != length(boosters)) {
     stop('booster and booster_coverage does not align')
   }
-  parameters$rtss <- TRUE
-  parameters$rtss_timesteps <- timesteps
-  parameters$rtss_coverages <- coverages
-  parameters$rtss_min_ages <- min_ages
-  parameters$rtss_max_ages <- max_ages
-  parameters$rtss_boosters <- boosters
-  parameters$rtss_booster_coverage <- booster_coverage
+  parameters$rtss_mass_timesteps <- timesteps
+  parameters$rtss_mass_coverages <- coverages
+  parameters$rtss_mass_min_ages <- min_ages
+  parameters$rtss_mass_max_ages <- max_ages
+  parameters$rtss_mass_boosters <- boosters
+  parameters$rtss_mass_booster_coverage <- booster_coverage
   parameters
 }
 

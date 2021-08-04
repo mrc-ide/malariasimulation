@@ -1,6 +1,6 @@
 test_that('RTS,S strategy parameterisation works', {
   parameters <- get_parameters()
-  parameters <- set_rtss(
+  parameters <- set_mass_rtss(
     parameters,
     timesteps = 10,
     coverages = 0.8,
@@ -10,17 +10,17 @@ test_that('RTS,S strategy parameterisation works', {
     booster_coverage = c(.9, .8)
   )
   expect_equal(parameters$rtss, TRUE)
-  expect_equal(parameters$rtss_timesteps, 10)
-  expect_equal(parameters$rtss_coverages, .8)
-  expect_equal(parameters$rtss_min_ages, 5 * 30)
-  expect_equal(parameters$rtss_max_ages, 17 * 30)
-  expect_equal(parameters$rtss_boosters, c(18, 36) * 30)
+  expect_equal(parameters$rtss_mass_timesteps, 10)
+  expect_equal(parameters$rtss_mass_coverages, .8)
+  expect_equal(parameters$rtss_mass_min_ages, 5 * 30)
+  expect_equal(parameters$rtss_mass_max_ages, 17 * 30)
+  expect_equal(parameters$rtss_mass_boosters, c(18, 36) * 30)
 })
 
 test_that('RTS,S fails pre-emptively', {
   parameters <- get_parameters()
   expect_error(
-    set_rtss(
+    set_mass_rtss(
       parameters,
       timesteps = 10,
       coverages = 0.8,
@@ -29,8 +29,7 @@ test_that('RTS,S fails pre-emptively', {
       boosters = c(18, 36) * 30,
       coverage = 0.8,
       booster_coverage = .9
-    ),
-    '*'
+    )
   )
   expect_error(
     set_rtss(
@@ -41,8 +40,7 @@ test_that('RTS,S fails pre-emptively', {
       max_ages = 17 * 30,
       boosters = c(18, 36) * 30,
       booster_coverage = .9
-    ),
-    '*'
+    )
   )
 })
 
@@ -56,13 +54,13 @@ test_that('Infection considers vaccine efficacy', {
     c('S', 'A', 'D', 'U', 'Tr'),
     rep('S', 4)
   )
-  variables$birth <- individual::DoubleVariable$new(
+  variables$birth <- individual::IntegerVariable$new(
     -c(8, 2.9, 3.2, 18.4) * 365 - 100
   )
-  variables$rtss_vaccinated <- individual::DoubleVariable$new(
+  variables$rtss_vaccinated <- individual::IntegerVariable$new(
     c(-1, -1, 50, 50)
   )
-  variables$rtss_boosted <- individual::DoubleVariable$new(
+  variables$rtss_boosted <- individual::IntegerVariable$new(
     c(-1, -1, -1, 50 + 30)
   )
   variables$rtss_cs <- individual::DoubleVariable$new(exp(
@@ -77,10 +75,10 @@ test_that('Infection considers vaccine efficacy', {
   variables$rtss_dl <- individual::DoubleVariable$new(
     exp(rep(parameters$rtss_dl[[1]], 4))
   )
-  variables$drug <- individual::DoubleVariable$new(
+  variables$drug <- individual::IntegerVariable$new(
     c(-1, -1, -1, -1)
   )
-  variables$ib <- individual::DoubleVariable$new(
+  variables$ib <- individual::IntegerVariable$new(
     rep(.2, 4)
   )
 
@@ -102,8 +100,8 @@ test_that('Infection considers vaccine efficacy', {
 
 test_that('RTS,S vaccinations update vaccination time and schedule boosters', {
   timestep <- 100
-  parameters <- get_parameters()
-  parameters <- set_rtss(
+  parameters <- get_parameters(list(human_population = 5))
+  parameters <- set_mass_rtss(
     parameters,
     timesteps = c(100, 100 + 365),
     coverages = rep(0.8, 2),
@@ -114,24 +112,23 @@ test_that('RTS,S vaccinations update vaccination time and schedule boosters', {
   )
   events <- create_events(parameters)
   variables <- create_variables(parameters)
-  variables$birth <- individual::DoubleVariable$new(
+  variables$birth <- individual::IntegerVariable$new(
     -c(18.3, 8, 2.9, 3.2, 18.4) * 365 + 100
   )
-  variables$rtss_vaccinated <- mock_double(
+  variables$rtss_vaccinated <- mock_integer(
     c(-1, -1, -1, 50, 50)
   )
 
-  events$rtss_vaccination <- mock_event(events$rtss_vaccination)
-  events$rtss_booster <- mock_event(events$rtss_booster)
+  events$rtss_mass_vaccination <- mock_event(events$rtss_mass_vaccination)
+  events$rtss_mass_doses <- lapply(events$rtss_mass_doses, mock_event)
 
   renderer <- individual::Render$new(100)
 
-  listener <- create_rtss_vaccination_listener(
+  listener <- create_rtss_mass_listener(
     variables,
     events,
     parameters,
-    get_correlation_parameters(parameters),
-    renderer
+    get_correlation_parameters(parameters)
   )
 
   bernoulli_mock = mockery::mock(2)
@@ -148,7 +145,7 @@ test_that('RTS,S vaccinations update vaccination time and schedule boosters', {
   )
 
   mockery::expect_args(
-    variables$rtss_vaccinated$queue_update,
+    variables$rtss_vaccinated$queue_update_mock,
     1,
     100,
     c(1, 3)
@@ -169,7 +166,7 @@ test_that('RTS,S vaccinations update vaccination time and schedule boosters', {
 
 test_that('RTS,S boosters update antibody params and reschedule correctly', {
   parameters <- get_parameters()
-  parameters <- set_rtss(
+  parameters <- set_mass_rtss(
     parameters,
     timesteps = c(50, 50 + 365),
     coverages = rep(0.8, 2),
@@ -183,7 +180,7 @@ test_that('RTS,S boosters update antibody params and reschedule correctly', {
 
   timestep <- 50 + 30
 
-  variables$birth <- individual::DoubleVariable$new(
+  variables$birth <- individual::IntegerVariable$new(
     -c(2.9, 3.2, 18.4) * 365 + 100
   )
   variables$rtss_vaccinated <- mock_double(
@@ -203,7 +200,9 @@ test_that('RTS,S boosters update antibody params and reschedule correctly', {
   listener <- create_rtss_booster_listener(
     variables,
     events,
-    parameters
+    parameters,
+    parameters$rtss_mass_boosters,
+    parameters$rtss_mass_booster_coverage
   )
 
   mockery::stub(listener, 'bernoulli', mockery::mock(c(1, 2, 3)))
@@ -211,19 +210,19 @@ test_that('RTS,S boosters update antibody params and reschedule correctly', {
   listener(timestep, individual::Bitset$new(3)$insert(c(1, 2, 3)))
 
   expect_bitset_update(
-    variables$rtss_cs$queue_update,
+    variables$rtss_cs$queue_update_mock,
     rep(exp(parameters$rtss_cs_boost[[1]]), 3),
     c(1, 2, 3)
   )
 
   expect_bitset_update(
-    variables$rtss_rho$queue_update,
+    variables$rtss_rho$queue_update_mock,
     rep(invlogit(parameters$rtss_rho_boost[[1]]), 3),
     c(1, 2, 3)
   )
 
   expect_bitset_update(
-    variables$rtss_boosted$queue_update,
+    variables$rtss_boosted$queue_update_mock,
     timestep,
     c(1, 2, 3)
   )
@@ -238,7 +237,7 @@ test_that('RTS,S boosters update antibody params and reschedule correctly', {
 
 test_that('RTS,S booster coverages sample subpopulations correctly', {
   parameters <- get_parameters()
-  parameters <- set_rtss(
+  parameters <- set_mass_rtss(
     parameters,
     timesteps = 50,
     coverages = 0.8,
@@ -254,7 +253,7 @@ test_that('RTS,S booster coverages sample subpopulations correctly', {
   events$rtss_booster <- mock_event(events$rtss_booster)
   variables <- create_variables(parameters)
 
-  variables$birth <- individual::DoubleVariable$new(
+  variables$birth <- individual::IntegerVariable$new(
     -c(2.9, 3.2, 18.4) * 365 + 100
   )
   variables$rtss_vaccinated <- mock_double(
@@ -273,7 +272,9 @@ test_that('RTS,S booster coverages sample subpopulations correctly', {
   listener <- create_rtss_booster_listener(
     variables,
     events,
-    parameters
+    parameters,
+    parameters$rtss_mass_boosters,
+    parameters$rtss_mass_booster_coverage
   )
 
   bernoulli_mock = mockery::mock(c(2, 3))
@@ -290,19 +291,19 @@ test_that('RTS,S booster coverages sample subpopulations correctly', {
   )
 
   expect_bitset_update(
-    variables$rtss_cs$queue_update,
+    variables$rtss_cs$queue_update_mock,
     rep(exp(parameters$rtss_cs_boost[[1]]), 3),
     c(1, 2, 3)
   )
 
   expect_bitset_update(
-    variables$rtss_rho$queue_update,
+    variables$rtss_rho$queue_update_mock,
     rep(invlogit(parameters$rtss_rho_boost[[1]]), 3),
     c(1, 2, 3)
   )
 
   expect_bitset_update(
-    variables$rtss_boosted$queue_update,
+    variables$rtss_boosted$queue_update_mock,
     timestep,
     c(1, 2, 3)
   )

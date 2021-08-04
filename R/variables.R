@@ -184,8 +184,8 @@ create_variables <- function(parameters) {
   # Initialise the infectivity variable
   infectivity <- individual::DoubleVariable$new(infectivity_values)
 
-  drug <- individual::DoubleVariable$new(rep(0, size))
-  drug_time <- individual::DoubleVariable$new(rep(-1, size))
+  drug <- individual::IntegerVariable$new(rep(0, size))
+  drug_time <- individual::IntegerVariable$new(rep(-1, size))
 
   rtss_vaccinated <- individual::IntegerVariable$new(rep(-1, size))
   rtss_boosted <- individual::IntegerVariable$new(rep(-1, size))

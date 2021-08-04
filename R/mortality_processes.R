@@ -66,14 +66,8 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
       }
 
       # clear events
-      for (event in event) {
-        if (is.list(event)) {
-          for (sub_event in event) {
-            sub_event$clear_schedule(died)
-          }
-        } else {
-          event$clear_schedule(died)
-        }
+      for (event in unlist(event)) {
+        event$clear_schedule(died)
       }
 
       # new birthday

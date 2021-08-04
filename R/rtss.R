@@ -15,14 +15,14 @@ create_rtss_epi_process <- function(
   correlations
   ) {
   function(timestep) {
-    if (timestep <- parameters$rtss_epi_timestep) {
+    if (timestep < parameters$rtss_epi_timestep) {
       return()
     }
     to_vaccinate <- variables$birth$get_index_of(
       set = timestep - parameters$rtss_epi_age
     )
-    not_recently_vaccinated <- variables$rtss_vaccinated(
-      a = timestep - parameters$rtss_min_wait,
+    not_recently_vaccinated <- variables$rtss_vaccinated$get_index_of(
+      a = max(timestep - parameters$rtss_min_wait, 0),
       b = timestep
     )$not()
     target <- to_vaccinate$and(not_recently_vaccinated)$to_vector()
@@ -34,12 +34,13 @@ create_rtss_epi_process <- function(
         correlations
       )
     ]
-    if (target$size() > 0) {
+    if (length(target) > 0) {
       schedule_vaccination(
         target,
         variables,
         events,
-        parameters
+        parameters,
+        events$rtss_epi_doses
       )
     }
   }
@@ -62,9 +63,8 @@ create_rtss_mass_listener <- function(
   correlations
   ) {
   function(timestep) {
-    time_index = which(parameters$rtss_timesteps == timestep)
-    not_recently_vaccinated <- variables$rtss_vaccinated(
-      a = timestep - parameters$rtss_min_wait,
+    not_recently_vaccinated <- variables$rtss_vaccinated$get_index_of(
+      a = max(timestep - parameters$rtss_min_wait, 0),
       b = timestep
     )$not()
     in_age_group <- individual::Bitset$new(parameters$human_population)
@@ -74,6 +74,7 @@ create_rtss_mass_listener <- function(
       in_age_group$or(variables$birth$get_index_of(a = min_birth, b = max_birth))
     }
     target <- in_age_group$and(not_recently_vaccinated)$to_vector()
+    time_index = which(parameters$rtss_mass_timesteps == timestep)
     target <- target[
       sample_intervention(
         target,
@@ -82,7 +83,13 @@ create_rtss_mass_listener <- function(
         correlations
       )
     ]
-    schedule_vaccination(target, variables, events, parameters)
+    schedule_vaccination(
+      target,
+      variables,
+      events,
+      parameters,
+      events$rtss_mass_doses
+    )
     if (time_index < length(parameters$rtss_timesteps)) {
       events$rtss_mass_vaccination$schedule(
         parameters$rtss_timesteps[[time_index + 1]] - timestep
@@ -97,15 +104,17 @@ create_rtss_mass_listener <- function(
 #' @param variables list of variables in the model
 #' @param events a list of events in the model
 #' @param parameters the model parameters
+#' @param dose_events a list of dose events to schedule
 #' @noRd
 schedule_vaccination <- function(
   target,
   events,
-  parameters
+  parameters,
+  dose_events
   ) {
   if (target$size() > 0) {
     for (d in seq_along(parameters$rtss_doses)) {
-      events$rtss_doses[[d]]$schedule(target, parameters$rtss_doses[[d]])
+      dose_events[[d]]$schedule(target, parameters$rtss_doses[[d]])
     }
   }
 }

@@ -24,13 +24,13 @@ create_events <- function(parameters) {
   if (!is.null(parameters$rtss_mass_timesteps)) {
     rtss_mass_doses <- lapply(
       seq_along(parameters$rtss_doses),
-      function(.) individual$TargetedEvent(parameters$human_population)
+      function(.) individual::TargetedEvent$new(parameters$human_population)
     )
     events <- c(
       events,
       rtss_mass_vaccination = individual::Event$new(),
       rtss_mass_doses = rtss_mass_doses,
-      rtss_mass_booster = individual::TargetedEvent$new(parameters$human_population),
+      rtss_mass_booster = individual::TargetedEvent$new(parameters$human_population)
     )
   }
 
@@ -38,12 +38,12 @@ create_events <- function(parameters) {
   if (!is.null(parameters$rtss_epi_timestep)) {
     rtss_epi_doses <- lapply(
       seq_along(parameters$rtss_doses),
-      function(.) individual$TargetedEvent(parameters$human_population)
+      function(.) individual::TargetedEvent$new(parameters$human_population)
     )
     events <- c(
       events,
       rtss_epi_doses = rtss_epi_doses,
-      rtss_epi_booster = individual::TargetedEvent$new(parameters$human_population),
+      rtss_epi_booster = individual::TargetedEvent$new(parameters$human_population)
     )
   }
 

@@ -24,6 +24,7 @@ set_rtss_epi <- function(
   if (length(booster_coverage) != length(boosters)) {
     stop('booster and booster_coverage does not align')
   }
+  parameters$rtss <- TRUE
   parameters$rtss_epi_timestep <- timestep
   parameters$rtss_epi_coverage <- coverage
   parameters$rtss_epi_age <- age
@@ -63,6 +64,7 @@ set_mass_rtss <- function(
   if (length(booster_coverage) != length(boosters)) {
     stop('booster and booster_coverage does not align')
   }
+  parameters$rtss <- TRUE
   parameters$rtss_mass_timesteps <- timesteps
   parameters$rtss_mass_coverages <- coverages
   parameters$rtss_mass_min_ages <- min_ages

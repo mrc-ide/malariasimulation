@@ -215,9 +215,9 @@ attach_event_listeners <- function(
 
     # set up dosing
     for (d in seq_along(events$rtss_mass_doses)) {
-      events$rtss_mass_doses[[d]]$add_listener(function(t, target) {
-        renderer$render(paste0('n_rtss_mass_dose_', d), t$size())
-      })
+      events$rtss_mass_doses[[d]]$add_listener(
+        create_dosage_renderer(renderer, 'mass', d)
+      )
       if (d == length(events$rtss_mass_doses)) {
         events$rtss_mass_doses[[d]]$add_listener(
           create_rtss_efficacy_listener(
@@ -246,9 +246,9 @@ attach_event_listeners <- function(
   if (!is.null(events$rtss_epi_doses)) {
     # set up dosing
     for (d in seq_along(events$rtss_epi_doses)) {
-      events$rtss_epi_doses[[d]]$add_listener(function(t, target) {
-        renderer$render(paste0('n_rtss_epi_dose_', d), t$size())
-      })
+      events$rtss_epi_doses[[d]]$add_listener(
+        create_dosage_renderer(renderer, 'epi', d)
+      )
       if (d == length(events$rtss_epi_doses)) {
         events$rtss_epi_doses[[d]]$add_listener(
           create_rtss_efficacy_listener(

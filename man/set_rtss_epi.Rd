@@ -18,6 +18,10 @@ set_rtss_epi(
 \arguments{
 \item{parameters}{a list of parameters to modify}
 
+\item{start}{timestep to turn on epi vaccination}
+
+\item{end}{timestep to turn off epi vaccination}
+
 \item{coverage}{the coverage for the starter doses}
 
 \item{age}{for the target population, (in timesteps)}
@@ -28,8 +32,6 @@ set_rtss_epi(
 
 \item{booster_coverage}{the proportion of the vaccinated population who will
 receive each booster vaccine}
-
-\item{timestep}{when to turn on epi vaccination}
 }
 \description{
 distribute RTS,S vaccine when an individual becomes a certain

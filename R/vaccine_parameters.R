@@ -4,7 +4,8 @@
 #' age. Efficacy will take effect after the last dose
 #'
 #' @param parameters a list of parameters to modify
-#' @param timestep when to turn on epi vaccination
+#' @param start timestep to turn on epi vaccination
+#' @param end timestep to turn off epi vaccination
 #' @param coverage the coverage for the starter doses
 #' @param age for the target population, (in timesteps)
 #' @param min_wait the minimum acceptable time since the last vaccination (in timesteps);
@@ -25,10 +26,10 @@ set_rtss_epi <- function(
   stopifnot(length(start) == 1 && start > 1)
   stopifnot(length(end) == 1 && end > start)
   stopifnot(min_wait >= 0)
-  stopifnot(coverage >= 0 && coverage <= 1)
+  stopifnot(coverage >= 0 & coverage <= 1)
   stopifnot(age >= 0)
   stopifnot(all(boosters > 0))
-  stopifnot(all(booster_coverage >= 0 && booster_coverage <= 1))
+  stopifnot(all(booster_coverage >= 0 & booster_coverage <= 1))
   if (length(booster_coverage) != length(boosters)) {
     stop('booster and booster_coverage does not align')
   }
@@ -70,10 +71,10 @@ set_mass_rtss <- function(
   ) {
   stopifnot(all(timesteps > 1))
   stopifnot(min_wait >= 0)
-  stopifnot(all(coverages >= 0 && coverages <= 1))
-  stopifnot(all(min_ages >= 0 && max_ages >= 0))
+  stopifnot(all(coverages >= 0 & coverages <= 1))
+  stopifnot(all(min_ages >= 0 & max_ages >= 0))
   stopifnot(all(boosters > 0))
-  stopifnot(all(booster_coverage >= 0 && booster_coverage <= 1))
+  stopifnot(all(booster_coverage >= 0 & booster_coverage <= 1))
   if (length(min_ages) != length(max_ages)) {
     stop('min and max ages do not align')
   }

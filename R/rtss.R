@@ -87,7 +87,7 @@ create_rtss_mass_listener <- function(
       sample_intervention(
         target,
        'rtss',
-        parameters$rtss_coverages[[time_index]],
+        parameters$rtss_mass_coverages[[time_index]],
         correlations
       )
     ]
@@ -224,4 +224,10 @@ calculate_rtss_efficacy <- function(antibodies, parameters) {
       1 + (antibodies / parameters$rtss_beta) ** parameters$rtss_alpha
     ))
   )
+}
+
+create_dosage_renderer <- function(renderer, strategy, dose) {
+  output_name <- paste0('n_rtss_', strategy  ,'_dose_', dose)
+  renderer$set_default(output_name, 0)
+  function(t, target) renderer$render(output_name, target$size(), t)
 }

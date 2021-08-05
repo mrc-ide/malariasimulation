@@ -15,7 +15,7 @@ create_rtss_epi_process <- function(
   correlations
   ) {
   function(timestep) {
-    if (timestep < parameters$rtss_epi_timestep) {
+    if (!between(timestep, parameters$rtss_epi_start, parameters$rtss_epi_end)) {
       return()
     }
     to_vaccinate <- variables$birth$get_index_of(
@@ -136,8 +136,8 @@ schedule_vaccination <- function(
 #' @noRd
 create_rtss_efficacy_listener <- function(
   variables,
-  events,
   parameters,
+  booster_event,
   boosters,
   booster_coverage
   ) {
@@ -147,9 +147,9 @@ create_rtss_efficacy_listener <- function(
         timestep,
         target
       )
-      if (length(parameters$rtss_boosters) > 0) {
-        events$rtss_booster$schedule(
-          target$sample(booster_coverage[[1]]),
+      if (length(boosters) > 0) {
+        booster_event$schedule(
+          sample_bitset(target, booster_coverage[[1]]),
           boosters[[1]]
         )
       }
@@ -159,8 +159,8 @@ create_rtss_efficacy_listener <- function(
 
 create_rtss_booster_listener <- function(
   variables,
-  events,
   parameters,
+  booster_event,
   boosters,
   booster_coverage
   ) {
@@ -193,7 +193,7 @@ create_rtss_booster_listener <- function(
             length(to_boost),
             booster_coverage[[i + 1]]
           )]
-          events$rtss_booster$schedule(
+          booster_event$schedule(
             to_boost,
             v + boosters[[i + 1]] - timestep
           )

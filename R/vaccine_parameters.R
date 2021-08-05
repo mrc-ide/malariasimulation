@@ -14,14 +14,16 @@
 #' @export
 set_rtss_epi <- function(
   parameters,
-  timestep,
+  start,
+  end,
   coverage,
   age,
   min_wait,
   boosters,
   booster_coverage
   ) {
-  stopifnot(length(timestep) == 1 && timestep > 1)
+  stopifnot(length(start) == 1 && start > 1)
+  stopifnot(length(end) == 1 && end > start)
   stopifnot(min_wait >= 0)
   stopifnot(coverage >= 0 && coverage <= 1)
   stopifnot(age >= 0)
@@ -31,7 +33,8 @@ set_rtss_epi <- function(
     stop('booster and booster_coverage does not align')
   }
   parameters$rtss <- TRUE
-  parameters$rtss_epi_timestep <- timestep
+  parameters$rtss_epi_start <- start
+  parameters$rtss_epi_end <- end
   parameters$rtss_epi_coverage <- coverage
   parameters$rtss_epi_age <- age
   parameters$rtss_epi_boosters <- boosters

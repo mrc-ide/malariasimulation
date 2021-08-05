@@ -38,7 +38,7 @@ create_events <- function(parameters) {
   }
 
   # EPI vaccination events
-  if (!is.null(parameters$rtss_epi_timestep)) {
+  if (!is.null(parameters$rtss_epi_start)) {
     rtss_epi_doses <- lapply(
       seq_along(parameters$rtss_doses),
       function(.) individual::TargetedEvent$new(parameters$human_population)
@@ -222,8 +222,8 @@ attach_event_listeners <- function(
         events$rtss_mass_doses[[d]]$add_listener(
           create_rtss_efficacy_listener(
             variables,
-            events,
             parameters,
+            events$rtss_mass_booster,
             parameters$rtss_mass_boosters,
             parameters$rtss_mass_booster_coverage
           )
@@ -235,8 +235,8 @@ attach_event_listeners <- function(
     events$rtss_mass_booster$add_listener(
       create_rtss_booster_listener(
         variables,
-        events,
         parameters,
+        events$rtss_mass_booster,
         parameters$rtss_mass_boosters,
         parameters$rtss_mass_booster_coverage
       )
@@ -253,8 +253,8 @@ attach_event_listeners <- function(
         events$rtss_epi_doses[[d]]$add_listener(
           create_rtss_efficacy_listener(
             variables,
-            events,
             parameters,
+            events$rtss_epi_booster,
             parameters$rtss_epi_boosters,
             parameters$rtss_epi_booster_coverage
           )
@@ -266,8 +266,8 @@ attach_event_listeners <- function(
     events$rtss_epi_booster$add_listener(
       create_rtss_booster_listener(
         variables,
-        events,
         parameters,
+        events$rtss_epi_booster,
         parameters$rtss_epi_boosters,
         parameters$rtss_epi_booster_coverage
       )

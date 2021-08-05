@@ -125,8 +125,6 @@ test_that('RTS,S vaccinations update vaccination time and schedule boosters', {
   events$rtss_mass_vaccination <- mock_event(events$rtss_mass_vaccination)
   events$rtss_mass_doses <- lapply(events$rtss_mass_doses, mock_event)
 
-  renderer <- individual::Render$new(100)
-
   listener <- create_rtss_mass_listener(
     variables,
     events,
@@ -202,12 +200,12 @@ test_that('RTS,S boosters update antibody params and reschedule correctly', {
   variables$rtss_rho <- mock_double(
     c(0, 0, 0)
   )
-  events$rtss_booster <- mock_event(events$rtss_booster)
+  events$rtss_mass_booster <- mock_event(events$rtss_mass_booster)
 
   listener <- create_rtss_booster_listener(
     variables,
-    events,
     parameters,
+    events$rtss_mass_booster,
     parameters$rtss_mass_boosters,
     parameters$rtss_mass_booster_coverage
   )
@@ -235,7 +233,7 @@ test_that('RTS,S boosters update antibody params and reschedule correctly', {
   )
 
   mockery::expect_args(
-    events$rtss_booster$schedule,
+    events$rtss_mass_booster$schedule,
     1,
     c(1, 2, 3),
     5 * 30
@@ -258,7 +256,7 @@ test_that('RTS,S booster coverages sample subpopulations correctly', {
   timestep <- 50 + 30
 
   events <- create_events(parameters)
-  events$rtss_booster <- mock_event(events$rtss_booster)
+  events$rtss_mass_booster <- mock_event(events$rtss_mass_booster)
   variables <- create_variables(parameters)
 
   variables$birth <- individual::IntegerVariable$new(
@@ -279,8 +277,8 @@ test_that('RTS,S booster coverages sample subpopulations correctly', {
 
   listener <- create_rtss_booster_listener(
     variables,
-    events,
     parameters,
+    events$rtss_mass_booster,
     parameters$rtss_mass_boosters,
     parameters$rtss_mass_booster_coverage
   )
@@ -317,10 +315,61 @@ test_that('RTS,S booster coverages sample subpopulations correctly', {
   )
 
   mockery::expect_args(
-    events$rtss_booster$schedule,
+    events$rtss_mass_booster$schedule,
     1,
     c(2, 3),
     5 * 30
+  )
+})
+
+test_that('RTS,S Efficacy listener works correctly', {
+  timestep <- 50
+  parameters <- get_parameters()
+  parameters <- set_mass_rtss(
+    parameters,
+    timesteps = 50,
+    coverages = 0.8,
+    min_ages = c(1, 2, 3, 18) * 365,
+    max_ages = (c(1, 2, 3, 18) + 1) * 365 - 1,
+    min_wait = 0,
+    boosters = c(1, 6) * 30,
+    booster_coverage = c(.9, .8)
+  )
+
+  events <- create_events(parameters)
+  events$rtss_mass_booster <- mock_event(events$rtss_mass_booster)
+  variables <- create_variables(parameters)
+  variables$rtss_vaccinated <- mock_integer(c(-1, -1, -1))
+  listener <- create_rtss_efficacy_listener(
+    variables,
+    parameters,
+    events$rtss_mass_booster,
+    parameters$rtss_mass_boosters,
+    parameters$rtss_mass_booster_coverage
+  )
+
+  mockery::stub(
+    listener,
+    'sample_bitset',
+    mockery::mock(individual::Bitset$new(3)$insert(c(2, 3)))
+  )
+  listener(timestep, individual::Bitset$new(3)$insert(c(1, 2, 3)))
+
+  # vaccinated time
+  expect_bitset_update(
+    variables$rtss_vaccinated$queue_update_mock(),
+    timestep,
+    c(1, 2, 3)
+  )
+
+  # boosters
+  expect_equal(
+    mockery::mock_args(events$rtss_mass_booster$schedule)[[1]][[1]]$to_vector(),
+    c(2, 3)
+  )
+  expect_equal(
+    mockery::mock_args(events$rtss_mass_booster$schedule)[[1]][[2]],
+    30
   )
 })
 

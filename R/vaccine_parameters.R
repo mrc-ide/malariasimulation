@@ -7,6 +7,7 @@
 #' @param timestep when to turn on epi vaccination
 #' @param coverage the coverage for the starter doses
 #' @param age for the target population, (in timesteps)
+#' @param min_wait the minimum acceptable time since the last vaccination (in timesteps);
 #' @param boosters the timesteps (following the final dose) at which booster vaccinations are administered
 #' @param booster_coverage the proportion of the vaccinated population who will
 #' receive each booster vaccine
@@ -21,6 +22,11 @@ set_rtss_epi <- function(
   booster_coverage
   ) {
   stopifnot(length(timestep) == 1 && timestep > 1)
+  stopifnot(min_wait >= 0)
+  stopifnot(coverage >= 0 && coverage <= 1)
+  stopifnot(age >= 0)
+  stopifnot(all(boosters > 0))
+  stopifnot(all(booster_coverage >= 0 && booster_coverage <= 1))
   if (length(booster_coverage) != length(boosters)) {
     stop('booster and booster_coverage does not align')
   }
@@ -29,6 +35,7 @@ set_rtss_epi <- function(
   parameters$rtss_epi_coverage <- coverage
   parameters$rtss_epi_age <- age
   parameters$rtss_epi_boosters <- boosters
+  parameters$rtss_epi_min_wait <- min_wait
   parameters$rtss_epi_booster_coverage <- booster_coverage
   parameters
 }
@@ -41,6 +48,7 @@ set_rtss_epi <- function(
 #' @param parameters a list of parameters to modify
 #' @param timesteps a vector of timesteps for each round of vaccinations
 #' @param coverages the coverage for each round of vaccinations
+#' @param min_wait the minimum acceptable time since the last vaccination (in timesteps);
 #' @param min_ages for the target population, inclusive (in timesteps)
 #' @param max_ages for the target population, inclusive (in timesteps)
 #' @param boosters the timesteps (following the initial vaccination) at which booster vaccinations are administered
@@ -58,6 +66,11 @@ set_mass_rtss <- function(
   booster_coverage
   ) {
   stopifnot(all(timesteps > 1))
+  stopifnot(min_wait >= 0)
+  stopifnot(all(coverages >= 0 && coverages <= 1))
+  stopifnot(all(min_ages >= 0 && max_ages >= 0))
+  stopifnot(all(boosters > 0))
+  stopifnot(all(booster_coverage >= 0 && booster_coverage <= 1))
   if (length(min_ages) != length(max_ages)) {
     stop('min and max ages do not align')
   }
@@ -69,6 +82,7 @@ set_mass_rtss <- function(
   parameters$rtss_mass_coverages <- coverages
   parameters$rtss_mass_min_ages <- min_ages
   parameters$rtss_mass_max_ages <- max_ages
+  parameters$rtss_mass_min_wait <- min_wait
   parameters$rtss_mass_boosters <- boosters
   parameters$rtss_mass_booster_coverage <- booster_coverage
   parameters

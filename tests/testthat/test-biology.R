@@ -236,7 +236,7 @@ test_that('mosquito_effects correctly samples mortalities and infections without
   )
 
   mockery::expect_args(
-    variables$mosquito_state$queue_update,
+    variables$mosquito_state$queue_update_mock(),
     1,
     'Pm',
     infected

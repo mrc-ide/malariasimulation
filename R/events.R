@@ -16,6 +16,9 @@ create_events <- function(parameters) {
     mda_administer = individual::Event$new(),
     smc_administer = individual::Event$new(),
 
+    # TBV event
+    tbv_vaccination = individual::Event$new(),
+
     # Bednet events
     throw_away_net = individual::TargetedEvent$new(parameters$human_population)
   )
@@ -29,9 +32,9 @@ create_events <- function(parameters) {
     events <- c(
       events,
       rtss_mass_vaccination = individual::Event$new(),
-      rtss_mass_doses = rtss_mass_doses,
       rtss_mass_booster = individual::TargetedEvent$new(parameters$human_population)
     )
+    events$rtss_mass_doses <- rtss_mass_doses
   }
 
   # EPI vaccination events
@@ -42,9 +45,9 @@ create_events <- function(parameters) {
     )
     events <- c(
       events,
-      rtss_epi_doses = rtss_epi_doses,
       rtss_epi_booster = individual::TargetedEvent$new(parameters$human_population)
     )
+    events$rtss_epi_doses <- rtss_epi_doses
   }
 
   if (parameters$individual_mosquitoes) {

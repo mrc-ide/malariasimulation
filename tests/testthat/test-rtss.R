@@ -4,6 +4,7 @@ test_that('RTS,S strategy parameterisation works', {
     parameters,
     timesteps = 10,
     coverages = 0.8,
+    min_wait = 0,
     min_ages = 5 * 30,
     max_ages = 17 * 30,
     boosters = c(18, 36) * 30,
@@ -24,6 +25,7 @@ test_that('RTS,S fails pre-emptively', {
       parameters,
       timesteps = 10,
       coverages = 0.8,
+      min_wait = 0,
       min_ages = 5 * 30,
       max_ages = 17 * 30,
       boosters = c(18, 36) * 30,
@@ -105,6 +107,7 @@ test_that('RTS,S vaccinations update vaccination time and schedule boosters', {
     parameters,
     timesteps = c(100, 100 + 365),
     coverages = rep(0.8, 2),
+    min_wait = 0,
     min_ages = c(1, 2, 3, 18) * 365,
     max_ages = (c(1, 2, 3, 18) + 1) * 365 - 1,
     boosters = c(18, 36) * 30,
@@ -131,36 +134,39 @@ test_that('RTS,S vaccinations update vaccination time and schedule boosters', {
     get_correlation_parameters(parameters)
   )
 
-  bernoulli_mock = mockery::mock(2)
+  mockery::stub(
+    listener,
+    'sample_intervention',
+    mockery::mock(c(TRUE, TRUE, FALSE, FALSE))
+  )
 
-  mockery::stub(listener, 'bernoulli', bernoulli_mock)
-  mockery::stub(listener, 'sample_intervention', mockery::mock(TRUE, TRUE, FALSE))
   listener(timestep)
 
   mockery::expect_args(
-    bernoulli_mock,
-    1, # second call
-    2, # n vaccinated
-    .9 # first booster coverage
-  )
-
-  mockery::expect_args(
-    variables$rtss_vaccinated$queue_update_mock,
+    events$rtss_mass_doses[[1]]$schedule,
     1,
-    100,
-    c(1, 3)
+    c(1, 3),
+    0
   )
 
   mockery::expect_args(
-    events$rtss_vaccination$schedule,
+    events$rtss_mass_doses[[2]]$schedule,
+    1,
+    c(1, 3),
+    7
+  )
+
+  mockery::expect_args(
+    events$rtss_mass_doses[[3]]$schedule,
+    1,
+    c(1, 3),
+    14
+  )
+
+  mockery::expect_args(
+    events$rtss_mass_vaccination$schedule,
     1,
     365
-  )
-  mockery::expect_args(
-    events$rtss_booster$schedule,
-    1,
-    3,
-    18 * 30
   )
 })
 
@@ -170,6 +176,7 @@ test_that('RTS,S boosters update antibody params and reschedule correctly', {
     parameters,
     timesteps = c(50, 50 + 365),
     coverages = rep(0.8, 2),
+    min_wait = 0,
     min_ages = c(1, 2, 3, 18) * 365,
     max_ages = (c(1, 2, 3, 18) + 1) * 365 - 1,
     boosters = c(1, 6) * 30,
@@ -210,19 +217,19 @@ test_that('RTS,S boosters update antibody params and reschedule correctly', {
   listener(timestep, individual::Bitset$new(3)$insert(c(1, 2, 3)))
 
   expect_bitset_update(
-    variables$rtss_cs$queue_update_mock,
+    variables$rtss_cs$queue_update_mock(),
     rep(exp(parameters$rtss_cs_boost[[1]]), 3),
     c(1, 2, 3)
   )
 
   expect_bitset_update(
-    variables$rtss_rho$queue_update_mock,
+    variables$rtss_rho$queue_update_mock(),
     rep(invlogit(parameters$rtss_rho_boost[[1]]), 3),
     c(1, 2, 3)
   )
 
   expect_bitset_update(
-    variables$rtss_boosted$queue_update_mock,
+    variables$rtss_boosted$queue_update_mock(),
     timestep,
     c(1, 2, 3)
   )
@@ -243,6 +250,7 @@ test_that('RTS,S booster coverages sample subpopulations correctly', {
     coverages = 0.8,
     min_ages = c(1, 2, 3, 18) * 365,
     max_ages = (c(1, 2, 3, 18) + 1) * 365 - 1,
+    min_wait = 0,
     boosters = c(1, 6) * 30,
     booster_coverage = c(.9, .8)
   )
@@ -291,19 +299,19 @@ test_that('RTS,S booster coverages sample subpopulations correctly', {
   )
 
   expect_bitset_update(
-    variables$rtss_cs$queue_update_mock,
+    variables$rtss_cs$queue_update_mock(),
     rep(exp(parameters$rtss_cs_boost[[1]]), 3),
     c(1, 2, 3)
   )
 
   expect_bitset_update(
-    variables$rtss_rho$queue_update_mock,
+    variables$rtss_rho$queue_update_mock(),
     rep(invlogit(parameters$rtss_rho_boost[[1]]), 3),
     c(1, 2, 3)
   )
 
   expect_bitset_update(
-    variables$rtss_boosted$queue_update_mock,
+    variables$rtss_boosted$queue_update_mock(),
     timestep,
     c(1, 2, 3)
   )

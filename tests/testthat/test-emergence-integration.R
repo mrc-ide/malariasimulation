@@ -56,23 +56,23 @@ test_that('emergence_process creates the correct number of susceptables', {
   emergence_process(0)
 
   expect_bitset_update(
-    state$queue_update,
+    state$queue_update_mock(),
     'Sm',
     seq(7777) + 2000
   )
   expect_bitset_update(
-    species$queue_update,
+    species$queue_update_mock(),
     'a',
     seq(7777) + 2000
   )
   expect_bitset_update(
-    state$queue_update,
+    state$queue_update_mock(),
     'Sm',
     seq(778) + 2000 + 7777,
     call = 2
   )
   expect_bitset_update(
-    species$queue_update,
+    species$queue_update_mock(),
     'b',
     seq(778) + 2000 + 7777,
     call = 2

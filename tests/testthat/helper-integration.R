@@ -24,7 +24,7 @@ mock_method <- function(class, method, mock) {
     inherit = class
   )
   MockClass$set('public', method, function(...) mock(...))
-  MockClass$set('public', paste0(method, '_mock'), mock)
+  MockClass$set('public', paste0(method, '_mock'), function() mock)
   MockClass
 }
 

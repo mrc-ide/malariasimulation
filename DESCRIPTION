@@ -29,7 +29,8 @@ Imports:
   MASS,
   dqrng,
   sitmo,
-  BH
+  BH,
+  R6
 Suggests: 
   testthat,
   mockery,

@@ -77,7 +77,7 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
         'rtss_mass_doses',
         'rtss_mass_booster',
         'rtss_epi_doses',
-        'rtss_epi_booster'
+        'rtss_epi_boosters'
       )
       for (event in unlist(events[to_clear])) {
         event$clear_schedule(died)

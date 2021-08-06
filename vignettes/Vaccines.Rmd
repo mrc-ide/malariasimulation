@@ -38,7 +38,8 @@ simparams <- get_parameters(list(
     g = c(0.20636, -0.0740318, -0.0009293),
     h = c(0.173743, -0.0730962, -0.116019),
     incidence_rendering_min_ages = 0,
-    incidence_rendering_max_ages = 18 * year
+    incidence_rendering_max_ages = 18 * year,
+    individual_mosquitoes = FALSE
   )
 )
 
@@ -113,7 +114,7 @@ plot_dosage <- function(output, strategy, doses, boosters) {
       distributed,
       cumsum(output[[paste0('n_rtss_', strategy, '_dose_', dose)]])
     )
-    label <- c(label, rep(paste0('dose ', dose), sim_length))
+    label <- c(label, rep(paste0('dose ', dose), nrow(output)))
     timestep <- c(timestep, output$timestep)
   }
   for (booster in seq(boosters)) {
@@ -121,7 +122,7 @@ plot_dosage <- function(output, strategy, doses, boosters) {
       distributed,
       cumsum(output[[paste0('n_rtss_', strategy, '_booster_', booster)]])
     )
-    label <- c(label, rep(paste0('booster ', booster), sim_length))
+    label <- c(label, rep(paste0('booster ', booster), nrow(output)))
     timestep <- c(timestep, output$timestep)
   }
   long_output <- data.frame(
@@ -131,7 +132,6 @@ plot_dosage <- function(output, strategy, doses, boosters) {
   )
   ggplot(long_output) + geom_line(aes(x = timestep, y = distributed, group=label, color = label))
 }
-
 
 add_intervention_lines(plot_dosage(output, 'mass', 3, 1), rtssevents)
 ```
@@ -179,12 +179,12 @@ rtssepiparams2 <- set_rtss_epi(
   age = 5 * month,
   coverage = 0.8,
   min_wait = 0,
-  boosters = c(18 * month, 2 * year),
-  booster_coverage = c(.7, .6)
+  boosters = c(12 * month, 18 * month, 24 * month),
+  booster_coverage = c(1, 1, 1)
 )
 
 output <- run_simulation(5 * year, rtssepiparams2)
-add_intervention_lines(plot_dosage(output, 'epi', 3, 1), rtssepievents)
+add_intervention_lines(plot_dosage(output, 'epi', 3, 3), rtssepievents)
 ```
 
 ## TBV

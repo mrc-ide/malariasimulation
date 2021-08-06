@@ -29,12 +29,13 @@ create_events <- function(parameters) {
       seq_along(parameters$rtss_doses),
       function(.) individual::TargetedEvent$new(parameters$human_population)
     )
-    events <- c(
-      events,
-      rtss_mass_vaccination = individual::Event$new(),
-      rtss_mass_booster = individual::TargetedEvent$new(parameters$human_population)
+    rtss_mass_boosters <- lapply(
+      seq_along(parameters$rtss_mass_boosters),
+      function(.) individual::TargetedEvent$new(parameters$human_population)
     )
+    events$rtss_mass_vaccination = individual::Event$new()
     events$rtss_mass_doses <- rtss_mass_doses
+    events$rtss_mass_boosters <- rtss_mass_boosters
   }
 
   # EPI vaccination events
@@ -43,11 +44,12 @@ create_events <- function(parameters) {
       seq_along(parameters$rtss_doses),
       function(.) individual::TargetedEvent$new(parameters$human_population)
     )
-    events <- c(
-      events,
-      rtss_epi_booster = individual::TargetedEvent$new(parameters$human_population)
+    rtss_epi_boosters <- lapply(
+      seq_along(parameters$rtss_epi_boosters),
+      function(.) individual::TargetedEvent$new(parameters$human_population)
     )
     events$rtss_epi_doses <- rtss_epi_doses
+    events$rtss_epi_boosters <- rtss_epi_boosters
   }
 
   if (parameters$individual_mosquitoes) {
@@ -212,69 +214,28 @@ attach_event_listeners <- function(
         correlations
       )
     )
-
-    # set up dosing
-    for (d in seq_along(events$rtss_mass_doses)) {
-      events$rtss_mass_doses[[d]]$add_listener(
-        create_dosage_renderer(renderer, 'mass', d)
-      )
-      if (d == length(events$rtss_mass_doses)) {
-        events$rtss_mass_doses[[d]]$add_listener(
-          create_rtss_efficacy_listener(
-            variables,
-            parameters,
-            events$rtss_mass_booster,
-            parameters$rtss_mass_boosters,
-            parameters$rtss_mass_booster_coverage
-          )
-        )
-      }
-    }
-
-    # set up boosters
-    events$rtss_mass_booster$add_listener(
-      create_rtss_booster_listener(
-        variables,
-        parameters,
-        events$rtss_mass_booster,
-        parameters$rtss_mass_boosters,
-        parameters$rtss_mass_booster_coverage,
-        renderer,
-        'mass'
-      )
+    attach_rtss_dose_listeners(
+      variables,
+      parameters,
+      events$rtss_mass_doses,
+      events$rtss_mass_boosters,
+      parameters$rtss_mass_boosters,
+      parameters$rtss_mass_booster_coverage,
+      'mass',
+      renderer
     )
   }
 
   if (!is.null(events$rtss_epi_doses)) {
-    # set up dosing
-    for (d in seq_along(events$rtss_epi_doses)) {
-      events$rtss_epi_doses[[d]]$add_listener(
-        create_dosage_renderer(renderer, 'epi', d)
-      )
-      if (d == length(events$rtss_epi_doses)) {
-        events$rtss_epi_doses[[d]]$add_listener(
-          create_rtss_efficacy_listener(
-            variables,
-            parameters,
-            events$rtss_epi_booster,
-            parameters$rtss_epi_boosters,
-            parameters$rtss_epi_booster_coverage
-          )
-        )
-      }
-    }
-
-    # set up boosters
-    events$rtss_epi_booster$add_listener(
-      create_rtss_booster_listener(
-        variables,
-        parameters,
-        events$rtss_epi_booster,
-        parameters$rtss_epi_boosters,
-        parameters$rtss_epi_booster_coverage,
-        renderer,
-        'epi'
-      )
+    attach_rtss_dose_listeners(
+      variables,
+      parameters,
+      events$rtss_epi_doses,
+      events$rtss_epi_boosters,
+      parameters$rtss_epi_boosters,
+      parameters$rtss_epi_booster_coverage,
+      'epi',
+      renderer
     )
   }
 

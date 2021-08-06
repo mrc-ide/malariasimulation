@@ -131,28 +131,12 @@ schedule_vaccination <- function(
 #' @description creates a listener to start vaccine efficacy in individuals
 #'
 #' @param variables list of variables in the model
-#' @param events a list of events in the model
 #' @param parameters the model parameters
 #' @noRd
-create_rtss_efficacy_listener <- function(
-  variables,
-  parameters,
-  booster_event,
-  boosters,
-  booster_coverage
-  ) {
+create_rtss_efficacy_listener <- function(variables, parameters) {
   function(timestep, target) {
     if (target$size() > 0) {
-      variables$rtss_vaccinated$queue_update(
-        timestep,
-        target
-      )
-      if (length(boosters) > 0) {
-        booster_event$schedule(
-          sample_bitset(target, booster_coverage[[1]]),
-          boosters[[1]]
-        )
-      }
+      variables$rtss_vaccinated$queue_update(timestep, target)
     }
   }
 }
@@ -160,17 +144,20 @@ create_rtss_efficacy_listener <- function(
 create_rtss_booster_listener <- function(
   variables,
   parameters,
-  booster_event,
-  boosters,
-  booster_coverage,
+  coverage,
+  booster_number,
+  next_booster_event,
+  next_booster_delay,
   renderer,
   strategy
   ) {
-  # set default values for tracking
-  for (b in seq_along(boosters)) {
-    renderer$set_default(paste0("n_rtss_", strategy, "_booster_", b), 0)
-  }
+  render_name <- paste0("n_rtss_", strategy, "_booster_", booster_number)
+  renderer$set_default(render_name, 0)
+  force(next_booster_event) # because R lazy evaluation is rubbish
+  force(next_booster_delay)
+  force(coverage)
   function(timestep, target) {
+    target <- sample_bitset(target, coverage)
     variables$rtss_cs$queue_update(
       exp(
         parameters$rtss_cs_boost[[1]] + parameters$rtss_cs_boost[[2]] * rnorm(target$size())
@@ -186,32 +173,10 @@ create_rtss_booster_listener <- function(
     )
 
     variables$rtss_boosted$queue_update(timestep, target)
+    renderer$render(render_name, target$size(), timestep)
 
-    vaccinated <- variables$rtss_vaccinated$get_values(target)
-    for (v in unique(vaccinated)) {
-      for (i in seq_along(boosters)) {
-        to_boost <- which(
-          vaccinated + boosters[[i]] == timestep
-        )
-
-        if (length(to_boost) > 0) {
-          renderer$render(
-            paste0("n_rtss_", strategy, "_booster_", i),
-            length(to_boost),
-            timestep
-          )
-          if (i < length(boosters)) {
-            to_boost <- to_boost[bernoulli(
-              length(to_boost),
-              booster_coverage[[i + 1]]
-            )]
-            booster_event$schedule(
-              to_boost,
-              v + boosters[[i + 1]] - timestep
-            )
-          }
-        }
-      }
+    if (!is.null(next_booster_event)) {
+      next_booster_event$schedule(target, next_booster_delay)
     }
   }
 }
@@ -243,4 +208,60 @@ create_dosage_renderer <- function(renderer, strategy, dose) {
   output_name <- paste0('n_rtss_', strategy  ,'_dose_', dose)
   renderer$set_default(output_name, 0)
   function(t, target) renderer$render(output_name, target$size(), t)
+}
+
+attach_rtss_dose_listeners <- function(
+  variables,
+  parameters,
+  dose_events,
+  booster_events,
+  booster_delays,
+  booster_coverages,
+  strategy,
+  renderer
+  ) {
+  # set up dosing
+  for (d in seq_along(dose_events)) {
+    dose_events[[d]]$add_listener(
+      create_dosage_renderer(renderer, strategy, d)
+    )
+    if (d == length(dose_events)) {
+      dose_events[[d]]$add_listener(
+        create_rtss_efficacy_listener(variables, parameters)
+      )
+      if (length(booster_events) > 0) {
+        dose_events[[d]]$add_listener(
+          individual::reschedule_listener(
+            booster_events[[1]],
+            booster_delays[[1]]
+          )
+        )
+      }
+    }
+  }
+
+  # set up boosters
+  for (b in seq_along(booster_events)) {
+    if (b == length(booster_events)) {
+      next_booster_event <- NULL
+      next_booster_delay <- NULL
+    } else {
+      next_booster_event <- booster_events[[b + 1]]
+      next_booster_delay <- diff(
+        booster_delays[c(b, b + 1)]
+      )
+    }
+    booster_events[[b]]$add_listener(
+      create_rtss_booster_listener(
+        variables,
+        parameters,
+        booster_coverages[[b]],
+        b,
+        next_booster_event,
+        next_booster_delay,
+        renderer,
+        strategy
+      )
+    )
+  }
 }

@@ -28,8 +28,8 @@ set_rtss_epi <- function(
   stopifnot(min_wait >= 0)
   stopifnot(coverage >= 0 & coverage <= 1)
   stopifnot(age >= 0)
-  stopifnot(all(boosters > 0))
-  stopifnot(all(booster_coverage >= 0 & booster_coverage <= 1))
+  stopifnot((length(booters) == 0) || all(boosters > 0))
+  stopifnot((length(booster_coverage)) == 0 || all(booster_coverage >= 0 & booster_coverage <= 1))
   if (length(booster_coverage) != length(boosters)) {
     stop('booster and booster_coverage does not align')
   }

@@ -104,16 +104,24 @@ add_intervention_lines(plot_prevalence(output), rtssevents)
 You can plot plot the distribution of doses using the n_rtss_mass_dose_* outputs:
 
 ```{r}
-plot_dosage <- function(output, strategy) {
+plot_dosage <- function(output, strategy, doses, boosters) {
   distributed <- NULL
   label <- NULL
   timestep <- NULL
-  for (dose in seq(3)) {
+  for (dose in seq(doses)) {
     distributed <- c(
       distributed,
       cumsum(output[[paste0('n_rtss_', strategy, '_dose_', dose)]])
     )
     label <- c(label, rep(paste0('dose ', dose), sim_length))
+    timestep <- c(timestep, output$timestep)
+  }
+  for (booster in seq(boosters)) {
+    distributed <- c(
+      distributed,
+      cumsum(output[[paste0('n_rtss_', strategy, '_booster_', booster)]])
+    )
+    label <- c(label, rep(paste0('booster ', booster), sim_length))
     timestep <- c(timestep, output$timestep)
   }
   long_output <- data.frame(
@@ -125,12 +133,12 @@ plot_dosage <- function(output, strategy) {
 }
 
 
-add_intervention_lines(plot_dosage(output, 'mass'), rtssevents)
+add_intervention_lines(plot_dosage(output, 'mass', 3, 1), rtssevents)
 ```
 
 ## RTS,S EPI
 
-This is a round of RTS,S vaccine for individuals between 5 - 17 months and a booster after 18 months; coverage of 80%; for 10 years:
+You can opt for a more gradual dosing using the EPI strategy. Individuals will be vaccinated once they reach a certain age...
 
 ```{r}
 rtssepiparams <- simparams
@@ -154,14 +162,29 @@ rtssepiparams <- set_rtss_epi(
 
 output <- run_simulation(sim_length, rtssepiparams)
 
-add_intervention_lines(plot_prevalence(output), rtssepievents)
+add_intervention_lines(plot_dosage(output, 'epi', 3, 1), rtssepievents)
 ```
 
+## RTS,S dosing
 
-You can see the more gradual increase in dosage here:
+You can try different dosing schedules using the rtss_doses parameter
 
 ```{r}
-add_intervention_lines(plot_dosage(output, 'epi'), rtssepievents)
+rtssepiparams2 <- rtssepiparams
+rtssepiparams2$rtss_doses <- c(0, 30, 60)
+rtssepiparams2 <- set_rtss_epi(
+  rtssepiparams2,
+  start = rtssepievents$timestep[[1]],
+  end = rtssepievents$timestep[[2]],
+  age = 5 * month,
+  coverage = 0.8,
+  min_wait = 0,
+  boosters = c(18 * month, 2 * year),
+  booster_coverage = c(.7, .6)
+)
+
+output <- run_simulation(5 * year, rtssepiparams2)
+add_intervention_lines(plot_dosage(output, 'epi', 3, 1), rtssepievents)
 ```
 
 ## TBV

@@ -100,7 +100,7 @@ test_that('Infection considers vaccine efficacy', {
   )
 })
 
-test_that('RTS,S vaccinations update vaccination time and schedule boosters', {
+test_that('RTS,S vaccinations update vaccination time', {
   timestep <- 100
   parameters <- get_parameters(list(human_population = 5))
   parameters <- set_mass_rtss(
@@ -207,7 +207,9 @@ test_that('RTS,S boosters update antibody params and reschedule correctly', {
     parameters,
     events$rtss_mass_booster,
     parameters$rtss_mass_boosters,
-    parameters$rtss_mass_booster_coverage
+    parameters$rtss_mass_booster_coverage,
+    mock_render(timestep),
+    'mass'
   )
 
   mockery::stub(listener, 'bernoulli', mockery::mock(c(1, 2, 3)))
@@ -280,7 +282,9 @@ test_that('RTS,S booster coverages sample subpopulations correctly', {
     parameters,
     events$rtss_mass_booster,
     parameters$rtss_mass_boosters,
-    parameters$rtss_mass_booster_coverage
+    parameters$rtss_mass_booster_coverage,
+    mock_render(timestep),
+    'mass'
   )
 
   bernoulli_mock = mockery::mock(c(2, 3))

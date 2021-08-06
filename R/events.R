@@ -238,7 +238,9 @@ attach_event_listeners <- function(
         parameters,
         events$rtss_mass_booster,
         parameters$rtss_mass_boosters,
-        parameters$rtss_mass_booster_coverage
+        parameters$rtss_mass_booster_coverage,
+        renderer,
+        'mass'
       )
     )
   }
@@ -269,7 +271,9 @@ attach_event_listeners <- function(
         parameters,
         events$rtss_epi_booster,
         parameters$rtss_epi_boosters,
-        parameters$rtss_epi_booster_coverage
+        parameters$rtss_epi_booster_coverage,
+        renderer,
+        'epi'
       )
     )
   }

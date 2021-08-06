@@ -162,8 +162,14 @@ create_rtss_booster_listener <- function(
   parameters,
   booster_event,
   boosters,
-  booster_coverage
+  booster_coverage,
+  renderer,
+  strategy
   ) {
+  # set default values for tracking
+  for (b in seq_along(boosters)) {
+    renderer$set_default(paste0("n_rtss_", strategy, "_booster_", b), 0)
+  }
   function(timestep, target) {
     variables$rtss_cs$queue_update(
       exp(
@@ -183,20 +189,27 @@ create_rtss_booster_listener <- function(
 
     vaccinated <- variables$rtss_vaccinated$get_values(target)
     for (v in unique(vaccinated)) {
-      for (i in seq_len(length(boosters) - 1)) {
+      for (i in seq_along(boosters)) {
         to_boost <- which(
           vaccinated + boosters[[i]] == timestep
         )
 
         if (length(to_boost) > 0) {
-          to_boost <- to_boost[bernoulli(
+          renderer$render(
+            paste0("n_rtss_", strategy, "_booster_", i),
             length(to_boost),
-            booster_coverage[[i + 1]]
-          )]
-          booster_event$schedule(
-            to_boost,
-            v + boosters[[i + 1]] - timestep
+            timestep
           )
+          if (i < length(boosters)) {
+            to_boost <- to_boost[bernoulli(
+              length(to_boost),
+              booster_coverage[[i + 1]]
+            )]
+            booster_event$schedule(
+              to_boost,
+              v + boosters[[i + 1]] - timestep
+            )
+          }
         }
       }
     }

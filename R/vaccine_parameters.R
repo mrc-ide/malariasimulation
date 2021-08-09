@@ -8,10 +8,14 @@
 #' @param end timestep to turn off epi vaccination
 #' @param coverage the coverage for the starter doses
 #' @param age for the target population, (in timesteps)
-#' @param min_wait the minimum acceptable time since the last vaccination (in timesteps);
+#' @param min_wait the minimum acceptable time since the last vaccination (in
+#' timesteps); This includes seasonal boosters and vaccinations between EPI and mass
+#' strategies
 #' @param boosters the timesteps (following the final dose) at which booster vaccinations are administered
 #' @param booster_coverage the proportion of the vaccinated population who will
 #' receive each booster vaccine
+#' @param seasonal_boosters logical, if TRUE the first booster timestep is
+#' relative to the start of the year, otherwise they are relative to the last dose
 #' @export
 set_rtss_epi <- function(
   parameters,
@@ -21,13 +25,20 @@ set_rtss_epi <- function(
   age,
   min_wait,
   boosters,
-  booster_coverage
+  booster_coverage,
+  seasonal_boosters = FALSE
   ) {
   stopifnot(length(start) == 1 && start > 1)
   stopifnot(length(end) == 1 && end > start)
   stopifnot(min_wait >= 0)
   stopifnot(coverage >= 0 & coverage <= 1)
   stopifnot(age >= 0)
+  stopifnot(is.logical(seasonal_boosters))
+  if (seasonal_boosters) {
+    if(boosters[[1]] < 0) {
+      boosters <- boosters + 365
+    }
+  }
   stopifnot((length(boosters) == 0) || all(boosters > 0))
   stopifnot((length(booster_coverage)) == 0 || all(booster_coverage >= 0 & booster_coverage <= 1))
   if (length(booster_coverage) != length(boosters)) {
@@ -41,6 +52,7 @@ set_rtss_epi <- function(
   parameters$rtss_epi_boosters <- boosters
   parameters$rtss_epi_min_wait <- min_wait
   parameters$rtss_epi_booster_coverage <- booster_coverage
+  parameters$rtss_epi_seasonal_boosters <- seasonal_boosters
   parameters
 }
 

@@ -230,12 +230,26 @@ attach_rtss_dose_listeners <- function(
         create_rtss_efficacy_listener(variables, parameters)
       )
       if (length(booster_events) > 0) {
-        dose_events[[d]]$add_listener(
-          individual::reschedule_listener(
-            booster_events[[1]],
-            booster_delays[[1]]
+        seasonal_boosters <- FALSE
+        if (!is.null(parameters$rtss_epi_seasonal_boosters)) {
+          seasonal_boosters <- parameters$rtss_epi_seasonal_boosters
+        }
+        if (seasonal_boosters) {
+          dose_events[[d]]$add_listener(
+            create_seasonal_booster_scheduler(
+              booster_events[[1]],
+              booster_delays[[1]],
+              parameters
+            )
           )
-        )
+        } else  {
+          dose_events[[d]]$add_listener(
+            individual::reschedule_listener(
+              booster_events[[1]],
+              booster_delays[[1]]
+            )
+          )
+        }
       }
     }
   }
@@ -263,5 +277,22 @@ attach_rtss_dose_listeners <- function(
         strategy
       )
     )
+  }
+}
+
+create_seasonal_booster_scheduler <- function(
+  booster_event,
+  booster_delay,
+  parameters
+  ) {
+  function(timestep, target) {
+    delay <- booster_delay - timestep %% 365
+    if (delay < 0) {
+      delay <- delay + 365
+    }
+    if (delay <= parameters$rtss_epi_min_wait) {
+      delay <- delay + 365
+    }
+    booster_event$schedule(target, delay)
   }
 }

@@ -1,4 +1,4 @@
-test_that('RTS,S epi jstrategy parameterisation works', {
+test_that('RTS,S epi strategy parameterisation works', {
   parameters <- get_parameters()
   parameters <- set_rtss_epi(
     parameters,
@@ -95,5 +95,75 @@ test_that('RTS,S epi targets correct age and respects min_wait', {
     1,
     c(1, 2),
     14
+  )
+})
+
+test_that('RTS,S EPI respects min_wait when scheduling seasonal boosters', {
+  timestep <- 5 * 365 
+  parameters <- get_parameters(list(human_population = 5))
+  parameters <- set_rtss_epi(
+    parameters,
+    start = 10,
+    end = timestep,
+    coverage = 0.8,
+    min_wait = 6 * 30,
+    age = 18 * 365,
+    boosters = c(3, 12) * 30,
+    booster_coverage = c(.9, .8),
+    seasonal_boosters = TRUE
+  )
+  events <- create_events(parameters)
+
+  booster_event <- mock_event(events$rtss_epi_boosters[[1]])
+
+  listener <- create_seasonal_booster_scheduler(
+    booster_event = booster_event,
+    booster_delay = 3 * 30,
+    parameters
+  )
+
+  target <- individual::Bitset$new(5)$insert(seq(5))
+
+  listener(timestep, target)
+
+  expect_bitset_schedule(
+    booster_event$schedule,
+    seq(5),
+    365 + 3 * 30
+  )
+})
+
+test_that('RTS,S EPI schedules for the following year with seasonal boosters', {
+  timestep <- 5 * 365 + 4 * 30
+  parameters <- get_parameters(list(human_population = 5))
+  parameters <- set_rtss_epi(
+    parameters,
+    start = 10,
+    end = timestep,
+    coverage = 0.8,
+    min_wait = 6 * 30,
+    age = 18 * 365,
+    boosters = c(3, 12) * 30,
+    booster_coverage = c(.9, .8),
+    seasonal_boosters = TRUE
+  )
+  events <- create_events(parameters)
+
+  booster_event <- mock_event(events$rtss_epi_boosters[[1]])
+
+  listener <- create_seasonal_booster_scheduler(
+    booster_event = booster_event,
+    booster_delay = 3 * 30,
+    parameters
+  )
+
+  target <- individual::Bitset$new(5)$insert(seq(5))
+
+  listener(timestep, target)
+
+  expect_bitset_schedule(
+    booster_event$schedule,
+    seq(5),
+    335
   )
 })

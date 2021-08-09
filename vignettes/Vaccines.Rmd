@@ -165,6 +165,36 @@ output <- run_simulation(sim_length, rtssepiparams)
 add_intervention_lines(plot_dosage(output, 'epi', 3, 1), rtssepievents)
 ```
 
+## RTS,S seasonal boosters
+
+We can set booster timesteps relative to the start of the year. This allows us to target seasonal dynamics
+
+```{r}
+rtssepiseasonalparams <- simparams
+
+# Add RTS,S strategy
+rtssepiseasonalparams = data.frame(
+  timestep = c(1, 2) * year,
+  name=c("RTS,S EPI start", "RTS,S EPI end")
+)
+
+rtssepiseasonalparams <- set_rtss_epi(
+  rtssepiseasonalparams,
+  start = rtssepievents$timestep[[1]],
+  end = rtssepievents$timestep[[2]],
+  age = 5 * month,
+  coverage = 0.8,
+  min_wait = 6 * month,
+  boosters = (peak - 3 * month) + c(0, year),
+  booster_coverage = rep(.7, 2),
+  seasonal_boosters = TRUE
+)
+
+output <- run_simulation(5 * year, rtssepiparams)
+
+add_intervention_lines(plot_dosage(output, 'epi', 3, 1), rtssepievents)
+```
+
 ## RTS,S dosing
 
 You can try different dosing schedules using the rtss_doses parameter

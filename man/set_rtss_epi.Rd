@@ -12,7 +12,8 @@ set_rtss_epi(
   age,
   min_wait,
   boosters,
-  booster_coverage
+  booster_coverage,
+  seasonal_boosters = FALSE
 )
 }
 \arguments{
@@ -26,12 +27,17 @@ set_rtss_epi(
 
 \item{age}{for the target population, (in timesteps)}
 
-\item{min_wait}{the minimum acceptable time since the last vaccination (in timesteps);}
+\item{min_wait}{the minimum acceptable time since the last vaccination (in
+timesteps); This includes seasonal boosters and vaccinations between EPI and mass
+strategies}
 
 \item{boosters}{the timesteps (following the final dose) at which booster vaccinations are administered}
 
 \item{booster_coverage}{the proportion of the vaccinated population who will
 receive each booster vaccine}
+
+\item{seasonal_boosters}{logical, if TRUE the first booster timestep is
+relative to the start of the year, otherwise they are relative to the last dose}
 }
 \description{
 distribute RTS,S vaccine when an individual becomes a certain

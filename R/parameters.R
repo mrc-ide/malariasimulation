@@ -171,7 +171,7 @@
 #' `vaccine_parameters.R:set_mass_rtss`
 #'
 #' * rtss_doses - the dosing schedule before the vaccine takes effect; default =
-#' c(0, 7, 14)
+#' c(0, 1.5 * 30, 3 * 30)
 #' default = 365
 #' * rtss_vmax - the maximum efficacy of the vaccine; default = 0.93
 #' * rtss_alpha - shape parameter for the vaccine efficacy model; default = 0.74
@@ -352,7 +352,7 @@ get_parameters <- function(overrides = list()) {
     clinical_treatment_coverages = list(),
     # rts,s
     rtss           = FALSE,
-    rtss_doses     = c(0, 7, 14),
+    rtss_doses     = c(0, 1.5 * 30, 3 * 30),
     rtss_vmax      = .93,
     rtss_alpha     = .74,
     rtss_beta      = 99.4,

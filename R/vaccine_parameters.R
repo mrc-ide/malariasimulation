@@ -9,8 +9,10 @@
 #' @param coverage the coverage for the starter doses
 #' @param age for the target population, (in timesteps)
 #' @param min_wait the minimum acceptable time since the last vaccination (in
-#' timesteps); This includes seasonal boosters and vaccinations between EPI and mass
-#' strategies
+#' timesteps); When seasonal_boosters = TRUE, this represents the minimum time
+#' between an individual receiving the final dose and the first booster. When using
+#' both set_mass_rtss and set_rtss_epi, this represents the minimum time between
+#' an individual being vaccinated under one scheme and vaccinated under another.
 #' @param boosters the timesteps (following the final dose) at which booster vaccinations are administered
 #' @param booster_coverage the proportion of the vaccinated population who will
 #' receive each booster vaccine

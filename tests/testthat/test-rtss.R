@@ -144,21 +144,21 @@ test_that('RTS,S vaccinations update vaccination time', {
     events$rtss_mass_doses[[1]]$schedule,
     1,
     c(1, 3),
-    0
+    parameters$rtss_doses[[1]]
   )
 
   mockery::expect_args(
     events$rtss_mass_doses[[2]]$schedule,
     1,
     c(1, 3),
-    7
+    parameters$rtss_doses[[2]]
   )
 
   mockery::expect_args(
     events$rtss_mass_doses[[3]]$schedule,
     1,
     c(1, 3),
-    14
+    parameters$rtss_doses[[3]]
   )
 
   mockery::expect_args(

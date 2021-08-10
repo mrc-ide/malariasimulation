@@ -80,21 +80,21 @@ test_that('RTS,S epi targets correct age and respects min_wait', {
     events$rtss_epi_doses[[1]]$schedule,
     1,
     c(1, 2),
-    0
+    parameters$rtss_doses[[1]]
   )
 
   mockery::expect_args(
     events$rtss_epi_doses[[2]]$schedule,
     1,
     c(1, 2),
-    7
+    parameters$rtss_doses[[2]]
   )
 
   mockery::expect_args(
     events$rtss_epi_doses[[3]]$schedule,
     1,
     c(1, 2),
-    14
+    parameters$rtss_doses[[3]]
   )
 })
 

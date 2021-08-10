@@ -186,7 +186,7 @@ clinically diseased (these values refer to the index in drug_* parameters); defa
 
 RTS,S paramters:
 please set RTS,S strategies with the convenience functions in
-\code{vaccine_parameters.R:set_epi_rtss}
+\code{vaccine_parameters.R:set_rtss_epi}
 \code{vaccine_parameters.R:set_mass_rtss}
 \itemize{
 \item rtss_doses - the dosing schedule before the vaccine takes effect; default =

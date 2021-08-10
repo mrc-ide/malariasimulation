@@ -67,6 +67,8 @@ set_rtss_epi <- function(
 #' @param timesteps a vector of timesteps for each round of vaccinations
 #' @param coverages the coverage for each round of vaccinations
 #' @param min_wait the minimum acceptable time since the last vaccination (in timesteps);
+#' When using both set_mass_rtss and set_rtss_epi, this represents the minimum
+#' time between an individual being vaccinated under one scheme and vaccinated under another.
 #' @param min_ages for the target population, inclusive (in timesteps)
 #' @param max_ages for the target population, inclusive (in timesteps)
 #' @param boosters the timesteps (following the initial vaccination) at which booster vaccinations are administered

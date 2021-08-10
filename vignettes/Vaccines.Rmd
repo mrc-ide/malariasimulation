@@ -18,7 +18,6 @@ knitr::opts_chunk$set(
 suppressPackageStartupMessages(library(ggplot2))
 library(malariasimulation)
 library(malariaEquilibrium)
-library(reshape2)
 ```
 
 # Parameterisation
@@ -172,12 +171,7 @@ We can set booster timesteps relative to the start of the year. This allows us t
 ```{r}
 rtssepiseasonalparams <- simparams
 
-# Add RTS,S strategy
-rtssepiseasonalparams = data.frame(
-  timestep = c(1, 2) * year,
-  name=c("RTS,S EPI start", "RTS,S EPI end")
-)
-
+# Add RTS,S seasonal strategy
 rtssepiseasonalparams <- set_rtss_epi(
   rtssepiseasonalparams,
   start = rtssepievents$timestep[[1]],
@@ -190,9 +184,9 @@ rtssepiseasonalparams <- set_rtss_epi(
   seasonal_boosters = TRUE
 )
 
-output <- run_simulation(5 * year, rtssepiparams)
+output <- run_simulation(5 * year, rtssepiseasonalparams)
 
-add_intervention_lines(plot_dosage(output, 'epi', 3, 1), rtssepievents)
+add_intervention_lines(plot_dosage(output, 'epi', 3, 2), rtssepievents)
 ```
 
 ## RTS,S dosing

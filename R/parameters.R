@@ -167,7 +167,7 @@
 #'
 #' RTS,S paramters: 
 #' please set RTS,S strategies with the convenience functions in
-#' `vaccine_parameters.R:set_epi_rtss`
+#' `vaccine_parameters.R:set_rtss_epi`
 #' `vaccine_parameters.R:set_mass_rtss`
 #'
 #' * rtss_doses - the dosing schedule before the vaccine takes effect; default =

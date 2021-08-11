@@ -24,7 +24,7 @@ struct AdultMosquitoModel {
     double mu; //death rate for adult female mosquitoes
     const double tau; //extrinsic incubation period
     double foim; //force of infection towards mosquitoes
-    AdultMosquitoModel(MosquitoModel, double, double, double);
+    AdultMosquitoModel(MosquitoModel, double, double, double, double);
 };
 
 integration_function_t create_ode(AdultMosquitoModel& model);

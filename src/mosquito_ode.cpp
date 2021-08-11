@@ -51,7 +51,9 @@ MosquitoModel::MosquitoModel(
     double g0,
     std::vector<double> g,
     std::vector<double> h,
-    double R_bar
+    double R_bar,
+    double mum,
+    double f
     ):
     beta(beta),
     de(de),
@@ -67,7 +69,9 @@ MosquitoModel::MosquitoModel(
     g0(g0),
     g(g),
     h(h),
-    R_bar(R_bar)
+    R_bar(R_bar),
+    mum(mum),
+    f(f)
     {}
 
 
@@ -88,7 +92,9 @@ Rcpp::XPtr<MosquitoModel> create_mosquito_model(
     double g0,
     std::vector<double> g,
     std::vector<double> h,
-    double R_bar
+    double R_bar,
+    double mum,
+    double f
     ) {
     auto model = new MosquitoModel(
         beta,
@@ -105,7 +111,9 @@ Rcpp::XPtr<MosquitoModel> create_mosquito_model(
         g0,
         g,
         h,
-        R_bar
+        R_bar,
+        mum,
+        f
     );
     return Rcpp::XPtr<MosquitoModel>(model, true);
 }
@@ -128,10 +136,11 @@ Rcpp::XPtr<Solver> create_solver(
     Rcpp::XPtr<MosquitoModel> model,
     std::vector<double> init,
     double r_tol,
-    double a_tol
+    double a_tol,
+    size_t max_steps
     ) {
     return Rcpp::XPtr<Solver>(
-        new Solver(init, create_ode(*model), r_tol, a_tol),
+        new Solver(init, create_ode(*model), r_tol, a_tol, max_steps),
         true
     );
 }

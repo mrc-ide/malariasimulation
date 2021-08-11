@@ -1,6 +1,6 @@
 
 test_that('Asymptomatic infection listener updates infectivity correctly', {
-  parameters <- get_parameters()
+  parameters <- get_parameters(list(human_population = 4))
   variables <- create_variables(parameters)
   listener <- create_asymptomatic_update_listener(variables, parameters)
 

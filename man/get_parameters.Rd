@@ -248,6 +248,8 @@ simulation; default = 1.00E+05
 individually or compartmentally; default = TRUE
 \item r_tol - the relative tolerance for the ode solver; default = 1e-4
 \item a_tol - the absolute tolerance for the ode solver; default = 1e-4
+\item ode_max_steps - the max number of steps for the solver; default = 1e6
+\item ode_debug - whether to print debug output for ode parameter updates; default = FALSE
 \item enable_heterogeneity - boolean whether to include heterogeneity in biting
 rates; default = TRUE
 }}

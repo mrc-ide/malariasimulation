@@ -64,7 +64,9 @@ struct MosquitoModel {
         double g0,
         std::vector<double> g,
         std::vector<double> h,
-        double R_bar
+        double R_bar,
+        double mum,
+        double f
     );
     virtual ~MosquitoModel() {};
 };

@@ -83,7 +83,7 @@ create_tbv_listener <- function(variables, events, parameters, correlations, ren
   }
 }
 
-calculate_tbv_antibodies <- function(t, tau, rho, ds, dl) {
+calculate_tbv_antibodies <- function(t, tau, rho, ds, dl) { #this'll need updating
   tau * (rho * exp(-t * log(2) / ds) + (1 - rho) * exp(-t * log(2) / dl))
 }
 

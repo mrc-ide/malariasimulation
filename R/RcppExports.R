@@ -57,10 +57,6 @@ solver_step <- function(solver) {
     invisible(.Call(`_malariasimulation_solver_step`, solver))
 }
 
-solver_jump <- function(solver, t) {
-    invisible(.Call(`_malariasimulation_solver_jump`, solver, t))
-}
-
 random_seed <- function(seed) {
     invisible(.Call(`_malariasimulation_random_seed`, seed))
 }

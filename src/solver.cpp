@@ -51,8 +51,3 @@ std::vector<double> solver_get_states(Rcpp::XPtr<Solver> solver) {
 void solver_step(Rcpp::XPtr<Solver> solver) {
     solver->step();
 }
-
-//[[Rcpp::export]]
-void solver_jump(Rcpp::XPtr<Solver> solver, double t) {
-    solver->t = t;
-}

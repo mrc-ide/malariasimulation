@@ -20,7 +20,7 @@ double carrying_capacity(
 ) {
     if (model_seasonality) {
         double r = rainfall(timestep, g0, g, h);
-        return std::max(K0 * r, .01) / R_bar;
+        return std::max(K0 * r / R_bar, .01);
     }
     return std::max(K0, .01);
 }
@@ -45,8 +45,8 @@ double rainfall(
     double result = g0;
     for (auto i = 0u; i < g.size(); ++i) {
         result +=
-            g[i] * cos(2 * M_PI * t * (i + 1) / 365) +
-            h[i] * sin(2 * M_PI * t * (i + 1) / 365);
+            g[i] * cos(2 * M_PI * (t % 365) * (i + 1) / 365) +
+            h[i] * sin(2 * M_PI * (t % 365) * (i + 1) / 365);
     }
-    return std::max(result, 0.);
+    return std::max(result, .01);
 }

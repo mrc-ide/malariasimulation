@@ -211,17 +211,6 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// solver_jump
-void solver_jump(Rcpp::XPtr<Solver> solver, double t);
-RcppExport SEXP _malariasimulation_solver_jump(SEXP solverSEXP, SEXP tSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<Solver> >::type solver(solverSEXP);
-    Rcpp::traits::input_parameter< double >::type t(tSEXP);
-    solver_jump(solver, t);
-    return R_NilValue;
-END_RCPP
-}
 // random_seed
 void random_seed(size_t seed);
 RcppExport SEXP _malariasimulation_random_seed(SEXP seedSEXP) {
@@ -272,7 +261,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_malariasimulation_create_solver", (DL_FUNC) &_malariasimulation_create_solver, 5},
     {"_malariasimulation_solver_get_states", (DL_FUNC) &_malariasimulation_solver_get_states, 1},
     {"_malariasimulation_solver_step", (DL_FUNC) &_malariasimulation_solver_step, 1},
-    {"_malariasimulation_solver_jump", (DL_FUNC) &_malariasimulation_solver_jump, 2},
     {"_malariasimulation_random_seed", (DL_FUNC) &_malariasimulation_random_seed, 1},
     {"_malariasimulation_bernoulli_multi_p_cpp", (DL_FUNC) &_malariasimulation_bernoulli_multi_p_cpp, 1},
     {"_malariasimulation_fast_weighted_sample", (DL_FUNC) &_malariasimulation_fast_weighted_sample, 2},

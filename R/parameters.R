@@ -195,9 +195,11 @@
 #' * tbv_rho - antibody component parameter; default = 0.7
 #' * tbv_ds - antibody short-term delay parameter; default = 45
 #' * tbv_dl - antibody long-term delay parameter; default = 591
-#' * tbv_tra_mu - transmission reduction parameter; default = 12.63
-#' * tbv_gamma1 - transmission reduction parameter; default = 2.5
-#' * tbv_gamma2 - transmission reduction parameter; default = 0.06
+#' * tbv_hill - TRA hill parameter; default = 3.05
+#' * tbv_EC50 - TRA EC50; default = 2.18
+#' * tbv_tra_mu - transmission reduction parameter; default = 12.63 #GONE
+#' * tbv_gamma1 - transmission reduction parameter; default = 2.5 #GONE
+#' * tbv_gamma2 - transmission reduction parameter; default = 0.06 #GONE
 #'
 #' rendering:
 #' All values are in timesteps and all ranges are inclusive
@@ -379,13 +381,15 @@ get_parameters <- function(overrides = list()) {
     tbv_ma = 3.6,
     tbv_mu = 0.8,
     tbv_k = 0.9,
-    tbv_tau = 22,
-    tbv_rho = .7,
-    tbv_ds = 45,
-    tbv_dl = 591,
-    tbv_tra_mu = 12.63,
-    tbv_gamma1 = 2.5,
-    tbv_gamma2 = .06,
+    tbv_tau = 22, #
+    tbv_rho = .7, #
+    tbv_ds = 45, #
+    tbv_dl = 591, #
+    #tbv_tra_mu = 12.63, #
+    #tbv_gamma1 = 2.5, #
+    #tbv_gamma2 = .06, #
+    tbv_hill = 3.05,
+    tbv_EC50 = 2.18,
     tbv_timesteps = NULL,
     tbv_coverages = NULL,
     tbv_ages = NULL,

@@ -21,16 +21,18 @@ account_for_tbv <- function(
     in_state <- variables$state$get_index_of(affected_states[[i]])$to_vector()
     vaccinated_in_state <- intersect(vaccinated, in_state)
     antibodies <- calculate_tbv_antibodies(
-      timestep - time_vaccinated[vaccinated_in_state],
-      parameters$tbv_tau,
-      parameters$tbv_rho,
-      parameters$tbv_ds,
-      parameters$tbv_dl
+      timestep - time_vaccinated[vaccinated_in_state]#,
+      #parameters$tbv_tau,
+      #parameters$tbv_rho,
+      #parameters$tbv_ds,
+      #parameters$tbv_dl
     )
     tra <- calculate_TRA(
-      parameters$tbv_tra_mu,
-      parameters$tbv_gamma1,
-      parameters$tbv_gamma2,
+      #parameters$tbv_tra_mu,
+      #parameters$tbv_gamma1,
+      #parameters$tbv_gamma2,
+      parameters$tbv_hill,
+      parameters$tbv_EC50,
       antibodies
     )
     tba <- calculate_TBA(
@@ -83,16 +85,18 @@ create_tbv_listener <- function(variables, events, parameters, correlations, ren
   }
 }
 
-calculate_tbv_antibodies <- function(t, tau, rho, ds, dl) { #this'll need updating
-  tau * (rho * exp(-t * log(2) / ds) + (1 - rho) * exp(-t * log(2) / dl))
+calculate_tbv_antibodies <- function(t) { #this'll need updating. Add more arguments??
+  #tau * (rho * exp(-t * log(2) / ds) + (1 - rho) * exp(-t * log(2) / dl))
+  199*(0.36*exp(-t/6) + 0.44*exp(-t/37) + 0.2*exp(-t/50))
 }
 
-calculate_TRA <- function(mu, gamma1, gamma2, antibodies) {
-  numerator <- (antibodies / mu)^gamma1
-  numerator / (numerator + gamma2)
+calculate_TRA <- function(hill, EC50, antibodies) { #this'll need updating
+  #numerator <- (antibodies / mu)^gamma1
+  #numerator / (numerator + gamma2)
+  (antibodies^hill)/((antibodies^hill) + (EC50^hill))
 }
 
-calculate_TBA <- function(mx, k, tra) {
+calculate_TBA <- function(mx, k, tra) { #same
   offset <- (k / (k + mx)) ^ k;
   scale <- 1. / (1. - offset);
   tra_transformation <- (k / (k + mx * (1 - tra))) ^ k;

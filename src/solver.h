@@ -65,13 +65,13 @@ struct Solver {
             boost::numeric::odeint::runge_kutta_dopri5<state_t>
         >
     >rk;
-    double r_tolerance;
-    double a_tolerance;
     void step();
     double t = 0.;
     const double dt = 1.;
     state_t state;
     integration_function_t ode;
+    double r_tolerance;
+    double a_tolerance;
     Observer observer;
 };
 

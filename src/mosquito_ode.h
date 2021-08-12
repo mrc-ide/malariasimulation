@@ -41,13 +41,13 @@ struct MosquitoModel {
     const double dp; //delay for for pupal growth
     const double mup; //death rate for pupae
     size_t total_M; //the number of adult female mosquitos in the model
-    double f; //biting rate
-    double mum; //adult mortality rate
     const bool model_seasonality; //whether to model seasonality
     const double g0; //fourier shape parameter
     const std::vector<double> g; //fourier shape parameters
     const std::vector<double> h; //fourier shape parameters
     const double R_bar; //average rainfall
+    double mum; //adult mortality rate
+    double f; //biting rate
 
     MosquitoModel(
         double beta,

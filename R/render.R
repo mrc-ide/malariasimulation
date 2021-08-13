@@ -63,7 +63,7 @@ create_prevelance_renderer <- function(
         lower,
         upper
       )
-      renderer$render(paste0('n_', 'detected_', lower, '_', upper), p, timestep) # NEW
+      renderer$render(paste0('n_', 'detect_', lower, '_', upper), p, timestep) # NEW
     }
     for (i in seq_along(parameters$severe_prevalence_rendering_min_ages)) {
       lower <- parameters$severe_prevalence_rendering_min_ages[[i]]
@@ -94,7 +94,7 @@ create_incidence_renderer <- function(birth, is_severe, parameters, renderer) {
         lower,
         upper
       )
-      renderer$render(paste0('n_', 'incident_', lower, '_', upper), p, timestep) 
+      renderer$render(paste0('n_', 'inc_', lower, '_', upper), p, timestep) 
     }
     for (i in seq_along(parameters$severe_incidence_rendering_min_ages)) {
       lower <- parameters$severe_incidence_rendering_min_ages[[i]]
@@ -105,7 +105,7 @@ create_incidence_renderer <- function(birth, is_severe, parameters, renderer) {
         lower,
         upper
       )
-      renderer$render(paste0('n_', 'incident_', 'severe_', lower, '_', upper), p, timestep)
+      renderer$render(paste0('n_', 'inc_', 'severe_', lower, '_', upper), p, timestep)
     }
   }
 }
@@ -122,7 +122,7 @@ create_clinical_incidence_renderer <- function(birth, parameters, renderer) {
         lower,
         upper
       )
-      renderer$render(paste0('n_', 'incident_', 'clinical_', lower, '_', upper), p, timestep) 
+      renderer$render(paste0('n_', 'inc_', 'clinical_', lower, '_', upper), p, timestep) 
     }
   }
 }

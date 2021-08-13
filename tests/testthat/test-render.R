@@ -39,7 +39,7 @@ test_that('that default rendering works', {
   mockery::expect_args(
     renderer$render_mock(),
     2,
-    'n_detected_730_3650',
+    'n_detect_730_3650',
     2,
     timestep
   )
@@ -154,7 +154,7 @@ test_that('that clinical incidence rendering works', {
   mockery::expect_args( 
     renderer$render_mock(),
     1,
-    'n_incident_clinical_0_1825',
+    'n_inc_clinical_0_1825',
     2,
     timestep
   )
@@ -162,7 +162,7 @@ test_that('that clinical incidence rendering works', {
   mockery::expect_args( 
     renderer$render_mock(),
     2,
-    'n_incident_clinical_730_3650',
+    'n_inc_clinical_730_3650',
     2,
     timestep
   )
@@ -196,7 +196,7 @@ test_that('that incidence rendering works', {
   mockery::expect_args(
     renderer$render_mock(),
     1,
-    'n_incident_0_1825',
+    'n_inc_0_1825',
     2,
     timestep
   )
@@ -204,7 +204,7 @@ test_that('that incidence rendering works', {
   mockery::expect_args(
     renderer$render_mock(),
     2,
-    'n_incident_730_3650',
+    'n_inc_730_3650',
     2,
     timestep
   )
@@ -237,7 +237,7 @@ test_that('that severe incidence rendering works', {
   mockery::expect_args(
     renderer$render_mock(),
     1,
-    'n_incident_severe_0_1825',
+    'n_inc_severe_0_1825',
     0,
     timestep
   )
@@ -245,7 +245,7 @@ test_that('that severe incidence rendering works', {
   mockery::expect_args(
     renderer$render_mock(),
     2,
-    'n_incident_severe_730_3650',
+    'n_inc_severe_730_3650',
     1,
     timestep
   )

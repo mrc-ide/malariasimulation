@@ -36,6 +36,8 @@ simparams <- get_parameters(list(
     g0 = 0.28605,
     g = c(0.20636, -0.0740318, -0.0009293),
     h = c(0.173743, -0.0730962, -0.116019),
+    prevalence_rendering_min_ages = 0,
+    prevalence_rendering_max_ages = 18 * year,
     incidence_rendering_min_ages = 0,
     incidence_rendering_max_ages = 18 * year,
     individual_mosquitoes = FALSE
@@ -47,8 +49,8 @@ simparams <- set_equilibrium(simparams, starting_EIR)
 # Plotting functions
 plot_prevalence <- function(output) {
   ggplot(output) + geom_line(
-    aes(x = timestep, y = inc_0_6570)
-  )
+    aes(x = timestep, y = (n_inc_0_6570 / n_0_6570))) + 
+    labs(x = "timestep", y = "incidence 0-18")
 }
 
 add_intervention_lines <- function(plot, events) {
@@ -101,7 +103,7 @@ output <- run_simulation(sim_length, rtssparams)
 add_intervention_lines(plot_prevalence(output), rtssevents)
 ```
 
-You can plot plot the distribution of doses using the n_rtss_mass_dose_* outputs:
+You can plot the distribution of doses using the n_rtss_mass_dose_* outputs:
 
 ```{r}
 plot_dosage <- function(output, strategy, doses, boosters) {

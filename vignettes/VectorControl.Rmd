@@ -38,10 +38,7 @@ simparams <- get_parameters(
     model_seasonality = TRUE, # Let's try a bi-modal model
     g0 = 0.28605,
     g = c(0.20636, -0.0740318, -0.0009293),
-    h = c(0.173743, -0.0730962, -0.116019),
-    severe_prevalence_rendering_min_ages = 2*year,
-    severe_prevalence_rendering_max_ages = 10*year,
-    severe_enabled = 1
+    h = c(0.173743, -0.0730962, -0.116019)
   )
 )
 
@@ -50,8 +47,8 @@ simparams <- set_equilibrium(simparams, starting_EIR)
 # Plotting functions
 plot_prevalence <- function(output) {
   ggplot(output) + geom_line(
-    aes(x = timestep, y = (n_severe_730_3650 / n_730_3650))) + 
-    labs(x = "timestep", y = "PfPR2-10 severe")
+    aes(x = timestep, y = pv_730_3650)
+  )
 }
 
 add_intervention_lines <- function(plot, events) {

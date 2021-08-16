@@ -94,7 +94,7 @@ create_incidence_renderer <- function(birth, is_severe, parameters, renderer) {
         lower,
         upper
       )
-      renderer$render(paste0('n_', 'inc_', lower, '_', upper), p, timestep) 
+      renderer$render(paste0('n_inc_', lower, '_', upper), p, timestep)
     }
     for (i in seq_along(parameters$severe_incidence_rendering_min_ages)) {
       lower <- parameters$severe_incidence_rendering_min_ages[[i]]

@@ -74,7 +74,7 @@ create_prevelance_renderer <- function(
         lower,
         upper
       )
-      renderer$render(paste0('n_', 'severe_', lower, '_', upper), p, timestep)
+      renderer$render(paste0('n_severe_', lower, '_', upper), p, timestep)
     }
   }
 }

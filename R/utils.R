@@ -31,3 +31,5 @@ invlogit <- function(x) exp(x) / (1 + exp(x))
 to_char_vector <- function(v) vapply(v, function(n) toString(n), character(1))
 
 weibull_survival <- function(t, shape, scale) exp(-((t/scale)^shape))
+
+between <- function(x, l, u) (x >= l) && (x <= u)

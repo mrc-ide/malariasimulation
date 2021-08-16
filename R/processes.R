@@ -127,6 +127,21 @@ create_processes <- function(
   )
 
   # =========
+  # RTS,S EPI
+  # =========
+  if (!is.null(parameters$rtss_epi_start)) {
+    processes <- c(
+      processes,
+      create_rtss_epi_process(
+        variables,
+        events,
+        parameters,
+        correlations
+      )
+    )
+  }
+
+  # =========
   # Rendering
   # =========
   processes <- c(

@@ -14,8 +14,7 @@
 #' timestep) (per species). This defaults to normal_lambda_All
 #'  * FOIM: the force of infection towards mosquitoes (per species)
 #'  * mu: the death rate of adult mosquitoes (per species)
-#'  * EIR: the Entomological Inoculation Rate (per timestep, over the whole
-#'  population)
+#'  * EIR: the Entomological Inoculation Rate (per timestep, per adult human)
 #'  * n_bitten: number of humans bitten by an infectious mosquito
 #'  * n_treated: number of humans treated for clinical or severe malaria this timestep
 #'  * n_infections: number of humans who get an asymptomatic, clinical or severe malaria this timestep

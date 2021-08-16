@@ -10,30 +10,6 @@ epi_from_subpopulation <- function(target, age, lower, upper) {
   in_range$and(target)$size() / n_in_range
 }
 
-## NEW
-count_of_subpopulation <- function(target, age, lower, upper) {
-  in_range <- individual::Bitset$new(target$max_size)$insert(
-    which((age >= lower) & (age <= upper))
-  )
-  n_in_range <- in_range$size()
-  if (n_in_range == 0) {
-    return(0)
-  }
-  n_in_range
-}
-
-## NEW
-count_of_detected <- function(target, age, lower, upper) {
-  in_range <- individual::Bitset$new(target$max_size)$insert(
-    which((age >= lower) & (age <= upper))
-  )
-  n_in_range <- in_range$size()
-  if (n_in_range == 0) {
-    return(0)
-  }
-  in_range$and(target)$size() 
-}
-
 create_prevelance_renderer <- function(
   state,
   birth,
@@ -68,21 +44,7 @@ create_prevelance_renderer <- function(
         lower,
         upper
       )
-      renderer$render(paste0('pv_', lower, '_', upper), p, timestep)      
-      q <- count_of_subpopulation( #NEW
-        detected,
-        age,
-        lower,
-        upper
-      )
-      renderer$render(paste0('n_', lower, '_', upper), q, timestep) # NEW
-      r <- count_of_detected( #NEW
-        detected,
-        age,
-        lower,
-        upper
-      )
-      renderer$render(paste0('n_', 'detected_', lower, '_', upper), r, timestep) # NEW
+      renderer$render(paste0('pv_', lower, '_', upper), p, timestep)
     }
     for (i in seq_along(parameters$severe_prevalence_rendering_min_ages)) {
       lower <- parameters$severe_prevalence_rendering_min_ages[[i]]
@@ -111,22 +73,7 @@ create_incidence_renderer <- function(birth, is_severe, parameters, renderer) {
         lower,
         upper
       )
-      renderer$render(paste0('inc_', lower, '_', upper), p, timestep)       
-      q <- count_of_subpopulation( #NEW
-        detected,
-        age,
-        lower,
-        upper
-      )
-     
-      renderer$render(paste0('n_', lower, '_', upper), q, timestep) # NEW
-      r <- count_of_detected( #NEW
-        detected,
-        age,
-        lower,
-        upper
-      )
-      renderer$render(paste0('n_', 'detected_', lower, '_', upper), r, timestep) # NEW
+      renderer$render(paste0('inc_', lower, '_', upper), p, timestep)
     }
     for (i in seq_along(parameters$severe_incidence_rendering_min_ages)) {
       lower <- parameters$severe_incidence_rendering_min_ages[[i]]
@@ -154,21 +101,7 @@ create_clinical_incidence_renderer <- function(birth, parameters, renderer) {
         lower,
         upper
       )
-      renderer$render(paste0('clin_inc_', lower, '_', upper), p, timestep)       
-      q <- count_of_subpopulation( #NEW
-        detected,
-        age,
-        lower,
-        upper
-      )
-      renderer$render(paste0('n_', lower, '_', upper), q, timestep) # NEW      
-      r <- count_of_detected( #NEW
-        detected,
-        age,
-        lower,
-        upper
-      )
-      renderer$render(paste0('n_', 'detected_', lower, '_', upper), r, timestep) # NEW
+      renderer$render(paste0('clin_inc_', lower, '_', upper), p, timestep)
     }
   }
 }

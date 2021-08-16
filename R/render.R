@@ -122,7 +122,7 @@ create_clinical_incidence_renderer <- function(birth, parameters, renderer) {
         lower,
         upper
       )
-      renderer$render(paste0('n_', 'inc_', 'clinical_', lower, '_', upper), p, timestep) 
+      renderer$render(paste0('n_inc_', 'clinical_', lower, '_', upper), p, timestep)
     }
   }
 }

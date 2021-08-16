@@ -63,7 +63,7 @@ create_prevelance_renderer <- function(
         lower,
         upper
       )
-      renderer$render(paste0('n_', 'detect_', lower, '_', upper), p, timestep) # NEW
+      renderer$render(paste0('n_detect_', lower, '_', upper), p, timestep)
     }
     for (i in seq_along(parameters$severe_prevalence_rendering_min_ages)) {
       lower <- parameters$severe_prevalence_rendering_min_ages[[i]]

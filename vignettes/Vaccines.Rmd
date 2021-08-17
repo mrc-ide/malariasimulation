@@ -103,7 +103,9 @@ output <- run_simulation(sim_length, rtssparams)
 add_intervention_lines(plot_prevalence(output), rtssevents)
 ```
 
+
 You can plot the distribution of doses using the n_rtss_mass_dose_* outputs:
+
 
 ```{r}
 plot_dosage <- function(output, strategy, doses, boosters) {

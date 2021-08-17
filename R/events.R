@@ -12,18 +12,46 @@ create_events <- function(parameters) {
     # whether the infection is detected
     detection = individual::TargetedEvent$new(parameters$human_population), 
 
-    # Vaccination events
-    rtss_vaccination = individual::Event$new(),
-    rtss_booster = individual::TargetedEvent$new(parameters$human_population),
-    tbv_vaccination = individual::Event$new(),
-
     # MDA events
     mda_administer = individual::Event$new(),
     smc_administer = individual::Event$new(),
 
+    # TBV event
+    tbv_vaccination = individual::Event$new(),
+
     # Bednet events
     throw_away_net = individual::TargetedEvent$new(parameters$human_population)
   )
+
+  # Mass vaccination events
+  if (!is.null(parameters$rtss_mass_timesteps)) {
+    rtss_mass_doses <- lapply(
+      seq_along(parameters$rtss_doses),
+      function(.) individual::TargetedEvent$new(parameters$human_population)
+    )
+    rtss_mass_boosters <- lapply(
+      seq_along(parameters$rtss_mass_boosters),
+      function(.) individual::TargetedEvent$new(parameters$human_population)
+    )
+    events$rtss_mass_vaccination = individual::Event$new()
+    events$rtss_mass_doses <- rtss_mass_doses
+    events$rtss_mass_boosters <- rtss_mass_boosters
+  }
+
+  # EPI vaccination events
+  if (!is.null(parameters$rtss_epi_start)) {
+    rtss_epi_doses <- lapply(
+      seq_along(parameters$rtss_doses),
+      function(.) individual::TargetedEvent$new(parameters$human_population)
+    )
+    rtss_epi_boosters <- lapply(
+      seq_along(parameters$rtss_epi_boosters),
+      function(.) individual::TargetedEvent$new(parameters$human_population)
+    )
+    events$rtss_epi_doses <- rtss_epi_doses
+    events$rtss_epi_boosters <- rtss_epi_boosters
+  }
+
   if (parameters$individual_mosquitoes) {
     events <- c(
       events,
@@ -45,9 +73,9 @@ initialise_events <- function(events, variables, parameters) {
     )
   }
 
-  # Initialise interventions
-  if (parameters$rtss) {
-    events$rtss_vaccination$schedule(parameters$rtss_timesteps[[1]] - 1)
+  # Initialise scheduled interventions
+  if (!is.null(parameters$rtss_mass_timesteps)) {
+    events$rtss_mass_vaccination$schedule(parameters$rtss_mass_timesteps[[1]] - 1)
   }
   if (parameters$mda) {
     events$mda_administer$schedule(parameters$mda_timesteps[[1]] - 1)
@@ -175,22 +203,39 @@ attach_event_listeners <- function(
     )
   }
 
-  if (parameters$rtss == 1) {
-    events$rtss_vaccination$add_listener(
-      create_rtss_vaccination_listener(
+  # RTS,S listeners
+  if (!is.null(events$rtss_mass_doses)) {
+    # set up distribution
+    events$rtss_mass_vaccination$add_listener(
+      create_rtss_mass_listener(
         variables,
         events,
         parameters,
-        correlations,
-        renderer
+        correlations
       )
     )
-    events$rtss_booster$add_listener(
-      create_rtss_booster_listener(
-        variables,
-        events,
-        parameters
-      )
+    attach_rtss_dose_listeners(
+      variables,
+      parameters,
+      events$rtss_mass_doses,
+      events$rtss_mass_boosters,
+      parameters$rtss_mass_boosters,
+      parameters$rtss_mass_booster_coverage,
+      'mass',
+      renderer
+    )
+  }
+
+  if (!is.null(events$rtss_epi_doses)) {
+    attach_rtss_dose_listeners(
+      variables,
+      parameters,
+      events$rtss_epi_doses,
+      events$rtss_epi_boosters,
+      parameters$rtss_epi_boosters,
+      parameters$rtss_epi_booster_coverage,
+      'epi',
+      renderer
     )
   }
 

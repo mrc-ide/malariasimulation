@@ -106,7 +106,7 @@ run_simulation <- function(
       correlations
     ),
     variables = variables,
-    events = events,
+    events = unlist(events),
     timesteps = timesteps
   )
   renderer$to_dataframe()

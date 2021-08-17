@@ -130,14 +130,15 @@ CorrelationParameters <- R6::R6Class(
 #' parameters <- get_parameters()
 #' 
 #' # Set some rtss strategy
-#' parameters <- set_rtss(
+#' parameters <- set_mass_rtss(
 #'   parameters,
 #'   timesteps = 100,
 #'   coverages = .9,
+#'   min_wait = 0,
 #'   min_ages = 100,
 #'   max_ages = 1000,
-#'   boosters = NULL,
-#'   booster_coverage = NULL
+#'   boosters = numeric(0),
+#'   booster_coverage = numeric(0)
 #' )
 #' 
 #' # Set some smc strategy

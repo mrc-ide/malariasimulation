@@ -151,6 +151,7 @@ test_that('that clinical incidence rendering works', {
 
   process(timestep, individual::Bitset$new(4)$insert(c(1, 2, 4)))
 
+
   mockery::expect_args( 
     renderer$render_mock(),
     1,
@@ -158,7 +159,7 @@ test_that('that clinical incidence rendering works', {
     2,
     timestep
   )
-  
+
   mockery::expect_args( 
     renderer$render_mock(),
     2,

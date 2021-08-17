@@ -52,32 +52,32 @@ test_that('MDA moves the diseased and non-diseased population correctly', {
   )
 
   expect_bitset_update(
-    variables$state$queue_update,
+    variables$state$queue_update_mock(),
     'Tr',
     3
   )
 
   expect_bitset_update(
-    variables$state$queue_update,
+    variables$state$queue_update_mock(),
     'S',
     4,
     call = 2
   )
 
   expect_bitset_update(
-    variables$infectivity$queue_update,
+    variables$infectivity$queue_update_mock(),
     c(.3, .4) * SP_AQ_params[[2]],
     c(3, 4)
   )
 
   expect_bitset_update(
-    variables$drug$queue_update,
+    variables$drug$queue_update_mock(),
     1,
     c(3, 4)
   )
 
   expect_bitset_update(
-    variables$drug_time$queue_update,
+    variables$drug_time$queue_update_mock(),
     50,
     c(3, 4)
   )

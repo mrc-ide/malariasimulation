@@ -1,23 +1,18 @@
-count_of_subpopulation <- function(target, age, lower, upper) {
-  in_range <- individual::Bitset$new(target$max_size)$insert(
-    which((age >= lower) & (age <= upper))
-  )
-  n_in_range <- in_range$size()
-  if (n_in_range == 0) {
-    return(0)
-  }
-  n_in_range
-}
-
 count_of_detected <- function(target, age, lower, upper) {
   in_range <- individual::Bitset$new(target$max_size)$insert(
     which((age >= lower) & (age <= upper))
   )
-  n_in_range <- in_range$size()
-  if (n_in_range == 0) {
+  
+  denominator <- in_range$size()
+  if (denominator == 0) {
     return(0)
-  }
-  in_range$and(target)$size() 
+  }  
+  
+  numerator <- in_range$and(target)$size()
+  
+  result <- c(numerator, denominator)
+
+  result
 }
 
 # calculate # of people in age group, 
@@ -50,20 +45,20 @@ create_prevelance_renderer <- function(
     for (i in seq_along(parameters$prevalence_rendering_min_ages)) {
       lower <- parameters$prevalence_rendering_min_ages[[i]]
       upper <- parameters$prevalence_rendering_max_ages[[i]]
-      p <- count_of_subpopulation( 
-        detected,
-        age,
-        lower,
-        upper
-      )
-      renderer$render(paste0('n_', lower, '_', upper), p, timestep) 
       p <- count_of_detected( 
         detected,
         age,
         lower,
         upper
       )
-      renderer$render(paste0('n_detect_', lower, '_', upper), p, timestep)
+      renderer$render(paste0('n_', lower, '_', upper), p[[2]], timestep) 
+      p <- count_of_detected( 
+        detected,
+        age,
+        lower,
+        upper
+      )
+      renderer$render(paste0('n_detect_', lower, '_', upper), p[[1]], timestep)
     }
     for (i in seq_along(parameters$severe_prevalence_rendering_min_ages)) {
       lower <- parameters$severe_prevalence_rendering_min_ages[[i]]
@@ -74,7 +69,7 @@ create_prevelance_renderer <- function(
         lower,
         upper
       )
-      renderer$render(paste0('n_severe_', lower, '_', upper), p, timestep)
+      renderer$render(paste0('n_severe_', lower, '_', upper), p[[1]], timestep)
     }
   }
 }
@@ -94,7 +89,7 @@ create_incidence_renderer <- function(birth, is_severe, parameters, renderer) {
         lower,
         upper
       )
-      renderer$render(paste0('n_inc_', lower, '_', upper), p, timestep)
+      renderer$render(paste0('n_inc_', lower, '_', upper), p[[1]], timestep)
     }
     for (i in seq_along(parameters$severe_incidence_rendering_min_ages)) {
       lower <- parameters$severe_incidence_rendering_min_ages[[i]]
@@ -105,7 +100,7 @@ create_incidence_renderer <- function(birth, is_severe, parameters, renderer) {
         lower,
         upper
       )
-      renderer$render(paste0('n_inc_', 'severe_', lower, '_', upper), p, timestep)
+      renderer$render(paste0('n_inc_', 'severe_', lower, '_', upper), p[[1]], timestep)
     }
   }
 }
@@ -122,7 +117,7 @@ create_clinical_incidence_renderer <- function(birth, parameters, renderer) {
         lower,
         upper
       )
-      renderer$render(paste0('n_inc_', 'clinical_', lower, '_', upper), p, timestep)
+      renderer$render(paste0('n_inc_', 'clinical_', lower, '_', upper), p[[1]], timestep)
     }
   }
 }

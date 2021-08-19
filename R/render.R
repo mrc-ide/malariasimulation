@@ -1,15 +1,20 @@
-epi_from_subpopulation <- function(target, age, lower, upper) {
+count_of_detected <- function(target, age, lower, upper) {
   in_range <- individual::Bitset$new(target$max_size)$insert(
     which((age >= lower) & (age <= upper))
   )
+  
+  denominator <- in_range$size()
 
-  n_in_range <- in_range$size()
-  if (n_in_range == 0) {
-    return(0)
-  }
-  in_range$and(target)$size() / n_in_range
+  numerator <- in_range$and(target)$size()
+  
+  result <- c(numerator, denominator)
+
+  result
 }
 
+# calculate # of people in age group, 
+# number detected by microscopy (all), 
+# number of severe (all)
 create_prevelance_renderer <- function(
   state,
   birth,
@@ -29,7 +34,6 @@ create_prevelance_renderer <- function(
         parameters
       )
     )
-
     detected <- state$get_index_of(c('Tr', 'D'))$or(
       bitset_at(asymptomatic, asymptomatic_detected)
     )
@@ -38,28 +42,37 @@ create_prevelance_renderer <- function(
     for (i in seq_along(parameters$prevalence_rendering_min_ages)) {
       lower <- parameters$prevalence_rendering_min_ages[[i]]
       upper <- parameters$prevalence_rendering_max_ages[[i]]
-      p <- epi_from_subpopulation(
+      p <- count_of_detected( 
         detected,
         age,
         lower,
         upper
       )
-      renderer$render(paste0('pv_', lower, '_', upper), p, timestep)
+      renderer$render(paste0('n_', lower, '_', upper), p[[2]], timestep) 
+      p <- count_of_detected( 
+        detected,
+        age,
+        lower,
+        upper
+      )
+      renderer$render(paste0('n_detect_', lower, '_', upper), p[[1]], timestep)
     }
     for (i in seq_along(parameters$severe_prevalence_rendering_min_ages)) {
       lower <- parameters$severe_prevalence_rendering_min_ages[[i]]
       upper <- parameters$severe_prevalence_rendering_max_ages[[i]]
-      p <- epi_from_subpopulation(
+      p <- count_of_detected(
         severe,
         age,
         lower,
         upper
       )
-      renderer$render(paste0('pv_severe_', lower, '_', upper), p, timestep)
+      renderer$render(paste0('n_severe_', lower, '_', upper), p[[1]], timestep)
     }
   }
 }
 
+# calculate number detected by microscopy (new in that timestep), 
+# number of severe (new in that timestep)
 create_incidence_renderer <- function(birth, is_severe, parameters, renderer) {
   function(timestep, target) {
     age <- get_age(birth$get_values(), timestep)
@@ -67,24 +80,24 @@ create_incidence_renderer <- function(birth, is_severe, parameters, renderer) {
     for (i in seq_along(parameters$incidence_rendering_min_ages)) {
       lower <- parameters$incidence_rendering_min_ages[[i]]
       upper <- parameters$incidence_rendering_max_ages[[i]]
-      p <- epi_from_subpopulation(
+      p <- count_of_detected( 
         target,
         age,
         lower,
         upper
       )
-      renderer$render(paste0('inc_', lower, '_', upper), p, timestep)
+      renderer$render(paste0('n_inc_', lower, '_', upper), p[[1]], timestep)
     }
     for (i in seq_along(parameters$severe_incidence_rendering_min_ages)) {
       lower <- parameters$severe_incidence_rendering_min_ages[[i]]
       upper <- parameters$severe_incidence_rendering_max_ages[[i]]
-      p <- epi_from_subpopulation(
+      p <- count_of_detected(
         severe$copy()$and(target),
         age,
         lower,
         upper
       )
-      renderer$render(paste0('inc_severe_', lower, '_', upper), p, timestep)
+      renderer$render(paste0('n_inc_', 'severe_', lower, '_', upper), p[[1]], timestep)
     }
   }
 }
@@ -95,13 +108,13 @@ create_clinical_incidence_renderer <- function(birth, parameters, renderer) {
     for (i in seq_along(parameters$clinical_incidence_rendering_min_ages)) {
       lower <- parameters$clinical_incidence_rendering_min_ages[[i]]
       upper <- parameters$clinical_incidence_rendering_max_ages[[i]]
-      p <- epi_from_subpopulation(
+      p <- count_of_detected( 
         target,
         age,
         lower,
         upper
       )
-      renderer$render(paste0('clin_inc_', lower, '_', upper), p, timestep)
+      renderer$render(paste0('n_inc_', 'clinical_', lower, '_', upper), p[[1]], timestep)
     }
   }
 }

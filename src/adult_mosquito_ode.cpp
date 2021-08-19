@@ -12,8 +12,9 @@ AdultMosquitoModel::AdultMosquitoModel(
     MosquitoModel growth_model,
     double mu,
     double tau,
-    double incubating
-    ) : growth_model(growth_model), mu(mu), tau(tau)
+    double incubating,
+    double foim
+    ) : growth_model(growth_model), mu(mu), tau(tau), foim(foim)
 {
     for (auto i = 0u; i < tau; ++i) {
         lagged_incubating.push(incubating);
@@ -56,9 +57,16 @@ Rcpp::XPtr<AdultMosquitoModel> create_adult_mosquito_model(
     Rcpp::XPtr<MosquitoModel> growth_model,
     double mu,
     double tau,
-    double susceptible
+    double susceptible,
+    double foim
     ) {
-    auto model = new AdultMosquitoModel(*growth_model, mu, tau, susceptible);
+    auto model = new AdultMosquitoModel(
+        *growth_model,
+        mu,
+        tau,
+        susceptible,
+        foim
+    );
     return Rcpp::XPtr<AdultMosquitoModel>(model, true);
 }
 
@@ -85,10 +93,17 @@ Rcpp::XPtr<Solver> create_adult_solver(
     Rcpp::XPtr<AdultMosquitoModel> model,
     std::vector<double> init,
     double r_tol,
-    double a_tol
+    double a_tol,
+    size_t max_steps
     ) {
     return Rcpp::XPtr<Solver>(
-        new Solver(init, create_ode(*model), r_tol, a_tol),
+        new Solver(
+            init,
+            create_ode(*model),
+            r_tol,
+            a_tol,
+            max_steps
+        ),
         true
     );
 }

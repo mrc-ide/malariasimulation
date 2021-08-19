@@ -22,7 +22,9 @@ parameterise_mosquito_models <- function(parameters) {
         parameters$g0,
         parameters$g,
         parameters$h,
-        calculate_R_bar(parameters)
+        calculate_R_bar(parameters),
+        parameters$mum[[i]],
+        parameters$blood_meal_rates[[i]]
       )
 
       if (!parameters$individual_mosquitoes) {
@@ -37,7 +39,8 @@ parameterise_mosquito_models <- function(parameters) {
             growth_model,
             parameters$mum[[i]],
             parameters$dem,
-            susceptible * parameters$init_foim
+            susceptible * parameters$init_foim,
+            parameters$init_foim
           )
         )
       }
@@ -58,7 +61,8 @@ parameterise_solvers <- function(models, parameters) {
             models[[i]],
             init,
             parameters$r_tol,
-            parameters$a_tol
+            parameters$a_tol,
+            parameters$ode_max_steps
           )
         )
       }
@@ -66,7 +70,8 @@ parameterise_solvers <- function(models, parameters) {
         models[[i]],
         init[ODE_INDICES],
         parameters$r_tol,
-        parameters$a_tol
+        parameters$a_tol,
+        parameters$ode_max_steps
       )
     }
   )

@@ -4,10 +4,7 @@ count_of_detected <- function(target, age, lower, upper) {
   )
   
   denominator <- in_range$size()
-  if (denominator == 0) {
-    return(0)
-  }  
-  
+
   numerator <- in_range$and(target)$size()
   
   result <- c(numerator, denominator)

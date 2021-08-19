@@ -395,22 +395,16 @@ calculate_initial_ages <- function(parameters) {
     )))
   }
 
-  n_age <- length(parameters$demography_agegroups)
+  age_high <- parameters$demography_agegroups
+  n_age <- length(age_high)
   birthrate <- parameters$demography_birthrates[[1]]
   deathrate <- parameters$demography_deathrates[,1]
 
-  aging_rate <- rep(0, n_age)
-  age_days <- parameters$demography_agegroups * 365
-  for (i in seq(n_age)) {
-    # r[i] can be thought of as the rate of ageing in this age group, i.e.
-    # 1/r[i] is the duration of this group
-    if (i == n_age) {
-      aging_rate[i] <- 0
-    } else {
-      age_width <- age_days[i+1] - age_days[i]
-      aging_rate[i] <- 1 / age_width
-    }
-  }
+  # r[i] can be thought of as the rate of ageing in this age group, i.e.
+  # 1/r[i] is the duration of this group
+  age_width <- diff(c(0, age_high))
+  aging_rate <- 1 / age_width
+  aging_rate[[n_age]] <- 0
 
   prop <- rep(0, n_age)
   for (i in seq_along(parameters$demography_agegroups)) {
@@ -419,16 +413,18 @@ calculate_initial_ages <- function(parameters) {
     if (i == 1) {
       prop[i] <- birthrate / (aging_rate[[i]] + deathrate[[i]])
     } else {
-      prop[i] <- prop[[i-1]]*aging_rate[[i-1]]/(aging_rate[i] + deathrate[[i]])
+      prop[i] <- prop[[i-1]] * aging_rate[[i-1]]/(aging_rate[i] + deathrate[[i]])
     }
   }
 
-  age_days_midpoint <- c((age_days[-n_age] + age_days[-1])/2, age_days[n_age])
-
-  sample(
-    age_days_midpoint,
+  sampled_age_high <- sample(
+    age_high,
     parameters$human_population,
     replace = TRUE,
-    prob = prob
+    prob = prop
   )
+
+  group_dist <- runif(0, 1, parameters$human_population)
+
+  sampled_age_high - group_dist * age_width
 }

@@ -15,7 +15,7 @@ test_that('Seasonality correctly affects P', {
   
   for (t in seq(timesteps)) {
     counts <- rbind(counts, c(t, solver_get_states(solvers[[1]])))
-    mosquito_model_update(
+    aquatic_mosquito_model_update(
       models[[1]],
       total_M,
       parameters$blood_meal_rates,

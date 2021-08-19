@@ -22,10 +22,10 @@ using integration_function_t = std::function<void (const state_t&, state_t&, dou
 class Observer {
     size_t steps;
     size_t max_steps;
-    integration_function_t ode;
+    integration_function_t eqs;
 public:
-    Observer(size_t max_steps, const integration_function_t& ode) :
-        steps(0u), max_steps(max_steps), ode(ode) { }
+    Observer(size_t max_steps, const integration_function_t& eqs) :
+        steps(0u), max_steps(max_steps), eqs(eqs) { }
     void operator()( const state_t &x , double t )
     {
         if (++steps > max_steps) {
@@ -35,7 +35,7 @@ public:
                 Rcpp::Rcout << ", x[" << i << "]:" << x[i];
             }
             state_t dx(x.size());
-            ode(x, dx, t);
+            eqs(x, dx, t);
             for (auto i = 0u; i < dx.size(); ++i) {
                 Rcpp::Rcout << ", dx[" << i << "]:" << dx[i];
             }
@@ -51,10 +51,16 @@ public:
     }
 };
 
+/*
+ * Solver class
+ * 
+ * Interfaces with the boost::odeint to solve mosquito dynamics defined by a
+ * system of equations `eqs`
+ */
 struct Solver {
     Solver(
         const std::vector<double>& init,
-        const integration_function_t& ode,
+        const integration_function_t& eqs,
         const double r_tol,
         const double a_tol,
         const size_t max_steps
@@ -69,7 +75,7 @@ struct Solver {
     double t = 0.;
     const double dt = 1.;
     state_t state;
-    integration_function_t ode;
+    integration_function_t eqs;
     double r_tolerance;
     double a_tolerance;
     Observer observer;

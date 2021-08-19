@@ -13,6 +13,18 @@ create_adult_solver <- function(model, init, r_tol, a_tol, max_steps) {
     .Call(`_malariasimulation_create_adult_solver`, model, init, r_tol, a_tol, max_steps)
 }
 
+create_aquatic_mosquito_model <- function(beta, de, mue, K0, gamma, dl, mul, dp, mup, total_M, model_seasonality, g0, g, h, R_bar, mum, f) {
+    .Call(`_malariasimulation_create_aquatic_mosquito_model`, beta, de, mue, K0, gamma, dl, mul, dp, mup, total_M, model_seasonality, g0, g, h, R_bar, mum, f)
+}
+
+aquatic_mosquito_model_update <- function(model, total_M, f, mum) {
+    invisible(.Call(`_malariasimulation_aquatic_mosquito_model_update`, model, total_M, f, mum))
+}
+
+create_aquatic_solver <- function(model, init, r_tol, a_tol, max_steps) {
+    .Call(`_malariasimulation_create_aquatic_solver`, model, init, r_tol, a_tol, max_steps)
+}
+
 create_history <- function(size, default_value) {
     .Call(`_malariasimulation_create_history`, size, default_value)
 }
@@ -35,18 +47,6 @@ eggs_laid <- function(beta, mu, f) {
 
 rainfall <- function(t, g0, g, h) {
     .Call(`_malariasimulation_rainfall`, t, g0, g, h)
-}
-
-create_mosquito_model <- function(beta, de, mue, K0, gamma, dl, mul, dp, mup, total_M, model_seasonality, g0, g, h, R_bar, mum, f) {
-    .Call(`_malariasimulation_create_mosquito_model`, beta, de, mue, K0, gamma, dl, mul, dp, mup, total_M, model_seasonality, g0, g, h, R_bar, mum, f)
-}
-
-mosquito_model_update <- function(model, total_M, f, mum) {
-    invisible(.Call(`_malariasimulation_mosquito_model_update`, model, total_M, f, mum))
-}
-
-create_solver <- function(model, init, r_tol, a_tol, max_steps) {
-    .Call(`_malariasimulation_create_solver`, model, init, r_tol, a_tol, max_steps)
 }
 
 solver_get_states <- function(solver) {

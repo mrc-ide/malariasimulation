@@ -12,12 +12,12 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // create_adult_mosquito_model
-Rcpp::XPtr<AdultMosquitoModel> create_adult_mosquito_model(Rcpp::XPtr<MosquitoModel> growth_model, double mu, double tau, double susceptible, double foim);
+Rcpp::XPtr<AdultMosquitoModel> create_adult_mosquito_model(Rcpp::XPtr<AquaticMosquitoModel> growth_model, double mu, double tau, double susceptible, double foim);
 RcppExport SEXP _malariasimulation_create_adult_mosquito_model(SEXP growth_modelSEXP, SEXP muSEXP, SEXP tauSEXP, SEXP susceptibleSEXP, SEXP foimSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<MosquitoModel> >::type growth_model(growth_modelSEXP);
+    Rcpp::traits::input_parameter< Rcpp::XPtr<AquaticMosquitoModel> >::type growth_model(growth_modelSEXP);
     Rcpp::traits::input_parameter< double >::type mu(muSEXP);
     Rcpp::traits::input_parameter< double >::type tau(tauSEXP);
     Rcpp::traits::input_parameter< double >::type susceptible(susceptibleSEXP);
@@ -52,6 +52,61 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type a_tol(a_tolSEXP);
     Rcpp::traits::input_parameter< size_t >::type max_steps(max_stepsSEXP);
     rcpp_result_gen = Rcpp::wrap(create_adult_solver(model, init, r_tol, a_tol, max_steps));
+    return rcpp_result_gen;
+END_RCPP
+}
+// create_aquatic_mosquito_model
+Rcpp::XPtr<AquaticMosquitoModel> create_aquatic_mosquito_model(double beta, double de, double mue, double K0, double gamma, double dl, double mul, double dp, double mup, size_t total_M, bool model_seasonality, double g0, std::vector<double> g, std::vector<double> h, double R_bar, double mum, double f);
+RcppExport SEXP _malariasimulation_create_aquatic_mosquito_model(SEXP betaSEXP, SEXP deSEXP, SEXP mueSEXP, SEXP K0SEXP, SEXP gammaSEXP, SEXP dlSEXP, SEXP mulSEXP, SEXP dpSEXP, SEXP mupSEXP, SEXP total_MSEXP, SEXP model_seasonalitySEXP, SEXP g0SEXP, SEXP gSEXP, SEXP hSEXP, SEXP R_barSEXP, SEXP mumSEXP, SEXP fSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< double >::type de(deSEXP);
+    Rcpp::traits::input_parameter< double >::type mue(mueSEXP);
+    Rcpp::traits::input_parameter< double >::type K0(K0SEXP);
+    Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
+    Rcpp::traits::input_parameter< double >::type dl(dlSEXP);
+    Rcpp::traits::input_parameter< double >::type mul(mulSEXP);
+    Rcpp::traits::input_parameter< double >::type dp(dpSEXP);
+    Rcpp::traits::input_parameter< double >::type mup(mupSEXP);
+    Rcpp::traits::input_parameter< size_t >::type total_M(total_MSEXP);
+    Rcpp::traits::input_parameter< bool >::type model_seasonality(model_seasonalitySEXP);
+    Rcpp::traits::input_parameter< double >::type g0(g0SEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type g(gSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type h(hSEXP);
+    Rcpp::traits::input_parameter< double >::type R_bar(R_barSEXP);
+    Rcpp::traits::input_parameter< double >::type mum(mumSEXP);
+    Rcpp::traits::input_parameter< double >::type f(fSEXP);
+    rcpp_result_gen = Rcpp::wrap(create_aquatic_mosquito_model(beta, de, mue, K0, gamma, dl, mul, dp, mup, total_M, model_seasonality, g0, g, h, R_bar, mum, f));
+    return rcpp_result_gen;
+END_RCPP
+}
+// aquatic_mosquito_model_update
+void aquatic_mosquito_model_update(Rcpp::XPtr<AquaticMosquitoModel> model, size_t total_M, double f, double mum);
+RcppExport SEXP _malariasimulation_aquatic_mosquito_model_update(SEXP modelSEXP, SEXP total_MSEXP, SEXP fSEXP, SEXP mumSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<AquaticMosquitoModel> >::type model(modelSEXP);
+    Rcpp::traits::input_parameter< size_t >::type total_M(total_MSEXP);
+    Rcpp::traits::input_parameter< double >::type f(fSEXP);
+    Rcpp::traits::input_parameter< double >::type mum(mumSEXP);
+    aquatic_mosquito_model_update(model, total_M, f, mum);
+    return R_NilValue;
+END_RCPP
+}
+// create_aquatic_solver
+Rcpp::XPtr<Solver> create_aquatic_solver(Rcpp::XPtr<AquaticMosquitoModel> model, std::vector<double> init, double r_tol, double a_tol, size_t max_steps);
+RcppExport SEXP _malariasimulation_create_aquatic_solver(SEXP modelSEXP, SEXP initSEXP, SEXP r_tolSEXP, SEXP a_tolSEXP, SEXP max_stepsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<AquaticMosquitoModel> >::type model(modelSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type init(initSEXP);
+    Rcpp::traits::input_parameter< double >::type r_tol(r_tolSEXP);
+    Rcpp::traits::input_parameter< double >::type a_tol(a_tolSEXP);
+    Rcpp::traits::input_parameter< size_t >::type max_steps(max_stepsSEXP);
+    rcpp_result_gen = Rcpp::wrap(create_aquatic_solver(model, init, r_tol, a_tol, max_steps));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -135,61 +190,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// create_mosquito_model
-Rcpp::XPtr<MosquitoModel> create_mosquito_model(double beta, double de, double mue, double K0, double gamma, double dl, double mul, double dp, double mup, size_t total_M, bool model_seasonality, double g0, std::vector<double> g, std::vector<double> h, double R_bar, double mum, double f);
-RcppExport SEXP _malariasimulation_create_mosquito_model(SEXP betaSEXP, SEXP deSEXP, SEXP mueSEXP, SEXP K0SEXP, SEXP gammaSEXP, SEXP dlSEXP, SEXP mulSEXP, SEXP dpSEXP, SEXP mupSEXP, SEXP total_MSEXP, SEXP model_seasonalitySEXP, SEXP g0SEXP, SEXP gSEXP, SEXP hSEXP, SEXP R_barSEXP, SEXP mumSEXP, SEXP fSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
-    Rcpp::traits::input_parameter< double >::type de(deSEXP);
-    Rcpp::traits::input_parameter< double >::type mue(mueSEXP);
-    Rcpp::traits::input_parameter< double >::type K0(K0SEXP);
-    Rcpp::traits::input_parameter< double >::type gamma(gammaSEXP);
-    Rcpp::traits::input_parameter< double >::type dl(dlSEXP);
-    Rcpp::traits::input_parameter< double >::type mul(mulSEXP);
-    Rcpp::traits::input_parameter< double >::type dp(dpSEXP);
-    Rcpp::traits::input_parameter< double >::type mup(mupSEXP);
-    Rcpp::traits::input_parameter< size_t >::type total_M(total_MSEXP);
-    Rcpp::traits::input_parameter< bool >::type model_seasonality(model_seasonalitySEXP);
-    Rcpp::traits::input_parameter< double >::type g0(g0SEXP);
-    Rcpp::traits::input_parameter< std::vector<double> >::type g(gSEXP);
-    Rcpp::traits::input_parameter< std::vector<double> >::type h(hSEXP);
-    Rcpp::traits::input_parameter< double >::type R_bar(R_barSEXP);
-    Rcpp::traits::input_parameter< double >::type mum(mumSEXP);
-    Rcpp::traits::input_parameter< double >::type f(fSEXP);
-    rcpp_result_gen = Rcpp::wrap(create_mosquito_model(beta, de, mue, K0, gamma, dl, mul, dp, mup, total_M, model_seasonality, g0, g, h, R_bar, mum, f));
-    return rcpp_result_gen;
-END_RCPP
-}
-// mosquito_model_update
-void mosquito_model_update(Rcpp::XPtr<MosquitoModel> model, size_t total_M, double f, double mum);
-RcppExport SEXP _malariasimulation_mosquito_model_update(SEXP modelSEXP, SEXP total_MSEXP, SEXP fSEXP, SEXP mumSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<MosquitoModel> >::type model(modelSEXP);
-    Rcpp::traits::input_parameter< size_t >::type total_M(total_MSEXP);
-    Rcpp::traits::input_parameter< double >::type f(fSEXP);
-    Rcpp::traits::input_parameter< double >::type mum(mumSEXP);
-    mosquito_model_update(model, total_M, f, mum);
-    return R_NilValue;
-END_RCPP
-}
-// create_solver
-Rcpp::XPtr<Solver> create_solver(Rcpp::XPtr<MosquitoModel> model, std::vector<double> init, double r_tol, double a_tol, size_t max_steps);
-RcppExport SEXP _malariasimulation_create_solver(SEXP modelSEXP, SEXP initSEXP, SEXP r_tolSEXP, SEXP a_tolSEXP, SEXP max_stepsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<MosquitoModel> >::type model(modelSEXP);
-    Rcpp::traits::input_parameter< std::vector<double> >::type init(initSEXP);
-    Rcpp::traits::input_parameter< double >::type r_tol(r_tolSEXP);
-    Rcpp::traits::input_parameter< double >::type a_tol(a_tolSEXP);
-    Rcpp::traits::input_parameter< size_t >::type max_steps(max_stepsSEXP);
-    rcpp_result_gen = Rcpp::wrap(create_solver(model, init, r_tol, a_tol, max_steps));
-    return rcpp_result_gen;
-END_RCPP
-}
 // solver_get_states
 std::vector<double> solver_get_states(Rcpp::XPtr<Solver> solver);
 RcppExport SEXP _malariasimulation_solver_get_states(SEXP solverSEXP) {
@@ -250,15 +250,15 @@ static const R_CallMethodDef CallEntries[] = {
     {"_malariasimulation_create_adult_mosquito_model", (DL_FUNC) &_malariasimulation_create_adult_mosquito_model, 5},
     {"_malariasimulation_adult_mosquito_model_update", (DL_FUNC) &_malariasimulation_adult_mosquito_model_update, 5},
     {"_malariasimulation_create_adult_solver", (DL_FUNC) &_malariasimulation_create_adult_solver, 5},
+    {"_malariasimulation_create_aquatic_mosquito_model", (DL_FUNC) &_malariasimulation_create_aquatic_mosquito_model, 17},
+    {"_malariasimulation_aquatic_mosquito_model_update", (DL_FUNC) &_malariasimulation_aquatic_mosquito_model_update, 4},
+    {"_malariasimulation_create_aquatic_solver", (DL_FUNC) &_malariasimulation_create_aquatic_solver, 5},
     {"_malariasimulation_create_history", (DL_FUNC) &_malariasimulation_create_history, 2},
     {"_malariasimulation_history_at", (DL_FUNC) &_malariasimulation_history_at, 2},
     {"_malariasimulation_history_push", (DL_FUNC) &_malariasimulation_history_push, 3},
     {"_malariasimulation_carrying_capacity", (DL_FUNC) &_malariasimulation_carrying_capacity, 7},
     {"_malariasimulation_eggs_laid", (DL_FUNC) &_malariasimulation_eggs_laid, 3},
     {"_malariasimulation_rainfall", (DL_FUNC) &_malariasimulation_rainfall, 4},
-    {"_malariasimulation_create_mosquito_model", (DL_FUNC) &_malariasimulation_create_mosquito_model, 17},
-    {"_malariasimulation_mosquito_model_update", (DL_FUNC) &_malariasimulation_mosquito_model_update, 4},
-    {"_malariasimulation_create_solver", (DL_FUNC) &_malariasimulation_create_solver, 5},
     {"_malariasimulation_solver_get_states", (DL_FUNC) &_malariasimulation_solver_get_states, 1},
     {"_malariasimulation_solver_step", (DL_FUNC) &_malariasimulation_solver_step, 1},
     {"_malariasimulation_random_seed", (DL_FUNC) &_malariasimulation_random_seed, 1},

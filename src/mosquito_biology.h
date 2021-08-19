@@ -8,7 +8,7 @@
 #ifndef SRC_MOSQUITO_BIOLOGY_H_
 #define SRC_MOSQUITO_BIOLOGY_H_
 
-#include <individual.h>
+#include <vector>
 
 double carrying_capacity(
     const size_t,

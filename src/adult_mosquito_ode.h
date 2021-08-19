@@ -9,6 +9,7 @@
 #define SRC_ADULT_MOSQUITO_ODE_H_
 
 #include "mosquito_ode.h"
+#include <queue>
 
 /*
  * The adult states are:

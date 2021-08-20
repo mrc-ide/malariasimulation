@@ -6,7 +6,7 @@
 #'
 #' The human variables are defined as:
 #'
-#' * state - the state of a human individual S|D|A|U|Tr
+#' * state - the state of a human individual S|D|A|U|Tr|NonExistent
 #' * birth - an integer representing the timestep when this individual was born
 #' * last_boosted_* - the last timestep at which this individual's immunity was
 #' boosted for tracking grace periods in the boost of immunity
@@ -92,7 +92,7 @@ create_variables <- function(parameters) {
     }
   }
 
-  states <- c('S', 'D', 'A', 'U', 'Tr')
+  states <- c('S', 'D', 'A', 'U', 'Tr', 'NonExistent')
   state <- individual::CategoricalVariable$new(
     states,
     initial_state(parameters, initial_age, groups, eq)
@@ -413,7 +413,7 @@ calculate_initial_ages <- function(parameters) {
     if (i == 1) {
       prop[i] <- birthrate / (aging_rate[[i]] + deathrate[[i]])
     } else {
-      prop[i] <- prop[[i-1]] * aging_rate[[i-1]]/(aging_rate[i] + deathrate[[i]])
+      prop[i] <- prop[[i-1]] * aging_rate[[i-1]] / (aging_rate[i] + deathrate[[i]])
     }
   }
 

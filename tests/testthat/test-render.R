@@ -5,7 +5,7 @@ test_that('that default rendering works', {
     c('U', 'A', 'D', 'S', 'Tr'),
     c('U', 'A', 'D', 'S')
   )
-  birth <- individual::DoubleVariable$new(
+  birth <- individual::IntegerVariable$new(
     -c(2, 5, 10, 11) * 365
   )
   immunity <- individual::DoubleVariable$new(rep(1, 4))
@@ -53,7 +53,7 @@ test_that('that default rendering works when no one is in the age range', {
     c('U', 'A', 'D', 'S', 'Tr'),
     rep('S', 4)
   )
-  birth <- individual::DoubleVariable$new(
+  birth <- individual::IntegerVariable$new(
     -c(1, 11, 21, 11) * 365
   )
   immunity <- individual::DoubleVariable$new(rep(1, 4))
@@ -96,7 +96,7 @@ test_that('that severe rendering works', {
     c('U', 'A', 'D', 'S', 'Tr'),
     c('U', 'D', 'D', 'S')
   )
-  birth <- individual::DoubleVariable$new(
+  birth <- individual::IntegerVariable$new(
     -c(2, 5, 10, 11) * 365
   )
   immunity <- individual::DoubleVariable$new(rep(1, 4))
@@ -118,6 +118,14 @@ test_that('that severe rendering works', {
   mockery::expect_args(
     renderer$render_mock(),
     1,
+    'n_0_1825',
+    2,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    2,
     'n_severe_0_1825',
     1,
     timestep
@@ -125,7 +133,15 @@ test_that('that severe rendering works', {
 
   mockery::expect_args(
     renderer$render_mock(),
-    2,
+    3,
+    'n_730_3650',
+    3,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    4,
     'n_severe_730_3650',
     1,
     timestep
@@ -142,7 +158,7 @@ test_that('that clinical incidence rendering works', {
     prevalence_rendering_max_ages = NULL
   ))
 
-  birth <- individual::DoubleVariable$new(
+  birth <- individual::IntegerVariable$new(
     -c(2, 5, 10, 11) * year
   )
 
@@ -151,11 +167,10 @@ test_that('that clinical incidence rendering works', {
 
   process(timestep, individual::Bitset$new(4)$insert(c(1, 2, 4)))
 
-
   mockery::expect_args( 
     renderer$render_mock(),
     1,
-    'n_inc_clinical_0_1825',
+    'n_0_1825',
     2,
     timestep
   )
@@ -163,6 +178,22 @@ test_that('that clinical incidence rendering works', {
   mockery::expect_args( 
     renderer$render_mock(),
     2,
+    'n_inc_clinical_0_1825',
+    2,
+    timestep
+  )
+
+  mockery::expect_args( 
+    renderer$render_mock(),
+    3,
+    'n_730_3650',
+    3,
+    timestep
+  )
+
+  mockery::expect_args( 
+    renderer$render_mock(),
+    4,
     'n_inc_clinical_730_3650',
     2,
     timestep
@@ -180,7 +211,7 @@ test_that('that incidence rendering works', {
     prevalence_rendering_max_ages = NULL
   ))
 
-  birth <- individual::DoubleVariable$new(
+  birth <- individual::IntegerVariable$new(
     -c(2, 5, 10, 11) * 365
   )
 
@@ -197,7 +228,7 @@ test_that('that incidence rendering works', {
   mockery::expect_args(
     renderer$render_mock(),
     1,
-    'n_inc_0_1825',
+    'n_0_1825',
     2,
     timestep
   )
@@ -205,6 +236,22 @@ test_that('that incidence rendering works', {
   mockery::expect_args(
     renderer$render_mock(),
     2,
+    'n_inc_0_1825',
+    2,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    3,
+    'n_730_3650',
+    3,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    4,
     'n_inc_730_3650',
     2,
     timestep
@@ -221,7 +268,7 @@ test_that('that severe incidence rendering works', {
     prevalence_rendering_max_ages = NULL
   ))
 
-  birth <- individual::DoubleVariable$new(
+  birth <- individual::IntegerVariable$new(
     -c(2, 6, 10, 11) * 365
   )
 
@@ -238,6 +285,14 @@ test_that('that severe incidence rendering works', {
   mockery::expect_args(
     renderer$render_mock(),
     1,
+    'n_0_1825',
+    1,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    2,
     'n_inc_severe_0_1825',
     0,
     timestep
@@ -245,7 +300,15 @@ test_that('that severe incidence rendering works', {
 
   mockery::expect_args(
     renderer$render_mock(),
-    2,
+    3,
+    'n_730_3650',
+    3,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    4,
     'n_inc_severe_730_3650',
     1,
     timestep

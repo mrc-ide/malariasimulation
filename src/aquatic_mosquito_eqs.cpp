@@ -6,9 +6,9 @@
  */
 
 #include <Rcpp.h>
-#include "mosquito_ode.h"
+#include "aquatic_mosquito_eqs.h"
 
-integration_function_t create_ode(MosquitoModel& model) {
+integration_function_t create_eqs(AquaticMosquitoModel& model) {
     return [&model](const state_t& x, state_t& dxdt, double t) {
         auto K = carrying_capacity(
             t,
@@ -20,23 +20,23 @@ integration_function_t create_ode(MosquitoModel& model) {
             model.R_bar
         );
         auto beta = eggs_laid(model.beta, model.mum, model.f);
-        auto n_larvae = x[get_idx(ODEState::E)] + x[get_idx(ODEState::L)];
+        auto n_larvae = x[get_idx(AquaticState::E)] + x[get_idx(AquaticState::L)];
 
-        dxdt[get_idx(ODEState::E)] = beta * (model.total_M) //new eggs
-            - x[get_idx(ODEState::E)] / model.de //growth to late larval stage
-            - x[get_idx(ODEState::E)] * model.mue * (1 + n_larvae / K); //early larval deaths
+        dxdt[get_idx(AquaticState::E)] = beta * (model.total_M) //new eggs
+            - x[get_idx(AquaticState::E)] / model.de //growth to late larval stage
+            - x[get_idx(AquaticState::E)] * model.mue * (1 + n_larvae / K); //early larval deaths
 
-        dxdt[get_idx(ODEState::L)] = x[get_idx(ODEState::E)] / model.de //growth from early larval
-            - x[get_idx(ODEState::L)] / model.dl //growth to pupal
-            - x[get_idx(ODEState::L)] * model.mul * (1 + model.gamma * n_larvae / K); //late larval deaths
+        dxdt[get_idx(AquaticState::L)] = x[get_idx(AquaticState::E)] / model.de //growth from early larval
+            - x[get_idx(AquaticState::L)] / model.dl //growth to pupal
+            - x[get_idx(AquaticState::L)] * model.mul * (1 + model.gamma * n_larvae / K); //late larval deaths
         
-        dxdt[get_idx(ODEState::P)] = x[get_idx(ODEState::L)] / model.dl //growth to pupae
-            - x[get_idx(ODEState::P)] / model.dp //growth to adult
-            - x[get_idx(ODEState::P)] * model.mup; // death of pupae
+        dxdt[get_idx(AquaticState::P)] = x[get_idx(AquaticState::L)] / model.dl //growth to pupae
+            - x[get_idx(AquaticState::P)] / model.dp //growth to adult
+            - x[get_idx(AquaticState::P)] * model.mup; // death of pupae
     };
 }
 
-MosquitoModel::MosquitoModel(
+AquaticMosquitoModel::AquaticMosquitoModel(
     double beta,
     double de,
     double mue,
@@ -77,7 +77,7 @@ MosquitoModel::MosquitoModel(
 
 
 //[[Rcpp::export]]
-Rcpp::XPtr<MosquitoModel> create_mosquito_model(
+Rcpp::XPtr<AquaticMosquitoModel> create_aquatic_mosquito_model(
     double beta,
     double de,
     double mue,
@@ -96,7 +96,7 @@ Rcpp::XPtr<MosquitoModel> create_mosquito_model(
     double mum,
     double f
     ) {
-    auto model = new MosquitoModel(
+    auto model = new AquaticMosquitoModel(
         beta,
         de,
         mue,
@@ -115,12 +115,12 @@ Rcpp::XPtr<MosquitoModel> create_mosquito_model(
         mum,
         f
     );
-    return Rcpp::XPtr<MosquitoModel>(model, true);
+    return Rcpp::XPtr<AquaticMosquitoModel>(model, true);
 }
 
 //[[Rcpp::export]]
-void mosquito_model_update(
-    Rcpp::XPtr<MosquitoModel> model,
+void aquatic_mosquito_model_update(
+    Rcpp::XPtr<AquaticMosquitoModel> model,
     size_t total_M,
     double f,
     double mum
@@ -132,15 +132,15 @@ void mosquito_model_update(
 
 
 //[[Rcpp::export]]
-Rcpp::XPtr<Solver> create_solver(
-    Rcpp::XPtr<MosquitoModel> model,
+Rcpp::XPtr<Solver> create_aquatic_solver(
+    Rcpp::XPtr<AquaticMosquitoModel> model,
     std::vector<double> init,
     double r_tol,
     double a_tol,
     size_t max_steps
     ) {
     return Rcpp::XPtr<Solver>(
-        new Solver(init, create_ode(*model), r_tol, a_tol, max_steps),
+        new Solver(init, create_eqs(*model), r_tol, a_tol, max_steps),
         true
     );
 }

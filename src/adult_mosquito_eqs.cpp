@@ -1,15 +1,15 @@
 /*
- * mosquito_ode.cpp
+ * adult_mosquito_eqs.cpp
  *
  *  Created on: 11 Jun 2020
  *      Author: gc1610
  */
 
 #include <Rcpp.h>
-#include "adult_mosquito_ode.h"
+#include "adult_mosquito_eqs.h"
 
 AdultMosquitoModel::AdultMosquitoModel(
-    MosquitoModel growth_model,
+    AquaticMosquitoModel growth_model,
     double mu,
     double tau,
     double incubating,
@@ -21,40 +21,40 @@ AdultMosquitoModel::AdultMosquitoModel(
     }
 }
 
-integration_function_t create_ode(AdultMosquitoModel& model) {
+integration_function_t create_eqs(AdultMosquitoModel& model) {
     //create original ode
-    auto growth_ode = create_ode(model.growth_model);
-    return [&model, growth_ode](const state_t& x, state_t& dxdt, double t) {
+    auto growth_eqs = create_eqs(model.growth_model);
+    return [&model, growth_eqs](const state_t& x, state_t& dxdt, double t) {
         //set submodel total_M
         model.growth_model.total_M =
-            x[get_idx(AdultODEState::S)] +
-            x[get_idx(AdultODEState::E)] +
-            x[get_idx(AdultODEState::I)];
+            x[get_idx(AdultState::S)] +
+            x[get_idx(AdultState::E)] +
+            x[get_idx(AdultState::I)];
 
         //run the growth ode
-        growth_ode(x, dxdt, t);
+        growth_eqs(x, dxdt, t);
 
         //run the adult ode
         auto incubation_survival = exp(-model.mu * model.tau);
 
-        dxdt[get_idx(AdultODEState::S)] =
-            .5 * x[get_idx(ODEState::P)] / model.growth_model.dp //growth to adult female
-            - x[get_idx(AdultODEState::S)] * model.foim //infections
-            - x[get_idx(AdultODEState::S)] * model.mu; //deaths   
+        dxdt[get_idx(AdultState::S)] =
+            .5 * x[get_idx(AquaticState::P)] / model.growth_model.dp //growth to adult female
+            - x[get_idx(AdultState::S)] * model.foim //infections
+            - x[get_idx(AdultState::S)] * model.mu; //deaths   
 
-        dxdt[get_idx(AdultODEState::E)] =
-            x[get_idx(AdultODEState::S)] * model.foim  //infections
+        dxdt[get_idx(AdultState::E)] =
+            x[get_idx(AdultState::S)] * model.foim  //infections
             - model.lagged_incubating.front() * incubation_survival //survived incubation period
-            - x[get_idx(AdultODEState::E)] * model.mu; // deaths
+            - x[get_idx(AdultState::E)] * model.mu; // deaths
 
-        dxdt[get_idx(AdultODEState::I)] = model.lagged_incubating.front() * incubation_survival //survived incubation period
-            - x[get_idx(AdultODEState::I)] * model.mu; // deaths
+        dxdt[get_idx(AdultState::I)] = model.lagged_incubating.front() * incubation_survival //survived incubation period
+            - x[get_idx(AdultState::I)] * model.mu; // deaths
     };
 }
 
 //[[Rcpp::export]]
 Rcpp::XPtr<AdultMosquitoModel> create_adult_mosquito_model(
-    Rcpp::XPtr<MosquitoModel> growth_model,
+    Rcpp::XPtr<AquaticMosquitoModel> growth_model,
     double mu,
     double tau,
     double susceptible,
@@ -99,7 +99,7 @@ Rcpp::XPtr<Solver> create_adult_solver(
     return Rcpp::XPtr<Solver>(
         new Solver(
             init,
-            create_ode(*model),
+            create_eqs(*model),
             r_tol,
             a_tol,
             max_steps

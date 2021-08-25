@@ -7,7 +7,7 @@ parameterise_mosquito_models <- function(parameters) {
     function(i) {
       p <- parameters$species_proportions[[i]]
       m <- p * parameters$total_M
-      growth_model <- create_mosquito_model(
+      growth_model <- create_aquatic_mosquito_model(
         parameters$beta,
         parameters$del,
         parameters$me,
@@ -66,7 +66,7 @@ parameterise_solvers <- function(models, parameters) {
           )
         )
       }
-      create_solver(
+      create_aquatic_solver(
         models[[i]],
         init[ODE_INDICES],
         parameters$r_tol,

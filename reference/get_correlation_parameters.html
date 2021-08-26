@@ -73,7 +73,7 @@ default, all correlations are set to 0" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -156,14 +156,15 @@ default, all correlations are set to 0</p>
 <span class='va'>parameters</span> <span class='op'>&lt;-</span> <span class='fu'><a href='get_parameters.html'>get_parameters</a></span><span class='op'>(</span><span class='op'>)</span>
 
 <span class='co'># Set some rtss strategy</span>
-<span class='va'>parameters</span> <span class='op'>&lt;-</span> <span class='fu'><a href='set_rtss.html'>set_rtss</a></span><span class='op'>(</span>
+<span class='va'>parameters</span> <span class='op'>&lt;-</span> <span class='fu'><a href='set_mass_rtss.html'>set_mass_rtss</a></span><span class='op'>(</span>
   <span class='va'>parameters</span>,
   timesteps <span class='op'>=</span> <span class='fl'>100</span>,
   coverages <span class='op'>=</span> <span class='fl'>.9</span>,
+  min_wait <span class='op'>=</span> <span class='fl'>0</span>,
   min_ages <span class='op'>=</span> <span class='fl'>100</span>,
   max_ages <span class='op'>=</span> <span class='fl'>1000</span>,
-  boosters <span class='op'>=</span> <span class='cn'>NULL</span>,
-  booster_coverage <span class='op'>=</span> <span class='cn'>NULL</span>
+  boosters <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>numeric</a></span><span class='op'>(</span><span class='fl'>0</span><span class='op'>)</span>,
+  booster_coverage <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/numeric.html'>numeric</a></span><span class='op'>(</span><span class='fl'>0</span><span class='op'>)</span>
 <span class='op'>)</span>
 
 <span class='co'># Set some smc strategy</span>

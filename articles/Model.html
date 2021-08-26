@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
       </span>
     </div>
 
@@ -108,8 +108,8 @@
 <li>‘disease_progression.R’ (green)</li>
 <li>‘mortality_processes.R’(red)</li>
 </ol>
-<div id="htmlwidget-472db4439912fb0a909b" style="width:700px;height:432.632880098888px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-472db4439912fb0a909b">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = LR]\n  \n  node [shape = rectangle]        \n  S\n  D\n  A\n  U\n  Tr\n  \n  node [shape = circle]\n  i [label = \"\"]\n  \n  # edge definitions with the node IDs\n  S -> i [color=\"orange\"]\n  i -> D [color=\"orange\"]\n  i -> A [color=\"orange\"]\n  i -> Tr [color=\"orange\"]\n  D -> A -> U -> S [color=\"green\"]\n  Tr -> s [color=\"green\"]\n  A -> i [color=\"orange\"]\n  U -> i [color=\"orange\"]\n  U -> S [color=\"red\"]\n  A -> S [color=\"red\"]\n  D -> S [color=\"red\"]\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-f3c33204bec422a1f54c" style="width:700px;height:432.632880098888px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-f3c33204bec422a1f54c">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = LR]\n  \n  node [shape = rectangle]        \n  S\n  D\n  A\n  U\n  Tr\n  \n  node [shape = circle]\n  i [label = \"\"]\n  \n  # edge definitions with the node IDs\n  S -> i [color=\"orange\"]\n  i -> D [color=\"orange\"]\n  i -> A [color=\"orange\"]\n  i -> Tr [color=\"orange\"]\n  D -> A -> U -> S [color=\"green\"]\n  Tr -> s [color=\"green\"]\n  A -> i [color=\"orange\"]\n  U -> i [color=\"orange\"]\n  U -> S [color=\"red\"]\n  A -> S [color=\"red\"]\n  D -> S [color=\"red\"]\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 <div id="mosquito-biology" class="section level1">
 <h1 class="hasAnchor">
@@ -121,8 +121,8 @@
 <li>‘R/mosquito_biology.R’ (orange)</li>
 <li>‘R/mosquito_biology.R’ (red)</li>
 </ol>
-<div id="htmlwidget-5208cdfd6f3531d37210" style="width:700px;height:432.632880098888px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-5208cdfd6f3531d37210">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = LR]\n  \n  subgraph clusterode {\n    style=filled;\n    color=lightblue;\n    node [shape = rectangle]\n    E\n    L\n    P\n    label=\"ODE\"\n  }\n\n  node [shape = rectangle]\n  Sm\n  Pm\n  Im\n  NonExistent\n  \n  # edge definitions with the node IDs\n  E -> L -> P [color=\"green\", label=\"1\"]\n  P -> Sm [color=\"green\", label=\"2\"]\n  Sm -> Pm -> Im [color=\"orange\", label=\"3\"]\n  Sm -> NonExistent [color=\"red\", label=\"4\"]\n  Pm -> NonExistent [color=\"red\", label=\"4\"]\n  Im -> NonExistent [color=\"red\", label=\"4\"]\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-42541b4cd9e56e09b83c" style="width:700px;height:432.632880098888px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-42541b4cd9e56e09b83c">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = LR]\n  \n  subgraph clusterode {\n    style=filled;\n    color=lightblue;\n    node [shape = rectangle]\n    E\n    L\n    P\n    label=\"ODE\"\n  }\n\n  node [shape = rectangle]\n  Sm\n  Pm\n  Im\n  NonExistent\n  \n  # edge definitions with the node IDs\n  E -> L -> P [color=\"green\", label=\"1\"]\n  P -> Sm [color=\"green\", label=\"2\"]\n  Sm -> Pm -> Im [color=\"orange\", label=\"3\"]\n  Sm -> NonExistent [color=\"red\", label=\"4\"]\n  Pm -> NonExistent [color=\"red\", label=\"4\"]\n  Im -> NonExistent [color=\"red\", label=\"4\"]\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
   </div>
 

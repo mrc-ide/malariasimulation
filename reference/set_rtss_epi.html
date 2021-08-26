@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Preset parameters for the An. arabiensis vector — arab_params • malariasimulation</title>
+<title>Parameterise an RTS,S epi strategy — set_rtss_epi • malariasimulation</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,9 @@
 
 
 
-<meta property="og:title" content="Preset parameters for the An. arabiensis vector — arab_params" />
-<meta property="og:description" content="Preset parameters for the An. arabiensis vector" />
+<meta property="og:title" content="Parameterise an RTS,S epi strategy — set_rtss_epi" />
+<meta property="og:description" content="distribute RTS,S vaccine when an individual becomes a certain
+age. Efficacy will take effect after the last dose" />
 
 
 
@@ -127,32 +128,73 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Preset parameters for the An. arabiensis vector</h1>
+    <h1>Parameterise an RTS,S epi strategy</h1>
     
-    <div class="hidden name"><code>arab_params.Rd</code></div>
+    <div class="hidden name"><code>set_rtss_epi.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Preset parameters for the An. arabiensis vector</p>
+    <p>distribute RTS,S vaccine when an individual becomes a certain
+age. Efficacy will take effect after the last dose</p>
     </div>
 
-    <pre class="usage"><span class='va'>arab_params</span></pre>
+    <pre class="usage"><span class='fu'>set_rtss_epi</span><span class='op'>(</span>
+  <span class='va'>parameters</span>,
+  <span class='va'>start</span>,
+  <span class='va'>end</span>,
+  <span class='va'>coverage</span>,
+  <span class='va'>age</span>,
+  <span class='va'>min_wait</span>,
+  <span class='va'>boosters</span>,
+  <span class='va'>booster_coverage</span>,
+  seasonal_boosters <span class='op'>=</span> <span class='cn'>FALSE</span>
+<span class='op'>)</span></pre>
 
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>parameters</th>
+      <td><p>a list of parameters to modify</p></td>
+    </tr>
+    <tr>
+      <th>start</th>
+      <td><p>timestep to turn on epi vaccination</p></td>
+    </tr>
+    <tr>
+      <th>end</th>
+      <td><p>timestep to turn off epi vaccination</p></td>
+    </tr>
+    <tr>
+      <th>coverage</th>
+      <td><p>the coverage for the starter doses</p></td>
+    </tr>
+    <tr>
+      <th>age</th>
+      <td><p>for the target population, (in timesteps)</p></td>
+    </tr>
+    <tr>
+      <th>min_wait</th>
+      <td><p>the minimum acceptable time since the last vaccination (in
+timesteps); This includes seasonal boosters and vaccinations between EPI and mass
+strategies</p></td>
+    </tr>
+    <tr>
+      <th>boosters</th>
+      <td><p>the timesteps (following the final dose) at which booster vaccinations are administered</p></td>
+    </tr>
+    <tr>
+      <th>booster_coverage</th>
+      <td><p>the proportion of the vaccinated population who will
+receive each booster vaccine</p></td>
+    </tr>
+    <tr>
+      <th>seasonal_boosters</th>
+      <td><p>logical, if TRUE the first booster timestep is
+relative to the start of the year, otherwise they are relative to the last dose</p></td>
+    </tr>
+    </table>
 
-    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
-
-    <p>An object of class <code>list</code> of length 6.</p>
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>Default parameters:
-species: "arab"
-blood_meal_rates: 0.3333333
-Q0: 0.71
-phi_bednets: 0.8
-phi_indoors: 0.86
-mum: 0.132</p>
-<p>parameters from:
-https://www.pnas.org/content/pnas/early/2019/07/02/1820646116.full.pdf</p>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

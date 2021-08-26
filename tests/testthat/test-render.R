@@ -5,13 +5,13 @@ test_that('that default rendering works', {
     c('U', 'A', 'D', 'S', 'Tr'),
     c('U', 'A', 'D', 'S')
   )
-  birth <- individual::DoubleVariable$new(
+  birth <- individual::IntegerVariable$new(
     -c(2, 5, 10, 11) * 365
   )
   immunity <- individual::DoubleVariable$new(rep(1, 4))
   is_severe <- individual::CategoricalVariable$new(
     c('yes', 'no'),
-    rep('no', 4)
+    c('no', 'no', 'yes', 'no')
   )
 
 
@@ -29,12 +29,21 @@ test_that('that default rendering works', {
   process(timestep)
 
   mockery::expect_args(
-    renderer$render,
+    renderer$render_mock(),
     1,
-    'pv_730_3650',
-    2/3,
+    'n_730_3650',
+    3,
     timestep
   )
+  
+  mockery::expect_args(
+    renderer$render_mock(),
+    2,
+    'n_detect_730_3650',
+    2,
+    timestep
+  )
+
 })
 
 test_that('that default rendering works when no one is in the age range', {
@@ -44,7 +53,7 @@ test_that('that default rendering works when no one is in the age range', {
     c('U', 'A', 'D', 'S', 'Tr'),
     rep('S', 4)
   )
-  birth <- individual::DoubleVariable$new(
+  birth <- individual::IntegerVariable$new(
     -c(1, 11, 21, 11) * 365
   )
   immunity <- individual::DoubleVariable$new(rep(1, 4))
@@ -66,9 +75,9 @@ test_that('that default rendering works when no one is in the age range', {
   mockery::stub(process, 'bernoulli_multi_p', mockery::mock(1))
 
   mockery::expect_args(
-    renderer$render,
+    renderer$render_mock(),
     1,
-    'pv_730_3650',
+    'n_730_3650',
     0,
     timestep
   )
@@ -87,7 +96,7 @@ test_that('that severe rendering works', {
     c('U', 'A', 'D', 'S', 'Tr'),
     c('U', 'D', 'D', 'S')
   )
-  birth <- individual::DoubleVariable$new(
+  birth <- individual::IntegerVariable$new(
     -c(2, 5, 10, 11) * 365
   )
   immunity <- individual::DoubleVariable$new(rep(1, 4))
@@ -107,18 +116,34 @@ test_that('that severe rendering works', {
   process(timestep)
 
   mockery::expect_args(
-    renderer$render,
+    renderer$render_mock(),
     1,
-    'pv_severe_0_1825',
-    1/2,
+    'n_0_1825',
+    2,
     timestep
   )
 
   mockery::expect_args(
-    renderer$render,
+    renderer$render_mock(),
     2,
-    'pv_severe_730_3650',
-    1/3,
+    'n_severe_0_1825',
+    1,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    3,
+    'n_730_3650',
+    3,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    4,
+    'n_severe_730_3650',
+    1,
     timestep
   )
 })
@@ -133,7 +158,7 @@ test_that('that clinical incidence rendering works', {
     prevalence_rendering_max_ages = NULL
   ))
 
-  birth <- individual::DoubleVariable$new(
+  birth <- individual::IntegerVariable$new(
     -c(2, 5, 10, 11) * year
   )
 
@@ -142,19 +167,35 @@ test_that('that clinical incidence rendering works', {
 
   process(timestep, individual::Bitset$new(4)$insert(c(1, 2, 4)))
 
-  mockery::expect_args(
-    renderer$render,
+  mockery::expect_args( 
+    renderer$render_mock(),
     1,
-    'clin_inc_0_1825',
-    1,
+    'n_0_1825',
+    2,
     timestep
   )
 
-  mockery::expect_args(
-    renderer$render,
+  mockery::expect_args( 
+    renderer$render_mock(),
     2,
-    'clin_inc_730_3650',
-    2/3,
+    'n_inc_clinical_0_1825',
+    2,
+    timestep
+  )
+
+  mockery::expect_args( 
+    renderer$render_mock(),
+    3,
+    'n_730_3650',
+    3,
+    timestep
+  )
+
+  mockery::expect_args( 
+    renderer$render_mock(),
+    4,
+    'n_inc_clinical_730_3650',
+    2,
     timestep
   )
 })
@@ -170,7 +211,7 @@ test_that('that incidence rendering works', {
     prevalence_rendering_max_ages = NULL
   ))
 
-  birth <- individual::DoubleVariable$new(
+  birth <- individual::IntegerVariable$new(
     -c(2, 5, 10, 11) * 365
   )
 
@@ -185,18 +226,34 @@ test_that('that incidence rendering works', {
   process(timestep, individual::Bitset$new(4)$insert(c(1, 2, 4)))
 
   mockery::expect_args(
-    renderer$render,
+    renderer$render_mock(),
     1,
-    'inc_0_1825',
-    1,
+    'n_0_1825',
+    2,
     timestep
   )
 
   mockery::expect_args(
-    renderer$render,
+    renderer$render_mock(),
     2,
-    'inc_730_3650',
-    2/3,
+    'n_inc_0_1825',
+    2,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    3,
+    'n_730_3650',
+    3,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    4,
+    'n_inc_730_3650',
+    2,
     timestep
   )
 })
@@ -211,7 +268,7 @@ test_that('that severe incidence rendering works', {
     prevalence_rendering_max_ages = NULL
   ))
 
-  birth <- individual::DoubleVariable$new(
+  birth <- individual::IntegerVariable$new(
     -c(2, 6, 10, 11) * 365
   )
 
@@ -226,18 +283,34 @@ test_that('that severe incidence rendering works', {
   process(timestep, individual::Bitset$new(4)$insert(c(1, 2, 4)))
 
   mockery::expect_args(
-    renderer$render,
+    renderer$render_mock(),
     1,
-    'inc_severe_0_1825',
+    'n_0_1825',
+    1,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    2,
+    'n_inc_severe_0_1825',
     0,
     timestep
   )
 
   mockery::expect_args(
-    renderer$render,
-    2,
-    'inc_severe_730_3650',
-    1/3,
+    renderer$render_mock(),
+    3,
+    'n_730_3650',
+    3,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    4,
+    'n_inc_severe_730_3650',
+    1,
     timestep
   )
 })

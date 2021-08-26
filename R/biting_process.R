@@ -135,7 +135,12 @@ simulate_bites <- function(
 
     if (parameters$individual_mosquitoes) {
       # update the ODE with stats for ovoposition calculations
-      mosquito_model_update(models[[s_i]], species_index$size(), f, mu)
+      aquatic_mosquito_model_update(
+        models[[s_i]],
+        species_index$size(),
+        f,
+        mu
+      )
 
       # update the individual mosquitoes
       susceptible_species_index <- susceptible_index$copy()$and(species_index)

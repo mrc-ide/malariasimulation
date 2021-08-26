@@ -14,7 +14,8 @@
 #' timestep) (per species). This defaults to normal_lambda_All
 #'  * FOIM: the force of infection towards mosquitoes (per species)
 #'  * mu: the death rate of adult mosquitoes (per species)
-#'  * EIR: the Entomological Inoculation Rate (per timestep, per adult human)
+#'  * EIR: the Entomological Inoculation Rate (per timestep, over the whole
+#'  population)
 #'  * n_bitten: number of humans bitten by an infectious mosquito
 #'  * n_treated: number of humans treated for clinical or severe malaria this timestep
 #'  * n_infections: number of humans who get an asymptomatic, clinical or severe malaria this timestep
@@ -28,20 +29,22 @@
 #'  * icm_mean: the mean maternal immunity to clinical infection over the population of humans
 #'  * ib_mean: the mean blood immunity to all infection over the population of humans
 #'  * id_mean: the mean immunity from detection through microscopy over the population of humans
-#'  * pv: prevalence for humans between an inclusive age range (in timesteps). This
-#' defaults to pv_730_3650. Other prevalence columns can be set with
+#'  * n: number of humans between an inclusive age range at this timestep. This
+#' defaults to n_730_3650. Other age ranges can be set with
 #' prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
-#'  * pv_severe: prevalence for severe malaria in humans between an inclusive age range (in timesteps).
-#' These columns can be set with the
+#' * n_detect: number of humans with an infection detectable by microscopy between an inclusive age range at this timestep. This
+#' defaults to n_detect_730_3650. Other age ranges can be set with
+#' prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
+#'  * n_severe: number of humans with a severe infection detectable by microscopy 
+#'  between an inclusive age range at this timestep. Age ranges can be set with
 #' severe_prevalence_rendering_min_ages and severe_prevalence_rendering_max_ages parameters.
-#'  * inc: incidence for humans between an inclusive age range (in timesteps).
+#'  * n_inc: number of new infections for humans between an inclusive age range at this timestep.
 #' incidence columns can be set with
 #' incidence_rendering_min_ages and incidence_rendering_max_ages parameters.
-#'  * clin_inc: clinical incidence for humans between an inclusive age range (in timesteps)
+#'  * n_inc_clinical: number of new clinical infections for humans between an inclusive age range at this timestep. 
 #' clinical incidence columns can be set with
 #' clinical_incidence_rendering_min_ages and clinical_incidence_rendering_max_ages parameters.
-#'  * inc_severe: severe incidence for humans between an inclusive age range (in
-#' timesteps).
+#'  * n_inc_severe: number of new severe infections for humans between an inclusive age range at this timestep.
 #' severe incidence columns can be set with
 #' severe_incidence_rendering_min_ages and severe_incidence_rendering_max_ages parameters.
 #'  * severe_deaths: number of deaths due to severe malaria. severe_enabled must be
@@ -103,7 +106,7 @@ run_simulation <- function(
       correlations
     ),
     variables = variables,
-    events = events,
+    events = unlist(events),
     timesteps = timesteps
   )
   renderer$to_dataframe()

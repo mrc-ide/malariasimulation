@@ -31,7 +31,8 @@ species). This defaults to lambda_All
 timestep) (per species). This defaults to normal_lambda_All
 \item FOIM: the force of infection towards mosquitoes (per species)
 \item mu: the death rate of adult mosquitoes (per species)
-\item EIR: the Entomological Inoculation Rate (per timestep, per adult human)
+\item EIR: the Entomological Inoculation Rate (per timestep, over the whole
+population)
 \item n_bitten: number of humans bitten by an infectious mosquito
 \item n_treated: number of humans treated for clinical or severe malaria this timestep
 \item n_infections: number of humans who get an asymptomatic, clinical or severe malaria this timestep

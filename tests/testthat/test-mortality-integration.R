@@ -62,12 +62,12 @@ test_that('mortality_process resets humans correctly', {
 
   mortality_process(timestep)
 
-  expect_bitset_update(variables$state$queue_update, 'S', c(2, 4))
-  expect_bitset_update(variables$is_severe$queue_update, 'no', c(2, 4))
-  expect_bitset_update(variables$icm$queue_update, parameters$pcm, 2)
-  expect_bitset_update(variables$ivm$queue_update, parameters$pvm, 2)
-  expect_bitset_update(variables$icm$queue_update, parameters$pcm, 4, call = 2)
-  expect_bitset_update(variables$ivm$queue_update, parameters$pvm, 4, call = 2)
+  expect_bitset_update(variables$state$queue_update_mock(), 'S', c(2, 4))
+  expect_bitset_update(variables$is_severe$queue_update_mock(), 'no', c(2, 4))
+  expect_bitset_update(variables$icm$queue_update_mock(), parameters$pcm, 2)
+  expect_bitset_update(variables$ivm$queue_update_mock(), parameters$pvm, 2)
+  expect_bitset_update(variables$icm$queue_update_mock(), parameters$pcm, 4, call = 2)
+  expect_bitset_update(variables$ivm$queue_update_mock(), parameters$pvm, 4, call = 2)
 })
 
 test_that('died from severe samples correctly', {

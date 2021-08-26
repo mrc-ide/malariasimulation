@@ -185,9 +185,13 @@ clinically diseased (these values refer to the index in drug_* parameters); defa
 }
 
 RTS,S paramters:
-please set RTS,S parameters with the convenience functions in
-\code{vaccine_parameters.R:set_rtss}
+please set RTS,S strategies with the convenience functions in
+\code{vaccine_parameters.R:set_rtss_epi}
+\code{vaccine_parameters.R:set_mass_rtss}
 \itemize{
+\item rtss_doses - the dosing schedule before the vaccine takes effect; default =
+c(0, 1.5 * 30, 3 * 30)
+default = 365
 \item rtss_vmax - the maximum efficacy of the vaccine; default = 0.93
 \item rtss_alpha - shape parameter for the vaccine efficacy model; default = 0.74
 \item rtss_beta - scale parameter for the vaccine efficacy model; default = 99.4
@@ -248,6 +252,8 @@ simulation; default = 1.00E+05
 individually or compartmentally; default = TRUE
 \item r_tol - the relative tolerance for the ode solver; default = 1e-4
 \item a_tol - the absolute tolerance for the ode solver; default = 1e-4
+\item ode_max_steps - the max number of steps for the solver; default = 1e6
+\item ode_debug - whether to print debug output for ode parameter updates; default = FALSE
 \item enable_heterogeneity - boolean whether to include heterogeneity in biting
 rates; default = TRUE
 }}

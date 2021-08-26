@@ -5,8 +5,10 @@
  *      Author: gc1610
  */
 
+#include <cmath>
 #include "mosquito_biology.h"
-#include <algorithm>
+
+const double MIN_VALUE = 0.1;
 
 //[[Rcpp::export]]
 double carrying_capacity(
@@ -20,9 +22,9 @@ double carrying_capacity(
 ) {
     if (model_seasonality) {
         double r = rainfall(timestep, g0, g, h);
-        return std::max(K0 * r, .01) / R_bar;
+        return std::max(K0 * r / R_bar, MIN_VALUE);
     }
-    return std::max(K0, .01);
+    return std::max(K0, MIN_VALUE);
 }
 
 //[[Rcpp::export]]
@@ -48,5 +50,5 @@ double rainfall(
             g[i] * cos(2 * M_PI * t * (i + 1) / 365) +
             h[i] * sin(2 * M_PI * t * (i + 1) / 365);
     }
-    return std::max(result, 0.);
+    return std::max(result, MIN_VALUE);
 }

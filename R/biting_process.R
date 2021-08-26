@@ -221,7 +221,7 @@ calculate_infectious_individual <- function(
 }
 
 calculate_infectious_compartmental <- function(solver_states) {
-  solver_states[[ADULT_ODE_INDICES['Im']]]
+  max(solver_states[[ADULT_ODE_INDICES['Im']]], 0)
 }
 
 intervention_coefficient <- function(p_bitten) {
@@ -234,7 +234,7 @@ human_pi <- function(zeta, psi) {
 
 blood_meal_rate <- function(v, z, parameters) {
   gonotrophic_cycle <- get_gonotrophic_cycle(v, parameters)
-  interrupted_foraging_time <- parameters$foraging_time / (1 - z)
+  interrupted_foraging_time <- parameters$foraging_time[[v]] / (1 - z)
   1 / (interrupted_foraging_time + gonotrophic_cycle)
 }
 

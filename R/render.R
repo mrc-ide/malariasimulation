@@ -81,37 +81,44 @@ create_prevelance_renderer <- function(
 #' @param is_severe variable for if individual has severe malaria
 #' @param parameters model parameters
 #' @param renderer model renderer
+#' @param timestep current target
+#' @param target newly infected population
 #' 
 #' @noRd
-create_incidence_renderer <- function(birth, is_severe, parameters, renderer) {
-  function(timestep, target) {
-    severe <- is_severe$get_index_of('yes')$and(target)
-    for (i in seq_along(parameters$incidence_rendering_min_ages)) {
-      lower <- parameters$incidence_rendering_min_ages[[i]]
-      upper <- parameters$incidence_rendering_max_ages[[i]]
-      in_age <- in_age_range(birth, timestep, lower, upper)
-      renderer$render(paste0('n_', lower, '_', upper), in_age$size(), timestep)
-      renderer$render(
-        paste0('n_inc_', lower, '_', upper),
-        in_age$and(target)$size(),
-        timestep
-      )
-    }
-    for (i in seq_along(parameters$severe_incidence_rendering_min_ages)) {
-      lower <- parameters$severe_incidence_rendering_min_ages[[i]]
-      upper <- parameters$severe_incidence_rendering_max_ages[[i]]
-      in_age <- in_age_range(birth, timestep, lower, upper)
-      renderer$render(paste0('n_', lower, '_', upper), in_age$size(), timestep)
-      renderer$render(
-        paste0('n_inc_severe_', lower, '_', upper),
-        in_age$and(target)$and(severe)$size(),
-        timestep
-      )
-    }
+incidence_renderer <- function(
+  birth,
+  is_severe,
+  parameters,
+  renderer,
+  timestep,
+  target
+  ) {
+  severe <- is_severe$get_index_of('yes')$and(target)
+  for (i in seq_along(parameters$incidence_rendering_min_ages)) {
+    lower <- parameters$incidence_rendering_min_ages[[i]]
+    upper <- parameters$incidence_rendering_max_ages[[i]]
+    in_age <- in_age_range(birth, timestep, lower, upper)
+    renderer$render(paste0('n_', lower, '_', upper), in_age$size(), timestep)
+    renderer$render(
+      paste0('n_inc_', lower, '_', upper),
+      in_age$and(target)$size(),
+      timestep
+    )
+  }
+  for (i in seq_along(parameters$severe_incidence_rendering_min_ages)) {
+    lower <- parameters$severe_incidence_rendering_min_ages[[i]]
+    upper <- parameters$severe_incidence_rendering_max_ages[[i]]
+    in_age <- in_age_range(birth, timestep, lower, upper)
+    renderer$render(paste0('n_', lower, '_', upper), in_age$size(), timestep)
+    renderer$render(
+      paste0('n_inc_severe_', lower, '_', upper),
+      in_age$and(target)$and(severe)$size(),
+      timestep
+    )
   }
 }
 
-#' @title Render incidence statistics
+#' @title Render clinical incidence statistics
 #' 
 #' @description renders clinical incidence (new for this timestep)
 #' 
@@ -120,19 +127,23 @@ create_incidence_renderer <- function(birth, is_severe, parameters, renderer) {
 #' @param renderer model renderer
 #' 
 #' @noRd
-create_clinical_incidence_renderer <- function(birth, parameters, renderer) {
-  function(timestep, target) {
-    for (i in seq_along(parameters$clinical_incidence_rendering_min_ages)) {
-      lower <- parameters$clinical_incidence_rendering_min_ages[[i]]
-      upper <- parameters$clinical_incidence_rendering_max_ages[[i]]
-      in_age <- in_age_range(birth, timestep, lower, upper)
-      renderer$render(paste0('n_', lower, '_', upper), in_age$size(), timestep)
-      renderer$render(
-        paste0('n_inc_clinical_', lower, '_', upper),
-        in_age$and(target)$size(),
-        timestep
-      )
-    }
+clinical_incidence_renderer <- function(
+  birth,
+  parameters,
+  renderer,
+  target,
+  timestep
+  ) {
+  for (i in seq_along(parameters$clinical_incidence_rendering_min_ages)) {
+    lower <- parameters$clinical_incidence_rendering_min_ages[[i]]
+    upper <- parameters$clinical_incidence_rendering_max_ages[[i]]
+    in_age <- in_age_range(birth, timestep, lower, upper)
+    renderer$render(paste0('n_', lower, '_', upper), in_age$size(), timestep)
+    renderer$render(
+      paste0('n_inc_clinical_', lower, '_', upper),
+      in_age$and(target)$size(),
+      timestep
+    )
   }
 }
 

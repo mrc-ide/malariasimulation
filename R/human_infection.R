@@ -36,6 +36,15 @@ simulate_infection <- function(
     timestep
   )
 
+  incidence_renderer(
+    variables$birth,
+    variables$is_severe,
+    parameters,
+    renderer,
+    timestep,
+    infected_humans
+  )
+
   if (infected_humans$size() > 0) {
     boost_immunity(
       variables$ica,
@@ -59,6 +68,14 @@ simulate_infection <- function(
     parameters
   )
 
+  clinical_incidence_renderer(
+    variables$birth,
+    parameters,
+    renderer,
+    timestep,
+    clinical_infections
+  )
+
   if (parameters$severe_enabled) {
     update_severe_disease(
       timestep,
@@ -69,12 +86,10 @@ simulate_infection <- function(
     )
   }
 
-
   treated <- calculate_treated(
     variables,
     clinical_infections,
     events$recovery,
-    events$detection,
     parameters,
     timestep,
     renderer
@@ -224,7 +239,6 @@ calculate_treated <- function(
   variables,
   clinical_infections,
   recovery,
-  detection,
   parameters,
   timestep,
   renderer
@@ -266,7 +280,6 @@ calculate_treated <- function(
       timestep,
       treated_index
     )
-    detection$schedule(treated_index, 0)
   }
   treated_index
 }
@@ -295,17 +308,14 @@ schedule_infections <- function(
     included
   )
 
-  # change to symptomatic
   if(to_infect$size() > 0) {
     infection_times <- log_uniform(to_infect$size(), parameters$de)
     events$clinical_infection$schedule(to_infect, 0)
-    events$detection$schedule(to_infect, 0)
   }
 
   if(to_infect_asym$size() > 0) {
     infection_times <- log_uniform(to_infect_asym$size(), parameters$de)
     events$asymptomatic_infection$schedule(to_infect_asym, 0)
-    events$detection$schedule(to_infect_asym, 0)
   }
 }
 

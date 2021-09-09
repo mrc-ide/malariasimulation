@@ -32,7 +32,7 @@
 #'  * n: number of humans between an inclusive age range at this timestep. This
 #' defaults to n_730_3650. Other age ranges can be set with
 #' prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
-#' * n_detect: number of humans with an infection detectable by microscopy between an inclusive age range at this timestep. This
+#'  * n_detect: number of humans with an infection detectable by microscopy between an inclusive age range at this timestep. This
 #' defaults to n_detect_730_3650. Other age ranges can be set with
 #' prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
 #'  * n_severe: number of humans with a severe infection detectable by microscopy 

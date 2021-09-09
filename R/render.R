@@ -90,8 +90,8 @@ incidence_renderer <- function(
   is_severe,
   parameters,
   renderer,
-  timestep,
-  target
+  target,
+  timestep
   ) {
   severe <- is_severe$get_index_of('yes')$and(target)
   for (i in seq_along(parameters$incidence_rendering_min_ages)) {

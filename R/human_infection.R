@@ -41,8 +41,8 @@ simulate_infection <- function(
     variables$is_severe,
     parameters,
     renderer,
-    timestep,
-    infected_humans
+    infected_humans,
+    timestep
   )
 
   if (infected_humans$size() > 0) {
@@ -72,8 +72,8 @@ simulate_infection <- function(
     variables$birth,
     parameters,
     renderer,
-    timestep,
-    clinical_infections
+    clinical_infections,
+    timestep
   )
 
   if (parameters$severe_enabled) {

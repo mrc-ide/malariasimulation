@@ -14,7 +14,6 @@ test_that('that default rendering works', {
     c('no', 'no', 'yes', 'no')
   )
 
-
   renderer <- mock_render(1)
   process <- create_prevelance_renderer(
     state,
@@ -163,9 +162,13 @@ test_that('that clinical incidence rendering works', {
   )
 
   renderer <- mock_render(1)
-  process <- create_clinical_incidence_renderer(birth, parameters, renderer)
-
-  process(timestep, individual::Bitset$new(4)$insert(c(1, 2, 4)))
+  clinical_incidence_renderer(
+    birth,
+    parameters,
+    renderer,
+    individual::Bitset$new(4)$insert(c(1, 2, 4)),
+    timestep
+  )
 
   mockery::expect_args( 
     renderer$render_mock(),
@@ -221,9 +224,14 @@ test_that('that incidence rendering works', {
   )
 
   renderer <- mock_render(1)
-  process <- create_incidence_renderer(birth, is_severe, parameters, renderer)
-
-  process(timestep, individual::Bitset$new(4)$insert(c(1, 2, 4)))
+  process <- incidence_renderer(
+    birth,
+    is_severe,
+    parameters,
+    renderer,
+    individual::Bitset$new(4)$insert(c(1, 2, 4)),
+    timestep
+  )
 
   mockery::expect_args(
     renderer$render_mock(),
@@ -278,9 +286,15 @@ test_that('that severe incidence rendering works', {
   )
 
   renderer <- mock_render(1)
-  process <- create_incidence_renderer(birth, is_severe, parameters, renderer)
+  process <- incidence_renderer(
+    birth,
+    is_severe,
+    parameters,
+    renderer,
+    individual::Bitset$new(4)$insert(c(1, 2, 4)),
+    timestep
+  )
 
-  process(timestep, individual::Bitset$new(4)$insert(c(1, 2, 4)))
 
   mockery::expect_args(
     renderer$render_mock(),

@@ -28,8 +28,10 @@ set_rtss_epi(
 \item{age}{for the target population, (in timesteps)}
 
 \item{min_wait}{the minimum acceptable time since the last vaccination (in
-timesteps); This includes seasonal boosters and vaccinations between EPI and mass
-strategies}
+timesteps); When seasonal_boosters = TRUE, this represents the minimum time
+between an individual receiving the final dose and the first booster. When using
+both set_mass_rtss and set_rtss_epi, this represents the minimum time between
+an individual being vaccinated under one scheme and vaccinated under another.}
 
 \item{boosters}{the timesteps (following the final dose) at which booster vaccinations are administered}
 

@@ -5,7 +5,7 @@
 \alias{arab_params}
 \title{Preset parameters for the An. arabiensis vector}
 \format{
-An object of class \code{list} of length 6.
+An object of class \code{list} of length 7.
 }
 \usage{
 arab_params
@@ -17,6 +17,7 @@ Preset parameters for the An. arabiensis vector
 Default parameters:
 species: "arab"
 blood_meal_rates: 0.3333333
+foraging_time: .69
 Q0: 0.71
 phi_bednets: 0.8
 phi_indoors: 0.86

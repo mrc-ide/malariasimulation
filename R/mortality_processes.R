@@ -72,7 +72,6 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
         'recovery',
         'clinical_infection',
         'asymptomatic_infection',
-        'detection',
         'throw_away_net',
         'rtss_mass_doses',
         'rtss_mass_booster',

@@ -233,8 +233,8 @@ outputs; default = 730
 \item incidence_rendering_min_ages - the minimum ages for incidence
 outputs (includes asymptomatic microscopy +); default = turned off
 \item incidence_rendering_max_ages - the corresponding max ages; default = turned off
-clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = 0
-clinical_incidence_rendering_max_ages - the corresponding max ages; default = 1825
+\item clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = 0
+\item clinical_incidence_rendering_max_ages - the corresponding max ages; default = 1825
 \item severe_prevalence_rendering_min_ages - the minimum ages for severe
 prevalence outputs; default = turned off
 \item severe_prevalence_rendering_max_ages - the corresponding max ages; default = turned off
@@ -253,7 +253,6 @@ individually or compartmentally; default = TRUE
 \item r_tol - the relative tolerance for the ode solver; default = 1e-4
 \item a_tol - the absolute tolerance for the ode solver; default = 1e-4
 \item ode_max_steps - the max number of steps for the solver; default = 1e6
-\item ode_debug - whether to print debug output for ode parameter updates; default = FALSE
 \item enable_heterogeneity - boolean whether to include heterogeneity in biting
 rates; default = TRUE
 }}

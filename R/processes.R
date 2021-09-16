@@ -164,20 +164,16 @@ create_processes <- function(
       parameters,
       renderer
     ),
-    create_ode_rendering_process(renderer, solvers, parameters)
+    create_compartmental_rendering_process(renderer, solvers, parameters)
   )
 
   if (parameters$individual_mosquitoes) {
     processes <- c(
       processes,
-      individual::categorical_count_renderer_process(
-        renderer,
-        variables$mosquito_state,
-        c('Sm', 'Pm', 'Im')
-      ),
-      create_total_M_renderer_individual(
+      create_vector_count_renderer_individual(
         variables$mosquito_state,
         variables$species,
+        variables$mosquito_state,
         renderer,
         parameters
       )

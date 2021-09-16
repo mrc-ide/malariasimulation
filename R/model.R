@@ -8,14 +8,10 @@
 #'
 #'  * timestep: the timestep for the row
 #'  * infectivity: the infectivity from humans towards mosquitoes
-#'  * lambda: the effective biting rate on humans (per timestep) (per
-#'species). This defaults to lambda_All
-#'  * normal_lambda: the effective biting rate on adult humans (per
-#' timestep) (per species). This defaults to normal_lambda_All
 #'  * FOIM: the force of infection towards mosquitoes (per species)
 #'  * mu: the death rate of adult mosquitoes (per species)
-#'  * EIR: the Entomological Inoculation Rate (per timestep, over the whole
-#'  population)
+#'  * EIR: the Entomological Inoculation Rate (per timestep, per species, over 
+#'  the whole population)
 #'  * n_bitten: number of humans bitten by an infectious mosquito
 #'  * n_treated: number of humans treated for clinical or severe malaria this timestep
 #'  * n_infections: number of humans who get an asymptomatic, clinical or severe malaria this timestep
@@ -49,14 +45,15 @@
 #' severe_incidence_rendering_min_ages and severe_incidence_rendering_max_ages parameters.
 #'  * severe_deaths: number of deaths due to severe malaria. severe_enabled must be
 #' set to TRUE
-#'  * E_count: number of mosquitoes in the early larval stage
-#'  * L_count: number of mosquitoes in the late larval stage
-#'  * P_count: number of mosquitoes in the pupal stage
-#'  * Sm_count: number of adult female mosquitoes who are Susceptible
-#'  * Pm_count: number of adult female mosquitoes who are incubating
-#'  * Im_count: number of adult female mosquitoes who are infectious
-#'  * total_M: number of adult female mosquitoes. Variables with suffixes total_M_# refer to the number of adult 
-#' female mosquitoes from the different indicies of the set_species() vector
+#'  * E_count: number of mosquitoes in the early larval stage (per species)
+#'  * L_count: number of mosquitoes in the late larval stage (per species)
+#'  * P_count: number of mosquitoes in the pupal stage (per species)
+#'  * Sm_count: number of adult female mosquitoes who are Susceptible (per
+#'  species)
+#'  * Pm_count: number of adult female mosquitoes who are incubating (per
+#'  species)
+#'  * Im_count: number of adult female mosquitoes who are infectious (per
+#'  species)
 #'  * rate_D_A: rate that humans transition from clinical disease to
 #' asymptomatic
 #'  * rate_A_U: rate that humans transition from asymptomatic to

@@ -25,14 +25,10 @@ The resulting dataframe contains the following columns:
 \itemize{
 \item timestep: the timestep for the row
 \item infectivity: the infectivity from humans towards mosquitoes
-\item lambda: the effective biting rate on humans (per timestep) (per
-species). This defaults to lambda_All
-\item normal_lambda: the effective biting rate on adult humans (per
-timestep) (per species). This defaults to normal_lambda_All
 \item FOIM: the force of infection towards mosquitoes (per species)
 \item mu: the death rate of adult mosquitoes (per species)
-\item EIR: the Entomological Inoculation Rate (per timestep, over the whole
-population)
+\item EIR: the Entomological Inoculation Rate (per timestep, per species, over
+the whole population)
 \item n_bitten: number of humans bitten by an infectious mosquito
 \item n_treated: number of humans treated for clinical or severe malaria this timestep
 \item n_infections: number of humans who get an asymptomatic, clinical or severe malaria this timestep
@@ -66,14 +62,15 @@ severe incidence columns can be set with
 severe_incidence_rendering_min_ages and severe_incidence_rendering_max_ages parameters.
 \item severe_deaths: number of deaths due to severe malaria. severe_enabled must be
 set to TRUE
-\item E_count: number of mosquitoes in the early larval stage
-\item L_count: number of mosquitoes in the late larval stage
-\item P_count: number of mosquitoes in the pupal stage
-\item Sm_count: number of adult female mosquitoes who are Susceptible
-\item Pm_count: number of adult female mosquitoes who are incubating
-\item Im_count: number of adult female mosquitoes who are infectious
-\item total_M: number of adult female mosquitoes. Variables with suffixes total_M_# refer to the number of adult
-female mosquitoes from the different indicies of the set_species() vector
+\item E_count: number of mosquitoes in the early larval stage (per species)
+\item L_count: number of mosquitoes in the late larval stage (per species)
+\item P_count: number of mosquitoes in the pupal stage (per species)
+\item Sm_count: number of adult female mosquitoes who are Susceptible (per
+species)
+\item Pm_count: number of adult female mosquitoes who are incubating (per
+species)
+\item Im_count: number of adult female mosquitoes who are infectious (per
+species)
 \item rate_D_A: rate that humans transition from clinical disease to
 asymptomatic
 \item rate_A_U: rate that humans transition from asymptomatic to

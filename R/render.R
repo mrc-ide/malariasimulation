@@ -163,36 +163,37 @@ create_variable_mean_renderer_process <- function(
   }
 }
 
-create_total_M_renderer_individual <- function(
+create_vector_count_renderer_individual <- function(
   mosquito_state,
   species,
+  state,
   renderer,
   parameters
   ) {
   function(timestep) {
     adult <- mosquito_state$get_index_of('NonExistent')$not()
     for (i in seq_along(parameters$species)) {
-      renderer$render(
-        paste0('total_M_', i),
-        species$get_index_of(parameters$species[[i]])$and(adult)$size(),
-        timestep
-      )
+      species_name <- parameters$species[[i]]
+      species_index <- species$get_index_of(species_name)
+      for (s in state$get_categories()) {
+        renderer$render(
+          paste0(s, '_', species_name, '_count'),
+          state$get_index_of(s)$and(species_index)$size(),
+          timestep
+        )
+      }
     }
-
-    renderer$render('total_M', adult$size(), timestep)
   }
 }
 
-create_total_M_renderer_compartmental <- function(renderer, solvers) {
+create_total_M_renderer_compartmental <- function(renderer, solvers, parameters) {
   function(timestep) {
     total_M <- 0
     for (i in seq_along(solvers)) {
       row <- solver_get_states(solvers[[i]])
       species_M <- sum(row[ADULT_ODE_INDICES])
       total_M <- total_M + species_M
-      renderer$render(paste0('total_M_', i), species_M, timestep)
+      renderer$render(paste0('total_M_', parameters$species[[i]]), species_M, timestep)
     }
-
-    renderer$render('total_M', total_M, timestep)
   }
 }

@@ -77,7 +77,7 @@ parameterise_solvers <- function(models, parameters) {
   )
 }
 
-create_ode_rendering_process <- function(renderer, solvers, parameters) {
+create_compartmental_rendering_process <- function(renderer, solvers, parameters) {
   if (parameters$individual_mosquitoes) {
     indices <- ODE_INDICES
   } else {
@@ -86,17 +86,16 @@ create_ode_rendering_process <- function(renderer, solvers, parameters) {
 
   function(timestep) {
     counts <- rep(0, length(indices))
-    for (i in seq_along(solvers)) {
-      row <- solver_get_states(solvers[[i]])
+    for (s_i in seq_along(solvers)) {
+      row <- solver_get_states(solvers[[s_i]])
+      for (i in seq_along(indices)) {
+        renderer$render(
+          paste0(names(indices)[[i]], '_', parameters$species[[s_i]], '_count'),
+          row[[i]],
+          timestep
+        )
+      }
       counts <- counts + row
-    }
-
-    for (i in seq_along(indices)) {
-      renderer$render(
-        paste0(names(indices)[[i]], '_count'),
-        counts[[i]],
-        timestep
-      )
     }
   }
 }

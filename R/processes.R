@@ -183,7 +183,8 @@ create_processes <- function(
       processes,
       create_total_M_renderer_compartmental(
         renderer,
-        solvers
+        solvers,
+        parameters
       )
     )
   }

@@ -205,7 +205,12 @@ create_variables <- function(parameters) {
   )
 
   tbv_vaccinated <- individual::DoubleVariable$new(rep(-1, size))
-
+  #c(tbv_iiv1,tbv_iiv2) <- individual::DoubleVariable$new(chol_two(0.0864,0.117,0.0797)) #at method
+  #JDC: IIV params added for tbv. Does this look ok? It'll make an object of dimension 'size x 2'
+  tbv_iiv <- individual::DoubleVariable$new(
+    #sapply(1:size, chol_two2, v1 = 0.0864, v2 = 0.117, c12 = 0.0797)
+    MASS::mvrnorm(size, mu = c(0,0), Sigma = matrix(c(0.0864, 0.0797, 0.0797, 0.117),2))
+  )
   # Init vector controls
   net_time <- individual::IntegerVariable$new(rep(-1, size))
   spray_time <- individual::IntegerVariable$new(rep(-1, size))
@@ -385,3 +390,20 @@ calculate_zeta <- function(zeta_norm, parameters) {
     zeta_norm * sqrt(parameters$sigma_squared) - parameters$sigma_squared/2
   )
 }
+
+# JDC: alt. method of generating correlated normal random variables (not in use at present)
+# chol_two <- function(v1,v2,c12){
+#   z1 <- rnorm(1,0,1)
+#   z2 <- rnorm(1,0,1)
+#   x1 <- sqrt(v1)*z1
+#   x2 <- c12*z1/sqrt(v1) + sqrt(-(c12**2)/v1 + v2)*z2
+#   return(c(x1,x2))
+# }
+# 
+# chol_two2 <- function(nn,v1,v2,c12){ #nn is a dummy
+#   z1 <- rnorm(1,0,1)
+#   z2 <- rnorm(1,0,1)
+#   x1 <- sqrt(v1)*z1
+#   x2 <- c12*z1/sqrt(v1) + sqrt(-(c12**2)/v1 + v2)*z2
+#   return(c(x1,x2))
+# }

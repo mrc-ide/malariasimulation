@@ -205,10 +205,10 @@ create_variables <- function(parameters) {
   )
 
   tbv_vaccinated <- individual::DoubleVariable$new(rep(-1, size))
-  #c(tbv_iiv1,tbv_iiv2) <- individual::DoubleVariable$new(chol_two(0.0864,0.117,0.0797)) #at method
+
   #JDC: IIV params added for tbv. Does this look ok? It'll make an object of dimension 'size x 2'
   tbv_iiv <- individual::DoubleVariable$new(
-    #sapply(1:size, chol_two2, v1 = 0.0864, v2 = 0.117, c12 = 0.0797)
+    #sapply(1:size, chol_two2, v1 = 0.0864, v2 = 0.117, c12 = 0.0797) alt. method
     MASS::mvrnorm(size, mu = c(0,0), Sigma = matrix(c(0.0864, 0.0797, 0.0797, 0.117),2))
   )
   # Init vector controls

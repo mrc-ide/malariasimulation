@@ -204,7 +204,7 @@ create_variables <- function(parameters) {
     exp(rnorm(size, parameters$rtss_dl[[1]], parameters$rtss_dl[[2]]))
   )
 
-  tbv_vaccinated <- individual::IntegerVariable$new(rep(-1, size)) #JDC: was a DoubleVariable
+  tbv_vaccinated <- individual::IntegerVariable$new(rep(-1, size)) #JDC: this was a DoubleVariable
   
   iiv <- MASS::mvrnorm(size, mu = c(0,0), Sigma = matrix(c(0.0864, 0.0797, 0.0797, 0.117),2))
   tbv_iiva <- individual::DoubleVariable$new(iiv[,1]) 
@@ -239,6 +239,8 @@ create_variables <- function(parameters) {
     rtss_ds = rtss_ds,
     rtss_dl = rtss_dl,
     tbv_vaccinated = tbv_vaccinated,
+    tbv_iiva = tbv_iiva,
+    tbv_iivb = tbv_iivb,
     is_severe = is_severe,
     net_time = net_time,
     spray_time = spray_time

@@ -38,10 +38,11 @@ simulate_infection <- function(
 
   incidence_renderer(
     variables$birth,
-    variables$is_severe,
-    parameters,
     renderer,
     infected_humans,
+    'n_inc_',
+    parameters$incidence_rendering_min_ages,
+    parameters$incidence_rendering_max_ages,
     timestep
   )
 
@@ -68,11 +69,13 @@ simulate_infection <- function(
     parameters
   )
 
-  clinical_incidence_renderer(
+  incidence_renderer(
     variables$birth,
-    parameters,
     renderer,
     clinical_infections,
+    'n_inc_clinical_',
+    parameters$clinical_incidence_rendering_min_ages,
+    parameters$clinical_incidence_rendering_max_ages,
     timestep
   )
 
@@ -82,7 +85,8 @@ simulate_infection <- function(
       clinical_infections,
       variables,
       infected_humans,
-      parameters
+      parameters,
+      renderer
     )
   }
 
@@ -193,13 +197,15 @@ calculate_clinical_infections <- function(variables, infections, parameters) {
 #' @param variables a list of all of the model variables
 #' @param infections indices of all infected humans (for immunity boosting)
 #' @param parameters model parameters
+#' @param renderer model outputs
 #' @noRd
 update_severe_disease <- function(
   timestep,
   clinical_infections,
   variables,
   infections,
-  parameters
+  parameters,
+  renderer
   ) {
   if (clinical_infections$size() > 0) {
     age <- get_age(variables$birth$get_values(clinical_infections), timestep)
@@ -211,9 +217,16 @@ update_severe_disease <- function(
       parameters
     )
     develop_severe <- bernoulli_multi_p(theta)
-    variables$is_severe$queue_update(
-      'yes',
-      bitset_at(clinical_infections, develop_severe)
+    severe_infections <- bitset_at(clinical_infections, develop_severe)
+    variables$is_severe$queue_update('yes', severe_infections)
+    incidence_renderer(
+      variables$birth,
+      renderer,
+      severe_infections,
+      'n_inc_severe_',
+      parameters$severe_incidence_rendering_min_ages,
+      parameters$severe_incidence_rendering_max_ages,
+      timestep
     )
     boost_immunity(
       variables$iva,

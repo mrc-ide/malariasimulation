@@ -13,26 +13,23 @@ account_for_tbv <- function(
   variables,
   parameters
 ) {
-  time_vaccinated <- variables$tbv_vaccinated$get_values()
-  vaccinated <- which(time_vaccinated != -1)
-  affected_states <- c('U', 'A', 'D', 'Tr')
-  mx <- parameters[c('tbv_mu', 'tbv_ma', 'tbv_md', 'tbv_mt')]
-  for (i in seq_along(affected_states)) {
-    in_state <- variables$state$get_index_of(affected_states[[i]])$to_vector()
-    vaccinated_in_state <- intersect(vaccinated, in_state)
-    #JDC:Do we need the equivalent of 'vaccine_efficacy' used in RTSS?
-    #JDC: What is the equivalent of 'source_vector' in this case?
-    vaccine_times <- variables$tbv$get_values(source_vector) #JDC. source_vector(or equivalent) missing at present
-    vaccination_index <- source_vector[vaccine_times > -1] #JDC source_vector(or equivalent) missing at present
-    antibodies <- calculate_tbv_antibodies(
-      timestep - time_vaccinated[vaccinated_in_state],
-      #parameters$tbv_iiv
-      variables$tbv_iiv$get_values(vaccinated_index) #JDC: IIV parameters added
-      #parameters$tbv_tau,
-      #parameters$tbv_rho,
-      #parameters$tbv_ds,
-      #parameters$tbv_dl
-    )
+    #vaccinated <- which(time_vaccinated != -1)
+    vaccinated <- variables$tbv_vaccinated$get_index_of(set=-1)$not() # much faster than which
+    # NOTE: this requires changing tbv_vaccinated to an IntegerVariable 
+    affected_states <- c('U', 'A', 'D', 'Tr')
+    mx <- parameters[c('tbv_mu', 'tbv_ma', 'tbv_md', 'tbv_mt')]
+    for (i in seq_along(affected_states)) {
+      #in_state <- variables$state$get_index_of(affected_states[[i]])$to_vector()
+      in_state <- variables$state$get_index_of(affected_states[[i]]) #keep as a Bitset
+      #vaccinated_in_state <- intersect(vaccinated, in_state)
+      vaccinated_in_state <- in_state$and(vaccinated) # much faster than intersect
+      #vaccine_times <- variables$tbv$get_values(source_vector)
+      vaccine_times <- variables$tbv_vaccinated$get_values(vaccinated_in_state)
+      antibodies <- calculate_tbv_antibodies(
+        timestep - vaccine_times,
+        variables$tbv_iiva$get_values(vaccinated_in_state),
+        variables$tbv_iivb$get_values(vaccinated_in_state)
+      )
     tra <- calculate_TRA(
       #parameters$tbv_tra_mu,
       #parameters$tbv_gamma1,
@@ -91,7 +88,7 @@ create_tbv_listener <- function(variables, events, parameters, correlations, ren
   }
 }
 
-calculate_tbv_antibodies <- function(t, tbv_iiv){ #Note: tbv_iiv has length 2
+calculate_tbv_antibodies <- function(t, tbv_iiva, tbv_iivb){ #Note: tbv_iiv has length 2
   #tau * (rho * exp(-t * log(2) / ds) + (1 - rho) * exp(-t * log(2) / dl))
 
   #params
@@ -101,14 +98,14 @@ calculate_tbv_antibodies <- function(t, tbv_iiv){ #Note: tbv_iiv has length 2
   TVQ <- 0.172
   TVV3 <- 1.47
   TVQ2 <- 0.0782
-  WT <- 70 #body weight (fixed for now, will have to adjust)
+  WT <- 70 #body weight, add age & zscore here
   AMT <- WT*10
 
   WTCL <- (WT/70)**0.75
   WTV <- (WT/70)**1
 
-  CL <- TVCL*exp(tbv_iiv[1])*WTCL #IIV
-  V1 <- TVV1*exp(tbv_iiv[2])*WTV #IIV
+  CL <- TVCL*exp(tbv_iiva)*WTCL #IIV
+  V1 <- TVV1*exp(tbv_iivb)*WTV #IIV
   V2 <- TVV2*WTV
   Q <- TVQ*WTCL
   V3 <- TVV3*WTV

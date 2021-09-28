@@ -122,5 +122,5 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
 died_from_severe <- function(severe, diseased, v, treated, fvt) {
   at_risk <- severe$copy()$and(diseased)
   treated_at_risk <- severe$copy()$and(treated)
-  sample_bitset(at_risk, v)$or(sample_bitset(treated_at_risk, fvt))
+  sample_bitset(at_risk$or(sample_bitset(treated_at_risk, fvt)), v)
 }

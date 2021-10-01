@@ -43,7 +43,8 @@ account_for_tbv <- function(
       parameters$tbv_k,
       tra
     )
-    infectivity[vaccinated_in_state] <- infectivity[vaccinated_in_state] * (
+    vaccinated_vector <- vaccinated_in_state$to_vector()
+    infectivity[vaccinated_vector] <- infectivity[vaccinated_vector] * (
       1 - tba
     )
   }

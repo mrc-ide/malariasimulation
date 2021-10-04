@@ -89,7 +89,7 @@ create_tbv_listener <- function(variables, events, parameters, correlations, ren
   }
 }
 
-calculate_tbv_antibodies <- function(t, tbv_iiva, tbv_iivb){ 
+calculate_tbv_antibodies <- function(t, tbv_iiva, tbv_iivb, tbv_PK_sx, tbv_PK_zscore){ 
   #tau * (rho * exp(-t * log(2) / ds) + (1 - rho) * exp(-t * log(2) / dl))
 
   #params
@@ -105,32 +105,61 @@ calculate_tbv_antibodies <- function(t, tbv_iiva, tbv_iivb){
   WTCL <- (WT/70)**0.75
   WTV <- (WT/70)**1
 
-  CL <- TVCL*exp( tbv_iiva )*WTCL #IIV
-  V1 <- TVV1*exp( tbv_iivb )*WTV #IIV
+  #CL <- TVCL*exp( tbv_iiva )*WTCL #IIV
+  #V1 <- TVV1*exp( tbv_iivb )*WTV #IIV
   V2 <- TVV2*WTV
   Q <- TVQ*WTCL
   V3 <- TVV3*WTV
   Q2 <- TVQ2*WTCL
 
-  #Rate consts.
-  k10 <- 24*CL/V1
-  k12 <- 24*Q/V1
-  k21 <- 24*Q/V2
-  k13 <- 24*Q2/V1
-  k31 <- 24*Q2/V3
+  # #Rate consts.
+  # k10 <- 24*CL/V1
+  # k12 <- 24*Q/V1
+  # k21 <- 24*Q/V2
+  # k13 <- 24*Q2/V1
+  # k31 <- 24*Q2/V3
 
   amt <- 700 # dose will eventually be age-dependent
 
-  mt <- matrix(c(-(k12+k10+k13), k21, k31, k12, -k21, 0, k13, 0, -k31), nrow = 3, ncol = 3, byrow = T)
-  p <- eigen(mt)$vectors #These are in the right order
-  lambda <- eigen(mt)$values
-  y0 <- c(amt,0,0) 
-  zz0 <- solve(p)%*%y0
-  z <- c(zz0[1]*exp(lambda[1] * t ), #time fudge! (avoid t=0)
-         zz0[2]*exp(lambda[2] * t ),
-         zz0[3]*exp(lambda[3] * t))
-  zz <-  p[1,1]*z[1] + p[1,2]*z[2] + p[1,3]*z[3]# p%*%z #
-  zz/V1
+  # mt <- matrix(c(-(k12+k10+k13), k21, k31, k12, -k21, 0, k13, 0, -k31), nrow = 3, ncol = 3, byrow = T)
+  # p <- eigen(mt)$vectors #These are in the right order
+  # lambda <- eigen(mt)$values
+  # y0 <- c(amt,0,0) 
+  # zz0 <- solve(p)%*%y0
+  # z <- c(zz0[1]*exp(lambda[1] * t ), #time fudge! (avoid t=0)
+  #        zz0[2]*exp(lambda[2] * t ),
+  #        zz0[3]*exp(lambda[3] * t))
+  # zz <-  p[1,1]*z[1] + p[1,2]*z[2] + p[1,3]*z[3]# p%*%z #
+  # zz/V1
+  
+  #Do a standalone implementation with thissen, just to check it works
+  vnapply(
+    seq_along(tbv_iiva),
+    function(i) {
+      
+      iiva <- tbv_iiva[[i]]
+      iivb <- tbv_iivb[[i]]
+      CL <- TVCL*exp( iiva )*WTCL #IIV
+      V1 <- TVV1*exp( iivb )*WTV #IIV
+      #Rate consts.
+      k10 <- 24*CL/V1
+      k12 <- 24*Q/V1
+      k21 <- 24*Q/V2
+      k13 <- 24*Q2/V1
+      k31 <- 24*Q2/V3
+      
+      mt <- matrix(c(-(k12+k10+k13), k21, k31, k12, -k21, 0, k13, 0, -k31), nrow = 3, byrow = T)
+      p <- eigen(mt)$vectors #These are in the right order
+      lambda <- eigen(mt)$values
+      y0 <- c(amt,0,0) 
+      zz0 <- solve(p)%*%y0
+      z <- c(zz0[1]*exp(lambda[1] * max(t,.1) ),
+             zz0[2]*exp(lambda[2] * max(t,.1) ),
+             zz0[3]*exp(lambda[3] * max(t,.1)) )
+      zz <-  p[1,1]*z[1] + p[1,2]*z[2] + p[1,3]*z[3]# p%*%z
+      zz/V1#min(zz/V1,69) #Bodge! Is this ok in vnapply?
+    }
+  )
 }
 
 calculate_TRA <- function(hill, EC50, antibodies) { 

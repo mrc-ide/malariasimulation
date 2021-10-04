@@ -119,12 +119,12 @@ simulate_bites <- function(
     lagged_eir[[s_i]]$save(n_infectious * a, timestep)
     species_eir <- lagged_eir[[s_i]]$get(timestep - parameters$de)
     EIR <- EIR + species_eir
-    #n_bites <- rpois(1, species_eir * mean(psi)) 
-    #if (n_bites > 0) {
+    # n_bites <- rpois(1, species_eir * mean(psi))
+    # if (n_bites > 0) {
     #  bitten_humans$insert(
     #    fast_weighted_sample(n_bites, lambda)
     #  )
-    #}
+    # }
     expected_bites <- species_eir * mean(psi)
     if (expected_bites > 0) {
       n_bites <- rpois(1, expected_bites)

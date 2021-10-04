@@ -209,6 +209,12 @@ create_variables <- function(parameters) {
   iiv <- MASS::mvrnorm(size, mu = c(0,0), Sigma = matrix(c(0.0864, 0.0797, 0.0797, 0.117),2))
   tbv_iiva <- individual::DoubleVariable$new(iiv[,1]) 
   tbv_iivb <- individual::DoubleVariable$new(iiv[,2])
+  tbv_PK_zscore <- individual::DoubleVariable$new(
+    rnorm(size, 0, 1)
+  )  
+  tbv_PK_sx <- individual::IntegerVariable$new( #type OK?
+    rbinom(n = size, size = 1,  prob = .5)
+  )  
   
   # Init vector controls
   net_time <- individual::IntegerVariable$new(rep(-1, size))
@@ -241,6 +247,8 @@ create_variables <- function(parameters) {
     tbv_vaccinated = tbv_vaccinated,
     tbv_iiva = tbv_iiva,
     tbv_iivb = tbv_iivb,
+    tbv_PK_zscore = tbv_PK_zscore,
+    tbv_PK_sx = tbv_PK_sx,
     is_severe = is_severe,
     net_time = net_time,
     spray_time = spray_time

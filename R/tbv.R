@@ -23,12 +23,16 @@ account_for_tbv <- function(
       in_state <- variables$state$get_index_of(affected_states[[i]]) #keep as a Bitset
       #vaccinated_in_state <- intersect(vaccinated, in_state)
       vaccinated_in_state <- in_state$and(vaccinated) # much faster than intersect
+      #age_vector <- get_age(variables$birth$get_values(vaccinated_in_state), timestep) ?
       #vaccine_times <- variables$tbv$get_values(source_vector)
       vaccine_times <- variables$tbv_vaccinated$get_values(vaccinated_in_state)
       antibodies <- calculate_tbv_antibodies(
         timestep - vaccine_times,
         variables$tbv_iiva$get_values(vaccinated_in_state),
-        variables$tbv_iivb$get_values(vaccinated_in_state)
+        variables$tbv_iivb$get_values(vaccinated_in_state),
+        variables$tbv_PK_sx$get_values(vaccinated_in_state),
+        variables$tbv_PK_zscore$get_values(vaccinated_in_state), #then add age
+        get_age(variables$birth$get_values(vaccinated_in_state), vaccine_times) #Will this select the relevant time?
       )
     tra <- calculate_TRA(
       #parameters$tbv_tra_mu,
@@ -89,7 +93,7 @@ create_tbv_listener <- function(variables, events, parameters, correlations, ren
   }
 }
 
-calculate_tbv_antibodies <- function(t, tbv_iiva, tbv_iivb, tbv_PK_sx, tbv_PK_zscore){ 
+calculate_tbv_antibodies <- function(t, tbv_iiva, tbv_iivb, tbv_PK_sx, tbv_PK_zscore, age_at_vaccination){ 
   #tau * (rho * exp(-t * log(2) / ds) + (1 - rho) * exp(-t * log(2) / dl))
 
   #params
@@ -99,18 +103,43 @@ calculate_tbv_antibodies <- function(t, tbv_iiva, tbv_iivb, tbv_PK_sx, tbv_PK_zs
   TVQ <- 0.172
   TVV3 <- 1.47
   TVQ2 <- 0.0782
-  WT <- 70 #body weight, add age & zscore here
-  AMT <- WT*10
+  #WT <- 70 #body weight, add age & zscore here
+  #AMT <- WT*10
+  
+  #Age discretisation
+  age_v <- c(0.0,0.5,1,1.5,2,2.5,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18) * 365
+  
+  W_L_F <- c(0.0402000, -0.1507000, -0.2384000, -0.2815000, -0.3032000, -0.3155000, -0.3283000, -0.3440000,
+             -0.4834000, -0.5185000, -0.5495000, -0.5740000, -0.5905000, -0.5735901, 
+            -0.5587019, -0.6037183, -0.7121661, -0.8789837, -1.0778904, -1.2511913, -1.3269735, -1.3141719)
+  W_M_F <- c(5.84580,  8.22540,  9.60080, 10.85340, 12.10150, 13.28370, 14.97270, 17.15510, 19.12760,
+             21.22740, 23.63690, 26.55190, 29.96630,
+              33.78409, 38.03438, 42.20747, 45.92315, 48.88839, 51.00794, 52.42775, 53.47799, 53.98051)
+  W_S_F <- c(0.1261900, 0.1219900, 0.1229900, 0.1233500, 0.1247200, 0.1273700, 0.1337600, 0.1437100,
+             0.1456900, 0.1523000, 0.1587600,
+             0.1648300, 0.1702500, 0.1756898, 0.1785063, 0.1763689, 0.1701308, 0.1613282, 0.1520297, 0.1446439,
+             0.1411725, 0.1411252)
+  
+  W_L_M <- c(0.1738000,  0.0917000,  0.0413000,  0.0029000, -0.0289000, -0.0564000, -0.0920000,
+             -0.1325000, -0.2548000, -0.3804000,
+              -0.4964000, -0.5946000, -0.6624000, -0.6358593, -0.5270620, -0.4333559, -0.3728613, -0.3619037,
+             -0.4122345, -0.5075487, -0.5901793, -0.6077477)
+  W_M_M <- c(6.37620,  8.90140, 10.31080, 11.54860, 12.74010, 13.83090, 15.34860, 17.34520, 19.39400,
+             21.68100, 24.13710, 26.73580, 29.57360,
+             32.98352, 37.14884, 41.89264, 47.05580, 52.29523, 57.13584, 61.14131, 64.12427, 65.27123)
+  W_S_M <- c(0.1172700, 0.1088100, 0.1100700, 0.1126100, 0.1160400, 0.1195300, 0.1242500, 0.1313300,
+             0.1317800, 0.1355400, 0.1401600, 0.1475200, 0.1576000, 0.1682108, 0.1765885, 0.1796924,
+             0.1768534, 0.1696619, 0.1609673, 0.1534760, 0.1487292, 0.1473498)
 
-  WTCL <- (WT/70)**0.75
-  WTV <- (WT/70)**1
+  #WTCL <- (WT/70)**0.75
+  #WTV <- (WT/70)**1
 
   #CL <- TVCL*exp( tbv_iiva )*WTCL #IIV
   #V1 <- TVV1*exp( tbv_iivb )*WTV #IIV
-  V2 <- TVV2*WTV
-  Q <- TVQ*WTCL
-  V3 <- TVV3*WTV
-  Q2 <- TVQ2*WTCL
+  #V2 <- TVV2*WTV
+  #Q <- TVQ*WTCL
+  #V3 <- TVV3*WTV
+  #Q2 <- TVQ2*WTCL
 
   # #Rate consts.
   # k10 <- 24*CL/V1
@@ -119,7 +148,7 @@ calculate_tbv_antibodies <- function(t, tbv_iiva, tbv_iivb, tbv_PK_sx, tbv_PK_zs
   # k13 <- 24*Q2/V1
   # k31 <- 24*Q2/V3
 
-  amt <- 700 # dose will eventually be age-dependent
+  amt <- 700 # 
 
   # mt <- matrix(c(-(k12+k10+k13), k21, k31, k12, -k21, 0, k13, 0, -k31), nrow = 3, ncol = 3, byrow = T)
   # p <- eigen(mt)$vectors #These are in the right order
@@ -139,6 +168,28 @@ calculate_tbv_antibodies <- function(t, tbv_iiva, tbv_iivb, tbv_PK_sx, tbv_PK_zs
       
       iiva <- tbv_iiva[[i]]
       iivb <- tbv_iivb[[i]]
+      zscore <- tbv_PK_zscore[[i]]
+      sex <- tbv_PK_sx[[i]]
+      age_agent <- age_at_vaccination[[i]]
+      
+      age_index <- max(which(age_v <= age_agent))
+      
+      WT <- 0 # could way of indicating an issue?
+      
+      if(sex==1){
+        WT <- W_M_M[age_index] *(1 + zscore*W_L_M[age_index]*W_S_M[age_index])^(1/W_L_M[age_index])
+      }else{
+        WT <- W_M_F[age_index] *(1 + zscore*W_L_F[age_index]*W_S_F[age_index])^(1/W_L_F[age_index])
+      }
+      
+      WTCL <- (WT/70)**0.75
+      WTV <- (WT/70)**1
+      
+      V2 <- TVV2*WTV
+      Q <- TVQ*WTCL
+      V3 <- TVV3*WTV
+      Q2 <- TVQ2*WTCL
+      
       CL <- TVCL*exp( iiva )*WTCL #IIV
       V1 <- TVV1*exp( iivb )*WTV #IIV
       #Rate consts.

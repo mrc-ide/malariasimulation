@@ -150,23 +150,18 @@ test_that('that severe rendering works', {
 test_that('that clinical incidence rendering works', {
   timestep <- 0
   year <- 365
-  parameters <- get_parameters(list(
-    clinical_incidence_rendering_min_ages = c(0, 2) * year,
-    clinical_incidence_rendering_max_ages = c(5, 10) * year,
-    prevalence_rendering_min_ages = NULL,
-    prevalence_rendering_max_ages = NULL
-  ))
-
   birth <- individual::IntegerVariable$new(
     -c(2, 5, 10, 11) * year
   )
 
   renderer <- mock_render(1)
-  clinical_incidence_renderer(
+  incidence_renderer(
     birth,
-    parameters,
     renderer,
     individual::Bitset$new(4)$insert(c(1, 2, 4)),
+    'n_inc_clinical_',
+    c(0, 2) * year,
+    c(5, 10) * year,
     timestep
   )
 
@@ -199,132 +194,6 @@ test_that('that clinical incidence rendering works', {
     4,
     'n_inc_clinical_730_3650',
     2,
-    timestep
-  )
-})
-
-
-test_that('that incidence rendering works', {
-  timestep <- 0
-  year <- 365
-  parameters <- get_parameters(list(
-    incidence_rendering_min_ages = c(0, 2) * year,
-    incidence_rendering_max_ages = c(5, 10) * year,
-    prevalence_rendering_min_ages = NULL,
-    prevalence_rendering_max_ages = NULL
-  ))
-
-  birth <- individual::IntegerVariable$new(
-    -c(2, 5, 10, 11) * 365
-  )
-
-  is_severe <- individual::CategoricalVariable$new(
-    c('yes', 'no'),
-    c('no', 'yes', 'no', 'no')
-  )
-
-  renderer <- mock_render(1)
-  process <- incidence_renderer(
-    birth,
-    is_severe,
-    parameters,
-    renderer,
-    individual::Bitset$new(4)$insert(c(1, 2, 4)),
-    timestep
-  )
-
-  mockery::expect_args(
-    renderer$render_mock(),
-    1,
-    'n_0_1825',
-    2,
-    timestep
-  )
-
-  mockery::expect_args(
-    renderer$render_mock(),
-    2,
-    'n_inc_0_1825',
-    2,
-    timestep
-  )
-
-  mockery::expect_args(
-    renderer$render_mock(),
-    3,
-    'n_730_3650',
-    3,
-    timestep
-  )
-
-  mockery::expect_args(
-    renderer$render_mock(),
-    4,
-    'n_inc_730_3650',
-    2,
-    timestep
-  )
-})
-
-test_that('that severe incidence rendering works', {
-  timestep <- 0
-  year <- 365
-  parameters <- get_parameters(list(
-    severe_incidence_rendering_min_ages = c(0, 2) * year,
-    severe_incidence_rendering_max_ages = c(5, 10) * year,
-    prevalence_rendering_min_ages = NULL,
-    prevalence_rendering_max_ages = NULL
-  ))
-
-  birth <- individual::IntegerVariable$new(
-    -c(2, 6, 10, 11) * 365
-  )
-
-  is_severe <- individual::CategoricalVariable$new(
-    c('yes', 'no'),
-    c('no', 'yes', 'no', 'no')
-  )
-
-  renderer <- mock_render(1)
-  process <- incidence_renderer(
-    birth,
-    is_severe,
-    parameters,
-    renderer,
-    individual::Bitset$new(4)$insert(c(1, 2, 4)),
-    timestep
-  )
-
-
-  mockery::expect_args(
-    renderer$render_mock(),
-    1,
-    'n_0_1825',
-    1,
-    timestep
-  )
-
-  mockery::expect_args(
-    renderer$render_mock(),
-    2,
-    'n_inc_severe_0_1825',
-    0,
-    timestep
-  )
-
-  mockery::expect_args(
-    renderer$render_mock(),
-    3,
-    'n_730_3650',
-    3,
-    timestep
-  )
-
-  mockery::expect_args(
-    renderer$render_mock(),
-    4,
-    'n_inc_severe_730_3650',
-    1,
     timestep
   )
 })

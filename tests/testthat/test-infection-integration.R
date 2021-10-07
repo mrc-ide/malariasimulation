@@ -84,7 +84,8 @@ test_that('simulate_infection integrates different types of infection and schedu
     clinical,
     variables,
     infected,
-    parameters
+    parameters,
+    renderer
   )
 
   mockery::expect_args(

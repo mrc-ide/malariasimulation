@@ -75,7 +75,6 @@ create_prevelance_renderer <- function(
 #' @title Render incidence statistics
 #' 
 #' @description renders incidence (new for this timestep) for indivduals
-#' detected by microscopy and with severe malaria
 #' 
 #' @param birth variable for birth of the individual
 #' @param renderer object for model outputs

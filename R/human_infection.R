@@ -33,16 +33,7 @@ simulate_infection <- function(
     variables,
     bitten_humans,
     parameters,
-    timestep
-  )
-
-  incidence_renderer(
-    variables$birth,
     renderer,
-    infected_humans,
-    'n_inc_',
-    parameters$incidence_rendering_min_ages,
-    parameters$incidence_rendering_max_ages,
     timestep
   )
 
@@ -66,16 +57,8 @@ simulate_infection <- function(
   clinical_infections <- calculate_clinical_infections(
     variables,
     infected_humans,
-    parameters
-  )
-
-  incidence_renderer(
-    variables$birth,
+    parameters,
     renderer,
-    clinical_infections,
-    'n_inc_clinical_',
-    parameters$clinical_incidence_rendering_min_ages,
-    parameters$clinical_incidence_rendering_max_ages,
     timestep
   )
 
@@ -117,12 +100,14 @@ simulate_infection <- function(
 #' @param variables a list of all of the model variables
 #' @param bitten_humans bitset of bitten humans
 #' @param parameters model parameters
+#' @param renderer model render object
 #' @param timestep current timestep
 #' @noRd
 calculate_infections <- function(
   variables,
   bitten_humans,
   parameters,
+  renderer,
   timestep
   ) {
   source_humans <- variables$state$get_index_of(
@@ -169,10 +154,22 @@ calculate_infections <- function(
     )
   }
 
-  bitset_at(
+  prob <- b * (1 - prophylaxis) * (1 - vaccine_efficacy)
+  infected <- bitset_at(source_humans, bernoulli_multi_p(prob))
+
+  incidence_renderer(
+    variables$birth,
+    renderer,
+    infected,
     source_humans,
-    bernoulli_multi_p(b * (1 - prophylaxis) * (1 - vaccine_efficacy))
+    prob,
+    'inc_',
+    parameters$incidence_rendering_min_ages,
+    parameters$incidence_rendering_max_ages,
+    timestep
   )
+
+  infected
 }
 
 #' @title Calculate clinical infections
@@ -181,12 +178,32 @@ calculate_infections <- function(
 #' @param variables a list of all of the model variables
 #' @param infections bitset of infected humans
 #' @param parameters model parameters
+#' @param renderer model render
+#' @param timestep current timestep
 #' @noRd
-calculate_clinical_infections <- function(variables, infections, parameters) {
+calculate_clinical_infections <- function(
+  variables,
+  infections,
+  parameters,
+  renderer,
+  timestep
+  ) {
   ica <- variables$ica$get_values(infections)
   icm <- variables$icm$get_values(infections)
   phi <- clinical_immunity(ica, icm, parameters)
-  bitset_at(infections, bernoulli_multi_p(phi))
+  clinical_infections <- bitset_at(infections, bernoulli_multi_p(phi))
+  incidence_renderer(
+    variables$birth,
+    renderer,
+    clinical_infections,
+    infections,
+    phi,
+    'inc_clinical_',
+    parameters$clinical_incidence_rendering_min_ages,
+    parameters$clinical_incidence_rendering_max_ages,
+    timestep
+  )
+  clinical_infections
 }
 
 #' @title Calculate severe infections
@@ -219,11 +236,17 @@ update_severe_disease <- function(
     develop_severe <- bernoulli_multi_p(theta)
     severe_infections <- bitset_at(clinical_infections, develop_severe)
     variables$is_severe$queue_update('yes', severe_infections)
+    variables$is_severe$queue_update(
+      'no',
+      severe_infections$copy()$not(TRUE)$and(infections)
+    ) # Prevent any unwanted severe reinfections
     incidence_renderer(
       variables$birth,
       renderer,
       severe_infections,
-      'n_inc_severe_',
+      clinical_infections,
+      theta,
+      'inc_severe_',
       parameters$severe_incidence_rendering_min_ages,
       parameters$severe_incidence_rendering_max_ages,
       timestep

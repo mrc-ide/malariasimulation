@@ -24,19 +24,15 @@ create_prevelance_renderer <- function(
   renderer
   ) {
   function(timestep) {
-    age <- get_age(birth$get_values(), timestep)
     asymptomatic <- state$get_index_of('A')
-    asymptomatic_vector <- asymptomatic$to_vector()
-    asymptomatic_detected <- bernoulli_multi_p(
-      probability_of_detection(
-        age[asymptomatic_vector],
-        immunity$get_values(asymptomatic),
-        parameters
-      )
+    prob <- probability_of_detection(
+      get_age(birth$get_values(asymptomatic), timestep),
+      immunity$get_values(asymptomatic),
+      parameters
     )
-    detected <- state$get_index_of(c('Tr', 'D'))$or(
-      bitset_at(asymptomatic, asymptomatic_detected)
-    )
+    asymptomatic_detected <- bitset_at(asymptomatic, bernoulli_multi_p(prob))
+    clinically_detected <- state$get_index_of(c('Tr', 'D'))
+    detected <- clinically_detected$copy()$or(asymptomatic_detected)
 
     severe <- is_severe$get_index_of('yes')$and(detected)
     for (i in seq_along(parameters$prevalence_rendering_min_ages)) {
@@ -50,7 +46,14 @@ create_prevelance_renderer <- function(
       ) 
       renderer$render(
         paste0('n_detect_', lower, '_', upper),
-        in_age$and(detected)$size(),
+        in_age$copy()$and(detected)$size(),
+        timestep
+      )
+      renderer$render(
+        paste0('p_detect_', lower, '_', upper),
+        in_age$copy()$and(clinically_detected)$size() + sum(
+          prob[bitset_index(asymptomatic, in_age)]
+        ),
         timestep
       )
     }
@@ -62,7 +65,7 @@ create_prevelance_renderer <- function(
         paste0('n_', lower, '_', upper),
         in_age$size(),
         timestep
-      ) 
+      )
       renderer$render(
         paste0('n_severe_', lower, '_', upper),
         in_age$and(severe)$size(),
@@ -79,6 +82,8 @@ create_prevelance_renderer <- function(
 #' @param birth variable for birth of the individual
 #' @param renderer object for model outputs
 #' @param target incidence population
+#' @param source_pop the population which is sampled for infection
+#' @param prob probability of infection
 #' @param prefix for model outputs
 #' @param lowers age bounds
 #' @param uppers age bounds
@@ -89,6 +94,8 @@ incidence_renderer <- function(
   birth,
   renderer,
   target,
+  source_pop,
+  prob,
   prefix,
   lowers,
   uppers,
@@ -100,8 +107,14 @@ incidence_renderer <- function(
     in_age <- in_age_range(birth, timestep, lower, upper)
     renderer$render(paste0('n_', lower, '_', upper), in_age$size(), timestep)
     renderer$render(
-      paste0(prefix, lower, '_', upper),
-      in_age$and(target)$size(),
+      paste0('n_', prefix, lower, '_', upper),
+      in_age$copy()$and(target)$size(),
+      timestep
+    )
+
+    renderer$render(
+      paste0('p_', prefix, lower, '_', upper),
+      sum(prob[bitset_index(source_pop, in_age)]),
       timestep
     )
   }

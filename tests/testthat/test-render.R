@@ -24,6 +24,7 @@ test_that('that default rendering works', {
     renderer
   )
 
+  mockery::stub(process, 'probability_of_detection', mockery::mock(.5))
   mockery::stub(process, 'bernoulli_multi_p', mockery::mock(1))
   process(timestep)
 
@@ -40,6 +41,14 @@ test_that('that default rendering works', {
     2,
     'n_detect_730_3650',
     2,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    3,
+    'p_detect_730_3650',
+    1.5,
     timestep
   )
 
@@ -159,13 +168,15 @@ test_that('that clinical incidence rendering works', {
     birth,
     renderer,
     individual::Bitset$new(4)$insert(c(1, 2, 4)),
-    'n_inc_clinical_',
+    individual::Bitset$new(4)$insert(seq(4)),
+    c(.1, .2, .3, .4),
+    'inc_clinical_',
     c(0, 2) * year,
     c(5, 10) * year,
     timestep
   )
 
-  mockery::expect_args( 
+  mockery::expect_args(
     renderer$render_mock(),
     1,
     'n_0_1825',
@@ -173,7 +184,7 @@ test_that('that clinical incidence rendering works', {
     timestep
   )
 
-  mockery::expect_args( 
+  mockery::expect_args(
     renderer$render_mock(),
     2,
     'n_inc_clinical_0_1825',
@@ -181,19 +192,35 @@ test_that('that clinical incidence rendering works', {
     timestep
   )
 
-  mockery::expect_args( 
+  mockery::expect_args(
     renderer$render_mock(),
     3,
+    'p_inc_clinical_0_1825',
+    .3,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    4,
     'n_730_3650',
     3,
     timestep
   )
 
-  mockery::expect_args( 
+  mockery::expect_args(
     renderer$render_mock(),
-    4,
+    5,
     'n_inc_clinical_730_3650',
     2,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    6,
+    'p_inc_clinical_730_3650',
+    .6,
     timestep
   )
 })

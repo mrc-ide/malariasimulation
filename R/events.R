@@ -162,11 +162,6 @@ attach_event_listeners <- function(
   events$recovery$add_listener(
     create_rate_listener('U', 'S', renderer)
   )
-  events$recovery$add_listener(
-    function(timestep, target) {
-      variables$is_severe$queue_update('no', target)
-    }
-  )
 
   # ===========
   # Progression

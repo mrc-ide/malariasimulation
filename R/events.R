@@ -132,6 +132,11 @@ attach_event_listeners <- function(
       parameters
     )
   )
+  events$asymptomatic_progression$add_listener(
+    function(timestep, target) {
+      variables$is_severe$queue_update('no', target)
+    }
+  )
 
   # Recovery events
   events$subpatent_progression$add_listener(

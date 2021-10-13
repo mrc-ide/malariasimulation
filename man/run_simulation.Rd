@@ -48,16 +48,29 @@ prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
 \item n_detect: number of humans with an infection detectable by microscopy between an inclusive age range at this timestep. This
 defaults to n_detect_730_3650. Other age ranges can be set with
 prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
-\item n_severe: number of humans with a severe infection detectable by microscopy
-between an inclusive age range at this timestep. Age ranges can be set with
+\item p_detect: the sum of probabilities of detection by microscopy between an
+inclusive age range at this timestep. This
+defaults to p_detect_730_3650. Other age ranges can be set with
+prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
+\item n_severe: number of humans with a severe infection between an inclusive
+age range at this timestep. Age ranges can be set with
 severe_prevalence_rendering_min_ages and severe_prevalence_rendering_max_ages parameters.
 \item n_inc: number of new infections for humans between an inclusive age range at this timestep.
+incidence columns can be set with
+incidence_rendering_min_ages and incidence_rendering_max_ages parameters.
+\item p_inc: sum of probabilities of infection for humans between an inclusive age range at this timestep.
 incidence columns can be set with
 incidence_rendering_min_ages and incidence_rendering_max_ages parameters.
 \item n_inc_clinical: number of new clinical infections for humans between an inclusive age range at this timestep.
 clinical incidence columns can be set with
 clinical_incidence_rendering_min_ages and clinical_incidence_rendering_max_ages parameters.
+\item p_inc_clinical: sub of probabilities of clinical infection for humans between an inclusive age range at this timestep.
+clinical incidence columns can be set with
+clinical_incidence_rendering_min_ages and clinical_incidence_rendering_max_ages parameters.
 \item n_inc_severe: number of new severe infections for humans between an inclusive age range at this timestep.
+severe incidence columns can be set with
+severe_incidence_rendering_min_ages and severe_incidence_rendering_max_ages parameters.
+\item p_inc_severe: the sum of probabilities of severe infection for humans between an inclusive age range at this timestep.
 severe incidence columns can be set with
 severe_incidence_rendering_min_ages and severe_incidence_rendering_max_ages parameters.
 \item severe_deaths: number of deaths due to severe malaria. severe_enabled must be

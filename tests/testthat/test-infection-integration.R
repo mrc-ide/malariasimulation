@@ -66,6 +66,7 @@ test_that('simulate_infection integrates different types of infection and schedu
     variables,
     bitten,
     parameters,
+    renderer,
     timestep
   )
 
@@ -74,7 +75,9 @@ test_that('simulate_infection integrates different types of infection and schedu
     1,
     variables,
     infected,
-    parameters
+    parameters,
+    renderer,
+    timestep
   )
 
   mockery::expect_args(
@@ -84,7 +87,8 @@ test_that('simulate_infection integrates different types of infection and schedu
     clinical,
     variables,
     infected,
-    parameters
+    parameters,
+    renderer
   )
 
   mockery::expect_args(
@@ -148,6 +152,7 @@ test_that('calculate_infections works various combinations of drug and vaccinati
     variables,
     bitten_humans, 
     parameters,
+    mock_render(timestep),
     timestep
   )
 
@@ -360,7 +365,13 @@ test_that('prophylaxis is considered for medicated humans', {
   m <- mockery::mock(seq(3))
   mockery::stub(calculate_infections, 'bernoulli_multi_p', m)
 
-  calculate_infections(variables, bitten, parameters, timestep)
+  calculate_infections(
+    variables,
+    bitten,
+    parameters,
+    mock_render(timestep),
+    timestep
+  )
 
   expect_equal(
     mockery::mock_args(m)[[1]][[1]],

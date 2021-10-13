@@ -65,6 +65,10 @@ bernoulli_multi_p_cpp <- function(p) {
     .Call(`_malariasimulation_bernoulli_multi_p_cpp`, p)
 }
 
+bitset_index_cpp <- function(a, b) {
+    .Call(`_malariasimulation_bitset_index_cpp`, a, b)
+}
+
 fast_weighted_sample <- function(size, probs) {
     .Call(`_malariasimulation_fast_weighted_sample`, size, probs)
 }

@@ -90,6 +90,7 @@ test_that('Infection considers vaccine efficacy', {
     variables,
     bitten_humans = individual::Bitset$new(4)$insert(seq(4)),
     parameters,
+    mock_render(timestep),
     timestep
   )
 

@@ -85,7 +85,7 @@ simulate_bites <- function(
   if (parameters$individual_mosquitoes) {
     infectious_index <- variables$mosquito_state$get_index_of('Im')
     susceptible_index <- variables$mosquito_state$get_index_of('Sm')
-    adult_index <- variables$mosquito_state$get_index_of('NonExistent')$not()
+    adult_index <- variables$mosquito_state$get_index_of('NonExistent')$not(TRUE)
   }
 
   EIR <- 0
@@ -195,7 +195,7 @@ effective_biting_rates <- function(a, .pi, p_bitten) {
 
 calculate_infectious <- function(species, solvers, variables, parameters) {
   if (parameters$individual_mosquitoes) {
-    adult_index <- variables$mosquito_state$get_index_of('NonExistent')$not()
+    adult_index <- variables$mosquito_state$get_index_of('NonExistent')$not(TRUE)
     return(
       calculate_infectious_individual(
         species,

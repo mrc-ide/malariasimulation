@@ -23,7 +23,23 @@ mock_method <- function(class, method, mock) {
     paste0('Mock', class$classname),
     inherit = class
   )
-  MockClass$set('public', method, function(...) mock(...))
+  MockClass$set(
+    'public',
+    method,
+    function(...) {
+      args <- lapply(
+        list(...),
+        function(arg) {
+          # copy a any bitsets because these will be lazily evaluated
+          if (inherits(arg, 'Bitset')) {
+            return(arg$copy())
+          }
+          arg
+        }
+      )
+      do.call(mock, args)
+    }
+  )
   MockClass$set('public', paste0(method, '_mock'), function() mock)
   MockClass
 }

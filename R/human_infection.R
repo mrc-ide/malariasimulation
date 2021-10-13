@@ -301,10 +301,10 @@ schedule_infections <- function(
   parameters,
   asymptomatics
   ) {
-  included <- treated$not()
+  included <- treated$not(TRUE)
 
   to_infect <- clinical_infections$and(included)
-  to_infect_asym <- clinical_infections$not()$and(infections)$and(
+  to_infect_asym <- clinical_infections$copy()$not(TRUE)$and(infections)$and(
     included
   )
 

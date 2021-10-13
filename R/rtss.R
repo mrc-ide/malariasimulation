@@ -28,7 +28,7 @@ create_rtss_epi_process <- function(
       not_recently_vaccinated <- variables$rtss_vaccinated$get_index_of(
         a = max(timestep - parameters$rtss_epi_min_wait, 0),
         b = timestep
-      )$not()
+      )$not(TRUE)
       target <- to_vaccinate$and(not_recently_vaccinated)$to_vector()
     }
 
@@ -78,7 +78,7 @@ create_rtss_mass_listener <- function(
       not_recently_vaccinated <- variables$rtss_vaccinated$get_index_of(
         a = max(timestep - parameters$rtss_mass_min_wait, 0),
         b = timestep
-      )$not()
+      )$not(TRUE)
       target <- in_age_group$and(not_recently_vaccinated)$to_vector()
     }
     

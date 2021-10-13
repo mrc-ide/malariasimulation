@@ -171,7 +171,7 @@ create_vector_count_renderer_individual <- function(
   parameters
   ) {
   function(timestep) {
-    adult <- mosquito_state$get_index_of('NonExistent')$not()
+    adult <- mosquito_state$get_index_of('NonExistent')$not(TRUE)
     for (i in seq_along(parameters$species)) {
       species_name <- parameters$species[[i]]
       species_index <- species$get_index_of(species_name)

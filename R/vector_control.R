@@ -39,8 +39,7 @@ prob_bitten <- function(
 
   if (parameters$spraying) {
     phi_indoors <- parameters$phi_indoors[[species]]
-    unprotected <- variables$spray_time$get_index_of(set=-1)
-    protected <- unprotected$not()
+    protected <- variables$spray_time$get_index_of(set=-1)$not(TRUE)
     spray_time <- variables$spray_time$get_values(protected)
     matches <- match(spray_time, parameters$spraying_timesteps)
     ls_theta <- parameters$spraying_ls_theta[matches, species]

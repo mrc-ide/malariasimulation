@@ -15,17 +15,15 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup, message=F, warning=F}
-library(tidyverse)
 library(malariasimulation)
 library(mgcv)
-library(fuzzyjoin)
 ```
 
 Begin by parameterizing the model you wish to run. Be sure to include any seasonality factors and interventions you want to include at baseline. 
 
 ```{r parameters}
 year <- 365
-human_population <- 1000
+human_population <- 5000
 
 params <- get_parameters(list(
   human_population = human_population,
@@ -100,10 +98,10 @@ EIR_prev <- cbind.data.frame(init_EIR, output_EIR = unlist(EIR), prev = unlist(p
 
 ```
 
-Now plot your results! Code is included to compare the results of matching PfPR2-10 to EIR based on `malariaEquilibrium` (blue line) versus matching based on parameterized `malariasimulation` runs (red line). Notice that the generated points do not form a smooth curve. We ran `malariasimulation` using a population of just 1,000. Increasing the population to 10,000 or even 100,000 will generate more accurate estimates, but will take longer to run. 
+Now plot your results! Code is included to compare the results of matching PfPR2-10 to EIR based on `malariaEquilibrium` (blue line) versus matching based on parameterized `malariasimulation` runs (red line). Notice that the generated points do not form a smooth curve. We ran `malariasimulation` using a population of just 5,000. Increasing the population to 10,000 or even 100,000 will generate more accurate estimates, but will take longer to run. 
 
 ```{r plot, warning=F}
-# calculate EIR / prev 2-10 relationship from malariEquilibrium
+# calculate EIR / prev 2-10 relationship from malariaEquilibrium
 eir <- seq(from = 0.1, to = 50, by=.5)
 eq_params <- malariaEquilibrium::load_parameter_set("Jamie_parameters.rds")
 
@@ -123,36 +121,56 @@ prev <- vapply( # calculate prevalence between 2:10 for a bunch of EIRs
 
 prevmatch <- cbind.data.frame(eir, prev)
 
-colors <- c("malariaEquilibrium" = "blue", "malariasimulation" = "red")
+# calculate best fit line through malariasimulation data
+fit <- predict(gam(prev~s(init_EIR, k=-1), data=EIR_prev), 
+               newdata = data.frame(init_EIR=c(0,seq(0.1,50,0.1))),  type="response")
+fit <- cbind(fit, data.frame(init_EIR=c(0,seq(0.1,50,0.1))))
 
-ggplot(data=EIR_prev) + 
-  geom_point(aes(x=init_EIR, y=prev), color='black') + 
-  stat_smooth(aes(x=init_EIR, y=prev, color='malariasimulation'), method = 'gam', n=1000) + 
-  geom_line(data=prevmatch, aes(x=eir, y=prev, color = 'malariaEquilibrium')) + 
-  labs(x='initial EIR', y=expression(paste(italic(Pf),"PR"[2-10])), color='model') + 
-  scale_color_manual(values = colors) + 
-  theme_classic()
+# plot
+plot(x=1, type = "n", 
+     frame = F, 
+     xlab = "initial EIR", 
+     ylab = expression(paste(italic(Pf),"PR"[2-10])),
+     xlim = c(0,50), 
+     ylim = c(0,.7))
+
+points(x=EIR_prev$init_EIR, 
+       y=EIR_prev$prev,
+       pch = 19,
+       col = 'black')
+
+lines(x=fit$init_EIR, 
+      y=fit$fit, 
+      col = "red", 
+      type = "l", 
+      lty = 1)
+
+lines(x=prevmatch$eir, 
+      y=prevmatch$prev, 
+      col = "blue", 
+      type = "l", 
+      lty = 1)
+
+legend("bottomright", legend=c("malariasimulation", "malariaEquilibrium"), col=c("red", "blue"), lty = c(1,1), cex=0.8)
 
 ```
 
 Now extract values from the fitted line to generate EIR estimates at your desired PfPR2-10 values.
 
 ```{r table, warning=F}
-# extract points from stat_smooth
-p2 <- ggplot_build(p)
-p2 <- p2$data[[2]]
-
-p2 <- data.frame(init_EIR = p2$x, pred = p2$y)
-
 # Pre-intervention baseline PfPR2-10 starting at values 10, 25, 35, 55 
-PfPR <- as_tibble_col(c(.10, .25, .35, .55), column_name="pfpr")
-
+PfPR <- c(.10, .25, .35, .45)
 
 # match via stat_smooth predictions
-match <- PfPR %>%
-  fuzzyjoin::difference_left_join(p2, by=c("pfpr"="pred"), 
-                                  max_dist=1, distance_col="dist") %>%
-  group_by(pfpr) %>% slice_min(dist) %>% rename(PfPR = pfpr, EIR = init_EIR, predicted_PfPR = pred, difference = dist)
+match <- function(x){
+  
+  m <- which.min(abs(fit$fit-x)) # index of closest prev match
+  fit[m,2]                       # print match
+  
+}
 
-match
+eir <- unlist(lapply(PfPR, match))
+
+cbind.data.frame(PfPR, eir)
+
 ```

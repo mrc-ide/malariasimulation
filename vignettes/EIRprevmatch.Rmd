@@ -96,8 +96,7 @@ prev <- lapply(
 )
 
 # create dataframe of initial EIR, output EIR, and prev 2-10 results
-EIR_prev <- cbind(init_EIR, unlist(EIR), unlist(prev)) %>% 
-  as_tibble() %>% rename(output_EIR = V2, prev = V3)
+EIR_prev <- cbind.data.frame(init_EIR, output_EIR = unlist(EIR), prev = unlist(prev))
 
 ```
 
@@ -122,19 +121,17 @@ prev <- vapply( # calculate prevalence between 2:10 for a bunch of EIRs
   numeric(1)
 )
 
-prevmatch <- as_tibble(cbind(eir,prev))
+prevmatch <- cbind.data.frame(eir, prev)
 
 colors <- c("malariaEquilibrium" = "blue", "malariasimulation" = "red")
 
-p <- ggplot(data=EIR_prev) + 
+ggplot(data=EIR_prev) + 
   geom_point(aes(x=init_EIR, y=prev), color='black') + 
   stat_smooth(aes(x=init_EIR, y=prev, color='malariasimulation'), method = 'gam', n=1000) + 
   geom_line(data=prevmatch, aes(x=eir, y=prev, color = 'malariaEquilibrium')) + 
   labs(x='initial EIR', y=expression(paste(italic(Pf),"PR"[2-10])), color='model') + 
   scale_color_manual(values = colors) + 
   theme_classic()
-
-p
 
 ```
 
@@ -145,7 +142,7 @@ Now extract values from the fitted line to generate EIR estimates at your desire
 p2 <- ggplot_build(p)
 p2 <- p2$data[[2]]
 
-p2 <- p2 %>% as_tibble() %>% select(x,y) %>% rename(init_EIR=x, pred=y) 
+p2 <- data.frame(init_EIR = p2$x, pred = p2$y)
 
 # Pre-intervention baseline PfPR2-10 starting at values 10, 25, 35, 55 
 PfPR <- as_tibble_col(c(.10, .25, .35, .55), column_name="pfpr")

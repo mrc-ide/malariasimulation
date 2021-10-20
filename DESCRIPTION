@@ -40,7 +40,8 @@ Suggests:
   DiagrammeR,
   cowplot,
   ggplot2,
-  covr
+  covr,
+  mgcv 
 RoxygenNote: 7.1.2
 Roxygen: list(markdown = TRUE)
 LinkingTo:

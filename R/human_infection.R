@@ -64,9 +64,8 @@ simulate_infection <- function(
 
   update_severe_disease(
     timestep,
-    clinical_infections,
-    variables,
     infected_humans,
+    variables,
     parameters,
     renderer
   )
@@ -208,31 +207,29 @@ calculate_clinical_infections <- function(
 #' @description
 #' Sample severely infected humans from clinically infected
 #' @param timestep current timestep
-#' @param clinical_infections indices of clinically infected humans
+#' @param infections indices of all infected humans
 #' @param variables a list of all of the model variables
-#' @param infections indices of all infected humans (for immunity boosting)
 #' @param parameters model parameters
 #' @param renderer model outputs
 #' @noRd
 update_severe_disease <- function(
   timestep,
-  clinical_infections,
-  variables,
   infections,
+  variables,
   parameters,
   renderer
   ) {
-  if (clinical_infections$size() > 0) {
-    age <- get_age(variables$birth$get_values(clinical_infections), timestep)
-    iva <- variables$iva$get_values(clinical_infections)
+  if (infections$size() > 0) {
+    age <- get_age(variables$birth$get_values(infections), timestep)
+    iva <- variables$iva$get_values(infections)
     theta <- severe_immunity(
       age,
       iva,
-      variables$ivm$get_values(clinical_infections),
+      variables$ivm$get_values(infections),
       parameters
     )
     develop_severe <- bernoulli_multi_p(theta)
-    severe_infections <- bitset_at(clinical_infections, develop_severe)
+    severe_infections <- bitset_at(infections, develop_severe)
     variables$is_severe$queue_update('yes', severe_infections)
     variables$is_severe$queue_update(
       'no',
@@ -242,7 +239,7 @@ update_severe_disease <- function(
       variables$birth,
       renderer,
       severe_infections,
-      clinical_infections,
+      infections,
       theta,
       'inc_severe_',
       parameters$severe_incidence_rendering_min_ages,

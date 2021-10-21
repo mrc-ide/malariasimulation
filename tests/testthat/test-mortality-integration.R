@@ -1,6 +1,6 @@
 test_that('mortality_process resets humans correctly', {
   timestep <- 2
-  parameters <- get_parameters(list(severe_enabled = 1, human_population = 4))
+  parameters <- get_parameters(list(human_population = 4))
   parameters <- set_drugs(parameters, list(SP_AQ_params))
   parameters <- set_mda(
     parameters,
@@ -96,7 +96,6 @@ test_that('mortality_process samples deaths from a custom demography', {
   mockery::expect_args(mortality_rng, 1, c(.5, .5, .75, 1))
   expect_bitset_update(variables$state$queue_update_mock(), 'S', c(2, 4))
 })
-
 
 test_that('maternal immunity is sampled correctly', {
   timestep <- 2

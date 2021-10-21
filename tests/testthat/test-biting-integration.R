@@ -2,7 +2,7 @@ test_that('biting_process integrates mosquito effects and human infection', {
   population <- 4
   timestep <- 5
   parameters <- get_parameters(
-    list(human_population = population, severe_enabled = TRUE)
+    list(human_population = population)
   )
 
   renderer <- individual::Render$new(5)
@@ -66,10 +66,7 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
   timestep <- 5
   renderer <- individual::Render$new(5)
   parameters <- get_parameters(
-    list(
-      human_population = population,
-      severe_enabled = TRUE
-    )
+    list(human_population = population)
   )
   events <- create_events(parameters)
   variables <- create_variables(parameters)

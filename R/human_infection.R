@@ -62,16 +62,14 @@ simulate_infection <- function(
     timestep
   )
 
-  if (parameters$severe_enabled) {
-    update_severe_disease(
-      timestep,
-      clinical_infections,
-      variables,
-      infected_humans,
-      parameters,
-      renderer
-    )
-  }
+  update_severe_disease(
+    timestep,
+    clinical_infections,
+    variables,
+    infected_humans,
+    parameters,
+    renderer
+  )
 
   treated <- calculate_treated(
     variables,

@@ -40,8 +40,7 @@ simparams <- get_parameters(
     g = c(0.20636, -0.0740318, -0.0009293),
     h = c(0.173743, -0.0730962, -0.116019),
     severe_prevalence_rendering_min_ages = 2*year,
-    severe_prevalence_rendering_max_ages = 10*year,
-    severe_enabled = 1
+    severe_prevalence_rendering_max_ages = 10*year
   )
 )
 

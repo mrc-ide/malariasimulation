@@ -112,7 +112,14 @@ create_variables <- function(parameters) {
   )
 
   ivm <- individual::DoubleVariable$new(
-    initial_immunity(parameters$init_ivm, initial_age)
+    initial_immunity(
+      parameters$init_ivm,
+      initial_age,
+      groups,
+      eq,
+      parameters,
+      'IVM'
+    )
   )
 
   # Pre-erythoctic immunity
@@ -139,7 +146,14 @@ create_variables <- function(parameters) {
   )
   # Acquired immunity to severe disease
   iva <- individual::DoubleVariable$new(
-    initial_immunity(parameters$init_iva, initial_age)
+    initial_immunity(
+      parameters$init_iva,
+      initial_age,
+      groups,
+      eq,
+      parameters,
+      'IVA'
+    )
   )
   # Acquired immunity to detectability
   id <- individual::DoubleVariable$new(

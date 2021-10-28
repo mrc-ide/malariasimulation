@@ -34,9 +34,6 @@ params <- get_parameters(list(
   h = c(-0.331361, 0.293128, -0.0617547),     
   prevalence_rendering_min_ages = 2 * year,    # set prev age range
   prevalence_rendering_max_ages = 10 * year,
-  fvt = 0,
-  v = 0,
-  severe_enabled = T,
   individual_mosquitoes = FALSE))
 
   # set species / drugs / treatment parameters

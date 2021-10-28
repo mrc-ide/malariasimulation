@@ -10,3 +10,5 @@ malariasimulation_*.tar.gz
 /build/
 doc
 inst/doc
+vignettes/*.tex
+vignettes/*.log

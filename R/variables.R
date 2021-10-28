@@ -10,7 +10,6 @@
 #' * birth - an integer representing the timestep when this individual was born
 #' * last_boosted_* - the last timestep at which this individual's immunity was
 #' boosted for tracking grace periods in the boost of immunity
-#' * is_severe - yes or no if the individual currently has severe malaria
 #' * ICM - Maternal immunity to clinical disease
 #' * IVM - Maternal immunity to severe disease
 #' * IB  - Pre-erythoctic immunity
@@ -99,11 +98,6 @@ create_variables <- function(parameters) {
   last_boosted_ica <- individual::DoubleVariable$new(rep(-1, size))
   last_boosted_iva <- individual::DoubleVariable$new(rep(-1, size))
   last_boosted_id <- individual::DoubleVariable$new(rep(-1, size))
-
-  is_severe <- individual::CategoricalVariable$new(
-    c('yes', 'no'),
-    rep('no', size)
-  )
 
   # Maternal immunity
   icm <- individual::DoubleVariable$new(
@@ -232,7 +226,6 @@ create_variables <- function(parameters) {
     rtss_ds = rtss_ds,
     rtss_dl = rtss_dl,
     tbv_vaccinated = tbv_vaccinated,
-    is_severe = is_severe,
     net_time = net_time,
     spray_time = spray_time
   )

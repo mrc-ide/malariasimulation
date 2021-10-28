@@ -212,9 +212,6 @@
 #' * incidence_rendering_max_ages - the corresponding max ages; default = turned off 
 #' * clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = 0
 #' * clinical_incidence_rendering_max_ages - the corresponding max ages; default = 1825
-#' * severe_prevalence_rendering_min_ages - the minimum ages for severe
-#' prevalence outputs; default = turned off
-#' * severe_prevalence_rendering_max_ages - the corresponding max ages; default = turned off
 #' * severe_incidence_rendering_min_ages - the minimum ages for severe incidence
 #' outputs; default = turned off
 #' * severe_incidence_rendering_max_ages - the corresponding max ages; default = turned off

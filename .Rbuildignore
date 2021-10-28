@@ -9,3 +9,5 @@ docker
 LICENSE.md
 codecov.yml
 .github
+vignettes/*.tex
+vignettes/*.log

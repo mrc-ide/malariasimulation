@@ -83,9 +83,8 @@ test_that('simulate_infection integrates different types of infection and schedu
     severe_infection_mock,
     1,
     timestep,
-    clinical,
-    variables,
     infected,
+    variables,
     parameters,
     renderer
   )

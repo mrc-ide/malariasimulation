@@ -9,7 +9,6 @@ in_age_range <- function(birth, timestep, lower, upper) {
 #' 
 #' @param state human infection state
 #' @param birth variable for birth of the individual
-#' @param is_severe variable for if individual has severe malaria
 #' @param immunity to detection
 #' @param parameters model parameters
 #' @param renderer model renderer
@@ -18,7 +17,6 @@ in_age_range <- function(birth, timestep, lower, upper) {
 create_prevelance_renderer <- function(
   state,
   birth,
-  is_severe,
   immunity,
   parameters,
   renderer
@@ -34,7 +32,6 @@ create_prevelance_renderer <- function(
     clinically_detected <- state$get_index_of(c('Tr', 'D'))
     detected <- clinically_detected$copy()$or(asymptomatic_detected)
 
-    severe <- is_severe$get_index_of('yes')
     for (i in seq_along(parameters$prevalence_rendering_min_ages)) {
       lower <- parameters$prevalence_rendering_min_ages[[i]]
       upper <- parameters$prevalence_rendering_max_ages[[i]]
@@ -54,21 +51,6 @@ create_prevelance_renderer <- function(
         in_age$copy()$and(clinically_detected)$size() + sum(
           prob[bitset_index(asymptomatic, in_age)]
         ),
-        timestep
-      )
-    }
-    for (i in seq_along(parameters$severe_prevalence_rendering_min_ages)) {
-      lower <- parameters$severe_prevalence_rendering_min_ages[[i]]
-      upper <- parameters$severe_prevalence_rendering_max_ages[[i]]
-      in_age <- in_age_range(birth, timestep, lower, upper)
-      renderer$render(
-        paste0('n_', lower, '_', upper),
-        in_age$size(),
-        timestep
-      )
-      renderer$render(
-        paste0('n_severe_', lower, '_', upper),
-        in_age$and(severe)$size(),
         timestep
       )
     }

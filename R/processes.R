@@ -159,7 +159,6 @@ create_processes <- function(
     create_prevelance_renderer(
       variables$state,
       variables$birth,
-      variables$is_severe,
       variables$id,
       parameters,
       renderer

@@ -230,11 +230,6 @@ update_severe_disease <- function(
     )
     develop_severe <- bernoulli_multi_p(theta)
     severe_infections <- bitset_at(infections, develop_severe)
-    variables$is_severe$queue_update('yes', severe_infections)
-    variables$is_severe$queue_update(
-      'no',
-      severe_infections$copy()$not(TRUE)$and(infections)
-    ) # Prevent any unwanted severe reinfections
     incidence_renderer(
       variables$birth,
       renderer,

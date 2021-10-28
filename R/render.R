@@ -34,7 +34,7 @@ create_prevelance_renderer <- function(
     clinically_detected <- state$get_index_of(c('Tr', 'D'))
     detected <- clinically_detected$copy()$or(asymptomatic_detected)
 
-    severe <- is_severe$get_index_of('yes')$and(detected)
+    severe <- is_severe$get_index_of('yes')
     for (i in seq_along(parameters$prevalence_rendering_min_ages)) {
       lower <- parameters$prevalence_rendering_min_ages[[i]]
       upper <- parameters$prevalence_rendering_max_ages[[i]]

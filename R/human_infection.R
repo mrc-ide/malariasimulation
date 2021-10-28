@@ -249,14 +249,14 @@ update_severe_disease <- function(
       parameters$severe_incidence_rendering_max_ages,
       timestep
     )
-    boost_immunity(
-      variables$iva,
-      infections,
-      variables$last_boosted_iva,
-      timestep,
-      parameters$uv
-    )
   }
+  boost_immunity(
+    variables$iva,
+    infections,
+    variables$last_boosted_iva,
+    timestep,
+    parameters$uv
+  )
 }
 
 #' @title Calculate treated humans

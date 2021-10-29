@@ -49,9 +49,9 @@ params <- set_clinical_treatment(params, 1, c(1), c(0.45))
 
 Now run `malariasimulation` over a range of EIRs. The goal is to run enough points to generate a curve to which you can match PfPR2-10 to EIR effectively.
 
-```{r model, message=F, warning=F}
+```{r model}
 # loop over malariasimulation runs
-init_EIR <- c(0.01, 0.1, seq(1,9,1), seq(10, 50, by=5)) # set EIR values
+init_EIR <- c(0.01, 0.1, 1, 5, 10, 25, 50) # set EIR values
 
 # run model
 outputs <- lapply(
@@ -100,7 +100,7 @@ EIR_prev <- cbind.data.frame(init_EIR, output_EIR = unlist(EIR), prev = unlist(p
 
 Now plot your results! Code is included to compare the results of matching PfPR2-10 to EIR based on `malariaEquilibrium` (blue line) versus matching based on parameterized `malariasimulation` runs (red line). Notice that the generated points do not form a smooth curve. We ran `malariasimulation` using a population of just 5,000. Increasing the population to 10,000 or even 100,000 will generate more accurate estimates, but will take longer to run. 
 
-```{r plot, warning=F}
+```{r plot}
 # calculate EIR / prev 2-10 relationship from malariaEquilibrium
 eir <- seq(from = 0.1, to = 50, by=.5)
 eq_params <- malariaEquilibrium::load_parameter_set("Jamie_parameters.rds")
@@ -122,7 +122,7 @@ prev <- vapply( # calculate prevalence between 2:10 for a bunch of EIRs
 prevmatch <- cbind.data.frame(eir, prev)
 
 # calculate best fit line through malariasimulation data
-fit <- predict(gam(prev~s(init_EIR, k=-1), data=EIR_prev), 
+fit <- predict(gam(prev~s(init_EIR, k=5), data=EIR_prev), 
                newdata = data.frame(init_EIR=c(0,seq(0.1,50,0.1))),  type="response")
 fit <- cbind(fit, data.frame(init_EIR=c(0,seq(0.1,50,0.1))))
 

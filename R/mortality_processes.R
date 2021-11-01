@@ -16,7 +16,7 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
     ) / 365)
 
     died <- individual::Bitset$new(parameters$human_population)
-    died <- sample_bitset(died$not(), 1 / parameters$average_age)
+    died <- sample_bitset(died$not(TRUE), 1 / parameters$average_age)
 
     renderer$render('natural_deaths', died$size(), timestep)
 
@@ -72,7 +72,6 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
         'recovery',
         'clinical_infection',
         'asymptomatic_infection',
-        'detection',
         'throw_away_net',
         'rtss_mass_doses',
         'rtss_mass_booster',
@@ -123,5 +122,5 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
 died_from_severe <- function(severe, diseased, v, treated, fvt) {
   at_risk <- severe$copy()$and(diseased)
   treated_at_risk <- severe$copy()$and(treated)
-  sample_bitset(at_risk, v)$or(sample_bitset(treated_at_risk, fvt))
+  sample_bitset(at_risk$or(sample_bitset(treated_at_risk, fvt)), v)
 }

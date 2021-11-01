@@ -9,9 +9,6 @@ create_events <- function(parameters) {
     clinical_infection = individual::TargetedEvent$new(parameters$human_population),
     asymptomatic_infection = individual::TargetedEvent$new(parameters$human_population),
 
-    # whether the infection is detected
-    detection = individual::TargetedEvent$new(parameters$human_population), 
-
     # MDA events
     mda_administer = individual::Event$new(),
     smc_administer = individual::Event$new(),
@@ -135,6 +132,11 @@ attach_event_listeners <- function(
       parameters
     )
   )
+  events$asymptomatic_progression$add_listener(
+    function(timestep, target) {
+      variables$is_severe$queue_update('no', target)
+    }
+  )
 
   # Recovery events
   events$subpatent_progression$add_listener(
@@ -165,24 +167,6 @@ attach_event_listeners <- function(
   # Progression
   # ===========
   # When infection events fire, schedule the next stages of infection
-
-  events$clinical_infection$add_listener(
-    create_clinical_incidence_renderer(
-      variables$birth,
-      parameters,
-      renderer
-    )
-  )
-
-  events$detection$add_listener(
-    create_incidence_renderer(
-      variables$birth,
-      variables$is_severe,
-      parameters,
-      renderer
-    )
-  )
-
   if (parameters$individual_mosquitoes) {
     events$mosquito_infection$add_listener(
       individual::update_category_listener(variables$mosquito_state, 'Im')

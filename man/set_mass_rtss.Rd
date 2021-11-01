@@ -26,7 +26,9 @@ set_mass_rtss(
 
 \item{max_ages}{for the target population, inclusive (in timesteps)}
 
-\item{min_wait}{the minimum acceptable time since the last vaccination (in timesteps);}
+\item{min_wait}{the minimum acceptable time since the last vaccination (in timesteps);
+When using both set_mass_rtss and set_rtss_epi, this represents the minimum
+time between an individual being vaccinated under one scheme and vaccinated under another.}
 
 \item{boosters}{the timesteps (following the initial vaccination) at which booster vaccinations are administered}
 

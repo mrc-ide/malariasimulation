@@ -50,7 +50,7 @@ create_mda_listeners <- function(
       }
 
       # Move everyone else
-      other <- to_move$copy()$and(diseased$not())
+      other <- to_move$copy()$and(diseased$not(TRUE))
       if (other$size() > 0) {
         variables$state$queue_update('S', other)
       }

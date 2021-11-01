@@ -50,7 +50,6 @@ test_that('MDA moves the diseased and non-diseased population correctly', {
     mockery::mock_args(mock_correlation)[[1]][[1]],
     c(3, 4)
   )
-
   expect_bitset_update(
     variables$state$queue_update_mock(),
     'Tr',

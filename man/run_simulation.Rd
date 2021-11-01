@@ -25,14 +25,10 @@ The resulting dataframe contains the following columns:
 \itemize{
 \item timestep: the timestep for the row
 \item infectivity: the infectivity from humans towards mosquitoes
-\item lambda: the effective biting rate on humans (per timestep) (per
-species). This defaults to lambda_All
-\item normal_lambda: the effective biting rate on adult humans (per
-timestep) (per species). This defaults to normal_lambda_All
 \item FOIM: the force of infection towards mosquitoes (per species)
 \item mu: the death rate of adult mosquitoes (per species)
-\item EIR: the Entomological Inoculation Rate (per timestep, over the whole
-population)
+\item EIR: the Entomological Inoculation Rate (per timestep, per species, over
+the whole population)
 \item n_bitten: number of humans bitten by an infectious mosquito
 \item n_treated: number of humans treated for clinical or severe malaria this timestep
 \item n_infections: number of humans who get an asymptomatic, clinical or severe malaria this timestep
@@ -46,32 +42,48 @@ population)
 \item icm_mean: the mean maternal immunity to clinical infection over the population of humans
 \item ib_mean: the mean blood immunity to all infection over the population of humans
 \item id_mean: the mean immunity from detection through microscopy over the population of humans
-\item pv: prevalence for humans between an inclusive age range (in timesteps). This
-defaults to pv_730_3650. Other prevalence columns can be set with
+\item n: number of humans between an inclusive age range at this timestep. This
+defaults to n_730_3650. Other age ranges can be set with
 prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
-\item pv_severe: prevalence for severe malaria in humans between an inclusive age range (in timesteps).
-These columns can be set with the
+\item n_detect: number of humans with an infection detectable by microscopy between an inclusive age range at this timestep. This
+defaults to n_detect_730_3650. Other age ranges can be set with
+prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
+\item p_detect: the sum of probabilities of detection by microscopy between an
+inclusive age range at this timestep. This
+defaults to p_detect_730_3650. Other age ranges can be set with
+prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
+\item n_severe: number of humans with a severe infection between an inclusive
+age range at this timestep. Age ranges can be set with
 severe_prevalence_rendering_min_ages and severe_prevalence_rendering_max_ages parameters.
-\item inc: incidence for humans between an inclusive age range (in timesteps).
+\item n_inc: number of new infections for humans between an inclusive age range at this timestep.
 incidence columns can be set with
 incidence_rendering_min_ages and incidence_rendering_max_ages parameters.
-\item clin_inc: clinical incidence for humans between an inclusive age range (in timesteps)
+\item p_inc: sum of probabilities of infection for humans between an inclusive age range at this timestep.
+incidence columns can be set with
+incidence_rendering_min_ages and incidence_rendering_max_ages parameters.
+\item n_inc_clinical: number of new clinical infections for humans between an inclusive age range at this timestep.
 clinical incidence columns can be set with
 clinical_incidence_rendering_min_ages and clinical_incidence_rendering_max_ages parameters.
-\item inc_severe: severe incidence for humans between an inclusive age range (in
-timesteps).
+\item p_inc_clinical: sub of probabilities of clinical infection for humans between an inclusive age range at this timestep.
+clinical incidence columns can be set with
+clinical_incidence_rendering_min_ages and clinical_incidence_rendering_max_ages parameters.
+\item n_inc_severe: number of new severe infections for humans between an inclusive age range at this timestep.
+severe incidence columns can be set with
+severe_incidence_rendering_min_ages and severe_incidence_rendering_max_ages parameters.
+\item p_inc_severe: the sum of probabilities of severe infection for humans between an inclusive age range at this timestep.
 severe incidence columns can be set with
 severe_incidence_rendering_min_ages and severe_incidence_rendering_max_ages parameters.
 \item severe_deaths: number of deaths due to severe malaria. severe_enabled must be
 set to TRUE
-\item E_count: number of mosquitoes in the early larval stage
-\item L_count: number of mosquitoes in the late larval stage
-\item P_count: number of mosquitoes in the pupal stage
-\item Sm_count: number of adult female mosquitoes who are Susceptible
-\item Pm_count: number of adult female mosquitoes who are incubating
-\item Im_count: number of adult female mosquitoes who are infectious
-\item total_M: number of adult female mosquitoes. Variables with suffixes total_M_# refer to the number of adult
-female mosquitoes from the different indicies of the set_species() vector
+\item E_count: number of mosquitoes in the early larval stage (per species)
+\item L_count: number of mosquitoes in the late larval stage (per species)
+\item P_count: number of mosquitoes in the pupal stage (per species)
+\item Sm_count: number of adult female mosquitoes who are Susceptible (per
+species)
+\item Pm_count: number of adult female mosquitoes who are incubating (per
+species)
+\item Im_count: number of adult female mosquitoes who are infectious (per
+species)
 \item rate_D_A: rate that humans transition from clinical disease to
 asymptomatic
 \item rate_A_U: rate that humans transition from asymptomatic to

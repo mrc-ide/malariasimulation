@@ -46,14 +46,10 @@ timestep.
 The resulting dataframe contains the following columns:
 timestep: the timestep for the row
 infectivity: the infectivity from humans towards mosquitoes
-lambda: the effective biting rate on humans (per timestep) (per
-species). This defaults to lambda_All
-normal_lambda: the effective biting rate on adult humans (per
-timestep) (per species). This defaults to normal_lambda_All
 FOIM: the force of infection towards mosquitoes (per species)
 mu: the death rate of adult mosquitoes (per species)
-EIR: the Entomological Inoculation Rate (per timestep, over the whole
-population)
+EIR: the Entomological Inoculation Rate (per timestep, per species, over
+the whole population)
 n_bitten: number of humans bitten by an infectious mosquito
 n_treated: number of humans treated for clinical or severe malaria this timestep
 n_infections: number of humans who get an asymptomatic, clinical or severe malaria this timestep
@@ -67,32 +63,48 @@ ica_mean: the mean acquired immunity to clinical infection over the population o
 icm_mean: the mean maternal immunity to clinical infection over the population of humans
 ib_mean: the mean blood immunity to all infection over the population of humans
 id_mean: the mean immunity from detection through microscopy over the population of humans
-pv: prevalence for humans between an inclusive age range (in timesteps). This
-defaults to pv_730_3650. Other prevalence columns can be set with
+n: number of humans between an inclusive age range at this timestep. This
+defaults to n_730_3650. Other age ranges can be set with
 prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
-pv_severe: prevalence for severe malaria in humans between an inclusive age range (in timesteps).
-These columns can be set with the
+n_detect: number of humans with an infection detectable by microscopy between an inclusive age range at this timestep. This
+defaults to n_detect_730_3650. Other age ranges can be set with
+prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
+p_detect: the sum of probabilities of detection by microscopy between an
+inclusive age range at this timestep. This
+defaults to p_detect_730_3650. Other age ranges can be set with
+prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
+n_severe: number of humans with a severe infection between an inclusive
+age range at this timestep. Age ranges can be set with
 severe_prevalence_rendering_min_ages and severe_prevalence_rendering_max_ages parameters.
-inc: incidence for humans between an inclusive age range (in timesteps).
+n_inc: number of new infections for humans between an inclusive age range at this timestep.
 incidence columns can be set with
 incidence_rendering_min_ages and incidence_rendering_max_ages parameters.
-clin_inc: clinical incidence for humans between an inclusive age range (in timesteps)
+p_inc: sum of probabilities of infection for humans between an inclusive age range at this timestep.
+incidence columns can be set with
+incidence_rendering_min_ages and incidence_rendering_max_ages parameters.
+n_inc_clinical: number of new clinical infections for humans between an inclusive age range at this timestep.
 clinical incidence columns can be set with
 clinical_incidence_rendering_min_ages and clinical_incidence_rendering_max_ages parameters.
-inc_severe: severe incidence for humans between an inclusive age range (in
-timesteps).
+p_inc_clinical: sub of probabilities of clinical infection for humans between an inclusive age range at this timestep.
+clinical incidence columns can be set with
+clinical_incidence_rendering_min_ages and clinical_incidence_rendering_max_ages parameters.
+n_inc_severe: number of new severe infections for humans between an inclusive age range at this timestep.
+severe incidence columns can be set with
+severe_incidence_rendering_min_ages and severe_incidence_rendering_max_ages parameters.
+p_inc_severe: the sum of probabilities of severe infection for humans between an inclusive age range at this timestep.
 severe incidence columns can be set with
 severe_incidence_rendering_min_ages and severe_incidence_rendering_max_ages parameters.
 severe_deaths: number of deaths due to severe malaria. severe_enabled must be
 set to TRUE
-E_count: number of mosquitoes in the early larval stage
-L_count: number of mosquitoes in the late larval stage
-P_count: number of mosquitoes in the pupal stage
-Sm_count: number of adult female mosquitoes who are Susceptible
-Pm_count: number of adult female mosquitoes who are incubating
-Im_count: number of adult female mosquitoes who are infectious
-total_M: number of adult female mosquitoes. Variables with suffixes total_M_# refer to the number of adult
-female mosquitoes from the different indicies of the set_species() vector
+E_count: number of mosquitoes in the early larval stage (per species)
+L_count: number of mosquitoes in the late larval stage (per species)
+P_count: number of mosquitoes in the pupal stage (per species)
+Sm_count: number of adult female mosquitoes who are Susceptible (per
+species)
+Pm_count: number of adult female mosquitoes who are incubating (per
+species)
+Im_count: number of adult female mosquitoes who are infectious (per
+species)
 rate_D_A: rate that humans transition from clinical disease to
 asymptomatic
 rate_A_U: rate that humans transition from asymptomatic to
@@ -133,7 +145,7 @@ mosquito_deaths: number of adult female mosquitoes who die this timestep
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -156,6 +168,9 @@ mosquito_deaths: number of adult female mosquitoes who die this timestep
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
+      <a href="../articles/EIRprevmatch.html">Matching PfPR2-10 to EIR</a>
+    </li>
+    <li>
       <a href="../articles/MDA.html">Mass Drug Administration</a>
     </li>
     <li>
@@ -168,9 +183,15 @@ mosquito_deaths: number of adult female mosquitoes who die this timestep
       <a href="../articles/Vaccines.html">Vaccines</a>
     </li>
     <li>
+      <a href="../articles/Variation.html">Variation</a>
+    </li>
+    <li>
       <a href="../articles/VectorControl.html">Vector Control</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -200,14 +221,10 @@ timestep.</p>
 <p>The resulting dataframe contains the following columns:</p><ul>
 <li><p>timestep: the timestep for the row</p></li>
 <li><p>infectivity: the infectivity from humans towards mosquitoes</p></li>
-<li><p>lambda: the effective biting rate on humans (per timestep) (per
-species). This defaults to lambda_All</p></li>
-<li><p>normal_lambda: the effective biting rate on adult humans (per
-timestep) (per species). This defaults to normal_lambda_All</p></li>
 <li><p>FOIM: the force of infection towards mosquitoes (per species)</p></li>
 <li><p>mu: the death rate of adult mosquitoes (per species)</p></li>
-<li><p>EIR: the Entomological Inoculation Rate (per timestep, over the whole
-population)</p></li>
+<li><p>EIR: the Entomological Inoculation Rate (per timestep, per species, over
+the whole population)</p></li>
 <li><p>n_bitten: number of humans bitten by an infectious mosquito</p></li>
 <li><p>n_treated: number of humans treated for clinical or severe malaria this timestep</p></li>
 <li><p>n_infections: number of humans who get an asymptomatic, clinical or severe malaria this timestep</p></li>
@@ -221,32 +238,48 @@ population)</p></li>
 <li><p>icm_mean: the mean maternal immunity to clinical infection over the population of humans</p></li>
 <li><p>ib_mean: the mean blood immunity to all infection over the population of humans</p></li>
 <li><p>id_mean: the mean immunity from detection through microscopy over the population of humans</p></li>
-<li><p>pv: prevalence for humans between an inclusive age range (in timesteps). This
-defaults to pv_730_3650. Other prevalence columns can be set with
+<li><p>n: number of humans between an inclusive age range at this timestep. This
+defaults to n_730_3650. Other age ranges can be set with
 prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.</p></li>
-<li><p>pv_severe: prevalence for severe malaria in humans between an inclusive age range (in timesteps).
-These columns can be set with the
+<li><p>n_detect: number of humans with an infection detectable by microscopy between an inclusive age range at this timestep. This
+defaults to n_detect_730_3650. Other age ranges can be set with
+prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.</p></li>
+<li><p>p_detect: the sum of probabilities of detection by microscopy between an
+inclusive age range at this timestep. This
+defaults to p_detect_730_3650. Other age ranges can be set with
+prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.</p></li>
+<li><p>n_severe: number of humans with a severe infection between an inclusive
+age range at this timestep. Age ranges can be set with
 severe_prevalence_rendering_min_ages and severe_prevalence_rendering_max_ages parameters.</p></li>
-<li><p>inc: incidence for humans between an inclusive age range (in timesteps).
+<li><p>n_inc: number of new infections for humans between an inclusive age range at this timestep.
 incidence columns can be set with
 incidence_rendering_min_ages and incidence_rendering_max_ages parameters.</p></li>
-<li><p>clin_inc: clinical incidence for humans between an inclusive age range (in timesteps)
+<li><p>p_inc: sum of probabilities of infection for humans between an inclusive age range at this timestep.
+incidence columns can be set with
+incidence_rendering_min_ages and incidence_rendering_max_ages parameters.</p></li>
+<li><p>n_inc_clinical: number of new clinical infections for humans between an inclusive age range at this timestep.
 clinical incidence columns can be set with
 clinical_incidence_rendering_min_ages and clinical_incidence_rendering_max_ages parameters.</p></li>
-<li><p>inc_severe: severe incidence for humans between an inclusive age range (in
-timesteps).
+<li><p>p_inc_clinical: sub of probabilities of clinical infection for humans between an inclusive age range at this timestep.
+clinical incidence columns can be set with
+clinical_incidence_rendering_min_ages and clinical_incidence_rendering_max_ages parameters.</p></li>
+<li><p>n_inc_severe: number of new severe infections for humans between an inclusive age range at this timestep.
+severe incidence columns can be set with
+severe_incidence_rendering_min_ages and severe_incidence_rendering_max_ages parameters.</p></li>
+<li><p>p_inc_severe: the sum of probabilities of severe infection for humans between an inclusive age range at this timestep.
 severe incidence columns can be set with
 severe_incidence_rendering_min_ages and severe_incidence_rendering_max_ages parameters.</p></li>
 <li><p>severe_deaths: number of deaths due to severe malaria. severe_enabled must be
 set to TRUE</p></li>
-<li><p>E_count: number of mosquitoes in the early larval stage</p></li>
-<li><p>L_count: number of mosquitoes in the late larval stage</p></li>
-<li><p>P_count: number of mosquitoes in the pupal stage</p></li>
-<li><p>Sm_count: number of adult female mosquitoes who are Susceptible</p></li>
-<li><p>Pm_count: number of adult female mosquitoes who are incubating</p></li>
-<li><p>Im_count: number of adult female mosquitoes who are infectious</p></li>
-<li><p>total_M: number of adult female mosquitoes. Variables with suffixes total_M_# refer to the number of adult
-female mosquitoes from the different indicies of the set_species() vector</p></li>
+<li><p>E_count: number of mosquitoes in the early larval stage (per species)</p></li>
+<li><p>L_count: number of mosquitoes in the late larval stage (per species)</p></li>
+<li><p>P_count: number of mosquitoes in the pupal stage (per species)</p></li>
+<li><p>Sm_count: number of adult female mosquitoes who are Susceptible (per
+species)</p></li>
+<li><p>Pm_count: number of adult female mosquitoes who are incubating (per
+species)</p></li>
+<li><p>Im_count: number of adult female mosquitoes who are infectious (per
+species)</p></li>
 <li><p>rate_D_A: rate that humans transition from clinical disease to
 asymptomatic</p></li>
 <li><p>rate_A_U: rate that humans transition from asymptomatic to

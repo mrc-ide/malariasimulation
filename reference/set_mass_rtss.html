@@ -73,7 +73,7 @@ Efficacy will take effect after the last dose" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -96,6 +96,9 @@ Efficacy will take effect after the last dose" />
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
+      <a href="../articles/EIRprevmatch.html">Matching PfPR2-10 to EIR</a>
+    </li>
+    <li>
       <a href="../articles/MDA.html">Mass Drug Administration</a>
     </li>
     <li>
@@ -108,9 +111,15 @@ Efficacy will take effect after the last dose" />
       <a href="../articles/Vaccines.html">Vaccines</a>
     </li>
     <li>
+      <a href="../articles/Variation.html">Variation</a>
+    </li>
+    <li>
       <a href="../articles/VectorControl.html">Vector Control</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -174,7 +183,9 @@ Efficacy will take effect after the last dose</p>
     </tr>
     <tr>
       <th>min_wait</th>
-      <td><p>the minimum acceptable time since the last vaccination (in timesteps);</p></td>
+      <td><p>the minimum acceptable time since the last vaccination (in timesteps);
+When using both set_mass_rtss and set_rtss_epi, this represents the minimum
+time between an individual being vaccinated under one scheme and vaccinated under another.</p></td>
     </tr>
     <tr>
       <th>boosters</th>

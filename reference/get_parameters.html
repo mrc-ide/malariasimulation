@@ -75,7 +75,7 @@ and mortality: A modelling study.&quot;" />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -98,6 +98,9 @@ and mortality: A modelling study.&quot;" />
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
+      <a href="../articles/EIRprevmatch.html">Matching PfPR2-10 to EIR</a>
+    </li>
+    <li>
       <a href="../articles/MDA.html">Mass Drug Administration</a>
     </li>
     <li>
@@ -110,9 +113,15 @@ and mortality: A modelling study.&quot;" />
       <a href="../articles/Vaccines.html">Vaccines</a>
     </li>
     <li>
+      <a href="../articles/Variation.html">Variation</a>
+    </li>
+    <li>
       <a href="../articles/VectorControl.html">Vector Control</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -352,9 +361,9 @@ outputs; default = 730</p></li>
 <li><p>prevalence_rendering_max_ages - the corresponding max ages; default = 3650</p></li>
 <li><p>incidence_rendering_min_ages - the minimum ages for incidence
 outputs (includes asymptomatic microscopy +); default = turned off</p></li>
-<li><p>incidence_rendering_max_ages - the corresponding max ages; default = turned off
-clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = 0
-clinical_incidence_rendering_max_ages - the corresponding max ages; default = 1825</p></li>
+<li><p>incidence_rendering_max_ages - the corresponding max ages; default = turned off</p></li>
+<li><p>clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = 0</p></li>
+<li><p>clinical_incidence_rendering_max_ages - the corresponding max ages; default = 1825</p></li>
 <li><p>severe_prevalence_rendering_min_ages - the minimum ages for severe
 prevalence outputs; default = turned off</p></li>
 <li><p>severe_prevalence_rendering_max_ages - the corresponding max ages; default = turned off</p></li>
@@ -372,7 +381,6 @@ individually or compartmentally; default = TRUE</p></li>
 <li><p>r_tol - the relative tolerance for the ode solver; default = 1e-4</p></li>
 <li><p>a_tol - the absolute tolerance for the ode solver; default = 1e-4</p></li>
 <li><p>ode_max_steps - the max number of steps for the solver; default = 1e6</p></li>
-<li><p>ode_debug - whether to print debug output for ode parameter updates; default = FALSE</p></li>
 <li><p>enable_heterogeneity - boolean whether to include heterogeneity in biting
 rates; default = TRUE</p></li>
 </ul></td>

@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
       </span>
     </div>
 
@@ -54,6 +54,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/EIRprevmatch.html">Matching PfPR2-10 to EIR</a>
+    </li>
+    <li>
       <a href="../articles/MDA.html">Mass Drug Administration</a>
     </li>
     <li>
@@ -66,9 +69,15 @@
       <a href="../articles/Vaccines.html">Vaccines</a>
     </li>
     <li>
+      <a href="../articles/Variation.html">Variation</a>
+    </li>
+    <li>
       <a href="../articles/VectorControl.html">Vector Control</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
 <ul class="nav navbar-nav navbar-right"></ul>
@@ -81,7 +90,7 @@
 
       
 
-      </header><script src="Model_files/accessible-code-block-0.0.1/empty-anchor.js"></script><script src="Model_files/htmlwidgets-1.5.3/htmlwidgets.js"></script><script src="Model_files/viz-1.8.2/viz.js"></script><link href="Model_files/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
+      </header><script src="Model_files/accessible-code-block-0.0.1/empty-anchor.js"></script><script src="Model_files/htmlwidgets-1.5.4/htmlwidgets.js"></script><script src="Model_files/viz-1.8.2/viz.js"></script><link href="Model_files/DiagrammeR-styles-0.2/styles.css" rel="stylesheet">
 <script src="Model_files/grViz-binding-1.0.6.1/grViz.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
@@ -108,8 +117,8 @@
 <li>‘disease_progression.R’ (green)</li>
 <li>‘mortality_processes.R’(red)</li>
 </ol>
-<div id="htmlwidget-f3c33204bec422a1f54c" style="width:700px;height:432.632880098888px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-f3c33204bec422a1f54c">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = LR]\n  \n  node [shape = rectangle]        \n  S\n  D\n  A\n  U\n  Tr\n  \n  node [shape = circle]\n  i [label = \"\"]\n  \n  # edge definitions with the node IDs\n  S -> i [color=\"orange\"]\n  i -> D [color=\"orange\"]\n  i -> A [color=\"orange\"]\n  i -> Tr [color=\"orange\"]\n  D -> A -> U -> S [color=\"green\"]\n  Tr -> s [color=\"green\"]\n  A -> i [color=\"orange\"]\n  U -> i [color=\"orange\"]\n  U -> S [color=\"red\"]\n  A -> S [color=\"red\"]\n  D -> S [color=\"red\"]\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-d95f3c4852dfc905e6c0" style="width:700px;height:432.632880098888px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-d95f3c4852dfc905e6c0">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = LR]\n  \n  node [shape = rectangle]        \n  S\n  D\n  A\n  U\n  Tr\n  \n  node [shape = circle]\n  i [label = \"\"]\n  \n  # edge definitions with the node IDs\n  S -> i [color=\"orange\"]\n  i -> D [color=\"orange\"]\n  i -> A [color=\"orange\"]\n  i -> Tr [color=\"orange\"]\n  D -> A -> U -> S [color=\"green\"]\n  Tr -> s [color=\"green\"]\n  A -> i [color=\"orange\"]\n  U -> i [color=\"orange\"]\n  U -> S [color=\"red\"]\n  A -> S [color=\"red\"]\n  D -> S [color=\"red\"]\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 <div id="mosquito-biology" class="section level1">
 <h1 class="hasAnchor">
@@ -121,8 +130,8 @@
 <li>‘R/mosquito_biology.R’ (orange)</li>
 <li>‘R/mosquito_biology.R’ (red)</li>
 </ol>
-<div id="htmlwidget-42541b4cd9e56e09b83c" style="width:700px;height:432.632880098888px;" class="grViz html-widget"></div>
-<script type="application/json" data-for="htmlwidget-42541b4cd9e56e09b83c">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = LR]\n  \n  subgraph clusterode {\n    style=filled;\n    color=lightblue;\n    node [shape = rectangle]\n    E\n    L\n    P\n    label=\"ODE\"\n  }\n\n  node [shape = rectangle]\n  Sm\n  Pm\n  Im\n  NonExistent\n  \n  # edge definitions with the node IDs\n  E -> L -> P [color=\"green\", label=\"1\"]\n  P -> Sm [color=\"green\", label=\"2\"]\n  Sm -> Pm -> Im [color=\"orange\", label=\"3\"]\n  Sm -> NonExistent [color=\"red\", label=\"4\"]\n  Pm -> NonExistent [color=\"red\", label=\"4\"]\n  Im -> NonExistent [color=\"red\", label=\"4\"]\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-3e6dee3fbb98b1d0832f" style="width:700px;height:432.632880098888px;" class="grViz html-widget"></div>
+<script type="application/json" data-for="htmlwidget-3e6dee3fbb98b1d0832f">{"x":{"diagram":"digraph {\n  graph [layout = dot, rankdir = LR]\n  \n  subgraph clusterode {\n    style=filled;\n    color=lightblue;\n    node [shape = rectangle]\n    E\n    L\n    P\n    label=\"ODE\"\n  }\n\n  node [shape = rectangle]\n  Sm\n  Pm\n  Im\n  NonExistent\n  \n  # edge definitions with the node IDs\n  E -> L -> P [color=\"green\", label=\"1\"]\n  P -> Sm [color=\"green\", label=\"2\"]\n  Sm -> Pm -> Im [color=\"orange\", label=\"3\"]\n  Sm -> NonExistent [color=\"red\", label=\"4\"]\n  Pm -> NonExistent [color=\"red\", label=\"4\"]\n  Im -> NonExistent [color=\"red\", label=\"4\"]\n  }","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
   </div>
 

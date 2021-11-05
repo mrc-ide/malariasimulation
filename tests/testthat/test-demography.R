@@ -1,16 +1,48 @@
 test_that('calculate_initial_ages defaults to an exponential distribution', {
-  parameters <- get_parameters(list(human_population = 4))
-  mock_exp <- mockery::mock(c(0, 1, 2, 3))
+  parameters <- get_parameters(list(max_human_population = 4))
+  mock_exp <- mockery::mock(seq(4))
   mockery::stub(calculate_initial_ages, 'rexp', mock_exp)
   ages <- calculate_initial_ages(parameters)
   mockery::expect_args(
     mock_exp,
     1,
-    4,
+    parameters$max_human_population,
     1 / parameters$average_age
   )
 })
 
-test_that('calculate_initial_ages calculates the correct proportions for a custom demographic', {
-  expect_true(FALSE)
+test_that('find_birthrates is consistent with get_equilibrium_population', {
+  pops <- c(100, 10000, 100000)
+  age_high <- c(50, 100)
+  deathrates <- c(.5, .75)
+  birthrates <- find_birthrates(pops, age_high, deathrates)
+  actual <- vnapply(
+    birthrates,
+    function(birthrate) {
+      sum(get_equilibrium_population(
+        age_high = age_high,
+        birthrate = birthrate,
+        deathrates = deathrates
+      ))
+    }
+  )
+  expect_equal(actual, pops)
+})
+
+
+test_that('calculate_initial_ages calculates truncated exp custom demographic', {
+  parameters <- get_parameters(list(max_human_population = 4))
+  parameters <- set_demography(
+    parameters,
+    agegroups = c(50, 100),
+    timesteps = 1,
+    birthrates = 50,
+    deathrates = matrix(c(.5, .75), nrow=1, ncol=2)
+  )
+  mock_groups <- mockery::mock(c(2, 1))
+  mock_rtexp <- mockery::mock(25, 75)
+  mockery::stub(calculate_initial_ages, 'sample', mock_groups)
+  mockery::stub(calculate_initial_ages, 'rtexp', mock_rtexp)
+  ages <- calculate_initial_ages(parameters)
+  expect_equal(ages, c(75, 25))
 })

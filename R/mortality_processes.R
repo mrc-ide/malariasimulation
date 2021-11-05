@@ -12,7 +12,7 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
   function(timestep) {
     at_risk <- variables$state$get_index_of('NonExistent')$not(TRUE)
 
-    if (is.null(parameters$deathrate_timesteps)) {
+    if (!parameters$custom_demography) {
       died <- sample_bitset(at_risk, 1 / parameters$average_age)
       renderer$render('natural_deaths', died$size(), timestep)
     } else {
@@ -31,12 +31,11 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
 create_birth_process <- function(variables, events, parameters) {
   function(timestep) {
     at_risk <- variables$state$get_index_of('NonExistent')
-    if (is.null(parameters$birthrate_timesteps)) {
-      born <- sample_bitset(at_risk, 1 / parameters$average_age)
-    } else {
-      last_birthrate <- which(timestep >= parameters$birthrate_timesteps)[[-1]]
-      born <- sample_bitset(at_risk, parameters$birthrates[last_birthrate])
+    n_born <- rpois(1, get_birthrate(parameters, timestep))
+    if (at_risk$size() < n_born) {
+      stop('not enough humans please increase max_population')
     }
+    born <- bitset_at(at_risk, seq(n_born))
     sample_maternal_immunity(variables, born, timestep)
     reset_target(variables, events, born, 'S')
   }

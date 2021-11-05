@@ -106,14 +106,14 @@
 #'
 #' initial state proportions:
 #'
-#' * s_proportion - the proportion of `human_population` that begin as susceptible; default = 0.420433246
-#' * d_proportion - the proportion of `human_population` that begin with
+#' * s_proportion - the proportion of `max_human_population` that begin as susceptible; default = 0.420433246
+#' * d_proportion - the proportion of `max_human_population` that begin with
 #' clinical disease; default = 0.007215064
-#' * a_proportion - the proportion of `human_population` that begin as
+#' * a_proportion - the proportion of `max_human_population` that begin as
 #' asymptomatic; default = 0.439323667
-#' * u_proportion - the proportion of `human_population` that begin as
+#' * u_proportion - the proportion of `max_human_population` that begin as
 #' subpatents; default = 0.133028023
-#' * t_proportion - the proportion of `human_population` that begin treated; default = 0
+#' * t_proportion - the proportion of `max_human_population` that begin treated; default = 0
 #'
 #' initial immunity values:
 #'
@@ -223,7 +223,8 @@
 #'
 #' miscellaneous:
 #'
-#' * human_population - the number of humans to model; default = 100
+#' * init_human_population - the initial number of humans to model; default = 100
+#' NOTE: please set population using `set_initial_population`
 #' * mosquito_limit - the maximum number of mosquitoes to allow for in the
 #' simulation; default = 1.00E+05
 #' * individual_mosquitoes - boolean whether adult mosquitoes are modeled
@@ -405,7 +406,9 @@ get_parameters <- function(overrides = list()) {
     severe_incidence_rendering_min_ages = numeric(0),
     severe_incidence_rendering_max_ages = numeric(0),
     # misc
-    human_population = 100,
+    custom_demography = FALSE,
+    init_human_population = 100,
+    max_human_population = 100 * (1 + 1 / 7663) * 1.1,
     mosquito_limit   = 100 * 1000,
     individual_mosquitoes = TRUE,
     enable_heterogeneity = TRUE,

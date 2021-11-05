@@ -42,3 +42,15 @@ to_char_vector <- function(v) vapply(v, function(n) toString(n), character(1))
 weibull_survival <- function(t, shape, scale) exp(-((t/scale)^shape))
 
 between <- function(x, l, u) (x >= l) && (x <= u)
+
+#'@title Inverse truncated exponential CDF
+#'@param u quantile
+#'@param m rate
+#'@param t truncation
+itexp <- function(u, m, t) -log(1 - u * (1 - exp(-t * m)))/m
+
+#'@title Truncated exponential sample
+#'@param n number of samples
+#'@param m rate
+#'@param t truncation
+rtexp <- function(n, m, t) { itexp(runif(n), m, t) }

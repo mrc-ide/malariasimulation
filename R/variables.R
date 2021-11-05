@@ -417,14 +417,19 @@ calculate_initial_ages <- function(parameters) {
     }
   }
 
-  sampled_age_high <- sample(
-    age_high,
+  group <- sample(
+    seq(n_age),
     parameters$human_population,
     replace = TRUE,
     prob = prop
   )
 
-  group_dist <- runif(0, 1, parameters$human_population)
+  # sample truncated exponential for each age group
+  ages <- rep(NA, parameters$human_population)
+  for (g in seq(n_age)) {
+    in_group <- group == g
+    ages[in_group] <- rtexp(sum(in_group), deathrate[[i]], age_width)
+  }
 
-  sampled_age_high - group_dist * age_width
+  ages
 }

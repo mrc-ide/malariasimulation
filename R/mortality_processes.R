@@ -10,41 +10,41 @@
 #' @noRd
 create_mortality_process <- function(variables, events, renderer, parameters) {
   function(timestep) {
-    age <- get_age(variables$birth$get_values(), timestep)
+    at_risk <- variables$state$get_index_of('NonExistent')$not(TRUE)
 
-    died <- individual::Bitset$new(parameters$human_population)
-    if (is.null(parameters$demography_timesteps)) {
-      died <- sample_bitset(died$not(TRUE), 1 / parameters$average_age)
+    if (is.null(parameters$deathrate_timesteps)) {
+      died <- sample_bitset(at_risk, 1 / parameters$average_age)
+      renderer$render('natural_deaths', died$size(), timestep)
     } else {
-      last_demography <- which(timestep >= parameters$demography_timesteps)[[-1]]
-      age_groups <- .bincode(age, c(0, parameters$demography_agegroups))
-      deathrates <- parameters$demography_deathrates[age_groups,last_demography]
+      age <- get_age(variables$birth$get_values(at_risk), timestep)
+      last_deathrate <- which(timestep >= parameters$deathrate_timesteps)[[-1]]
+      age_groups <- .bincode(age, c(0, parameters$deathrate_agegroups))
+      deathrates <- parameters$deathrates[age_groups, last_deathrate]
       deathrates[is.na(deathrates)] <- 1
-      died$insert(bernoulli_multi_p(deathrates))
+      died <- bitset_at(at_risk, bernoulli_multi_p(deathrates))
+      renderer$render('natural_deaths', died$size(), timestep)
     }
-
-    renderer$render('natural_deaths', died$size(), timestep)
-
-    reset_target(variables, events, died, 'S')
+    reset_target(variables, events, died, 'NonExistent')
   }
 }
 
-create_population_listener <- function(variables, events, parameters) {
+create_birth_process <- function(variables, events, parameters) {
   function(timestep) {
-    i <- which(parameters$population_timesteps == timestep)
-    change <- parameters$human_population[[i]] - parameters$human_population[[i - 1]]
-    if (change > 0) {
-      nonex <- variables$state$get_index_of('NonExistent')
-      variables$state$queue_update(nonex$sample(change), 'S')
-    } else if (change < 0) {
-      ex <- variables$state$get_index_of('NonExistent')$not()$sample(-change)
-      reset_target(variables, events, ex, 'NonExistent')
+    at_risk <- variables$state$get_index_of('NonExistent')
+    if (is.null(parameters$birthrate_timesteps)) {
+      born <- sample_bitset(at_risk, 1 / parameters$average_age)
+    } else {
+      last_birthrate <- which(timestep >= parameters$birthrate_timesteps)[[-1]]
+      born <- sample_bitset(at_risk, parameters$birthrates[last_birthrate])
     }
+    sample_maternal_immunity(variables, born, timestep)
+    reset_target(variables, events, born, 'S')
   }
 }
 
-reset_target <- function(variables, events, target, state) {
+sample_maternal_immunity <- function(variables, target, timestep) {
   if (target$size() > 0) {
+    age <- get_age(variables$birth$get_values(), timestep)
     # inherit immunity from parent in group
     sampleable <- individual::Bitset$new(parameters$human_population)
     sampleable$insert(which(trunc(age / 365) == 20))
@@ -75,7 +75,11 @@ reset_target <- function(variables, events, target, state) {
         variables$ivm$queue_update(birth_ivm, target_group)
       }
     }
+  }
+}
 
+reset_target <- function(variables, events, target, state) {
+  if (target$size() > 0) {
     # clear events
     to_clear <- c(
       'asymptomatic_progression',
@@ -125,10 +129,4 @@ reset_target <- function(variables, events, target, state) {
     variables$spray_time$queue_update(-1, target)
     # zeta and zeta group survive rebirth
   }
-}
-
-died_from_severe <- function(severe, diseased, v, treated, fvt) {
-  at_risk <- severe$copy()$and(diseased)
-  treated_at_risk <- severe$copy()$and(treated)
-  sample_bitset(at_risk$or(sample_bitset(treated_at_risk, fvt)), v)
 }

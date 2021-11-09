@@ -337,10 +337,10 @@ schedule_infections <- function(
   parameters,
   asymptomatics
   ) {
-  included <- treated$not(TRUE)
+  included <- treated$not() #JDC removed 'TRUE' from $not()
 
   to_infect <- clinical_infections$and(included)
-  to_infect_asym <- clinical_infections$copy()$not(TRUE)$and(infections)$and(
+  to_infect_asym <- clinical_infections$copy()$not()$and(infections)$and( #JDC removed 'TRUE' from $not()
     included
   )
 

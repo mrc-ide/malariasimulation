@@ -102,7 +102,7 @@ calculate_tbv_antibodies <- function(t, tbv_iiva, tbv_iivb, tbv_PK_sx, tbv_PK_zs
   TVV2 <- 0.944
   TVQ <- 0.172
   TVV3 <- 1.47
-  TVQ2 <- 0.0782
+  TVQ2 <- 0.00782
   #WT <- 70 #body weight, add age & zscore here
   #AMT <- WT*10
   

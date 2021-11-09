@@ -10,7 +10,7 @@ test_that('ODE stays at equilibrium with a constant total_M', {
   
   for (t in seq(timesteps)) {
     counts <- rbind(counts, c(t, solver_get_states(solvers[[1]])))
-    mosquito_model_update(models[[1]], total_M, f, parameters$mum)
+    aquatic_mosquito_model_update(models[[1]], total_M, f, parameters$mum)
     solver_step(solvers[[1]])
   }
 
@@ -29,7 +29,7 @@ test_that('ODE stays at equilibrium with a constant total_M', {
 })
 
 test_that('Adult ODE stays at equilibrium with a constant foim and mu', {
-  foim = 0.5
+  foim <- 0.5
   parameters <- get_parameters(list(
     individual_mosquitoes = FALSE,
     init_foim = foim
@@ -84,7 +84,7 @@ test_that('ODE stays at equilibrium with low total_M', {
 
   for (t in seq(timesteps)) {
     counts <- rbind(counts, c(t, solver_get_states(solvers[[1]])))
-    mosquito_model_update(models[[1]], total_M, f, parameters$mum)
+    aquatic_mosquito_model_update(models[[1]], total_M, f, parameters$mum)
     solver_step(solvers[[1]])
   }
 
@@ -126,7 +126,7 @@ test_that('Changing total_M stabilises', {
     } else {
       total_M <- total_M_1
     }
-    mosquito_model_update(models[[1]], total_M, f, parameters$mum)
+    aquatic_mosquito_model_update(models[[1]], total_M, f, parameters$mum)
     solver_step(solvers[[1]])
   }
 
@@ -165,7 +165,7 @@ test_that('You can parameterise Total_M = 0 🤯', {
   
   for (t in seq(timesteps)) {
     counts <- rbind(counts, c(t, solver_get_states(solvers[[2]])))
-    mosquito_model_update(
+    aquatic_mosquito_model_update(
       models[[2]],
       total_M * parameters$species_proportions[[2]],
       f,

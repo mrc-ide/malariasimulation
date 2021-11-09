@@ -16,7 +16,7 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
     ) / 365)
 
     died <- individual::Bitset$new(parameters$human_population)
-    died <- sample_bitset(died$not(), 1 / parameters$average_age)
+    died <- sample_bitset(died$not(TRUE), 1 / parameters$average_age)
 
     renderer$render('natural_deaths', died$size(), timestep)
 
@@ -65,13 +65,22 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
         }
       }
 
-      events$detection$clear_schedule(died)
-      events$clinical_infection$clear_schedule(died)
-      events$asymptomatic_infection$clear_schedule(died)
-      events$asymptomatic_progression$clear_schedule(died)
-      events$subpatent_progression$clear_schedule(died)
-      events$recovery$clear_schedule(died)
-      events$throw_away_net$clear_schedule(died)
+      # clear events
+      to_clear <- c(
+        'asymptomatic_progression',
+        'subpatent_progression',
+        'recovery',
+        'clinical_infection',
+        'asymptomatic_infection',
+        'throw_away_net',
+        'rtss_mass_doses',
+        'rtss_mass_booster',
+        'rtss_epi_doses',
+        'rtss_epi_boosters'
+      )
+      for (event in unlist(events[to_clear])) {
+        event$clear_schedule(died)
+      }
 
       # new birthday
       variables$birth$queue_update(timestep, died)
@@ -113,5 +122,5 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
 died_from_severe <- function(severe, diseased, v, treated, fvt) {
   at_risk <- severe$copy()$and(diseased)
   treated_at_risk <- severe$copy()$and(treated)
-  sample_bitset(at_risk, v)$or(sample_bitset(treated_at_risk, fvt))
+  sample_bitset(at_risk$or(sample_bitset(treated_at_risk, fvt)), v)
 }

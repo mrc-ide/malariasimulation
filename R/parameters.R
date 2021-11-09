@@ -166,9 +166,13 @@
 #' * clinical_treatment_coverage - a vector of coverage values for each drug; default = NULL, NULL, NULL
 #'
 #' RTS,S paramters: 
-#' please set RTS,S parameters with the convenience functions in
-#' `vaccine_parameters.R:set_rtss`
+#' please set RTS,S strategies with the convenience functions in
+#' `vaccine_parameters.R:set_rtss_epi`
+#' `vaccine_parameters.R:set_mass_rtss`
 #'
+#' * rtss_doses - the dosing schedule before the vaccine takes effect; default =
+#' c(0, 1.5 * 30, 3 * 30)
+#' default = 365
 #' * rtss_vmax - the maximum efficacy of the vaccine; default = 0.93
 #' * rtss_alpha - shape parameter for the vaccine efficacy model; default = 0.74
 #' * rtss_beta - scale parameter for the vaccine efficacy model; default = 99.4
@@ -210,8 +214,8 @@
 #' * incidence_rendering_min_ages - the minimum ages for incidence
 #' outputs (includes asymptomatic microscopy +); default = turned off
 #' * incidence_rendering_max_ages - the corresponding max ages; default = turned off 
-#' clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = 0
-#' clinical_incidence_rendering_max_ages - the corresponding max ages; default = 1825
+#' * clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = 0
+#' * clinical_incidence_rendering_max_ages - the corresponding max ages; default = 1825
 #' * severe_prevalence_rendering_min_ages - the minimum ages for severe
 #' prevalence outputs; default = turned off
 #' * severe_prevalence_rendering_max_ages - the corresponding max ages; default = turned off
@@ -228,6 +232,7 @@
 #' individually or compartmentally; default = TRUE 
 #' * r_tol - the relative tolerance for the ode solver; default = 1e-4
 #' * a_tol - the absolute tolerance for the ode solver; default = 1e-4
+#' * ode_max_steps - the max number of steps for the solver; default = 1e6
 #' * enable_heterogeneity - boolean whether to include heterogeneity in biting
 #' rates; default = TRUE 
 #'
@@ -343,24 +348,23 @@ get_parameters <- function(overrides = list()) {
     # treatment
     drug_efficacy          = numeric(0),
     drug_rel_c             = numeric(0),
-    drug_prophilaxis_shape = numeric(0),
-    drug_prophilaxis_scale = numeric(0),
+    drug_prophylaxis_shape = numeric(0),
+    drug_prophylaxis_scale = numeric(0),
     clinical_treatment_drugs     = list(),
     clinical_treatment_timesteps = list(),
     clinical_treatment_coverages = list(),
     # rts,s
-    rtss = FALSE,
-    rtss_vmax = .93,
-    rtss_alpha = .74,
-    rtss_beta = 99.4,
-    rtss_cs = c(6.37008, 0.35),
-    rtss_cs_boost = c(5.56277, 0.35),
-    rtss_rho = c(2.37832, 1.00813),
+    rtss           = FALSE,
+    rtss_doses     = c(0, 1.5 * 30, 3 * 30),
+    rtss_vmax      = .93,
+    rtss_alpha     = .74,
+    rtss_beta      = 99.4,
+    rtss_cs        = c(6.37008, 0.35),
+    rtss_cs_boost  = c(5.56277, 0.35),
+    rtss_rho       = c(2.37832, 1.00813),
     rtss_rho_boost = c(1.03431, 1.02735),
-    rtss_ds = c(3.74502, 0.341185),
-    rtss_dl = c(6.30365, 0.396515),
-    rtss_timesteps = NULL,
-    rtss_coverages = NULL,
+    rtss_ds        = c(3.74502, 0.341185),
+    rtss_dl        = c(6.30365, 0.396515),
     # MDA
     mda = FALSE,
     mda_drug = 0,
@@ -411,7 +415,8 @@ get_parameters <- function(overrides = list()) {
     individual_mosquitoes = TRUE,
     enable_heterogeneity = TRUE,
     r_tol = 1e-4,
-    a_tol = 1e-4 
+    a_tol = 1e-4,
+    ode_max_steps = 1e6
   )
 
   # Override parameters with any client specified ones

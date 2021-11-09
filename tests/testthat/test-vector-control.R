@@ -117,7 +117,7 @@ test_that('distribute_bednets process sets net_time correctly', {
 
   mockery::expect_args(target_mock, 1, seq(4), 'bednets', .9, correlations)
   mockery::expect_args(
-    variables$net_time$queue_update,
+    variables$net_time$queue_update_mock(),
     1,
     50,
     c(3, 4)
@@ -151,7 +151,7 @@ test_that('throw_away_bednets process resets net_time correctly', {
   listener(timestep, individual::Bitset$new(4)$insert(c(2, 3)))
 
   expect_bitset_update(
-    variables$net_time$queue_update,
+    variables$net_time$queue_update_mock(),
     -1,
     c(2, 3)
   )
@@ -186,7 +186,7 @@ test_that('indoor_spraying process sets spray_time correctly', {
 
   mockery::expect_args(target_mock, 1, seq(4), 'spraying', .9, correlations)
   mockery::expect_args(
-    spray_time$queue_update,
+    spray_time$queue_update_mock(),
     1,
     50,
     c(3, 4)

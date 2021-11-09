@@ -1,15 +1,20 @@
-epi_from_subpopulation <- function(target, age, lower, upper) {
-  in_range <- individual::Bitset$new(target$max_size)$insert(
-    which((age >= lower) & (age <= upper))
-  )
-
-  n_in_range <- in_range$size()
-  if (n_in_range == 0) {
-    return(0)
-  }
-  in_range$and(target)$size() / n_in_range
+in_age_range <- function(birth, timestep, lower, upper) {
+  birth$get_index_of(a = timestep - upper, b = timestep - lower)
 }
 
+#' @title Render prevalence statistics
+#' 
+#' @description renders prevalence numerators and denominators for indivduals
+#' detected by microscopy and with severe malaria
+#' 
+#' @param state human infection state
+#' @param birth variable for birth of the individual
+#' @param is_severe variable for if individual has severe malaria
+#' @param immunity to detection
+#' @param parameters model parameters
+#' @param renderer model renderer
+#' 
+#' @noRd
 create_prevelance_renderer <- function(
   state,
   birth,
@@ -19,90 +24,99 @@ create_prevelance_renderer <- function(
   renderer
   ) {
   function(timestep) {
-    age <- get_age(birth$get_values(), timestep)
     asymptomatic <- state$get_index_of('A')
-    asymptomatic_vector <- asymptomatic$to_vector()
-    asymptomatic_detected <- bernoulli_multi_p(
-      probability_of_detection(
-        age[asymptomatic_vector],
-        immunity$get_values(asymptomatic),
-        parameters
-      )
+    prob <- probability_of_detection(
+      get_age(birth$get_values(asymptomatic), timestep),
+      immunity$get_values(asymptomatic),
+      parameters
     )
-
-    detected <- state$get_index_of(c('Tr', 'D'))$or(
-      bitset_at(asymptomatic, asymptomatic_detected)
-    )
+    asymptomatic_detected <- bitset_at(asymptomatic, bernoulli_multi_p(prob))
+    clinically_detected <- state$get_index_of(c('Tr', 'D'))
+    detected <- clinically_detected$copy()$or(asymptomatic_detected)
 
     severe <- is_severe$get_index_of('yes')$and(detected)
     for (i in seq_along(parameters$prevalence_rendering_min_ages)) {
       lower <- parameters$prevalence_rendering_min_ages[[i]]
       upper <- parameters$prevalence_rendering_max_ages[[i]]
-      p <- epi_from_subpopulation(
-        detected,
-        age,
-        lower,
-        upper
+      in_age <- in_age_range(birth, timestep, lower, upper)
+      renderer$render(
+        paste0('n_', lower, '_', upper),
+        in_age$size(),
+        timestep
+      ) 
+      renderer$render(
+        paste0('n_detect_', lower, '_', upper),
+        in_age$copy()$and(detected)$size(),
+        timestep
       )
-      renderer$render(paste0('pv_', lower, '_', upper), p, timestep)
+      renderer$render(
+        paste0('p_detect_', lower, '_', upper),
+        in_age$copy()$and(clinically_detected)$size() + sum(
+          prob[bitset_index(asymptomatic, in_age)]
+        ),
+        timestep
+      )
     }
     for (i in seq_along(parameters$severe_prevalence_rendering_min_ages)) {
       lower <- parameters$severe_prevalence_rendering_min_ages[[i]]
       upper <- parameters$severe_prevalence_rendering_max_ages[[i]]
-      p <- epi_from_subpopulation(
-        severe,
-        age,
-        lower,
-        upper
+      in_age <- in_age_range(birth, timestep, lower, upper)
+      renderer$render(
+        paste0('n_', lower, '_', upper),
+        in_age$size(),
+        timestep
       )
-      renderer$render(paste0('pv_severe_', lower, '_', upper), p, timestep)
+      renderer$render(
+        paste0('n_severe_', lower, '_', upper),
+        in_age$and(severe)$size(),
+        timestep
+      )
     }
   }
 }
 
-create_incidence_renderer <- function(birth, is_severe, parameters, renderer) {
-  function(timestep, target) {
-    age <- get_age(birth$get_values(), timestep)
-    severe <- is_severe$get_index_of('yes')$and(target)
-    for (i in seq_along(parameters$incidence_rendering_min_ages)) {
-      lower <- parameters$incidence_rendering_min_ages[[i]]
-      upper <- parameters$incidence_rendering_max_ages[[i]]
-      p <- epi_from_subpopulation(
-        target,
-        age,
-        lower,
-        upper
-      )
-      renderer$render(paste0('inc_', lower, '_', upper), p, timestep)
-    }
-    for (i in seq_along(parameters$severe_incidence_rendering_min_ages)) {
-      lower <- parameters$severe_incidence_rendering_min_ages[[i]]
-      upper <- parameters$severe_incidence_rendering_max_ages[[i]]
-      p <- epi_from_subpopulation(
-        severe$copy()$and(target),
-        age,
-        lower,
-        upper
-      )
-      renderer$render(paste0('inc_severe_', lower, '_', upper), p, timestep)
-    }
-  }
-}
+#' @title Render incidence statistics
+#' 
+#' @description renders incidence (new for this timestep) for indivduals
+#' 
+#' @param birth variable for birth of the individual
+#' @param renderer object for model outputs
+#' @param target incidence population
+#' @param source_pop the population which is sampled for infection
+#' @param prob probability of infection
+#' @param prefix for model outputs
+#' @param lowers age bounds
+#' @param uppers age bounds
+#' @param timestep current target
+#' 
+#' @noRd
+incidence_renderer <- function(
+  birth,
+  renderer,
+  target,
+  source_pop,
+  prob,
+  prefix,
+  lowers,
+  uppers,
+  timestep
+  ) {
+  for (i in seq_along(lowers)) {
+    lower <- lowers[[i]]
+    upper <- uppers[[i]]
+    in_age <- in_age_range(birth, timestep, lower, upper)
+    renderer$render(paste0('n_', lower, '_', upper), in_age$size(), timestep)
+    renderer$render(
+      paste0('n_', prefix, lower, '_', upper),
+      in_age$copy()$and(target)$size(),
+      timestep
+    )
 
-create_clinical_incidence_renderer <- function(birth, parameters, renderer) {
-  function(timestep, target) {
-    age <- get_age(birth$get_values(), timestep)
-    for (i in seq_along(parameters$clinical_incidence_rendering_min_ages)) {
-      lower <- parameters$clinical_incidence_rendering_min_ages[[i]]
-      upper <- parameters$clinical_incidence_rendering_max_ages[[i]]
-      p <- epi_from_subpopulation(
-        target,
-        age,
-        lower,
-        upper
-      )
-      renderer$render(paste0('clin_inc_', lower, '_', upper), p, timestep)
-    }
+    renderer$render(
+      paste0('p_', prefix, lower, '_', upper),
+      sum(prob[bitset_index(source_pop, in_age)]),
+      timestep
+    )
   }
 }
 
@@ -122,36 +136,37 @@ create_variable_mean_renderer_process <- function(
   }
 }
 
-create_total_M_renderer_individual <- function(
+create_vector_count_renderer_individual <- function(
   mosquito_state,
   species,
+  state,
   renderer,
   parameters
   ) {
   function(timestep) {
-    adult <- mosquito_state$get_index_of('NonExistent')$not()
+    adult <- mosquito_state$get_index_of('NonExistent')$not(TRUE)
     for (i in seq_along(parameters$species)) {
-      renderer$render(
-        paste0('total_M_', i),
-        species$get_index_of(parameters$species[[i]])$and(adult)$size(),
-        timestep
-      )
+      species_name <- parameters$species[[i]]
+      species_index <- species$get_index_of(species_name)
+      for (s in state$get_categories()) {
+        renderer$render(
+          paste0(s, '_', species_name, '_count'),
+          state$get_index_of(s)$and(species_index)$size(),
+          timestep
+        )
+      }
     }
-
-    renderer$render('total_M', adult$size(), timestep)
   }
 }
 
-create_total_M_renderer_compartmental <- function(renderer, solvers) {
+create_total_M_renderer_compartmental <- function(renderer, solvers, parameters) {
   function(timestep) {
     total_M <- 0
     for (i in seq_along(solvers)) {
       row <- solver_get_states(solvers[[i]])
       species_M <- sum(row[ADULT_ODE_INDICES])
       total_M <- total_M + species_M
-      renderer$render(paste0('total_M_', i), species_M, timestep)
+      renderer$render(paste0('total_M_', parameters$species[[i]]), species_M, timestep)
     }
-
-    renderer$render('total_M', total_M, timestep)
   }
 }

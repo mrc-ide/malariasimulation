@@ -7,7 +7,7 @@ parameterise_mosquito_models <- function(parameters) {
     function(i) {
       p <- parameters$species_proportions[[i]]
       m <- p * parameters$total_M
-      growth_model <- create_mosquito_model(
+      growth_model <- create_aquatic_mosquito_model(
         parameters$beta,
         parameters$del,
         parameters$me,
@@ -22,7 +22,9 @@ parameterise_mosquito_models <- function(parameters) {
         parameters$g0,
         parameters$g,
         parameters$h,
-        calculate_R_bar(parameters)
+        calculate_R_bar(parameters),
+        parameters$mum[[i]],
+        parameters$blood_meal_rates[[i]]
       )
 
       if (!parameters$individual_mosquitoes) {
@@ -37,7 +39,8 @@ parameterise_mosquito_models <- function(parameters) {
             growth_model,
             parameters$mum[[i]],
             parameters$dem,
-            susceptible * parameters$init_foim
+            susceptible * parameters$init_foim,
+            parameters$init_foim
           )
         )
       }
@@ -58,21 +61,23 @@ parameterise_solvers <- function(models, parameters) {
             models[[i]],
             init,
             parameters$r_tol,
-            parameters$a_tol
+            parameters$a_tol,
+            parameters$ode_max_steps
           )
         )
       }
-      create_solver(
+      create_aquatic_solver(
         models[[i]],
         init[ODE_INDICES],
         parameters$r_tol,
-        parameters$a_tol
+        parameters$a_tol,
+        parameters$ode_max_steps
       )
     }
   )
 }
 
-create_ode_rendering_process <- function(renderer, solvers, parameters) {
+create_compartmental_rendering_process <- function(renderer, solvers, parameters) {
   if (parameters$individual_mosquitoes) {
     indices <- ODE_INDICES
   } else {
@@ -81,17 +86,16 @@ create_ode_rendering_process <- function(renderer, solvers, parameters) {
 
   function(timestep) {
     counts <- rep(0, length(indices))
-    for (i in seq_along(solvers)) {
-      row <- solver_get_states(solvers[[i]])
+    for (s_i in seq_along(solvers)) {
+      row <- solver_get_states(solvers[[s_i]])
+      for (i in seq_along(indices)) {
+        renderer$render(
+          paste0(names(indices)[[i]], '_', parameters$species[[s_i]], '_count'),
+          row[[i]],
+          timestep
+        )
+      }
       counts <- counts + row
-    }
-
-    for (i in seq_along(indices)) {
-      renderer$render(
-        paste0(names(indices)[[i]], '_count'),
-        counts[[i]],
-        timestep
-      )
     }
   }
 }

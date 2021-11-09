@@ -18,29 +18,66 @@ expect_none <- function(X, FUN) {
   expect(TRUE, 'No match found')
 }
 
-mock_category <- function(...) {
-  v <- individual::CategoricalVariable$new(...)
-  list(
-    get_index_of = v$get_index_of,
-    get_size_of = v$get_size_of,
-    queue_update = mockery::mock(),
-    get_categories = v$get_categories
+mock_method <- function(class, method, mock) {
+  MockClass <- R6::R6Class(
+    paste0('Mock', class$classname),
+    inherit = class
   )
+  MockClass$set(
+    'public',
+    method,
+    function(...) {
+      args <- lapply(
+        list(...),
+        function(arg) {
+          # copy a any bitsets because these will be lazily evaluated
+          if (inherits(arg, 'Bitset')) {
+            return(arg$copy())
+          }
+          arg
+        }
+      )
+      do.call(mock, args)
+    }
+  )
+  MockClass$set('public', paste0(method, '_mock'), function() mock)
+  MockClass
+}
+
+mock_category <- function(...) {
+  class <- mock_method(
+    individual::CategoricalVariable,
+    'queue_update',
+    mockery::mock()
+  )
+  class$new(...)
 }
 
 mock_double <- function(...) {
-  v <- individual::DoubleVariable$new(...)
-  list(
-    get_values = v$get_values,
-    queue_update = mockery::mock()
+  class <- mock_method(
+    individual::DoubleVariable,
+    'queue_update',
+    mockery::mock()
   )
+  class$new(...)
 }
 
 mock_render <- function(...) {
-  v <- individual::Render$new(...)
-  list(
-    render = mockery::mock()
+  class <- mock_method(
+    individual::Render,
+    'render',
+    mockery::mock()
   )
+  class$new(...)
+}
+
+mock_integer <- function(...) {
+  class <- mock_method(
+    individual::IntegerVariable,
+    'queue_update',
+    mockery::mock()
+  )
+  class$new(...)
 }
 
 mock_event <- function(event) {

@@ -5,7 +5,7 @@
 \alias{fun_params}
 \title{Preset parameters for the An. funestus vector}
 \format{
-An object of class \code{list} of length 6.
+An object of class \code{list} of length 7.
 }
 \usage{
 fun_params
@@ -17,6 +17,7 @@ Preset parameters for the An. funestus vector
 Default parameters:
 species: "fun"
 blood_meal_rates: 0.3333333
+foraging_time: .69
 Q0: 0.94
 phi_bednets: 0.78
 phi_indoors: 0.87

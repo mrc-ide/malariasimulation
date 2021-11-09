@@ -15,7 +15,7 @@ test_that('Seasonality correctly affects P', {
   
   for (t in seq(timesteps)) {
     counts <- rbind(counts, c(t, solver_get_states(solvers[[1]])))
-    mosquito_model_update(
+    aquatic_mosquito_model_update(
       models[[1]],
       total_M,
       parameters$blood_meal_rates,
@@ -41,4 +41,11 @@ test_that('Seasonality correctly affects P', {
   for (year in years) {
     expect_equal(first_sample, sample_vector_counts(year), tolerance=1e-3)
   }
+})
+
+test_that('Rainfall is always > 0', {
+  g0 <- 1.639449
+  g <- c(-2.1978530, 0.6981486, 0.1225242)
+  h <- c(-1.4126293, 1.5910602, -0.7558194)
+  expect_true(all(vnapply(seq(365), function(t) rainfall(t, g0, g, h)) > 0))
 })

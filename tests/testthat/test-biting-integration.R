@@ -87,7 +87,7 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
 
   lambda_mock <- mockery::mock(c(.5, .5, .5, .5))
   mosquito_effects_mock <- mockery::mock()
-  ode_update <- mockery::mock()
+  eqs_update <- mockery::mock()
   sample_mock <- mockery::mock(c(2, 3))
   pois_mock <- mockery::mock(2)
 
@@ -95,7 +95,7 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
   mockery::stub(simulate_bites, 'rpois', pois_mock)
   mockery::stub(simulate_bites, 'fast_weighted_sample', sample_mock)
   mockery::stub(simulate_bites, 'effective_biting_rates', lambda_mock)
-  mockery::stub(simulate_bites, 'mosquito_model_update', ode_update)
+  mockery::stub(simulate_bites, 'aquatic_mosquito_model_update', eqs_update)
   models <- parameterise_mosquito_models(parameters)
   solvers <- parameterise_solvers(models, parameters)
   lagged_foim <- LaggedValue$new(12.5, .001)
@@ -128,7 +128,7 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
   expect_equal(effects_args[[1]][[8]], parameters)
   expect_equal(effects_args[[1]][[9]], timestep)
 
-  mockery::expect_args(ode_update, 1, models[[1]], 25, f, parameters$mum)
+  mockery::expect_args(eqs_update, 1, models[[1]], 25, f, parameters$mum)
   mockery::expect_args(
     pois_mock,
     1,

@@ -9,8 +9,8 @@
 #define MALARIASIMULATION_TYPES_H_
 
 #include <individual.h>
-#include "mosquito_ode.h"
-#include "adult_mosquito_ode.h"
+#include "aquatic_mosquito_eqs.h"
+#include "adult_mosquito_eqs.h"
 #include "solver.h"
 #include "history.h"
 

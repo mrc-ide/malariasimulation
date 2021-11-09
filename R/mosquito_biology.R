@@ -148,7 +148,7 @@ peak_season_offset <- function(parameters) {
 #' @noRd
 death_rate <- function(f, W, Z, species, parameters) {
   mum <- parameters$mum[[species]]
-  p1_0 <- exp(-mum * parameters$foraging_time)
+  p1_0 <- exp(-mum * parameters$foraging_time[[species]])
   gonotrophic_cycle <- get_gonotrophic_cycle(species, parameters)
   p2 <- exp(-mum * gonotrophic_cycle)
   p1 <- p1_0 * W / (1 - Z * p1_0)
@@ -157,7 +157,7 @@ death_rate <- function(f, W, Z, species, parameters) {
 
 get_gonotrophic_cycle <- function(v, parameters) {
   f <- parameters$blood_meal_rates[[v]]
-  gonotrophic_cycle <- 1 / f - parameters$foraging_time
+  gonotrophic_cycle <- 1 / f - parameters$foraging_time[[v]]
 }
 
 #' @title Update the individual mosquito model after biting

@@ -24,17 +24,11 @@ Set up some baseline parameters:
 
 ```{r}
 year <- 365
-sim_length <- 1 * year
+sim_length <- 2 * year
 human_population <- 1000
 
 simparams <- get_parameters(list(human_population = human_population))
 simparams <- set_drugs(simparams, list(AL_params, DHA_PQP_params))
-
-# NOTE: this equilibrium is calculated using a different prophylaxis model
-# it is just used as a starting point
-get_equilibrium <- function(EIR, ft) {
-  human_equilibrium(EIR = EIR, ft = ft, p = jamie_params, age = 0:99)
-}
 ```
 
 Run the model for some starting EIRs and fts:
@@ -45,25 +39,26 @@ starting_EIR <- 10
 fts <- c(0, .25, .5, .75, 1.)
 
 for (ft in fts) {
-  eq_params <- load_parameter_set()
   simparams <- set_clinical_treatment(simparams, 1, 1, ft / 2)
   simparams <- set_clinical_treatment(simparams, 2, 1, ft / 2)
-  simparams <- set_equilibrium(simparams, starting_EIR, eq_params)
+  simparams <- set_equilibrium(simparams, starting_EIR)
   output <- run_simulation(sim_length, simparams)
+  # cut out the warmup
+  output <- output[output$timestep > year,]
   outputs[[length(outputs) + 1]] <- output
 }
 ```
 
-Let's plot the effect of ft on PfPrev2-10:
+Let's plot the effect of ft on PfPR2-10:
 
 ```{r}
 df <- do.call('rbind', lapply(seq_along(outputs), function(i) {
-  df <- outputs[[i]][c('timestep', 'pv_730_3650')]
+  df <- outputs[[i]][c('timestep', 'n_detect_730_3650', 'n_730_3650')]
   df$ft <- fts[[i]]
   df
 }))
     
 ggplot(df) + geom_line(
-  aes(x = timestep, y = pv_730_3650, colour = ft)
-)
+  aes(x = timestep, y = (n_detect_730_3650/n_730_3650), colour = ft)) + 
+  labs(x = "timestep", y = "PfPR2-10")
 ```

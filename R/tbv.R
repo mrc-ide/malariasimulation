@@ -14,7 +14,8 @@ account_for_tbv <- function(
   parameters
 ) {
     #vaccinated <- which(time_vaccinated != -1)
-    vaccinated <- variables$tbv_vaccinated$get_index_of(set=-1)$not() # much faster than which
+    # much faster than which
+    vaccinated <- variables$tbv_vaccinated$get_index_of(set=-1)$not(TRUE) #JDC: added a 'TRUE' here too, as was producing warning message
     # NOTE: this requires changing tbv_vaccinated to an IntegerVariable 
     affected_states <- c('U', 'A', 'D', 'Tr')
     mx <- parameters[c('tbv_mu', 'tbv_ma', 'tbv_md', 'tbv_mt')]
@@ -103,8 +104,6 @@ calculate_tbv_antibodies <- function(t, tbv_iiva, tbv_iivb, tbv_PK_sx, tbv_PK_zs
   TVQ <- 0.172
   TVV3 <- 1.47
   TVQ2 <- 0.00782
-  #WT <- 70 #body weight, add age & zscore here
-  #AMT <- WT*10
   
   #Age discretisation
   age_v <- c(0.0,0.5,1,1.5,2,2.5,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18) * 365
@@ -131,37 +130,8 @@ calculate_tbv_antibodies <- function(t, tbv_iiva, tbv_iivb, tbv_PK_sx, tbv_PK_zs
              0.1317800, 0.1355400, 0.1401600, 0.1475200, 0.1576000, 0.1682108, 0.1765885, 0.1796924,
              0.1768534, 0.1696619, 0.1609673, 0.1534760, 0.1487292, 0.1473498)
 
-  #WTCL <- (WT/70)**0.75
-  #WTV <- (WT/70)**1
-
-  #CL <- TVCL*exp( tbv_iiva )*WTCL #IIV
-  #V1 <- TVV1*exp( tbv_iivb )*WTV #IIV
-  #V2 <- TVV2*WTV
-  #Q <- TVQ*WTCL
-  #V3 <- TVV3*WTV
-  #Q2 <- TVQ2*WTCL
-
-  # #Rate consts.
-  # k10 <- 24*CL/V1
-  # k12 <- 24*Q/V1
-  # k21 <- 24*Q/V2
-  # k13 <- 24*Q2/V1
-  # k31 <- 24*Q2/V3
-
   amt <- 700 # 
 
-  # mt <- matrix(c(-(k12+k10+k13), k21, k31, k12, -k21, 0, k13, 0, -k31), nrow = 3, ncol = 3, byrow = T)
-  # p <- eigen(mt)$vectors #These are in the right order
-  # lambda <- eigen(mt)$values
-  # y0 <- c(amt,0,0) 
-  # zz0 <- solve(p)%*%y0
-  # z <- c(zz0[1]*exp(lambda[1] * t ), #time fudge! (avoid t=0)
-  #        zz0[2]*exp(lambda[2] * t ),
-  #        zz0[3]*exp(lambda[3] * t))
-  # zz <-  p[1,1]*z[1] + p[1,2]*z[2] + p[1,3]*z[3]# p%*%z #
-  # zz/V1
-  
-  #Do a standalone implementation with thissen, just to check it works
   vnapply(
     seq_along(tbv_iiva),
     function(i) {
@@ -171,10 +141,11 @@ calculate_tbv_antibodies <- function(t, tbv_iiva, tbv_iivb, tbv_PK_sx, tbv_PK_zs
       zscore <- tbv_PK_zscore[[i]]
       sex <- tbv_PK_sx[[i]]
       age_agent <- age_at_vaccination[[i]]
+      tt <- t[[i]] #JDC: new addition
       
       age_index <- max(which(age_v <= age_agent))
       
-      WT <- 0 # could way of indicating an issue?
+      WT <- 0 # good way of indicating an issue?
       
       if(sex==1){
         WT <- W_M_M[age_index] *(1 + zscore*W_L_M[age_index]*W_S_M[age_index])^(1/W_L_M[age_index])
@@ -204,11 +175,11 @@ calculate_tbv_antibodies <- function(t, tbv_iiva, tbv_iivb, tbv_PK_sx, tbv_PK_zs
       lambda <- eigen(mt)$values
       y0 <- c(amt,0,0) 
       zz0 <- solve(p)%*%y0
-      z <- c(zz0[1]*exp(lambda[1] * max(t,.1) ),
-             zz0[2]*exp(lambda[2] * max(t,.1) ),
-             zz0[3]*exp(lambda[3] * max(t,.1)) )
+      z <- c(zz0[1]*exp(lambda[1] * tt ),
+             zz0[2]*exp(lambda[2] * tt ),
+             zz0[3]*exp(lambda[3] * tt) )
       zz <-  p[1,1]*z[1] + p[1,2]*z[2] + p[1,3]*z[3]# p%*%z
-      zz/V1#min(zz/V1,69) #Bodge! Is this ok in vnapply?
+      zz/V1
     }
   )
 }

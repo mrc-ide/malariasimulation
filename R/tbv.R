@@ -80,6 +80,9 @@ create_tbv_listener <- function(variables, events, parameters, correlations, ren
       correlations
     ))
     renderer$render('n_vaccinated_tbv', length(to_vaccinate), timestep)
+    renderer$render('age_vaccinated_tbv', mean(get_age(variables$birth$get_values(to_vaccinate), timestep)), timestep)
+    renderer$render('min_age_vaccinated_tbv', min(get_age(variables$birth$get_values(to_vaccinate), timestep)), timestep)
+    renderer$render('max_age_vaccinated_tbv', max(get_age(variables$birth$get_values(to_vaccinate), timestep)), timestep)
     if (length(to_vaccinate) > 0) {
       variables$tbv_vaccinated$queue_update(
         timestep,

@@ -401,24 +401,26 @@ calculate_initial_ages <- function(parameters) {
   }
 
   age_high <- parameters$deathrate_agegroups
+  age_width <- diff(c(0, age_high))
+  age_low <- age_high - age_width
   n_age <- length(age_high)
   birthrate <- get_birthrate(parameters, 1)
-  deathrates <- parameters$deathrates[,1]
+  deathrates <- parameters$deathrates[1,]
 
-  prop <- agegroup_proportions(age_high, birthrate, deathrates)
+  pop <- get_equilibrium_population(age_high, birthrate, deathrates)
 
-  group <- sample(
-    seq(n_age),
+  group <- sample.int(
     parameters$max_human_population,
+    n_age,
     replace = TRUE,
-    prob = prop
+    prob = pop
   )
 
   # sample truncated exponential for each age group
   ages <- rep(NA, parameters$max_human_population)
   for (g in seq(n_age)) {
     in_group <- group == g
-    ages[in_group] <- rtexp(sum(in_group), deathrate[[i]], age_width)
+    ages[in_group] <- age_low[[g]] + rtexp(sum(in_group), deathrates[[g]], age_width)
   }
 
   ages

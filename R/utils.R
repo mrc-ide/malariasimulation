@@ -47,10 +47,20 @@ between <- function(x, l, u) (x >= l) && (x <= u)
 #'@param u quantile
 #'@param m rate
 #'@param t truncation
+#'@noRd
 itexp <- function(u, m, t) -log(1 - u * (1 - exp(-t * m)))/m
 
 #'@title Truncated exponential sample
 #'@param n number of samples
 #'@param m rate
 #'@param t truncation
+#'@noRd
 rtexp <- function(n, m, t) { itexp(runif(n), m, t) }
+
+#'@title Find the latest specified timestep in parameters
+#'@param ts timesteps, assumes ts is sorted and unique
+#'@param t timestep to match
+#'@noRd
+match_timestep <- function(ts, t) {
+  ts[[min(sum(ts < t) + 1, length(ts))]]
+}

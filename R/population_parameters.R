@@ -25,6 +25,7 @@ set_demography <- function(
   stopifnot(all(deathrates > 0 & deathrates < 1))
   stopifnot(length(agegroups) == ncol(deathrates))
   stopifnot(length(timesteps) == nrow(deathrates))
+  stopifnot(!is.unsorted(timesteps, strictly = TRUE))
   parameters$custom_demography <- TRUE
   parameters$deathrate_agegroups <- agegroups
   parameters$deathrate_timesteps <- timesteps
@@ -117,7 +118,6 @@ get_birthrate <- function(parameters, timestep) {
   if (!parameters$custom_demography) {
     return(1 / parameters$average_age * parameters$init_human_population)
   }
-  print(which(timestep >= parameters$birthrate_timesteps))
-  last_birthrate <- which(timestep >= parameters$birthrate_timesteps)[[-1]]
+  last_birthrate <- match_timestep(parameters$birthrate_timesteps, timestep)
   parameters$birthrates[last_birthrate]
 }

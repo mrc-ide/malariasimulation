@@ -73,12 +73,18 @@ create_tbv_listener <- function(variables, events, parameters, correlations, ren
       variables$birth$get_values(),
       timestep
     ) / 365) %in% parameters$tbv_ages)
-    to_vaccinate <- which(sample_intervention(
+    #to_vaccinate <- which(sample_intervention(
+    #  target,
+    #  'tbv',
+    #  parameters$tbv_coverages[[time_index]],
+    #  correlations
+    #))
+    to_vaccinate <- target[sample_intervention(
       target,
       'tbv',
       parameters$tbv_coverages[[time_index]],
       correlations
-    ))
+    )]
     renderer$render('n_vaccinated_tbv', length(to_vaccinate), timestep)
     renderer$render('age_vaccinated_tbv', mean(get_age(variables$birth$get_values(to_vaccinate), timestep)), timestep)
     renderer$render('min_age_vaccinated_tbv', min(get_age(variables$birth$get_values(to_vaccinate), timestep)), timestep)

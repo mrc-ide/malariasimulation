@@ -62,12 +62,12 @@ create_tbv_listener <- function(variables, events, parameters, correlations, ren
       variables$birth$get_values(),
       timestep
     ) / 365) %in% parameters$tbv_ages)
-    to_vaccinate <- which(sample_intervention(
+    to_vaccinate <- target[sample_intervention(
       target,
       'tbv',
       parameters$tbv_coverages[[time_index]],
       correlations
-    ))
+    )]
     renderer$render('n_vaccinated_tbv', length(to_vaccinate), timestep)
     if (length(to_vaccinate) > 0) {
       variables$tbv_vaccinated$queue_update(

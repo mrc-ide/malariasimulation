@@ -16,20 +16,18 @@ knitr::opts_chunk$set(
 
 ```{r setup, message=F, warning=F}
 library(malariasimulation)
-library(umbrella) # remotes::install_github('mrc-ide/umbrella@gee', force=T)
-library(reticulate)
-library(rgee) # remotes::install_github('r-spatial/rgee', force=T)
 library(sf)
-
 ```
 
 This vignette describes how to parameterize `malariasimulation` for site-specific seasonality and intervention parameters. 
 
-# Seasonality
+<br>
+
+## Seasonality
 
 Seasonality is incorporated into `malariasimulation` through the `get_parameters()` function. 
 
-```{r class.source="bg-warning", echo=FALSE}
+```{r eval=FALSE}
 params <- get_parameters(list(
   model_seasonality = TRUE,                 # model seasonal rainfall
   g0 = 0.284596,                            # rainfall fourier parameters
@@ -39,97 +37,147 @@ params <- get_parameters(list(
 
 To calculate the g and h rainfall fourier parameters for a specific place and time, we can use the [umbrella package](https://github.com/mrc-ide/umbrella/tree/gee). To install `umbrella`, follow the instructions on the [package website](https://github.com/mrc-ide/umbrella/tree/gee) to install `rgee` and Google Earth Engine. 
 
-```{r class.source="bg-warning", echo=FALSE}
-# Set python version (needs to be <=3.9!) and install earthengine --------------
-py_discover_config() # check version
-import('sys')$executable
-reticulate::use_python('C:/Users/htopazia/Anaconda3/python.exe', required=T)
-Sys.setenv(RETICULATE_PYTHON="C:/Users/htopazia/Anaconda3/envs/rgee/python.exe")
-options(reticulate.conda_binary = "C:/Users/htopazia/Anaconda3/envs/rgee/python.exe")
+```{r eval=FALSE}
+# Add libraries
+library(umbrella) # remotes::install_github('mrc-ide/umbrella@gee', force=T)
+library(reticulate)
+library(rgee) # remotes::install_github('r-spatial/rgee', force=T)
 
-# Use Anaconda prompt to create a new environment
+# Set python version (needs to be <=3.9!) and install earthengine --------------
+py_discover_config() # check python version
+reticulate::use_python('C:/Users/username/Anaconda3/python.exe', required=T)
+
+# Alternatively use the Anaconda prompt to create a new environment
 # conda create --name rgee python=3.9
 # conda activate rgee
 # conda install -c conda-forge earthengine-api
 
 # install earthengine
-rgee::ee_install_set_pyenv(py_path = "C:/Users/htopazia/Anaconda3/envs/rgee/python.exe", 
+rgee::ee_install_set_pyenv(py_path = "C:/Users/username/Anaconda3/envs/rgee/python.exe", 
                            py_env = 'rgee')
-# ::ee_clean_pyenv() # to clear and start over 
 
 # check
-ee_check() # may encounter an error but keep going
-# usethis::edit_r_environ() # to check environment
+ee_check() # may encounter an error about numpy not being installed, but keep going
 
 # sign into google earth account
-ee_Initialize(user='htopazian@gmail.com', drive=T) # Users/htopazian_earthengine
+ee_Initialize(user='user_email', drive=T) 
 ```
 
 <br>
 
+Select an administrative boundary shapefile to use. These can be found and downloaded from [geoBoundaries](https://www.geoboundaries.org/index.html#getdata).
 
-```{r}
+```{r, warning=F, message=F, fig.width=8, fig.height=4}
 # import spatial data
-admin1 <- readRDS(url("https://biogeo.ucdavis.edu/data/gadm3.6/Rsf/gadm36_KEN_1_sf.rds"))
-sites <- admin1[which(admin1$NAME_1 %in% c('Bomet','Kericho')),]
+admin1 <- readRDS("extdata/Kenya_admin1_simplified.rds")[,c(1,9)]
+
+# select specific units for which you want rainfall data
+sites <- admin1[which(admin1$shapeName %in% c('Bomet','Kericho')),]
   
 # plot
-plot(st_geometry(admin1), lwd = 2, col = 'green'))
-plot(st_geometry(sites), col = 'yellow', add = T)
+plot(st_geometry(admin1), lwd = 2, col = 'khaki')
+plot(st_geometry(sites), col = 'olivedrab4', add = T)
+```
 
+Set a time range and extract rainfall data from your sites using the `umbrella` package.
+
+```{r, eval=F}
 # specify time-range
 start_date <- "2015-01-01"
-end_date <- "2016-12-31"
+end_date <- "2015-12-31"
 
-# extract
-daily_rain <- pull_daily_rainfall(sf = admin2, start_date = start_date, end_date = end_date)
+# extract rainfall data
+daily_rain <- pull_daily_rainfall(sf = sites, start_date = start_date, end_date = end_date)
 
 # process
-seasonality <- process(gee_output = daily_rain, ISO, Country, admin1, admin2)
+seasonality <- process(gee_output = daily_rain, shapeName) # rain data, grouping variable
+```
 
-# inspect
-seasonality %>%
-  select(admin1, coefficients) %>%
-  tidyr::unnest(cols = c(coefficients))
+Visualize rainfall patterns. The red dots represent daily rainfall in this location, and the blue line represents the fit to the data calculated using `umbrella`.
 
-pd <- seasonality %>%
-  select(admin1, profile) %>%
-  tidyr::unnest(cols = c(profile)) %>%
-  mutate(day = t * 365)
+```{r, warning=F, message=F, fig.height=4, fig.width=8}
+# read in seasonality data
+seasonality <- readRDS("extdata/Kenya_rainfall.rds")
 
-ggplot(pd, aes(x = day, y = y, col = admin1)) +
-  geom_line() +
-  xlab("Day") +
-  ylab("Precipitation") +
-  theme_bw()
+# take out data for Bomet
+out <- do.call(data.frame, seasonality[1,]$profile)
+out2 <- do.call(data.frame, seasonality[1,]$rainfall_data)
+out2$t <- seq.int(nrow(out2))
+
+# plot
+plot(out2$t, out2$rainfall, type = "b", lty = 1, col = 'red',  
+     xlab = 'days', ylab = 'rainfall (mm)', main = 'Daily rainfall in Bomet, Kenya, 2015')
+lines(out$t * 365, out$y, type = "l", lty = 1, col = 'cornflowerblue')
+
 ```  
-```{r parameters}
-year <- 365
-human_population <- 5000
+<br>
 
+Resulting coefficients from each site can be printed from the model output. 
+
+```{r}
+# print coefficients
+do.call(data.frame, seasonality[1,]$coefficients)
+do.call(data.frame, seasonality[2,]$coefficients)
+```
+
+These coefficients can then be used in `malariasimulation'.
+```{r, eval=F}
 params <- get_parameters(list(
-  human_population = human_population,
-  average_age = 8453.323,     # to match flat_demog
+  human_population = 1000,
   model_seasonality = TRUE,   # assign seasonality
-  g0 = 0.284596,                              
-  g = c(-0.317878, -0.0017527, 0.116455),     
-  h = c(-0.331361, 0.293128, -0.0617547),     
-  prevalence_rendering_min_ages = 2 * year,    # set prev age range
-  prevalence_rendering_max_ages = 10 * year,
-  fvt = 0,
-  v = 0,
-  severe_enabled = T,
-  individual_mosquitoes = FALSE))
-
-  # set species / drugs / treatment parameters
-params <- set_species(params, species = list(arab_params, fun_params, gamb_params), 
-                      proportions = c(0.25, 0.25, 0.5))
-params <- set_drugs(params, list(AL_params))
-params <- set_clinical_treatment(params, 1, c(1), c(0.45))
+  g0 = 4.534334,                              
+  g = c(-1.067149, -1.319041, 1.112425),     
+  h = c(1.121452, -3.323766, -0.9617459),     
+  prevalence_rendering_min_ages = 2 * 365,
+  prevalence_rendering_max_ages = 10 * 365))
 
 ```
 
-# Interventions
+<br>
+
+## Infection and clinical disease
+
+[Malaria Atlas Project](https://malariaatlas.org/data-directory/)
+ -  Plasmodium falciparum and P. vivax incidence count, incidence rate, parasite rate, and percentage change
+ - P. falciparum mortality count and rate
+ - Predicted P. falciparum parasite rate in 2-10 year olds in Africa, 2000-2015 (published in 2015)
+ - Predicted P. falciparum incidence rate in Africa, 2000-2015 (published in 2015)
+ - Predicted P. vivax relapse incidence per 100,000 person days globally, 2013 (published in 2012)
+ - Predicted spatial limits of P. falciparum malaria transmission globally, 2010 (published 2011)
+ - Predicted spatial limits of P. vivax malaria transmission globally, 2010 (published 2012)
+ 
+[Malaria Indicator Surveys (MIS)](https://dhsprogram.com/)
+ - Testing using microscopy and RDT among children 0-59 months
+ - Country-wide, regional, or cluster-specific estimates
+ 
+
+## Interventions
+
+[Demographic and Health Surveys (DHS)](https://dhsprogram.com/)
+ - ITN ownership and use
+ - Household exposure to IRS
+ - Intermittent preventive treatment against malaria during pregnancy
+ - Type and timing of treatment of high fever in children under 5
+
+[Malaria Indicator Surveys (MIS)](https://dhsprogram.com/)
+ - ITN ownership and use
+ - Household exposure to IRS
+ - Intermittent preventive treatment against malaria during pregnancy
+ - Type and timing of treatment of high fever in children under 5
+ - Diagnostic blood testing of children under 5 using microscopy and RDT
+
+[Malaria Atlas Project](https://malariaatlas.org/data-directory/)
+ - Predicted ACT coverage in Africa, 2000-2015 (published in 2015)
+ - Predicted IRS coverage in Africa, 2000-2015 (published in 2015)
+ - Predicted ITN coverage in Africa, 2000-2015 (published in 2015)
+ 
+[MAP site-specific parasite rate database](https://malariaatlas.org/pr-survey-data/)
+ - Data from cross-sectional household surveys, aggregated
 
 
+## Vector composition
+
+[Malaria Atlas Project](https://malariaatlas.org/data-directory/)
+ - Predicted dominant malaria vector species globally, 2010
+ - Predicted secondary dominant malaria vector species in Africa+, 2010
 

@@ -10,42 +10,33 @@
 #' @noRd
 create_mortality_process <- function(variables, events, renderer, parameters) {
   function(timestep) {
-    at_risk <- variables$state$get_index_of('NonExistent')$not(TRUE)
 
     if (!parameters$custom_demography) {
-      died <- sample_bitset(at_risk, 1 / parameters$average_age)
+      pop <- get_human_population(parameters, timestep)
+      died <- individual::Bitset$new(pop)$insert(
+        bernoulli(pop, 1 / parameters$average_age)
+      )
       renderer$render('natural_deaths', died$size(), timestep)
     } else {
       age <- get_age(variables$birth$get_values(at_risk), timestep)
-      last_deathrate <- which(timestep >= parameters$deathrate_timesteps)[[-1]]
+      last_deathrate <- match_timestep(parameters$deathrate_timesteps, timestep)
       age_groups <- .bincode(age, c(0, parameters$deathrate_agegroups))
       deathrates <- parameters$deathrates[age_groups, last_deathrate]
       deathrates[is.na(deathrates)] <- 1
       died <- bitset_at(at_risk, bernoulli_multi_p(deathrates))
       renderer$render('natural_deaths', died$size(), timestep)
     }
-    reset_target(variables, events, died, 'NonExistent')
+    reset_target(variables, events, died, 'S', timestep)
+    sample_maternal_immunity(variables, died, timestep, parameters)
   }
 }
 
-create_birth_process <- function(variables, events, parameters) {
-  function(timestep) {
-    at_risk <- variables$state$get_index_of('NonExistent')
-    n_born <- rpois(1, get_birthrate(parameters, timestep))
-    if (at_risk$size() < n_born) {
-      stop('not enough humans please increase max_population')
-    }
-    born <- bitset_at(at_risk, seq(n_born))
-    sample_maternal_immunity(variables, born, timestep)
-    reset_target(variables, events, born, 'S')
-  }
-}
-
-sample_maternal_immunity <- function(variables, target, timestep) {
+sample_maternal_immunity <- function(variables, target, timestep, parameters) {
   if (target$size() > 0) {
+    pop <- get_human_population(parameters, timestep)
     age <- get_age(variables$birth$get_values(), timestep)
     # inherit immunity from parent in group
-    sampleable <- individual::Bitset$new(parameters$human_population)
+    sampleable <- individual::Bitset$new(pop)
     sampleable$insert(which(trunc(age / 365) == 20))
     for (group in seq(parameters$n_heterogeneity_groups)) {
 
@@ -57,15 +48,20 @@ sample_maternal_immunity <- function(variables, target, timestep) {
         # find their mothers
         potential_mothers <- group_index$and(sampleable)$to_vector()
         if (length(potential_mothers) == 0) {
-          potential_mothers = seq(parameters$human_population)
-        }
-        mothers <- potential_mothers[
-          sample.int(
-            length(potential_mothers),
+          mothers <- sample.int(
+            pop,
             target_group$size(),
             replace = TRUE
           )
-        ]
+        } else {
+          mothers <- potential_mothers[
+            sample.int(
+              length(potential_mothers),
+              target_group$size(),
+              replace = TRUE
+            )
+          ]
+        }
 
         # set their maternal immunities
         birth_icm <- variables$ica$get_values(mothers) * parameters$pcm
@@ -77,7 +73,7 @@ sample_maternal_immunity <- function(variables, target, timestep) {
   }
 }
 
-reset_target <- function(variables, events, target, state) {
+reset_target <- function(variables, events, target, state, timestep) {
   if (target$size() > 0) {
     # clear events
     to_clear <- c(

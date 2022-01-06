@@ -2,7 +2,7 @@ test_that('biting_process integrates mosquito effects and human infection', {
   population <- 4
   timestep <- 5
   parameters <- get_parameters(
-    list(max_human_population = population, severe_enabled = TRUE)
+    list(human_population = population, severe_enabled = TRUE)
   )
 
   renderer <- individual::Render$new(5)
@@ -25,7 +25,7 @@ test_that('biting_process integrates mosquito effects and human infection', {
     lagged_eir
   )
 
-  bitten <- individual::Bitset$new(parameters$max_human_population)
+  bitten <- individual::Bitset$new(parameters$human_population)
   bites_mock <- mockery::mock(bitten)
   infection_mock <- mockery::mock()
 
@@ -66,7 +66,10 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
   timestep <- 5
   renderer <- individual::Render$new(5)
   parameters <- get_parameters(
-    list(max_human_population = population, severe_enabled = TRUE)
+    list(
+      human_population = population,
+      severe_enabled = TRUE
+    )
   )
   events <- create_events(parameters)
   variables <- create_variables(parameters)

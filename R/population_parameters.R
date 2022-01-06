@@ -1,5 +1,3 @@
-CONTINGENCY <- 1.1
-
 #' @title Parameterise variable deathrates
 #'
 #' @param parameters the model parameters
@@ -34,7 +32,7 @@ set_demography <- function(
   parameters$birthrates <- birthrates
   n_age <- length(agegroups)
 
-  # set a max population
+  # set the populations
   populations <- vapply(
     seq(timesteps),
     function(timestep) {
@@ -55,28 +53,9 @@ set_demography <- function(
       )
     }
   )
-  populations <- colSums(populations)
-  parameters$max_human_population <- ceiling(
-    max(populations * (1 + deathrates)) * CONTINGENCY
-  )
+  parameters$human_population <- round(colSums(populations))
+  parameters$human_population_timesteps <- timesteps
 
-  parameters
-}
-
-#' @title Parameterise the population size
-#'
-#' @description will set the initial population and estimate a max population
-#' from parameterised birth/death rates
-#'
-#' @param parameters the model parameters
-#' @param population initial population
-set_initial_population <- function(parameters, population) {
-  parameters$init_human_population <- population
-  parameters$custom_demography <- FALSE
-  deathrate <- 1 / parameters$average_age
-  parameters$max_human_population <- ceiling(
-    population * (1 + deathrate) * CONTINGENCY
-  )
   parameters
 }
 
@@ -116,8 +95,13 @@ find_birthrates <- function(pops, age_high, deathrates) {
 
 get_birthrate <- function(parameters, timestep) {
   if (!parameters$custom_demography) {
-    return(1 / parameters$average_age * parameters$init_human_population)
+    return(1 / parameters$average_age * get_human_population(parameters, timestep))
   }
   last_birthrate <- match_timestep(parameters$birthrate_timesteps, timestep)
   parameters$birthrates[last_birthrate]
+}
+
+get_human_population <- function(parameters, timestep) {
+  last_pop <- match_timestep(parameters$human_population_timesteps, timestep)
+  parameters$human_population[last_pop]
 }

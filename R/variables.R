@@ -43,8 +43,7 @@
 #' @noRd
 #' @importFrom stats rexp rnorm
 create_variables <- function(parameters) {
-  size <- parameters$max_human_population
-
+  size <- get_human_population(parameters, 0)
   initial_age <- calculate_initial_ages(parameters)
 
   if (parameters$enable_heterogeneity) {
@@ -92,16 +91,9 @@ create_variables <- function(parameters) {
     }
   }
 
-  states <- c('S', 'D', 'A', 'U', 'Tr', 'NonExistent')
+  states <- c('S', 'D', 'A', 'U', 'Tr')
   initial_states <- initial_state(parameters, initial_age, groups, eq)
-  excess <- sample.int(
-    parameters$max_human_population - parameters$human_population,
-    parameters$max_human_population
-  )
-  initial_states[excess] <- 'NonExistent'
-  state <- individual::CategoricalVariable$new(
-    states,
-  )
+  state <- individual::CategoricalVariable$new(states, initial_states)
   birth <- individual::IntegerVariable$new(-initial_age)
   last_boosted_ib <- individual::DoubleVariable$new(rep(-1, size))
   last_boosted_ica <- individual::DoubleVariable$new(rep(-1, size))
@@ -169,7 +161,7 @@ create_variables <- function(parameters) {
 
   # Initialise infectiousness of humans -> mosquitoes
   # NOTE: not yet supporting initialisation of infectiousness of Treated individuals
-  infectivity_values <- rep(0, parameters$max_human_population)
+  infectivity_values <- rep(0, get_human_population(parameters, 0))
   counts <- calculate_initial_counts(parameters)
 
   # Calculate the indices of individuals in each infectious state
@@ -356,6 +348,7 @@ initial_state <- function(parameters, age, groups, eq) {
 }
 
 calculate_initial_counts <- function(parameters) {
+  pop <- get_human_population(parameters, 0)
   initial_counts <- round(
     c(
       parameters$s_proportion,
@@ -363,9 +356,9 @@ calculate_initial_counts <- function(parameters) {
       parameters$a_proportion,
       parameters$u_proportion,
       parameters$t_proportion
-    ) * parameters$max_human_population
+    ) * pop
   )
-  left_over <- parameters$max_human_population - sum(initial_counts)
+  left_over <- pop - sum(initial_counts)
   initial_counts[[1]] <- initial_counts[[1]] + left_over
   initial_counts
 }
@@ -392,10 +385,11 @@ calculate_zeta <- function(zeta_norm, parameters) {
 }
 
 calculate_initial_ages <- function(parameters) {
+  n_pop <- get_human_population(parameters, 0)
   # check if we've set up a custom demography
   if (!parameters$custom_demography) {
     return(round(rexp(
-      parameters$max_human_population,
+      n_pop,
       rate = 1 / parameters$average_age
     )))
   }
@@ -404,20 +398,20 @@ calculate_initial_ages <- function(parameters) {
   age_width <- diff(c(0, age_high))
   age_low <- age_high - age_width
   n_age <- length(age_high)
-  birthrate <- get_birthrate(parameters, 1)
+  birthrate <- get_birthrate(parameters, 0)
   deathrates <- parameters$deathrates[1,]
 
-  pop <- get_equilibrium_population(age_high, birthrate, deathrates)
+  eq_pop <- get_equilibrium_population(age_high, birthrate, deathrates)
 
   group <- sample.int(
-    parameters$max_human_population,
+    n_pop,
     n_age,
     replace = TRUE,
-    prob = pop
+    prob = eq_pop
   )
 
   # sample truncated exponential for each age group
-  ages <- rep(NA, parameters$max_human_population)
+  ages <- rep(NA, n_pop)
   for (g in seq(n_age)) {
     in_group <- group == g
     ages[in_group] <- age_low[[g]] + rtexp(sum(in_group), deathrates[[g]], age_width)

@@ -57,10 +57,10 @@ itexp <- function(u, m, t) -log(1 - u * (1 - exp(-t * m)))/m
 #'@noRd
 rtexp <- function(n, m, t) { itexp(runif(n), m, t) }
 
-#'@title Find the latest specified timestep in parameters
-#'@param ts timesteps, assumes ts is sorted and unique
-#'@param t timestep to match
+#'@title Find index of the latest timestep in vector of timesteps
+#'@param ts timesteps, assumed to be sorted and unique
+#'@param t current timestep
 #'@noRd
 match_timestep <- function(ts, t) {
-  ts[[min(sum(ts < t) + 1, length(ts))]]
+  min(sum(ts < t) + 1, length(ts))
 }

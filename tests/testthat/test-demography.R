@@ -32,18 +32,27 @@ test_that('find_birthrates is consistent with get_equilibrium_population', {
 
 test_that('calculate_initial_ages calculates truncated exp custom demographic', {
   parameters <- get_parameters()
+  ages <- c(50, 100) * 365
+  deathrates <- c(.5, .75)
   parameters <- set_demography(
     parameters,
-    agegroups = c(50, 100) * 365,
+    agegroups = ages,
     timesteps = 1,
-    birthrates = 50,
-    deathrates = matrix(c(.5, .75), nrow=1, ncol=2)
+    birthrates = find_birthrates(4, ages, deathrates),
+    deathrates = matrix(deathrates, nrow=1, ncol=2)
   )
-  parameters$max_human_population <- 2
-  mock_groups <- mockery::mock(c(2, 1))
-  mock_rtexp <- mockery::mock(25 * 365, 30 * 365)
+  mock_groups <- mockery::mock(c(2, 1, 2, 1))
+  mock_rtexp <- mockery::mock(c(25 * 365, 30 * 365), c(25 * 365, 30 * 365))
   mockery::stub(calculate_initial_ages, 'sample.int', mock_groups)
   mockery::stub(calculate_initial_ages, 'rtexp', mock_rtexp)
+  mockery::stub(
+    calculate_initial_ages,
+    'get_equilibrium_population',
+    mockery::mock(c(3, 1))
+  )
   ages <- calculate_initial_ages(parameters)
-  expect_setequal(ages, c(25 * 365, 80 * 365))
+  mockery::expect_args(mock_groups, 1, 2, 4, replace = TRUE, prob = c(3, 1))
+  mockery::expect_args(mock_rtexp, 1, 2, .5, 50 * 365)
+  mockery::expect_args(mock_rtexp, 2, 2, .75, 50 * 365)
+  expect_setequal(ages, c(25 * 365, 75 * 365, 30 * 365, 80 * 365))
 })

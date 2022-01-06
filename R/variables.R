@@ -414,7 +414,8 @@ calculate_initial_ages <- function(parameters) {
   ages <- rep(NA, n_pop)
   for (g in seq(n_age)) {
     in_group <- group == g
-    ages[in_group] <- age_low[[g]] + rtexp(sum(in_group), deathrates[[g]], age_width)
+    group_ages <- rtexp(sum(in_group), deathrates[[g]], age_width[[g]])
+    ages[in_group] <- age_low[[g]] + group_ages
   }
 
   ages

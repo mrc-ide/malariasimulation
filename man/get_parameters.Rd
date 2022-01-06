@@ -245,7 +245,9 @@ outputs; default = turned off
 
 miscellaneous:
 \itemize{
-\item human_population - the number of humans to model; default = 100
+\item human_population - the initial number of humans to model; default = 100
+\item human_population_timesteps - the timesteps at which the population should
+change; default = 0
 \item mosquito_limit - the maximum number of mosquitoes to allow for in the
 simulation; default = 1.00E+05
 \item individual_mosquitoes - boolean whether adult mosquitoes are modeled

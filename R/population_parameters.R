@@ -17,13 +17,14 @@ set_demography <- function(
   deathrates
   ) {
   stopifnot(all(agegroups > 0))
-  stopifnot(all(timesteps > 0))
+  stopifnot(all(timesteps >= 0))
   stopifnot(all(birthrates > 0))
   stopifnot(length(birthrates) == length(timesteps))
   stopifnot(all(deathrates > 0 & deathrates < 1))
   stopifnot(length(agegroups) == ncol(deathrates))
   stopifnot(length(timesteps) == nrow(deathrates))
   stopifnot(!is.unsorted(timesteps, strictly = TRUE))
+  stopifnot(length(timesteps) == 1) # changing population is not yet supported
   parameters$custom_demography <- TRUE
   parameters$deathrate_agegroups <- agegroups
   parameters$deathrate_timesteps <- timesteps
@@ -80,7 +81,13 @@ get_equilibrium_population <- function(age_high, birthrate, deathrates) {
   pop
 }
 
+#' @title Calculate the birthrate for a population in equilibrium
+#'
+#' @param pops a vector of populations
+#' @param age_high a vector of age groups
+#' @param deathrates vector of deathrates for each age group
 #' @importFrom stats uniroot
+#' @export
 find_birthrates <- function(pops, age_high, deathrates) {
   vnapply(
     pops,

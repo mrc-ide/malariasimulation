@@ -11,19 +11,20 @@
 create_mortality_process <- function(variables, events, renderer, parameters) {
   function(timestep) {
 
+    pop <- get_human_population(parameters, timestep)
     if (!parameters$custom_demography) {
-      pop <- get_human_population(parameters, timestep)
       died <- individual::Bitset$new(pop)$insert(
         bernoulli(pop, 1 / parameters$average_age)
       )
       renderer$render('natural_deaths', died$size(), timestep)
     } else {
-      age <- get_age(variables$birth$get_values(at_risk), timestep)
+      age <- get_age(variables$birth$get_values(), timestep)
       last_deathrate <- match_timestep(parameters$deathrate_timesteps, timestep)
+      deathrates <- rep(1, pop)
       age_groups <- .bincode(age, c(0, parameters$deathrate_agegroups))
-      deathrates <- parameters$deathrates[age_groups, last_deathrate]
-      deathrates[is.na(deathrates)] <- 1
-      died <- bitset_at(at_risk, bernoulli_multi_p(deathrates))
+      in_range <- !is.na(age_groups)
+      deathrates[in_range] <- parameters$deathrates[last_deathrate, age_groups[in_range]]
+      died <- individual::Bitset$new(pop)$insert(bernoulli_multi_p(deathrates))
       renderer$render('natural_deaths', died$size(), timestep)
     }
     reset_target(variables, events, died, 'S', timestep)

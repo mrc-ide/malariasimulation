@@ -404,8 +404,8 @@ calculate_initial_ages <- function(parameters) {
   eq_pop <- get_equilibrium_population(age_high, birthrate, deathrates)
 
   group <- sample.int(
-    n_pop,
     n_age,
+    n_pop,
     replace = TRUE,
     prob = eq_pop
   )

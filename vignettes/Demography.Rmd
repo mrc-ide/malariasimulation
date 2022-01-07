@@ -21,12 +21,12 @@ library(malariasimulation)
 
 # Parameterisation
 
-We are going to create a scenario where we track severe prevalence for 3 years.
+We are going to create a scenario where we track severe prevalence for 5 years.
 
 ```{r}
 year <- 365
 month <- 30
-sim_length <- 3 * year
+sim_length <- 5 * year
 human_population <- 1000
 starting_EIR <- 50
 
@@ -53,6 +53,7 @@ We can set a custom demography and compare the severe outputs:
 ```{r}
 demography_params <- simparams
 
+# Set a flat demography
 ages <- round(c(
   .083333,
   1,
@@ -101,7 +102,7 @@ deathrates <- c(
   .3409079,
   .2239224,
   .8338688
-)
+) / 365
 
 demography_params <- set_demography(
   demography_params,
@@ -111,22 +112,28 @@ demography_params <- set_demography(
   birthrates = find_birthrates(human_population, ages, deathrates)
 )
 
+# combine the outputs
 exp_output <- run_simulation(sim_length, simparams)
 exp_output$run <- 'exponential'
 custom_output <- run_simulation(sim_length, demography_params)
 custom_output$run <- 'custom'
-
 output <- rbind(exp_output, custom_output)
 
-# Plotting functions
+# calculate yearly prevalence
+yearly_output <- aggregate(
+  output$n_severe_730_3650 / output$n_730_3650,
+  by = list(year = floor(output$timestep / year), run = output$run),
+  FUN = mean
+)
 
-ggplot(output) + geom_line(
+# Plot the output
+ggplot(yearly_output) + geom_line(
   aes(
-    x = timestep,
-    y = (n_severe_730_3650 / n_730_3650),
+    x = year,
+    y = x,
     group = run,
     color = run
   )
-) + labs(x = "timestep", y = "PfPR2-10 severe")
+) + labs(x = "Year", y = "PfPR2-10 severe")
 
 ```

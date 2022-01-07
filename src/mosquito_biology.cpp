@@ -8,8 +8,6 @@
 #include <cmath>
 #include "mosquito_biology.h"
 
-const double MIN_VALUE = 0.1;
-
 //[[Rcpp::export]]
 double carrying_capacity(
     const size_t timestep,
@@ -18,13 +16,14 @@ double carrying_capacity(
     const std::vector<double>& g,
     const std::vector<double>& h,
     const double K0,
-    const double R_bar
+    const double R_bar,
+    const double rainfall_floor
 ) {
     if (model_seasonality) {
-        double r = rainfall(timestep, g0, g, h);
-        return std::max(K0 * r / R_bar, MIN_VALUE);
+        double r = rainfall(timestep, g0, g, h, rainfall_floor);
+        return K0 * r / R_bar;
     }
-    return std::max(K0, MIN_VALUE);
+    return K0;
 }
 
 //[[Rcpp::export]]
@@ -42,7 +41,8 @@ double rainfall(
     const size_t t,
     const double g0,
     const std::vector<double>& g,
-    const std::vector<double>& h
+    const std::vector<double>& h,
+    const double floor
 ) {
     double result = g0;
     for (auto i = 0u; i < g.size(); ++i) {
@@ -50,5 +50,5 @@ double rainfall(
             g[i] * cos(2 * M_PI * t * (i + 1) / 365) +
             h[i] * sin(2 * M_PI * t * (i + 1) / 365);
     }
-    return std::max(result, MIN_VALUE);
+    return std::max(result, floor);
 }

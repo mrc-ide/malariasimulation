@@ -104,6 +104,7 @@
 #' * h - rainfall fourier parameters; default = 0.1, 0.4, 0.7
 #' * gamma - effect of density dependence on late instars relative to early
 #' instars; default = 13.25
+#' * rainfall_floor - the minimum rainfall value (must be above 0); default 0.001
 #'
 #' initial state proportions:
 #'
@@ -313,6 +314,7 @@ get_parameters <- function(overrides = list()) {
     h     = c(.1, .4, .7),
     gamma = 13.25,
     model_seasonality = FALSE,
+    rainfall_floor = 0.001,
     # larval mortality rates
     me    = .0338,
     ml    = .0348,
@@ -490,7 +492,8 @@ parameterise_total_M <- function(parameters, total_M) {
         parameters$g,
         parameters$h,
         K0,
-        R_bar
+        R_bar,
+        parameters$rainfall_floor
       )
     }))
     omega <- calculate_omega(parameters, i)

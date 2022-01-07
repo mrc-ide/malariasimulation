@@ -24,7 +24,8 @@ parameterise_mosquito_models <- function(parameters) {
         parameters$h,
         calculate_R_bar(parameters),
         parameters$mum[[i]],
-        parameters$blood_meal_rates[[i]]
+        parameters$blood_meal_rates[[i]],
+        parameters$rainfall_floor
       )
 
       if (!parameters$individual_mosquitoes) {

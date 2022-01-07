@@ -93,7 +93,8 @@ calculate_R_bar <- function(parameters) {
 		t,
     parameters$g0,
     parameters$g,
-    parameters$h
+    parameters$h,
+    parameters$rainfall_floor
 	)))
 }
 
@@ -134,7 +135,8 @@ peak_season_offset <- function(parameters) {
       t,
       parameters$g0,
       parameters$g,
-      parameters$h
+      parameters$h,
+      parameters$rainfall_floor
     )
   }))[[1]]
 }

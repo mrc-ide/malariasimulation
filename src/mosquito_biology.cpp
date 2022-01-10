@@ -8,7 +8,7 @@
 #include <cmath>
 #include "mosquito_biology.h"
 
-const double MIN_VALUE = 0.1;
+const double MIN_VALUE = 0.001;
 
 //[[Rcpp::export]]
 double carrying_capacity(

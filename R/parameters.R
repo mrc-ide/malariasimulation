@@ -380,11 +380,11 @@ get_parameters <- function(overrides = list()) {
     smc_max_age = -1,
     # tbv
     tbv = FALSE,
-    tbv_mt = 35,
-    tbv_md = 46.7,
-    tbv_ma = 3.6,
-    tbv_mu = 0.8,
-    tbv_k = 0.9,
+    tbv_mt = 0.000157,#35,
+    tbv_md = 0.000157,#46.7,
+    tbv_ma = 0.000157,#3.6,
+    tbv_mu = 0.000157,#0.8,
+    tbv_k = 0.00000495,#0.9,
     tbv_tau = 22, #
     tbv_rho = .7, #
     tbv_ds = 45, #

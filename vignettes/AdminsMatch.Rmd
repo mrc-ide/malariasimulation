@@ -150,6 +150,9 @@ params <- get_parameters(list(
  - Testing using microscopy and RDT among children 0-59 months
  - Country-wide, regional, or cluster-specific estimates
  
+[MAP site-specific parasite rate database](https://malariaatlas.org/pr-survey-data/)
+ - Data from cross-sectional household surveys, aggregated
+ 
 
 ## Interventions
 
@@ -170,9 +173,14 @@ params <- get_parameters(list(
  - Predicted ACT coverage in Africa, 2000-2015 (published in 2015)
  - Predicted IRS coverage in Africa, 2000-2015 (published in 2015)
  - Predicted ITN coverage in Africa, 2000-2015 (published in 2015)
- 
-[MAP site-specific parasite rate database](https://malariaatlas.org/pr-survey-data/)
- - Data from cross-sectional household surveys, aggregated
+
+[Maps and metrics of insecticide-treated net access, use, and nets-per-capita in Africa from 2000-2020](https://www.nature.com/articles/s41467-021-23707-7)
+
+[Indoor residual spraying for malaria control in sub-Saharan Africa 1997 to 2017: an adjusted retrospective analysis](https://malariajournal.biomedcentral.com/articles/10.1186/s12936-020-03216-6)
+
+[Mapping trends in insecticide resistance phenotypes in African malaria vectors](https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.3000633)
+
+[Global estimation of anti-malarial drug effectiveness for the treatment of uncomplicated Plasmodium falciparum malaria 1991–2019](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7573874/)
 
 
 ## Vector composition
@@ -180,4 +188,4 @@ params <- get_parameters(list(
 [Malaria Atlas Project](https://malariaatlas.org/data-directory/)
  - Predicted dominant malaria vector species globally, 2010
  - Predicted secondary dominant malaria vector species in Africa+, 2010
-
+ 

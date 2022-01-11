@@ -99,7 +99,8 @@ for sampling mothers; default = 5
 
 mortality parameters:
 \itemize{
-\item average_age - the average age of humans (in timesteps); default = 7663
+\item average_age - the average age of humans (in timesteps), this is only used
+if custom_demography is FALSE; default = 7663
 \item v - mortality scaling factor from severe disease; default = 0.065
 \item pcm - new-born clinical immunity relative to mother's; default = 0.774368
 \item pvm - new-born severe immunity relative to mother's; default = 0.195768

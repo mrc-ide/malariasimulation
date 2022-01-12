@@ -276,7 +276,6 @@ get_parameters <- function(overrides = list()) {
     ic0   = 18.02366,
     kc    = 2.36949,
     # severe disease immunity parameters
-    severe_enabled = 0,
     theta0  = .0749886,
     theta1  = .0001191,
     kv      = 2.00048,

@@ -37,9 +37,8 @@ simparams <- get_parameters(
     g0 = 0.28605,
     g = c(0.20636, -0.0740318, -0.0009293),
     h = c(0.173743, -0.0730962, -0.116019),
-    severe_prevalence_rendering_min_ages = 2 * year,
-    severe_prevalence_rendering_max_ages = 10 * year,
-    severe_enabled = TRUE
+    severe_incidence_rendering_min_ages = 2 * year,
+    severe_incidence_rendering_max_ages = 10 * year
   )
 )
 
@@ -121,9 +120,9 @@ output <- rbind(exp_output, custom_output)
 
 # calculate yearly prevalence
 yearly_output <- aggregate(
-  output$n_severe_730_3650 / output$n_730_3650,
+  output$n_inc_severe_730_3650,
   by = list(year = floor(output$timestep / year), run = output$run),
-  FUN = mean
+  FUN = sum
 )
 
 # Plot the output

@@ -99,7 +99,8 @@ for sampling mothers; default = 5
 
 mortality parameters:
 \itemize{
-\item average_age - the average age of humans (in timesteps); default = 7663
+\item average_age - the average age of humans (in timesteps), this is only used
+if custom_demography is FALSE; default = 7663
 \item v - mortality scaling factor from severe disease; default = 0.065
 \item pcm - new-born clinical immunity relative to mother's; default = 0.774368
 \item pvm - new-born severe immunity relative to mother's; default = 0.195768
@@ -245,7 +246,9 @@ outputs; default = turned off
 
 miscellaneous:
 \itemize{
-\item human_population - the number of humans to model; default = 100
+\item human_population - the initial number of humans to model; default = 100
+\item human_population_timesteps - the timesteps at which the population should
+change; default = 0
 \item mosquito_limit - the maximum number of mosquitoes to allow for in the
 simulation; default = 1.00E+05
 \item individual_mosquitoes - boolean whether adult mosquitoes are modeled

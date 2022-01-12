@@ -10,117 +10,119 @@
 #' @noRd
 create_mortality_process <- function(variables, events, renderer, parameters) {
   function(timestep) {
-    age <- trunc(get_age(
-      variables$birth$get_values(),
-      timestep
-    ) / 365)
 
-    died <- individual::Bitset$new(parameters$human_population)
-    died <- sample_bitset(died$not(TRUE), 1 / parameters$average_age)
-
-    renderer$render('natural_deaths', died$size(), timestep)
-
-    if (parameters$severe_enabled == 1) {
-      severe_deaths <- died_from_severe(
-        variables$is_severe$get_index_of('yes'),
-        variables$state$get_index_of('D'),
-        parameters$v,
-        variables$state$get_index_of('Tr'),
-        parameters$fvt
+    pop <- get_human_population(parameters, timestep)
+    if (!parameters$custom_demography) {
+      died <- individual::Bitset$new(pop)$insert(
+        bernoulli(pop, 1 / parameters$average_age)
       )
-      renderer$render('severe_deaths', severe_deaths$size(), timestep)
-      died$or(severe_deaths)
+      renderer$render('natural_deaths', died$size(), timestep)
+    } else {
+      age <- get_age(variables$birth$get_values(), timestep)
+      last_deathrate <- match_timestep(parameters$deathrate_timesteps, timestep)
+      deathrates <- rep(1, pop)
+      age_groups <- .bincode(age, c(0, parameters$deathrate_agegroups))
+      in_range <- !is.na(age_groups)
+      deathrates[in_range] <- parameters$deathrates[last_deathrate, age_groups[in_range]]
+      died <- individual::Bitset$new(pop)$insert(bernoulli_multi_p(deathrates))
+      renderer$render('natural_deaths', died$size(), timestep)
     }
+    reset_target(variables, events, died, 'S', timestep)
+    sample_maternal_immunity(variables, died, timestep, parameters)
+  }
+}
 
+sample_maternal_immunity <- function(variables, target, timestep, parameters) {
+  if (target$size() > 0) {
+    pop <- get_human_population(parameters, timestep)
+    age <- get_age(variables$birth$get_values(), timestep)
+    # inherit immunity from parent in group
+    sampleable <- individual::Bitset$new(pop)
+    sampleable$insert(which(trunc(age / 365) == 20))
+    for (group in seq(parameters$n_heterogeneity_groups)) {
 
-    if (died$size() > 0) {
-      # inherit immunity from parent in group
-      sampleable <- individual::Bitset$new(parameters$human_population)
-      sampleable$insert(which(age == 20))
-      for (group in seq(parameters$n_heterogeneity_groups)) {
+      # get the individuals who died in this group
+      group_index <- variables$zeta_group$get_index_of(toString(group))
+      target_group <- group_index$copy()$and(target)
 
-        # get the individuals who died in this group
-        group_index <- variables$zeta_group$get_index_of(toString(group))
-        died_group <- group_index$copy()$and(died)
-
-        if (died_group$size() > 0) {
-          # find their mothers
-          potential_mothers <- group_index$and(sampleable)$to_vector()
-          if (length(potential_mothers) == 0) {
-            potential_mothers = seq(parameters$human_population)
-          }
+      if (target_group$size() > 0) {
+        # find their mothers
+        potential_mothers <- group_index$and(sampleable)$to_vector()
+        if (length(potential_mothers) == 0) {
+          mothers <- sample.int(
+            pop,
+            target_group$size(),
+            replace = TRUE
+          )
+        } else {
           mothers <- potential_mothers[
             sample.int(
               length(potential_mothers),
-              died_group$size(),
+              target_group$size(),
               replace = TRUE
             )
           ]
-
-          # set their maternal immunities
-          birth_icm <- variables$ica$get_values(mothers) * parameters$pcm
-          birth_ivm <- variables$ica$get_values(mothers) * parameters$pvm
-          variables$icm$queue_update(birth_icm, died_group)
-          variables$ivm$queue_update(birth_ivm, died_group)
         }
+
+        # set their maternal immunities
+        birth_icm <- variables$ica$get_values(mothers) * parameters$pcm
+        birth_ivm <- variables$ica$get_values(mothers) * parameters$pvm
+        variables$icm$queue_update(birth_icm, target_group)
+        variables$ivm$queue_update(birth_ivm, target_group)
       }
-
-      # clear events
-      to_clear <- c(
-        'asymptomatic_progression',
-        'subpatent_progression',
-        'recovery',
-        'clinical_infection',
-        'asymptomatic_infection',
-        'throw_away_net',
-        'rtss_mass_doses',
-        'rtss_mass_booster',
-        'rtss_epi_doses',
-        'rtss_epi_boosters'
-      )
-      for (event in unlist(events[to_clear])) {
-        event$clear_schedule(died)
-      }
-
-      # new birthday
-      variables$birth$queue_update(timestep, died)
-
-      # non-maternal immunity
-      variables$last_boosted_ib$queue_update(-1, died)
-      variables$last_boosted_ica$queue_update(-1, died)
-      variables$last_boosted_iva$queue_update(-1, died)
-      variables$last_boosted_id$queue_update(-1, died)
-      variables$ib$queue_update(0, died)
-      variables$ica$queue_update(0, died)
-      variables$iva$queue_update(0, died)
-      variables$id$queue_update(0, died)
-      variables$state$queue_update('S', died)
-
-      # treatment
-      variables$drug$queue_update(0, died)
-      variables$drug_time$queue_update(-1, died)
-
-      # vaccination
-      variables$rtss_vaccinated$queue_update(-1, died)
-      variables$rtss_boosted$queue_update(-1, died)
-      variables$tbv_vaccinated$queue_update(-1, died)
-
-      # onwards infectiousness
-      variables$infectivity$queue_update(0, died)
-
-      # vector control
-      variables$net_time$queue_update(-1, died)
-      variables$spray_time$queue_update(-1, died)
-
-      # misc.
-      variables$is_severe$queue_update('no', died)
-      # zeta and zeta group survive rebirth
     }
   }
 }
 
-died_from_severe <- function(severe, diseased, v, treated, fvt) {
-  at_risk <- severe$copy()$and(diseased)
-  treated_at_risk <- severe$copy()$and(treated)
-  sample_bitset(at_risk$or(sample_bitset(treated_at_risk, fvt)), v)
+reset_target <- function(variables, events, target, state, timestep) {
+  if (target$size() > 0) {
+    # clear events
+    to_clear <- c(
+      'asymptomatic_progression',
+      'subpatent_progression',
+      'recovery',
+      'clinical_infection',
+      'asymptomatic_infection',
+      'detection',
+      'throw_away_net',
+      'rtss_mass_doses',
+      'rtss_mass_booster',
+      'rtss_epi_doses',
+      'rtss_epi_boosters'
+    )
+    for (event in unlist(events[to_clear])) {
+      event$clear_schedule(target)
+    }
+
+    # new birthday
+    variables$birth$queue_update(timestep, target)
+
+    # non-maternal immunity
+    variables$last_boosted_ib$queue_update(-1, target)
+    variables$last_boosted_ica$queue_update(-1, target)
+    variables$last_boosted_iva$queue_update(-1, target)
+    variables$last_boosted_id$queue_update(-1, target)
+    variables$ib$queue_update(0, target)
+    variables$ica$queue_update(0, target)
+    variables$iva$queue_update(0, target)
+    variables$id$queue_update(0, target)
+    variables$state$queue_update(state, target)
+
+    # treatment
+    variables$drug$queue_update(0, target)
+    variables$drug_time$queue_update(-1, target)
+
+    # vaccination
+    variables$rtss_vaccinated$queue_update(-1, target)
+    variables$rtss_boosted$queue_update(-1, target)
+    variables$tbv_vaccinated$queue_update(-1, target)
+
+    # onwards infectiousness
+    variables$infectivity$queue_update(0, target)
+
+    # vector control
+    variables$net_time$queue_update(-1, target)
+    variables$spray_time$queue_update(-1, target)
+    # zeta and zeta group survive rebirth
+  }
 }

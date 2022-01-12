@@ -88,7 +88,8 @@
 #'
 #' mortality parameters:
 #'
-#' * average_age - the average age of humans (in timesteps); default = 7663
+#' * average_age - the average age of humans (in timesteps), this is only used 
+#' if custom_demography is FALSE; default = 7663
 #' * v - mortality scaling factor from severe disease; default = 0.065
 #' * pcm - new-born clinical immunity relative to mother's; default = 0.774368
 #' * pvm - new-born severe immunity relative to mother's; default = 0.195768
@@ -223,7 +224,9 @@
 #'
 #' miscellaneous:
 #'
-#' * human_population - the number of humans to model; default = 100
+#' * human_population - the initial number of humans to model; default = 100
+#' * human_population_timesteps - the timesteps at which the population should
+#' change; default = 0
 #' * mosquito_limit - the maximum number of mosquitoes to allow for in the
 #' simulation; default = 1.00E+05
 #' * individual_mosquitoes - boolean whether adult mosquitoes are modeled
@@ -405,7 +408,9 @@ get_parameters <- function(overrides = list()) {
     severe_incidence_rendering_min_ages = numeric(0),
     severe_incidence_rendering_max_ages = numeric(0),
     # misc
+    custom_demography = FALSE,
     human_population = 100,
+    human_population_timesteps = 0,
     mosquito_limit   = 100 * 1000,
     individual_mosquitoes = TRUE,
     enable_heterogeneity = TRUE,

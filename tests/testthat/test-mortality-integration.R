@@ -134,7 +134,6 @@ test_that('maternal immunity is sampled correctly', {
     parameters
   )
 
-  expect_bitset_update(variables$state$queue_update_mock(), 'S', c(2, 4))
   expect_bitset_update(variables$icm$queue_update_mock(), parameters$pcm, 2)
   expect_bitset_update(variables$ivm$queue_update_mock(), parameters$pvm, 2)
   expect_bitset_update(variables$icm$queue_update_mock(), parameters$pcm, 4, call = 2)

@@ -45,13 +45,11 @@
 #'
 #' probability of severe infection:
 #'
-#' * severe_enabled - whether to model severe disease; default = 0
 #' * theta0 - maximum probability due to no immunity; default = 0.0749886
 #' * theta1 - maximum reduction due to immunity; default = 0.0001191
 #' * iv0 - scale parameter; default = 1.09629
 #' * kv - shape parameter; default = 2.00048
 #' * fv0 - age dependent modifier; default = 0.141195
-#' * fvt - reduced probability of death due to treatment; default = 0.5
 #' * av - age dependent modifier; default = 2493.41
 #' * gammav - age dependent modifier; default = 2.91282
 #'
@@ -90,7 +88,6 @@
 #'
 #' * average_age - the average age of humans (in timesteps), this is only used 
 #' if custom_demography is FALSE; default = 7663
-#' * v - mortality scaling factor from severe disease; default = 0.065
 #' * pcm - new-born clinical immunity relative to mother's; default = 0.774368
 #' * pvm - new-born severe immunity relative to mother's; default = 0.195768
 #' * me - early stage larval mortality rate; default = 0.0338
@@ -215,9 +212,6 @@
 #' * incidence_rendering_max_ages - the corresponding max ages; default = turned off 
 #' * clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = 0
 #' * clinical_incidence_rendering_max_ages - the corresponding max ages; default = 1825
-#' * severe_prevalence_rendering_min_ages - the minimum ages for severe
-#' prevalence outputs; default = turned off
-#' * severe_prevalence_rendering_max_ages - the corresponding max ages; default = turned off
 #' * severe_incidence_rendering_min_ages - the minimum ages for severe incidence
 #' outputs; default = turned off
 #' * severe_incidence_rendering_max_ages - the corresponding max ages; default = turned off
@@ -282,12 +276,10 @@ get_parameters <- function(overrides = list()) {
     ic0   = 18.02366,
     kc    = 2.36949,
     # severe disease immunity parameters
-    severe_enabled = 0,
     theta0  = .0749886,
     theta1  = .0001191,
     kv      = 2.00048,
     fv0     = 0.141195,
-    fvt     = 0.5,
     av      = 2493.41,
     gammav  = 2.91282,
     iv0     = 1.09629,
@@ -304,7 +296,6 @@ get_parameters <- function(overrides = list()) {
     kd    = .476614,
     # mortality parameters
     average_age = 7663,
-    v     = .065, # NOTE: there are two definitions of this in the literature: one on line 124 and one in the parameters table
     pcm   = .774368,
     pvm   = .195768,
     # carrying capacity parameters

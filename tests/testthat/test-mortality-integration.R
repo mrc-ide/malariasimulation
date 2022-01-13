@@ -1,6 +1,6 @@
 test_that('mortality_process resets humans correctly', {
   timestep <- 2
-  parameters <- get_parameters(list(severe_enabled = 1, human_population = 4))
+  parameters <- get_parameters(list(human_population = 4))
   parameters <- set_drugs(parameters, list(SP_AQ_params))
   parameters <- set_mda(
     parameters,
@@ -48,7 +48,7 @@ test_that('mortality_process resets humans correctly', {
 
 test_that('mortality_process samples deaths from a custom demography', {
   timestep <- 2
-  parameters <- get_parameters(list(severe_enabled = TRUE))
+  parameters <- get_parameters()
   ages <- c(50, 100) * 365
   deaths <- c(.5, .75)
   parameters <- set_demography(
@@ -97,10 +97,9 @@ test_that('mortality_process samples deaths from a custom demography', {
   expect_bitset_update(variables$state$queue_update_mock(), 'S', c(2, 4))
 })
 
-
 test_that('maternal immunity is sampled correctly', {
   timestep <- 2
-  parameters <- get_parameters(list(severe_enabled = 1, human_population = 4))
+  parameters <- get_parameters(list(human_population = 4))
   events <- create_events(parameters)
   variables <- create_variables(parameters)
 

@@ -56,8 +56,6 @@
 #'  * p_inc_severe: the sum of probabilities of severe infection for humans between an inclusive age range at this timestep.
 #' severe incidence columns can be set with
 #' severe_incidence_rendering_min_ages and severe_incidence_rendering_max_ages parameters.
-#'  * severe_deaths: number of deaths due to severe malaria. severe_enabled must be
-#' set to TRUE
 #'  * E_count: number of mosquitoes in the early larval stage (per species)
 #'  * L_count: number of mosquitoes in the late larval stage (per species)
 #'  * P_count: number of mosquitoes in the pupal stage (per species)

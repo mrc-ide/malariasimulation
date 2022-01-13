@@ -2,8 +2,7 @@ test_that('simulate_infection integrates different types of infection and schedu
   population <- 8
   timestep <- 5
   parameters <- get_parameters(list(
-    human_population = population,
-    severe_enabled = TRUE
+    human_population = population
   ))
   events <- create_events(parameters)
   renderer <- mock_render(timestep)
@@ -84,9 +83,8 @@ test_that('simulate_infection integrates different types of infection and schedu
     severe_infection_mock,
     1,
     timestep,
-    clinical,
-    variables,
     infected,
+    variables,
     parameters,
     renderer
   )

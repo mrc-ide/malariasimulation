@@ -153,13 +153,12 @@ create_processes <- function(
     ),
     create_variable_mean_renderer_process(
       renderer,
-      c('ica', 'icm', 'ib', 'id'),
-      variables[c('ica', 'icm', 'ib', 'id')]
+      c('ica', 'icm', 'ib', 'id', 'iva', 'ivm'),
+      variables[c('ica', 'icm', 'ib', 'id', 'iva', 'ivm')]
     ),
     create_prevelance_renderer(
       variables$state,
       variables$birth,
-      variables$is_severe,
       variables$id,
       parameters,
       renderer

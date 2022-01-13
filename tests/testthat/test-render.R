@@ -9,16 +9,11 @@ test_that('that default rendering works', {
     -c(2, 5, 10, 11) * 365
   )
   immunity <- individual::DoubleVariable$new(rep(1, 4))
-  is_severe <- individual::CategoricalVariable$new(
-    c('yes', 'no'),
-    c('no', 'no', 'yes', 'no')
-  )
 
   renderer <- mock_render(1)
   process <- create_prevelance_renderer(
     state,
     birth,
-    is_severe,
     immunity,
     parameters,
     renderer
@@ -65,16 +60,11 @@ test_that('that default rendering works when no one is in the age range', {
     -c(1, 11, 21, 11) * 365
   )
   immunity <- individual::DoubleVariable$new(rep(1, 4))
-  is_severe <- individual::CategoricalVariable$new(
-    c('yes', 'no'),
-    rep('no', 4)
-  )
 
   renderer <- mock_render(1)
   process <- create_prevelance_renderer(
     state,
     birth,
-    is_severe,
     immunity,
     parameters,
     renderer
@@ -87,71 +77,6 @@ test_that('that default rendering works when no one is in the age range', {
     1,
     'n_730_3650',
     0,
-    timestep
-  )
-})
-
-test_that('that severe rendering works', {
-  timestep <- 0
-  year <- 365
-  parameters <- get_parameters(list(
-    severe_prevalence_rendering_min_ages = c(0, 2) * year,
-    severe_prevalence_rendering_max_ages = c(5, 10) * year,
-    prevalence_rendering_min_ages = NULL,
-    prevalence_rendering_max_ages = NULL
-  ))
-  state <- individual::CategoricalVariable$new(
-    c('U', 'A', 'D', 'S', 'Tr'),
-    c('U', 'D', 'D', 'S')
-  )
-  birth <- individual::IntegerVariable$new(
-    -c(2, 5, 10, 11) * 365
-  )
-  immunity <- individual::DoubleVariable$new(rep(1, 4))
-  is_severe <- individual::CategoricalVariable$new(
-    c('yes', 'no'),
-    c('no', 'yes', 'no', 'no')
-  )
-  renderer <- mock_render(1)
-  process <- create_prevelance_renderer(
-    state,
-    birth,
-    is_severe,
-    immunity,
-    parameters,
-    renderer
-  )
-  process(timestep)
-
-  mockery::expect_args(
-    renderer$render_mock(),
-    1,
-    'n_0_1825',
-    2,
-    timestep
-  )
-
-  mockery::expect_args(
-    renderer$render_mock(),
-    2,
-    'n_severe_0_1825',
-    1,
-    timestep
-  )
-
-  mockery::expect_args(
-    renderer$render_mock(),
-    3,
-    'n_730_3650',
-    3,
-    timestep
-  )
-
-  mockery::expect_args(
-    renderer$render_mock(),
-    4,
-    'n_severe_730_3650',
-    1,
     timestep
   )
 })

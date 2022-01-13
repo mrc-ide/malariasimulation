@@ -116,6 +116,7 @@ carrying capacity parameters:
 \item h - rainfall fourier parameters; default = 0.1, 0.4, 0.7
 \item gamma - effect of density dependence on late instars relative to early
 instars; default = 13.25
+\item rainfall_floor - the minimum rainfall value (must be above 0); default 0.001
 }
 
 initial state proportions:

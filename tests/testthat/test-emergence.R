@@ -7,7 +7,8 @@ test_that('carrying_capacity is calculated correctly', {
       c(.3, .6, .9),
       c(.1, .4, .7),
       10,
-      2
+      2,
+      .001
     ),
     5.63,
     tolerance=1e-2
@@ -26,7 +27,8 @@ test_that('carrying_capacity cycles every year', {
           c(.3, .6, .9),
           c(.1, .4, .7),
           10,
-          2
+          2,
+          .001
         ),
         carrying_capacity(
           t + 365 * y,
@@ -35,7 +37,8 @@ test_that('carrying_capacity cycles every year', {
           c(.3, .6, .9),
           c(.1, .4, .7),
           10,
-          2
+          2,
+          .001
         ),
         tolerance = 1e-1
       )
@@ -56,7 +59,8 @@ test_that('carrying_capacity can avoid seasonality', {
           c(.3, .6, .9),
           c(.1, .4, .7),
           100,
-          2
+          2,
+          .001
         ),
         tolerance = 1e-1
       )

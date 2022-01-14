@@ -22,11 +22,11 @@
 #' @param coverages the proportion of the human population who receive bed nets
 #' @param retention the average number of timesteps a net is kept for
 #' @param dn0 a matrix of death probabilities for each species over time.
-#' With dimensions length(species) x length(timesteps)
+#' With nrows=length(timesteps), ncols=length(species)
 #' @param rn a matrix of repelling probabilities for each species over time
-#' With dimensions length(species) x length(timesteps)
+#' With nrows=length(timesteps), ncols=length(species)
 #' @param rnm a matrix of minimum repelling probabilities for each species over time
-#' With dimensions length(species) x length(timesteps)
+#' With nrows=length(timesteps), ncols=length(species)
 #' @param gamman a vector of bednet half-lives for each distribution timestep
 #' @export
 set_bednets <- function(
@@ -80,17 +80,17 @@ set_bednets <- function(
 #' @param coverages the proportion of the population who get indoor
 #' spraying
 #' @param ls_theta matrix of mortality parameters
-#' With dimensions length(species) x length(timesteps)
+#' With nrows=length(timesteps), ncols=length(species)
 #' @param ls_gamma matrix of mortality parameters per timestep
-#' With dimensions length(species) x length(timesteps)
+#' With nrows=length(timesteps), ncols=length(species)
 #' @param ks_theta matrix of feeding success parameters per timestep 
-#' With dimensions length(species) x length(timesteps)
+#' With nrows=length(timesteps), ncols=length(species)
 #' @param ks_gamma matrix of feeding success parameters per timestep 
-#' With dimensions length(species) x length(timesteps)
+#' With nrows=length(timesteps), ncols=length(species)
 #' @param ms_theta matrix of deterrence parameters per timestep 
-#' With dimensions length(species) x length(timesteps)
+#' With nrows=length(timesteps), ncols=length(species)
 #' @param ms_gamma matrix of deterrence parameters per timestep 
-#' With dimensions length(species) x length(timesteps)
+#' With nrows=length(timesteps), ncols=length(species)
 #' @export
 set_spraying <- function(
   parameters,

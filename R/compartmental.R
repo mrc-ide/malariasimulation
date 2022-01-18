@@ -24,7 +24,8 @@ parameterise_mosquito_models <- function(parameters) {
         parameters$h,
         calculate_R_bar(parameters),
         parameters$mum[[i]],
-        parameters$blood_meal_rates[[i]]
+        parameters$blood_meal_rates[[i]],
+        parameters$rainfall_floor
       )
 
       if (!parameters$individual_mosquitoes) {
@@ -87,7 +88,11 @@ create_compartmental_rendering_process <- function(renderer, solvers, parameters
   function(timestep) {
     counts <- rep(0, length(indices))
     for (s_i in seq_along(solvers)) {
-      row <- solver_get_states(solvers[[s_i]])
+      if (parameters$species_proportions[[s_i]] > 0) {
+        row <- solver_get_states(solvers[[s_i]])
+      } else {
+        row <- rep(0, length(indices))
+      }
       for (i in seq_along(indices)) {
         renderer$render(
           paste0(names(indices)[[i]], '_', parameters$species[[s_i]], '_count'),
@@ -105,10 +110,12 @@ create_compartmental_rendering_process <- function(renderer, solvers, parameters
 #'
 #' @param solvers for each species
 #' @noRd
-create_solver_stepping_process <- function(solvers) {
+create_solver_stepping_process <- function(solvers, parameters) {
   function(timestep) {
-    for (solver in solvers) {
-      solver_step(solver)
+    for (i in seq_along(solvers)) {
+      if (parameters$species_proportions[[i]] > 0) {
+        solver_step(solvers[[i]])
+      }
     }
   }
 }

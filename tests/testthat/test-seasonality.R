@@ -43,9 +43,10 @@ test_that('Seasonality correctly affects P', {
   }
 })
 
-test_that('Rainfall is always > 0', {
+test_that('Rainfall is always >= floor', {
   g0 <- 1.639449
   g <- c(-2.1978530, 0.6981486, 0.1225242)
   h <- c(-1.4126293, 1.5910602, -0.7558194)
-  expect_true(all(vnapply(seq(365), function(t) rainfall(t, g0, g, h)) > 0))
+  floor <- .001
+  expect_true(all(vnapply(seq(365), function(t) rainfall(t, g0, g, h, floor)) >= floor))
 })

@@ -56,6 +56,7 @@ struct AquaticMosquitoModel {
     const double R_bar; //average rainfall
     double mum; //adult mortality rate
     double f; //biting rate
+    double rainfall_floor; //minimum rainfall
 
     AquaticMosquitoModel(
         double beta,
@@ -74,7 +75,8 @@ struct AquaticMosquitoModel {
         std::vector<double> h,
         double R_bar,
         double mum,
-        double f
+        double f,
+        double rainfall_floor
     );
     virtual ~AquaticMosquitoModel() {};
 };

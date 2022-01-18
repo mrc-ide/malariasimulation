@@ -17,6 +17,7 @@ double carrying_capacity(
     const std::vector<double>&,
     const std::vector<double>&,
     const double,
+    const double,
     const double
 );
 
@@ -24,7 +25,8 @@ double rainfall(
     const size_t,
     const double,
     const std::vector<double>&,
-    const std::vector<double>&
+    const std::vector<double>&,
+    const double
 );
 
 double eggs_laid(double, double, double);

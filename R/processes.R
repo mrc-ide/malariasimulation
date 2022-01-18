@@ -123,7 +123,7 @@ create_processes <- function(
   # ===============
   processes <- c(
     processes,
-    create_solver_stepping_process(solvers)
+    create_solver_stepping_process(solvers, parameters)
   )
 
   # =========

@@ -222,10 +222,11 @@ update_severe_disease <- function(
   if (infections$size() > 0) {
     age <- get_age(variables$birth$get_values(infections), timestep)
     iva <- variables$iva$get_values(infections)
+    ivm <- variables$ivm$get_values(infections)
     theta <- severe_immunity(
       age,
       iva,
-      variables$ivm$get_values(infections),
+      ivm,
       parameters
     )
     develop_severe <- bernoulli_multi_p(theta)

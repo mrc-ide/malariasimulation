@@ -376,6 +376,8 @@ boost_immunity <- function(
 
 # Implemented from Winskill 2017 - Supplementary Information page 4
 clinical_immunity <- function(acquired_immunity, maternal_immunity, parameters) {
+  acquired_immunity[acquired_immunity > 0] <- acquired_immunity[acquired_immunity > 0] + 0.5
+  
   parameters$phi0 * (
     parameters$phi1 +
       (1 - parameters$phi1) /
@@ -389,6 +391,8 @@ clinical_immunity <- function(acquired_immunity, maternal_immunity, parameters) 
 
 # Implemented from Winskill 2017 - Supplementary Information page 5
 severe_immunity <- function(age, acquired_immunity, maternal_immunity, parameters) {
+  acquired_immunity[acquired_immunity > 0] <- acquired_immunity[acquired_immunity > 0] + 0.5
+  
   fv <- 1 - (1 - parameters$fv0) / (
     1 + (age / parameters$av) ** parameters$gammav
   )
@@ -421,6 +425,8 @@ asymptomatic_infectivity <- function(age, immunity, parameters) {
 
 # Implemented from Winskill 2017 - Supplementary Information page 4
 blood_immunity <- function(ib, parameters) {
+  ib[ib > 0] <- ib[ib > 0] + 0.5
+  
   parameters$b0 * (
     parameters$b1 +
       (1 - parameters$b1) /

@@ -12,7 +12,7 @@ test_that('blood_immunity returns correct values', {
       ib,
       parameters
     ),
-    c(.590, .590, .578),
+    c(.5900, .5898, .5771),
     tolerance=1e-3
   )
 })
@@ -28,8 +28,8 @@ test_that('clinical immunity returns correct values', {
   )
   expect_equal(
     clinical_immunity(acquired_immunity, maternal_immunity, parameters),
-    c(.0749, .0748, .0593),
-    tolerance=1e-4
+    c(.07491, .07458, .05781),
+    tolerance=1e-5
   )
 })
 
@@ -48,8 +48,8 @@ test_that('severe immunity returns correct values', {
   )
   expect_equal(
     severe_immunity(age, acquired_immunity, maternal_immunity, parameters),
-    c(0.0675, 0.0593, 0.0132),
-    tolerance=1e-4
+    c(0.06752, 0.05101, 0.01165),
+    tolerance=1e-5
   )
 })
 

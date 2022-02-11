@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,18 +33,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="../reference/index.html">Reference</a>
 </li>
@@ -54,6 +50,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/Demography.html">Demography</a>
+    </li>
+    <li>
       <a href="../articles/EIRprevmatch.html">Matching PfPR2-10 to EIR</a>
     </li>
     <li>
@@ -104,13 +103,13 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">malariasimulation</span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">malariaEquilibrium</span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/hadley/reshape">reshape2</a></span><span class="op">)</span></code></pre></div>
-<div id="parameterisation" class="section level1">
-<h1 class="hasAnchor">
-<a href="#parameterisation" class="anchor"></a>Parameterisation</h1>
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">malariasimulation</span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">malariaEquilibrium</span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/hadley/reshape" class="external-link">reshape2</a></span><span class="op">)</span></code></pre></div>
+<div class="section level2">
+<h2 id="parameterisation">Parameterisation<a class="anchor" aria-label="anchor" href="#parameterisation"></a>
+</h2>
 <p>We are going to set the default parameters to run the simulation from an equilibrium.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">year</span> <span class="op">&lt;-</span> <span class="fl">365</span>
@@ -120,15 +119,14 @@
 <span class="va">starting_EIR</span> <span class="op">&lt;-</span> <span class="fl">50</span>
 
 <span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_parameters.html">get_parameters</a></span><span class="op">(</span>
-  <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>
+  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
     human_population <span class="op">=</span> <span class="va">human_population</span>,
     model_seasonality <span class="op">=</span> <span class="cn">TRUE</span>, <span class="co"># Let's try a bi-modal model</span>
     g0 <span class="op">=</span> <span class="fl">0.28605</span>,
-    g <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.20636</span>, <span class="op">-</span><span class="fl">0.0740318</span>, <span class="op">-</span><span class="fl">0.0009293</span><span class="op">)</span>,
-    h <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.173743</span>, <span class="op">-</span><span class="fl">0.0730962</span>, <span class="op">-</span><span class="fl">0.116019</span><span class="op">)</span>,
-    severe_prevalence_rendering_min_ages <span class="op">=</span> <span class="fl">2</span><span class="op">*</span><span class="va">year</span>,
-    severe_prevalence_rendering_max_ages <span class="op">=</span> <span class="fl">10</span><span class="op">*</span><span class="va">year</span>,
-    severe_enabled <span class="op">=</span> <span class="fl">1</span>
+    g <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.20636</span>, <span class="op">-</span><span class="fl">0.0740318</span>, <span class="op">-</span><span class="fl">0.0009293</span><span class="op">)</span>,
+    h <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.173743</span>, <span class="op">-</span><span class="fl">0.0730962</span>, <span class="op">-</span><span class="fl">0.116019</span><span class="op">)</span>,
+    severe_incidence_rendering_min_ages <span class="op">=</span> <span class="fl">2</span><span class="op">*</span><span class="va">year</span>,
+    severe_incidence_rendering_max_ages <span class="op">=</span> <span class="fl">10</span><span class="op">*</span><span class="va">year</span>
   <span class="op">)</span>
 <span class="op">)</span>
 
@@ -136,19 +134,19 @@
 
 <span class="co"># Plotting functions</span>
 <span class="va">plot_prevalence</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">output</span><span class="op">)</span> <span class="op">{</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span><span class="op">(</span><span class="va">output</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html">geom_line</a></span><span class="op">(</span>
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">timestep</span>, y <span class="op">=</span> <span class="op">(</span><span class="va">n_severe_730_3650</span> <span class="op">/</span> <span class="va">n_730_3650</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> 
-    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"timestep"</span>, y <span class="op">=</span> <span class="st">"PfPR2-10 severe"</span><span class="op">)</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">output</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>
+    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">timestep</span>, y <span class="op">=</span> <span class="op">(</span><span class="va">n_inc_severe_730_3650</span> <span class="op">/</span> <span class="va">n_730_3650</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> 
+    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"timestep"</span>, y <span class="op">=</span> <span class="st">"Severe incidence"</span><span class="op">)</span>
 <span class="op">}</span>
 
 <span class="va">add_intervention_lines</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">plot</span>, <span class="va">events</span><span class="op">)</span> <span class="op">{</span>
-  <span class="va">plot</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html">geom_vline</a></span><span class="op">(</span>
+  <span class="va">plot</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>
     data <span class="op">=</span> <span class="va">events</span>,
-    mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>xintercept<span class="op">=</span><span class="va">timestep</span><span class="op">)</span>,
+    mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>xintercept<span class="op">=</span><span class="va">timestep</span><span class="op">)</span>,
     color<span class="op">=</span><span class="st">"blue"</span>
-  <span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html">geom_text</a></span><span class="op">(</span>
+  <span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_text.html" class="external-link">geom_text</a></span><span class="op">(</span>
     data <span class="op">=</span> <span class="va">events</span>,
-    mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">timestep</span>, y <span class="op">=</span> <span class="fl">0</span>, label <span class="op">=</span> <span class="va">name</span><span class="op">)</span>,
+    mapping <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">timestep</span>, y <span class="op">=</span> <span class="fl">0</span>, label <span class="op">=</span> <span class="va">name</span><span class="op">)</span>,
     size <span class="op">=</span> <span class="fl">4</span>,
     angle <span class="op">=</span> <span class="fl">90</span>,
     vjust <span class="op">=</span> <span class="op">-</span><span class="fl">0.4</span>,
@@ -156,27 +154,27 @@
   <span class="op">)</span>
 <span class="op">}</span></code></pre></div>
 <p>Then we can run the simulation for a variety of vector control strategies:</p>
-<div id="bed-nets" class="section level2">
-<h2 class="hasAnchor">
-<a href="#bed-nets" class="anchor"></a>Bed nets</h2>
+<div class="section level3">
+<h3 id="bed-nets">Bed nets<a class="anchor" aria-label="anchor" href="#bed-nets"></a>
+</h3>
 <p>We can distribute bed nets once a year for two years, changing the characteristics of the bed nets on each distribution…</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">bednetparams</span> <span class="op">&lt;-</span> <span class="va">simparams</span>
 
-<span class="va">bednet_events</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>
-  timestep <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span> <span class="op">*</span> <span class="va">year</span>,
-  name<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Bednets 1"</span>, <span class="st">"Bednets 2"</span><span class="op">)</span>
+<span class="va">bednet_events</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>
+  timestep <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span> <span class="op">*</span> <span class="va">year</span>,
+  name<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Bednets 1"</span>, <span class="st">"Bednets 2"</span><span class="op">)</span>
 <span class="op">)</span>
 
 <span class="va">bednetparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_bednets.html">set_bednets</a></span><span class="op">(</span>
   <span class="va">bednetparams</span>,
   timesteps <span class="op">=</span> <span class="va">bednet_events</span><span class="op">$</span><span class="va">timestep</span>,
-  coverages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">.8</span>, <span class="fl">.8</span><span class="op">)</span>,
+  coverages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.8</span>, <span class="fl">.8</span><span class="op">)</span>,
   retention <span class="op">=</span> <span class="fl">5</span> <span class="op">*</span> <span class="va">year</span>,
-  dn0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">.533</span>, <span class="fl">.45</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,
-  rn <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">.56</span>, <span class="fl">.5</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,
-  rnm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">.24</span>, <span class="fl">.24</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,
-  gamman <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">2.64</span> <span class="op">*</span> <span class="fl">365</span>, <span class="fl">2</span><span class="op">)</span>
+  dn0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.533</span>, <span class="fl">.45</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,
+  rn <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.56</span>, <span class="fl">.5</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,
+  rnm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.24</span>, <span class="fl">.24</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,
+  gamman <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">2.64</span> <span class="op">*</span> <span class="fl">365</span>, <span class="fl">2</span><span class="op">)</span>
 <span class="op">)</span>
 
 <span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_simulation.html">run_simulation</a></span><span class="op">(</span><span class="va">sim_length</span>, <span class="va">bednetparams</span><span class="op">)</span>
@@ -184,29 +182,29 @@
 <span class="fu">add_intervention_lines</span><span class="op">(</span><span class="fu">plot_prevalence</span><span class="op">(</span><span class="va">output</span><span class="op">)</span>, <span class="va">bednet_events</span><span class="op">)</span></code></pre></div>
 <p><img src="VectorControl_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
 </div>
-<div id="indoor-spraying" class="section level2">
-<h2 class="hasAnchor">
-<a href="#indoor-spraying" class="anchor"></a>Indoor spraying</h2>
+<div class="section level3">
+<h3 id="indoor-spraying">Indoor spraying<a class="anchor" aria-label="anchor" href="#indoor-spraying"></a>
+</h3>
 <p>We can do the same for IRS…</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">sprayingparams</span> <span class="op">&lt;-</span> <span class="va">simparams</span>
 
 <span class="va">peak</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/peak_season_offset.html">peak_season_offset</a></span><span class="op">(</span><span class="va">sprayingparams</span><span class="op">)</span>
-<span class="va">spraying_events</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span>
-  timestep <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span> <span class="op">*</span> <span class="va">year</span> <span class="op">+</span> <span class="va">peak</span> <span class="op">-</span> <span class="fl">3</span> <span class="op">*</span> <span class="va">month</span>,
-  name<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Spraying 1"</span>, <span class="st">"Spraying 2"</span><span class="op">)</span>
+<span class="va">spraying_events</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>
+  timestep <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span> <span class="op">*</span> <span class="va">year</span> <span class="op">+</span> <span class="va">peak</span> <span class="op">-</span> <span class="fl">3</span> <span class="op">*</span> <span class="va">month</span>,
+  name<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Spraying 1"</span>, <span class="st">"Spraying 2"</span><span class="op">)</span>
 <span class="op">)</span>
 
 <span class="va">sprayingparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_spraying.html">set_spraying</a></span><span class="op">(</span>
   <span class="va">sprayingparams</span>,
   timesteps <span class="op">=</span> <span class="va">spraying_events</span><span class="op">$</span><span class="va">timestep</span>,
-  coverages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span><span class="op">(</span><span class="fl">.8</span>, <span class="fl">2</span><span class="op">)</span>,
-  ls_theta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">2.025</span>, <span class="fl">2.025</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,
-  ls_gamma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.009</span>, <span class="op">-</span><span class="fl">0.009</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,
-  ks_theta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2.222</span>, <span class="op">-</span><span class="fl">2.222</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,
-  ks_gamma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.008</span>, <span class="fl">0.008</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,
-  ms_theta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.232</span>, <span class="op">-</span><span class="fl">1.232</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,
-  ms_gamma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.009</span>, <span class="op">-</span><span class="fl">0.009</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>
+  coverages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">.8</span>, <span class="fl">2</span><span class="op">)</span>,
+  ls_theta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2.025</span>, <span class="fl">2.025</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,
+  ls_gamma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.009</span>, <span class="op">-</span><span class="fl">0.009</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,
+  ks_theta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2.222</span>, <span class="op">-</span><span class="fl">2.222</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,
+  ks_gamma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.008</span>, <span class="fl">0.008</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,
+  ms_theta <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1.232</span>, <span class="op">-</span><span class="fl">1.232</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>,
+  ms_gamma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.009</span>, <span class="op">-</span><span class="fl">0.009</span><span class="op">)</span>, nrow<span class="op">=</span><span class="fl">2</span>, ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span>
 <span class="op">)</span>
 
 <span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_simulation.html">run_simulation</a></span><span class="op">(</span><span class="va">sim_length</span>, <span class="va">sprayingparams</span><span class="op">)</span>
@@ -228,11 +226,13 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Giovanni Charles.</p>
+  <p></p>
+<p>Developed by Giovanni Charles, Peter Windskill, Hillary Topazian, Joseph Challenger, Richard Fitzjohn.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
 </div>
 
       </footer>
@@ -240,6 +240,8 @@
 
   
 
+
+  
 
   </body>
 </html>

@@ -19,6 +19,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -31,18 +33,12 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
 <li>
   <a href="reference/index.html">Reference</a>
 </li>
@@ -54,6 +50,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="articles/Demography.html">Demography</a>
+    </li>
+    <li>
       <a href="articles/EIRprevmatch.html">Matching PfPR2-10 to EIR</a>
     </li>
     <li>
@@ -94,64 +93,64 @@
   <div class="contents col-md-9">
 
 
-<div id="malariasimulation" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#malariasimulation" class="anchor"></a>malariasimulation</h1></div>
+<div class="section level1">
+<div class="page-header"><h1 id="malariasimulation">malariasimulation<a class="anchor" aria-label="anchor" href="#malariasimulation"></a>
+</h1></div>
 <p>Imperial College London’s next malaria simulation. The main goals are make an extensible, maintainable and fast simulation to evaluate and report on malaria intervention strategies.</p>
-<p>The model is defined in this package, whereas the simulation is executed using the <a href="https://github.com/mrc-ide/individual">individual</a> package.</p>
-<div id="installation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installation" class="anchor"></a>Installation</h2>
+<p>The model is defined in this package, whereas the simulation is executed using the <a href="https://github.com/mrc-ide/individual" class="external-link">individual</a> package.</p>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
 <p>Please note, malariasimulation is only compatible with R &gt;= 4.0.0</p>
 <p>You can install the binary package on Windows and Mac using the following command:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Enable this universe</span>
-<span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span>
+<span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>
     mrcide <span class="op">=</span> <span class="st">'https://mrc-ide.r-universe.dev'</span>,
     CRAN <span class="op">=</span> <span class="st">'https://cloud.r-project.org'</span><span class="op">)</span><span class="op">)</span>
 
 <span class="co"># Install some packages</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span><span class="op">(</span><span class="st">'malariasimulation'</span><span class="op">)</span></code></pre></div>
-<p>The package can also be installed from github using the “remotes” library. Note, this method requires <a href="https://cran.r-project.org/bin/windows/Rtools/">RBuildTools</a></p>
+<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">'malariasimulation'</span><span class="op">)</span></code></pre></div>
+<p>The package can also be installed from github using the “remotes” library. Note, this method requires <a href="https://cran.r-project.org/bin/windows/Rtools/" class="external-link">RBuildTools</a></p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://remotes.r-lib.org">'remotes'</a></span><span class="op">)</span>
-<span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html">install_github</a></span><span class="op">(</span><span class="st">'mrc-ide/malariasimulation'</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://remotes.r-lib.org" class="external-link">'remotes'</a></span><span class="op">)</span>
+<span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">'mrc-ide/malariasimulation'</span><span class="op">)</span></code></pre></div>
 <p>For development it is most convenient to run the code from source. You can install the dependencies in RStudio by opening the project and selecting “Build” &gt; “Install and Restart”</p>
 <p>Command line users can execute:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st"><a href="https://remotes.r-lib.org">'remotes'</a></span><span class="op">)</span>
-<span class="fu"><a href="https://remotes.r-lib.org/reference/install_deps.html">install_deps</a></span><span class="op">(</span><span class="st">'.'</span>, dependencies <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://remotes.r-lib.org" class="external-link">'remotes'</a></span><span class="op">)</span>
+<span class="fu"><a href="https://remotes.r-lib.org/reference/install_deps.html" class="external-link">install_deps</a></span><span class="op">(</span><span class="st">'.'</span>, dependencies <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 <p>Docker users can achieve the same with one line</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1"></a><span class="ex">docker</span> build . -f docker/Dockerfile.dev -t [your image name]</span></code></pre></div>
 </div>
-<div id="usage" class="section level2">
-<h2 class="hasAnchor">
-<a href="#usage" class="anchor"></a>Usage</h2>
+<div class="section level2">
+<h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
+</h2>
 <p>To run the malaria simulation with the default parameters for 100 timesteps, you can execute the following code:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="st">'malariasimulation'</span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">'malariasimulation'</span><span class="op">)</span>
 
 <span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/run_simulation.html">run_simulation</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span></code></pre></div>
 </div>
-<div id="code-organisation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#code-organisation" class="anchor"></a>Code organisation</h2>
+<div class="section level2">
+<h2 id="code-organisation">Code organisation<a class="anchor" aria-label="anchor" href="#code-organisation"></a>
+</h2>
 <p><em>model.R</em> - is the entry point for the model. It creates the different components and passes them to the <code>individual</code> package for simulation.</p>
 <p><em>variables.R</em> - contains the specific variables we track for each individual.</p>
 <p><em>processes.R</em> - defines the changes in individuals over time. It collects process functions from “infection.R”, “mosquito_emergence.R” and “mortality.R”</p>
 <p><em>tests</em> - are divided into unit and integration tests. Integration tests are strongly recommended for large process functions and unit tests for model calculations.</p>
 </div>
-<div id="contributing" class="section level2">
-<h2 class="hasAnchor">
-<a href="#contributing" class="anchor"></a>Contributing</h2>
+<div class="section level2">
+<h2 id="contributing">Contributing<a class="anchor" aria-label="anchor" href="#contributing"></a>
+</h2>
 <p>Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.</p>
 <p>Please make sure to update tests and documentation as appropriate.</p>
-<p>Code reviews will be carried out in-line with RESIDE-IC’s <a href="https://reside-ic.github.io/articles/pull-requests/">review process</a></p>
+<p>Code reviews will be carried out in-line with RESIDE-IC’s <a href="https://reside-ic.github.io/articles/pull-requests/" class="external-link">review process</a></p>
 </div>
-<div id="license" class="section level2">
-<h2 class="hasAnchor">
-<a href="#license" class="anchor"></a>License</h2>
-<p><a href="https://choosealicense.com/licenses/mit/">MIT</a></p>
+<div class="section level2">
+<h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
+</h2>
+<p><a href="https://choosealicense.com/licenses/mit/" class="external-link">MIT</a></p>
 </div>
 </div>
 
@@ -159,37 +158,53 @@
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="license">
-<h2>License</h2>
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li><a href="LICENSE.html">Full license</a></li>
-<li><small><a href="https://opensource.org/licenses/mit-license.php">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
-</ul>
-</div>
-<div class="developers">
-<h2>Developers</h2>
-<ul class="list-unstyled">
-<li>Giovanni Charles <br><small class="roles"> Author, maintainer </small>  </li>
-<li><a href="authors.html">All authors...</a></li>
+<li><small><a href="https://opensource.org/licenses/mit-license.php" class="external-link">MIT</a> + file <a href="LICENSE-text.html">LICENSE</a></small></li>
 </ul>
 </div>
 
-  <div class="dev-status">
-<h2>Dev status</h2>
+
+<div class="citation">
+<h2 data-toc-skip>Citation</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/mrc-ide/malariasimulation/actions"><img src="https://github.com/mrc-ide/malariasimulation/workflows/R-CMD-check/badge.svg" alt="R build status"></a></li>
-<li><a href="https://codecov.io/github/mrc-ide/malariasimulation"><img src="https://codecov.io/github/mrc-ide/malariasimulation/branch/master/graphs/badge.svg" alt="codecov"></a></li>
+<li><a href="authors.html#citation">Citing malariasimulation</a></li>
 </ul>
 </div>
+
+<div class="developers">
+<h2 data-toc-skip>Developers</h2>
+<ul class="list-unstyled">
+<li>Giovanni Charles <br><small class="roles"> Author, maintainer </small>  </li>
+<li>Peter Windskill <br><small class="roles"> Author </small>  </li>
+<li>Hillary Topazian <br><small class="roles"> Author </small>  </li>
+<li>Joseph Challenger <br><small class="roles"> Author </small>  </li>
+<li>Richard Fitzjohn <br><small class="roles"> Author </small>  </li>
+<li><a href="authors.html">More about authors...</a></li>
+</ul>
 </div>
+
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/mrc-ide/malariasimulation/actions" class="external-link"><img src="https://github.com/mrc-ide/malariasimulation/workflows/R-CMD-check/badge.svg" alt="R build status"></a></li>
+<li><a href="https://codecov.io/github/mrc-ide/malariasimulation" class="external-link"><img src="https://codecov.io/github/mrc-ide/malariasimulation/branch/master/graphs/badge.svg" alt="codecov"></a></li>
+</ul>
+</div>
+
+  </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by Giovanni Charles.</p>
+  <p></p>
+<p>Developed by Giovanni Charles, Peter Windskill, Hillary Topazian, Joseph Challenger, Richard Fitzjohn.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
 </div>
 
       </footer>
@@ -197,6 +212,8 @@
 
   
 
+
+  
 
   </body>
 </html>

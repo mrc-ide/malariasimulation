@@ -62,16 +62,13 @@ simulate_infection <- function(
     timestep
   )
 
-  if (parameters$severe_enabled) {
-    update_severe_disease(
-      timestep,
-      clinical_infections,
-      variables,
-      infected_humans,
-      parameters,
-      renderer
-    )
-  }
+  update_severe_disease(
+    timestep,
+    infected_humans,
+    variables,
+    parameters,
+    renderer
+  )
 
   treated <- calculate_treated(
     variables,
@@ -210,55 +207,49 @@ calculate_clinical_infections <- function(
 #' @description
 #' Sample severely infected humans from clinically infected
 #' @param timestep current timestep
-#' @param clinical_infections indices of clinically infected humans
+#' @param infections indices of all infected humans
 #' @param variables a list of all of the model variables
-#' @param infections indices of all infected humans (for immunity boosting)
 #' @param parameters model parameters
 #' @param renderer model outputs
 #' @noRd
 update_severe_disease <- function(
   timestep,
-  clinical_infections,
-  variables,
   infections,
+  variables,
   parameters,
   renderer
   ) {
-  if (clinical_infections$size() > 0) {
-    age <- get_age(variables$birth$get_values(clinical_infections), timestep)
-    iva <- variables$iva$get_values(clinical_infections)
+  if (infections$size() > 0) {
+    age <- get_age(variables$birth$get_values(infections), timestep)
+    iva <- variables$iva$get_values(infections)
+    ivm <- variables$ivm$get_values(infections)
     theta <- severe_immunity(
       age,
       iva,
-      variables$ivm$get_values(clinical_infections),
+      ivm,
       parameters
     )
     develop_severe <- bernoulli_multi_p(theta)
-    severe_infections <- bitset_at(clinical_infections, develop_severe)
-    variables$is_severe$queue_update('yes', severe_infections)
-    variables$is_severe$queue_update(
-      'no',
-      severe_infections$copy()$not(TRUE)$and(infections)
-    ) # Prevent any unwanted severe reinfections
+    severe_infections <- bitset_at(infections, develop_severe)
     incidence_renderer(
       variables$birth,
       renderer,
       severe_infections,
-      clinical_infections,
+      infections,
       theta,
       'inc_severe_',
       parameters$severe_incidence_rendering_min_ages,
       parameters$severe_incidence_rendering_max_ages,
       timestep
     )
-    boost_immunity(
-      variables$iva,
-      infections,
-      variables$last_boosted_iva,
-      timestep,
-      parameters$uv
-    )
   }
+  boost_immunity(
+    variables$iva,
+    infections,
+    variables$last_boosted_iva,
+    timestep,
+    parameters$uv
+  )
 }
 
 #' @title Calculate treated humans
@@ -386,6 +377,8 @@ boost_immunity <- function(
 
 # Implemented from Winskill 2017 - Supplementary Information page 4
 clinical_immunity <- function(acquired_immunity, maternal_immunity, parameters) {
+  acquired_immunity[acquired_immunity > 0] <- acquired_immunity[acquired_immunity > 0] + 0.5
+  
   parameters$phi0 * (
     parameters$phi1 +
       (1 - parameters$phi1) /
@@ -399,6 +392,8 @@ clinical_immunity <- function(acquired_immunity, maternal_immunity, parameters) 
 
 # Implemented from Winskill 2017 - Supplementary Information page 5
 severe_immunity <- function(age, acquired_immunity, maternal_immunity, parameters) {
+  acquired_immunity[acquired_immunity > 0] <- acquired_immunity[acquired_immunity > 0] + 0.5
+  
   fv <- 1 - (1 - parameters$fv0) / (
     1 + (age / parameters$av) ** parameters$gammav
   )
@@ -431,6 +426,8 @@ asymptomatic_infectivity <- function(age, immunity, parameters) {
 
 # Implemented from Winskill 2017 - Supplementary Information page 4
 blood_immunity <- function(ib, parameters) {
+  ib[ib > 0] <- ib[ib > 0] + 0.5
+  
   parameters$b0 * (
     parameters$b1 +
       (1 - parameters$b1) /

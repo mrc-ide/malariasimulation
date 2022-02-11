@@ -16,13 +16,13 @@ set_bednets(parameters, timesteps, coverages, retention, dn0, rn, rnm, gamman)
 \item{retention}{the average number of timesteps a net is kept for}
 
 \item{dn0}{a matrix of death probabilities for each species over time.
-With dimensions length(species) x length(timesteps)}
+With nrows=length(timesteps), ncols=length(species)}
 
 \item{rn}{a matrix of repelling probabilities for each species over time
-With dimensions length(species) x length(timesteps)}
+With nrows=length(timesteps), ncols=length(species)}
 
 \item{rnm}{a matrix of minimum repelling probabilities for each species over time
-With dimensions length(species) x length(timesteps)}
+With nrows=length(timesteps), ncols=length(species)}
 
 \item{gamman}{a vector of bednet half-lives for each distribution timestep}
 }

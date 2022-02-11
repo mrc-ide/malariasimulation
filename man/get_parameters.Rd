@@ -51,13 +51,11 @@ probability of clinical infection:
 
 probability of severe infection:
 \itemize{
-\item severe_enabled - whether to model severe disease; default = 0
 \item theta0 - maximum probability due to no immunity; default = 0.0749886
 \item theta1 - maximum reduction due to immunity; default = 0.0001191
 \item iv0 - scale parameter; default = 1.09629
 \item kv - shape parameter; default = 2.00048
 \item fv0 - age dependent modifier; default = 0.141195
-\item fvt - reduced probability of death due to treatment; default = 0.5
 \item av - age dependent modifier; default = 2493.41
 \item gammav - age dependent modifier; default = 2.91282
 }
@@ -99,8 +97,8 @@ for sampling mothers; default = 5
 
 mortality parameters:
 \itemize{
-\item average_age - the average age of humans (in timesteps); default = 7663
-\item v - mortality scaling factor from severe disease; default = 0.065
+\item average_age - the average age of humans (in timesteps), this is only used
+if custom_demography is FALSE; default = 7663
 \item pcm - new-born clinical immunity relative to mother's; default = 0.774368
 \item pvm - new-born severe immunity relative to mother's; default = 0.195768
 \item me - early stage larval mortality rate; default = 0.0338
@@ -115,6 +113,7 @@ carrying capacity parameters:
 \item h - rainfall fourier parameters; default = 0.1, 0.4, 0.7
 \item gamma - effect of density dependence on late instars relative to early
 instars; default = 13.25
+\item rainfall_floor - the minimum rainfall value (must be above 0); default 0.001
 }
 
 initial state proportions:
@@ -235,9 +234,6 @@ outputs (includes asymptomatic microscopy +); default = turned off
 \item incidence_rendering_max_ages - the corresponding max ages; default = turned off
 \item clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = 0
 \item clinical_incidence_rendering_max_ages - the corresponding max ages; default = 1825
-\item severe_prevalence_rendering_min_ages - the minimum ages for severe
-prevalence outputs; default = turned off
-\item severe_prevalence_rendering_max_ages - the corresponding max ages; default = turned off
 \item severe_incidence_rendering_min_ages - the minimum ages for severe incidence
 outputs; default = turned off
 \item severe_incidence_rendering_max_ages - the corresponding max ages; default = turned off
@@ -245,7 +241,9 @@ outputs; default = turned off
 
 miscellaneous:
 \itemize{
-\item human_population - the number of humans to model; default = 100
+\item human_population - the initial number of humans to model; default = 100
+\item human_population_timesteps - the timesteps at which the population should
+change; default = 0
 \item mosquito_limit - the maximum number of mosquitoes to allow for in the
 simulation; default = 1.00E+05
 \item individual_mosquitoes - boolean whether adult mosquitoes are modeled

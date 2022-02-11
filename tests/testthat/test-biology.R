@@ -169,14 +169,9 @@ test_that('phi is consistent with equilibrium at high EIR', {
   )
 })
 
-test_that('mosquito_limit is set to 1 for 0 EIR', {
+test_that('mosquito_limit is set to 0 for 0 EIR', {
   parameters <- parameterise_mosquito_equilibrium(get_parameters(), 0)
-  expect_equal(parameters$mosquito_limit, 1)
-})
-
-test_that('mosquito_limit is set to 1 for 0 EIR', {
-  parameters <- parameterise_mosquito_equilibrium(get_parameters(), 0)
-  expect_equal(parameters$mosquito_limit, 1)
+  expect_equal(parameters$mosquito_limit, 0)
 })
 
 test_that('mosquito_limit is set to a sensible level', {

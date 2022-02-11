@@ -1,0 +1,138 @@
+---
+title: "Demography"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Demography}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+suppressPackageStartupMessages(library(ggplot2))
+library(malariasimulation)
+```
+
+# Parameterisation
+
+We are going to create a scenario where we track severe prevalence for 5 years.
+
+```{r}
+year <- 365
+month <- 30
+sim_length <- 5 * year
+human_population <- 1000
+starting_EIR <- 50
+
+simparams <- get_parameters(
+  list(
+    human_population = human_population,
+    model_seasonality = TRUE, # Let's try a bi-modal model
+    g0 = 0.28605,
+    g = c(0.20636, -0.0740318, -0.0009293),
+    h = c(0.173743, -0.0730962, -0.116019),
+    severe_incidence_rendering_min_ages = 2 * year,
+    severe_incidence_rendering_max_ages = 10 * year
+  )
+)
+
+simparams <- set_equilibrium(simparams, starting_EIR)
+```
+
+## Custom demography
+
+We can set a custom demography and compare the severe outputs:
+
+```{r}
+demography_params <- simparams
+
+# Set a flat demography
+ages <- round(c(
+  .083333,
+  1,
+  5,
+  10,
+  15,
+  20,
+  25,
+  30,
+  35,
+  40,
+  45,
+  50,
+  55,
+  60,
+  65,
+  70,
+  75,
+  80,
+  85,
+  90,
+  95,
+  200
+) * year)
+
+deathrates <- c(
+  .4014834,
+  .0583379,
+  .0380348,
+  .0395061,
+  .0347255,
+  .0240849,
+  .0300902,
+  .0357914,
+  .0443123,
+  .0604932,
+  .0466799,
+  .0426199,
+  .0268332,
+  .049361,
+  .0234852,
+  .0988317,
+  .046755,
+  .1638875,
+  .1148753,
+  .3409079,
+  .2239224,
+  .8338688
+) / 365
+
+demography_params <- set_demography(
+  demography_params,
+  agegroups = ages,
+  timesteps = 1,
+  deathrates = matrix(deathrates, nrow = 1),
+  birthrates = find_birthrates(human_population, ages, deathrates)
+)
+
+# combine the outputs
+exp_output <- run_simulation(sim_length, simparams)
+exp_output$run <- 'exponential'
+custom_output <- run_simulation(sim_length, demography_params)
+custom_output$run <- 'custom'
+output <- rbind(exp_output, custom_output)
+
+# calculate yearly prevalence
+yearly_output <- aggregate(
+  output$n_inc_severe_730_3650,
+  by = list(year = floor(output$timestep / year), run = output$run),
+  FUN = sum
+)
+
+# Plot the output
+ggplot(yearly_output) + geom_line(
+  aes(
+    x = year,
+    y = x,
+    group = run,
+    color = run
+  )
+) + labs(x = "Year", y = "PfPR2-10 severe")
+
+```

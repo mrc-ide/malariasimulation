@@ -51,7 +51,18 @@ translations = list(
   tau = 'dem',
   Q0 = 'Q0',
   f = 'blood_meal_rates',
-  tl = 'delay_gam'
+  tl = 'delay_gam',
+  uv = 'uv',
+  dv = 'rva',
+  PVM = 'pvm',
+  dvm = 'rvm',
+  fv0 = 'fv0',
+  av = 'av',
+  gammav = 'gammav',
+  theta0 = 'theta0',
+  theta1 = 'theta1',
+  IV0 = 'iv0',
+  kv = 'kv'
 )
 
 back_translations = list(
@@ -95,7 +106,18 @@ back_translations = list(
   dem = 'tau',
   Q0 = mean_param('Q0', 'Q0', 'species_proportions'),
   blood_meal_rates = mean_param('f', 'blood_meal_rates', 'species_proportions'),
-  delay_gam = 'tl'
+  delay_gam = 'tl',
+  uv = 'uv',
+  rva = 'dv',
+  pvm = 'PVM',
+  rvm = 'dvm',
+  fv0 = 'fv0',
+  av = 'av',
+  gammav = 'gammav',
+  theta0 = 'theta0',
+  theta1 = 'theta1',
+  IV0 = 'iv0',
+  kv = 'kv'
 )
 
 #' @description translate parameter keys from the malariaEquilibrium format
@@ -162,7 +184,8 @@ remove_unused_equilibrium <- function(params) {
 #' equilibrium parameters and set up the initial human and mosquito population
 #' to acheive init_EIR
 #' @param parameters model parameters to update
-#' @param init_EIR the desired initial EIR
+#' @param init_EIR the desired initial EIR (infectious bites per day over the entire human
+#' population)
 #' @param eq_params parameters from the malariaEquilibrium package, if null.
 #' The default malariaEquilibrium parameters will be used
 #' @export

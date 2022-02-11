@@ -45,13 +45,11 @@
 #'
 #' probability of severe infection:
 #'
-#' * severe_enabled - whether to model severe disease; default = 0
 #' * theta0 - maximum probability due to no immunity; default = 0.0749886
 #' * theta1 - maximum reduction due to immunity; default = 0.0001191
 #' * iv0 - scale parameter; default = 1.09629
 #' * kv - shape parameter; default = 2.00048
 #' * fv0 - age dependent modifier; default = 0.141195
-#' * fvt - reduced probability of death due to treatment; default = 0.5
 #' * av - age dependent modifier; default = 2493.41
 #' * gammav - age dependent modifier; default = 2.91282
 #'
@@ -88,8 +86,8 @@
 #'
 #' mortality parameters:
 #'
-#' * average_age - the average age of humans (in timesteps); default = 7663
-#' * v - mortality scaling factor from severe disease; default = 0.065
+#' * average_age - the average age of humans (in timesteps), this is only used 
+#' if custom_demography is FALSE; default = 7663
 #' * pcm - new-born clinical immunity relative to mother's; default = 0.774368
 #' * pvm - new-born severe immunity relative to mother's; default = 0.195768
 #' * me - early stage larval mortality rate; default = 0.0338
@@ -103,6 +101,7 @@
 #' * h - rainfall fourier parameters; default = 0.1, 0.4, 0.7
 #' * gamma - effect of density dependence on late instars relative to early
 #' instars; default = 13.25
+#' * rainfall_floor - the minimum rainfall value (must be above 0); default 0.001
 #'
 #' initial state proportions:
 #'
@@ -214,16 +213,15 @@
 #' * incidence_rendering_max_ages - the corresponding max ages; default = turned off 
 #' * clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = 0
 #' * clinical_incidence_rendering_max_ages - the corresponding max ages; default = 1825
-#' * severe_prevalence_rendering_min_ages - the minimum ages for severe
-#' prevalence outputs; default = turned off
-#' * severe_prevalence_rendering_max_ages - the corresponding max ages; default = turned off
 #' * severe_incidence_rendering_min_ages - the minimum ages for severe incidence
 #' outputs; default = turned off
 #' * severe_incidence_rendering_max_ages - the corresponding max ages; default = turned off
 #'
 #' miscellaneous:
 #'
-#' * human_population - the number of humans to model; default = 100
+#' * human_population - the initial number of humans to model; default = 100
+#' * human_population_timesteps - the timesteps at which the population should
+#' change; default = 0
 #' * mosquito_limit - the maximum number of mosquitoes to allow for in the
 #' simulation; default = 1.00E+05
 #' * individual_mosquitoes - boolean whether adult mosquitoes are modeled
@@ -279,12 +277,10 @@ get_parameters <- function(overrides = list()) {
     ic0   = 18.02366,
     kc    = 2.36949,
     # severe disease immunity parameters
-    severe_enabled = 0,
     theta0  = .0749886,
     theta1  = .0001191,
     kv      = 2.00048,
     fv0     = 0.141195,
-    fvt     = 0.5,
     av      = 2493.41,
     gammav  = 2.91282,
     iv0     = 1.09629,
@@ -301,7 +297,6 @@ get_parameters <- function(overrides = list()) {
     kd    = .476614,
     # mortality parameters
     average_age = 7663,
-    v     = .065, # NOTE: there are two definitions of this in the literature: one on line 124 and one in the parameters table
     pcm   = .774368,
     pvm   = .195768,
     # carrying capacity parameters
@@ -310,6 +305,7 @@ get_parameters <- function(overrides = list()) {
     h     = c(.1, .4, .7),
     gamma = 13.25,
     model_seasonality = FALSE,
+    rainfall_floor = 0.001,
     # larval mortality rates
     me    = .0338,
     ml    = .0348,
@@ -405,7 +401,9 @@ get_parameters <- function(overrides = list()) {
     severe_incidence_rendering_min_ages = numeric(0),
     severe_incidence_rendering_max_ages = numeric(0),
     # misc
+    custom_demography = FALSE,
     human_population = 100,
+    human_population_timesteps = 0,
     mosquito_limit   = 100 * 1000,
     individual_mosquitoes = TRUE,
     enable_heterogeneity = TRUE,
@@ -485,7 +483,8 @@ parameterise_total_M <- function(parameters, total_M) {
         parameters$g,
         parameters$h,
         K0,
-        R_bar
+        R_bar,
+        parameters$rainfall_floor
       )
     }))
     omega <- calculate_omega(parameters, i)

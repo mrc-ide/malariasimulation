@@ -219,30 +219,28 @@ update_severe_disease <- function(
   parameters,
   renderer
   ) {
-  if (infections$size() > 0) {
-    age <- get_age(variables$birth$get_values(infections), timestep)
-    iva <- variables$iva$get_values(infections)
-    ivm <- variables$ivm$get_values(infections)
-    theta <- severe_immunity(
-      age,
-      iva,
-      ivm,
-      parameters
-    )
-    develop_severe <- bernoulli_multi_p(theta)
-    severe_infections <- bitset_at(infections, develop_severe)
-    incidence_renderer(
-      variables$birth,
-      renderer,
-      severe_infections,
-      infections,
-      theta,
-      'inc_severe_',
-      parameters$severe_incidence_rendering_min_ages,
-      parameters$severe_incidence_rendering_max_ages,
-      timestep
-    )
-  }
+  age <- get_age(variables$birth$get_values(infections), timestep)
+  iva <- variables$iva$get_values(infections)
+  ivm <- variables$ivm$get_values(infections)
+  theta <- severe_immunity(
+    age,
+    iva,
+    ivm,
+    parameters
+  )
+  develop_severe <- bernoulli_multi_p(theta)
+  severe_infections <- bitset_at(infections, develop_severe)
+  incidence_renderer(
+    variables$birth,
+    renderer,
+    severe_infections,
+    infections,
+    theta,
+    'inc_severe_',
+    parameters$severe_incidence_rendering_min_ages,
+    parameters$severe_incidence_rendering_max_ages,
+    timestep
+  )
   boost_immunity(
     variables$iva,
     infections,

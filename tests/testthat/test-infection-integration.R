@@ -482,5 +482,40 @@ test_that('boost_immunity does not update when there is no-one to update', {
   mockery::expect_called(last_mock, 0)
 })
 
+test_that('update_severe_disease renders with no infections', {
+  population <- 4
+  timestep <- 5
+  renderer <- individual::Render$new(5)
+  parameters <- get_parameters(list(
+    human_population = population,
+    severe_incidence_rendering_min_ages = 0,
+    severe_incidence_rendering_max_ages = 5 * 365
+  ))
+  variables <- create_variables(parameters)
 
+  render_function <- mockery::mock()
+  mockery::stub(update_severe_disease, 'incidence_renderer', render_function)
+  empty <- individual::Bitset$new(population)
 
+  update_severe_disease(
+    timestep,
+    empty,
+    variables,
+    parameters,
+    renderer
+  )
+
+  mockery::expect_args(
+    render_function,
+    1,
+    variables$birth,
+    renderer,
+    empty,
+    empty,
+    double(0),
+    'inc_severe_',
+    0,
+    5 * 365,
+    timestep
+  )
+})

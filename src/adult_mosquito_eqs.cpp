@@ -38,7 +38,7 @@ integration_function_t create_eqs(AdultMosquitoModel& model) {
         auto incubation_survival = exp(-model.mu * model.tau);
 
         dxdt[get_idx(AdultState::S)] =
-            .5 * x[get_idx(AquaticState::P)] / model.growth_model.dp //growth to adult female
+            .5 * lsm_factor * x[get_idx(AquaticState::P)] / model.growth_model.dp //growth to adult female
             - x[get_idx(AdultState::S)] * model.foim //infections
             - x[get_idx(AdultState::S)] * model.mu; //deaths   
 

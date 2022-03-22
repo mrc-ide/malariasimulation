@@ -133,3 +133,65 @@ set_spraying <- function(
   parameters$spraying_ms_gamma <- ms_gamma
   parameters
 }
+
+#' @title Parameterise a habitat management strategy
+#'
+#' @description The model will simulate larval source habitat management at 
+#' `timesteps` to the entire human population. 
+#' The impact will reduce adult mosquitoes recruited from pupae to the susceptible
+#' cohort.
+#'
+#' The rapidity of the impact is captured by the lsm_factor function
+#' by changing the parameters lsm_rate and deprec_param
+#'
+#' The amount of impact in terms of reduced adult mosquito densities
+#' that the habitat management has is determined by larvi_min which is
+#' set to 1 as default when there is no impact.
+#'
+#' Habitat management effects will be randomly removed each timestep with a rate of `1 -
+#' exp(-1/habitat_management_waning)`
+#'
+#' The structure for the habitat model is documented in the
+#' working draft Sherrard-Smith et al (larviciding in Kenya)
+#'
+#' @param parameters a list of parameters to modify
+#' @param timesteps the timesteps at which to distribute lsm rounds
+#' @param larvi_min the proportion of the mosquito population reduced (0 to 1), 1 is no impact
+#' @param lsm_rate the duration til the impact is acheived
+#' @param deprec_param the speed on impact taking mosquito densities down to new-normal 
+#' @param habitat_management_waning the average number of timesteps LSM works for
+#' With nrows=length(timesteps), ncols=length(species)
+#' @param larvi_min a matrix of reduction probabilities for each species over time
+#' With nrows=length(timesteps), ncols=length(species)
+#' @param lsm_rate a matrix of reduction probabilities for each species over time
+#' With nrows=length(timesteps), ncols=length(species)
+#' @param deprec_param a matrix of reduction probabilities for each species over time
+#' @export
+set_habitat_management <- function(
+  parameters,
+  timesteps,
+  larvi_min,
+  lsm_rate,
+  deprec_param,
+  habitat_management_waning
+  ) {
+  lengths <- vnapply(list(larvi_min), length)
+  if (!all(lengths == length(timesteps))) {
+    stop('timesteps and time-varying parameters must align')
+  }
+  for (x in list(larvi_min, lsm_rate, deprec_param)) {
+    if (ncol(x) != length(parameters$species)) {
+      stop('habitat management probabilities rows need to align with species')
+    }
+    if (nrow(x) != length(timesteps)) {
+      stop('habitat management probabilities columns need to align with timesteps')
+    }
+  }
+  parameters$habitat_management <- TRUE
+  parameters$habitat_management_timesteps <- timesteps
+  parameters$larvi_min <- larvi_min
+  parameters$lsm_rate <- lsm_rate
+  parameters$deprec_param <- deprec_param
+  parameters$habitat_management_waning <- habitat_management_waning
+  parameters
+}

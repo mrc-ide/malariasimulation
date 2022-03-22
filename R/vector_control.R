@@ -155,6 +155,69 @@ throw_away_nets <- function(variables) {
   }
 }
 
+
+
+lsm_factor <- function(
+  timestep,
+  variables,
+  species,
+  parameters
+  ) {
+  n <- parameters$human_population
+  if (!(parameters$habitat_management)) {
+    return(
+      list(
+        lsm_factor = rep(1, n)
+      )
+    )
+  }
+
+  if (parameters$habitat_management) {
+    larvi_min <- parameters$larvi_min[[species]]
+    lsm_rate <- parameters$lsm_rate[[species]]
+    deprec_param <- parameters$deprec_param[[species]]
+    lsm_time <- variables$lsm_time$get_values()
+    since_lsm <- timestep - lsm_time
+    matches <- match(net_time, parameters$habitat_management_timesteps)
+    lsm_factor <- larvi_min + (1.0-larvi_min)*(1+lsm_rate)/(1+lsm_rate*exp(-deprec_param*since_lsm))
+  } else {
+    lsm_factor <- 1
+  }
+
+#' @title Distribute larval source habitat management
+#' @description simulates larval source management by reducing recruitment to adult female mosquitoes 
+#' from `set_larviciding` and correlation parameters from
+#' `get_correlation_parameters`
+#'
+#' @param variables list of variables in the model
+#' @param larvi_min is the fractional reduction in adult females joining susceptible population 
+#' @param habitat_management_timesteps the time when this is switched on 
+#' @param parameters the model parameters
+#' @param correlations correlation parameters
+#' @noRd
+
+distribute_habitat_management <- function(variables, larv_impact_wanes, parameters) {
+  function(timestep) {
+    matches <- timestep == parameters$habitat_management_timesteps
+    if (any(matches)) {
+      target <- which(sample_intervention(
+        seq(parameters$human_population),
+        'habitat_management',
+        parameters$larvi_min[matches],
+        parameters$lsm_rate[matches],  ## exp(4)
+        parameters$deprec_param[matches] #,
+        # correlations
+      ))
+      variables$habitat_management_time$queue_update(timestep, target)
+      larv_impact_wanes$schedule(
+        target,
+        log_uniform(length(target), parameters$habitat_management_waning)
+      )
+    }
+  }
+}
+  
+
 # =================
 # Utility functions
 # =================
@@ -184,4 +247,10 @@ bednet_decay <- function(t, gamma) {
 
 spraying_decay <- function(t, theta, gamma) {
   1 / (1 + exp(-(theta + gamma * t)))
+}
+
+larv_impact_wanes <- function(variables) {
+  function(timestep, target) {
+    variables$habitat_management_time$queue_update(-1, target) 
+  }
 }

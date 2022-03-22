@@ -178,7 +178,7 @@ lsm_factor <- function(
     deprec_param <- parameters$deprec_param[[species]]
     lsm_time <- variables$lsm_time$get_values()
     since_lsm <- timestep - lsm_time
-    matches <- match(net_time, parameters$habitat_management_timesteps)
+    matches <- match(lsm_time, parameters$habitat_management_timesteps)
     lsm_factor <- larvi_min + (1.0-larvi_min)*(1+lsm_rate)/(1+lsm_rate*exp(-deprec_param*since_lsm))
   } else {
     lsm_factor <- 1

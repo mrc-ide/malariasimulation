@@ -142,14 +142,19 @@
 #' * foraging_time - time spent taking blood meals; default = 0.69
 #'
 #' feeding cycle: 
-#' please set vector control strategies using `set_betnets` and `set_spraying`
+#' please set vector control strategies using `set_betnets` and `set_spraying` and 'set_habitat_management'
 #'
 #' * bednets - boolean for if bednets are enabled; default = FALSE 
 #' * phi_bednets - proportion of bites taken in bed; default = 0.85
 #' * k0 - proportion of females bloodfed with no net; default = 0.699
 #' * spraying - boolean for if indoor spraying is enabled; default = FALSE 
 #' * phi_indoors - proportion of bites taken indoors; default = 0.90
-#'
+#' * habitat_management
+#' * habitat_management_timesteps
+#' * lsm_min
+#' * lsm_rate
+#' * deprec_param
+#'  
 #' treatment parameters:
 #' please set treatment parameters with the convenience functions in
 #' `drug_parameters.R`
@@ -339,6 +344,11 @@ get_parameters <- function(overrides = list()) {
     # indoor spraying
     spraying = FALSE,
     phi_indoors = .90,
+    # habitat management
+    habitat_management = FALSE,
+    lsm_min = 1,
+    lsm_rate = exp(4),
+    deprec_param = 2,
     # treatment
     drug_efficacy          = numeric(0),
     drug_rel_c             = numeric(0),

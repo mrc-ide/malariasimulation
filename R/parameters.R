@@ -151,7 +151,7 @@
 #' * phi_indoors - proportion of bites taken indoors; default = 0.90
 #' * habitat_management
 #' * habitat_management_timesteps
-#' * lsm_min
+#' * larvi_min
 #' * lsm_rate
 #' * deprec_param
 #'  
@@ -346,7 +346,7 @@ get_parameters <- function(overrides = list()) {
     phi_indoors = .90,
     # habitat management
     habitat_management = FALSE,
-    lsm_min = 1,
+    larvi_min = 1,
     lsm_rate = exp(4),
     deprec_param = 2,
     # treatment

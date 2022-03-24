@@ -157,12 +157,26 @@ throw_away_nets <- function(variables) {
 
 
 
+
+
+#' @title Distribute larval source habitat management
+#' @description simulates larval source management by reducing recruitment to adult female mosquitoes 
+#' from `set_habitat_management` and correlation parameters from
+#' `get_correlation_parameters`
+#'
+#' @param variables list of variables in the model
+#' @param larvi_min is the fractional reduction in adult females joining susceptible population 
+#' @param habitat_management_timesteps the time when this is switched on 
+#' @param parameters the model parameters
+#' @param correlations correlation parameters
+#' @noRd
+
 lsm_factor <- function(
   timestep,
   variables,
   species,
   parameters
-  ) {
+) {
   n <- parameters$human_population
   if (!(parameters$habitat_management)) {
     return(
@@ -171,7 +185,7 @@ lsm_factor <- function(
       )
     )
   }
-
+  
   if (parameters$habitat_management) {
     larvi_min <- parameters$larvi_min[[species]]
     lsm_rate <- parameters$lsm_rate[[species]]
@@ -183,19 +197,8 @@ lsm_factor <- function(
   } else {
     lsm_factor <- 1
   }
-
-#' @title Distribute larval source habitat management
-#' @description simulates larval source management by reducing recruitment to adult female mosquitoes 
-#' from `set_larviciding` and correlation parameters from
-#' `get_correlation_parameters`
-#'
-#' @param variables list of variables in the model
-#' @param larvi_min is the fractional reduction in adult females joining susceptible population 
-#' @param habitat_management_timesteps the time when this is switched on 
-#' @param parameters the model parameters
-#' @param correlations correlation parameters
-#' @noRd
-
+}
+  
 distribute_habitat_management <- function(variables, larv_impact_wanes, parameters) {
   function(timestep) {
     matches <- timestep == parameters$habitat_management_timesteps

@@ -6,14 +6,9 @@
 
 using namespace Rcpp;
 
-#ifdef RCPP_USE_GLOBAL_ROSTREAM
-Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
-Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
-#endif
-
 // create_adult_mosquito_model
-Rcpp::XPtr<AdultMosquitoModel> create_adult_mosquito_model(Rcpp::XPtr<AquaticMosquitoModel> growth_model, double mu, double tau, double susceptible, double foim);
-RcppExport SEXP _malariasimulation_create_adult_mosquito_model(SEXP growth_modelSEXP, SEXP muSEXP, SEXP tauSEXP, SEXP susceptibleSEXP, SEXP foimSEXP) {
+Rcpp::XPtr<AdultMosquitoModel> create_adult_mosquito_model(Rcpp::XPtr<AquaticMosquitoModel> growth_model, double mu, double tau, double susceptible, double foim, double lsm_factor);
+RcppExport SEXP _malariasimulation_create_adult_mosquito_model(SEXP growth_modelSEXP, SEXP muSEXP, SEXP tauSEXP, SEXP susceptibleSEXP, SEXP foimSEXP, SEXP lsm_factorSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -22,21 +17,23 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type tau(tauSEXP);
     Rcpp::traits::input_parameter< double >::type susceptible(susceptibleSEXP);
     Rcpp::traits::input_parameter< double >::type foim(foimSEXP);
-    rcpp_result_gen = Rcpp::wrap(create_adult_mosquito_model(growth_model, mu, tau, susceptible, foim));
+    Rcpp::traits::input_parameter< double >::type lsm_factor(lsm_factorSEXP);
+    rcpp_result_gen = Rcpp::wrap(create_adult_mosquito_model(growth_model, mu, tau, susceptible, foim, lsm_factor));
     return rcpp_result_gen;
 END_RCPP
 }
 // adult_mosquito_model_update
-void adult_mosquito_model_update(Rcpp::XPtr<AdultMosquitoModel> model, double mu, double foim, double susceptible, double f);
-RcppExport SEXP _malariasimulation_adult_mosquito_model_update(SEXP modelSEXP, SEXP muSEXP, SEXP foimSEXP, SEXP susceptibleSEXP, SEXP fSEXP) {
+void adult_mosquito_model_update(Rcpp::XPtr<AdultMosquitoModel> model, double mu, double foim, double lsm_factor, double susceptible, double f);
+RcppExport SEXP _malariasimulation_adult_mosquito_model_update(SEXP modelSEXP, SEXP muSEXP, SEXP foimSEXP, SEXP lsm_factorSEXP, SEXP susceptibleSEXP, SEXP fSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::XPtr<AdultMosquitoModel> >::type model(modelSEXP);
     Rcpp::traits::input_parameter< double >::type mu(muSEXP);
     Rcpp::traits::input_parameter< double >::type foim(foimSEXP);
+    Rcpp::traits::input_parameter< double >::type lsm_factor(lsm_factorSEXP);
     Rcpp::traits::input_parameter< double >::type susceptible(susceptibleSEXP);
     Rcpp::traits::input_parameter< double >::type f(fSEXP);
-    adult_mosquito_model_update(model, mu, foim, susceptible, f);
+    adult_mosquito_model_update(model, mu, foim, lsm_factor, susceptible, f);
     return R_NilValue;
 END_RCPP
 }
@@ -262,8 +259,8 @@ END_RCPP
 RcppExport SEXP run_testthat_tests();
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_malariasimulation_create_adult_mosquito_model", (DL_FUNC) &_malariasimulation_create_adult_mosquito_model, 5},
-    {"_malariasimulation_adult_mosquito_model_update", (DL_FUNC) &_malariasimulation_adult_mosquito_model_update, 5},
+    {"_malariasimulation_create_adult_mosquito_model", (DL_FUNC) &_malariasimulation_create_adult_mosquito_model, 6},
+    {"_malariasimulation_adult_mosquito_model_update", (DL_FUNC) &_malariasimulation_adult_mosquito_model_update, 6},
     {"_malariasimulation_create_adult_solver", (DL_FUNC) &_malariasimulation_create_adult_solver, 5},
     {"_malariasimulation_create_aquatic_mosquito_model", (DL_FUNC) &_malariasimulation_create_aquatic_mosquito_model, 18},
     {"_malariasimulation_aquatic_mosquito_model_update", (DL_FUNC) &_malariasimulation_aquatic_mosquito_model_update, 4},

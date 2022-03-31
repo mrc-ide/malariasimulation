@@ -166,6 +166,7 @@ simulate_bites <- function(
         models[[s_i]],
         mu,
         foim,
+        lsm_factor(timestep,s_i,parameters),
         solver_states[[ADULT_ODE_INDICES['Sm']]],
         f
       )

@@ -172,19 +172,14 @@ set_habitat_management <- function(
   timesteps,
   larvi_min,
   lsm_rate,
-  deprec_param,
-  habitat_management_waning
+  deprec_param
   ) {
-  lengths <- vnapply(list(larvi_min), length)
-  if (!all(lengths == length(timesteps))) {
-    stop('timesteps and time-varying parameters must align')
-  }
   for (x in list(larvi_min, lsm_rate, deprec_param)) {
     if (ncol(x) != length(parameters$species)) {
       stop('habitat management probabilities rows need to align with species')
     }
-    if (nrow(x) != length(timesteps)) {
-      stop('habitat management probabilities columns need to align with timesteps')
+    if (nrow(x) != length(1)) {
+      stop('habitat management probabilities columns needs to be 1')
     }
   }
   parameters$habitat_management <- TRUE
@@ -192,6 +187,5 @@ set_habitat_management <- function(
   parameters$larvi_min <- larvi_min
   parameters$lsm_rate <- lsm_rate
   parameters$deprec_param <- deprec_param
-  parameters$habitat_management_waning <- habitat_management_waning
   parameters
 }

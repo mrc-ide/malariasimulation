@@ -32,7 +32,8 @@ struct AdultMosquitoModel {
     double mu; //death rate for adult female mosquitoes
     const double tau; //extrinsic incubation period
     double foim; //force of infection towards mosquitoes
-    AdultMosquitoModel(AquaticMosquitoModel, double, double, double, double);
+    double lsm_factor; //reduced hatching due to some larval habitat mitigation
+    AdultMosquitoModel(AquaticMosquitoModel, double, double, double, double, double);
 };
 
 // create a system of equations for the solver

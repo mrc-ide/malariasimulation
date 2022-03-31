@@ -13,8 +13,9 @@ AdultMosquitoModel::AdultMosquitoModel(
     double mu,
     double tau,
     double incubating,
-    double foim
-    ) : growth_model(growth_model), mu(mu), tau(tau), foim(foim)
+    double foim,
+    double lsm_factor
+    ) : growth_model(growth_model), mu(mu), tau(tau), foim(foim), lsm_factor(lsm_factor)
 {
     for (auto i = 0u; i < tau; ++i) {
         lagged_incubating.push(incubating);
@@ -38,7 +39,7 @@ integration_function_t create_eqs(AdultMosquitoModel& model) {
         auto incubation_survival = exp(-model.mu * model.tau);
 
         dxdt[get_idx(AdultState::S)] =
-            .5 * lsm_factor * x[get_idx(AquaticState::P)] / model.growth_model.dp //growth to adult female
+            .5 * model.lsm_factor * x[get_idx(AquaticState::P)] / model.growth_model.dp //growth to adult female
             - x[get_idx(AdultState::S)] * model.foim //infections
             - x[get_idx(AdultState::S)] * model.mu; //deaths   
 
@@ -58,14 +59,16 @@ Rcpp::XPtr<AdultMosquitoModel> create_adult_mosquito_model(
     double mu,
     double tau,
     double susceptible,
-    double foim
+    double foim,
+    double lsm_factor
     ) {
     auto model = new AdultMosquitoModel(
         *growth_model,
         mu,
         tau,
         susceptible,
-        foim
+        foim,
+        lsm_factor
     );
     return Rcpp::XPtr<AdultMosquitoModel>(model, true);
 }
@@ -75,11 +78,13 @@ void adult_mosquito_model_update(
     Rcpp::XPtr<AdultMosquitoModel> model,
     double mu,
     double foim,
+    double lsm_factor,
     double susceptible,
     double f
     ) {
     model->mu = mu;
     model->foim = foim;
+    model->lsm_factor = lsm_factor;
     model->growth_model.f = f;
     model->growth_model.mum = mu;
     model->lagged_incubating.push(susceptible * foim);

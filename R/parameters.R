@@ -348,7 +348,7 @@ get_parameters <- function(overrides = list()) {
     habitat_management = FALSE,
     larvi_min = 1,
     lsm_rate = exp(4),
-    deprec_param = 2,
+    deprec_param = -1,
     # treatment
     drug_efficacy          = numeric(0),
     drug_rel_c             = numeric(0),

@@ -148,19 +148,12 @@ set_spraying <- function(
 #' that the habitat management has is determined by larvi_min which is
 #' set to 1 as default when there is no impact.
 #'
-#' Habitat management effects will be randomly removed each timestep with a rate of `1 -
-#' exp(-1/habitat_management_waning)`
-#'
 #' The structure for the habitat model is documented in the
 #' working draft Sherrard-Smith et al (larviciding in Kenya)
 #'
 #' @param parameters a list of parameters to modify
 #' @param timesteps the timesteps at which to distribute lsm rounds
 #' @param larvi_min the proportion of the mosquito population reduced (0 to 1), 1 is no impact
-#' @param lsm_rate the duration til the impact is acheived
-#' @param deprec_param the speed on impact taking mosquito densities down to new-normal 
-#' @param habitat_management_waning the average number of timesteps LSM works for
-#' With nrows=length(timesteps), ncols=length(species)
 #' @param larvi_min a matrix of reduction probabilities for each species over time
 #' With nrows=length(timesteps), ncols=length(species)
 #' @param lsm_rate a matrix of reduction probabilities for each species over time

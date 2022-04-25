@@ -49,6 +49,7 @@ test_that('Adult ODE stays at equilibrium with a constant foim and mu', {
       models[[1]],
       parameters$mum,
       foim,
+      1,
       states[ADULT_ODE_INDICES['Sm']],
       f
     )

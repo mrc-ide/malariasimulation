@@ -24,9 +24,6 @@ With nrows=length(timesteps), ncols=length(species)}
 With nrows=length(timesteps), ncols=length(species)}
 
 \item{deprec_param}{a matrix of reduction probabilities for each species over time}
-
-\item{habitat_management_waning}{the average number of timesteps LSM works for
-With nrows=length(timesteps), ncols=length(species)}
 }
 \description{
 The model will simulate larval source habitat management at
@@ -40,8 +37,6 @@ by changing the parameters lsm_rate and deprec_param
 The amount of impact in terms of reduced adult mosquito densities
 that the habitat management has is determined by larvi_min which is
 set to 1 as default when there is no impact.
-
-Habitat management effects will be randomly removed each timestep with a rate of \code{1 - exp(-1/habitat_management_waning)}
 
 The structure for the habitat model is documented in the
 working draft Sherrard-Smith et al (larviciding in Kenya)

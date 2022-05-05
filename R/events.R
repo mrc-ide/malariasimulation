@@ -125,7 +125,10 @@ attach_event_listeners <- function(
   )
   events$asymptomatic_progression$add_listener(
     create_rate_listener('D', 'A', renderer)
+    
   )
+  renderer$set_default(paste0('rate_', 'D', '_', 'A'), NA)
+  
   events$asymptomatic_infection$add_listener(
     create_asymptomatic_update_listener(
       variables,
@@ -146,6 +149,7 @@ attach_event_listeners <- function(
   events$subpatent_progression$add_listener(
     create_rate_listener('A', 'U', renderer)
   )
+  renderer$set_default(paste0('rate_', 'A', '_', 'U'), NA)
 
   events$recovery$add_listener(
     create_infection_update_listener(
@@ -158,6 +162,7 @@ attach_event_listeners <- function(
   events$recovery$add_listener(
     create_rate_listener('U', 'S', renderer)
   )
+  renderer$set_default(paste0('rate_', 'U', '_', 'S'), NA)
 
   # ===========
   # Progression

@@ -26,6 +26,7 @@ create_progression_process <- function(event, state, from_state, rate) {
 }
 
 create_rate_listener <- function(from_state, to_state, renderer) {
+  renderer$set_default(paste0('rate_', from_state, '_', to_state), 0)
   function(timestep, target) {
     renderer$render(
       paste0('rate_', from_state, '_', to_state),

@@ -142,8 +142,15 @@ add_intervention_lines(plot_prevalence(output), spraying_events)
 
 ## Larval habitat management
 
-We can do the same for LSM with the individual_mosquitoes parameter set to FALSE ...
-This functionality is not yet operatable for the individual mosquito version of the model.
+We can do the same for LSM but individual_mosquitoes parameter must be set to FALSE. This functionality is not yet operatable for the individual mosquito version of the model.
+
+The parameters have strict limits to try
+
+lsm_new_eqm: a value of 1 is no change, 0 is a 50% reduction and -1 is full reduction in recruitment to adult mosquitoes from pupae.
+
+lsm_rate_alpha: the default is 6 and it is recommended to keep this estimate fixed
+
+lsm_rate_beta: the default is -0.2 which achieves the reduced recruitment equilibrium after about 30 days (if lsm_rate_alpha is 6). The range to try is suggested to be between -0.5(giving a week from implementation to new level of adult susceptible mosquitoes - a fraction of the number in the absence of LSM) and -0.1 (giving about 2 months between implementation and the new equilibrium)
 
 ```{r}
 habitat_managementparams <- simparams
@@ -156,9 +163,9 @@ lsm_events = data.frame(
 habitat_managementparams <- set_habitat_management(
   habitat_managementparams,
   timesteps = lsm_events$timestep,
-  larvi_min = matrix(0.2,nrow=1,ncol=3),
-  lsm_rate = matrix(4,nrow=1,ncol=3),
-  deprec_param = matrix(-1,nrow=1,ncol=3)
+  lsm_new_eqm = matrix(0.2,nrow=1,ncol=3),
+  lsm_rate_alpha = matrix(6,nrow=1,ncol=3),
+  lsm_rate_beta = matrix(-0.2,nrow=1,ncol=3)
 )
 
 output <- run_simulation(sim_length, habitat_managementparams)

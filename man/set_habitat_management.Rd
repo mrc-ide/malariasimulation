@@ -2,14 +2,14 @@
 % Please edit documentation in R/vector_control_parameters.R
 \name{set_habitat_management}
 \alias{set_habitat_management}
-\title{Parameterise a habitat management strategy}
+\title{Parameterise a larval source management strategy}
 \usage{
 set_habitat_management(
   parameters,
   timesteps,
-  larvi_min,
-  lsm_rate,
-  deprec_param
+  lsm_new_eqm,
+  lsm_rate_alpha,
+  lsm_rate_beta
 )
 }
 \arguments{
@@ -17,27 +17,24 @@ set_habitat_management(
 
 \item{timesteps}{the timesteps at which to distribute lsm rounds}
 
-\item{larvi_min}{a matrix of reduction probabilities for each species over time
+\item{lsm_new_eqm}{controls the level of recruitment to the adutl mosquito susceptible cohort; default = 1, this is no reduction, while 0 achieves a 50\% reduction and -1 acheives elimination.This must be a matrix of reduction probabilities for each species over time
 With nrows=length(timesteps), ncols=length(species)}
 
-\item{lsm_rate}{a matrix of reduction probabilities for each species over time
-With nrows=length(timesteps), ncols=length(species)}
+\item{lsm_rate_alpha}{a matrix of reduction probabilities for each species over time
+With nrows=length(timesteps), ncols=length(species); default = 6, highly recommend restricting this between 4 and 7}
 
-\item{deprec_param}{a matrix of reduction probabilities for each species over time}
+\item{lsm_rate_beta}{a matrix of reduction probabilities for each species over time
+With nrows=length(timesteps), ncols=length(species); default = -0.2, this together with lsm_rate_alpha = 6 will bring about the new equilibrium in about a month,
+recommended range -0.5 (about 1 week to new equilibrium) to -0.1 (about 2 months to new equilibrium)
+New equilibrium defined by lsm_new_eqm parameter}
 }
 \description{
-The model will simulate larval source habitat management at
+The model will simulate larval source management at
 \code{timesteps} to the entire human population.
 The impact will reduce adult mosquitoes recruited from pupae to the susceptible
-cohort.
-
-The rapidity of the impact is captured by the lsm_factor function
-by changing the parameters lsm_rate and deprec_param
-
-The amount of impact in terms of reduced adult mosquito densities
-that the habitat management has is determined by larvi_min which is
-set to 1 as default when there is no impact.
-
-The structure for the habitat model is documented in the
-working draft Sherrard-Smith et al (larviciding in Kenya)
+cohort. This is controlled by 3 parameters,
+lsm_new_eqm: this has to take a value between 1 and -1. If 1, there is no reduction, if 0 there is 50\% reduction, if -1 complete reduction.
+This parameter controls the new equilibrium representing some fraction of the adult mosquitoes entering the susceptible cohort
+lsm_rate_alpha and lsm_rate_beta: these two parameters determine the time until the new equilibrium is reached, the default parameters
+result in a new equilibrium after about 1 month (30 days). Changing lsm_rate_beta to -.05 will speed up this to about 1 week.
 }

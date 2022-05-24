@@ -160,13 +160,13 @@ throw_away_nets <- function(variables) {
 
 
 #' @title Distribute larval source habitat management
-#' @description simulates larval source management by reducing recruitment to adult female mosquitoes 
+#' @description simulates a catchall for larval source or habitat management that acheives some reduced recruitment to adult female mosquitoes. The function multiplies emerging adult mosquitoes by some value between 1 and -1 where 1 will have no reduction and -1 will eliminate mosquitoes. The assumption is that at the population level, different strategies for larval source or habitat management can have different mechanisms of action, but if we can measure a reduction in mosquito density, then we can mirror that here allowing simulation of what the impact may be. 
 #' from `set_habitat_management` and correlation parameters from
 #' `get_correlation_parameters`
 #'
 #' @param variables list of variables in the model
-#' @param larvi_min is the fractional reduction in adult females joining susceptible population 
-#' @param habitat_management_timesteps the time when this is switched on 
+#' @param lsm_new_eqm controls the eventual total reduction in adult females joining the susceptible population. If 1, there is no reduction, if 0 there is a 50% reduction and if -1 there is a complete elimination. This must be a matrix with 1 column, current assumption is the impact is equal on each mosquito species but this leaves flexibility for making this species specific. 
+#' @param habitat_management_timesteps the time when habitat management is switched on
 #' @param parameters the model parameters
 #' @param correlations correlation parameters
 #' @noRd
@@ -177,16 +177,16 @@ lsm_factor <- function(
   parameters
 ) {
   if (parameters$habitat_management) {
-    larvi_min <- parameters$larvi_min[[species]]
-    lsm_rate <- parameters$lsm_rate[[species]]
-    deprec_param <- parameters$deprec_param[[species]]
+    lsm_new_eqm <- parameters$lsm_new_eqm[[species]]
+    lsm_rate_alpha <- parameters$lsm_rate_alpha[[species]]
+    lsm_rate_beta <- parameters$lsm_rate_beta[[species]]
     i <- match_timestep(parameters$habitat_management_timesteps,timestep)
     lsm_time <- parameters$habitat_management_timesteps[i]
     since_lsm <- timestep - lsm_time
     if (since_lsm < 0) {
       return(1)
     }
-    return(larvi_min + (1.0-larvi_min)*(1+lsm_rate)/(1+lsm_rate*exp(-deprec_param*since_lsm)))
+    return(lsm_new_eqm + ( ((1.0 - lsm_new_eqm) * (1 + exp(-lsm_rate_alpha)))/(1 + exp(-lsm_rate_alpha * exp(-lsm_rate_beta * since_lsm))) ) )
   
   } 
   return(1)

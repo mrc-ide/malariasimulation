@@ -168,7 +168,7 @@ set_habitat_management <- function(
   lsm_rate_alpha,
   lsm_rate_beta
   ) {
-  for (x in list(larvi_min, lsm_rate, deprec_param)) {
+  for (x in list(lsm_new_eqm, lsm_rate_alpha, lsm_rate_beta)) {
     if (ncol(x) != length(parameters$species)) {
       stop('habitat management probabilities rows need to align with species')
     }

@@ -7,6 +7,8 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+This vignette explains how to implement nets (ITNs or LLINs), indoor spraying of residual insecticides (IRS) and larval source or habitat management (LSM).
+
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -42,6 +44,7 @@ simparams <- get_parameters(
     prevalence_rendering_min_ages = 2*year,
     prevalence_rendering_max_ages = 10*year,
     
+    # For habitat management we must set individual_mosquitoes = FALSE
     individual_mosquitoes = FALSE
   )
 )
@@ -83,7 +86,7 @@ Then we can run the simulation for a variety of vector control strategies:
 ## Bed nets
 
 We can distribute bed nets once a year for two years, changing the
-characteristics of the bed nets on each distribution...
+efficacy and use characteristics of the bed nets on each distribution...
 
 ```{r}
 bednetparams <- simparams
@@ -150,7 +153,7 @@ lsm_new_eqm: a value of 1 is no change, 0 is a 50% reduction and -1 is full redu
 
 lsm_rate_alpha: the default is 6 and it is recommended to keep this estimate fixed
 
-lsm_rate_beta: the default is -0.2 which achieves the reduced recruitment equilibrium after about 30 days (if lsm_rate_alpha is 6). The range to try is suggested to be between -0.5(giving a week from implementation to new level of adult susceptible mosquitoes - a fraction of the number in the absence of LSM) and -0.1 (giving about 2 months between implementation and the new equilibrium)
+lsm_rate_beta: the default is -0.2 which achieves the reduced recruitment equilibrium (the proportion of mosquitoes recruited to the susceptible cohort as defined by lsm_new_eqm) after about 30 days (if lsm_rate_alpha is 6). The range to try is suggested to be between -0.5 (giving a week from implementation to new level of adult susceptible mosquitoes - a fraction of the number in the absence of LSM) and -0.1 (giving about 2 months between implementation and the new equilibrium)
 
 ```{r}
 habitat_managementparams <- simparams

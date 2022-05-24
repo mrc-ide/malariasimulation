@@ -165,8 +165,8 @@ lsm_events = data.frame(
 
 habitat_managementparams <- set_habitat_management(
   habitat_managementparams,
-  timesteps = lsm_events$timestep,
-  lsm_new_eqm = matrix(0.2,nrow=1,ncol=3),
+  habitat_management_timesteps = lsm_events$timestep,
+  lsm_new_eqm = matrix(-0.5,nrow=1,ncol=3),
   lsm_rate_alpha = matrix(6,nrow=1,ncol=3),
   lsm_rate_beta = matrix(-0.2,nrow=1,ncol=3)
 )

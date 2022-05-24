@@ -142,8 +142,12 @@ set_spraying <- function(
 #' cohort. This is controlled by 3 parameters, 
 #' lsm_new_eqm: this has to take a value between 1 and -1. If 1, there is no reduction, if 0 there is 50% reduction, if -1 complete reduction.
 #' This parameter controls the new equilibrium representing some fraction of the adult mosquitoes entering the susceptible cohort
-#' lsm_rate_alpha and lsm_rate_beta: these two parameters determine the time until the new equilibrium is reached, the default parameters
-#' result in a new equilibrium after about 1 month (30 days). Changing lsm_rate_beta to -.05 will speed up this to about 1 week. 
+#' lsm_rate_alpha and lsm_rate_beta: these two parameters determine the time until the new equilibrium is reached, 
+#' the default parameters
+#' lsm_rate_alpha = 6
+#' lsm_rate_beta = -0.2
+#' result in a new equilibrium after about 1 month (30 days). 
+#' Changing lsm_rate_beta to -0.5 will speed up this to about 1 week. 
 #'
 #'
 #' @param parameters a list of parameters to modify

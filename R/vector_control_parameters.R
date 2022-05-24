@@ -163,7 +163,7 @@ set_spraying <- function(
 #' @export
 set_habitat_management <- function(
   parameters,
-  timesteps,
+  habitat_management_timesteps,
   lsm_new_eqm,
   lsm_rate_alpha,
   lsm_rate_beta
@@ -178,7 +178,7 @@ set_habitat_management <- function(
   }
   ## Need to add check for parameters$individual_mosquitoes = FALSE?
   parameters$habitat_management <- TRUE
-  parameters$habitat_management_timesteps <- timesteps
+  parameters$habitat_management_timesteps <- habitat_management_timesteps
   parameters$lsm_new_eqm <- lsm_new_eqm
   parameters$lsm_rate_alpha <- lsm_rate_alpha
   parameters$lsm_rate_beta <- lsm_rate_beta

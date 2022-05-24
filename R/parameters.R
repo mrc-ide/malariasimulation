@@ -150,9 +150,9 @@
 #' * spraying - boolean for if indoor spraying is enabled; default = FALSE 
 #' * phi_indoors - proportion of bites taken indoors; default = 0.90
 #' * habitat_management - boolean for if habitat management is enabled; default = FALSE
-#' * lsm_new_eqm - a value between 1 and -1 that controls the level for the new equilibrium of mosquito recruitment; default = 1 which indicates no change from default while -1 would eliminate mosquitoes  #####larvi_min
-#' * lsm_rate_alpha - controls the gradient of loss and must take a positive value, default = -6 depending on lsm_rate_beta, this may be between a week and a month to reach new equilibrium #### lsm_rate
-#' * lsm_rate_beta - controls the speed of the reduction in adult mosquito recruitment toward the new equilibrium together with lsm_rate_alpha, default is -0.2 depending on lsm_rate_alpha takes about 1 month to reach new eqm, use -.5 for about 1 week to new eqm ###### deprec_param
+#' * lsm_new_eqm - a value between 1 and -1 that controls the level for the new equilibrium of mosquito recruitment; default = 1 which indicates no change from default while -1 would eliminate mosquitoes  
+#' * lsm_rate_alpha - controls the gradient of loss and must take a positive value, default = 6 depending on lsm_rate_beta, this may be between a week and a month to reach new equilibrium 
+#' * lsm_rate_beta - controls the speed of the reduction in adult mosquito recruitment toward the new equilibrium together with lsm_rate_alpha, default is -0.2 depending on lsm_rate_alpha takes about 1 month to reach new eqm, use -.5 for about 1 week to new eqm 
 #' * habitat_management_timesteps - the time when the LSM turns on
 #'  
 #' treatment parameters:

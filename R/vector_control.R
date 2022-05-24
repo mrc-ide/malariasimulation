@@ -186,8 +186,7 @@ lsm_factor <- function(
     if (since_lsm < 0) {
       return(1)
     }
-    return(lsm_new_eqm + ( ((1.0 - lsm_new_eqm) * (1 + exp(-lsm_rate_alpha)))/(1 + exp(-lsm_rate_alpha * exp(-lsm_rate_beta * since_lsm))) ) )
-  
+    return(lsm_new_eqm + ( ((1.0 - lsm_new_eqm) * (1 + exp(-lsm_rate_alpha)))/(1 + exp(-lsm_rate_alpha * exp(lsm_rate_beta * since_lsm))) ) )
   } 
   return(1)
 }

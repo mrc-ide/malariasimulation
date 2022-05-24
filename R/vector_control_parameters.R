@@ -170,10 +170,10 @@ set_habitat_management <- function(
   ) {
   for (x in list(lsm_new_eqm, lsm_rate_alpha, lsm_rate_beta)) {
     if (ncol(x) != length(parameters$species)) {
-      stop('habitat management probabilities rows need to align with species')
+      stop('habitat management probabilities columns need to align with species')
     }
     if (nrow(x) != length(1)) {
-      stop('habitat management probabilities columns needs to be 1. Only one change in recruitment can be made currently. This corresponds to the time when larval source management is implemented.')
+      stop('habitat management probabilities need to have just one row. Only one change in recruitment can be made currently. This corresponds to the time when larval source management is implemented.')
     }
   }
   ## Need to add check for parameters$individual_mosquitoes = FALSE?

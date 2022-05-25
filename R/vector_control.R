@@ -166,9 +166,9 @@ throw_away_nets <- function(variables) {
 #' @param parameters the model parameters
 #' @param habitat_management_timesteps the time when habitat management is switched on
 #' @param variables list of variables in the model
-#' @param lsm_new_eqm controls the eventual total reduction in adult females joining the susceptible population. If 1, there is no reduction, if 0 there is a 50% reduction and if -1 there is a complete elimination. This must be a matrix with 1 column, the row is the timestep for when the LSM is implemented. Currently this can be changed only once. The columns align with the number of species simulated and can differ between species. 
-#' @param lsm_rate_alpha together with lsm_rate_beta, determines the shape of the reduced recruitment to the s_i newly emerged susceptible mosquitoes. Default = 6, recommended range 4 - 7. This must be a matrix with 1 column, the row is the timestep for when the LSM is implemented. Currently this can be changed only once. The columns align with the number of species simulated and can differ between species. 
-#' @param lsm_rate_beta together with lsm_rate_alpha, determines the shape of the reduced recruitment to the s_i newly emerged susceptible mosquitoes. Default = -0.2 will give (if lsm_rate_alpha = 6) a reduction over about 1 month, if -0.5 then this reduction will be faster, about 1 week, recommended range -0.6 to -0.1. This must be a matrix with 1 column, the row is the timestep for when the LSM is implemented. Currently this can be changed only once. The columns align with the number of species simulated and can differ between species. 
+#' @param lsm_new_eqm controls the eventual total reduction in adult females joining the susceptible population. If 1, there is no reduction, if 0 there is a complete elimination. This must be a matrix with 1 column, the row is the timestep for when the LSM is implemented. Currently this can be changed only once. The columns align with the number of species simulated and can differ between species. 
+#' @param lsm_rate_alpha together with lsm_rate_beta, determines the shape of the reduced recruitment to the s_i newly emerged susceptible mosquitoes. Default = -4, recommended range -6 to +5. This must be a matrix with 1 column, the row is the timestep for when the LSM is implemented. Currently this can be changed only once. The columns align with the number of species simulated and can differ between species. 
+#' @param lsm_rate_beta together with lsm_rate_alpha, determines the shape of the reduced recruitment to the s_i newly emerged susceptible mosquitoes. Default = 0.1 will give (if lsm_rate_alpha = -4) a reduction over about 1 month, if larger, this will be more rapid, if smaller the drop will be slower. Must be 0 or above. This must be a matrix with 1 column, the row is the timestep for when the LSM is implemented. Currently this can be changed only once. The columns align with the number of species simulated and can differ between species. 
 #' @param correlations correlation parameters
 #' @noRd
 
@@ -187,7 +187,7 @@ lsm_factor <- function(
     if (since_lsm < 0) {
       return(1)
     }
-    return(lsm_new_eqm + ( ((1.0 - lsm_new_eqm) * (1 + exp(-lsm_rate_alpha)))/(1 + exp(-lsm_rate_alpha * exp(lsm_rate_beta * since_lsm))) ) )
+    return(lsm_new_eqm +  ((1.0 - lsm_new_eqm) * (1 + exp(-lsm_rate_alpha)))/(1 + exp(-lsm_rate_alpha) * exp(lsm_rate_beta * since_lsm)) ) 
   } 
   return(1)
 }

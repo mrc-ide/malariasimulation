@@ -150,9 +150,9 @@
 #' * spraying - boolean for if indoor spraying is enabled; default = FALSE 
 #' * phi_indoors - proportion of bites taken indoors; default = 0.90
 #' * habitat_management - boolean for if habitat management is enabled; default = FALSE
-#' * lsm_new_eqm - a value between 1 and -1 that controls the level for the new equilibrium of mosquito recruitment; default = 1 which indicates no change from default while -1 would eliminate mosquitoes  
-#' * lsm_rate_alpha - controls the gradient of loss and must take a positive value, default = 6 depending on lsm_rate_beta, this may be between a week and a month to reach new equilibrium 
-#' * lsm_rate_beta - controls the speed of the reduction in adult mosquito recruitment toward the new equilibrium together with lsm_rate_alpha, default is -0.2 depending on lsm_rate_alpha takes about 1 month to reach new eqm, use -.5 for about 1 week to new eqm 
+#' * lsm_new_eqm - a proportion between 1 and 0 that controls the level for the new equilibrium of mosquito recruitment; Default = 1 which indicates no change, while 0 would eliminate mosquitoes  
+#' * lsm_rate_alpha - controls the speed and shape of reduced recruitment; Default = -4 depending on lsm_rate_beta, recommended range is be between -6 and 5, -6 simulates more rapid decline, positive estimates a slower decline in the time taken to reach the new level of adult recruitment (defined by lsm_new_eqm)
+#' * lsm_rate_beta - together with lsm_rate_alpha, controls the speed and shape of reduced recruitment toward the new equilibrium defined by lsm_new_eqm; Must be positive. Default is 0.1 (if lsm_rate_alpha is -4, this takes about 1 month to reach new eqm) 
 #' * habitat_management_timesteps - the time when the LSM turns on
 #'  
 #' treatment parameters:
@@ -347,8 +347,8 @@ get_parameters <- function(overrides = list()) {
     # habitat management
     habitat_management = FALSE,
     lsm_new_eqm = 1,
-    lsm_rate_alpha = 6,
-    lsm_rate_beta = -0.2,
+    lsm_rate_alpha = -4,
+    lsm_rate_beta = 0.1,
     # treatment
     drug_efficacy          = numeric(0),
     drug_rel_c             = numeric(0),

@@ -140,26 +140,33 @@ set_spraying <- function(
 #' `timesteps` to the entire human population. 
 #' The impact will reduce adult mosquitoes recruited from pupae to the susceptible
 #' cohort. This is controlled by 3 parameters, 
-#' lsm_new_eqm: this has to take a value between 1 and -1. If 1, there is no reduction, if 0 there is 50% reduction, if -1 complete reduction.
+#' lsm_new_eqm: this has to take a value between 1 and 0. 
+#' If 1, there is no reduction, if 0 there is complete reduction.
 #' This parameter controls the new equilibrium representing some fraction of the adult mosquitoes entering the susceptible cohort
 #' lsm_rate_alpha and lsm_rate_beta: these two parameters determine the time until the new equilibrium is reached, 
 #' the default parameters
-#' lsm_rate_alpha = 6
-#' lsm_rate_beta = -0.2
+#' lsm_rate_alpha = -4
+#' lsm_rate_beta = 0.1
 #' result in a new equilibrium after about 1 month (30 days). 
-#' Changing lsm_rate_beta to -0.5 will speed up this to about 1 week. 
+#' Changing lsm_rate_alpha will speed or slow this rate to reach the new equilibrium. 
 #'
 #'
 #' @param parameters a list of parameters to modify
 #' @param timesteps the timesteps at which to distribute lsm rounds
-#' @param lsm_new_eqm controls the level of recruitment to the adutl mosquito susceptible cohort; default = 1, this is no reduction, while 0 achieves a 50% reduction and -1 acheives elimination.This must be a matrix of reduction probabilities for each species over time
-#' With nrows=length(timesteps), ncols=length(species)
-#' @param lsm_rate_alpha a matrix of reduction probabilities for each species over time
-#' With nrows=length(timesteps), ncols=length(species); default = 6, highly recommend restricting this between 4 and 7
-#' @param lsm_rate_beta a matrix of reduction probabilities for each species over time
-#' With nrows=length(timesteps), ncols=length(species); default = -0.2, this together with lsm_rate_alpha = 6 will bring about the new equilibrium in about a month, 
-#' recommended range -0.5 (about 1 week to new equilibrium) to -0.1 (about 2 months to new equilibrium)
-#' New equilibrium defined by lsm_new_eqm parameter
+#' @param lsm_new_eqm controls the level of recruitment to the adult mosquito susceptible cohort; 
+#' Default = 1, this is no reduction, while 0 simulates mosquito elimination.
+#' This must be a matrix of reduction probabilities for each species over time
+#' with nrows=length(timesteps), ncols=length(species)
+#' @param lsm_rate_alpha a matrix for each species over timesteps
+#' With nrows=length(timesteps), ncols=length(species); 
+#' Default = -4, highly recommend restricting this between -6 and 5
+#' The higher the value the longer it takes for lsm to have an impact
+#' @param lsm_rate_beta a matrix for each species over timesteps
+#' With nrows=length(timesteps), ncols=length(species); 
+#' Default = 0.1, this together with lsm_rate_alpha = -4 will bring about the new equilibrium in about a month, 
+#' recommended range 0.5 (prolonged time until new equilibrium level of adult recruitment) 
+#' to 0.01 (very rapid decline in mosquito recruitment)
+#' New equilibrium defined by lsm_new_eqm parameter estimate
 #' @export
 set_habitat_management <- function(
   parameters,

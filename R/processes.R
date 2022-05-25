@@ -200,7 +200,14 @@ create_processes <- function(
         events$throw_away_net,
         parameters,
         correlations
-      )
+      ),
+      function (t) {
+        renderer$render(
+          'n_nets',                                             # let's call the output n_nets, the number of nets in use, no matter how old the nets are
+          variables$net_time$get_index_of(set=-1)$not()$size(), #this gets all the net times which are '-1', or no nets, $not inverts them to get people _with_ nets, and then $size gets a quick count of those people 
+          t                                                     #store this number for the current timestep
+        )
+      }
     )
   }
 

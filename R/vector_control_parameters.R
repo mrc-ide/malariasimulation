@@ -139,20 +139,10 @@ set_spraying <- function(
 #' @description The model will simulate larval source management at 
 #' `timesteps` to the entire human population. 
 #' The impact will reduce adult mosquitoes recruited from pupae to the susceptible
-#' cohort. This is controlled by 3 parameters, 
-#' lsm_new_eqm: this has to take a value between 1 and 0. 
-#' If 1, there is no reduction, if 0 there is complete reduction.
-#' This parameter controls the new equilibrium representing some fraction of the adult mosquitoes entering the susceptible cohort
-#' lsm_rate_alpha and lsm_rate_beta: these two parameters determine the time until the new equilibrium is reached, 
-#' the default parameters
-#' lsm_rate_alpha = -4
-#' lsm_rate_beta = 0.1
-#' result in a new equilibrium after about 1 month (30 days). 
-#' Changing lsm_rate_alpha will speed or slow this rate to reach the new equilibrium. 
-#'
+#' cohort.
 #'
 #' @param parameters a list of parameters to modify
-#' @param timesteps the timesteps at which to distribute lsm rounds
+#' @param habitat_management_timesteps the timesteps at which to distribute lsm rounds
 #' @param lsm_new_eqm controls the level of recruitment to the adult mosquito susceptible cohort; 
 #' Default = 1, this is no reduction, while 0 simulates mosquito elimination.
 #' This must be a matrix of reduction probabilities for each species over time
@@ -180,7 +170,8 @@ set_habitat_management <- function(
       stop('habitat management probabilities columns need to align with species')
     }
     if (nrow(x) != length(1)) {
-      stop('habitat management probabilities need to have just one row. Only one change in recruitment can be made currently. This corresponds to the time when larval source management is implemented.')
+      stop('habitat management probabilities need to have just one row. 
+           Only one change in recruitment can be made currently. This corresponds to the time when larval source management is implemented.')
     }
   }
   ## Need to add check for parameters$individual_mosquitoes = FALSE?

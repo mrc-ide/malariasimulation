@@ -142,17 +142,17 @@ set_spraying <- function(
 #' cohort.
 #'
 #' @param parameters a list of parameters to modify
-#' @param habitat_management_timesteps the timesteps at which to distribute lsm rounds
+#' @param habitat_management_timesteps the timestep at which to implement lsm round
 #' @param lsm_new_eqm controls the level of recruitment to the adult mosquito susceptible cohort; 
 #' Default = 1, this is no reduction, while 0 simulates mosquito elimination.
 #' This must be a matrix of reduction probabilities for each species over time
-#' with nrows=length(timesteps), ncols=length(species)
+#' with nrows=1, ncols=length(species)
 #' @param lsm_rate_alpha a matrix for each species over timesteps
-#' With nrows=length(timesteps), ncols=length(species); 
+#' With nrows=1, ncols=length(species); 
 #' Default = -4, highly recommend restricting this between -6 and 5
 #' The higher the value the longer it takes for lsm to have an impact
 #' @param lsm_rate_beta a matrix for each species over timesteps
-#' With nrows=length(timesteps), ncols=length(species); 
+#' With nrows=1, ncols=length(species); 
 #' Default = 0.1, this together with lsm_rate_alpha = -4 will bring about the new equilibrium in about a month, 
 #' recommended range 0.5 (prolonged time until new equilibrium level of adult recruitment) 
 #' to 0.01 (very rapid decline in mosquito recruitment)
@@ -165,16 +165,25 @@ set_habitat_management <- function(
   lsm_rate_alpha,
   lsm_rate_beta
   ) {
+  if(parameters$individual_mosquitoes){
+    stop("individual_mosquitoes must  = FALSE to implement habitat management")
+  }
+  if(length(habitat_management_timesteps) != 1){
+    stop("Only a single habitat management timestep can be specified")
+  }
+  if(any(lsm_new_eqm < 0) | any(lsm_new_eqm > 1)){
+    stop("lsm_new_eqm values must be between 0 and 1")
+  }
   for (x in list(lsm_new_eqm, lsm_rate_alpha, lsm_rate_beta)) {
     if (ncol(x) != length(parameters$species)) {
-      stop('habitat management probabilities columns need to align with species')
+      stop("lsm_new_eqm, lsm_rate_alpha, and lsm_rate_beta probabilities columns 
+           need to align with species")
     }
-    if (nrow(x) != length(1)) {
-      stop('habitat management probabilities need to have just one row. 
-           Only one change in recruitment can be made currently. This corresponds to the time when larval source management is implemented.')
+    if (nrow(x) != length(habitat_management_timesteps)) {
+      stop('lsm_new_eqm, lsm_rate_alpha, and lsm_rate_beta need to halign with
+           the number of habitat_management_timesteps')
     }
   }
-  ## Need to add check for parameters$individual_mosquitoes = FALSE?
   parameters$habitat_management <- TRUE
   parameters$habitat_management_timesteps <- habitat_management_timesteps
   parameters$lsm_new_eqm <- lsm_new_eqm

@@ -124,10 +124,12 @@ run_simulation <- function(
 #' @title Run a metapopulation model
 #'
 #' @param timesteps the number of timesteps to run the simulation for (in days)
-#' @param parameters a named list of parameters to use
-#' @param correlations correlation parameters
-#' @param mixing matrix of mixing coefficients for infectivity
-#' @return dataframe of results
+#' @param parameters a list of model parameter lists for each population
+#' @param correlations a list of correlation parameters for each population
+#' (default: NULL)
+#' @param mixing matrix of mixing coefficients for infectivity towards
+#' mosquitoes
+#' @return a list of dataframe of results
 #' @export
 run_metapop_simulation <- function(
   timesteps,
@@ -136,6 +138,12 @@ run_metapop_simulation <- function(
   mixing
   ) {
   random_seed(ceiling(runif(1) * .Machine$integer.max))
+  if (nrow(mixing) != ncol(mixing)) {
+    stop('mixing matrix must be square')
+  }
+  if (nrow(mixing) != length(parameters)) {
+    stop('mixing matrix rows must match length of parameters')
+  }
   if (is.null(correlations)) {
     correlations <- lapply(parameters, get_correlation_parameters)
   }

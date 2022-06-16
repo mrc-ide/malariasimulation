@@ -8,8 +8,13 @@
 #' @param variables a list of all of the model variables
 #' @param events a list of all of the model events
 #' @param parameters model pararmeters
-#' @param lagged_infectivity a LaggedValue class with historical sums of infectivity
+#' @param lagged_infectivity a list of LaggedValue objects with historical sums
+#' of infectivity, one for every metapopulation
 #' @param lagged_eir a LaggedValue class with historical EIRs
+#' @param mixing a vector of mixing coefficients for the lagged_infectivity
+#' values (default: 1)
+#' @param mixing_index an index for this population's position in the
+#' lagged_infectivity list (default: 1)
 #' @noRd
 create_biting_process <- function(
   renderer,
@@ -19,7 +24,9 @@ create_biting_process <- function(
   events,
   parameters,
   lagged_infectivity,
-  lagged_eir
+  lagged_eir,
+  mixing = 1,
+  mixing_index = 1
   ) {
   function(timestep) {
     # Calculate combined EIR
@@ -35,7 +42,9 @@ create_biting_process <- function(
       parameters,
       timestep,
       lagged_infectivity,
-      lagged_eir
+      lagged_eir,
+      mixing,
+      mixing_index
     )
 
     simulate_infection(
@@ -61,7 +70,9 @@ simulate_bites <- function(
   parameters,
   timestep,
   lagged_infectivity,
-  lagged_eir
+  lagged_eir,
+  mixing = 1,
+  mixing_index = 1
   ) {
   bitten_humans <- individual::Bitset$new(parameters$human_population)
 
@@ -131,9 +142,15 @@ simulate_bites <- function(
       }
     }
 
-    infectivity <- lagged_infectivity$get(timestep - parameters$delay_gam)
-    lagged_infectivity$save(sum(human_infectivity * .pi), timestep)
-    foim <- calculate_foim(a, infectivity)
+    infectivity <- vnapply(
+      lagged_infectivity,
+      function(l) l$get(timestep - parameters$delay_gam)
+    )
+    lagged_infectivity[[mixing_index]]$save(
+      sum(human_infectivity * .pi),
+      timestep
+    )
+    foim <- calculate_foim(a, infectivity, mixing)
     renderer$render(paste0('FOIM_', species_name), foim, timestep)
     mu <- death_rate(f, W, Z, s_i, parameters)
     renderer$render(paste0('mu_', species_name), mu, timestep)
@@ -276,8 +293,10 @@ unique_biting_rate <- function(age, parameters) {
 #' @title Calculate the force of infection towards mosquitoes
 #'
 #' @param a human blood meal rate
-#' @param infectivity_sum a sum of infectivity weighted by relative biting rate
+#' @param infectivity_sum a vector of sums of infectivity weighted by relative
+#' biting rate for each population
+#' @param mixing a vector of mixing coefficients for each population
 #' @noRd
-calculate_foim <- function(a, infectivity_sum) {
-  a * infectivity_sum
+calculate_foim <- function(a, infectivity_sum, mixing) {
+  a * sum(infectivity_sum * mixing)
 }

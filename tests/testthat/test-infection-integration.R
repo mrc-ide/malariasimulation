@@ -16,9 +16,6 @@ test_that('simulate_infection integrates different types of infection and schedu
     state = list(get_index_of = mockery::mock(asymptomatics))
   )
 
-  total_eir <- 5
-  eir <- rep(total_eir / population, population)
-
   bitten <- individual::Bitset$new(population)$insert(c(1, 3, 5, 7))
   boost_immunity_mock <- mockery::mock()
   infected <- individual::Bitset$new(population)$insert(c(1, 3, 5))

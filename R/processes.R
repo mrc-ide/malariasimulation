@@ -10,6 +10,12 @@
 #' @param models a list of vector models, one for each species
 #' @param solvers a list of ode solvers, one for each species
 #' @param correlations the intervention correlations object
+#' @param lagged_infectivity a list of LaggedValue objects for each population
+#' in the simulation
+#' @param mixing a vector of mixing coefficients for the lagged_infectivity
+#' values (default: 1)
+#' @param mixing_index an index for this population's position in the
+#' lagged_infectivity list (default: 1)
 #' @noRd
 create_processes <- function(
   renderer,
@@ -18,7 +24,10 @@ create_processes <- function(
   parameters,
   models,
   solvers,
-  correlations
+  correlations,
+  lagged_infectivity,
+  mixing = 1,
+  mixing_index = 1
   ) {
   # ========
   # Immunity
@@ -70,15 +79,6 @@ create_processes <- function(
     }
   )
 
-  age <- get_age(variables$birth$get_values(), 0)
-  psi <- unique_biting_rate(age, parameters)
-  .pi <- human_pi(psi, variables$zeta$get_values())
-  init_infectivity <- sum(.pi * variables$infectivity$get_values())
-  lagged_infectivity <- LaggedValue$new(
-    max_lag = parameters$delay_gam + 2,
-    default = init_infectivity
-  )
-
   processes <- c(
     processes,
     create_biting_process(
@@ -89,7 +89,9 @@ create_processes <- function(
       events,
       parameters,
       lagged_infectivity,
-      lagged_eir
+      lagged_eir,
+      mixing,
+      mixing_index
     ),
     create_mortality_process(variables, events, renderer, parameters),
     create_progression_process(
@@ -229,4 +231,20 @@ create_processes <- function(
 create_exponential_decay_process <- function(variable, rate) {
   decay_rate <- exp(-1/rate)
   function(timestep) variable$queue_update(variable$get_values() * decay_rate)
+}
+
+#' @title Create and initialise lagged_infectivity object
+#'
+#' @param variables model variables for initialisation
+#' @param parameters model parameters 
+#' @noRd
+create_lagged_infectivity <- function(variables, parameters) {
+  age <- get_age(variables$birth$get_values(), 0)
+  psi <- unique_biting_rate(age, parameters)
+  .pi <- human_pi(psi, variables$zeta$get_values())
+  init_infectivity <- sum(.pi * variables$infectivity$get_values())
+  LaggedValue$new(
+    max_lag = parameters$delay_gam + 2,
+    default = init_infectivity
+  )
 }

@@ -111,13 +111,81 @@ run_simulation <- function(
       parameters,
       vector_models,
       solvers,
-      correlations
+      correlations,
+      list(create_lagged_infectivity(variables, parameters))
     ),
     variables = variables,
     events = unlist(events),
     timesteps = timesteps
   )
   renderer$to_dataframe()
+}
+
+#' @title Run a metapopulation model
+#'
+#' @param timesteps the number of timesteps to run the simulation for (in days)
+#' @param parameters a named list of parameters to use
+#' @param correlations correlation parameters
+#' @param mixing matrix of mixing coefficients for infectivity
+#' @return dataframe of results
+#' @export
+run_metapop_simulation <- function(
+  timesteps,
+  parameters,
+  correlations = NULL,
+  mixing
+  ) {
+  random_seed(ceiling(runif(1) * .Machine$integer.max))
+  if (is.null(correlations)) {
+    correlations <- lapply(parameters, get_correlation_parameters)
+  }
+  variables <- lapply(parameters, create_variables)
+  events <- lapply(parameters, create_events)
+  renderer <- lapply(parameters, function(.) individual::Render$new(timesteps))
+  for (i in seq_along(parameters)) {
+    initialise_events(events[[i]], variables[[i]], parameters[[i]])
+    attach_event_listeners(
+      events[[i]],
+      variables[[i]],
+      parameters[[i]],
+      correlations[[i]],
+      renderer[[i]]
+    )
+  }
+  vector_models <- lapply(parameters, parameterise_mosquito_models)
+  solvers <- lapply(
+    seq_along(parameters),
+    function(i) parameterise_solvers(vector_models[[i]], parameters[[i]])
+  )
+  lagged_infectivity <- lapply(
+    seq_along(parameters),
+    function(i) create_lagged_infectivity(variables[[i]], parameters[[i]])
+  )
+  processes <- lapply(
+    seq_along(parameters),
+    function(i) {
+      create_processes(
+        renderer[[i]],
+        variables[[i]],
+        events[[i]],
+        parameters[[i]],
+        vector_models[[i]],
+        solvers[[i]],
+        correlations[[i]],
+        lagged_infectivity,
+        mixing[i,],
+        i
+      )
+    }
+  )
+  individual::simulation_loop(
+    processes = unlist(processes),
+    variables = unlist(variables),
+    events = unlist(events),
+    timesteps = timesteps
+  )
+  
+  lapply(renderer, function(r) r$to_dataframe())
 }
 
 #' @title Run the simulation with repetitions

@@ -94,29 +94,35 @@ create_processes <- function(
       mixing_index
     ),
     create_mortality_process(variables, events, renderer, parameters),
-    create_progression_process(
-      events$asymptomatic_progression,
+    create_asymptomatic_progression_process(
       variables$state,
-      'D',
-      parameters$dd
+      parameters$dd,
+      variables,
+      parameters
     ),
     create_progression_process(
-      events$subpatent_progression,
       variables$state,
       'A',
-      parameters$da
+      'U',
+      parameters$da,
+      variables$infectivity,
+      parameters$cu
     ),
     create_progression_process(
-      events$recovery,
       variables$state,
       'U',
-      parameters$du
+      'S',
+      parameters$du,
+      variables$infectivity,
+      0
     ),
     create_progression_process(
-      events$recovery,
       variables$state,
       'Tr',
-      parameters$dt
+      'S',
+      parameters$dt,
+      variables$infectivity,
+      0
     )
   )
 

@@ -71,6 +71,7 @@
 #' subpatent
 #'  * rate_U_S: rate that humans transition from subpatent to
 #' susceptible
+#'  * net_usage: the proportion of the population protected by a bed net
 #'  * mosquito_deaths: number of adult female mosquitoes who die this timestep
 #'
 #' @param timesteps the number of timesteps to run the simulation for (in days)
@@ -151,8 +152,18 @@ run_metapop_simulation <- function(
   events <- lapply(parameters, create_events)
   renderer <- lapply(parameters, function(.) individual::Render$new(timesteps))
   for (i in seq_along(parameters)) {
-    initialise_events(events[[i]], variables[[i]], parameters[[i]])
-    attach_event_listeners(
+    # NOTE: forceAndCall is necessary here to make sure i refers to the current
+    # iteration
+    forceAndCall(
+      3,
+      initialise_events,
+      events[[i]],
+      variables[[i]],
+      parameters[[i]]
+    )
+    forceAndCall(
+      5,
+      attach_event_listeners,
       events[[i]],
       variables[[i]],
       parameters[[i]],

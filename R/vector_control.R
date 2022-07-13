@@ -185,3 +185,13 @@ bednet_decay <- function(t, gamma) {
 spraying_decay <- function(t, theta, gamma) {
   1 / (1 + exp(-(theta + gamma * t)))
 }
+
+net_usage_renderer <- function(net_time, renderer) {
+  function(t) {
+    renderer$render(
+      'net_usage',
+      net_time$get_index_of(-1)$not(TRUE)$size(),
+      t
+    )
+  }
+}

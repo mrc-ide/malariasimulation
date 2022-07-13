@@ -208,7 +208,8 @@ create_processes <- function(
         events$throw_away_net,
         parameters,
         correlations
-      )
+      ),
+      net_usage_renderer(variables$net_time, renderer)
     )
   }
 

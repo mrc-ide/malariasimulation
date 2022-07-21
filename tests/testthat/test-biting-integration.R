@@ -101,7 +101,7 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
   models <- parameterise_mosquito_models(parameters)
   solvers <- parameterise_solvers(models, parameters)
   lagged_foim <- list(LaggedValue$new(12.5, .001))
-  lagged_eir <- list(LaggedValue$new(12, 10))
+  lagged_eir <- list(list(LaggedValue$new(12, 10)))
   bitten <- simulate_bites(
     renderer,
     solvers,
@@ -164,7 +164,7 @@ test_that('simulate_bites works with mixed populations', {
   models <- parameterise_mosquito_models(parameters)
   solvers <- parameterise_solvers(models, parameters)
   lagged_foim <- list(LaggedValue$new(12.5, .001), LaggedValue$new(12.5, .01))
-  lagged_eir <- list(LaggedValue$new(12, 10))
+  lagged_eir <- list(list(LaggedValue$new(12, 10)), list(LaggedValue$new(12, 10)))
   age <- c(20, 24, 5, 39) * 365
   bitten <- simulate_bites(
     renderer,

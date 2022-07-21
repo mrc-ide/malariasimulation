@@ -10,12 +10,14 @@
 #' @param models a list of vector models, one for each species
 #' @param solvers a list of ode solvers, one for each species
 #' @param correlations the intervention correlations object
-#' @param lagged_infectivity a list of LaggedValue objects for each population
+#' @param lagged_eir a list of list of LaggedValue objects for EIR for each
+#' population and species in the simulation
+#' @param lagged_infectivity a list of LaggedValue objects for FOIM for each population
 #' in the simulation
-#' @param mixing a vector of mixing coefficients for the lagged_infectivity
+#' @param mixing a vector of mixing coefficients for the lagged transmission
 #' values (default: 1)
 #' @param mixing_index an index for this population's position in the
-#' lagged_infectivity list (default: 1)
+#' lagged transmission lists (default: 1)
 #' @noRd
 create_processes <- function(
   renderer,
@@ -25,6 +27,7 @@ create_processes <- function(
   models,
   solvers,
   correlations,
+  lagged_eir,
   lagged_infectivity,
   mixing = 1,
   mixing_index = 1
@@ -63,22 +66,6 @@ create_processes <- function(
   # schedule infections for humans and set last_boosted_*
   # move mosquitoes into incubating state
   # kill mosquitoes caught in vector control
-  lagged_eir <- lapply(
-    seq_along(parameters$species),
-    function(species) {
-      LaggedValue$new(
-        max_lag = parameters$de + 1,
-        default = calculate_eir(
-          species,
-          solvers,
-          variables,
-          parameters,
-          0
-        )
-      )
-    }
-  )
-
   processes <- c(
     processes,
     create_biting_process(
@@ -253,5 +240,29 @@ create_lagged_infectivity <- function(variables, parameters) {
   LaggedValue$new(
     max_lag = parameters$delay_gam + 2,
     default = init_infectivity
+  )
+}
+
+#' @title Create and initialise a list of lagged_eir objects per species
+#'
+#' @param variables model variables for initialisation
+#' @param solvers model differential equation solvers
+#' @param parameters model parameters 
+#' @noRd
+create_lagged_eir <- function(variables, solvers, parameters) {
+  lapply(
+    seq_along(parameters$species),
+    function(species) {
+      LaggedValue$new(
+        max_lag = parameters$de + 1,
+        default = calculate_eir(
+          species,
+          solvers,
+          variables,
+          parameters,
+          0
+        )
+      )
+    }
   )
 }

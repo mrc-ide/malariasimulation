@@ -128,8 +128,17 @@ simulate_bites <- function(
       n_infectious <- calculate_infectious_compartmental(solver_states)
     }
 
-    lagged_eir[[s_i]]$save(n_infectious * a, timestep)
-    species_eir <- lagged_eir[[s_i]]$get(timestep - parameters$de)
+    # store the current population's EIR for later
+    lagged_eir[[mixing_index]][[s_i]]$save(n_infectious * a, timestep)
+
+    # calculated the EIR for this timestep after mixing
+    species_eir <- sum(
+      vnapply(
+        lagged_eir,
+        function(l) l[[s_i]]$get(timestep - parameters$de)
+      ) * mixing
+    )
+
     renderer$render(paste0('EIR_', species_name), species_eir, timestep)
     EIR <- EIR + species_eir
     expected_bites <- species_eir * mean(psi)

@@ -71,7 +71,7 @@
 #' subpatent
 #'  * rate_U_S: rate that humans transition from subpatent to
 #' susceptible
-#'  * net_usage: the proportion of the population protected by a bed net
+#'  * net_usage: the number people protected by a bed net
 #'  * mosquito_deaths: number of adult female mosquitoes who die this timestep
 #'
 #' @param timesteps the number of timesteps to run the simulation for (in days)
@@ -113,6 +113,7 @@ run_simulation <- function(
       vector_models,
       solvers,
       correlations,
+      list(create_lagged_eir(variables, solvers, parameters)),
       list(create_lagged_infectivity(variables, parameters))
     ),
     variables = variables,
@@ -176,6 +177,10 @@ run_metapop_simulation <- function(
     seq_along(parameters),
     function(i) parameterise_solvers(vector_models[[i]], parameters[[i]])
   )
+  lagged_eir <- lapply(
+    seq_along(parameters),
+    function(i) create_lagged_eir(variables[[i]], solvers[[i]], parameters[[i]])
+  )
   lagged_infectivity <- lapply(
     seq_along(parameters),
     function(i) create_lagged_infectivity(variables[[i]], parameters[[i]])
@@ -191,6 +196,7 @@ run_metapop_simulation <- function(
         vector_models[[i]],
         solvers[[i]],
         correlations[[i]],
+        lagged_eir,
         lagged_infectivity,
         mixing[i,],
         i

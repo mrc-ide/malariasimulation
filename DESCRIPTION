@@ -18,19 +18,19 @@ Authors@R: c(
     given = "Hillary",
     family = "Topazian",
     role = c('aut'),
-    email = 'h.topazian@ic.ac.uk'
+    email = 'h.topazian@imperial.ac.uk'
   ),
   person(
     given = "Joseph",
     family = "Challenger",
     role = c('aut'),
-    email = 'j.challenger@ic.ac.uk'
+    email = 'j.challenger@imperial.ac.uk'
   ),
   person(
     given = "Richard",
     family = "Fitzjohn",
     role = c('aut'),
-    email = 'r.fitzjohn@ic.ac.uk'
+    email = 'r.fitzjohn@imperial.ac.uk'
   ),
   person(
     given = "Imperial College of Science, Technology and Medicine",

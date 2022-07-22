@@ -307,6 +307,11 @@ create_variables <- function(parameters) {
   variables
 }
 
+
+create_export_variable <- function(metapop_params) {
+  individual::DoubleVariable$new(rep(0, length(metapop_params$x)))
+}
+
 # =========
 # Utilities
 # =========

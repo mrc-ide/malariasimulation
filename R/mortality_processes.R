@@ -78,12 +78,6 @@ reset_target <- function(variables, events, target, state, timestep) {
   if (target$size() > 0) {
     # clear events
     to_clear <- c(
-      'asymptomatic_progression',
-      'subpatent_progression',
-      'recovery',
-      'clinical_infection',
-      'asymptomatic_infection',
-      'detection',
       'throw_away_net',
       'rtss_mass_doses',
       'rtss_mass_booster',

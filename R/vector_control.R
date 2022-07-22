@@ -189,7 +189,7 @@ spraying_decay <- function(t, theta, gamma) {
 net_usage_renderer <- function(net_time, renderer) {
   function(t) {
     renderer$render(
-      'net_usage',
+      'n_use_net',
       net_time$get_index_of(-1)$not(TRUE)$size(),
       t
     )

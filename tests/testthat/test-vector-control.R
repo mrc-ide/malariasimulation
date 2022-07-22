@@ -327,7 +327,7 @@ test_that('usage renderer outputs correct values', {
   net_usage_renderer(half, renderer)(timestep)
   net_usage_renderer(none, renderer)(timestep)
 
-  mockery::expect_args(renderer$render, 1, 'net_usage', 4, timestep)
-  mockery::expect_args(renderer$render, 2, 'net_usage', 2, timestep)
-  mockery::expect_args(renderer$render, 3, 'net_usage', 0, timestep)
+  mockery::expect_args(renderer$render, 1, 'n_use_net', 4, timestep)
+  mockery::expect_args(renderer$render, 2, 'n_use_net', 2, timestep)
+  mockery::expect_args(renderer$render, 3, 'n_use_net', 0, timestep)
 })

@@ -7,8 +7,8 @@ test_that('mortality_process resets humans correctly', {
     drug = 1,
     timesteps = c(50, 150),
     coverages= c(1, 1),
-    min_age = 5 * 365,
-    max_age = 10 * 365
+    min_ages = c(5 * 365, 5 * 365),
+    max_ages = c(10 * 365, 10 * 365)
   )
   events <- create_events(parameters)
   variables <- create_variables(parameters)

@@ -130,7 +130,7 @@ run_simulation <- function(
 #' @param correlations a list of correlation parameters for each population
 #' (default: NULL)
 #' @param mixing matrix of mixing coefficients for infectivity towards
-#' mosquitoes
+#' mosquitoes. Each element must be between 0 and 1 and all rows and columns must sum to 1.
 #' @return a list of dataframe of results
 #' @export
 run_metapop_simulation <- function(
@@ -145,6 +145,12 @@ run_metapop_simulation <- function(
   }
   if (nrow(mixing) != length(parameters)) {
     stop('mixing matrix rows must match length of parameters')
+  }
+  if (!all(round(rowSums(mixing), 1) == 1)) {
+    stop('all mixing matrix rows must sum to 1')
+  }
+  if (!all(round(colSums(mixing), 1) == 1)) {
+    stop('all mixing matrix columns must sum to 1')
   }
   if (is.null(correlations)) {
     correlations <- lapply(parameters, get_correlation_parameters)

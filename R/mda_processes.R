@@ -4,8 +4,8 @@
 #' @param drug the drug to administer
 #' @param timesteps timesteps for each round
 #' @param coverages the coverage for each round
-#' @param min_age minimum age for the target population
-#' @param max_age maximum age for the target population
+#' @param min_ages minimum age for the target population for each round
+#' @param max_ages maximum age for the target population for each round
 #' @param correlations correlation parameters
 #' @param int_name the name of this intervention (either 'smc' or 'mda')
 #' @param parameters the model parameters
@@ -18,8 +18,8 @@ create_mda_listeners <- function(
   drug,
   timesteps,
   coverages,
-  min_age,
-  max_age,
+  min_ages,
+  max_ages,
   correlations,
   int_name,
   parameters,
@@ -30,7 +30,7 @@ create_mda_listeners <- function(
     coverage <- coverages[[time_index]]
     age <- get_age(variables$birth$get_values(), timestep)
 
-    in_age <- which((age > min_age) & (age < max_age))
+    in_age <- which((age > min_ages[[time_index]]) & (age < max_ages[[time_index]]))
     target <- in_age[sample_intervention(in_age, int_name, coverage, correlations)]
 
     successful_treatments <- bernoulli(

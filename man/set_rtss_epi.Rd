@@ -6,9 +6,8 @@
 \usage{
 set_rtss_epi(
   parameters,
-  start,
-  end,
-  coverage,
+  coverages,
+  timesteps,
   age,
   min_wait,
   boosters,
@@ -19,11 +18,9 @@ set_rtss_epi(
 \arguments{
 \item{parameters}{a list of parameters to modify}
 
-\item{start}{timestep to turn on epi vaccination}
+\item{coverages}{a vector of  coverages for the starter doses}
 
-\item{end}{timestep to turn off epi vaccination}
-
-\item{coverage}{the coverage for the starter doses}
+\item{timesteps}{a vector of timesteps associated with coverages}
 
 \item{age}{for the target population, (in timesteps)}
 

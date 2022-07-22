@@ -147,16 +147,16 @@ rtssepiparams <- simparams
 
 # Add RTS,S strategy
 rtssepievents = data.frame(
-  timestep = c(1, 2) * year,
-  name=c("RTS,S EPI start", "RTS,S EPI end")
+  timesteps = c(1, 2) * year,
+  coverages = c(0.8, 0),
+  name = c("RTS,S EPI start", "RTS,S EPI end")
 )
 
 rtssepiparams <- set_rtss_epi(
   rtssepiparams,
-  start = rtssepievents$timestep[[1]],
-  end = rtssepievents$timestep[[2]],
+  coverages = rtssepievents$coverages,
+  timesteps = rtssepievents$timesteps,
   age = 5 * month,
-  coverage = 0.8,
   min_wait = 0,
   boosters = 18 * month,
   booster_coverage = .7
@@ -177,10 +177,9 @@ rtssepiseasonalparams <- simparams
 # Add RTS,S seasonal strategy
 rtssepiseasonalparams <- set_rtss_epi(
   rtssepiseasonalparams,
-  start = rtssepievents$timestep[[1]],
-  end = rtssepievents$timestep[[2]],
+  coverages = rtssepievents$coverages,
+  timesteps = rtssepievents$timesteps,
   age = 5 * month,
-  coverage = 0.8,
   min_wait = 6 * month,
   boosters = (peak - 3 * month) + c(0, year),
   booster_coverage = rep(.7, 2),
@@ -201,10 +200,9 @@ rtssepiparams2 <- rtssepiparams
 rtssepiparams2$rtss_doses <- c(0, 30, 60)
 rtssepiparams2 <- set_rtss_epi(
   rtssepiparams2,
-  start = rtssepievents$timestep[[1]],
-  end = rtssepievents$timestep[[2]],
+  coverages = rtssepievents$coverages,
+  timesteps = rtssepievents$timesteps,
   age = 5 * month,
-  coverage = 0.8,
   min_wait = 0,
   boosters = c(12 * month, 18 * month, 24 * month),
   booster_coverage = c(1, 1, 1)

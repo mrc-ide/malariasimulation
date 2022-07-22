@@ -64,3 +64,18 @@ rtexp <- function(n, m, t) { itexp(runif(n), m, t) }
 match_timestep <- function(ts, t) {
   min(sum(ts < t) + 1, length(ts))
 }
+
+#'@title Find coverage given current timestep and vectors of coverage and coverage timesteps
+#'@param coverages vector of coverages
+#'@param timesteps vector of coverage change timesteps
+#'@param timestep current timestep
+#'@noRd
+index_coverage <- function(coverages, timesteps, timestep){
+  coverage_index <- ifelse(timestep < min(timesteps), 0, max(which(timestep >= timesteps)))
+  if(coverage_index == 0){
+    coverage <- NA
+  } else {
+    coverage <- coverages[coverage_index]
+  }
+  return(coverage)
+}

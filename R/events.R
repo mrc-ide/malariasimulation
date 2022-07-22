@@ -36,7 +36,7 @@ create_events <- function(parameters) {
   }
 
   # EPI vaccination events
-  if (!is.null(parameters$rtss_epi_start)) {
+  if (!is.null(parameters$rtss_epi_coverage)) {
     rtss_epi_doses <- lapply(
       seq_along(parameters$rtss_doses),
       function(.) individual::TargetedEvent$new(parameters$human_population)

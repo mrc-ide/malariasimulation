@@ -12,16 +12,21 @@ create_rtss_epi_process <- function(
   variables,
   events,
   parameters,
-  correlations
+  correlations,
+  coverages,
+  timesteps
   ) {
   function(timestep) {
-    if (!between(timestep, parameters$rtss_epi_start, parameters$rtss_epi_end)) {
+    coverage <- index_coverage(coverages = coverages,
+                               timesteps = timesteps,
+                               timestep = timestep)
+    if(is.na(coverage) | coverage == 0){
       return()
     }
+    
     to_vaccinate <- variables$birth$get_index_of(
       set = timestep - parameters$rtss_epi_age
     )
-
     if (parameters$rtss_epi_min_wait == 0) {
       target <- to_vaccinate$to_vector()
     } else {
@@ -36,10 +41,11 @@ create_rtss_epi_process <- function(
       sample_intervention(
         target,
        'rtss',
-        parameters$rtss_epi_coverage,
+        coverage,
         correlations
       )
     ]
+
     schedule_vaccination(
       target,
       events,

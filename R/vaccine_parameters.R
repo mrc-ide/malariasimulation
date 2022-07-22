@@ -4,9 +4,8 @@
 #' age. Efficacy will take effect after the last dose
 #'
 #' @param parameters a list of parameters to modify
-#' @param start timestep to turn on epi vaccination
-#' @param end timestep to turn off epi vaccination
-#' @param coverage the coverage for the starter doses
+#' @param coverages a vector of  coverages for the starter doses
+#' @param timesteps a vector of timesteps associated with coverages
 #' @param age for the target population, (in timesteps)
 #' @param min_wait the minimum acceptable time since the last vaccination (in
 #' timesteps); When seasonal_boosters = TRUE, this represents the minimum time
@@ -21,19 +20,18 @@
 #' @export
 set_rtss_epi <- function(
   parameters,
-  start,
-  end,
-  coverage,
+  coverages,
+  timesteps,
   age,
   min_wait,
   boosters,
   booster_coverage,
   seasonal_boosters = FALSE
   ) {
-  stopifnot(length(start) == 1 && start > 1)
-  stopifnot(length(end) == 1 && end > start)
+  if(length(coverages) != length(timesteps)){
+    stop("coverages and timesteps must align")
+  }
   stopifnot(min_wait >= 0)
-  stopifnot(coverage >= 0 & coverage <= 1)
   stopifnot(age >= 0)
   stopifnot(is.logical(seasonal_boosters))
   if (seasonal_boosters) {
@@ -47,9 +45,8 @@ set_rtss_epi <- function(
     stop('booster and booster_coverage does not align')
   }
   parameters$rtss <- TRUE
-  parameters$rtss_epi_start <- start
-  parameters$rtss_epi_end <- end
-  parameters$rtss_epi_coverage <- coverage
+  parameters$rtss_epi_coverages <- coverages
+  parameters$rtss_epi_timesteps <- timesteps
   parameters$rtss_epi_age <- age
   parameters$rtss_epi_boosters <- boosters
   parameters$rtss_epi_min_wait <- min_wait

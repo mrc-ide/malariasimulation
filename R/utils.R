@@ -64,3 +64,12 @@ rtexp <- function(n, m, t) { itexp(runif(n), m, t) }
 match_timestep <- function(ts, t) {
   min(sum(ts < t) + 1, length(ts))
 }
+
+#'@title Find index of the latest timestep in vector of timesteps
+#'@param ts timesteps, assumed to be sorted and unique
+#'@param t current timestep
+#'@noRd
+match_last_timestep <- function(ts, t) {
+  min(sum(ts <= t), length(ts))
+}
+

@@ -37,9 +37,8 @@ test_that('calculate_initial_ages calculates truncated exp custom demographic', 
   parameters <- set_demography(
     parameters,
     agegroups = ages,
-    timesteps = 1,
-    birthrates = find_birthrates(4, ages, deathrates),
-    deathrates = matrix(deathrates, nrow=1, ncol=2)
+    timesteps = 0,
+    deathrates = matrix(deathrates, nrow = 1, ncol = 2)
   )
   mock_groups <- mockery::mock(c(2, 1, 2, 1))
   mock_rtexp <- mockery::mock(c(25 * 365, 30 * 365), c(25 * 365, 30 * 365))
@@ -51,7 +50,7 @@ test_that('calculate_initial_ages calculates truncated exp custom demographic', 
     mockery::mock(c(3, 1))
   )
   ages <- calculate_initial_ages(parameters)
-  mockery::expect_args(mock_groups, 1, 2, 4, replace = TRUE, prob = c(3, 1))
+  mockery::expect_args(mock_groups, 1, 2, 100, replace = TRUE, prob = c(3, 1))
   mockery::expect_args(mock_rtexp, 1, 2, .5, 50 * 365)
   mockery::expect_args(mock_rtexp, 2, 2, .75, 50 * 365)
   expect_setequal(ages, c(25 * 365, 75 * 365, 30 * 365, 80 * 365))

@@ -152,3 +152,22 @@ create_total_M_renderer_compartmental <- function(renderer, solvers, parameters)
     }
   }
 }
+
+create_age_group_renderer <- function(
+    birth,
+    parameters,
+    renderer
+) {
+  function(timestep) {
+    for (i in seq_along(parameters$age_group_rendering_min_ages)) {
+      lower <- parameters$age_group_rendering_min_ages[[i]]
+      upper <- parameters$age_group_rendering_max_ages[[i]]
+      in_age <- in_age_range(birth, timestep, lower, upper)
+      renderer$render(
+        paste0('n_age_', lower, '_', upper),
+        in_age$size(),
+        timestep
+      ) 
+    }
+  }
+}

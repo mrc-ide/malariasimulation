@@ -73,6 +73,6 @@ find_birthrates <- function(pops, age_high, deathrates) {
 }
 
 get_human_population <- function(parameters, timestep) {
-  last_pop <- match_last_timestep(parameters$human_population_timesteps, timestep)
+  last_pop <- match_timestep(parameters$human_population_timesteps, timestep)
   parameters$human_population[last_pop]
 }

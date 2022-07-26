@@ -19,7 +19,7 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
       renderer$render('natural_deaths', died$size(), timestep)
     } else {
       age <- get_age(variables$birth$get_values(), timestep)
-      last_deathrate <- match_last_timestep(parameters$deathrate_timesteps, timestep)
+      last_deathrate <- match_timestep(parameters$deathrate_timesteps, timestep)
       deathrates <- rep(1, pop)
       age_groups <- .bincode(age, c(0, parameters$deathrate_agegroups))
       in_range <- !is.na(age_groups)

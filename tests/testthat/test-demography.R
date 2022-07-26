@@ -55,3 +55,19 @@ test_that('calculate_initial_ages calculates truncated exp custom demographic', 
   mockery::expect_args(mock_rtexp, 2, 2, .75, 50 * 365)
   expect_setequal(ages, c(25 * 365, 75 * 365, 30 * 365, 80 * 365))
 })
+
+test_that('match_timestep always gives 0 for constant demography', {
+  expect_equal(match_timestep(c(0), 0), 1)
+  expect_equal(match_timestep(c(0), 1), 1)
+  expect_equal(match_timestep(c(0), 50), 1)
+})
+
+test_that('match_timestep works on the boundaries', {
+  expect_equal(match_timestep(c(0, 50, 100), 0), 1)
+  expect_equal(match_timestep(c(0, 50, 100), 1), 1)
+  expect_equal(match_timestep(c(0, 50, 100), 49), 1)
+  expect_equal(match_timestep(c(0, 50, 100), 50), 2)
+  expect_equal(match_timestep(c(0, 50, 100), 99), 2)
+  expect_equal(match_timestep(c(0, 50, 100), 100), 3)
+  expect_equal(match_timestep(c(0, 50, 100), 101), 3)
+})

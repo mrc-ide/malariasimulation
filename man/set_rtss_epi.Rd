@@ -18,7 +18,7 @@ set_rtss_epi(
 \arguments{
 \item{parameters}{a list of parameters to modify}
 
-\item{coverages}{a vector of  coverages for the starter doses}
+\item{coverages}{a vector of coverages for the starter doses}
 
 \item{timesteps}{a vector of timesteps associated with coverages}
 

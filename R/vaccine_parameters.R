@@ -4,7 +4,7 @@
 #' age. Efficacy will take effect after the last dose
 #'
 #' @param parameters a list of parameters to modify
-#' @param coverages a vector of  coverages for the starter doses
+#' @param coverages a vector of coverages for the starter doses
 #' @param timesteps a vector of timesteps associated with coverages
 #' @param age for the target population, (in timesteps)
 #' @param min_wait the minimum acceptable time since the last vaccination (in

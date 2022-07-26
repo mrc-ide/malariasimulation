@@ -64,7 +64,6 @@ Suggests:
   DiagrammeR,
   cowplot,
   ggplot2,
-  tidyr,
   covr,
   mgcv 
 RoxygenNote: 7.2.1

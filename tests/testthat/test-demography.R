@@ -31,7 +31,7 @@ test_that('find_birthrates is consistent with get_equilibrium_population', {
 
 
 test_that('calculate_initial_ages calculates truncated exp custom demographic', {
-  parameters <- get_parameters()
+  parameters <- get_parameters(list(human_population = 4))
   ages <- c(50, 100) * 365
   deathrates <- c(.5, .75)
   parameters <- set_demography(
@@ -50,7 +50,7 @@ test_that('calculate_initial_ages calculates truncated exp custom demographic', 
     mockery::mock(c(3, 1))
   )
   ages <- calculate_initial_ages(parameters)
-  mockery::expect_args(mock_groups, 1, 2, 100, replace = TRUE, prob = c(3, 1))
+  mockery::expect_args(mock_groups, 1, 2, 4, replace = TRUE, prob = c(3, 1))
   mockery::expect_args(mock_rtexp, 1, 2, .5, 50 * 365)
   mockery::expect_args(mock_rtexp, 2, 2, .75, 50 * 365)
   expect_setequal(ages, c(25 * 365, 75 * 365, 30 * 365, 80 * 365))

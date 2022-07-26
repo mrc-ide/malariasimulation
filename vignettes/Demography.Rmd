@@ -16,7 +16,6 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 suppressPackageStartupMessages(library(ggplot2))
-library(tidyr)
 library(malariasimulation)
 ```
 
@@ -31,11 +30,14 @@ sim_length <- 5 * year
 human_population <- 1000
 starting_EIR <- 5
 
+age_min <- seq(0, 80, 5) * 365
+age_max <- seq(5, 85, 5) * 365
+
 simparams <- get_parameters(
   list(
     human_population = human_population,
-    age_group_rendering_min_ages = seq(0, 80, 5) * 365,
-    age_group_rendering_max_ages = seq(5, 85, 5) * 365
+    age_group_rendering_min_ages = age_min,
+    age_group_rendering_max_ages = age_max
   )
 )
 
@@ -68,8 +70,7 @@ demography_params <- set_demography(
 )
 ```
 
-Let's run the simulations and compare the age distributions in the populations
-in year 5:
+Let's run the simulations 
 
 ```{r}
 # run and combine the outputs
@@ -77,19 +78,36 @@ exp_output <- run_simulation(sim_length, simparams)
 exp_output$run <- 'exponential'
 custom_output <- run_simulation(sim_length, demography_params)
 custom_output$run <- 'custom'
-output <- rbind(exp_output, custom_output)
+```
 
+and now we can compare the age distributions in the populations
+in year 5:
+
+```{r}
 # wrangle outputs
-output_long <- output |>
-  dplyr::filter(timestep == 5 * 365) |>
-  dplyr::select(run, timestep, contains("n_age")) |>
-  tidyr::pivot_longer(cols = -c(run, timestep), names_to = "age_group", values_to = "n", names_prefix = "n_age_") |>
-  tidyr::separate(col = age_group, sep = "_", into = c("age_lower", "age_upper"), convert = TRUE) |>
-  dplyr::mutate(age_mid = (age_lower + (age_upper - age_lower) / 2) / 365,
-                run = factor(run, levels = c("exponential", "custom")))
+output <- rbind(exp_output, custom_output)
+output <- output[output$timestep == 5 * 365,]
+
+# A function to extract the age variables and convert to long format
+convert_to_long <-  function(age_min, age_max, output){
+  output <- lapply(
+    seq_along(age_min),
+    function(i) {
+      data.frame(
+        age_lower = age_min[[i]],
+        age_upper = age_max[[i]],
+        n = output[,paste0('n_age_', age_min[[i]], '_',age_max[[i]])],
+        age_mid = (age_min[[i]] + (age_min[[i]] - age_max[[i]]) / 2) / 365,
+        run = output$run, 
+        timestep = output$timestep)
+    }
+  )
+  output <- do.call("rbind", output)
+}
+output <- convert_to_long(age_min, age_max, output)
 
 # Plot the age distributions
-ggplot(output_long, aes(x = age_mid, y = n)) +
+ggplot(output, aes(x = age_mid, y = n)) +
   geom_bar(stat = "identity") +
   theme_bw() +
   facet_wrap(~ run)
@@ -98,7 +116,7 @@ ggplot(output_long, aes(x = age_mid, y = n)) +
 
 We can also specify time-varying death rates to capture a dynamic demography
 
-```{r}
+```{r, fig.width=7}
 dynamic_demography_params <- simparams
 
 # Set a flat demography
@@ -125,15 +143,13 @@ dynamic_demography_params <- set_demography(
 dynamic_demography_output <- run_simulation(sim_length, dynamic_demography_params)
 
 # wrangle outputs
-dynamic_output_long <- dynamic_demography_output |>
-  dplyr::filter(timestep %in% (1:5 * 365)) |>
-  dplyr::select(timestep, contains("n_age")) |>
-  tidyr::pivot_longer(cols = -timestep, names_to = "age_group", values_to = "n", names_prefix = "n_age_") |>
-  tidyr::separate(col = age_group, sep = "_", into = c("age_lower", "age_upper"), convert = TRUE) |>
-  dplyr::mutate(age_mid = (age_lower + (age_upper - age_lower) / 2) / 365)
+dynamic_demography_output <- dynamic_demography_output[dynamic_demography_output$timestep %in% (1:5 * 365),]
+dynamic_demography_output$run <- "dynamic"
+
+dynamic_demography_output <- convert_to_long(age_min, age_max, dynamic_demography_output)
 
 # Plot the age distributions each year
-ggplot(dynamic_output_long, aes(x = age_mid, y = n)) +
+ggplot(dynamic_demography_output, aes(x = age_mid, y = n)) +
   geom_bar(stat = "identity") +
   theme_bw() +
   facet_wrap(~ timestep / 365, ncol = 5)

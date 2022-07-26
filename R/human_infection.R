@@ -73,7 +73,6 @@ simulate_infection <- function(
   treated <- calculate_treated(
     variables,
     clinical_infections,
-    events$recovery,
     parameters,
     timestep,
     renderer
@@ -83,11 +82,12 @@ simulate_infection <- function(
   renderer$render('n_infections', infected_humans$size(), timestep)
 
   schedule_infections(
-    events,
+    variables,
     clinical_infections,
     treated,
     infected_humans,
-    parameters
+    parameters,
+    timestep
   )
 }
 
@@ -255,7 +255,6 @@ update_severe_disease <- function(
 #' Sample treated humans from the clinically infected
 #' @param variables a list of all of the model variables
 #' @param clinical_infections a bitset of clinically infected humans
-#' @param recovery the recovery event
 #' @param parameters model parameters
 #' @param timestep the current timestep
 #' @param renderer simulation renderer
@@ -263,7 +262,6 @@ update_severe_disease <- function(
 calculate_treated <- function(
   variables,
   clinical_infections,
-  recovery,
   parameters,
   timestep,
   renderer
@@ -319,12 +317,12 @@ calculate_treated <- function(
 #' @param parameters model parameters
 #' @noRd
 schedule_infections <- function(
-  events,
+  variables,
   clinical_infections,
   treated,
   infections,
   parameters,
-  asymptomatics
+  timestep
   ) {
   included <- treated$not(TRUE)
 
@@ -334,13 +332,22 @@ schedule_infections <- function(
   )
 
   if(to_infect$size() > 0) {
-    infection_times <- log_uniform(to_infect$size(), parameters$de)
-    events$clinical_infection$schedule(to_infect, 0)
+    update_infection(
+      variables$state,
+      'D',
+      variables$infectivity,
+      parameters$cd,
+      to_infect
+    )
   }
 
   if(to_infect_asym$size() > 0) {
-    infection_times <- log_uniform(to_infect_asym$size(), parameters$de)
-    events$asymptomatic_infection$schedule(to_infect_asym, 0)
+    update_to_asymptomatic_infection(
+      variables,
+      parameters,
+      timestep,
+      to_infect_asym
+    )
   }
 }
 

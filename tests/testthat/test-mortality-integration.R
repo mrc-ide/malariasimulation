@@ -49,13 +49,13 @@ test_that('mortality_process resets humans correctly', {
 test_that('mortality_process samples deaths from a custom demography', {
   timestep <- 2
   parameters <- get_parameters()
+  parameters$human_population <- 4
   ages <- c(50, 100) * 365
   deaths <- c(.5, .75)
   parameters <- set_demography(
     parameters,
     agegroups = ages,
-    timesteps = 1,
-    birthrates = find_birthrates(4, ages, deaths),
+    timesteps = 0,
     deathrates = matrix(deaths, nrow=1, ncol=2)
   )
   events <- create_events(parameters)

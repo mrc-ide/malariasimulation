@@ -400,6 +400,8 @@ get_parameters <- function(overrides = list()) {
     severe_prevalence_rendering_max_ages = numeric(0),
     severe_incidence_rendering_min_ages = numeric(0),
     severe_incidence_rendering_max_ages = numeric(0),
+    age_group_rendering_min_ages = numeric(0),
+    age_group_rendering_max_ages = numeric(0),
     # misc
     custom_demography = FALSE,
     human_population = 100,

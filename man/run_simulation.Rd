@@ -88,7 +88,7 @@ asymptomatic
 subpatent
 \item rate_U_S: rate that humans transition from subpatent to
 susceptible
-\item net_usage: the proportion of the population protected by a bed net
+\item net_usage: the number people protected by a bed net
 \item mosquito_deaths: number of adult female mosquitoes who die this timestep
 }
 }

@@ -62,5 +62,6 @@ rtexp <- function(n, m, t) { itexp(runif(n), m, t) }
 #'@param t current timestep
 #'@noRd
 match_timestep <- function(ts, t) {
-  min(sum(ts < t) + 1, length(ts))
+  min(sum(ts <= t), length(ts))
 }
+

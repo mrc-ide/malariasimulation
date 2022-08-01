@@ -147,7 +147,7 @@ run_metapop_simulation <- function(
   if (nrow(mixing) != length(parameters)) {
     stop('mixing matrix rows must match length of parameters')
   }
-  if (!all(lapply(1:length(parameters), function(x){approx_sum(mixing[x,], 1)}) == T)) {
+  if (!all(vlapply(seq_along(parameters), function(x) approx_sum(mixing[x,], 1)))) {
     stop('all mixing matrix rows must sum to 1')
   }
   if (!all(lapply(1:length(parameters), function(x){approx_sum(mixing[,x], 1)}) == T)) {

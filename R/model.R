@@ -151,7 +151,7 @@ run_metapop_simulation <- function(
     stop('all mixing matrix rows must sum to 1')
   }
   if (!all(lapply(1:length(parameters), function(x){approx_sum(mixing[,x], 1)}) == T)) {
-    print('warning: mixing matrix is asymmetrical')
+    warning('mixing matrix is asymmetrical')
   }
   if (is.null(correlations)) {
     correlations <- lapply(parameters, get_correlation_parameters)

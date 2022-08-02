@@ -406,11 +406,12 @@ calculate_initial_ages <- function(parameters) {
     )))
   }
 
+  deathrates <- parameters$deathrates[1, , drop = FALSE]
   age_high <- parameters$deathrate_agegroups
   age_width <- diff(c(0, age_high))
   age_low <- age_high - age_width
   n_age <- length(age_high)
-  birthrate <- get_birthrate(parameters, 0)
+  birthrate <- find_birthrates(parameters$human_population, age_high, deathrates)
   deathrates <- parameters$deathrates[1,]
 
   eq_pop <- get_equilibrium_population(age_high, birthrate, deathrates)

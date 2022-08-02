@@ -160,6 +160,11 @@ create_processes <- function(
       parameters,
       renderer
     ),
+    create_age_group_renderer(
+      variables$birth,
+      parameters,
+      renderer
+    ),
     create_compartmental_rendering_process(renderer, solvers, parameters)
   )
 

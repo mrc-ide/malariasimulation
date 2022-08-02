@@ -4,7 +4,7 @@
 \alias{set_demography}
 \title{Parameterise variable deathrates}
 \usage{
-set_demography(parameters, agegroups, timesteps, birthrates, deathrates)
+set_demography(parameters, agegroups, timesteps, deathrates)
 }
 \arguments{
 \item{parameters}{the model parameters}
@@ -12,9 +12,6 @@ set_demography(parameters, agegroups, timesteps, birthrates, deathrates)
 \item{agegroups}{vector of agegroups (in timesteps)}
 
 \item{timesteps}{vector of timesteps for each change in demography}
-
-\item{birthrates}{vector of new birthrates (number of individuals born per
-timestep) for each element of \code{timesteps}}
 
 \item{deathrates}{matrix of deathrates per age group per timestep.
 Rows are timesteps from the \code{timesteps} param. Columns are the age groups

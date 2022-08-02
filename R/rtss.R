@@ -17,10 +17,12 @@ create_rtss_epi_process <- function(
   timesteps
   ) {
   function(timestep) {
-    coverage <- index_coverage(coverages = coverages,
-                               timesteps = timesteps,
-                               timestep = timestep)
-    if(is.na(coverage) | coverage == 0){
+    timestep_index <- match_timestep(ts = timesteps, t = timestep)
+    if(timestep_index == 0){
+      return()
+    }
+    coverage <- coverages[timestep_index]
+    if(coverage == 0){
       return()
     }
     

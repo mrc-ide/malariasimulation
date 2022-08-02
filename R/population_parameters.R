@@ -3,8 +3,6 @@
 #' @param parameters the model parameters
 #' @param agegroups vector of agegroups (in timesteps)
 #' @param timesteps vector of timesteps for each change in demography
-#' @param birthrates vector of new birthrates (number of individuals born per
-#' timestep) for each element of `timesteps`
 #' @param deathrates matrix of deathrates per age group per timestep.
 #' Rows are timesteps from the `timesteps` param. Columns are the age groups
 #' from the `agegroups` param.
@@ -13,49 +11,24 @@ set_demography <- function(
   parameters,
   agegroups,
   timesteps,
-  birthrates,
   deathrates
   ) {
-  stopifnot(all(agegroups > 0))
+  
   stopifnot(all(timesteps >= 0))
-  stopifnot(all(birthrates > 0))
-  stopifnot(length(birthrates) == length(timesteps))
+  if(min(timesteps) != 0){
+    stop("Must include the baseline demography (timesteps must include 0),
+         when setting a custom demography")
+  }
+  stopifnot(all(agegroups > 0))
   stopifnot(all(deathrates > 0 & deathrates < 1))
   stopifnot(length(agegroups) == ncol(deathrates))
   stopifnot(length(timesteps) == nrow(deathrates))
   stopifnot(!is.unsorted(timesteps, strictly = TRUE))
-  stopifnot(length(timesteps) == 1) # changing population is not yet supported
+
   parameters$custom_demography <- TRUE
   parameters$deathrate_agegroups <- agegroups
   parameters$deathrate_timesteps <- timesteps
   parameters$deathrates <- deathrates
-  parameters$birthrate_timesteps <- timesteps
-  parameters$birthrates <- birthrates
-  n_age <- length(agegroups)
-
-  # set the populations
-  populations <- vapply(
-    seq(timesteps),
-    function(timestep) {
-      get_equilibrium_population(
-        agegroups,
-        birthrates[[timestep]],
-        parameters$deathrates[timestep,]
-      )
-    },
-    numeric(n_age)
-  )
-
-  deathrates <- vnapply(
-    seq(timesteps),
-    function(timestep) {
-      sum(
-         parameters$deathrates[timestep,] * populations[timestep,]
-      )
-    }
-  )
-  parameters$human_population <- round(colSums(populations))
-  parameters$human_population_timesteps <- timesteps
 
   parameters
 }
@@ -87,7 +60,6 @@ get_equilibrium_population <- function(age_high, birthrate, deathrates) {
 #' @param age_high a vector of age groups
 #' @param deathrates vector of deathrates for each age group
 #' @importFrom stats uniroot
-#' @export
 find_birthrates <- function(pops, age_high, deathrates) {
   vnapply(
     pops,
@@ -98,14 +70,6 @@ find_birthrates <- function(pops, age_high, deathrates) {
       uniroot(birth_to_pop, c(0, pop))$root
     }
   )
-}
-
-get_birthrate <- function(parameters, timestep) {
-  if (!parameters$custom_demography) {
-    return(1 / parameters$average_age * get_human_population(parameters, timestep))
-  }
-  last_birthrate <- match_timestep(parameters$birthrate_timesteps, timestep)
-  parameters$birthrates[last_birthrate]
 }
 
 get_human_population <- function(parameters, timestep) {

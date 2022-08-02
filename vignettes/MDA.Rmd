@@ -109,8 +109,8 @@ mdaparams <- set_mda(
   drug = 1,
   timesteps = mda_events$timestep,
   coverages = rep(.8, 2),
-  min_age = 0,
-  max_age = 200 * 365
+  min_ages = rep(0, length(mda_events$timestep)),
+  max_ages = rep(200 * 365, length(mda_events$timestep))
 )
 
 output <- run_simulation(sim_length, mdaparams)
@@ -126,7 +126,7 @@ add_mda_lines(plot_prevalence(output), mda_events)
 
 ## SMC
 
-This is a dose of SP-AQ to 90% of 2 - 11 year olds once a year a month before the peak season for mosquitos.
+This is a dose of SP-AQ to 90% of 2 - 11 year olds once a year a month before the peak season for mosquitoes.
 
 ```{r}
 smcparams <- simparams
@@ -142,8 +142,8 @@ smcparams <- set_smc(
   drug = 1,
   timesteps = smc_events$timestep,
   coverages = rep(.9, 2),
-  min_age = 2 * 365 - 1,
-  max_age = 11 * 365
+  min_ages = rep(2 * 365 - 1, length(smc_events$timestep)),
+  max_ages = rep(11 * 365, length(smc_events$timestep))
 )
 
 output <- run_simulation(sim_length, smcparams)

@@ -71,6 +71,7 @@
 #' subpatent
 #'  * rate_U_S: rate that humans transition from subpatent to
 #' susceptible
+#'  * net_usage: the number people protected by a bed net
 #'  * mosquito_deaths: number of adult female mosquitoes who die this timestep
 #'
 #' @param timesteps the number of timesteps to run the simulation for (in days)
@@ -111,13 +112,111 @@ run_simulation <- function(
       parameters,
       vector_models,
       solvers,
-      correlations
+      correlations,
+      list(create_lagged_eir(variables, solvers, parameters)),
+      list(create_lagged_infectivity(variables, parameters))
     ),
     variables = variables,
     events = unlist(events),
     timesteps = timesteps
   )
   renderer$to_dataframe()
+}
+
+#' @title Run a metapopulation model
+#'
+#' @param timesteps the number of timesteps to run the simulation for (in days)
+#' @param parameters a list of model parameter lists for each population
+#' @param correlations a list of correlation parameters for each population
+#' (default: NULL)
+#' @param mixing matrix of mixing coefficients for infectivity towards
+#' mosquitoes. Each element must be between 0 and 1 and all rows and columns must sum to 1.
+#' @return a list of dataframe of results
+#' @export
+run_metapop_simulation <- function(
+  timesteps,
+  parameters,
+  correlations = NULL,
+  mixing
+  ) {
+  random_seed(ceiling(runif(1) * .Machine$integer.max))
+  if (nrow(mixing) != ncol(mixing)) {
+    stop('mixing matrix must be square')
+  }
+  if (nrow(mixing) != length(parameters)) {
+    stop('mixing matrix rows must match length of parameters')
+  }
+  if (!all(round(rowSums(mixing), 1) == 1)) {
+    stop('all mixing matrix rows must sum to 1')
+  }
+  if (!all(round(colSums(mixing), 1) == 1)) {
+    stop('all mixing matrix columns must sum to 1')
+  }
+  if (is.null(correlations)) {
+    correlations <- lapply(parameters, get_correlation_parameters)
+  }
+  variables <- lapply(parameters, create_variables)
+  events <- lapply(parameters, create_events)
+  renderer <- lapply(parameters, function(.) individual::Render$new(timesteps))
+  for (i in seq_along(parameters)) {
+    # NOTE: forceAndCall is necessary here to make sure i refers to the current
+    # iteration
+    forceAndCall(
+      3,
+      initialise_events,
+      events[[i]],
+      variables[[i]],
+      parameters[[i]]
+    )
+    forceAndCall(
+      5,
+      attach_event_listeners,
+      events[[i]],
+      variables[[i]],
+      parameters[[i]],
+      correlations[[i]],
+      renderer[[i]]
+    )
+  }
+  vector_models <- lapply(parameters, parameterise_mosquito_models)
+  solvers <- lapply(
+    seq_along(parameters),
+    function(i) parameterise_solvers(vector_models[[i]], parameters[[i]])
+  )
+  lagged_eir <- lapply(
+    seq_along(parameters),
+    function(i) create_lagged_eir(variables[[i]], solvers[[i]], parameters[[i]])
+  )
+  lagged_infectivity <- lapply(
+    seq_along(parameters),
+    function(i) create_lagged_infectivity(variables[[i]], parameters[[i]])
+  )
+  processes <- lapply(
+    seq_along(parameters),
+    function(i) {
+      create_processes(
+        renderer[[i]],
+        variables[[i]],
+        events[[i]],
+        parameters[[i]],
+        vector_models[[i]],
+        solvers[[i]],
+        correlations[[i]],
+        lagged_eir,
+        lagged_infectivity,
+        mixing[i,],
+        i
+      )
+    }
+  )
+  individual::simulation_loop(
+    processes = unlist(processes),
+    variables = unlist(variables),
+    events = unlist(events),
+    timesteps = timesteps
+  )
+  
+  lapply(renderer, function(r) r$to_dataframe())
 }
 
 #' @title Run the simulation with repetitions

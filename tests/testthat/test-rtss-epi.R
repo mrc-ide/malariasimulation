@@ -163,12 +163,3 @@ test_that('RTS,S EPI schedules for the following year with seasonal boosters', {
     335
   )
 })
-
-
-test_that('RTS,S epi time varying coverages work', {
-  expect_equal(index_coverage(c(0, 0.5), c(10, 20), 9), NA)
-  expect_equal(index_coverage(c(0, 0.5), c(10, 20), 10), 0)
-  expect_equal(index_coverage(c(0, 0.5), c(10, 20), 11), 0)
-  expect_equal(index_coverage(c(0, 0.5), c(10, 20), 20), 0.5)
-  expect_equal(index_coverage(c(0, 0.5), c(10, 20), 21), 0.5)
-})

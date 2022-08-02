@@ -25,6 +25,7 @@ We are going to set the default parameters to run the simulation from an equilib
 
 ```{r}
 year <- 365
+month <- 30
 sim_length <- 3 * year
 human_population <- 10000
 starting_EIR <- 20
@@ -45,8 +46,7 @@ Then we can run the simulation for a variety of Vaccination strategies:
 
 ## Mass RTS,S
 
-This is a round of RTS,S vaccine for individuals between 5 - 17 months followed by
-a booster after 18 months; coverage of 80%; for 2 rounds:
+This is a round of RTS,S vaccine for individuals between 5 months and 10 years followed by a booster after 18 months:
 
 ```{r}
 rtssparams <- simparams
@@ -55,7 +55,7 @@ rtssparams <- set_mass_rtss(
   rtssparams,
   timesteps = 1 * year,
   coverages = 1,
-  min_wait = 2 * 365,
+  min_wait = 0,
   min_ages = 5 * month,
   max_ages = 10 * year,
   boosters = 18 * month,
@@ -89,7 +89,7 @@ dose_data[dose_data$n > 0, ]
 ## RTS,S EPI
 
 You can opt for a more gradual dosing using the EPI strategy. 
-Individuals will be vaccinated once they reach 5 months. For this interventions
+Individuals will be vaccinated once they reach 5 months. For this intervention
 we see a much more gradual increase in impact following implementation
 
 ```{r}
@@ -100,7 +100,7 @@ rtssepiparams <- set_rtss_epi(
   rtssepiparams,
   timesteps = 1 * year,
   coverages = 1,
-  min_wait = 2 * 365,
+  min_wait = 0,
   age = 5 * month,
   boosters = 18 * month,
   booster_coverage = 0.95

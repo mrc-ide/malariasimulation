@@ -124,14 +124,16 @@ create_processes <- function(
   # =========
   # RTS,S EPI
   # =========
-  if (!is.null(parameters$rtss_epi_start)) {
+  if (!is.null(parameters$rtss_epi_coverages)) {
     processes <- c(
       processes,
       create_rtss_epi_process(
         variables,
         events,
         parameters,
-        correlations
+        correlations,
+        parameters$rtss_epi_coverages,
+        parameters$rtss_epi_timesteps
       )
     )
   }

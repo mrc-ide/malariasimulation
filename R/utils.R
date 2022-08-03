@@ -64,4 +64,3 @@ rtexp <- function(n, m, t) { itexp(runif(n), m, t) }
 match_timestep <- function(ts, t) {
   min(sum(ts <= t), length(ts))
 }
-

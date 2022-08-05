@@ -73,3 +73,31 @@ set_smc <- function(
   parameters$smc_max_ages <- max_ages
   parameters
 }
+
+#' @title Parameterise a perennial malaria chemoprevention (PMC, formerly IPIi)
+#' @param parameters a list of parameters to modify
+#' @param drug the index of the drug to administer
+#' @param timesteps a vector of timesteps for each round of PMC
+#' @param coverages a vector of the proportion of the target population who receive each
+#' round
+#' @param ages a vector of ages at which PMC is administered (in timesteps)
+#' @export
+set_pmc <- function(
+    parameters,
+    drug,
+    timesteps,
+    coverages,
+    ages
+) {
+  
+  if(length(coverages) != length(timesteps)){
+    stop("coverages and timesteps do no align")
+  }
+  
+  parameters$pmc <- TRUE
+  parameters$pmc_drug <- drug
+  parameters$pmc_timesteps <- timesteps
+  parameters$pmc_coverages <- coverages
+  parameters$pmc_ages <- ages
+  parameters
+}

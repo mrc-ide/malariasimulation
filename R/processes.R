@@ -137,6 +137,25 @@ create_processes <- function(
       )
     )
   }
+  
+  # =========
+  # PMC
+  # =========
+  if(!is.null(parameters$pmc_coverages)){
+    processes <- c(
+      processes,
+      create_pmc_process(
+        variables,
+        events,
+        parameters,
+        renderer,
+        correlations,
+        parameters$pmc_coverages,
+        parameters$pmc_timesteps,
+        parameters$pmc_drug
+      )
+    )
+  }
 
   # =========
   # Rendering

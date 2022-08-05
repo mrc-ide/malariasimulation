@@ -32,7 +32,7 @@ test_that("pmc gives drugs to correct ages", {
   p <- set_drugs(
     parameters = p,
     drugs = list(SP_AQ_params))
-  p$drug_efficacy <- 1
+
   p <- set_pmc(
     parameters = p,
     drug = 1,
@@ -65,7 +65,8 @@ test_that("pmc gives drugs to correct ages", {
     timesteps = p$pmc_timesteps,
     drug = p$pmc_drug
   )
-  
+  # mock the treatment success
+  mockery::stub(process, 'bernoulli', mockery::mock(c(TRUE, TRUE, TRUE)))
   process(timestep)
   
   # Three treatments given

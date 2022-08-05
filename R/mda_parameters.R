@@ -93,6 +93,8 @@ set_pmc <- function(
   if(length(coverages) != length(timesteps)){
     stop("coverages and timesteps do no align")
   }
+  # check that the drug is valid
+  stopifnot((drug > 0) && (drug <= length(parameters$drug_rel_c)))
   
   parameters$pmc <- TRUE
   parameters$pmc_drug <- drug

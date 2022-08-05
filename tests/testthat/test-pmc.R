@@ -32,6 +32,7 @@ test_that("pmc gives drugs to correct ages", {
   p <- set_drugs(
     parameters = p,
     drugs = list(SP_AQ_params))
+  p$drug_efficacy <- 1
   p <- set_pmc(
     parameters = p,
     drug = 1,
@@ -51,7 +52,7 @@ test_that("pmc gives drugs to correct ages", {
     c('D', 'S', 'A', 'U', 'D', 'S')
   )
   variables$drug <- mock_integer(rep(0, 6))
-  variables$drug_time <- mock_integer(rep(0, 6))
+  variables$drug_time <- mock_integer(rep(-1, 6))
   mockery::stub(sample_intervention, 'bernoulli', mockery::mock(c(TRUE, TRUE, TRUE)))
   
   process <- create_pmc_process(

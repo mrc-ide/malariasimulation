@@ -1,5 +1,12 @@
 test_that("pmc parameterisation works", {
   p <- get_parameters()
+  
+  expect_false(p$pmc)
+  expect_equal(p$pmc_ages, NULL)
+  expect_equal(p$pmc_coverages, NULL)
+  expect_equal(p$pmc_timesteps, NULL)
+  
+  
   p <- set_drugs(
     parameters = p,
     drugs = list(SP_AQ_params))

@@ -202,7 +202,7 @@ default = 365
 \item rtss_dl - delay parameters for the antibody model, long-term weaning (mean and std. dev); default = 6.30365, 0.396515 (White MT et al. 2015 Lancet ID)
 }
 
-MDA and SMC parameters:
+MDA, SMC and PMC parameters:
 please set these parameters with the convenience functions in \code{mda_parameters.R}
 
 TBV parameters:

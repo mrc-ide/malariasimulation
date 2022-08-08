@@ -1,0 +1,124 @@
+---
+title: "Metapopulation"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Metapopulation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+suppressPackageStartupMessages(library(ggplot2))
+library(malariasimulation)
+library(malariaEquilibrium)
+```
+
+# Parameterisation
+
+The metapopulation model runs the individual-based model for multiple parameterized units (countries, regions, admins, etc.) simultaneously. The inputted mixing matrix allows for the transmission of one unit to affect the transmission of another unit. 'Mixing' in the model occurs through the variables `foim_m` and `EIR`. 
+
+Here we will set up a case study of three distinct units and compare output with various transmission mixing patterns. 
+
+```{r}
+# set variables
+year <- 365
+human_population <- 1000
+sim_length <- 5 * year
+EIR_vector <- c(1, 2, 5)
+
+# get parameters
+ms_parameterize <- function(x){ # index of EIR
+  
+  params <- get_parameters(list(human_population = human_population,
+                                model_seasonality = FALSE,
+                                individual_mosquitoes = FALSE))
+  
+  # setting treatment
+  params <- set_drugs(params, list(AL_params))
+  params <- set_clinical_treatment(params, drug = 1, timesteps = 1, coverages = 0.40)
+
+  params <- set_equilibrium(params, init_EIR = EIR_vector[x])
+  
+  return(params)
+  
+}
+
+# creating a list of three parameter lists
+paramslist <- lapply(seq(1, length(EIR_vector), 1), ms_parameterize)
+
+```
+
+# Modelling 
+
+Our parameters for the three distinct units are stored in the object `paramslist`. Next we will run the metapopulation model with these parameters. We will plug in three mixing matrices - A) isolated, B) semi-mixed, C) perfectly mixed. 
+
+```{r, warning = F}
+# isolated
+mix_1 <- diag(length(EIR_vector))
+
+# semi-mixed
+mix_2 <- matrix(c(0.8, 0.1, 0.1, 
+                  0.1, 0.8, 0.1,
+                  0.1, 0.1, 0.8),
+               nrow = 3, ncol = 3)
+
+# perfectly-mixed
+mix_3 <- matrix(rep(1/3, 9), nrow = 3, ncol = 3)
+
+# run model
+set.seed(123)
+
+metapop_loop <- function(mixing, mixnam){ # mixing matrix 
+
+  output <- run_metapop_simulation(timesteps = sim_length,
+                                   parameters = paramslist,
+                                   correlations = NULL,
+                                   mixing = mixing)
+  
+  # convert to dataframe and label EIR and mixing matrix type
+  output <-  do.call('rbind', output)
+  output$EIR <- c(sort(rep(EIR_vector, sim_length)))
+  
+  return(output)
+  
+}
+
+output1 <- metapop_loop(mix_1)
+output1$mix <- 'isolated'
+  
+output2 <- metapop_loop(mix_2)
+output2$mix <- 'semi-mixed'
+  
+output3 <- metapop_loop(mix_3)
+output3$mix <- 'perfectly-mixed'
+  
+output <- rbind(output1, output2, output3)
+
+# get mean PfPR 2-10 by year
+output$prev2to10 = output$p_detect_730_3650 / output$n_730_3650
+output$year = ceiling(output$timestep / 365)
+output$mix = factor(output$mix, levels = c('isolated', 'semi-mixed', 'perfectly-mixed'))
+output <- aggregate(prev2to10 ~ mix + EIR + year, data = output, FUN = mean)
+
+```
+
+Now let's visualize the results of mixing on PfPR2-10:
+
+```{r}
+# plot
+ggplot(data = output) + 
+  geom_line(aes(x = year, y = prev2to10, color = factor(EIR))) +
+  facet_wrap(~ mix) +
+  scale_y_continuous(limits = c(0, 0.35)) + 
+  labs(x = 'time (years)',
+       y = 'PfPR 2-10 (month)',
+       color = 'EIR') +
+  theme_classic()
+```

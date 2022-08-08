@@ -1,14 +1,5 @@
 create_events <- function(parameters) {
   events <- list(
-    # Disease progression events
-    asymptomatic_progression = individual::TargetedEvent$new(parameters$human_population),
-    subpatent_progression = individual::TargetedEvent$new(parameters$human_population),
-    recovery = individual::TargetedEvent$new(parameters$human_population),
-
-    # Human infection events
-    clinical_infection = individual::TargetedEvent$new(parameters$human_population),
-    asymptomatic_infection = individual::TargetedEvent$new(parameters$human_population),
-
     # MDA events
     mda_administer = individual::Event$new(),
     smc_administer = individual::Event$new(),
@@ -36,7 +27,7 @@ create_events <- function(parameters) {
   }
 
   # EPI vaccination events
-  if (!is.null(parameters$rtss_epi_start)) {
+  if (!is.null(parameters$rtss_epi_coverage)) {
     rtss_epi_doses <- lapply(
       seq_along(parameters$rtss_doses),
       function(.) individual::TargetedEvent$new(parameters$human_population)
@@ -100,65 +91,6 @@ attach_event_listeners <- function(
   correlations,
   renderer
   ) {
-
-  # =============
-  # State updates
-  # =============
-  # When infection events fire, update the corresponding states and infectivity
-  # variables
-
-  # Infection events
-  events$clinical_infection$add_listener(
-    create_infection_update_listener(
-      variables$state,
-      'D',
-      variables$infectivity,
-      parameters$cd
-    )
-  )
-
-  events$asymptomatic_progression$add_listener(
-    create_asymptomatic_update_listener(
-      variables,
-      parameters
-    )
-  )
-  events$asymptomatic_progression$add_listener(
-    create_rate_listener('D', 'A', renderer)
-  )
-  events$asymptomatic_infection$add_listener(
-    create_asymptomatic_update_listener(
-      variables,
-      parameters
-    )
-  )
-
-  # Recovery events
-  events$subpatent_progression$add_listener(
-    create_infection_update_listener(
-      variables$state,
-      'U',
-      variables$infectivity,
-      parameters$cu
-    )
-  )
-
-  events$subpatent_progression$add_listener(
-    create_rate_listener('A', 'U', renderer)
-  )
-
-  events$recovery$add_listener(
-    create_infection_update_listener(
-      variables$state,
-      'S',
-      variables$infectivity,
-      0
-    )
-  )
-  events$recovery$add_listener(
-    create_rate_listener('U', 'S', renderer)
-  )
-
   # ===========
   # Progression
   # ===========
@@ -226,8 +158,8 @@ attach_event_listeners <- function(
       parameters$mda_drug,
       parameters$mda_timesteps,
       parameters$mda_coverages,
-      parameters$mda_min_age,
-      parameters$mda_max_age,
+      parameters$mda_min_ages,
+      parameters$mda_max_ages,
       correlations,
       'mda',
       parameters,
@@ -242,8 +174,8 @@ attach_event_listeners <- function(
       parameters$smc_drug,
       parameters$smc_timesteps,
       parameters$smc_coverages,
-      parameters$smc_min_age,
-      parameters$smc_max_age,
+      parameters$smc_min_ages,
+      parameters$smc_max_ages,
       correlations,
       'smc',
       parameters,

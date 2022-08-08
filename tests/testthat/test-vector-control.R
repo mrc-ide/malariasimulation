@@ -314,3 +314,20 @@ test_that('prob_bitten correctly combines spraying and net probabilities', {
     tolerance=1e-4
   )
 })
+
+test_that('usage renderer outputs correct values', {
+  timestep <- 150
+
+  all <- individual::IntegerVariable$new(c(100, 50, 5, 50))
+  half <- individual::IntegerVariable$new(c(100, 50, -1, -1))
+  none <- individual::IntegerVariable$new(rep(-1, 4))
+
+  renderer <- list(render = mockery::mock())
+  net_usage_renderer(all, renderer)(timestep)
+  net_usage_renderer(half, renderer)(timestep)
+  net_usage_renderer(none, renderer)(timestep)
+
+  mockery::expect_args(renderer$render, 1, 'n_use_net', 4, timestep)
+  mockery::expect_args(renderer$render, 2, 'n_use_net', 2, timestep)
+  mockery::expect_args(renderer$render, 3, 'n_use_net', 0, timestep)
+})

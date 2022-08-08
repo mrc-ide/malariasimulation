@@ -16,9 +16,6 @@ test_that('simulate_infection integrates different types of infection and schedu
     state = list(get_index_of = mockery::mock(asymptomatics))
   )
 
-  total_eir <- 5
-  eir <- rep(total_eir / population, population)
-
   bitten <- individual::Bitset$new(population)$insert(c(1, 3, 5, 7))
   boost_immunity_mock <- mockery::mock()
   infected <- individual::Bitset$new(population)$insert(c(1, 3, 5))
@@ -94,7 +91,6 @@ test_that('simulate_infection integrates different types of infection and schedu
     1,
     variables,
     clinical,
-    events$recovery,
     parameters,
     timestep,
     renderer
@@ -103,11 +99,12 @@ test_that('simulate_infection integrates different types of infection and schedu
   mockery::expect_args(
     schedule_mock,
     1,
-    events,
+    variables,
     clinical,
     treated,
     infected,
-    parameters
+    parameters,
+    timestep
   )
 })
 
@@ -268,7 +265,6 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   calculate_treated(
     variables,
     clinical_infections,
-    events$recovery,
     parameters,
     timestep,
     mock_render(timestep)
@@ -300,44 +296,39 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
 })
 
 test_that('schedule_infections correctly schedules new infections', {
-  parameters <- get_parameters()
-
-  clinical_mock <- mockery::mock()
-  asym_mock <- mockery::mock()
-
-  events <- list(
-    clinical_infection = list(
-      schedule = clinical_mock
-    ),
-    asymptomatic_infection = list(
-      schedule = asym_mock
-    ),
-    subpatent_infection = list(clear_schedule = mockery::mock()),
-    recovery = list(clear_schedule = mockery::mock())
-  )
+  parameters <- get_parameters(list(human_population = 20))
+  variables <- create_variables(parameters)
 
   infections <- individual::Bitset$new(20)$insert(1:20)
   clinical_infections <- individual::Bitset$new(20)$insert(5:15)
   treated <- individual::Bitset$new(20)$insert(7:12)
 
+  infection_mock <- mockery::mock()
+  asymp_mock <- mockery::mock()
+
+  mockery::stub(schedule_infections, 'update_infection', infection_mock)
+  mockery::stub(schedule_infections, 'update_to_asymptomatic_infection', asymp_mock)
+
   schedule_infections(
-    events,
+    variables,
     clinical_infections,
     treated,
     infections,
-    parameters
+    parameters,
+    42 
   )
 
-  expect_bitset_schedule(
-    clinical_mock,
-    c(5, 6, 13, 14, 15),
-    0
+  actual_infected <- mockery::mock_args(infection_mock)[[1]][[5]]$to_vector()
+  actual_asymp_infected <- mockery::mock_args(asymp_mock)[[1]][[4]]$to_vector()
+
+  expect_equal(
+    actual_infected,
+    c(5, 6, 13, 14, 15)
   )
 
-  expect_bitset_schedule(
-    asym_mock,
-    c(1, 2, 3, 4, 16, 17, 18, 19, 20),
-    0,
+  expect_equal(
+    actual_asymp_infected,
+    c(1, 2, 3, 4, 16, 17, 18, 19, 20)
   )
 })
 
@@ -482,5 +473,40 @@ test_that('boost_immunity does not update when there is no-one to update', {
   mockery::expect_called(last_mock, 0)
 })
 
+test_that('update_severe_disease renders with no infections', {
+  population <- 4
+  timestep <- 5
+  renderer <- individual::Render$new(5)
+  parameters <- get_parameters(list(
+    human_population = population,
+    severe_incidence_rendering_min_ages = 0,
+    severe_incidence_rendering_max_ages = 5 * 365
+  ))
+  variables <- create_variables(parameters)
 
+  render_function <- mockery::mock()
+  mockery::stub(update_severe_disease, 'incidence_renderer', render_function)
+  empty <- individual::Bitset$new(population)
 
+  update_severe_disease(
+    timestep,
+    empty,
+    variables,
+    parameters,
+    renderer
+  )
+
+  mockery::expect_args(
+    render_function,
+    1,
+    variables$birth,
+    renderer,
+    empty,
+    empty,
+    double(0),
+    'inc_severe_',
+    0,
+    5 * 365,
+    timestep
+  )
+})

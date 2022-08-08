@@ -7,8 +7,8 @@ test_that('mortality_process resets humans correctly', {
     drug = 1,
     timesteps = c(50, 150),
     coverages= c(1, 1),
-    min_age = 5 * 365,
-    max_age = 10 * 365
+    min_ages = c(5 * 365, 5 * 365),
+    max_ages = c(10 * 365, 10 * 365)
   )
   events <- create_events(parameters)
   variables <- create_variables(parameters)
@@ -49,13 +49,13 @@ test_that('mortality_process resets humans correctly', {
 test_that('mortality_process samples deaths from a custom demography', {
   timestep <- 2
   parameters <- get_parameters()
+  parameters$human_population <- 4
   ages <- c(50, 100) * 365
   deaths <- c(.5, .75)
   parameters <- set_demography(
     parameters,
     agegroups = ages,
-    timesteps = 1,
-    birthrates = find_birthrates(4, ages, deaths),
+    timesteps = 0,
     deathrates = matrix(deaths, nrow=1, ncol=2)
   )
   events <- create_events(parameters)

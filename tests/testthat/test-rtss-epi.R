@@ -2,18 +2,16 @@ test_that('RTS,S epi strategy parameterisation works', {
   parameters <- get_parameters()
   parameters <- set_rtss_epi(
     parameters,
-    start = 10,
-    end = 100,
-    coverage = 0.8,
+    coverages = c(0.1, 0.8),
+    timesteps = c(10, 100),
     min_wait = 0,
     age = 5 * 30,
     boosters = c(18, 36) * 30,
     booster_coverage = c(.9, .8)
   )
   expect_equal(parameters$rtss, TRUE)
-  expect_equal(parameters$rtss_epi_start, 10)
-  expect_equal(parameters$rtss_epi_end, 100)
-  expect_equal(parameters$rtss_epi_coverage, .8)
+  expect_equal(parameters$rtss_epi_coverages, c(0.1, 0.8))
+  expect_equal(parameters$rtss_epi_timesteps, c(10, 100))
   expect_equal(parameters$rtss_epi_age, 5 * 30)
   expect_equal(parameters$rtss_epi_min_wait, 0)
   expect_equal(parameters$rtss_epi_boosters, c(18, 36) * 30)
@@ -24,9 +22,8 @@ test_that('RTS,S epi fails pre-emptively', {
   expect_error(
     set_rtss_epi(
       parameters,
-      start = 10,
-      end = 100,
-      coverages = 0.8,
+      coverages = c(0.1, 0.8),
+      timesteps = c(10, 100),
       min_wait = 0,
       min_ages = 5 * 30,
       max_ages = 17 * 30,
@@ -42,9 +39,8 @@ test_that('RTS,S epi targets correct age and respects min_wait', {
   parameters <- get_parameters(list(human_population = 5))
   parameters <- set_rtss_epi(
     parameters,
-    start = 10,
-    end = timestep,
-    coverage = 0.8,
+    timesteps = 10,
+    coverages = 0.8,
     min_wait = 2*365,
     age = 18 * 365,
     boosters = c(18, 36) * 30,
@@ -65,7 +61,9 @@ test_that('RTS,S epi targets correct age and respects min_wait', {
     variables,
     events,
     parameters,
-    get_correlation_parameters(parameters)
+    get_correlation_parameters(parameters),
+    parameters$rtss_epi_coverages,
+    parameters$rtss_epi_timesteps
   )
 
   mockery::stub(
@@ -103,9 +101,8 @@ test_that('RTS,S EPI respects min_wait when scheduling seasonal boosters', {
   parameters <- get_parameters(list(human_population = 5))
   parameters <- set_rtss_epi(
     parameters,
-    start = 10,
-    end = timestep,
-    coverage = 0.8,
+    timesteps = 10,
+    coverages = 0.8,
     min_wait = 6 * 30,
     age = 18 * 365,
     boosters = c(3, 12) * 30,
@@ -138,9 +135,8 @@ test_that('RTS,S EPI schedules for the following year with seasonal boosters', {
   parameters <- get_parameters(list(human_population = 5))
   parameters <- set_rtss_epi(
     parameters,
-    start = 10,
-    end = timestep,
-    coverage = 0.8,
+    timesteps = 10,
+    coverages = 0.8,
     min_wait = 6 * 30,
     age = 18 * 365,
     boosters = c(3, 12) * 30,

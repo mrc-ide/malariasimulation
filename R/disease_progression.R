@@ -7,30 +7,50 @@
 #' @param infectivity the handle for the infectivity variable
 #' @param new_infectivity the new infectivity of the progressed individuals
 #' @noRd
-create_infection_update_listener <- function(
- state,
- to_state,
- infectivity,
- new_infectivity
- ) {
-  function(timestep, to_move) {
-    state$queue_update(to_state, to_move)
-    infectivity$queue_update(new_infectivity, to_move)
-  }
+update_infection <- function(
+  state,
+  to_state,
+  infectivity,
+  new_infectivity,
+  to_move
+  ) {
+  state$queue_update(to_state, to_move)
+  infectivity$queue_update(new_infectivity, to_move)
 }
 
-create_progression_process <- function(event, state, from_state, rate) {
+create_progression_process <- function(
+  state,
+  from_state,
+  to_state,
+  rate,
+  infectivity,
+  new_infectivity
+  ) {
   function(timestep) {
-    event$schedule(state$get_index_of(from_state)$sample(1/rate), 0)
+    to_move <- state$get_index_of(from_state)$sample(1/rate)
+    update_infection(
+      state,
+      to_state,
+      infectivity,
+      new_infectivity,
+      to_move
+    )
   }
 }
 
-create_rate_listener <- function(from_state, to_state, renderer) {
-  function(timestep, target) {
-    renderer$render(
-      paste0('rate_', from_state, '_', to_state),
-      target$size(),
-      timestep
+create_asymptomatic_progression_process <- function(
+  state,
+  rate,
+  variables,
+  parameters
+  ) {
+  function(timestep) {
+    to_move <- state$get_index_of('D')$sample(1/rate)
+    update_to_asymptomatic_infection(
+      variables,
+      parameters,
+      timestep,
+      to_move
     )
   }
 }
@@ -42,22 +62,25 @@ create_rate_listener <- function(from_state, to_state, renderer) {
 #' @param variables the available human variables
 #' @param parameters model parameters
 #' @noRd
-create_asymptomatic_update_listener <- function(variables, parameters) {
-  function(timestep, to_move) {
-    if (to_move$size() > 0) {
-      variables$state$queue_update('A', to_move)
-      new_infectivity <- asymptomatic_infectivity(
-        get_age(
-          variables$birth$get_values(to_move),
-          timestep
-        ),
-        variables$id$get_values(to_move),
-        parameters
-      )
-      variables$infectivity$queue_update(
-        new_infectivity,
-        to_move
-      )
-    }
+update_to_asymptomatic_infection <- function(
+  variables,
+  parameters,
+  timestep,
+  to_move
+  ) {
+  if (to_move$size() > 0) {
+    variables$state$queue_update('A', to_move)
+    new_infectivity <- asymptomatic_infectivity(
+      get_age(
+        variables$birth$get_values(to_move),
+        timestep
+      ),
+      variables$id$get_values(to_move),
+      parameters
+    )
+    variables$infectivity$queue_update(
+      new_infectivity,
+      to_move
+    )
   }
 }

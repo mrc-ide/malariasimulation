@@ -1,4 +1,5 @@
 INTS <- c(
+  'pmc',
   'rtss',
   'mda',
   'smc',

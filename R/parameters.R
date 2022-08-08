@@ -182,7 +182,7 @@
 #' * rtss_ds - delay parameters for the antibody model, short-term weaning (mean and std. dev); default = 3.74502, 0.341185 (White MT et al. 2015 Lancet ID)
 #' * rtss_dl - delay parameters for the antibody model, long-term weaning (mean and std. dev); default = 6.30365, 0.396515 (White MT et al. 2015 Lancet ID)
 #'
-#' MDA and SMC parameters:
+#' MDA, SMC and PMC parameters:
 #' please set these parameters with the convenience functions in `mda_parameters.R`
 #'
 #' TBV parameters: 
@@ -372,6 +372,12 @@ get_parameters <- function(overrides = list()) {
     smc_coverages = NULL,
     smc_min_ages = -1,
     smc_max_ages = -1,
+    # PMC
+    pmc = FALSE,
+    pmc_drug = 0,
+    pmc_timesteps = NULL,
+    pmc_coverages = NULL,
+    pcs_ages = -1,
     # tbv
     tbv = FALSE,
     tbv_mt = 35,

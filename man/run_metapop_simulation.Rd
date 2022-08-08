@@ -15,7 +15,8 @@ run_metapop_simulation(timesteps, parameters, correlations = NULL, mixing)
 (default: NULL)}
 
 \item{mixing}{matrix of mixing coefficients for infectivity towards
-mosquitoes. Each element must be between 0 and 1 and all rows and columns must sum to 1.}
+mosquitoes. Rows = origin sites, columns = destinations. Each element must
+be between 0 and 1 and all rows must sum to 1.}
 }
 \value{
 a list of dataframe of results

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.4.1</span>
       </span>
     </div>
 
@@ -26,7 +26,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -39,6 +39,9 @@
     </li>
     <li>
       <a href="../articles/MDA.html">Mass Drug Administration</a>
+    </li>
+    <li>
+      <a href="../articles/Metapopulation.html">Metapopulation</a>
     </li>
     <li>
       <a href="../articles/Model.html">Model Structure</a>
@@ -130,6 +133,10 @@ Describes an event in the simulation</p></td>
         <td><p>Calculate the yearly offset (in timesteps) for the peak mosquito
 season</p></td>
       </tr><tr><td>
+          <p><code><a href="run_metapop_simulation.html">run_metapop_simulation()</a></code> </p>
+        </td>
+        <td><p>Run a metapopulation model</p></td>
+      </tr><tr><td>
           <p><code><a href="run_simulation.html">run_simulation()</a></code> </p>
         </td>
         <td><p>Run the simulation</p></td>
@@ -166,6 +173,10 @@ season</p></td>
         </td>
         <td><p>Parameterise a Mass Drug Administration</p></td>
       </tr><tr><td>
+          <p><code><a href="set_pmc.html">set_pmc()</a></code> </p>
+        </td>
+        <td><p>Parameterise a perennial malaria chemoprevention (PMC, formerly IPIi)</p></td>
+      </tr><tr><td>
           <p><code><a href="set_rtss_epi.html">set_rtss_epi()</a></code> </p>
         </td>
         <td><p>Parameterise an RTS,S epi strategy</p></td>
@@ -194,11 +205,11 @@ season</p></td>
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Giovanni Charles, Peter Windskill, Hillary Topazian, Joseph Challenger, Richard Fitzjohn.</p>
+  <p></p><p>Developed by Giovanni Charles, Peter Winskill, Hillary Topazian, Joseph Challenger, Richard Fitzjohn.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

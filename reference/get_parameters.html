@@ -20,7 +20,7 @@ and mortality: A modelling study.&quot;"><!-- mathjax --><script src="https://cd
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.4.1</span>
       </span>
     </div>
 
@@ -29,7 +29,7 @@ and mortality: A modelling study.&quot;"><!-- mathjax --><script src="https://cd
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -42,6 +42,9 @@ and mortality: A modelling study.&quot;"><!-- mathjax --><script src="https://cd
     </li>
     <li>
       <a href="../articles/MDA.html">Mass Drug Administration</a>
+    </li>
+    <li>
+      <a href="../articles/Metapopulation.html">Metapopulation</a>
     </li>
     <li>
       <a href="../articles/Model.html">Model Structure</a>
@@ -84,7 +87,7 @@ and mortality: A modelling study."</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">get_parameters</span><span class="op">(</span>overrides <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">get_parameters</span><span class="op">(</span>overrides <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -212,7 +215,7 @@ default = 365</p></li>
 <li><p>rtss_rho_boost - delay parameters for the antibody model for booster rounds (mean and std. dev); default = 1.03431, 1.02735</p></li>
 <li><p>rtss_ds - delay parameters for the antibody model, short-term weaning (mean and std. dev); default = 3.74502, 0.341185 (White MT et al. 2015 Lancet ID)</p></li>
 <li><p>rtss_dl - delay parameters for the antibody model, long-term weaning (mean and std. dev); default = 6.30365, 0.396515 (White MT et al. 2015 Lancet ID)</p></li>
-</ul><p>MDA and SMC parameters:
+</ul><p>MDA, SMC and PMC parameters:
 please set these parameters with the convenience functions in <code>mda_parameters.R</code></p>
 <p>TBV parameters:
 please set TBV parameters with the convenience functions in
@@ -253,6 +256,7 @@ individually or compartmentally; default = TRUE</p></li>
 <li><p>enable_heterogeneity - boolean whether to include heterogeneity in biting
 rates; default = TRUE</p></li>
 </ul></dd>
+
 </dl></div>
 
   </div>
@@ -263,11 +267,11 @@ rates; default = TRUE</p></li>
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Giovanni Charles, Peter Windskill, Hillary Topazian, Joseph Challenger, Richard Fitzjohn.</p>
+  <p></p><p>Developed by Giovanni Charles, Peter Winskill, Hillary Topazian, Joseph Challenger, Richard Fitzjohn.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

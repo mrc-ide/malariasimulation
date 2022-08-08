@@ -18,7 +18,7 @@ Efficacy will take effect after the last dose"><!-- mathjax --><script src="http
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.4.1</span>
       </span>
     </div>
 
@@ -27,7 +27,7 @@ Efficacy will take effect after the last dose"><!-- mathjax --><script src="http
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -40,6 +40,9 @@ Efficacy will take effect after the last dose"><!-- mathjax --><script src="http
     </li>
     <li>
       <a href="../articles/MDA.html">Mass Drug Administration</a>
+    </li>
+    <li>
+      <a href="../articles/Metapopulation.html">Metapopulation</a>
     </li>
     <li>
       <a href="../articles/Model.html">Model Structure</a>
@@ -80,39 +83,54 @@ Efficacy will take effect after the last dose</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">set_mass_rtss</span><span class="op">(</span>
-  <span class="va">parameters</span>,
-  <span class="va">timesteps</span>,
-  <span class="va">coverages</span>,
-  <span class="va">min_ages</span>,
-  <span class="va">max_ages</span>,
-  <span class="va">min_wait</span>,
-  <span class="va">boosters</span>,
-  <span class="va">booster_coverage</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">set_mass_rtss</span><span class="op">(</span></span>
+<span>  <span class="va">parameters</span>,</span>
+<span>  <span class="va">timesteps</span>,</span>
+<span>  <span class="va">coverages</span>,</span>
+<span>  <span class="va">min_ages</span>,</span>
+<span>  <span class="va">max_ages</span>,</span>
+<span>  <span class="va">min_wait</span>,</span>
+<span>  <span class="va">boosters</span>,</span>
+<span>  <span class="va">booster_coverage</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>parameters</dt>
 <dd><p>a list of parameters to modify</p></dd>
+
+
 <dt>timesteps</dt>
 <dd><p>a vector of timesteps for each round of vaccinations</p></dd>
+
+
 <dt>coverages</dt>
 <dd><p>the coverage for each round of vaccinations</p></dd>
+
+
 <dt>min_ages</dt>
 <dd><p>for the target population, inclusive (in timesteps)</p></dd>
+
+
 <dt>max_ages</dt>
 <dd><p>for the target population, inclusive (in timesteps)</p></dd>
+
+
 <dt>min_wait</dt>
 <dd><p>the minimum acceptable time since the last vaccination (in timesteps);
 When using both set_mass_rtss and set_rtss_epi, this represents the minimum
 time between an individual being vaccinated under one scheme and vaccinated under another.</p></dd>
+
+
 <dt>boosters</dt>
 <dd><p>the timesteps (following the initial vaccination) at which booster vaccinations are administered</p></dd>
+
+
 <dt>booster_coverage</dt>
 <dd><p>the proportion of the vaccinated population who will
 receive each booster vaccine</p></dd>
+
 </dl></div>
 
   </div>
@@ -123,11 +141,11 @@ receive each booster vaccine</p></dd>
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Giovanni Charles, Peter Windskill, Hillary Topazian, Joseph Challenger, Richard Fitzjohn.</p>
+  <p></p><p>Developed by Giovanni Charles, Peter Winskill, Hillary Topazian, Joseph Challenger, Richard Fitzjohn.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

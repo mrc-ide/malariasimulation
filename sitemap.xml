@@ -19,6 +19,9 @@
     <loc>/articles/MDA.html</loc>
   </url>
   <url>
+    <loc>/articles/Metapopulation.html</loc>
+  </url>
+  <url>
     <loc>/articles/Model.html</loc>
   </url>
   <url>
@@ -88,6 +91,9 @@
     <loc>/reference/peak_season_offset.html</loc>
   </url>
   <url>
+    <loc>/reference/run_metapop_simulation.html</loc>
+  </url>
+  <url>
     <loc>/reference/run_simulation.html</loc>
   </url>
   <url>
@@ -113,6 +119,9 @@
   </url>
   <url>
     <loc>/reference/set_mda.html</loc>
+  </url>
+  <url>
+    <loc>/reference/set_pmc.html</loc>
   </url>
   <url>
     <loc>/reference/set_rtss_epi.html</loc>

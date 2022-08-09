@@ -122,6 +122,7 @@ test_that('distribute_bednets process sets net_time correctly', {
     50,
     c(3, 4)
   )
+  mockery::expect_called(events$throw_away_net$clear_schedule, 1)
   mockery::expect_args(
     events$throw_away_net$schedule,
     1,

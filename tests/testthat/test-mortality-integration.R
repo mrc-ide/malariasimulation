@@ -26,6 +26,8 @@ test_that('mortality_process resets humans correctly', {
   variables$ivm <- mock_double(c(1, 2, 3, 4))
   variables$ica <- mock_double(c(1, 2, 3, 4))
   variables$iva <- mock_double(c(1, 2, 3, 4))
+  variables$net_time <- mock_integer(c(1, 2, 3, 4))
+  variables$spray_time <- mock_integer(c(1, 2, 3, 4))
   renderer <- individual::Render$new(timestep)
 
   mortality_process <- create_mortality_process(
@@ -44,6 +46,10 @@ test_that('mortality_process resets humans correctly', {
   mortality_process(timestep)
 
   expect_bitset_update(variables$state$queue_update_mock(), 'S', c(2, 4))
+
+  # vector controls are not touched
+  mockery::expect_called(variables$net_time$queue_update_mock(), 0)
+  mockery::expect_called(variables$spray_time$queue_update_mock(), 0)
 })
 
 test_that('mortality_process samples deaths from a custom demography', {

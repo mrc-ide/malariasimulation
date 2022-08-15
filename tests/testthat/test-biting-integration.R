@@ -46,6 +46,7 @@ test_that('biting_process integrates mosquito effects and human infection', {
     timestep,
     lagged_foim,
     lagged_eir,
+    0,
     1,
     1
   )
@@ -177,7 +178,8 @@ test_that('simulate_bites works with mixed populations', {
     timestep,
     lagged_foim,
     lagged_eir,
-    c(0.2, 0.8),
+    1,
+    list(c(0.2, 0.8)),
     2
   )
 

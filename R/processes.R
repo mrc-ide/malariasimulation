@@ -14,7 +14,8 @@
 #' population and species in the simulation
 #' @param lagged_infectivity a list of LaggedValue objects for FOIM for each population
 #' in the simulation
-#' @param mixing a vector of mixing coefficients for the lagged transmission
+#' @param mixing_tt a vector of timesteps for each mixing vector
+#' @param mixing a list of vectors of mixing coefficients for the lagged transmission
 #' values (default: 1)
 #' @param mixing_index an index for this population's position in the
 #' lagged transmission lists (default: 1)
@@ -29,6 +30,7 @@ create_processes <- function(
   correlations,
   lagged_eir,
   lagged_infectivity,
+  mixing_tt = 0,
   mixing = 1,
   mixing_index = 1
   ) {
@@ -77,6 +79,7 @@ create_processes <- function(
       parameters,
       lagged_infectivity,
       lagged_eir,
+      mixing_tt,
       mixing,
       mixing_index
     ),

@@ -11,6 +11,7 @@
 #' @param lagged_infectivity a list of LaggedValue objects with historical sums
 #' of infectivity, one for every metapopulation
 #' @param lagged_eir a LaggedValue class with historical EIRs
+#' @param mixing_tt a vector of timesteps for each mixing vector
 #' @param mixing a vector of mixing coefficients for the lagged_infectivity
 #' values (default: 1)
 #' @param mixing_index an index for this population's position in the
@@ -25,6 +26,7 @@ create_biting_process <- function(
   parameters,
   lagged_infectivity,
   lagged_eir,
+  mixing_tt = 0,
   mixing = 1,
   mixing_index = 1
   ) {
@@ -43,6 +45,7 @@ create_biting_process <- function(
       timestep,
       lagged_infectivity,
       lagged_eir,
+      mixing_tt,
       mixing,
       mixing_index
     )
@@ -71,6 +74,7 @@ simulate_bites <- function(
   timestep,
   lagged_infectivity,
   lagged_eir,
+  mixing_tt = 0,
   mixing = 1,
   mixing_index = 1
   ) {
@@ -136,7 +140,7 @@ simulate_bites <- function(
       vnapply(
         lagged_eir,
         function(l) l[[s_i]]$get(timestep - parameters$de)
-      ) * mixing
+      ) * mixing[[match_timestep(mixing_tt, timestep)]]
     )
 
     renderer$render(paste0('EIR_', species_name), species_eir, timestep)
@@ -159,7 +163,11 @@ simulate_bites <- function(
       sum(human_infectivity * .pi),
       timestep
     )
-    foim <- calculate_foim(a, infectivity, mixing)
+    foim <- calculate_foim(
+      a,
+      infectivity,
+      mixing[[match_timestep(mixing_tt, timestep)]]
+    )
     renderer$render(paste0('FOIM_', species_name), foim, timestep)
     mu <- death_rate(f, W, Z, s_i, parameters)
     renderer$render(paste0('mu_', species_name), mu, timestep)

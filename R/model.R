@@ -129,30 +129,48 @@ run_simulation <- function(
 #' @param parameters a list of model parameter lists for each population
 #' @param correlations a list of correlation parameters for each population
 #' (default: NULL)
-#' @param mixing matrix of mixing coefficients for infectivity towards
-#' mosquitoes. Rows = origin sites, columns = destinations. Each element must 
-#' be between 0 and 1 and all rows must sum to 1.
+#' @param mixing_tt a vector of time steps for each mixing matrix
+#' @param mixing a list of matrices of mixing coefficients for infectivity towards
+#' mosquitoes. Rows = origin sites, columns = destinations. Each matrix element must 
+#' be between 0 and 1 and all rows must sum to 1. Each matrix is activated at
+#' the corresponding timestep in mixing_tt
 #' @return a list of dataframe of results
 #' @export
 run_metapop_simulation <- function(
   timesteps,
   parameters,
   correlations = NULL,
+  mixing_tt,
   mixing
   ) {
   random_seed(ceiling(runif(1) * .Machine$integer.max))
-  if (nrow(mixing) != ncol(mixing)) {
-    stop('mixing matrix must be square')
+  if (!is.list(mixing)) {
+    stop('mixing must be a list of mixing matrices')
   }
-  if (nrow(mixing) != length(parameters)) {
-    stop('mixing matrix rows must match length of parameters')
+
+  for (i in seq_along(mixing)) {
+    if (nrow(mixing[[i]]) != ncol(mixing[[i]])) {
+      stop(sprintf('mixing matrix %d must be square', i))
+    }
+    if (nrow(mixing[[i]]) != length(parameters)) {
+      stop(sprintf("mixing matrix %d's rows must match length of parameters", i))
+    }
+    if (!all(vlapply(seq_along(parameters), function(x) approx_sum(mixing[[i]][x,], 1)))) {
+      stop(sprintf("all of mixing matrix %d's rows must sum to 1", i))
+    }
+    if (!all(vlapply(seq_along(parameters), function(x) approx_sum(mixing[[i]][,x], 1)))) {
+      warning(sprintf('mixing matrix %d is asymmetrical', i))
+    }
   }
-  if (!all(vlapply(seq_along(parameters), function(x) approx_sum(mixing[x,], 1)))) {
-    stop('all mixing matrix rows must sum to 1')
+
+  if (!is.numeric(mixing_tt)) {
+    stop('mixing_tt must be numeric')
   }
-  if (!all(vlapply(seq_along(parameters), function(x) approx_sum(mixing[,x], 1)))) {
-    warning('mixing matrix is asymmetrical')
+  if (length(mixing_tt) != length(mixing)) {
+    stop('mixing_tt must be the same size as mixing')
   }
+
+  
   if (is.null(correlations)) {
     correlations <- lapply(parameters, get_correlation_parameters)
   }
@@ -205,7 +223,8 @@ run_metapop_simulation <- function(
         correlations[[i]],
         lagged_eir,
         lagged_infectivity,
-        mixing[i,],
+        mixing_tt,
+        lapply(mixing, function(m) m[i,]),
         i
       )
     }

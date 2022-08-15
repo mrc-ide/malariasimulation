@@ -22,7 +22,7 @@ test_that('run_metapop_simulation integrates two models correctly', {
   parametersets <- list(parameters, parameters)
   mixing <- diag(1, nrow = 2, ncol = 2)
 
-  outputs <- run_metapop_simulation(timesteps, parametersets, NULL, mixing)
+  outputs <- run_metapop_simulation(timesteps, parametersets, NULL, 1, list(mixing))
   expect_equal(length(outputs), 2)
   expect_equal(nrow(outputs[[1]]), 5)
   expect_equal(nrow(outputs[[2]]), 5)

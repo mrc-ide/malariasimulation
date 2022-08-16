@@ -37,13 +37,14 @@ create_pmc_process <- function(
     in_age <- which(age %in% parameters$pmc_ages)
     target <- in_age[sample_intervention(in_age, 'pmc', coverage, correlations)]
     
+    renderer$render('n_pmc_treated', length(target), timestep)
+    
     successful_treatments <- bernoulli(
       length(target),
       parameters$drug_efficacy[[drug]]
     )
     to_move <- individual::Bitset$new(parameters$human_population)
     to_move$insert(target[successful_treatments])
-    renderer$render('n_pmc_treated', to_move$size(), timestep)
     
     if (to_move$size() > 0) {
       # Move Diseased

@@ -78,7 +78,6 @@ simulate_infection <- function(
     renderer
   )
 
-  renderer$render('n_treated', treated$size(), timestep)
   renderer$render('n_infections', infected_humans$size(), timestep)
 
   schedule_infections(
@@ -276,6 +275,9 @@ calculate_treated <- function(
   renderer$render('ft', ft, timestep)
   seek_treatment <- sample_bitset(clinical_infections, ft)
   n_treat <- seek_treatment$size()
+  
+  renderer$render('n_treated', n_treat, timestep)
+  
   drugs <- as.numeric(parameters$clinical_treatment_drugs[
     sample.int(
       length(parameters$clinical_treatment_drugs),

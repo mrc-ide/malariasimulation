@@ -11,7 +11,7 @@
 #'  * infectivity: the infectivity from humans towards mosquitoes
 #'  * FOIM: the force of infection towards mosquitoes (per species)
 #'  * mu: the death rate of adult mosquitoes (per species)
-#'  * EIR: the Entomological Inoculation Rate (per timestep, per species, over 
+#'  * EIR: the Entomological Inoculation Rate (per timestep, per species, over
 #'  the whole population)
 #'  * n_bitten: number of humans bitten by an infectious mosquito
 #'  * n_treated: number of humans treated for clinical or severe malaria this timestep
@@ -45,10 +45,10 @@
 #'  * p_inc: sum of probabilities of infection for humans between an inclusive age range at this timestep.
 #' incidence columns can be set with
 #' incidence_rendering_min_ages and incidence_rendering_max_ages parameters.
-#'  * n_inc_clinical: number of new clinical infections for humans between an inclusive age range at this timestep. 
+#'  * n_inc_clinical: number of new clinical infections for humans between an inclusive age range at this timestep.
 #' clinical incidence columns can be set with
 #' clinical_incidence_rendering_min_ages and clinical_incidence_rendering_max_ages parameters.
-#'  * p_inc_clinical: sub of probabilities of clinical infection for humans between an inclusive age range at this timestep. 
+#'  * p_inc_clinical: sub of probabilities of clinical infection for humans between an inclusive age range at this timestep.
 #' clinical incidence columns can be set with
 #' clinical_incidence_rendering_min_ages and clinical_incidence_rendering_max_ages parameters.
 #'  * n_inc_severe: number of new severe infections for humans between an inclusive age range at this timestep.
@@ -132,7 +132,7 @@ run_simulation <- function(
 #' (default: NULL)
 #' @param mixing_tt a vector of time steps for each mixing matrix
 #' @param mixing a list of matrices of mixing coefficients for infectivity towards
-#' mosquitoes. Rows = origin sites, columns = destinations. Each matrix element must 
+#' mosquitoes. Rows = origin sites, columns = destinations. Each matrix element must
 #' be between 0 and 1 and all rows must sum to 1. Each matrix is activated at
 #' the corresponding timestep in mixing_tt
 #' @return a list of dataframe of results
@@ -157,7 +157,7 @@ run_metapop_simulation <- function(
       stop(sprintf("mixing matrix %d's rows must match length of parameters", i))
     }
     if (!all(vlapply(seq_along(parameters), function(x) approx_sum(mixing[[i]][x,], 1)))) {
-      stop(sprintf("all of mixing matrix %d's rows must sum to 1", i))
+      warning(sprintf("all of mixing matrix %d's rows must sum to 1", i))
     }
     if (!all(vlapply(seq_along(parameters), function(x) approx_sum(mixing[[i]][,x], 1)))) {
       warning(sprintf('mixing matrix %d is asymmetrical', i))
@@ -171,7 +171,7 @@ run_metapop_simulation <- function(
     stop('mixing_tt must be the same size as mixing')
   }
 
-  
+
   if (is.null(correlations)) {
     correlations <- lapply(parameters, get_correlation_parameters)
   }
@@ -236,7 +236,7 @@ run_metapop_simulation <- function(
     events = unlist(events),
     timesteps = timesteps
   )
-  
+
   lapply(renderer, function(r) r$to_dataframe())
 }
 

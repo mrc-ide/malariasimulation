@@ -25,6 +25,7 @@ create_mda_listeners <- function(
   parameters,
   renderer
   ) {
+  renderer$set_default(paste0('n_', int_name, '_treated'), 0)
   function(timestep) {
     time_index = which(timesteps == timestep)
     coverage <- coverages[[time_index]]

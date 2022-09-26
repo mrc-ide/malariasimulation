@@ -72,7 +72,7 @@ test_that("pmc gives drugs to correct ages", {
   # Three treatments given
   expect_equal(renderer$to_dataframe(),
                data.frame(timestep = 1:10,
-                          n_pmc_treated = c(rep(NA, 9), 3)))
+                          n_pmc_treated = c(rep(0, 9), 3)))
   
   # Individuals 3 and 5, are correct age and in D or A states
   expect_bitset_update(

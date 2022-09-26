@@ -21,7 +21,8 @@ create_pmc_process <- function(
     coverages,
     timesteps,
     drug
-) {
+){
+  renderer$set_default('n_pmc_treated', 0)
   function(timestep) {
     timestep_index <- match_timestep(ts = timesteps, t = timestep)
     if(timestep_index == 0){

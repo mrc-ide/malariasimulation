@@ -244,6 +244,7 @@ get_parameters <- function(overrides = list()) {
     dpl   = .643,
     mup   = .249,
     mum   = .1253333,
+    mu_atsb = 0.09,
     sigma_squared   = 1.67,
     n_heterogeneity_groups = 5,
     # immunity decay rates
@@ -296,7 +297,7 @@ get_parameters <- function(overrides = list()) {
     id0   = 1.577533,
     kd    = .476614,
     # mortality parameters
-    average_age = 7663,
+    average_age = 8030,
     pcm   = .774368,
     pvm   = .195768,
     # carrying capacity parameters
@@ -332,6 +333,8 @@ get_parameters <- function(overrides = list()) {
     blood_meal_rates    = 1/3,
     Q0                  = .92,
     foraging_time       = .69,
+    # atsb
+    atsb = FALSE,
     # bed nets
     bednets = FALSE,
     phi_bednets = .85,
@@ -364,14 +367,14 @@ get_parameters <- function(overrides = list()) {
     mda_drug = 0,
     mda_timesteps = NULL,
     mda_coverages = NULL,
-    mda_min_ages = -1,
-    mda_max_ages = -1,
+    mda_min_age = -1,
+    mda_max_age = -1,
     smc = FALSE,
     smc_drug = 0,
     smc_timesteps = NULL,
     smc_coverages = NULL,
-    smc_min_ages = -1,
-    smc_max_ages = -1,
+    smc_min_age = -1,
+    smc_max_age = -1,
     # PMC
     pmc = FALSE,
     pmc_drug = 0,
@@ -419,19 +422,22 @@ get_parameters <- function(overrides = list()) {
     a_tol = 1e-4,
     ode_max_steps = 1e6
   )
-
+  
+  #specify a fixed total_M in the absense of interventions
+  #parameters$total_M_orig<-parameters$total_M*mosq_seasonality_gamb[1:365]
+  
   # Override parameters with any client specified ones
   if (!is.list(overrides)) {
     stop('overrides must be a list')
   }
-
+  
   for (name in names(overrides)) {
     if (!(name %in% names(parameters))) {
       stop(paste('unknown parameter', name, sep=' '))
     }
     parameters[[name]] <- overrides[[name]]
   }
-
+  
   props <- c(
     parameters$s_proportion,
     parameters$d_proportion,
@@ -439,11 +445,11 @@ get_parameters <- function(overrides = list()) {
     parameters$u_proportion,
     parameters$t_proportion
   )
-
-  if (!approx_sum(props, 1)) {
-    stop("Starting proportions do not sum to 1")
-  }
-
+  
+  # if (!approx_sum(props, 1)) {
+  #   stop("Starting proportions do not sum to 1")
+  # }
+  
   parameters
 }
 

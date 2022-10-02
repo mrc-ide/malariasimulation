@@ -29,6 +29,21 @@
 #' With nrows=length(timesteps), ncols=length(species)
 #' @param gamman a vector of bednet half-lives for each distribution timestep
 #' @export
+#' 
+set_atsb <- function(
+    parameters,
+    timesteps,
+    coverages
+) {
+  if (length(timesteps) != length(coverages)) {
+    stop('timesteps and coverages must align')
+  }
+  parameters$atsb <- TRUE
+  parameters$atsb_timesteps <- timesteps
+  parameters$atsb_coverages <- coverages	
+  parameters
+}
+
 set_bednets <- function(
   parameters,
   timesteps,

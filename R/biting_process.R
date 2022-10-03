@@ -161,7 +161,7 @@ simulate_bites <- function(
     )
     foim <- calculate_foim(a, infectivity, mixing)
     renderer$render(paste0('FOIM_', species_name), foim, timestep)
-    mu <- death_rate(f, W, Z, s_i, parameters)
+    mu <- death_rate(f, W, Z, s_i, parameters, timestep)
     renderer$render(paste0('mu_', species_name), mu, timestep)
 
     if (parameters$individual_mosquitoes) {
@@ -211,7 +211,7 @@ ATSB_adjusted_mortality<-function(mu, parameters, timestep){
   if (parameters$atsb){
     matches <- timestep == parameters$atsb_timesteps
     if (any(matches)) {	
-      mu_atsb<-parameters$mum_atsb*parameters$atsb_coverages[timestep]
+      mu_atsb<-parameters$mu_atsb*parameters$atsb_coverages[matches]
       return(mu+mu_atsb)
     }
     else {return(parameters$mum[1])}

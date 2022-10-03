@@ -10,3 +10,4 @@ malariasimulation_*.tar.gz
 /build/
 doc
 inst/doc
+Rplot.pdf

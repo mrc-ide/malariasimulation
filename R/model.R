@@ -123,6 +123,57 @@ run_simulation <- function(
   renderer$to_dataframe()
 }
 
+#' @export
+run_simulation_until_stable <- function(
+  parameters = NULL,
+  correlations = NULL,
+  tolerance = 1e-2,
+  max_t = 500
+  ) {
+  random_seed(ceiling(runif(1) * .Machine$integer.max))
+  if (is.null(parameters)) {
+    parameters <- get_parameters()
+  }
+  if (is.null(correlations)) {
+    correlations <- get_correlation_parameters(parameters)
+  }
+  variables <- create_variables(parameters)
+  events <- create_events(parameters)
+  initialise_events(events, variables, parameters)
+  renderer <- individual::Render$new(max_t)
+  attach_event_listeners(
+    events,
+    variables,
+    parameters,
+    correlations,
+    renderer
+  )
+  vector_models <- parameterise_mosquito_models(parameters)
+  solvers <- parameterise_solvers(vector_models, parameters)
+  simulate_until_stable(
+    processes = create_processes(
+      renderer,
+      variables,
+      events,
+      parameters,
+      vector_models,
+      solvers,
+      correlations,
+      list(create_lagged_eir(variables, solvers, parameters)),
+      list(create_lagged_infectivity(variables, parameters))
+    ),
+    variables = variables,
+    events = unlist(events),
+    solvers = solvers,
+    parameters = parameters,
+    tolerance = tolerance,
+    max_t = max_t
+  )
+  df <- renderer$to_dataframe()
+  df[complete.cases(df)]
+}
+
+
 #' @title Run a metapopulation model
 #'
 #' @param timesteps the number of timesteps to run the simulation for (in days)

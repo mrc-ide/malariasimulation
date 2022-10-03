@@ -247,3 +247,63 @@ test_that('rdt_detectable adjusts correctly with identity parameters', {
 
   expect_equal(rdt_prev, 0.5)
 })
+
+test_that('simulate_bites can halve the mixed transmission for 50% rdt detection', {
+  population <- 4
+  timestep <- 5
+  renderer <- individual::Render$new(5)
+  parameters <- get_parameters(
+    list(human_population = population, mixing_rdt = TRUE)
+  )
+  events <- create_events(parameters)
+  variables <- create_variables(parameters)
+
+  mock_rdt <- mockery::mock(.5) # 50%
+  mock_foim <- mockery::mock(1)
+  mock_pois <- mockery::mock(.3)
+  mock_a <- mockery::mock(.3)
+  mock_psi <- mockery::mock(rep(1, 4))
+
+  mockery::stub(simulate_bites, 'rdt_detectable', mock_rdt)
+  mockery::stub(simulate_bites, 'calculate_foim', mock_foim)
+  mockery::stub(simulate_bites, 'rpois', mock_pois)
+  mockery::stub(simulate_bites, '.human_blood_meal_rate', mock_a)
+  mockery::stub(simulate_bites, 'unique_biting_rate', mock_psi)
+  models <- parameterise_mosquito_models(parameters)
+  solvers <- parameterise_solvers(models, parameters)
+  lagged_foim <- list(LaggedValue$new(12.5, .001), LaggedValue$new(12.5, .01))
+  lagged_eir <- list(list(LaggedValue$new(12, 10)), list(LaggedValue$new(12, 10)))
+  age <- c(20, 24, 5, 39) * 365
+  bitten <- simulate_bites(
+    renderer,
+    solvers,
+    models,
+    variables,
+    events,
+    age,
+    parameters,
+    timestep,
+    lagged_foim,
+    lagged_eir,
+    c(0.2, 0.8),
+    2
+  )
+
+  mockery::expect_args(mock_foim, 1, .3, c(.0005, .01), c(.2, .8))
+  mockery::expect_args(mock_pois, 1, 1, 9) # = 10 * .2 * .5 + 10 * .8
+})
+
+test_that('rdt_detectable adjusts correctly with identity parameters', {
+  population <- 4
+  parameters <- get_parameters(
+    list(human_population = population, rdt_intercept = 0, rdt_coeff = 1)
+  )
+  variables <- create_variables(parameters)
+
+  mock_detected <- mockery::mock(individual::Bitset$new(4)$insert(c(1, 2))) # 50%
+
+  mockery::stub(rdt_detectable, 'calculate_detected', mock_detected)
+  rdt_prev <- rdt_detectable(variables, parameters, 1)
+
+  expect_equal(rdt_prev, 0.5)
+})

@@ -153,7 +153,7 @@ simulate_bites <- function(
           }
           return(e)
         }
-      ) * mixing[[match_timestep(mixing_tt, timestep)]]
+      ) * mixing
     )
     
     renderer$render(paste0('EIR_', species_name), species_eir, timestep)

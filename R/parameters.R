@@ -217,6 +217,15 @@
 #' outputs; default = turned off
 #' * severe_incidence_rendering_max_ages - the corresponding max ages; default = turned off
 #'
+#' mixing:
+#'
+#' * mixing_rdt - boolean for whether mixing transmission should only consider
+#' individuals who would not be detected by an RDT test; default = FALSE
+#' * rdt_intercept - the y intercept for the log logit relationship betweeen rdt
+#' and microscopy prevalence; default = 0.108
+#' * rdt_coeff - the coefficient for the log logit relationship betweeen rdt
+#' and microscopy prevalence; default = 0.907
+#'
 #' miscellaneous:
 #'
 #' * human_population - the initial number of humans to model; default = 100
@@ -408,6 +417,10 @@ get_parameters <- function(overrides = list()) {
     severe_incidence_rendering_max_ages = numeric(0),
     age_group_rendering_min_ages = numeric(0),
     age_group_rendering_max_ages = numeric(0),
+    # mixing
+    mixing_rdt = FALSE,
+    rdt_intercept = 0.108,
+    rdt_coeff = 0.907,
     # misc
     custom_demography = FALSE,
     human_population = 100,

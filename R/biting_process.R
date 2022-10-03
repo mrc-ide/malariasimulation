@@ -116,6 +116,10 @@ simulate_bites <- function(
     a <- .human_blood_meal_rate(f, s_i, W, parameters)
     lambda <- effective_biting_rates(a, .pi, p_bitten)
 
+    # calculate rdt coefficient to calculate the proportion of mixed
+    # transmission to include
+    rdt_negative <- 1 - rdt_detectable(variables, parameters, timestep)
+
     if (parameters$individual_mosquitoes) {
       species_index <- variables$species$get_index_of(
         parameters$species[[s_i]]
@@ -133,13 +137,22 @@ simulate_bites <- function(
     }
 
     # store the current population's EIR for later
-    lagged_eir[[mixing_index]][[s_i]]$save(n_infectious * a, timestep)
+    lagged_eir[[mixing_index]][[s_i]]$save(
+      n_infectious * a,
+      timestep
+    )
 
     # calculated the EIR for this timestep after mixing
     species_eir <- sum(
       vnapply(
-        lagged_eir,
-        function(l) l[[s_i]]$get(timestep - parameters$de)
+        seq_along(lagged_eir),
+        function(i) {
+          e <- lagged_eir[[i]][[s_i]]$get(timestep - parameters$de)
+          if (parameters$mixing_rdt && i != mixing_index) {
+            return(e * rdt_negative)
+          }
+          return(e)
+        }
       ) * mixing[[match_timestep(mixing_tt, timestep)]]
     )
 
@@ -156,9 +169,16 @@ simulate_bites <- function(
     }
 
     infectivity <- vnapply(
-      lagged_infectivity,
-      function(l) l$get(timestep - parameters$delay_gam)
+      seq_along(lagged_infectivity),
+      function(i) {
+        inf <- lagged_infectivity[[i]]$get(timestep - parameters$delay_gam)
+        if (parameters$mixing_rdt && i != mixing_index) {
+              return(inf * rdt_negative)
+            }
+            return(inf)
+        }
     )
+
     lagged_infectivity[[mixing_index]]$save(
       sum(human_infectivity * .pi),
       timestep
@@ -254,7 +274,7 @@ calculate_infectious_individual <- function(
   species_index,
   parameters
   ) {
-  
+
   infectious_index$copy()$and(species_index)$size()
 }
 
@@ -316,4 +336,32 @@ unique_biting_rate <- function(age, parameters) {
 #' @noRd
 calculate_foim <- function(a, infectivity_sum, mixing) {
   a * sum(infectivity_sum * mixing)
+}
+
+# Estimates RDT prevalence from miscroscopy prevalence,
+# Wu et al 2015 Nature paper
+rdt_detectable <- function(variables, parameters, timestep) {
+  microscopy_prev <- calculate_detected(
+    variables$state,
+    variables$birth,
+    variables$id,
+    parameters,
+    timestep
+  )$size() / parameters$human_population
+  logit_prev <- log(microscopy_prev / (1 - microscopy_prev))
+  logit_rdt <- parameters$rdt_intercept + parameters$rdt_coeff * logit_prev
+  exp(logit_rdt) / (1 + exp(logit_rdt))
+}
+
+# return proportion of individuals detectable by microscopy
+calculate_detected <- function(state, birth, immunity, parameters, timestep) {
+  asymptomatic <- state$get_index_of('A')
+  prob <- probability_of_detection(
+    get_age(birth$get_values(asymptomatic), timestep),
+    immunity$get_values(asymptomatic),
+    parameters
+  )
+  asymptomatic_detected <- bitset_at(asymptomatic, bernoulli_multi_p(prob))
+  clinically_detected <- state$get_index_of(c('Tr', 'D'))
+  clinically_detected$or(asymptomatic_detected)
 }

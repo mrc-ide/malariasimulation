@@ -1,4 +1,5 @@
 test_that('simulation can run for the equilibrium', {
+  skip_on_ci()
   population <- 1e2
   parameters <- get_parameters(list(human_population = population))
   parameters <- set_equilibrium(parameters, 10)
@@ -8,6 +9,7 @@ test_that('simulation can run for the equilibrium', {
 })
 
 test_that('simulation can post stability parameters', {
+  skip_on_ci()
   population <- 1e2
   parameters <- get_parameters(list(human_population = population))
   parameters <- set_equilibrium(parameters, 10)
@@ -36,6 +38,7 @@ test_that('simulation can post stability parameters', {
 })
 
 test_that('simulation exits early for max_t', {
+  skip_on_ci()
   population <- 1e2
   parameters <- get_parameters(list(human_population = population))
   parameters <- set_equilibrium(parameters, 100)

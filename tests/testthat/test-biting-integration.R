@@ -223,7 +223,8 @@ test_that('simulate_bites can halve the mixed transmission for 50% rdt detection
     timestep,
     lagged_foim,
     lagged_eir,
-    c(0.2, 0.8),
+    1,
+    list(c(0.2, 0.8)),
     2
   )
 

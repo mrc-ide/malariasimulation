@@ -131,9 +131,9 @@ run_simulation <- function(
 #' (default: NULL)
 #' @param mixing_tt a vector of time steps for each mixing matrix
 #' @param mixing a list of matrices of mixing coefficients for infectivity towards
-#' mosquitoes. Rows = origin sites, columns = destinations. Each matrix element must
-#' be between 0 and 1 and all rows must sum to 1. Each matrix is activated at
-#' the corresponding timestep in mixing_tt
+#' mosquitoes. Rows = origin sites, columns = destinations. Each matrix element
+#' describes the mixing pattern from destination to origin. Each matrix element must
+#' be between 0 and 1. Each matrix is activated at the corresponding timestep in mixing_tt
 #' @return a list of dataframe of results
 #' @export
 run_metapop_simulation <- function(

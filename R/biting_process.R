@@ -127,7 +127,6 @@ simulate_bites <- function(
     } else {
       n_infectious <- calculate_infectious_compartmental(solver_states)
     }
-
     # store the current population's EIR for later
     lagged_eir[[mixing_index]][[s_i]]$save(n_infectious * a, timestep)
 

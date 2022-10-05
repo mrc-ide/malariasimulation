@@ -128,39 +128,44 @@ run_simulation_until_stable <- function(
   parameters = NULL,
   correlations = NULL,
   tolerance = 1e-2,
-  max_t = 500
+  max_t = 500 * 365,
+  post_parameters = NULL,
+  post_t = 0
   ) {
   random_seed(ceiling(runif(1) * .Machine$integer.max))
   if (is.null(parameters)) {
     parameters <- get_parameters()
   }
+  
   if (is.null(correlations)) {
     correlations <- get_correlation_parameters(parameters)
   }
   variables <- create_variables(parameters)
   events <- create_events(parameters)
   initialise_events(events, variables, parameters)
-  renderer <- individual::Render$new(max_t)
+  pre_renderer <- individual::Render$new(max_t)
   attach_event_listeners(
     events,
     variables,
     parameters,
     correlations,
-    renderer
+    pre_renderer
   )
   vector_models <- parameterise_mosquito_models(parameters)
   solvers <- parameterise_solvers(vector_models, parameters)
-  simulate_until_stable(
+  lagged_eir <- list(create_lagged_eir(variables, solvers, parameters))
+  lagged_infectivity <- list(create_lagged_infectivity(variables, parameters))
+  t <- simulate_until_stable(
     processes = create_processes(
-      renderer,
+      pre_renderer,
       variables,
       events,
       parameters,
       vector_models,
       solvers,
       correlations,
-      list(create_lagged_eir(variables, solvers, parameters)),
-      list(create_lagged_infectivity(variables, parameters))
+      lagged_eir,
+      lagged_infectivity
     ),
     variables = variables,
     events = unlist(events),
@@ -169,8 +174,38 @@ run_simulation_until_stable <- function(
     tolerance = tolerance,
     max_t = max_t
   )
-  df <- renderer$to_dataframe()
-  df[complete.cases(df)]
+  pre_df <- pre_renderer$to_dataframe()
+  pre_df <- pre_df[complete.cases(pre_df),]
+
+  if (is.null(post_parameters)) {
+    parameters <- get_parameters()
+  } else {
+    parameters <- post_parameters(t)
+  }
+
+  correlations <- get_correlation_parameters(parameters)
+  post_renderer <- individual::Render$new(t + post_t + 1)
+  # NOTE: individual_mosquitoes not supported
+  initialise_events(events, variables, parameters)
+  simulate_from_t(
+    processes = create_processes(
+      post_renderer,
+      variables,
+      events,
+      parameters,
+      vector_models,
+      solvers,
+      correlations,
+      lagged_eir,
+      lagged_infectivity
+    ),
+    variables = variables,
+    events = unlist(events),
+    start_t = t + 1,
+    timesteps = post_t
+  )
+  post_df <- post_renderer$to_dataframe()
+  list(pre = pre_df, post = post_df[seq(t + 1, t + post_t),])
 }
 
 

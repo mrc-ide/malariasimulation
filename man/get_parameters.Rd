@@ -241,8 +241,6 @@ outputs; default = turned off
 
 mixing:
 \itemize{
-\item mixing_rdt - boolean for whether mixing transmission should only consider
-individuals who would not be detected by an RDT test; default = FALSE
 \item rdt_intercept - the y intercept for the log logit relationship betweeen rdt
 and microscopy prevalence; default = 0.108
 \item rdt_coeff - the coefficient for the log logit relationship betweeen rdt

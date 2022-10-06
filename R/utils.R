@@ -64,3 +64,19 @@ rtexp <- function(n, m, t) { itexp(runif(n), m, t) }
 match_timestep <- function(ts, t) {
   min(sum(ts <= t), length(ts))
 }
+
+#'@title Time cache a function
+#'@description caches function outputs based on the timestep argument
+#'@param fn function to cache
+#'@noRd
+time_cached <- function(fn) {
+  cache <- new.env()
+  cache$timestep <- -1
+  function(..., timestep) {
+    if (cache$timestep != timestep) {
+      cache$value <- fn(..., timestep)
+      cache$timestep <- timestep
+    }
+    cache$value
+  }
+}

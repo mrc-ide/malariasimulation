@@ -10,8 +10,18 @@ test_that('run_metapop_simulation fails with incorrect mixing matrix', {
   paramlist <- list(parameters, parameters)
   # incorrect params
   mixing <- matrix(c(1, 1), nrow = 1, ncol = 2)
+  p_captured <- diag(nrow=2)
   expect_error(
-    run_metapop_simulation(timesteps, parameters, NULL, mixing)
+    run_metapop_simulation(
+      timesteps,
+      parameters,
+      NULL,
+      mixing_tt = 1,
+      list(mixing),
+      p_captured_tt = 1,
+      p_captured = list(diag(nrow=2)),
+      p_success = 1
+    )
   )
 })
 
@@ -20,9 +30,19 @@ test_that('run_metapop_simulation integrates two models correctly', {
   timesteps <- 5
   parameters <- get_parameters(list(human_population = population))
   parametersets <- list(parameters, parameters)
-  mixing <- diag(1, nrow = 2, ncol = 2)
+  mixing <- diag(nrow = 2)
+  p_captured <- diag(nrow = 2)
 
-  outputs <- run_metapop_simulation(timesteps, parametersets, NULL, 1, list(mixing))
+  outputs <- run_metapop_simulation(
+    timesteps,
+    parametersets,
+    NULL,
+    1,
+    list(mixing),
+    1,
+    list(p_captured),
+    1
+  )
   expect_equal(length(outputs), 2)
   expect_equal(nrow(outputs[[1]]), 5)
   expect_equal(nrow(outputs[[2]]), 5)

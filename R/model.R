@@ -113,8 +113,8 @@ run_simulation <- function(
       vector_models,
       solvers,
       correlations,
-      list(create_lagged_eir(variables, solvers, parameters)),
-      list(create_lagged_infectivity(variables, parameters))
+      create_lagged_eir(variables, solvers, parameters),
+      create_lagged_infectivity(variables, parameters)
     ),
     variables = variables,
     events = unlist(events),
@@ -130,22 +130,35 @@ run_simulation <- function(
 #' @param correlations a list of correlation parameters for each population
 #' (default: NULL)
 #' @param mixing_tt a vector of time steps for each mixing matrix
-#' @param mixing a list of matrices of mixing coefficients for infectivity towards
-#' mosquitoes. Rows = origin sites, columns = destinations. Each matrix element
+#' @param mixing a list of matrices of mixing coefficients for infectivity.
+#' Rows = origin sites, columns = destinations. Each matrix element
 #' describes the mixing pattern from destination to origin. Each matrix element must
 #' be between 0 and 1. Each matrix is activated at the corresponding timestep in mixing_tt
-#' @return a list of dataframe of results
+#' @param p_captured_tt a vector of time steps for each p_captured matrix
+#' @param p_captured a list of matrices representing the probability that
+#' travel between sites is intervened by a test and treat border check.
+#' Dimensions are the same as for `mixing`
+#' @param p_success the probability that an individual who has tested positive
+#' (through an RDT) successfully clears their infection through treatment
+#' @return a list of dataframe of model outputs as in run_simulation
 #' @export
 run_metapop_simulation <- function(
   timesteps,
   parameters,
   correlations = NULL,
   mixing_tt,
-  mixing
+  mixing,
+  p_captured_tt,
+  p_captured,
+  p_success
   ) {
   random_seed(ceiling(runif(1) * .Machine$integer.max))
   if (!is.list(mixing)) {
     stop('mixing must be a list of mixing matrices')
+  }
+
+  if (length(mixing_tt) != length(mixing)) {
+    stop('mixing_tt must be the same length as mixing')
   }
 
   for (i in seq_along(mixing)) {
@@ -163,11 +176,23 @@ run_metapop_simulation <- function(
     }
   }
 
+  for (i in seq_along(p_captured)) {
+    if (nrow(p_captured[[i]]) != ncol(p_captured[[i]])) {
+      stop(sprintf('p_captured matrix %d must be square', i))
+    }
+    if (!all(diag(p_captured[[i]]) == 0)) {
+      warning(sprintf('p_captured matrix %d has a non-zero diagonal', i))
+    }
+  }
+
   if (!is.numeric(mixing_tt)) {
     stop('mixing_tt must be numeric')
   }
   if (length(mixing_tt) != length(mixing)) {
     stop('mixing_tt must be the same size as mixing')
+  }
+  if (length(p_captured_tt) != length(p_captured)) {
+    stop('p_captured_tt must be the same length as p_captured')
   }
 
 
@@ -210,6 +235,21 @@ run_metapop_simulation <- function(
     seq_along(parameters),
     function(i) create_lagged_infectivity(variables[[i]], parameters[[i]])
   )
+
+  mixing_fn <- time_cached(
+    create_transmission_mixer(
+      variables,
+      parameters,
+      lagged_eir,
+      lagged_infectivity,
+      mixing_tt,
+      mixing,
+      p_captured_tt,
+      p_captured,
+      p_success
+    )
+  )
+    
   processes <- lapply(
     seq_along(parameters),
     function(i) {
@@ -221,10 +261,9 @@ run_metapop_simulation <- function(
         vector_models[[i]],
         solvers[[i]],
         correlations[[i]],
-        lagged_eir,
-        lagged_infectivity,
-        mixing_tt,
-        lapply(mixing, function(m) m[i,]),
+        lagged_eir[[i]],
+        lagged_infectivity[[i]],
+        mixing_fn,
         i
       )
     }

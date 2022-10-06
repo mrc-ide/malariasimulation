@@ -17,6 +17,7 @@
 #' @param mixing_tt a vector of timesteps for each mixing vector
 #' @param mixing a list of vectors of mixing coefficients for the lagged transmission
 #' values (default: 1)
+#' @param mixing_fn function to retrieve mixed EIR and infectivity values
 #' @param mixing_index an index for this population's position in the
 #' lagged transmission lists (default: 1)
 #' @noRd
@@ -30,8 +31,7 @@ create_processes <- function(
   correlations,
   lagged_eir,
   lagged_infectivity,
-  mixing_tt = 0,
-  mixing = 1,
+  mixing_fn = NULL,
   mixing_index = 1
   ) {
   # ========
@@ -79,8 +79,7 @@ create_processes <- function(
       parameters,
       lagged_infectivity,
       lagged_eir,
-      mixing_tt,
-      mixing,
+      mixing_fn,
       mixing_index
     ),
     create_mortality_process(variables, events, renderer, parameters),

@@ -10,3 +10,4 @@ malariasimulation_*.tar.gz
 /build/
 doc
 inst/doc
+src-i386

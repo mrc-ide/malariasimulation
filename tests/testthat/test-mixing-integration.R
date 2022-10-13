@@ -133,11 +133,11 @@ test_that('rdt_detectable adjusts correctly with identity parameters', {
   parameters <- get_parameters(
     list(human_population = population, rdt_intercept = 0, rdt_coeff = 1)
   )
-  variables <- create_variables(parameters)
+  variables <- list(state = individual::CategoricalVariable$new(
+    c('S', 'Tr', 'D', 'A', 'U'),
+    c('S', 'Tr', 'A', 'U')
+  ))
 
-  mock_detected <- mockery::mock(individual::Bitset$new(4)$insert(c(1, 2))) # 50%
-
-  mockery::stub(rdt_detectable, 'calculate_detected', mock_detected)
   rdt_prev <- rdt_detectable(variables, parameters, 1)
 
   expect_equal(rdt_prev, 0.5)

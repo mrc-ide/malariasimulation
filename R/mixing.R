@@ -57,30 +57,14 @@ create_transmission_mixer <- function(
   }
 }
 
-# Estimates RDT prevalence from miscroscopy prevalence,
-# Wu et al 2015 Nature paper
+# Estimates RDT prevalence from PCR prevalence,
+# We assume PCR prevalence is close to the true proportion of infectious people
+# in the population
+# values take from Wu et al 2015: https://doi.org/10.1038/nature16039
 rdt_detectable <- function(variables, parameters, timestep) {
-  microscopy_prev <- calculate_detected(
-    variables$state,
-    variables$birth,
-    variables$id,
-    parameters,
-    timestep
-  )$size() / parameters$human_population
-  logit_prev <- log(microscopy_prev / (1 - microscopy_prev))
+  infectious_prev <- variables$state$get_size_of(
+    c('D', 'A', 'U')) / parameters$human_population
+  logit_prev <- log(infectious_prev / (1 - microscopy_prev))
   logit_rdt <- parameters$rdt_intercept + parameters$rdt_coeff * logit_prev
   exp(logit_rdt) / (1 + exp(logit_rdt))
-}
-
-# return proportion of individuals detectable by microscopy
-calculate_detected <- function(state, birth, immunity, parameters, timestep) {
-  asymptomatic <- state$get_index_of('A')
-  prob <- probability_of_detection(
-    get_age(birth$get_values(asymptomatic), timestep),
-    immunity$get_values(asymptomatic),
-    parameters
-  )
-  asymptomatic_detected <- bitset_at(asymptomatic, bernoulli_multi_p(prob))
-  clinically_detected <- state$get_index_of(c('Tr', 'D'))
-  clinically_detected$or(asymptomatic_detected)
 }

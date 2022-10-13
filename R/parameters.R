@@ -211,9 +211,9 @@
 #' mixing:
 #'
 #' * rdt_intercept - the y intercept for the log logit relationship betweeen rdt
-#' and microscopy prevalence; default = 0.108
+#' and PCR prevalence; default = -0.968
 #' * rdt_coeff - the coefficient for the log logit relationship betweeen rdt
-#' and microscopy prevalence; default = 0.907
+#' and PCR prevalence; default = 1.186
 #'
 #' miscellaneous:
 #'
@@ -402,8 +402,8 @@ get_parameters <- function(overrides = list()) {
     age_group_rendering_min_ages = numeric(0),
     age_group_rendering_max_ages = numeric(0),
     # mixing
-    rdt_intercept = 0.108,
-    rdt_coeff = 0.907,
+    rdt_intercept = -0.968,
+    rdt_coeff = 1.186,
     # misc
     custom_demography = FALSE,
     human_population = 100,

@@ -11,11 +11,10 @@ create_transmission_mixer <- function(
   ) {
   function (timestep) {
     n_pops <- length(variables)
-    # calculate all the mixing values once per timestep
-    rdt_negative <- vnapply(
+    rdt_positive <- vnapply(
       seq(n_pops),
       function(i) {
-        1 - rdt_detectable(variables[[i]], parameters[[i]], timestep)
+        rdt_detectable(variables[[i]], parameters[[i]], timestep)
       }
     )
     p_mix <- mixing[[match_timestep(mixing_tt, timestep)]]
@@ -39,7 +38,7 @@ create_transmission_mixer <- function(
       function(i) lagged_infectivity[[i]]$get(timestep - parameters[[i]]$delay_gam)
     )
 
-    test_and_treat_coeff <- (1 - p_captured_t * rdt_negative * p_success)
+    test_and_treat_coeff <- (1 - p_captured_t * rdt_positive * p_success)
     diag(test_and_treat_coeff) <- 1
 
     eir <- vapply(

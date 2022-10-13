@@ -64,7 +64,7 @@ create_transmission_mixer <- function(
 rdt_detectable <- function(variables, parameters, timestep) {
   infectious_prev <- variables$state$get_size_of(
     c('D', 'A', 'U')) / parameters$human_population
-  logit_prev <- log(infectious_prev / (1 - microscopy_prev))
+  logit_prev <- log(infectious_prev / (1 - infectious_prev))
   logit_rdt <- parameters$rdt_intercept + parameters$rdt_coeff * logit_prev
   exp(logit_rdt) / (1 + exp(logit_rdt))
 }

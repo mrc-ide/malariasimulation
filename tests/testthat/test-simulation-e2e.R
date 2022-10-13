@@ -31,7 +31,7 @@ test_that('run_metapop_simulation integrates two models correctly', {
   parameters <- get_parameters(list(human_population = population))
   parametersets <- list(parameters, parameters)
   mixing <- diag(nrow = 2)
-  p_captured <- diag(nrow = 2)
+  p_captured <- 1 - diag(nrow = 2)
 
   outputs <- run_metapop_simulation(
     timesteps,

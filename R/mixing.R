@@ -39,24 +39,19 @@ create_transmission_mixer <- function(
       function(i) lagged_infectivity[[i]]$get(timestep - parameters[[i]]$delay_gam)
     )
 
-    treated_coeff <- p_captured_t * rdt_negative * p_success
+    test_and_treat_coeff <- (1 - p_captured_t * rdt_negative * p_success)
+    diag(test_and_treat_coeff) <- 1
 
     eir <- vapply(
       seq(n_species),
       function(i) {
         mixed_eir <- t(species_eir[,i] * p_mix)
-        eir_untreated <- mixed_eir * (1 - p_captured_t)
-        eir_treated <- mixed_eir * treated_coeff
-        rowSums(eir_untreated + eir_treated)
+        rowSums(mixed_eir * test_and_treat_coeff)
       },
       numeric(n_pops)
     )
 
-    mixed_inf <- inf * p_mix
-    inf_untreated <- mixed_inf * (1 - p_captured_t)
-    inf_treated <- mixed_inf * treated_coeff
-
-    inf <- rowSums(inf_untreated + inf_treated)
+    inf <- rowSums(inf * p_mix * test_and_treat_coeff)
 
     list(eir = eir, inf = inf)
   }

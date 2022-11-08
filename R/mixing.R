@@ -38,9 +38,9 @@ create_transmission_mixer <- function(
       function(i) lagged_infectivity[[i]]$get(timestep - parameters[[i]]$delay_gam)
     )
 
-    test_and_treat_coeff <- (1 - p_captured_t * rdt_positive * p_success)
+    test_and_treat_coeff <- (1 - p_captured_t %*% diag(rdt_positive * p_success))
     diag(test_and_treat_coeff) <- 1
-
+    
     eir <- vapply(
       seq(n_species),
       function(i) {
@@ -50,7 +50,7 @@ create_transmission_mixer <- function(
       numeric(n_pops)
     )
 
-    inf <- rowSums(inf * p_mix * test_and_treat_coeff)
+    inf <- rowSums(p_mix * test_and_treat_coeff %*% diag(inf))
 
     list(eir = eir, inf = inf)
   }
@@ -61,9 +61,13 @@ create_transmission_mixer <- function(
 # in the population
 # values take from Wu et al 2015: https://doi.org/10.1038/nature16039
 rdt_detectable <- function(variables, parameters, timestep) {
-  infectious_prev <- variables$state$get_size_of(
+  true_pos <- variables$state$get_size_of(
     c('D', 'A', 'U')) / parameters$human_population
-  logit_prev <- log(infectious_prev / (1 - infectious_prev))
+  if (true_pos == 0) {
+    return(0)
+  }
+  logit_prev <- log(true_pos / (1 - true_pos))
   logit_rdt <- parameters$rdt_intercept + parameters$rdt_coeff * logit_prev
-  exp(logit_rdt) / (1 + exp(logit_rdt))
+  test_pos <- exp(logit_rdt) / (1 + exp(logit_rdt))
+  test_pos / true_pos
 }

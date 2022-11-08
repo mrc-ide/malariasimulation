@@ -123,12 +123,27 @@ test_that('mixing_fn can halve the mixed transmission for 50% rdt detection', {
     transmission,
     list(
       eir = matrix(c(10, 12.5), nrow=2, ncol=1),
-      inf = c(.075, .150)
+      inf = c(.1, .125)
     )
   )
 })
 
-test_that('rdt_detectable adjusts correctly with identity parameters', {
+test_that('rdt_detectable is < 1 for default parameters', {
+  population <- 4
+  parameters <- get_parameters(
+    list(human_population = population)
+  )
+  variables <- list(state = individual::CategoricalVariable$new(
+    c('S', 'Tr', 'D', 'A', 'U'),
+    c('S', 'Tr', 'A', 'U')
+  ))
+
+  rdt_prev <- rdt_detectable(variables, parameters, 1)
+
+  expect_true(rdt_prev < 1)
+})
+
+test_that('rdt_detectable finds test_pos | true_pos identity parameters', {
   population <- 4
   parameters <- get_parameters(
     list(human_population = population, rdt_intercept = 0, rdt_coeff = 1)
@@ -140,8 +155,24 @@ test_that('rdt_detectable adjusts correctly with identity parameters', {
 
   rdt_prev <- rdt_detectable(variables, parameters, 1)
 
-  expect_equal(rdt_prev, 0.5)
+  expect_equal(rdt_prev, 1)
 })
+
+test_that('rdt_detectable returns 0 when test_pos = 0', {
+  population <- 4
+  parameters <- get_parameters(
+    list(human_population = population)
+  )
+  variables <- list(state = individual::CategoricalVariable$new(
+    c('S', 'Tr', 'D', 'A', 'U'),
+    c('S', 'S', 'S', 'S')
+  ))
+
+  rdt_prev <- rdt_detectable(variables, parameters, 1)
+
+  expect_equal(rdt_prev, 0)
+})
+
 
 test_that('mixing_fn can completely remove mixed transmission', {
   population <- 4
@@ -181,3 +212,41 @@ test_that('mixing_fn can completely remove mixed transmission', {
   )
 })
 
+
+test_that('mixing_fn can model different rdt_positive rates per patch', {
+  population <- 4
+  timestep <- 5
+  renderer <- individual::Render$new(5)
+  parameters <- get_parameters(
+    list(human_population = population, rdt_intercept = 0, rdt_coeff = 1)
+  )
+  events <- create_events(parameters)
+  variables <- create_variables(parameters)
+  lagged_infectivity <- list(LaggedValue$new(12.5, .1), LaggedValue$new(12.5, .2))
+  lagged_eir <- list(list(LaggedValue$new(12, 10)), list(LaggedValue$new(12, 20)))
+
+  mock_rdt <- mockery::mock(.25, .5, cycle = TRUE)
+
+  mixing_fn <- create_transmission_mixer(
+    list(variables, variables),
+    list(parameters, parameters),
+    lagged_eir,
+    lagged_infectivity,
+    mixing_tt = 1,
+    mixing = list(matrix(rep(.5, 4), nrow=2, ncol=2)),
+    p_captured_tt = 1,
+    p_captured = list(1 - diag(nrow=2)), # full coverage
+    p_success = 1
+  )
+
+  mockery::stub(mixing_fn, 'rdt_detectable', mock_rdt)
+
+  transmission <- mixing_fn(timestep)
+  expect_equal(
+    transmission,
+    list(
+      eir = matrix(c(10, 13.75), nrow=2, ncol=1),
+      inf = c(.1, .1375)
+    )
+  )
+})

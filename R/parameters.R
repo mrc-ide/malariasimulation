@@ -244,7 +244,7 @@ get_parameters <- function(overrides = list()) {
     dpl   = .643,
     mup   = .249,
     mum   = .1253333,
-    mu_atsb = 0.09,
+    mu_atsb = c(0.9, 0.9, 0.3),
     sigma_squared   = 1.67,
     n_heterogeneity_groups = 5,
     # immunity decay rates

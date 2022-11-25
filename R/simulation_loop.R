@@ -4,7 +4,7 @@ simulate_until_stable <- function(
   events,
   processes,
   stop_fn,
-  max_t = 500 * 365,
+  max_t = 500 * 365
   ) {
   t <- 1
   

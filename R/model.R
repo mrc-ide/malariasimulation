@@ -373,25 +373,60 @@ run_metapop_simulation <- function(
 run_metapop_simulation_until_stable <- function(
   parameters = NULL,
   correlations = NULL,
+  mixing_tt,
   mixing,
+  p_captured_tt,
+  p_captured,
+  p_success,
   tolerance = 1e-2,
   max_t = 500 * 365,
   post_parameters = NULL,
   post_t = 0
   ) {
   random_seed(ceiling(runif(1) * .Machine$integer.max))
-  if (nrow(mixing) != ncol(mixing)) {
-    stop('mixing matrix must be square')
+  if (!is.list(mixing)) {
+    stop('mixing must be a list of mixing matrices')
   }
-  if (nrow(mixing) != length(parameters)) {
-    stop('mixing matrix rows must match length of parameters')
+
+  if (length(mixing_tt) != length(mixing)) {
+    stop('mixing_tt must be the same length as mixing')
   }
-  if (!all(vlapply(seq_along(parameters), function(x) approx_sum(mixing[x,], 1)))) {
-    stop('all mixing matrix rows must sum to 1')
+
+  for (i in seq_along(mixing)) {
+    if (nrow(mixing[[i]]) != ncol(mixing[[i]])) {
+      stop(sprintf('mixing matrix %d must be square', i))
+    }
+    if (nrow(mixing[[i]]) != length(parameters)) {
+      stop(sprintf("mixing matrix %d's rows must match length of parameters", i))
+    }
+    if (!all(vlapply(seq_along(parameters), function(x) approx_sum(mixing[[i]][x,], 1)))) {
+      warning(sprintf("all of mixing matrix %d's rows must sum to 1", i))
+    }
+    if (!all(vlapply(seq_along(parameters), function(x) approx_sum(mixing[[i]][,x], 1)))) {
+      warning(sprintf('mixing matrix %d is asymmetrical', i))
+    }
   }
-  if (!all(vlapply(seq_along(parameters), function(x) approx_sum(mixing[,x], 1)))) {
-    warning('mixing matrix is asymmetrical')
+
+  for (i in seq_along(p_captured)) {
+    if (nrow(p_captured[[i]]) != ncol(p_captured[[i]])) {
+      stop(sprintf('p_captured matrix %d must be square', i))
+    }
+    if (!all(diag(p_captured[[i]]) == 0)) {
+      warning(sprintf('p_captured matrix %d has a non-zero diagonal', i))
+    }
   }
+
+  if (!is.numeric(mixing_tt)) {
+    stop('mixing_tt must be numeric')
+  }
+  if (length(mixing_tt) != length(mixing)) {
+    stop('mixing_tt must be the same size as mixing')
+  }
+  if (length(p_captured_tt) != length(p_captured)) {
+    stop('p_captured_tt must be the same length as p_captured')
+  }
+
+
   if (is.null(correlations)) {
     correlations <- lapply(parameters, get_correlation_parameters)
   }
@@ -431,6 +466,21 @@ run_metapop_simulation_until_stable <- function(
     seq_along(parameters),
     function(i) create_lagged_infectivity(variables[[i]], parameters[[i]])
   )
+
+  mixing_fn <- time_cached(
+    create_transmission_mixer(
+      variables,
+      parameters,
+      lagged_eir,
+      lagged_infectivity,
+      mixing_tt,
+      mixing,
+      p_captured_tt,
+      p_captured,
+      p_success
+    )
+  )
+    
   processes <- lapply(
     seq_along(parameters),
     function(i) {
@@ -442,9 +492,9 @@ run_metapop_simulation_until_stable <- function(
         vector_models[[i]],
         solvers[[i]],
         correlations[[i]],
-        lagged_eir,
-        lagged_infectivity,
-        mixing[i,],
+        lagged_eir[[i]],
+        lagged_infectivity[[i]],
+        mixing_fn,
         i
       )
     }
@@ -507,13 +557,13 @@ run_metapop_simulation_until_stable <- function(
         post_renderer[[i]],
         variables[[i]],
         events[[i]],
-        post_parameters[[i]],
+        parameters[[i]],
         vector_models[[i]],
         solvers[[i]],
         correlations[[i]],
-        lagged_eir,
-        lagged_infectivity,
-        mixing[i,],
+        lagged_eir[[i]],
+        lagged_infectivity[[i]],
+        mixing_fn,
         i
       )
     }

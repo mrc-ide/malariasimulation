@@ -3,21 +3,11 @@ simulate_until_stable <- function(
   variables,
   events,
   processes,
-  solvers,
-  parameters,
-  tolerance = 1e-1,
-  years = 3,
-  max_t = 500 * 365
+  stop_fn,
+  max_t = 500 * 365,
   ) {
   t <- 1
-  stop_fn <- stable_mean_EIR(
-    variables,
-    solvers,
-    parameters,
-    years=years,
-    tolerance=tolerance
-  )
-
+  
   for (t in seq(max_t)) {
     for (process in processes) {
       individual:::execute_any_process(process, t)

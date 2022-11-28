@@ -153,8 +153,8 @@ run_simulation_until_stable <- function(
   )
   vector_models <- parameterise_mosquito_models(parameters)
   solvers <- parameterise_solvers(vector_models, parameters)
-  lagged_eir <- list(create_lagged_eir(variables, solvers, parameters))
-  lagged_infectivity <- list(create_lagged_infectivity(variables, parameters))
+  lagged_eir <- create_lagged_eir(variables, solvers, parameters)
+  lagged_infectivity <- create_lagged_infectivity(variables, parameters)
   stop_fn <- stable_mean_EIR(
     variables,
     solvers,
@@ -432,7 +432,7 @@ run_metapop_simulation_until_stable <- function(
   }
   variables <- lapply(parameters, create_variables)
   events <- lapply(parameters, create_events)
-  renderer <- lapply(parameters, function(.) individual::Render$new(timesteps))
+  renderer <- lapply(parameters, function(.) individual::Render$new(max_t))
   for (i in seq_along(parameters)) {
     # NOTE: forceAndCall is necessary here to make sure i refers to the current
     # iteration
@@ -500,21 +500,20 @@ run_metapop_simulation_until_stable <- function(
     }
   )
   
-  stop_fn <- function() {
-    stop_fns <- lapply(
-      seq_along(parameters),
-      function(i) {
-        stable_mean_EIR(
-          variables[[i]],
-          solvers[[i]],
-          parameters[[i]],
-          tolerance=tolerance
-        )
-      }
-    )
-    function(t) {
-      all(vlapply(stop_fns, function(f) f(t)))
+  stop_fns <- lapply(
+    seq_along(parameters),
+    function(i) {
+      stable_mean_EIR(
+        variables[[i]],
+        solvers[[i]],
+        parameters[[i]],
+        tolerance=tolerance
+      )
     }
+  )
+
+  stop_fn <- function(t) {
+    all(vlapply(stop_fns, function(f) f(t)))
   }
 
   t <- simulate_until_stable(
@@ -525,7 +524,7 @@ run_metapop_simulation_until_stable <- function(
     max_t = max_t
   )
   pre_df <- lapply(renderer, function(r) r$to_dataframe())
-  pre_df <- lapply(pre_df, function(df) df[complete.cases(pre_df),])
+  pre_df <- lapply(pre_df, function(df) df[complete.cases(df),])
 
   if (is.null(post_parameters)) {
     parameters <- parameters

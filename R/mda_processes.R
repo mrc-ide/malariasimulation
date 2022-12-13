@@ -25,6 +25,7 @@ create_mda_listeners <- function(
   parameters,
   renderer
   ) {
+  renderer$set_default(paste0('n_', int_name, '_treated'), 0)
   function(timestep) {
     time_index = which(timesteps == timestep)
     coverage <- coverages[[time_index]]
@@ -33,14 +34,14 @@ create_mda_listeners <- function(
     in_age <- which((age > min_ages[[time_index]]) & (age < max_ages[[time_index]]))
     target <- in_age[sample_intervention(in_age, int_name, coverage, correlations)]
 
+    renderer$render(paste0('n_', int_name, '_treated'), length(target), timestep)
+    
     successful_treatments <- bernoulli(
       length(target),
       parameters$drug_efficacy[[drug]]
     )
     to_move <- individual::Bitset$new(parameters$human_population)
     to_move$insert(target[successful_treatments])
-
-    renderer$render('n_mda_treated', to_move$size(), timestep)
 
     if (to_move$size() > 0) {
       # Move Diseased

@@ -78,7 +78,6 @@ reset_target <- function(variables, events, target, state, timestep) {
   if (target$size() > 0) {
     # clear events
     to_clear <- c(
-      'throw_away_net',
       'rtss_mass_doses',
       'rtss_mass_booster',
       'rtss_epi_doses',
@@ -114,9 +113,6 @@ reset_target <- function(variables, events, target, state, timestep) {
     # onwards infectiousness
     variables$infectivity$queue_update(0, target)
 
-    # vector control
-    variables$net_time$queue_update(-1, target)
-    variables$spray_time$queue_update(-1, target)
-    # zeta and zeta group survive rebirth
+    # zeta and zeta group and vector controls survive rebirth
   }
 }

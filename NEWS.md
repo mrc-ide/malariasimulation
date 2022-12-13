@@ -1,3 +1,10 @@
+# malariasimulation 1.4.0
+
+  * Treatment number rendering for all treatments not just effective
+  * Default rendering for drug-based interventions
+  * Bed nets and IRS continue post individual's death
+  * ITN scheduling does not overwrite on receipt of >1 net
+
 # malariasimulation 1.3.0
 
   * Custom demography

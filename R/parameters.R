@@ -164,23 +164,14 @@
 #' clinically diseased (these values refer to the index in drug_* parameters); default = NULL, NULL, NULL
 #' * clinical_treatment_coverage - a vector of coverage values for each drug; default = NULL, NULL, NULL
 #'
-#' RTS,S paramters:
-#' please set RTS,S strategies with the convenience functions in
-#' `vaccine_parameters.R:set_rtss_epi`
-#' `vaccine_parameters.R:set_mass_rtss`
+#' PEV parameters: 
+#' please set vaccine strategies with the convenience functions in
+#' `pev_parameters.R:set_vaccine_epi`
+#' `pev_parameters.R:set_mass_vaccine`
 #'
-#' * rtss_doses - the dosing schedule before the vaccine takes effect; default =
+#' * pev_doses - the dosing schedule before the vaccine takes effect; default =
 #' c(0, 1.5 * 30, 3 * 30)
 #' default = 365
-#' * rtss_vmax - the maximum efficacy of the vaccine; default = 0.93
-#' * rtss_alpha - shape parameter for the vaccine efficacy model; default = 0.74
-#' * rtss_beta - scale parameter for the vaccine efficacy model; default = 99.4
-#' * rtss_cs - peak parameters for the antibody model (mean and std. dev); default = 6.37008, 0.35
-#' * rtss_cs_boost - peak parameters for the antibody model for booster rounds (mean and std. dev); default = 5.56277, 0.35
-#' * rtss_rho - delay parameters for the antibody model (mean and std. dev); default = 2.37832, 1.00813
-#' * rtss_rho_boost - delay parameters for the antibody model for booster rounds (mean and std. dev); default = 1.03431, 1.02735
-#' * rtss_ds - delay parameters for the antibody model, short-term weaning (mean and std. dev); default = 3.74502, 0.341185 (White MT et al. 2015 Lancet ID)
-#' * rtss_dl - delay parameters for the antibody model, long-term weaning (mean and std. dev); default = 6.30365, 0.396515 (White MT et al. 2015 Lancet ID)
 #'
 #' MDA, SMC and PMC parameters:
 #' please set these parameters with the convenience functions in `mda_parameters.R`
@@ -348,17 +339,8 @@ get_parameters <- function(overrides = list()) {
     clinical_treatment_timesteps = list(),
     clinical_treatment_coverages = list(),
     # rts,s
-    rtss           = FALSE,
-    rtss_doses     = c(0, 1.5 * 30, 3 * 30),
-    rtss_vmax      = .93,
-    rtss_alpha     = .74,
-    rtss_beta      = 99.4,
-    rtss_cs        = c(6.37008, 0.35),
-    rtss_cs_boost  = c(5.56277, 0.35),
-    rtss_rho       = c(2.37832, 1.00813),
-    rtss_rho_boost = c(1.03431, 1.02735),
-    rtss_ds        = c(3.74502, 0.341185),
-    rtss_dl        = c(6.30365, 0.396515),
+    vaccines       = FALSE,
+    vaccine_doses  = c(0, 1.5 * 30, 3 * 30),
     # MDA
     mda = FALSE,
     mda_drug = 0,

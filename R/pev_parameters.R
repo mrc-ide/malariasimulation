@@ -1,25 +1,25 @@
-#' @title Vaccine profile
-#' @description A data structure for holding vaccine profile parameters.
+#' @title PEV profile
+#' @description A data structure for holding pre-erythrocytic vaccine profile parameters.
 #' Parameters are validated on creation.
 #' @importFrom R6 R6Class
 #' @export
-VaccineProfile <- R6::R6Class(
-  'VaccineProfile',
+PEVProfile <- R6::R6Class(
+  'PEVProfile',
   public = list(
     #' @field vmax maximum efficacy of the vaccine
-    vmax,
+    vmax = 0,
     #' @field alpha shape parameter for the vaccine efficacy model
-    alpha,
+    alpha = 0,
     #' @field beta scale parameter for the vaccine efficacy model
-    beta,
+    beta = 0,
     #' @field cs peak parameters for the antibody model (vector of mean and std. dev)
-    cs,
+    cs = 0,
     #' @field rho delay parameters for the antibody model (vector of mean and std. dev)
-    rho,
+    rho = 0,
     #' @field ds delay parameters for the antibody model, short-term waning (vector of mean and std. dev)
-    ds,
+    ds = 0,
     #' @field dl delay parameters for the antibody model, long-term waning (vector of mean and std. dev)
-    dl,
+    dl = 0,
 
     #' @description create a vaccine profile
     #' @param vmax immutable value for vmax
@@ -37,63 +37,69 @@ VaccineProfile <- R6::R6Class(
       stopifnot(length(rho) == 2)
       stopifnot(length(ds) == 2)
       stopifnot(length(dl) == 2)
-      self$vmax = vmax
-      self$alpha = alpha
-      self$beta = beta
-      self$cs = cs
-      self$rho = rho
-      self$ds = ds
-      self$dl = dl
+      self$vmax <- vmax
+      self$alpha <- alpha
+      self$beta <- beta
+      self$cs <- cs
+      self$rho <- rho
+      self$ds <- ds
+      self$dl <- dl
     }
   )
 )
 
+#' @title RTS,S vaccine profile
+#' @description Parameters for a primary dose of RTS,S for use with the
+#' set_mass_pev and set_pev_epi functions
 #' @export
-rtss_profile <- VaccineProfile$new(
-  vmax = 0.93
-  alpha = 0.74
-  beta = 99.4
-  cs = c(6.37008, 0.35)
-  rho = c(2.37832, 1.00813)
-  ds = c(3.74502, 0.341185) # (White MT et al. 2015 Lancet ID)
+rtss_profile <- PEVProfile$new(
+  vmax = 0.93,
+  alpha = 0.74,
+  beta = 99.4,
+  cs = c(6.37008, 0.35),
+  rho = c(2.37832, 1.00813),
+  ds = c(3.74502, 0.341185), # (White MT et al. 2015 Lancet ID)
   dl = c(6.30365, 0.396515) # (White MT et al. 2015 Lancet ID)
 )
 
+#' @title RTS,S booster vaccine profile
+#' @description Parameters for a booster dose of RTS,S for use with the
+#' set_mass_pev and set_pev_epi functions
 #' @export
-rtss_booster_profile <- VaccineProfile$new(
-  vmax = 0.93
-  alpha = 0.74
-  beta = 99.4
-  cs = c(5.56277, 0.35)
-  rho = c(1.03431, 1.02735)
-  ds = c(3.74502, 0.341185) # (White MT et al. 2015 Lancet ID)
+rtss_booster_profile <- PEVProfile$new(
+  vmax = 0.93,
+  alpha = 0.74,
+  beta = 99.4,
+  cs = c(5.56277, 0.35),
+  rho = c(1.03431, 1.02735),
+  ds = c(3.74502, 0.341185), # (White MT et al. 2015 Lancet ID)
   dl = c(6.30365, 0.396515) # (White MT et al. 2015 Lancet ID)
 )
 
-#' @title Parameterise a vaccine epi strategy
+#' @title Parameterise a pre-erythrocytic vaccine with an EPI strategy
 #'
 #' @description distribute vaccine when an individual becomes a certain
 #' age. Efficacy will take effect after the last dose
 #'
 #' @param parameters a list of parameters to modify
-#' @param profile primary vaccine profile of type VaccineProfile
+#' @param profile primary vaccine profile of type PEVProfile
 #' @param coverages a vector of coverages for the primary doses
 #' @param timesteps a vector of timesteps associated with coverages
 #' @param age for the target population, (in timesteps)
 #' @param min_wait the minimum acceptable time since the last vaccination (in
 #' timesteps); When seasonal_boosters = TRUE, this represents the minimum time
 #' between an individual receiving the final dose and the first booster. When using
-#' both set_mass_vaccine and set_vaccine_epi, this represents the minimum time between
+#' both set_mass_pev and set_pev_epi, this represents the minimum time between
 #' an individual being vaccinated under one scheme and vaccinated under another.
 #' @param booster_timestep the timesteps (following the final dose) at which booster vaccinations are administered
 #' @param booster_coverage the proportion of the vaccinated population who will
 #' receive each booster vaccine
 #' @param booster_profile list of booster vaccine profiles, of type
-#' VaccineProfile, for each timestep in booster_timeteps
+#' PEVProfile, for each timestep in booster_timeteps
 #' @param seasonal_boosters logical, if TRUE the first booster timestep is
 #' relative to the start of the year, otherwise they are relative to the last dose
 #' @export
-set_vaccine_epi <- function(
+set_pev_epi <- function(
   parameters,
   profile,
   coverages,
@@ -117,48 +123,53 @@ set_vaccine_epi <- function(
   stopifnot(age >= 0)
   stopifnot(is.logical(seasonal_boosters))
   if (seasonal_boosters) {
-    if(boosters[[1]] < 0) {
-      boosters <- boosters + 365
+    if(booster_timestep[[1]] < 0) {
+      booster_timestep <- booster_timestep + 365
     }
   }
 
   # Check that the booster timing parameters make sense
-  stopifnot((length(booster_timestep) == 0) || all(boosters > 0))
+  stopifnot((length(booster_timestep) == 0) || all(booster_timestep > 0))
   stopifnot((length(booster_coverage)) == 0 || all(booster_coverage >= 0 & booster_coverage <= 1))
   if (!all(c(length(booster_coverage), length(booster_timestep), length(booster_profile)) == length(booster_timestep))) {
     stop('booster_timestep and booster_coverage and booster_profile does not align')
   }
 
   # Check that vaccine profiles are well formed
-  stopifnot(inherits(profile, 'VaccineProfile'))
+  stopifnot(inherits(profile, 'PEVProfile'))
   for (p in booster_profile) {
-    stopifnot(inherits(p, 'VaccineProfile'))
+    stopifnot(inherits(p, 'PEVProfile'))
   }
 
-  parameters$vaccines <- TRUE
-  parameters$vaccine_epi_profile <- profile
-  parameters$vaccine_epi_coverages <- coverages
-  parameters$vaccine_epi_timesteps <- timesteps
-  parameters$vaccine_epi_age <- age
-  parameters$vaccine_epi_booster_timestep <- booster_timestep
-  parameters$vaccine_epi_min_wait <- min_wait
-  parameters$vaccine_epi_booster_coverage <- booster_coverage
-  parameters$vaccine_epi_booster_profile <- booster_profile
-  parameters$vaccine_epi_seasonal_boosters <- seasonal_boosters
+  # Index the new vaccine profiles
+  profile_list <- c(list(profile), booster_profile)
+  profile_indices <- seq_along(profile_list) + length(parameters$pev_profiles)
+  parameters$pev_profiles <- c(parameters$pev_profiles, profile_list)
+
+  # Set the EPI strategy
+  parameters$pev <- TRUE
+  parameters$pev_epi_coverages <- coverages
+  parameters$pev_epi_timesteps <- timesteps
+  parameters$pev_epi_age <- age
+  parameters$pev_epi_booster_timestep <- booster_timestep
+  parameters$pev_epi_min_wait <- min_wait
+  parameters$pev_epi_booster_coverage <- booster_coverage
+  parameters$pev_epi_profile_indices <- profile_indices
+  parameters$pev_epi_seasonal_boosters <- seasonal_boosters
   parameters
 }
 
 #' @title Parameterise a vaccine mass distribution strategy
 #'
-#' @description distribute vaccine to a population in an age range.
+#' @description distribute pre-erythrocytic vaccine to a population in an age range.
 #' Efficacy will take effect after the last dose
 #'
 #' @param parameters a list of parameters to modify
-#' @param profile primary vaccine profile of type VaccineProfile
+#' @param profile primary vaccine profile of type PEVProfile
 #' @param timesteps a vector of timesteps for each round of vaccinations
 #' @param coverages the coverage for each round of vaccinations
 #' @param min_wait the minimum acceptable time since the last vaccination (in timesteps);
-#' When using both set_mass_rtss and set_rtss_epi, this represents the minimum
+#' When using both set_mass_pev and set_pev_epi, this represents the minimum
 #' time between an individual being vaccinated under one scheme and vaccinated under another.
 #' @param min_ages for the target population, inclusive (in timesteps)
 #' @param max_ages for the target population, inclusive (in timesteps)
@@ -166,9 +177,9 @@ set_vaccine_epi <- function(
 #' @param booster_coverage the proportion of the vaccinated population who will
 #' receive each booster vaccine
 #' @param booster_profile list of booster vaccine profiles, of type
-#' VaccineProfile, for each timestep in booster_timeteps
+#' PEVProfile, for each timestep in booster_timeteps
 #' @export
-set_mass_vaccination <- function(
+set_mass_pev <- function(
   parameters,
   profile,
   timesteps,
@@ -177,10 +188,10 @@ set_mass_vaccination <- function(
   max_ages,
   min_wait,
   booster_timestep,
-  booster_coverage
-  booster_profile,
+  booster_coverage,
+  booster_profile
   ) {
-  stopifnot(all(timesteps > 1))
+  stopifnot(all(timesteps >= 1))
   stopifnot(min_wait >= 0)
   stopifnot(all(coverages >= 0) && all(coverages <= 1))
   stopifnot(all(min_ages >= 0 & max_ages >= 0))
@@ -194,19 +205,26 @@ set_mass_vaccination <- function(
   }
 
   # Check that vaccine profiles are well formed
-  stopifnot(inherits(profile, 'VaccineProfile'))
+  stopifnot(inherits(profile, 'PEVProfile'))
   for (p in booster_profile) {
-    stopifnot(inherits(p, 'VaccineProfile'))
+    stopifnot(inherits(p, 'PEVProfile'))
   }
-  parameters$vaccines <- TRUE
-  parameters$mass_vaccine_timesteps <- timesteps
-  parameters$mass_vaccine_coverages <- coverages
-  parameters$mass_vaccine_min_ages <- min_ages
-  parameters$mass_vaccine_max_ages <- max_ages
-  parameters$mass_vaccine_min_wait <- min_wait
-  parameters$mass_vaccine_booster_timestep <- booster_timestep
-  parameters$mass_vaccine_booster_coverage <- booster_coverage
-  parameters$mass_vaccine_booster_profile <- booster_profile
+
+  # Index the new vaccine profiles
+  profile_list <- c(list(profile), booster_profile)
+  profile_indices <- seq_along(profile_list) + length(parameters$pev_profiles)
+  parameters$pev_profiles <- c(parameters$pev_profiles, profile_list)
+
+  # Set the mass vaccination strategy
+  parameters$pev <- TRUE
+  parameters$mass_pev_timesteps <- timesteps
+  parameters$mass_pev_coverages <- coverages
+  parameters$mass_pev_min_ages <- min_ages
+  parameters$mass_pev_max_ages <- max_ages
+  parameters$mass_pev_min_wait <- min_wait
+  parameters$mass_pev_booster_timestep <- booster_timestep
+  parameters$mass_pev_booster_coverage <- booster_coverage
+  parameters$mass_pev_profile_indices <- profile_indices
   parameters
 }
 

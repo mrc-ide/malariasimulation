@@ -164,10 +164,10 @@
 #' clinically diseased (these values refer to the index in drug_* parameters); default = NULL, NULL, NULL
 #' * clinical_treatment_coverage - a vector of coverage values for each drug; default = NULL, NULL, NULL
 #'
-#' PEV parameters: 
+#' PEV paramters: 
 #' please set vaccine strategies with the convenience functions in
-#' `pev_parameters.R:set_vaccine_epi`
-#' `pev_parameters.R:set_mass_vaccine`
+#' `pev_parameters.R:set_pev_epi`
+#' `pev_parameters.R:set_mass_pev`
 #'
 #' * pev_doses - the dosing schedule before the vaccine takes effect; default =
 #' c(0, 1.5 * 30, 3 * 30)
@@ -339,8 +339,8 @@ get_parameters <- function(overrides = list()) {
     clinical_treatment_timesteps = list(),
     clinical_treatment_coverages = list(),
     # rts,s
-    vaccines       = FALSE,
-    vaccine_doses  = c(0, 1.5 * 30, 3 * 30),
+    pev = FALSE,
+    pev_doses = c(0, 1.5 * 30, 3 * 30),
     # MDA
     mda = FALSE,
     mda_drug = 0,

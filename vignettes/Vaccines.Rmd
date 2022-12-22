@@ -21,7 +21,7 @@ library(malariasimulation)
 
 # Parameterisation
 
-We are going to set the default parameters to run the simulation from an equilibrium.
+In this tutorial we are going to explore different strategies for malaria vaccine implementation. Begin by setting the default parameters to run the simulation from an equilibrium starting point.
 
 ```{r}
 year <- 365
@@ -42,24 +42,26 @@ simparams <- set_equilibrium(simparams, starting_EIR)
 
 ```
 
-Then we can run the simulation for a variety of Vaccination strategies:
+Then we can run the simulation for a variety of vaccination strategies:
 
 ## Mass RTS,S
 
-This is a round of RTS,S vaccine for individuals between 5 months and 10 years followed by a booster after 18 months:
+This intervention implements a round of RTS,S vaccination (3 doses) for individuals between 5 and 17 months at a single time point followed by a single booster dose 18 months after the primary series. We specify that the intervention should use the RTS,S vaccine through the `profile` and `booster_profile` inputs.
 
 ```{r}
 rtssparams <- simparams
 
-rtssparams <- set_mass_rtss(
+rtssparams <- set_mass_pev(
   rtssparams,
+  profile = rtss_profile,
   timesteps = 1 * year,
   coverages = 1,
   min_wait = 0,
   min_ages = 5 * month,
-  max_ages = 10 * year,
-  boosters = 18 * month,
-  booster_coverage = 0.95
+  max_ages = 17 * month,
+  booster_timestep = 18 * month,
+  booster_coverage = 0.95,
+  booster_profile = list(rtss_booster_profile)
 )
 
 output <- run_simulation(sim_length, rtssparams)
@@ -75,35 +77,35 @@ ggplot(data = output, aes(x = timestep / 365, y = clinical_incidence)) +
 
 ```
 
-You can look at the distribution of doses using the n_rtss_mass_dose\_\* outputs:
+We can look at the distribution of doses using the n_pev_mass_dose\_\* outputs:
 
 ```{r}
 dose_data <- data.frame(timestep = output$timestep,
                         dose = rep(c("mass 1", "mass 2", "mass 3", "mass booster"), each = length(output$timestep)),
-                        n = c(output$n_rtss_mass_dose_1, output$n_rtss_mass_dose_2, output$n_rtss_mass_dose_3,
-                              output$n_rtss_mass_booster_1))
+                        n = c(output$n_pev_mass_dose_1, output$n_pev_mass_dose_2, output$n_pev_mass_dose_3,
+                              output$n_pev_mass_booster_1))
 dose_data[dose_data$n > 0, ]
 
 ```
 
 ## RTS,S EPI
 
-You can opt for a more gradual dosing using the EPI strategy. 
-Individuals will be vaccinated once they reach 5 months. For this intervention
-we see a much more gradual increase in impact following implementation
+This intervention implements a more gradual age-based dosing of RTS,S vaccination such as would occur under the Expanded Programme on Immunization (EPI). Individuals here will be vaccinated once they reach 5 months of age. We specify that the intervention should use the RTS,S vaccine through the `profile` and `booster_profile` inputs.
 
 ```{r}
 rtssepiparams <- simparams
 
 # Add RTS,S strategy
-rtssepiparams <- set_rtss_epi(
+rtssepiparams <- set_pev_epi(
   rtssepiparams,
+  profile = rtss_profile,
   timesteps = 1 * year,
   coverages = 1,
   min_wait = 0,
   age = 5 * month,
-  boosters = 18 * month,
-  booster_coverage = 0.95
+  booster_timestep = 18 * month,
+  booster_coverage = 0.95,
+  booster_profile = list(rtss_booster_profile)
 )
 
 output <- run_simulation(sim_length * 2, rtssepiparams)
@@ -116,12 +118,14 @@ ggplot(data = output, aes(x = timestep / 365, y = clinical_incidence)) +
   xlab("year") +
   ylab("Clinical incidence \n (per 1000 children aged 0-5)") +
   theme_bw()
+
 ```
+
+We see a much more gradual decrease in clinical incidence following EPI implementation compared to the mass vaccination strategy.
 
 ## RTS,S seasonal boosters
 
-In a seasonal setting, we can set booster timesteps relative to the start of the year.
-This allows us to target seasonal dynamics
+In a seasonal setting, we can set booster timesteps relative to the start of the year. This allows us to consider seasonal dynamics and implement booster doses right before the start of the high transmission season to maximize impact. 
 
 ```{r}
 rtssepiseasonalparams <- simparams
@@ -132,41 +136,48 @@ rtssepiseasonalparams$h = c(0.173743, -0.0730962, -0.116019)
 peak <- peak_season_offset(rtssepiseasonalparams)
 
 # Add RTS,S seasonal strategy
-rtssepiseasonalparams <- set_rtss_epi(
+rtssepiseasonalparams <- set_pev_epi(
   rtssepiseasonalparams,
+  profile = rtss_profile,
   timesteps = 1 * year,
   coverages = 1,
   min_wait = 6 * month,
   age = 5 * month,
-  boosters = (peak - 3 * month) + c(0, year),
+  booster_timestep = (peak - 3 * month) + c(0, year),
   booster_coverage = rep(.7, 2),
+  booster_profile = list(rtss_booster_profile, rtss_booster_profile),
   seasonal_boosters = TRUE
 )
+
 ```
 
 ## RTS,S dosing
 
-You can try different dosing schedules using the rtss_doses parameter
+We can also try different dosing schedules using the `pev_doses` parameter. Here we administer dose 1 at 5 months, dose 2 30 days after dose 1, and dose 3 60 days after dose 1. We also administer three booster doses 12, 18, and 24 months following dose 3.  
 
 ```{r}
 rtssepiparams2 <- rtssepiparams
-rtssepiparams2$rtss_doses <- c(0, 30, 60)
-rtssepiparams2 <- set_rtss_epi(
+rtssepiparams2$pev_doses <- c(0, 30, 60)
+rtssepiparams2 <- set_pev_epi(
   rtssepiparams2,
+  profile = rtss_profile,
   timesteps = 1 * year,
   coverages = 1,
   age = 5 * month,
   min_wait = 0,
-  boosters = c(12 * month, 18 * month, 24 * month),
-  booster_coverage = c(1, 1, 1)
+  booster_timestep = c(12 * month, 18 * month, 24 * month),
+  booster_coverage = c(1, 1, 1),
+  booster_profile = list(
+    rtss_booster_profile,
+    rtss_booster_profile,
+    rtss_booster_profile
+  )
 )
 ```
 
 ## TBV
 
-We can also model vaccines with completely different modes of actions. For example
-a transmission blocking vaccines (TBV). This example shows 5 rounds of the TBV
-to everyone aged over 5
+We can also model vaccines with completely different modes of actions. For example, transmission blocking vaccines (TBV). This example demonstrates administration of 5 rounds of TBV to a proportion of the population ages 5 to 60 years.
 
 ```{r}
 tbvparams <- simparams

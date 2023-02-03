@@ -85,11 +85,11 @@ set_bednets <- function(
 #' With nrows=length(timesteps), ncols=length(species)
 #' @param ks_theta matrix of feeding success parameters 
 #' With nrows=length(timesteps), ncols=length(species)
-#' @param ks_gamma matrix of feeding success parameters  
+#' @param ks_gamma matrix of feeding success parameters per timestep 
 #' With nrows=length(timesteps), ncols=length(species)
-#' @param ms_theta matrix of deterrence parameters per timestep 
+#' @param ms_theta matrix of deterrence parameters
 #' With nrows=length(timesteps), ncols=length(species)
-#' @param ms_gamma matrix of deterrence parameters  
+#' @param ms_gamma matrix of deterrence parameters per timestep  
 #' With nrows=length(timesteps), ncols=length(species)
 #' @export
 set_spraying <- function(

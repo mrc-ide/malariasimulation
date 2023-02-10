@@ -417,7 +417,8 @@ get_parameters <- function(overrides = list()) {
     enable_heterogeneity = TRUE,
     r_tol = 1e-4,
     a_tol = 1e-4,
-    ode_max_steps = 1e6
+    ode_max_steps = 1e6,
+    progress_bar = FALSE
   )
 
   # Override parameters with any client specified ones

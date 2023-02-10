@@ -39,6 +39,7 @@ set_bednets <- function(
   rnm,
   gamman
   ) {
+  stopifnot(all(coverages >= 0) & all(coverages <= 1))
   lengths <- vnapply(list(coverages, gamman), length)
   if (!all(lengths == length(timesteps))) {
     stop('timesteps and time-varying parameters must align')
@@ -103,6 +104,7 @@ set_spraying <- function(
   ms_theta,
   ms_gamma
   ) {
+  stopifnot(all(coverages >= 0) & all(coverages <= 1))
   if (length(coverages) != length(timesteps)) {
     stop('coverages and timesteps must must align')
   }

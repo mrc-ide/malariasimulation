@@ -46,6 +46,7 @@ set_drugs <- function(parameters, drugs) {
 #' @param coverages vector of coverages for this drug
 #' @export
 set_clinical_treatment <- function(parameters, drug, timesteps, coverages) {
+  stopifnot(all(coverages >= 0) & all(coverages <= 1))
   n_drugs <- length(parameters$drug_efficacy)
   if (drug < 1 | drug > n_drugs) {
     stop('Drug index is invalid, please set drugs using set_drugs')

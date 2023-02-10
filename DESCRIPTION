@@ -46,15 +46,16 @@ Remotes:
   mrc-ide/malariaEquilibrium,
   mrc-ide/individual
 Imports:
-  individual (>= 0.1.7),
-  malariaEquilibrium (>= 1.0.1),
-  Rcpp,
-  statmod,
-  MASS,
-  dqrng,
-  sitmo,
-  BH,
-  R6
+    individual (>= 0.1.7),
+    malariaEquilibrium (>= 1.0.1),
+    Rcpp,
+    statmod,
+    MASS,
+    dqrng,
+    sitmo,
+    BH,
+    R6,
+    progress
 Suggests: 
   testthat,
   mockery,

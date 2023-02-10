@@ -1,5 +1,7 @@
 test_that('create_variables allows empty species', {
-  params <- get_parameters()
+  params <- get_parameters(list(
+    individual_mosquitoes = TRUE
+  ))
   params <- set_species(
     params,
     species=list(
@@ -14,7 +16,9 @@ test_that('create_variables allows empty species', {
 })
 
 test_that('create_variables allows multiple species', {
-  params <- get_parameters()
+  params <- get_parameters(list(
+    individual_mosquitoes = TRUE
+  ))
   params <- set_species(
     params,
     species=list(
@@ -31,7 +35,9 @@ test_that('create_variables allows multiple species', {
 })
 
 test_that('create_variables allows multiple species w different total_M', {
-  params <- get_parameters()
+  params <- get_parameters(list(
+    individual_mosquitoes = TRUE
+  ))
   params <- set_species(
     params,
     species=list(

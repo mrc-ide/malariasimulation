@@ -12,6 +12,34 @@ test_that('set_bednets validates coverages', {
       gamman = c(963.6, 963.6)
     )
   )
+  
+  expect_error(
+    set_bednets(
+      parameters,
+      timesteps = c(5, 50),
+      coverages = c(-1, 0.5),
+      retention = 40,
+      dn0 = matrix(c(.533, .533), nrow=2, ncol=1),
+      rn = matrix(c(.56, .56), nrow=2, ncol=1),
+      rnm = matrix(c(.24, .24), nrow=2, ncol=1),
+      gamman = c(963.6, 963.6)
+    ), "all(coverages >= 0) & all(coverages <= 1) is not TRUE",
+    fixed = TRUE
+  )
+  
+  expect_error(
+    set_bednets(
+      parameters,
+      timesteps = c(5, 50),
+      coverages = c(0.5, 1.5),
+      retention = 40,
+      dn0 = matrix(c(.533, .533), nrow=2, ncol=1),
+      rn = matrix(c(.56, .56), nrow=2, ncol=1),
+      rnm = matrix(c(.24, .24), nrow=2, ncol=1),
+      gamman = c(963.6, 963.6)
+    ), "all(coverages >= 0) & all(coverages <= 1) is not TRUE",
+    fixed = TRUE
+  )
 })
 
 test_that('set_bednets validates matrices', {

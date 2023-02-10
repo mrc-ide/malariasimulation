@@ -15,6 +15,30 @@ test_that('RTS,S epi strategy parameterisation works', {
   expect_equal(parameters$rtss_epi_age, 5 * 30)
   expect_equal(parameters$rtss_epi_min_wait, 0)
   expect_equal(parameters$rtss_epi_boosters, c(18, 36) * 30)
+  
+  expect_error(
+    parameters <- set_rtss_epi(
+      parameters,
+      timesteps = 10,
+      coverages = -1,
+      min_wait = 0,
+      boosters = c(18, 36) * 30,
+      booster_coverage = c(.9, .8)
+    ), "all(coverages >= 0) & all(coverages <= 1) is not TRUE",
+    fixed = TRUE
+  )
+  
+  expect_error(
+    parameters <- set_rtss_epi(
+      parameters,
+      timesteps = 10,
+      coverages = 1.5,
+      min_wait = 0,
+      boosters = c(18, 36) * 30,
+      booster_coverage = c(.9, .8)
+    ), "all(coverages >= 0) & all(coverages <= 1) is not TRUE",
+    fixed = TRUE
+  )
 })
 
 test_that('RTS,S epi fails pre-emptively', {

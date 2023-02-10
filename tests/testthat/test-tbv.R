@@ -10,6 +10,26 @@ test_that('TBV strategy parameterisation works', {
   expect_equal(parameters$tbv_timesteps, 10)
   expect_equal(parameters$tbv_coverages, .8)
   expect_equal(parameters$tbv_ages, c(1, 2, 3, 18))
+  
+  expect_error(
+    parameters <- set_tbv(
+      parameters,
+      timesteps = 10,
+      coverages = -1,
+      ages = c(1, 2, 3, 18)
+    ), "all(coverages >= 0) & all(coverages <= 1) is not TRUE",
+    fixed = TRUE
+  )
+  
+  expect_error(
+    parameters <- set_tbv(
+      parameters,
+      timesteps = 10,
+      coverages = 1.5,
+      ages = c(1, 2, 3, 18)
+    ), "all(coverages >= 0) & all(coverages <= 1) is not TRUE",
+    fixed = TRUE
+  )
 })
 
 test_that('TBV scheduler works on first timestep', {

@@ -16,6 +16,34 @@ test_that('RTS,S strategy parameterisation works', {
   expect_equal(parameters$rtss_mass_min_ages, 5 * 30)
   expect_equal(parameters$rtss_mass_max_ages, 17 * 30)
   expect_equal(parameters$rtss_mass_boosters, c(18, 36) * 30)
+  
+  expect_error(
+    parameters <- set_mass_rtss(
+      parameters,
+      timesteps = 10,
+      coverages = -1,
+      min_wait = 0,
+      min_ages = 5 * 30,
+      max_ages = 17 * 30,
+      boosters = c(18, 36) * 30,
+      booster_coverage = c(.9, .8)
+    ), "all(coverages >= 0) & all(coverages <= 1) is not TRUE",
+    fixed = TRUE
+  )
+  
+  expect_error(
+    parameters <- set_mass_rtss(
+      parameters,
+      timesteps = 10,
+      coverages = 1.5,
+      min_wait = 0,
+      min_ages = 5 * 30,
+      max_ages = 17 * 30,
+      boosters = c(18, 36) * 30,
+      booster_coverage = c(.9, .8)
+    ), "all(coverages >= 0) & all(coverages <= 1) is not TRUE",
+    fixed = TRUE
+  )
 })
 
 test_that('RTS,S fails pre-emptively', {

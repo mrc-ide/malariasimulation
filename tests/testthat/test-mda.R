@@ -29,6 +29,28 @@ test_that('MDA inputs align', {
       min_ages = c(5* 365, 5 * 365),
       max_ages = 10 * 365
     ), "maximum ages and timesteps do no align")
+  
+  expect_error(
+    parameters <- set_mda(
+      parameters,
+      drug = 1,
+      timesteps = c(50, 150),
+      coverages= c(-1, 0.5),
+      min_ages = c(5* 365, 5 * 365),
+      max_ages = c(10 * 365, 10 * 365)
+    ), "all(coverages >= 0) & all(coverages <= 1) is not TRUE",
+    fixed = TRUE)
+  
+  expect_error(
+    parameters <- set_mda(
+      parameters,
+      drug = 1,
+      timesteps = c(50, 150),
+      coverages= c(0.5, 1.5),
+      min_ages = c(5* 365, 5 * 365),
+      max_ages = c(10 * 365, 10 * 365)
+    ), "all(coverages >= 0) & all(coverages <= 1) is not TRUE",
+    fixed = TRUE)
  
 })
 

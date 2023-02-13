@@ -23,7 +23,7 @@ test_that('set_bednets validates coverages', {
       rn = matrix(c(.56, .56), nrow=2, ncol=1),
       rnm = matrix(c(.24, .24), nrow=2, ncol=1),
       gamman = c(963.6, 963.6)
-    ), "all(coverages >= 0) & all(coverages <= 1) is not TRUE",
+    ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
     fixed = TRUE
   )
   
@@ -37,7 +37,7 @@ test_that('set_bednets validates coverages', {
       rn = matrix(c(.56, .56), nrow=2, ncol=1),
       rnm = matrix(c(.24, .24), nrow=2, ncol=1),
       gamman = c(963.6, 963.6)
-    ), "all(coverages >= 0) & all(coverages <= 1) is not TRUE",
+    ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
     fixed = TRUE
   )
 })

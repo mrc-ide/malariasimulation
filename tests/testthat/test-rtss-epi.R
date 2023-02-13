@@ -24,7 +24,7 @@ test_that('RTS,S epi strategy parameterisation works', {
       min_wait = 0,
       boosters = c(18, 36) * 30,
       booster_coverage = c(.9, .8)
-    ), "all(coverages >= 0) & all(coverages <= 1) is not TRUE",
+    ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
     fixed = TRUE
   )
   
@@ -36,7 +36,7 @@ test_that('RTS,S epi strategy parameterisation works', {
       min_wait = 0,
       boosters = c(18, 36) * 30,
       booster_coverage = c(.9, .8)
-    ), "all(coverages >= 0) & all(coverages <= 1) is not TRUE",
+    ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
     fixed = TRUE
   )
 })

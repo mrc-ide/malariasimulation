@@ -38,7 +38,7 @@ test_that('MDA inputs align', {
       coverages= c(-1, 0.5),
       min_ages = c(5* 365, 5 * 365),
       max_ages = c(10 * 365, 10 * 365)
-    ), "all(coverages >= 0) & all(coverages <= 1) is not TRUE",
+    ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
     fixed = TRUE)
   
   expect_error(
@@ -49,7 +49,7 @@ test_that('MDA inputs align', {
       coverages= c(0.5, 1.5),
       min_ages = c(5* 365, 5 * 365),
       max_ages = c(10 * 365, 10 * 365)
-    ), "all(coverages >= 0) & all(coverages <= 1) is not TRUE",
+    ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
     fixed = TRUE)
  
 })

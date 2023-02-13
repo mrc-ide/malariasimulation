@@ -21,7 +21,7 @@ test_that('You can set time varying clinical treatment', {
       drug = 2,
       timesteps = c(25, 75),
       coverages = c(-0.5, 0.5)
-    ), "all(coverages >= 0) & all(coverages <= 1) is not TRUE",
+    ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
     fixed = TRUE
   )
   expect_error(
@@ -30,7 +30,7 @@ test_that('You can set time varying clinical treatment', {
       drug = 2,
       timesteps = c(25, 75),
       coverages = c(0.5, 1.5)
-    ), "all(coverages >= 0) & all(coverages <= 1) is not TRUE",
+    ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
     fixed = TRUE
   )
 

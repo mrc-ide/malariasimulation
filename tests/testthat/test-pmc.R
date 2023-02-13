@@ -25,7 +25,7 @@ test_that("pmc parameterisation works", {
       timesteps = c(5, 10),
       coverages = c(-0.5, 0.5),
       ages = c(30, 60, 90)
-    ), "all(coverages >= 0) & all(coverages <= 1) is not TRUE",
+    ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
     fixed = TRUE)
   
   expect_error(
@@ -35,7 +35,7 @@ test_that("pmc parameterisation works", {
       timesteps = c(5, 10),
       coverages = c(0.5, 1.5),
       ages = c(30, 60, 90)
-    ), "all(coverages >= 0) & all(coverages <= 1) is not TRUE",
+    ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
     fixed = TRUE)
   
   expect_true(p$pmc)

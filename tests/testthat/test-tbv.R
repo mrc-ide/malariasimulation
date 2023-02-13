@@ -17,7 +17,7 @@ test_that('TBV strategy parameterisation works', {
       timesteps = 10,
       coverages = -1,
       ages = c(1, 2, 3, 18)
-    ), "all(coverages >= 0) & all(coverages <= 1) is not TRUE",
+    ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
     fixed = TRUE
   )
   
@@ -27,7 +27,7 @@ test_that('TBV strategy parameterisation works', {
       timesteps = 10,
       coverages = 1.5,
       ages = c(1, 2, 3, 18)
-    ), "all(coverages >= 0) & all(coverages <= 1) is not TRUE",
+    ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
     fixed = TRUE
   )
 })

@@ -16,7 +16,7 @@ set_mda <- function(
   min_ages,
   max_ages
   ) {
-  stopifnot(all(coverages >= 0) & all(coverages <= 1))
+  stopifnot(all(coverages >= 0) && all(coverages <= 1))
   if(length(coverages) != length(timesteps)){
     stop("coverages and timesteps do no align")
   }
@@ -54,7 +54,7 @@ set_smc <- function(
   min_ages,
   max_ages
   ) {
-  stopifnot(all(coverages >= 0) & all(coverages <= 1))
+  stopifnot(all(coverages >= 0) && all(coverages <= 1))
   if(length(coverages) != length(timesteps)){
     stop("coverages and timesteps do no align")
   }
@@ -89,7 +89,7 @@ set_pmc <- function(
     coverages,
     ages
 ) {
-  stopifnot(all(coverages >= 0) & all(coverages <= 1))
+  stopifnot(all(coverages >= 0) && all(coverages <= 1))
   if(length(coverages) != length(timesteps)){
     stop("coverages and timesteps do no align")
   }

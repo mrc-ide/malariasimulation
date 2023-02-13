@@ -28,6 +28,7 @@ set_rtss_epi <- function(
   booster_coverage,
   seasonal_boosters = FALSE
   ) {
+  stopifnot(all(coverages >= 0) && all(coverages <= 1))
   if(length(coverages) != length(timesteps)){
     stop("coverages and timesteps must align")
   }
@@ -84,7 +85,7 @@ set_mass_rtss <- function(
   ) {
   stopifnot(all(timesteps > 1))
   stopifnot(min_wait >= 0)
-  stopifnot(all(coverages >= 0 & coverages <= 1))
+  stopifnot(all(coverages >= 0) && all(coverages <= 1))
   stopifnot(all(min_ages >= 0 & max_ages >= 0))
   stopifnot(all(boosters > 0))
   stopifnot(all(booster_coverage >= 0 & booster_coverage <= 1))
@@ -118,6 +119,7 @@ set_tbv <- function(
   coverages,
   ages
   ) {
+  stopifnot(all(coverages >= 0) && all(coverages <= 1))
   parameters$tbv <- TRUE
   parameters$tbv_timesteps <- timesteps
   parameters$tbv_coverages <- coverages

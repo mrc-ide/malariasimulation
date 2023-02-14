@@ -54,7 +54,7 @@ We can create a few plotting functions to visualise the output.
 # Plotting functions
 plot_prevalence <- function(output) {
   plot(x = output$timestep, y = output$n_detect_730_3650/output$n_730_3650, type = 'l',
-       xlab = 'Timestep (days)', ylab = 'PfPR 2-10',
+       xlab = 'Timestep (days)', ylab = expression(paste(italic(Pf),"PR"[2-10])),
        xaxs = "i", yaxs = "i", bty = "l")
 }
 

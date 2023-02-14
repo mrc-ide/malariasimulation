@@ -1,0 +1,125 @@
+---
+title: "Vector Control: Indoor Residual Spraying"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vector Control: IRS}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Parameterisation
+
+We will set the default parameters to run the simulation from an equilibrium.
+
+```{r}
+year <- 365
+month <- 30
+sim_length <- 3 * year
+human_population <- 1000
+starting_EIR <- 50
+
+simparams <- get_parameters(
+  list(
+    human_population = human_population,
+    # carrying capacity parameters
+    model_seasonality = TRUE, # Let's try a bi-modal model
+    g0 = 0.28605,
+    g = c(0.20636, -0.0740318, -0.0009293),
+    h = c(0.173743, -0.0730962, -0.116019),
+    # Here, we are asking for the output to contain information on severe incidence in children 2-10 years old.
+    clinical_incidence_rendering_min_ages = 2*year,
+    clinical_incidence_rendering_max_ages = 10*year
+  )
+)
+
+simparams <- set_equilibrium(simparams, starting_EIR)
+```
+
+We can create a few plotting functions to visualise the output.
+```{r}
+# Plotting functions
+plot_prevalence <- function(output) {
+  plot(x = output$timestep, y = output$n_detect_730_3650/output$n_730_3650, type = 'l',
+       xlab = 'Timestep (days)', ylab = expression(paste(italic(Pf),"PR"[2-10])),
+       xaxs = "i", yaxs = "i", bty = "l")
+}
+
+add_intervention_lines <- function(plot, events) {
+  plot
+  abline(v = events$timestep, col = 'blue')
+  text(x = events$timestep-20, y = 0.018, events$name,
+       cex = 1, col = 'black', srt = 90)
+}
+```
+
+## Adding indoor residual spraying (IRS)
+
+Then we can run the simulation for a variety of IRS strategies. In the example below, there are two rounds of IRS, each 3 months prior to peak transmission for that year. 
+```{r}
+sprayingparams <- simparams
+
+peak <- peak_season_offset(sprayingparams)
+spraying_events = data.frame(
+  timestep = c(1, 2) * year + peak - 3 * month, # There is a round of IRS in the 1st and second year 3 months prior to peak transmission.
+  name=c("Spraying 1", "Spraying 2") # These are labels for the two rounds of IRS 
+)
+
+sprayingparams <- set_spraying(
+  sprayingparams,
+  timesteps = spraying_events$timestep,
+  coverages = rep(.8, 2), # # Each round covers 80% of the population 
+  ls_theta = matrix(c(2.025, 2.025), nrow=2, ncol=1), # Matrix of mortality parameters
+  ls_gamma = matrix(c(-0.009, -0.009), nrow=2, ncol=1), # Matrix of mortality parameters per timestep
+  ks_theta = matrix(c(-2.222, -2.222), nrow=2, ncol=1), # Matrix of feeding success parameters
+  ks_gamma = matrix(c(0.008, 0.008), nrow=2, ncol=1), # Matrix of feeding success parameters per timestep
+  ms_theta = matrix(c(-1.232, -1.232), nrow=2, ncol=1), # Matrix of deterrence parameters
+  ms_gamma = matrix(c(-0.009, -0.009), nrow=2, ncol=1) # Matrix of deterrence parameters per timestep
+)
+
+output <- run_simulation(sim_length, sprayingparams)
+
+add_intervention_lines(plot_prevalence(output), spraying_events)
+```
+
+## Additional species 
+It is possible to account for varying proportions of mosquito species in the setting you are modelling using the `set_species()` function. If you have specified more than 1 species, then the arguments for set_spraying() and set_bednets() must be populated with values for each species at each time point. 
+```{r}
+# Setting 3 species of mosquitoes, 25% An. arabiensis, 25% An. funestus, and 50% An. gambiae
+simparams <- set_species(
+  simparams, 
+  species = list(arab_params, fun_params, gamb_params),
+  proportions = c(0.25, 0.25, 0.5)
+)
+
+#Here we will run the same model with IRS as before, but this time with 3 species of mosquitoes. Note that now there are 3 columns for the ls_theta, ls_gamma, ks_theta, ks_gamma, ms_theta, and ms_gamma arguments. Each column corresponds to a species and each row corresponds to a timestep when a round of IRS occurred. Here, we are assuming the same values for each species for simplicity. 
+sprayingparams <- simparams
+
+peak <- peak_season_offset(sprayingparams)
+spraying_events = data.frame(
+  timestep = c(1, 2) * year + peak - 3 * month, # There is a round of IRS in the 1st and second year 3 months prior to peak transmission.
+  name=c("Spraying 1", "Spraying 2") # These are labels for the two rounds of IRS 
+)
+
+sprayingparams <- set_spraying(
+  sprayingparams,
+  timesteps = spraying_events$timestep,
+  coverages = rep(.8, 2), # # Each round covers 80% of the population 
+  ls_theta = matrix(c(2.025, 2.025), nrow=2, ncol=3), # Matrix of mortality parameters
+  ls_gamma = matrix(c(-0.009, -0.009), nrow=2, ncol=3), # Matrix of mortality parameters per timestep
+  ks_theta = matrix(c(-2.222, -2.222), nrow=2, ncol=3), # Matrix of feeding success parameters
+  ks_gamma = matrix(c(0.008, 0.008), nrow=2, ncol=3), # Matrix of feeding success parameters per timestep
+  ms_theta = matrix(c(-1.232, -1.232), nrow=2, ncol=3), # Matrix of deterrence parameters
+  ms_gamma = matrix(c(-0.009, -0.009), nrow=2, ncol=3) # Matrix of deterrence parameters per timestep
+)
+
+output <- run_simulation(sim_length, sprayingparams)
+
+add_intervention_lines(plot_prevalence(output), spraying_events)
+```

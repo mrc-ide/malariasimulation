@@ -23,7 +23,7 @@ library(reshape2)
 
 # Parameterisation
 
-We are going to set the default parameters to run the simulation from an equilibrium.
+We will set the default parameters to run the simulation from an equilibrium.
 
 ```{r}
 year <- 365
@@ -52,9 +52,9 @@ simparams <- set_equilibrium(simparams, starting_EIR)
 We can create a few plotting functions to visualise the output.
 ```{r}
 # Plotting functions
-plot_incidence <- function(output) {
-  plot(x = output$timestep, y = output$n_inc_clinical_730_3650/output$n_730_3650, type = 'l',
-       xlab = 'Timestep (days)', ylab = 'Clinical incidence',
+plot_prevalence <- function(output) {
+  plot(x = output$timestep, y = output$n_detect_730_3650/output$n_730_3650, type = 'l',
+       xlab = 'Timestep (days)', ylab = 'PfPR 2-10',
        xaxs = "i", yaxs = "i", bty = "l")
 }
 
@@ -71,7 +71,7 @@ Then we can run the simulation for a variety of vector control strategies:
 ## Bednets
 
 We can distribute bednets once a year for two years, changing the characteristics of the bed nets on each distribution.
-
+  
 ```{r}
 bednetparams <- simparams
 
@@ -93,9 +93,28 @@ bednetparams <- set_bednets(
 
 output <- run_simulation(sim_length, bednetparams)
 
-add_intervention_lines(plot_incidence(output), bednet_events)
+add_intervention_lines(plot_prevalence(output), bednet_events)
+```
+  
+
+It is important to understand the difference between the input `coverages` argument of `malariasimulation::set_bednets()` and the resulting population bednet usage over time in the model. In the above example, bednets are distributed to 80% of the population at each distribution round. 
+  
+The average population bednet usage will be influenced by: 
+* The size and frequency of distributions specified in `set_bednets()`
+* The assumed net retention half life
+* Correlations in the recipients of nets between rounds
+  
+### Visualising usage over time
+```{r}
+output$prop_use_net <- output$n_use_net / output$n_0_100
+
+plot(x = output$timestep, y = output$prop_use_net, type = 'l',
+       xlab = 'Timestep (days)', ylab = 'Proportion of popoulation i',
+       xaxs = "i", yaxs = "i", bty = "l")
 ```
 
+
+  
 ## Indoor spraying
 
 We can do the same for IRS.
@@ -123,7 +142,7 @@ sprayingparams <- set_spraying(
 
 output <- run_simulation(sim_length, sprayingparams)
 
-add_intervention_lines(plot_incidence(output), spraying_events)
+add_intervention_lines(plot_prevalence(output), spraying_events)
 ```
 
 ## Additional species 
@@ -159,7 +178,7 @@ sprayingparams <- set_spraying(
 
 output <- run_simulation(sim_length, sprayingparams)
 
-add_intervention_lines(plot_incidence(output), spraying_events)
+add_intervention_lines(plot_prevalence(output), spraying_events)
 ```
 
 

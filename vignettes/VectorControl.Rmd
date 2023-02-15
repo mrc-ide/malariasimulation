@@ -56,14 +56,15 @@ cols <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
 
 # Plotting functions
 plot_prevalence <- function(output) {
-  plot(x = output$timestep, y = output$n_detect_730_3650/output$n_730_3650, type = 'l',
-       xlab = 'Timestep (days)', ylab = expression(paste(italic(Pf),"PR"[2-10])),
+  plot(x = output$timestep, y = output$n_detect_730_3650/output$n_730_3650, 
+       type = 'l', col = cols[4],
+       xlab = 'Time (days)', ylab = expression(paste(italic(Pf),"PR"[2-10])),
        xaxs = "i", yaxs = "i", bty = "l")
 }
 
 add_intervention_lines <- function(plot, events) {
   plot
-  abline(v = events$timestep, col = cols[6], lwd = 2.5)
+  abline(v = events$timestep, lty = 2, lwd = 2.5)
   text(x = events$timestep - 20, y = 0.4, events$name,
        cex = 1, col = cols[1], srt = 90)
 }

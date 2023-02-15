@@ -14,6 +14,11 @@ knitr::opts_chunk$set(
 )
 ```
 
+```{r setup}
+library(malariasimulation)
+library(malariaEquilibrium)
+```
+
 # Parameterisation
 
 We will set the default parameters to run the simulation from an equilibrium.

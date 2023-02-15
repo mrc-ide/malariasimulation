@@ -14,6 +14,9 @@ library(cowplot)
 
 First we will create a few plotting functions to visualise outputs. 
 ```{r}
+cols <- c("#000000", "#E69F00", "#56B4E9", "#009E73", 
+          "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+          
 plot_n_detect <- function(output){
   plot(x = output$timestep, y = output$n_detect_730_3650, 
        type = 'l', col = cols[4],
@@ -49,13 +52,15 @@ params <- get_parameters(list(
 params <- set_equilibrium(params, 2)
 big_pop <- run_simulation(365, params)
 
-plot_grid(
-  
-  ggplot(small_o) + geom_line(aes(timestep, n_detect_730_3650)) + ggtitle('n_detect at n = 1,000'),
-  ggplot(small_o) + geom_line(aes(timestep, p_detect_730_3650)) + ggtitle('p_detect at n = 1,000'),
-  ggplot(big_o) + geom_line(aes(timestep, n_detect_730_3650)) + ggtitle('n_detect at n = 10,000'),
-  ggplot(big_o) + geom_line(aes(timestep, p_detect_730_3650)) + ggtitle('p_detect at n = 10,000')
-)
+par(mfrow = c(2,2))
+plot_n_detect(small_pop)
+title('n_detect at n = 1,000')
+plot_p_detect(small_pop)
+title('p_detect at n = 1,000')
+plot_n_detect(big_pop)
+title('n_detect at n = 10,000')
+plot_p_detect(big_pop)
+title('p_detect at n = 10,000')
 ```
 
 The n_detect output shows the result of sampling individuals who would be detected by microscopy.
@@ -66,19 +71,20 @@ Notice that the p_detect output is slightly smoother. That's because it forgoes 
 
 ## Estimating variation 
 
-We can estimate the variation in the number of detectable cases by repeating the simulation several times...
+We can estimate the variation in the number of detectable cases by repeating the simulation several times and plotting the IQR and 95% confidence intervals. 
 
 ```{r}
 outputs <- run_simulation_with_repetitions(
   timesteps = 365,
   repetitions = 10,
-  overrides = p,
+  overrides = params,
   parallel=TRUE
 )
 
+# Calculate IQR and 95% confidence intervals for each of the repetitions
 df <- aggregate(
   outputs$n_detect_730_3650,
-  by=list(outputs$timestep),
+  by = list(outputs$timestep),
   FUN = function(x) {
     c(
       median = median(x),
@@ -91,19 +97,23 @@ df <- aggregate(
   }
 )
 
-df <- data.frame(cbind(t = df$Group.1, df$x))
+df <- data.frame(cbind(timestep = df$Group.1, df$x))
 
-plot_grid(
-  ggplot(df)
-  + geom_line(aes(x = t, y = median, group = 1))
-  + geom_ribbon(aes(x = t, ymin = lowq, ymax = highq), alpha = .2)
-  + xlab('timestep') + ylab('n_detect') + ggtitle('IQR spread'),
-  ggplot(df)
-  + geom_line(aes(x = t, y = mean, group = 1))
-  + geom_ribbon(aes(x = t, ymin = lowci, ymax = highci), alpha = .2)
-  + xlab('timestep') + ylab('n_detect') + ggtitle('95% confidence interval')
-)
+par(mfrow = c(1,2))
+plot(x = df$timestep, y = df$median, 
+       type = 'l', col = cols[4],
+       xlab = 'Time (days)', ylab = "Cases detected in children aged 2-10 years",
+       xaxs = "i", yaxs = "i", bty = "l")
+
+  ggplot(df)+
+    geom_line(aes(x = timestep, y = median, group = 1))+
+    geom_ribbon(aes(x = timestep, ymin = lowq, ymax = highq), alpha = .2)+
+    xlab('timestep') + ylab('Cases detected in children aged 2-10 years') + ggtitle('IQR spread')
+  ggplot(df)+
+    geom_line(aes(x = timestep, y = mean, group = 1))+
+    geom_ribbon(aes(x = timestep, ymin = lowci, ymax = highci), alpha = .2)+
+    xlab('timestep') + ylab('Cases detected in children aged 2-10 years') + ggtitle('95% confidence interval')
 
 ```
 
-These are useful techniques for comparing the expected variance from model outputs to outcomes from trials with lower population sizes.
+These are useful techniques for comparing the expected variance from model outputs to outcomes from trials that had lower population sizes.

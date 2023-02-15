@@ -7,9 +7,9 @@
 set_parameter_draw(parameters, draw)
 }
 \arguments{
-\item{parameters}{}
+\item{parameters}{the model parameters}
 
-\item{draw}{The draw to use. Must be in integer between 1 and 1000}
+\item{draw}{the draw to use. Must be in integer between 1 and 1000}
 }
 \description{
 Overrides default (median) model parameters with a single draw from the fitted

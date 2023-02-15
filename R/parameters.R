@@ -523,8 +523,8 @@ parameterise_total_M <- function(parameters, total_M) {
 #' Overrides default (median) model parameters with a single draw from the fitted
 #' joint posterior. Must be called prior to set_equilibrium.
 #'
-#' @param parameters 
-#' @param draw The draw to use. Must be in integer between 1 and 1000
+#' @param parameters the model parameters
+#' @param draw the draw to use. Must be in integer between 1 and 1000
 #'
 #' @export
 set_parameter_draw <- function(parameters, draw){

@@ -104,15 +104,17 @@ plot(x = df$timestep, y = df$median,
        type = 'l', col = cols[4],
        xlab = 'Time (days)', ylab = "Cases detected in children aged 2-10 years",
        xaxs = "i", yaxs = "i", bty = "l")
+title('IQR spread')
+plot(x = df$timestep, y = df$mean, 
+       type = 'l', col = cols[4],
+       xlab = 'Time (days)', ylab = "Cases detected in children aged 2-10 years",
+       xaxs = "i", yaxs = "i", bty = "l")
+title('95% Confidence interval')
 
   ggplot(df)+
-    geom_line(aes(x = timestep, y = median, group = 1))+
-    geom_ribbon(aes(x = timestep, ymin = lowq, ymax = highq), alpha = .2)+
-    xlab('timestep') + ylab('Cases detected in children aged 2-10 years') + ggtitle('IQR spread')
+    geom_ribbon(aes(x = timestep, ymin = lowq, ymax = highq), alpha = .2)
   ggplot(df)+
-    geom_line(aes(x = timestep, y = mean, group = 1))+
-    geom_ribbon(aes(x = timestep, ymin = lowci, ymax = highci), alpha = .2)+
-    xlab('timestep') + ylab('Cases detected in children aged 2-10 years') + ggtitle('95% confidence interval')
+    geom_ribbon(aes(x = timestep, ymin = lowci, ymax = highci), alpha = .2)
 
 ```
 

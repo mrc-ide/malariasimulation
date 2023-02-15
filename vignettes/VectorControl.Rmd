@@ -63,9 +63,9 @@ plot_prevalence <- function(output) {
 
 add_intervention_lines <- function(plot, events) {
   plot
-  abline(v = events$timestep, col = cols[6])
+  abline(v = events$timestep, col = cols[6], lwd = 2.5)
   text(x = events$timestep - 20, y = 0.4, events$name,
-       cex = 1, col = 'black', srt = 90)
+       cex = 1, col = cols[1], srt = 90)
 }
 ```
 
@@ -109,21 +109,17 @@ The average population bednet usage will be influenced by:
 
 The output from `malariasimulation::run_simulation()` has a variable that shows the number of people using bednets at any given timestep. We can visualise this to understand how bednet usage changes over time. 
 
-
 ```{r}
-plot(x = output$timestep, y = output$n_use_net, type = 'l', col = '',
-       xlab = 'Timestep (days)', ylab = 'N using bednets',
-       xaxs = "i", yaxs = "i", bty = "l")
+plot(x = output$timestep, y = output$n_use_net, type = 'l', col = cols[1],
+     xlab = 'Timestep (days)', ylab = 'N using bednets',
+     xaxs = "i", yaxs = "i", bty = "l")
 ```
   
 ## Using the `netz` package to estimate coverage inputs needed to achieve target population usage
 
-The [`netz` package](https://mrc-ide.github.io/netz/index.html) is a useful tool to help set up bednets in `malariasimulation`. `malariasimulation` takes as input the proportion of the population who were distributed a bednet at specific time points, but the available data do not always have this information. `netz` allows for simple conversions between bednet metrics like crop, access, distribution, and usage.  
+The [`netz` package](https://mrc-ide.github.io/netz/index.html) is a useful tool to help set up bednets in `malariasimulation`. `malariasimulation` takes as input the proportion of the population who were distributed a bednet at specific time points, but available data for a specific region or country do not always have this information. `netz` allows for simple conversions between bednet metrics like crop, access, distribution, and usage.  
   
-See the vignettes from the `netz` package: 
-* [here](https://mrc-ide.github.io/netz/articles/overview.html) that explains how to estimate the distribution coverage from a specified usage. 
-* [here](https://mrc-ide.github.io/netz/articles/population_usage.html) that explains how to estimate population usage from input distribution. 
-```{r}
-
-```
+See the vignettes from the `netz` package that explain these concepts more comprehensively: 
+* [This vignette](https://mrc-ide.github.io/netz/articles/overview.html) explains how to estimate the distribution coverage from a specified bednet usage. 
+* [This vignette](https://mrc-ide.github.io/netz/articles/population_usage.html) demonstrates how to estimate population bednet usage from input distribution. 
 

@@ -44,6 +44,9 @@ simparams <- set_equilibrium(simparams, starting_EIR)
 
 We can create a few plotting functions to visualise the output.
 ```{r}
+cols <- c("#000000", "#E69F00", "#56B4E9", "#009E73", 
+          "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
 # Plotting functions
 plot_prevalence <- function(output) {
   plot(x = output$timestep, y = output$n_detect_730_3650/output$n_730_3650, type = 'l',
@@ -53,9 +56,9 @@ plot_prevalence <- function(output) {
 
 add_intervention_lines <- function(plot, events) {
   plot
-  abline(v = events$timestep, col = 'blue')
-  text(x = events$timestep-20, y = 0.018, events$name,
-       cex = 1, col = 'black', srt = 90)
+  abline(v = events$timestep, col = cols[6], lwd = 2.5)
+  text(x = events$timestep - 20, y = 0.4, events$name,
+       cex = 1, col = cols[1], srt = 90)
 }
 ```
 
@@ -89,7 +92,9 @@ add_intervention_lines(plot_prevalence(output), spraying_events)
 ```
 
 ## Additional species 
-It is possible to account for varying proportions of mosquito species in the setting you are modelling using the `set_species()` function. If you have specified more than 1 species, then the arguments for set_spraying() and set_bednets() must be populated with values for each species at each time point. 
+It is possible to account for varying proportions of mosquito species in the setting you are modelling using the `set_species()` function. If you have specified more than 1 species, then the arguments for `set_spraying()` and `set_bednets()` must be populated with values for each species at each time point. 
+
+We will run the same model with IRS as above, but this time with 3 species of mosquitoes. Note that now there are 3 columns for the `ls_theta`, `ls_gamma`, `ks_theta`, `ks_gamma`, `ms_theta`, and `ms_gamma` arguments. Each column corresponds to a species of mosquito, and each row corresponds to the timestep when a round of IRS occurred. Here, we are assuming the same values for each species at each timepoint for simplicity, but the matrix could be edited to have different values by species or over time. 
 ```{r}
 # Setting 3 species of mosquitoes, 25% An. arabiensis, 25% An. funestus, and 50% An. gambiae
 simparams <- set_species(
@@ -98,7 +103,6 @@ simparams <- set_species(
   proportions = c(0.25, 0.25, 0.5)
 )
 
-#Here we will run the same model with IRS as before, but this time with 3 species of mosquitoes. Note that now there are 3 columns for the ls_theta, ls_gamma, ks_theta, ks_gamma, ms_theta, and ms_gamma arguments. Each column corresponds to a species and each row corresponds to a timestep when a round of IRS occurred. Here, we are assuming the same values for each species for simplicity. 
 sprayingparams <- simparams
 
 peak <- peak_season_offset(sprayingparams)
@@ -111,12 +115,12 @@ sprayingparams <- set_spraying(
   sprayingparams,
   timesteps = spraying_events$timestep,
   coverages = rep(.8, 2), # # Each round covers 80% of the population 
-  ls_theta = matrix(c(2.025, 2.025), nrow=2, ncol=3), # Matrix of mortality parameters
-  ls_gamma = matrix(c(-0.009, -0.009), nrow=2, ncol=3), # Matrix of mortality parameters per timestep
-  ks_theta = matrix(c(-2.222, -2.222), nrow=2, ncol=3), # Matrix of feeding success parameters
-  ks_gamma = matrix(c(0.008, 0.008), nrow=2, ncol=3), # Matrix of feeding success parameters per timestep
-  ms_theta = matrix(c(-1.232, -1.232), nrow=2, ncol=3), # Matrix of deterrence parameters
-  ms_gamma = matrix(c(-0.009, -0.009), nrow=2, ncol=3) # Matrix of deterrence parameters per timestep
+  ls_theta = matrix(2.025, nrow=2, ncol=3), # Matrix of mortality parameters
+  ls_gamma = matrix(-0.009, nrow=2, ncol=3), # Matrix of mortality parameters per timestep
+  ks_theta = matrix(-2.222, nrow=2, ncol=3), # Matrix of feeding success parameters
+  ks_gamma = matrix(0.008, nrow=2, ncol=3), # Matrix of feeding success parameters per timestep
+  ms_theta = matrix(-1.232, nrow=2, ncol=3), # Matrix of deterrence parameters
+  ms_gamma = matrix(-0.009, nrow=2, ncol=3) # Matrix of deterrence parameters per timestep
 )
 
 output <- run_simulation(sim_length, sprayingparams)

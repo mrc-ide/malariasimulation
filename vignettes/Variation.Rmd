@@ -9,7 +9,6 @@ vignette: >
 
 ```{r setup, include=FALSE}
 library(malariasimulation)
-library(cowplot)
 ```
 
 First we will create a few plotting functions to visualise outputs. 
@@ -100,22 +99,27 @@ df <- aggregate(
 df <- data.frame(cbind(timestep = df$Group.1, df$x))
 
 par(mfrow = c(1,2))
+xx <- c(df$timestep, rev(df$timestep))
+yy <- c(df$lowq, rev(df$highq))
 plot(x = df$timestep, y = df$median, 
-       type = 'l', col = cols[4],
+       type = 'n', xlim = c(-1,365),ylim = c(510,565),
        xlab = 'Time (days)', ylab = "Cases detected in children aged 2-10 years",
        xaxs = "i", yaxs = "i", bty = "l")
+polygon(xx, yy,
+        col = 'grey90', border= 'grey95')
+lines(x = df$timestep, y = df$median, col = cols[4], lwd = 2)
 title('IQR spread')
+
+xx <- c(df$timestep, rev(df$timestep))
+yy <- c(df$lowci, rev(df$highci))
 plot(x = df$timestep, y = df$mean, 
-       type = 'l', col = cols[4],
+       type = 'n', xlim = c(-1,365),ylim = c(490,590),
        xlab = 'Time (days)', ylab = "Cases detected in children aged 2-10 years",
        xaxs = "i", yaxs = "i", bty = "l")
+polygon(xx, yy,
+        col = 'grey90', border= 'grey95')
+lines(x = df$timestep, y = df$mean, col = cols[4], lwd = 2)
 title('95% Confidence interval')
-
-  ggplot(df)+
-    geom_ribbon(aes(x = timestep, ymin = lowq, ymax = highq), alpha = .2)
-  ggplot(df)+
-    geom_ribbon(aes(x = timestep, ymin = lowci, ymax = highci), alpha = .2)
-
 ```
 
 These are useful techniques for comparing the expected variance from model outputs to outcomes from trials that had lower population sizes.

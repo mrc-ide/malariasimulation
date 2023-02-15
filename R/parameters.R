@@ -533,9 +533,6 @@ set_parameter_draw <- function(parameters, draw){
   }
   parameter_draw <- parameter_draws[[draw]]
   for (name in names(parameter_draw)) {
-    if (!(name %in% names(parameters))) {
-      stop(paste('unknown parameter', name, sep=' '))
-    }
     parameters[[name]] <- parameter_draw[[name]]
   }
   return(parameters)

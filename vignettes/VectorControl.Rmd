@@ -109,8 +109,10 @@ The average population bednet usage will be influenced by:
 The output from `malariasimulation::run_simulation()` has a variable that shows the number of people using bednets at any given timestep. We can visualise this to understand how bednet usage changes over time. 
 
 ```{r}
-plot(x = output$timestep, y = output$n_use_net, type = 'l', col = cols[1],
-     xlab = 'Timestep (days)', ylab = 'N using bednets',
+output$prop_use_net <- output$n_use_net / human_population
+
+plot(x = output$timestep, y = output$prop_use_net, type = 'l', col = cols[1],
+     xlab = 'Timestep (days)', ylab = 'Proportion using bednets',
      xaxs = "i", yaxs = "i", bty = "l")
 ```
   

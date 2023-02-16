@@ -121,12 +121,30 @@ sprayingparams <- set_spraying(
   sprayingparams,
   timesteps = spraying_events$timestep,
   coverages = rep(.8, 2), # # Each round covers 80% of the population 
-  ls_theta = matrix(2.025, nrow=2, ncol=3), # Matrix of mortality parameters
-  ls_gamma = matrix(-0.009, nrow=2, ncol=3), # Matrix of mortality parameters per timestep
-  ks_theta = matrix(-2.222, nrow=2, ncol=3), # Matrix of feeding success parameters
-  ks_gamma = matrix(0.008, nrow=2, ncol=3), # Matrix of feeding success parameters per timestep
-  ms_theta = matrix(-1.232, nrow=2, ncol=3), # Matrix of deterrence parameters
-  ms_gamma = matrix(-0.009, nrow=2, ncol=3) # Matrix of deterrence parameters per timestep
+  ls_theta = matrix(c(rep(2.025, sim_length/year),
+                      rep(2.025, sim_length/year),
+                      rep(2.025, sim_length/year),
+                      nrow=sim_length/year, ncol=3)), # Matrix of mortality parameters
+  ls_gamma = matrix(c(rep(-0.009, sim_length/year),
+                      rep(-0.009, sim_length/year),
+                      rep(-0.009, sim_length/year)),
+                      nrow=sim_length/year, ncol=3), # Matrix of mortality parameters per timestep
+  ks_theta = matrix(c(rep(-2.222, sim_length/year),
+                      rep(-2.222, sim_length/year),
+                      rep(-2.222, sim_length/year)),
+                      nrow=sim_length/year, ncol=3), # Matrix of feeding success parameters
+  ks_gamma = matrix(c(rep(0.008, sim_length/year),
+                      rep(0.008, sim_length/year),
+                      rep(0.008, sim_length/year)),
+                      nrow=sim_length/year, ncol=3), # Matrix of feeding success parameters per timestep
+  ms_theta = matrix(c(rep(-1.232, sim_length/year),
+                      rep(-1.232, sim_length/year),
+                      rep(-1.232, sim_length/year)),
+                      nrow=sim_length/year, ncol=3), # Matrix of deterrence parameters
+  ms_gamma = matrix(c(rep(-0.009, sim_length/year),
+                      rep(-0.009, sim_length/year),
+                      rep(-0.009, sim_length/year)),
+                      nrow=sim_length/year, ncol=3) # Matrix of deterrence parameters per timestep
 )
 
 output <- run_simulation(sim_length, sprayingparams)

@@ -524,7 +524,7 @@ parameterise_total_M <- function(parameters, total_M) {
 #' joint posterior. Must be called prior to set_equilibrium.
 #'
 #' @param parameters the model parameters
-#' @param draw the draw to use. Must be in integer between 1 and 1000
+#' @param draw the draw to use. Must be an integer between 1 and 1000
 #'
 #' @export
 set_parameter_draw <- function(parameters, draw){

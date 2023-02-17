@@ -12,7 +12,7 @@
 #'
 #' * dd - the delay for humans to move from state D to A; default = 5
 #' * dt - the delay for humans to move from state Tr to Ph; default = 5
-#' * da - the delay for humans to move from state A to U; default = 200
+#' * da - the delay for humans to move from state A to U; default = 195
 #' * du - the delay for humans to move from state U to S; default = 110
 #' * del - the delay for mosquitoes to move from state E to L; default = 6.64
 #' * dl - the delay for mosquitoes to move from state L to P; default = 3.72
@@ -86,7 +86,7 @@
 #'
 #' mortality parameters:
 #'
-#' * average_age - the average age of humans (in timesteps), this is only used 
+#' * average_age - the average age of humans (in timesteps), this is only used
 #' if custom_demography is FALSE; default = 7663
 #' * pcm - new-born clinical immunity relative to mother's; default = 0.774368
 #' * pvm - new-born severe immunity relative to mother's; default = 0.195768
@@ -95,7 +95,7 @@
 #'
 #' carrying capacity parameters:
 #'
-#' * model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall; default = FALSE 
+#' * model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall; default = FALSE
 #' * g0 - rainfall fourier parameter; default = 2
 #' * g - rainfall fourier parameter; default = 0.3, 0.6, 0.9
 #' * h - rainfall fourier parameters; default = 0.1, 0.4, 0.7
@@ -135,19 +135,19 @@
 #' * beta - the average number of eggs laid per female mosquito per day; default = 21.2
 #' * total_M - the initial number of adult mosquitos in the simulation; default = 1000
 #' * init_foim - the FOIM used to calculate the equilibrium state for mosquitoes; default = 0
-#' * species - names of the species in the simulation; default = "All" 
+#' * species - names of the species in the simulation; default = "All"
 #' * species_proportions - the relative proportions of each species; default = 1
 #' * blood_meal_rates - the blood meal rates for each species; default = 0.3333333333
 #' * Q0 - proportion of blood meals taken on humans; default = 0.92
 #' * foraging_time - time spent taking blood meals; default = 0.69
 #'
-#' feeding cycle: 
+#' feeding cycle:
 #' please set vector control strategies using `set_betnets` and `set_spraying`
 #'
-#' * bednets - boolean for if bednets are enabled; default = FALSE 
+#' * bednets - boolean for if bednets are enabled; default = FALSE
 #' * phi_bednets - proportion of bites taken in bed; default = 0.85
 #' * k0 - proportion of females bloodfed with no net; default = 0.699
-#' * spraying - boolean for if indoor spraying is enabled; default = FALSE 
+#' * spraying - boolean for if indoor spraying is enabled; default = FALSE
 #' * phi_indoors - proportion of bites taken indoors; default = 0.90
 #'
 #' treatment parameters:
@@ -164,7 +164,7 @@
 #' clinically diseased (these values refer to the index in drug_* parameters); default = NULL, NULL, NULL
 #' * clinical_treatment_coverage - a vector of coverage values for each drug; default = NULL, NULL, NULL
 #'
-#' RTS,S paramters: 
+#' RTS,S paramters:
 #' please set RTS,S strategies with the convenience functions in
 #' `vaccine_parameters.R:set_rtss_epi`
 #' `vaccine_parameters.R:set_mass_rtss`
@@ -185,7 +185,7 @@
 #' MDA, SMC and PMC parameters:
 #' please set these parameters with the convenience functions in `mda_parameters.R`
 #'
-#' TBV parameters: 
+#' TBV parameters:
 #' please set TBV parameters with the convenience functions in
 #' `vaccine_parameters.R:set_tbv`
 #'
@@ -210,7 +210,7 @@
 #' * prevalence_rendering_max_ages - the corresponding max ages; default = 3650
 #' * incidence_rendering_min_ages - the minimum ages for incidence
 #' outputs (includes asymptomatic microscopy +); default = turned off
-#' * incidence_rendering_max_ages - the corresponding max ages; default = turned off 
+#' * incidence_rendering_max_ages - the corresponding max ages; default = turned off
 #' * clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = 0
 #' * clinical_incidence_rendering_max_ages - the corresponding max ages; default = 1825
 #' * severe_incidence_rendering_min_ages - the minimum ages for severe incidence
@@ -225,19 +225,19 @@
 #' * mosquito_limit - the maximum number of mosquitoes to allow for in the
 #' simulation; default = 1.00E+05
 #' * individual_mosquitoes - boolean whether adult mosquitoes are modeled
-#' individually or compartmentally; default = TRUE 
+#' individually or compartmentally; default = TRUE
 #' * r_tol - the relative tolerance for the ode solver; default = 1e-4
 #' * a_tol - the absolute tolerance for the ode solver; default = 1e-4
 #' * ode_max_steps - the max number of steps for the solver; default = 1e6
 #' * enable_heterogeneity - boolean whether to include heterogeneity in biting
-#' rates; default = TRUE 
+#' rates; default = TRUE
 #'
 #' @export
 get_parameters <- function(overrides = list()) {
   parameters <- list(
     dd    = 5,
     dt    = 5,
-    da    = 200,
+    da    = 195,
     du    = 110,
     del   = 6.64,
     dl    = 3.72,

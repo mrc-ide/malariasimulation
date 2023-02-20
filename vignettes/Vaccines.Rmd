@@ -17,6 +17,7 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(malariasimulation)
 library(dplyr)
+library(tidyr)
 
 cols <- c("#000000", "#E69F00", "#56B4E9", "#009E73", 
           "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
@@ -127,15 +128,19 @@ rtssparams <- set_mass_rtss(
 output <- run_simulation(sim_length, rtssparams)
 ```
 
-# Plot clinical incidence and prevalence
-```{r, fig.show='hold', fig.align='center'}
+### Plot clinical incidence
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center'}
 plot_inci()
+```
+
+### Plot prevalence
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center'}
 plot_prev()
 ```
 
-
+### Plot doses
 You can look at the distribution of doses using the `n_rtss_mass_dose\_\*` or `n_rtss_epi_dose\_\*` outputs. It is always a good idea to check the timing of vaccine doses to ensure that it is specified as intended.
-```{r}
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center'}
 plot_doses()
 ```
 
@@ -160,13 +165,19 @@ rtssepiparams <- set_rtss_epi(
 output <- run_simulation(sim_length * 2, rtssepiparams)
 ```
 
-# Plot clinical incidence and prevalence
-```{r, fig.show='hold', fig.align='center'}
+
+### Plot clinical incidence
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center'}
 plot_inci()
-plot_prev(ytext = 0.51)
 ```
 
-```{r}
+### Plot prevalence
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center'}
+plot_prev()
+```
+
+### Plot doses
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center'}
 plot_doses()
 ```
   
@@ -199,14 +210,19 @@ rtssepiseasonalparams <- set_rtss_epi(
 output <- run_simulation(sim_length * 2, rtssepiseasonalparams)
 ```
 
-# Plot clinical incidence and prevalence
-```{r, fig.show='hold', fig.align='center'}
-plot_inci(ytext = 15)
-plot_prev(ytext = 0.51)
+
+### Plot clinical incidence
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center'}
+plot_inci()
 ```
 
+### Plot prevalence
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center'}
+plot_prev()
+```
 
-```{r}
+### Plot doses
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center'}
 plot_doses()
 ```
 
@@ -231,13 +247,19 @@ rtssepiparams2 <- set_rtss_epi(
 output <- run_simulation(sim_length * 2, rtssepiparams2)
 ```
 
-# Plot clinical incidence and prevalence
-```{r, fig.show='hold', fig.align='center'}
-plot_inci(ytext = 6)
-plot_prev(ytext = 0.52)
+
+### Plot clinical incidence
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center'}
+plot_inci()
 ```
 
-```{r}
+### Plot prevalence
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center'}
+plot_prev()
+```
+
+### Plot doses
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center'}
 plot_doses()
 ```
   
@@ -259,15 +281,12 @@ tbvparams <- set_tbv(
 output <- run_simulation(sim_length, tbvparams)
 ```
 
-# Plot clinical incidence and prevalence
-```{r, fig.show='hold', fig.align='center'}
-plot_inci(ytext = 15)
-plot_prev(ytext = 0.51)
+### Plot clinical incidence
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center'}
+plot_inci()
 ```
 
-
-You can look at the distribution of doses using the `n_rtss_mass_dose\_\*` outputs. It is always a good idea to check the timing of vaccine doses to ensure that it is specified as intended.
-
-```{r}
-plot_doses()
+### Plot prevalence
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center'}
+plot_prev()
 ```

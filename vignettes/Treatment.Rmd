@@ -15,7 +15,6 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-suppressPackageStartupMessages(library(ggplot2))
 library(malariasimulation)
 library(malariaEquilibrium)
 ```
@@ -58,7 +57,20 @@ df <- do.call('rbind', lapply(seq_along(outputs), function(i) {
   df
 }))
     
-ggplot(df) + geom_line(
-  aes(x = timestep, y = (n_detect_730_3650/n_730_3650), colour = ft)) + 
-  labs(x = "timestep", y = "PfPR2-10")
+colorBlindBlack8  <- c("#000000", "#E69F00", "#56B4E9", "#009E73", 
+                       "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+Treatment_plot_function <- function(df){
+    par(fig=c(0,0.9,0,1), cex = 0.8, mai = c(0.8,0.8,0.3,0.1))
+  with(df[df$ft==unique(df$ft)[1],], expr = plot(x = timestep, y = n_detect_730_3650/n_730_3650, type = "l",
+                                                 xlab = "Days", ylab = expression(paste(italic(Pf),"PR"[2-10])),
+                                                 ylim = c(min(df$n_detect_730_3650/df$n_730_3650),max(df$n_detect_730_3650/df$n_730_3650)), col = colorBlindBlack8[1]))
+  invisible(sapply(2:length(unique(df$ft)), function(x){
+    with(df[df$ft==unique(df$ft)[x],], expr = points(x = timestep, y = n_detect_730_3650/n_730_3650, type = "l", col = colorBlindBlack8[x]))
+}))
+  par(fig=c(0.9,1,0,1), cex = 0.8, new = T, xpd = T, mai = c(0,0,0,0))
+  legend("right", legend = unique(df$ft), col = colorBlindBlack8, bty = "n", lty = 1, title = "Coverage")
+}
+
+Treatment_plot_function(df)
 ```

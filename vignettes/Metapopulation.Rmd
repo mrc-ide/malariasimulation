@@ -129,16 +129,17 @@ Mix_vec <- unique(output$mix)
 EIR_vec <- unique(output$EIR)
 
 Xlab_vec <- c("","Time (years)","")
-Ylab_vec <- c("PfPR 2-10 (months)","","")
+Ylab_vec <- c(expression(paste(italic(Pf),"PR"[2-10])),"","")
 New_vec <- c(F,T,T)
 
 Plot_Mixing <- function(output){
   for(i in 1:3){
     par(fig=Panel_spec[i,], cex = 0.8, mai = Margin_spec[i,], new = New_vec[i])
     with(subset(output,output$mix == Mix_vec[i] & output$EIR == EIR_vec[1]),{
-      plot(x = year, y = prev2to10, type = "l", col = colorBlindBlack8[1], ylim = c(0,0.35), yaxt = "n", xaxs = "i", yaxs = "i", ylab = Ylab_vec[i], xlab = Xlab_vec[i])
+      plot(x = year, y = prev2to10, type = "l", col = colorBlindBlack8[1], ylim = c(0,0.36), yaxt = "n", xaxs = "i", yaxs = "i", ylab = Ylab_vec[i], xlab = Xlab_vec[i])
       if(i ==1){axis(side = 2, at = seq(0,0.4,by=0.1))}
       title(gsub("(^[[:alpha:]])", "\\U\\1", Mix_vec[i], perl=TRUE), line = -1.5)
+      abline(h = 0.325)
       
     })
     for(j in 2:3){

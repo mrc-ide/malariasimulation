@@ -26,7 +26,7 @@ cols <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
 # Plotting functions
 ```{r} 
 # Plotting clinical incidence 
-plot_inci <- function(xtext = 1 - 0.1, ytext = 4){
+plot_inci <- function(){
   output$clinical_incidence <- 1000 * output$n_inc_0_1825 / output$n_0_1825
   output$time_year <- output$timestep / year
 
@@ -39,12 +39,11 @@ plot_inci <- function(xtext = 1 - 0.1, ytext = 4){
   lines(output$time_year, predict(curve_values),
         col = cols[6],
         lwd = 3)
-  text(x = xtext, y = ytext, 'Vaccination',
-       cex = 1, col = cols[1], srt = 90)
+  legend('topright', box.lty = 0, legend = 'Vaccination',col = cols[7], lty = 2, lwd = 2.5)
 }
 
 # Plot parasite prevalence
-plot_prev <- function(xtext = 1 - 0.1, ytext = 0.44){
+plot_prev <- function(){
   output$time_year <- output$timestep / year
 
   plot(x = output$time_year, y = output$n_detect_730_3650/output$n_730_3650, 
@@ -52,26 +51,42 @@ plot_prev <- function(xtext = 1 - 0.1, ytext = 0.44){
        xlab = 'Time (years)', ylab = expression(paste(italic(Pf),"PR"[2-10])),
        xaxs = "i", yaxs = "i", bty = "l")
   abline(v = 1, col = cols[7], lty = 2, lwd = 2.5)
-  text(x = xtext, y = ytext, 'Vaccination',
-       cex = 1, col = cols[1], srt = 90)
+  legend('topright', box.lty = 0, legend = 'Vaccination',col = cols[7], lty = 2, lwd = 2.5)
 }
 
 plot_doses <- function(){
   if(any(names(output) == 'n_rtss_epi_dose_1')) {
     doses <- output |> 
-      select(timestep, n_rtss_epi_dose_1:n_rtss_epi_booster_1) |>
-      pivot_longer(n_rtss_epi_dose_1:n_rtss_epi_booster_1, names_to = "dose", values_to = "count") |>
+      select(timestep, starts_with('n_rtss_epi')) |>
+      pivot_longer(starts_with('n_rtss_epi'), names_to = "dose", values_to = "count") |>
       mutate(month = ceiling(timestep / month)) |>
       group_by(month, dose) |>
-      summarize(count = sum(count)) 
+      summarize(count = sum(count)) |>
+      pivot_wider(names_from = dose, values_from = count)
+    
+    barplot(doses$n_rtss_epi_dose_1, doses$month, col = cols[6],
+              xlab = 'Time (months)', ylab = 'Doses (n)')
+    barplot(doses$n_rtss_epi_dose_2, doses$month, add = TRUE, col = cols[7])
+    barplot(doses$n_rtss_epi_dose_3, doses$month, add = TRUE, col = cols[8])
+    barplot(doses$n_rtss_epi_booster_1, doses$month, add = TRUE, col = cols[5])
+    
   } else if (any(names(output) == 'n_rtss_mass_dose_1')) {
     doses <- output |> 
-      select(timestep, n_rtss_mass_dose_1:n_rtss_mass_booster_1) |>
-      pivot_longer(n_rtss_mass_dose_1:n_rtss_mass_booster_1, names_to = "dose", values_to = "count") |>
+      select(timestep, starts_with('n_rtss_mass')) |>
+      pivot_longer(starts_with('n_rtss_mass'), names_to = "dose", values_to = "count") |>
       mutate(month = ceiling(timestep / month)) |>
       group_by(month, dose) |>
-      summarize(count = sum(count))
+      summarize(count = sum(count)) |>
+      pivot_wider(names_from = dose, values_from = count)
+    
+      barplot(doses$n_rtss_mass_dose_1,doses$month, col = cols[6],
+              xlab = 'Time (months)', ylab = 'Doses (n)')
+      barplot(doses$n_rtss_mass_dose_2, doses$month, add = TRUE, col = cols[7])
+      barplot(doses$n_rtss_mass_dose_3, doses$month, add = TRUE, col = cols[8])
+      barplot(doses$n_rtss_mass_booster_1, doses$month, add = TRUE, col = cols[5])
+      
   }
+  
   
   plot(x = doses$month, y = doses$count, type = 'h', 
        lwd = 10, lend=1, ylim = c(0,max(doses$count + 500)),
@@ -80,6 +95,7 @@ plot_doses <- function(){
        xaxs = "i", yaxs = "i", bty = "l")
   text(x = max(doses$month[doses$count!=0])-1, y =500, 'Booster',
        cex = 1, col = cols[1], srt = 90)
+  # legend('topright', box.lty = 0, legend = 'Vaccination',col = cols[7], lty = 2, lwd = 2.5)
 }
 ```
 

@@ -70,7 +70,7 @@ plot_doses <- function(){
           col = cols[2:7],
           beside = FALSE)
     legend('topleft', box.lty = 0, legend = c('Booster 1','Dose 1','Dose 2','Dose 3'),
-           col = cols[2:7], lty = rep(1, 4), lwd = 2.5)
+           col = cols[2:7], lty = rep(1, 4), lwd = 2.5,bg="transparent")
     
   } else if (any(names(output) == 'n_rtss_mass_dose_1')) {
     doses <- output |> 
@@ -86,8 +86,8 @@ plot_doses <- function(){
             ylab = 'Number of doses',
           col = cols[2:7],
           beside = FALSE)
-    legend('topleft', box.lty = 0, legend = c('Booster 1','Dose 1','Dose 2','Dose 3'),
-           col = cols[2:7], lty = rep(1, 4), lwd = 2.5)
+    legend('topleft',  box.lty = 0, legend = c('Booster 1','Dose 1','Dose 2','Dose 3'),
+           col = cols[2:7], lty = rep(1, 4), lwd = 2.5,bg="transparent")
   }
 }
 ```
@@ -176,17 +176,17 @@ output <- run_simulation(sim_length * 2, rtssepiparams)
 
 
 ### Plot clinical incidence
-```{r, fig.width = 8, fig.height = 4, fig.align = 'center'}
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center'}
 plot_inci()
 ```
 
 ### Plot prevalence
-```{r, fig.width = 8, fig.height = 4, fig.align = 'center'}
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center'}
 plot_prev()
 ```
 
 ### Plot doses
-```{r, fig.width = 8, fig.height = 4, fig.align = 'center'}
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center'}
 plot_doses()
 ```
   
@@ -221,17 +221,17 @@ output <- run_simulation(sim_length * 2, rtssepiseasonalparams)
 
 
 ### Plot clinical incidence
-```{r, fig.width = 8, fig.height = 4, fig.align = 'center'}
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center'}
 plot_inci()
 ```
 
 ### Plot prevalence
-```{r, fig.width = 8, fig.height = 4, fig.align = 'center'}
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center'}
 plot_prev()
 ```
 
 ### Plot doses
-```{r, fig.width = 8, fig.height = 4, fig.align = 'center'}
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center'}
 plot_doses()
 ```
 
@@ -258,17 +258,17 @@ output <- run_simulation(sim_length * 2, rtssepiparams2)
 
 
 ### Plot clinical incidence
-```{r, fig.width = 8, fig.height = 4, fig.align = 'center'}
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center'}
 plot_inci()
 ```
 
 ### Plot prevalence
-```{r, fig.width = 8, fig.height = 4, fig.align = 'center'}
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center'}
 plot_prev()
 ```
 
 ### Plot doses
-```{r, fig.width = 8, fig.height = 4, fig.align = 'center'}
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center'}
 plot_doses()
 ```
   
@@ -291,11 +291,11 @@ output <- run_simulation(sim_length, tbvparams)
 ```
 
 ### Plot clinical incidence
-```{r, fig.width = 8, fig.height = 4, fig.align = 'center'}
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center'}
 plot_inci()
 ```
 
 ### Plot prevalence
-```{r, fig.width = 8, fig.height = 4, fig.align = 'center'}
+```{r, fig.width = 6, fig.height = 4, fig.align = 'center'}
 plot_prev()
 ```

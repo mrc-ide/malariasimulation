@@ -11,7 +11,11 @@ vignette: >
 library(malariasimulation)
 ```
 
-First we will create a few plotting functions to visualise outputs. 
+## Variation in outputs
+
+Malariasimulation is a stochastic model, meaning that randomness is incorporated, so there will be be variation in model outputs. To illustrate this, we could compare the prevalence of malaria over a year in simulations with a small and a larger population.
+
+### First we will create a few plotting functions to visualise outputs. 
 ```{r}
 cols <- c("#000000", "#E69F00", "#56B4E9", "#009E73", 
           "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
@@ -19,21 +23,23 @@ cols <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
 plot_n_detect <- function(output){
   plot(x = output$timestep, y = output$n_detect_730_3650, 
        type = 'l', col = cols[4],
-       xlab = 'Time (days)', ylab = "Cases detected in children \naged 2-10 years",
+       xlab = 'Time (days)', ylab = "Cases detected in children aged 2-10 years",
        xaxs = "i", yaxs = "i", bty = "l")
 }
 
 plot_p_detect <- function(output){
   plot(x = output$timestep, y = output$p_detect_730_3650, 
        type = 'l', col = cols[4],
-       xlab = 'Time (days)', ylab = "Sum of probabilities of case detection\nin children aged 2-10 years",
+       xlab = 'Time (days)', ylab = "Sum of probabilities of case detection \nin children aged 2-10 years",
        xaxs = "i", yaxs = "i", bty = "l")
 }
 ```
-## Variation in outputs
 
-Malariasimulation is a stochastic model, so there will be be variation in model outputs. To illustrate this, we could compare the prevalence of malaria cases over a year in simulations with a small and a larger population.
+### Simulations
 
+The `n_detect` output below shows the result of sampling individuals who would have cases of malaria that were detected by microscopy, while the `p_detect` output shows the sum of individual probabilities of detection of malaria in the population.
+
+Notice that the `p_detect` output is slightly smoother. This is because it forgoes the sampling step, so at low population sizes, `p_detect` will be smoother than its `n_detect` counterpart.
 ```{r, fig.align='center',fig.height=6, fig.width=9}
 # A small population
 params <- get_parameters(list(
@@ -62,9 +68,6 @@ plot_p_detect(big_pop)
 title('p_detect at n = 10,000')
 ```
 
-The `n_detect` output shows the result of sampling individuals who would be detected by microscopy, while the `p_detect` output shows the sum of probabilities of detection in the population.
-
-Notice that the `p_detect` output is slightly smoother. This is because it forgoes the sampling step, so at low population sizes, `p_detect` will be smoother than its `n_detect` counterpart.
 
 ## Estimating variation 
 

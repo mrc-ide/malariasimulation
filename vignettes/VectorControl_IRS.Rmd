@@ -53,18 +53,13 @@ cols <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
           "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 # Plotting functions
-plot_prevalence <- function(output) {
+plot_prev <- function(output) {
   plot(x = output$timestep, y = output$n_detect_730_3650/output$n_730_3650, 
-       type = 'l', col = cols[4],
+       type = 'l', col = cols[4], lwd = 2.5,
        xlab = 'Time (days)', ylab = expression(paste(italic(Pf),"PR"[2-10])),
        xaxs = "i", yaxs = "i", bty = "l")
-}
-
-add_intervention_lines <- function(plot, events) {
-  plot
-  abline(v = events$timestep, lty = 2, lwd = 2.5)
-  text(x = events$timestep - 20, y = 0.4, events$name,
-       cex = 1, col = cols[1], srt = 90)
+  abline(v = sprayingtimesteps, lty = 2, lwd = 2.5, col = cols[7])
+  legend('topright', box.lty = 0, legend = 'Spraying',col = cols[7], lty = 2, lwd = 2.5)
 }
 ```
 
@@ -75,14 +70,12 @@ Then we can run the simulation for a variety of IRS strategies. In the example b
 sprayingparams <- simparams
 
 peak <- peak_season_offset(sprayingparams)
-spraying_events = data.frame(
-  timestep = c(1, 2) * year + peak - 3 * month, # There is a round of IRS in the 1st and second year 3 months prior to peak transmission.
-  name=c("Spraying 1", "Spraying 2") # These are labels for the two rounds of IRS 
-)
+
+sprayingtimesteps <- c(1, 2) * year + peak - 3 * month # There is a round of IRS in the 1st and second year 3 months prior to peak transmission.
 
 sprayingparams <- set_spraying(
   sprayingparams,
-  timesteps = spraying_events$timestep,
+  timesteps = sprayingtimesteps,
   coverages = rep(.8, 2), # # Each round covers 80% of the population 
   ls_theta = matrix(c(2.025, 2.025), nrow=2, ncol=1), # Matrix of mortality parameters
   ls_gamma = matrix(c(-0.009, -0.009), nrow=2, ncol=1), # Matrix of mortality parameters per timestep
@@ -94,7 +87,7 @@ sprayingparams <- set_spraying(
 
 output <- run_simulation(sim_length, sprayingparams)
 
-add_intervention_lines(plot_prevalence(output), spraying_events)
+plot_prev(output)
 ```
 
 ## Additional species 
@@ -112,14 +105,12 @@ simparams <- set_species(
 sprayingparams <- simparams
 
 peak <- peak_season_offset(sprayingparams)
-spraying_events = data.frame(
-  timestep = c(1, 2) * year + peak - 3 * month, # There is a round of IRS in the 1st and second year 3 months prior to peak transmission.
-  name=c("Spraying 1", "Spraying 2") # These are labels for the two rounds of IRS 
-)
+
+sprayingtimesteps <- c(1, 2) * year + peak - 3 * month # There is a round of IRS in the 1st and second year 3 months prior to peak transmission.
 
 sprayingparams <- set_spraying(
   sprayingparams,
-  timesteps = spraying_events$timestep,
+  timesteps = sprayingtimesteps,
   coverages = rep(.8, 2), # # Each round covers 80% of the population 
   ls_theta = matrix(c(rep(2.025, length(spraying_events$timestep))),
                       nrow=length(spraying_events$timestep), ncol=3), # Matrix of mortality parameters; nrows=length(timesteps), ncols=length(species) 

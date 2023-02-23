@@ -55,15 +55,11 @@ cols <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
 # Plotting functions
 plot_prevalence <- function(output) {
   plot(x = output$timestep, y = output$n_detect_730_3650/output$n_730_3650, 
-       type = 'l', col = cols[4],
+       type = 'l', col = cols[4], lwd = 2.5,
        xlab = 'Time (days)', ylab = expression(paste(italic(Pf),"PR"[2-10])),
        xaxs = "i", yaxs = "i", bty = "l")
+  abline(v = bednetstimesteps, col = cols[7], lty = 2, lwd = 2.5)
   legend('topright', box.lty = 0, legend = 'Bednets',col = cols[7], lty = 2, lwd = 2.5)
-}
-
-add_intervention_lines <- function(plot, events) {
-  plot
-  abline(v = events$timestep, col = cols[7], lty = 2, lwd = 2.5)
 }
 ```
 
@@ -74,14 +70,11 @@ Then we can run the simulation for a variety of bednet strategies. In the exampl
 ```{r, fig.align='center', fig.height=4, fig.width=6}
 bednetparams <- simparams
 
-bednet_events = data.frame(
-  timestep = c(1, 2) * year,       # The bednets will be distributed at the end of the first and the second year. 
-  name=c("Bednets 1", "Bednets 2") # These are labels for the two distributions. 
-)
+bednetstimesteps <- c(1, 2) * year       # The bednets will be distributed at the end of the first and the second year. 
 
 bednetparams <- set_bednets(
   bednetparams,
-  timesteps = bednet_events$timestep, 
+  timesteps = bednetstimesteps,
   coverages = c(.8, .8),  # Each round is distributed to 80% of the population 
   retention = 5 * year, # Nets are kept on average 5 years
   dn0 = matrix(c(.533, .45), nrow=2, ncol=1), # Matrix of death probabilities for each mosquito species over time
@@ -110,8 +103,9 @@ The output from `malariasimulation::run_simulation()` has a variable that shows 
 ```{r, fig.align='center', fig.height=4, fig.width=6}
 output$prop_use_net <- output$n_use_net / human_population
 
-plot(x = output$timestep, y = output$prop_use_net, type = 'l', col = cols[1],
-     xlab = 'Timestep (days)', ylab = 'Proportion using bednets',
+plot(x = output$timestep, y = output$prop_use_net, type = 'l', 
+     col = cols[4], lwd = 2.5,
+     xlab = 'Timestep (days)', ylab = 'Proportion of population using bednets',
      xaxs = "i", yaxs = "i", bty = "l")
 ```
   

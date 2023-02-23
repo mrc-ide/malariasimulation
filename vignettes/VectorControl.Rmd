@@ -58,13 +58,12 @@ plot_prevalence <- function(output) {
        type = 'l', col = cols[4],
        xlab = 'Time (days)', ylab = expression(paste(italic(Pf),"PR"[2-10])),
        xaxs = "i", yaxs = "i", bty = "l")
+  legend('topright', box.lty = 0, legend = 'Bednets',col = cols[7], lty = 2, lwd = 2.5)
 }
 
 add_intervention_lines <- function(plot, events) {
   plot
-  abline(v = events$timestep, lty = 2, lwd = 2.5)
-  text(x = events$timestep - 20, y = 0.4, events$name,
-       cex = 1, col = cols[1], srt = 90)
+  abline(v = events$timestep, col = cols[7], lty = 2, lwd = 2.5)
 }
 ```
 

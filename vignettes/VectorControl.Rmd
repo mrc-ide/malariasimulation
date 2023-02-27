@@ -19,7 +19,9 @@ library(malariasimulation)
 library(malariaEquilibrium)
 ```
 
-# Parameterisation
+Bednets can be incorporated into the simulations, with various timings and coverage and in settings with specified proportions of mosquito species. 
+
+### Parameterisation
 
 We will set the default parameters to run the simulation from an equilibrium.
 
@@ -47,6 +49,7 @@ simparams <- get_parameters(
 simparams <- set_equilibrium(simparams, starting_EIR)
 ```
 
+### Plotting functions
 We can create a few plotting functions to visualise the output.
 ```{r}
 cols <- c("#000000", "#E69F00", "#56B4E9", "#009E73", 
@@ -85,19 +88,19 @@ bednetparams <- set_bednets(
 
 output <- run_simulation(sim_length, bednetparams)
 
-add_intervention_lines(plot_prevalence(output), bednet_events)
+plot_prevalence(output)
 ```
   
+## Visualising bednet usage 
 
 It is important to understand the difference between the input `coverages` argument of `malariasimulation::set_bednets()` and the resulting population bednet usage over time in the model. In the above example, bednets are distributed to 80% of the population at each distribution round. 
   
-The average population bednet usage will be influenced by: 
-* The size and frequency of distributions specified in `set_bednets()`
-* The assumed net retention half life
-* Correlations in the recipients of nets between rounds
-  
-### Visualising bednet usage
+The average population bednet usage will be influenced by:   
 
+* The size and frequency of distributions specified in `set_bednets()`  
+* The assumed net retention half life  
+* Correlations in the recipients of nets between rounds  
+  
 The output from `malariasimulation::run_simulation()` has a variable that shows the number of people using bednets at any given timestep. We can visualise this to understand how bednet usage changes over time. 
 
 ```{r, fig.align='center', fig.height=4, fig.width=6}
@@ -113,7 +116,8 @@ plot(x = output$timestep, y = output$prop_use_net, type = 'l',
 
 The [`netz` package](https://mrc-ide.github.io/netz/index.html) is a useful tool to help set up bednets in `malariasimulation`. `malariasimulation` takes as input the proportion of the population who were distributed a bednet at specific time points, but available data for a specific region or country do not always have this information. `netz` allows for simple conversions between bednet metrics like crop, access, distribution, and usage.  
   
-See the vignettes from the `netz` package that explain these concepts more comprehensively: 
-* [This vignette](https://mrc-ide.github.io/netz/articles/overview.html) explains how to estimate the distribution coverage from a specified bednet usage. 
+See the vignettes from the `netz` package that explain these concepts more comprehensively:  
+  
+* [This vignette](https://mrc-ide.github.io/netz/articles/overview.html) explains how to estimate the distribution coverage from a specified bednet usage.   
 * [This vignette](https://mrc-ide.github.io/netz/articles/population_usage.html) demonstrates how to estimate population bednet usage from input distribution. 
 

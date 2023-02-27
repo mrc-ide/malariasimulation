@@ -11,11 +11,12 @@ vignette: >
 library(malariasimulation)
 ```
 
-## Variation in outputs
+### Variation in outputs
 
 Malariasimulation is a stochastic model, meaning that randomness is incorporated, so there will be be variation in model outputs. To illustrate this, we could compare the prevalence of malaria over a year in simulations with a small and a larger population.
 
-### First we will create a few plotting functions to visualise outputs. 
+### Plotting functions
+First, we will create a few plotting functions to visualise outputs. 
 ```{r}
 cols <- c("#000000", "#E69F00", "#56B4E9", "#009E73", 
           "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
@@ -35,7 +36,7 @@ plot_p_detect <- function(output){
 }
 ```
 
-### Simulations
+## Simulations
 
 The `n_detect` output below shows the result of sampling individuals who would have cases of malaria that were detected by microscopy, while the `p_detect` output shows the sum of individual probabilities of detection of malaria in the population.
 
@@ -71,7 +72,7 @@ title('p_detect at n = 10,000')
 
 ## Estimating variation 
 
-We can estimate the variation in the number of detectable cases by repeating the simulation several times and plotting the IQR and 95% confidence intervals. 
+We can estimate the variation in the number of detectable cases by repeating the simulation several times and plotting the IQR and 95% confidence intervals. These are useful techniques for comparing the expected variance from model outputs to outcomes from trials that might have had lower population sizes.
 
 ```{r, fig.align='center',fig.height=4, fig.width=8}
 outputs <- run_simulation_with_repetitions(
@@ -127,5 +128,3 @@ title('95% Confidence interval')
 legend('bottom', inset = 0, legend = c('Mean','95% CI'), col = c(cols[4],'grey90'),
        lwd = 5, xpd = TRUE, horiz = TRUE, cex = 1, seg.len=1, bty = 'n')
 ```
-
-These are useful techniques for comparing the expected variance from model outputs to outcomes from trials that might have had lower population sizes.

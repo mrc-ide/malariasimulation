@@ -5,7 +5,7 @@
 \alias{rtss_booster_profile}
 \title{RTS,S booster vaccine profile}
 \format{
-An object of class \code{PEVProfile} (inherits from \code{R6}) of length 10.
+An object of class \code{list} of length 7.
 }
 \usage{
 rtss_booster_profile

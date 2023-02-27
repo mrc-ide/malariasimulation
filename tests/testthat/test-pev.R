@@ -358,7 +358,7 @@ test_that('Mass efficacy listener works correctly', {
     min_wait = 0,
     booster_timestep = c(1, 6) * 30,
     booster_coverage = c(.9, .8),
-    booster_profile = c(rtss_booster_profile, rtss_booster_profile)
+    booster_profile = list(rtss_booster_profile, rtss_booster_profile)
   )
 
   variables <- create_variables(parameters)
@@ -396,7 +396,7 @@ test_that('Mass dose events are not ruined by lazy evaluation', {
     min_wait = 0,
     booster_timestep = c(1, 6, 12) * 30,
     booster_coverage = c(.9, .8, .7),
-    booster_profile = c(rtss_booster_profile, rtss_booster_profile, rtss_booster_profile)
+    booster_profile = list(rtss_booster_profile, rtss_booster_profile, rtss_booster_profile)
   )
 
   events <- create_events(parameters)

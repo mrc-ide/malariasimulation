@@ -19,7 +19,7 @@ default, all correlations are set to 0
 parameters <- get_parameters()
 
 # Set some vaccination strategy
-parameters <- set_mass_vaccination(
+parameters <- set_mass_pev(
   parameters,
   profile = rtss_profile,
   timesteps = 100,

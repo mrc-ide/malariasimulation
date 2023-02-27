@@ -1,58 +1,38 @@
-#' @title PEV profile
-#' @description A data structure for holding pre-erythrocytic vaccine profile parameters.
-#' Parameters are validated on creation.
-#' @importFrom R6 R6Class
+#' @title create a PEV profile
+#' @description creates a data structure for holding pre-erythrocytic vaccine
+#' profile parameters. Parameters are validated on creation.
+#' @param vmax maximum efficacy of the vaccine
+#' @param alpha shape parameter for the vaccine efficacy model
+#' @param beta scale parameter for the vaccine efficacy model
+#' @param cs peak parameters for the antibody model (vector of mean and std. dev)
+#' @param rho delay parameters for the antibody model (vector of mean and std. dev)
+#' @param ds delay parameters for the antibody model, short-term waning (vector of mean and std. dev)
+#' @param dl delay parameters for the antibody model, long-term waning (vector of mean and std. dev)
 #' @export
-PEVProfile <- R6::R6Class(
-  'PEVProfile',
-  public = list(
-    #' @field vmax maximum efficacy of the vaccine
-    vmax = 0,
-    #' @field alpha shape parameter for the vaccine efficacy model
-    alpha = 0,
-    #' @field beta scale parameter for the vaccine efficacy model
-    beta = 0,
-    #' @field cs peak parameters for the antibody model (vector of mean and std. dev)
-    cs = 0,
-    #' @field rho delay parameters for the antibody model (vector of mean and std. dev)
-    rho = 0,
-    #' @field ds delay parameters for the antibody model, short-term waning (vector of mean and std. dev)
-    ds = 0,
-    #' @field dl delay parameters for the antibody model, long-term waning (vector of mean and std. dev)
-    dl = 0,
-
-    #' @description create a vaccine profile
-    #' @param vmax immutable value for vmax
-    #' @param alpha immutable value for alpha
-    #' @param beta immutable value for beta
-    #' @param cs immutable value for cs
-    #' @param rho immutable value for rho
-    #' @param ds immutable value for ds
-    #' @param dl immutable value for dl
-    initialize = function(vmax, alpha, beta, cs, rho, ds, dl) {
-      allargs <- c(vmax, alpha, beta, cs, rho, ds, dl)
-      stopifnot(all(is.numeric(allargs)))
-      stopifnot(all(allargs > 0))
-      stopifnot(length(cs) == 2)
-      stopifnot(length(rho) == 2)
-      stopifnot(length(ds) == 2)
-      stopifnot(length(dl) == 2)
-      self$vmax <- vmax
-      self$alpha <- alpha
-      self$beta <- beta
-      self$cs <- cs
-      self$rho <- rho
-      self$ds <- ds
-      self$dl <- dl
-    }
+create_pev_profile <- function(vmax, alpha, beta, cs, rho, ds, dl) {
+  allargs <- c(vmax, alpha, beta, cs, rho, ds, dl)
+  stopifnot(all(is.numeric(allargs)))
+  stopifnot(all(allargs > 0))
+  stopifnot(length(cs) == 2)
+  stopifnot(length(rho) == 2)
+  stopifnot(length(ds) == 2)
+  stopifnot(length(dl) == 2)
+  list(
+    vmax = vmax,
+    alpha = alpha,
+    beta = beta,
+    cs = cs,
+    rho = rho,
+    ds = ds,
+    dl = dl
   )
-)
+}
 
 #' @title RTS,S vaccine profile
 #' @description Parameters for a primary dose of RTS,S for use with the
 #' set_mass_pev and set_pev_epi functions
 #' @export
-rtss_profile <- PEVProfile$new(
+rtss_profile <- create_pev_profile(
   vmax = 0.93,
   alpha = 0.74,
   beta = 99.4,
@@ -66,7 +46,7 @@ rtss_profile <- PEVProfile$new(
 #' @description Parameters for a booster dose of RTS,S for use with the
 #' set_mass_pev and set_pev_epi functions
 #' @export
-rtss_booster_profile <- PEVProfile$new(
+rtss_booster_profile <- create_pev_profile(
   vmax = 0.93,
   alpha = 0.74,
   beta = 99.4,
@@ -135,12 +115,6 @@ set_pev_epi <- function(
     stop('booster_timestep and booster_coverage and booster_profile does not align')
   }
 
-  # Check that vaccine profiles are well formed
-  stopifnot(inherits(profile, 'PEVProfile'))
-  for (p in booster_profile) {
-    stopifnot(inherits(p, 'PEVProfile'))
-  }
-
   # Index the new vaccine profiles
   profile_list <- c(list(profile), booster_profile)
   profile_indices <- seq_along(profile_list) + length(parameters$pev_profiles)
@@ -202,12 +176,6 @@ set_mass_pev <- function(
   }
   if (!all(c(length(booster_coverage), length(booster_timestep), length(booster_profile)) == length(booster_timestep))) {
     stop('booster_timestep, booster_coverage and booster_profile does not align')
-  }
-
-  # Check that vaccine profiles are well formed
-  stopifnot(inherits(profile, 'PEVProfile'))
-  for (p in booster_profile) {
-    stopifnot(inherits(p, 'PEVProfile'))
   }
 
   # Index the new vaccine profiles

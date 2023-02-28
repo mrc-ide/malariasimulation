@@ -32,31 +32,40 @@ First, we will define a few functions to visualise the outputs.
 plot_inci <- function(){
   output$clinical_incidence <- 1000 * output$n_inc_0_1825 / output$n_0_1825
   output$time_year <- output$timestep / year
+  output_control$clinical_incidence <- 1000 * output_control$n_inc_0_1825 / output_control$n_0_1825
+  output_control$time_year <- output_control$timestep / year
 
   plot(x = output$time_year, y = output$clinical_incidence, 
        type = 'l', col = cols[3],
        xlab = 'Time (years)', ylab = 'Clinical incidence (per 1000 children aged 0-5)',
        xaxs = "i", yaxs = "i", bty = "l")
-  abline(v = 1, col = cols[7], lty = 2, lwd = 2.5)
+  abline(v = 1, col = cols[1], lty = 2, lwd = 2.5)
   curve_values <- loess(clinical_incidence ~ time_year, data = output, span = 0.3, method = 'loess') 
   lines(output$time_year, predict(curve_values),
         col = cols[6],
         lwd = 3)
+  curve_values <- loess(clinical_incidence ~ time_year, data = output_control, span = 0.3, method = 'loess') 
+  lines(output_control$time_year, predict(curve_values), col = cols[7], lwd = 3)
   grid(lty = 2, col = 'grey80', lwd = 1)
-  legend('topright', box.lty = 0, legend = 'Vaccination',col = cols[7], lty = 2, lwd = 2.5)
+  legend('topright', box.lty = 0, legend = c('Vaccination', 'Incidence for vaccine scenario', 'Smoothed incidence for \nno intervention scenario'),
+         col = c(cols[1], cols[6], cols[7]), lty = c(2,1,1), lwd = 2.5)
 }
 
 # Plot parasite prevalence
 plot_prev <- function(){
   output$time_year <- output$timestep / year
+  output_control$time_year <- output_control$timestep / year
 
   plot(x = output$time_year, y = output$n_detect_730_3650/output$n_730_3650, 
-       type = 'l', col = cols[4],
+       type = 'l', col = cols[4], ylim=c(0.39,0.58),
        xlab = 'Time (years)', ylab = expression(paste(italic(Pf),"PR"[2-10])),
        xaxs = "i", yaxs = "i", bty = "l")
-  abline(v = 1, col = cols[7], lty = 2, lwd = 2.5)
+  lines(x = output_control$time_year, y = output_control$n_detect_730_3650/output_control$n_730_3650,
+        col = cols[7])
+  abline(v = 1, col = cols[1], lty = 2, lwd = 2.5)
   grid(lty = 2, col = 'grey80', lwd = 1)
-  legend('topright', box.lty = 0, legend = 'Vaccination',col = cols[7], lty = 2, lwd = 2.5)
+  legend('topright', box.lty = 0, legend = c('Vaccination', 'Prevalence for vaccine scenario', 'Prevalence for no intervention scenario'),
+         col = c(cols[1], cols[4], cols[7]), lty = c(2,1, 1), lwd = 2.5)
 }
 
 # Plot dose timing
@@ -119,6 +128,9 @@ simparams <- get_parameters(list(
 )
 
 simparams <- set_equilibrium(simparams, starting_EIR)
+
+# Run a model with no interventions
+output_control <- run_simulation(sim_length * 2, simparams)
 ```
 
 Then we can run the simulation for a variety of vaccination strategies for RTS,S:

@@ -19,7 +19,7 @@ library(malariasimulation)
 library(malariaEquilibrium)
 ```
 
-We can add indoor residual spraying (IRS) as an intervention in the model with different timings and coverages and in settings with specified proportions of mosquito species with the help of the `set_spraying()` function. 
+Indoor residual spraying (IRS) is another common intervention to prevent malaria. We can add IRS in the model with different timings and coverages and in settings with specified proportions of mosquito species with the help of the `set_spraying()` function. 
 
 ### Parameterisation
 

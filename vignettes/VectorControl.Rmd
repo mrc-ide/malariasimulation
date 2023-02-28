@@ -19,11 +19,11 @@ library(malariasimulation)
 library(malariaEquilibrium)
 ```
 
-Bednets can be incorporated into the simulations, with various timings and coverage and in settings with specified proportions of mosquito species. 
+Long-lasting insecticidal bednets are highly effective and relatively cheap interventions to prevent malaria. They can be incorporated into `malariasimulation` with various timings and coverage and in settings with specified proportions of mosquito species. We will illustrate this through an example of  
 
 ### Parameterisation
 
-We will set the default parameters to run the simulation from an equilibrium.
+Set the default parameters to run the simulation from an equilibrium.
 
 ```{r}
 year <- 365
@@ -68,7 +68,7 @@ plot_prevalence <- function(output) {
 
 ## Adding bednets
 
-Then we can run the simulation for a variety of bednet strategies. In the example below, we distribute bednets once a year for two years, changing the characteristics of the bed nets for each distribution.
+Then we can run the simulation for a variety of bednet strategies. In the example below, we distribute bednets once a year for two years, the first round to 80% of teh population and the second round to 50% of the population. It is possible to change the characteristics of the bednets for each distribution timestep by modifying the values in the matrices for `dn0`, `rn`, `rnm`, and `gamman`.
   
 ```{r, fig.align='center', fig.height=4, fig.width=6}
 bednetparams <- simparams
@@ -78,7 +78,7 @@ bednetstimesteps <- c(1, 2) * year       # The bednets will be distributed at th
 bednetparams <- set_bednets(
   bednetparams,
   timesteps = bednetstimesteps,
-  coverages = c(.8, .8),  # Each round is distributed to 80% of the population 
+  coverages = c(.8, .5),  # The first round is distributed to 80% of the population and the second round to 50%.
   retention = 5 * year, # Nets are kept on average 5 years
   dn0 = matrix(c(.533, .45), nrow=2, ncol=1), # Matrix of death probabilities for each mosquito species over time
   rn = matrix(c(.56, .5), nrow=2, ncol=1), # Matrix of repelling probabilities for each mosquito species over time
@@ -93,7 +93,7 @@ plot_prevalence(output)
   
 ## Visualising bednet usage 
 
-It is important to understand the difference between the input `coverages` argument of `malariasimulation::set_bednets()` and the resulting population bednet usage over time in the model. In the above example, bednets are distributed to 80% of the population at each distribution round. 
+It is important to understand the difference between the input `coverages` argument of `malariasimulation::set_bednets()` and the resulting population bednet usage over time in the model. In the above example, bednets are distributed to a specified percentage of the population at each distribution round; however, the level of bednet usage may be different. 
   
 The average population bednet usage will be influenced by:   
 
@@ -101,7 +101,7 @@ The average population bednet usage will be influenced by:
 * The assumed net retention half life  
 * Correlations in the recipients of nets between rounds  
   
-The output from `malariasimulation::run_simulation()` has a variable that shows the number of people using bednets at any given timestep. We can visualise this to understand how bednet usage changes over time. 
+The output from `malariasimulation::run_simulation()` has a variable `n_use_net` that shows the number of people using bednets at any given timestep. We can visualise the proportion of the population using bednets over time to understand how bednet usage changes. 
 
 ```{r, fig.align='center', fig.height=4, fig.width=6}
 output$prop_use_net <- output$n_use_net / human_population
@@ -119,5 +119,5 @@ The [`netz` package](https://mrc-ide.github.io/netz/index.html) is a useful tool
 See the vignettes from the `netz` package that explain these concepts more comprehensively:  
   
 * [This vignette](https://mrc-ide.github.io/netz/articles/overview.html) explains how to estimate the distribution coverage from a specified bednet usage.   
-* [This vignette](https://mrc-ide.github.io/netz/articles/population_usage.html) demonstrates how to estimate population bednet usage from input distribution. 
+* [This vignette](https://mrc-ide.github.io/netz/articles/population_usage.html) demonstrates how to estimate population bednet usage from an input distribution. 
 

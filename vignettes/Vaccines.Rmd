@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-You may want to add a malaria vaccine to your simulation. It is possible to model the RTS,S vaccine or a theoretical transmission blocking vaccine through both a routine EPI strategy or a mass vaccination strategy using the helper functions `set_rtss_epi()`, `set_mass_rtss()` or `set_tbv()`. If you are modelling a seasonal setting, then it is also possible to schedule vaccination relative to the peak of malaria prevalence given by `peak_season_offset()`. 
+You may want to add a malaria vaccine to your simulation. It is possible to model both pre-erythrocytic vaccines with a specified profile or a theoretical transmission blocking vaccine. Parameters for the pre-erythrocytic vaccine can be set for a routine Expanded Programme on Immunization (EPI) strategy or a mass vaccination strategy using the helper functions `set_rtss_epi()` and `set_mass_rtss()`, while parameters for a TBV can be set using `set_tbv()`. If you are modelling a seasonal setting, then it is also possible to schedule vaccination relative to the expected peak of malaria prevalence given by `peak_season_offset()`. 
 
 ```{r setup, message=FALSE}
 library(malariasimulation)
@@ -26,7 +26,7 @@ cols <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
 ```
 
 ### Plotting functions
-First, we will define a few functions to make plotting easier. 
+First, we will define a few functions to visualise the outputs. 
 ```{r} 
 # Plotting clinical incidence 
 plot_inci <- function(){
@@ -57,6 +57,7 @@ plot_prev <- function(){
   legend('topright', box.lty = 0, legend = 'Vaccination',col = cols[7], lty = 2, lwd = 2.5)
 }
 
+# Plot dose timing
 plot_doses <- function(){
   if(any(names(output) == 'n_rtss_epi_dose_1')) {
     doses <- output |> 

@@ -29,9 +29,10 @@ plot_n_detect <- function(output){
 }
 
 plot_p_detect <- function(output){
+  par(mar = c(5, 6, 4, 2) + 0.1)
   plot(x = output$timestep, y = output$p_detect_730_3650, 
        type = 'l', col = cols[4],
-       xlab = 'Time (days)', ylab = "Sum of probabilities of case detection \nin children aged 2-10 years",
+       xlab = 'Time (days)', ylab = "Sum of probabilities of case detection\nin children aged 2-10 years",
        xaxs = "i", yaxs = "i", bty = "l")
 }
 ```

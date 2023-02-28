@@ -13,7 +13,7 @@ library(malariasimulation)
 
 ### Variation in outputs
 
-Malariasimulation is a stochastic model, meaning that randomness is incorporated, so there will be be variation in model outputs. To illustrate this, we could compare the prevalence of malaria over a year in simulations with a small and a larger population.
+`malariasimulation` is a stochastic model, meaning that randomness is incorporated, creating random variation in model outputs. To illustrate this, we could compare the prevalence of malaria over a year in simulations with a small and a larger population. A smaller population would be more likely to have wide variations in the output compared to a larger one. 
 
 ### Plotting functions
 First, we will create a few plotting functions to visualise outputs. 
@@ -40,7 +40,7 @@ plot_p_detect <- function(output){
 
 The `n_detect` output below shows the result of sampling individuals who would have cases of malaria that were detected by microscopy, while the `p_detect` output shows the sum of individual probabilities of detection of malaria in the population.
 
-Notice that the `p_detect` output is slightly smoother. This is because it forgoes the sampling step, so at low population sizes, `p_detect` will be smoother than its `n_detect` counterpart.
+Notice that the `p_detect` output is slightly smoother. This is because it forgoes the sampling step, so especially at low population sizes, `p_detect` will be smoother than its `n_detect` counterpart. 
 ```{r, fig.align='center',fig.height=6, fig.width=9}
 # A small population
 params <- get_parameters(list(

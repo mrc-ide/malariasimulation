@@ -42,6 +42,7 @@ plot_inci <- function(){
   lines(output$time_year, predict(curve_values),
         col = cols[6],
         lwd = 3)
+  grid(lty = 2, col = 'grey80', lwd = 1)
   legend('topright', box.lty = 0, legend = 'Vaccination',col = cols[7], lty = 2, lwd = 2.5)
 }
 
@@ -54,6 +55,7 @@ plot_prev <- function(){
        xlab = 'Time (years)', ylab = expression(paste(italic(Pf),"PR"[2-10])),
        xaxs = "i", yaxs = "i", bty = "l")
   abline(v = 1, col = cols[7], lty = 2, lwd = 2.5)
+  grid(lty = 2, col = 'grey80', lwd = 1)
   legend('topright', box.lty = 0, legend = 'Vaccination',col = cols[7], lty = 2, lwd = 2.5)
 }
 
@@ -73,6 +75,7 @@ plot_doses <- function(){
             ylab = 'Number of doses',
           col = cols[2:7],
           beside = FALSE)
+    grid(lty = 2, col = 'grey80', lwd = 1)
     legend('topleft', box.lty = 0, legend = c('Dose 1','Dose 2','Dose 3','Booster 1'),
            col = cols[2:7], lty = rep(1, 4), lwd = 2.5,bg="transparent")
     
@@ -90,6 +93,7 @@ plot_doses <- function(){
             ylab = 'Number of doses',
           col = cols[2:7],
           beside = FALSE)
+    grid(lty = 2, col = 'grey80', lwd = 1)
     legend('topleft',  box.lty = 0, legend = c('Dose 1','Dose 2','Dose 3','Booster 1'),
            col = cols[2:7], lty = rep(1, 4), lwd = 2.5,bg="transparent")
   }
@@ -287,6 +291,7 @@ barplot(doses, xlab = "Month",
       beside = FALSE)
 legend('topleft', box.lty = 0, legend = c('Dose 1','Dose 2','Dose 3','Booster 1','Booster 2'),
        col = cols[2:7], lty = rep(1, 4), lwd = 2.5,bg="transparent")
+grid(lty = 2, col = 'grey80', lwd = 1)
 ```
   
   

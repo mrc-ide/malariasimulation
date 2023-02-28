@@ -47,6 +47,8 @@ simparams <- get_parameters(
 )
 
 simparams <- set_equilibrium(simparams, starting_EIR)
+
+output_control <- run_simulation(sim_length, simparams)
 ```
 
 ### Plotting functions
@@ -56,13 +58,17 @@ cols <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
           "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 # Plotting functions
-plot_prev <- function(output) {
+plot_prev <- function() {
   plot(x = output$timestep, y = output$n_detect_730_3650/output$n_730_3650, 
        type = 'l', col = cols[4], lwd = 2.5,
        xlab = 'Time (days)', ylab = expression(paste(italic(Pf),"PR"[2-10])),
-       xaxs = "i", yaxs = "i", bty = "l")
-  abline(v = sprayingtimesteps, lty = 2, lwd = 2.5, col = cols[7])
-  legend('topright', box.lty = 0, legend = 'Spraying',col = cols[7], lty = 2, lwd = 2.5)
+       xaxs = "i", yaxs = "i", bty = "l", ylim = c(0.05, 0.9))
+  lines(x = output_control$timestep, y = output_control$n_detect_730_3650/output_control$n_730_3650,
+        col = cols[6], lwd = 2.5)
+  abline(v = sprayingtimesteps, lty = 2, lwd = 2.5, col = cols[1])
+  grid(lty = 2, col = 'grey80', lwd = 1)
+  legend('topright', box.lty = 0, legend = c('Spraying', 'Prevalence for IRS scenario','Prevalence for control scenario'),
+         col = c(cols[1], cols[4], cols[6]), lty = c(2,1,1), lwd = 2.5)
 }
 ```
 
@@ -90,7 +96,7 @@ sprayingparams <- set_spraying(
 
 output <- run_simulation(sim_length, sprayingparams)
 
-plot_prev(output)
+plot_prev()
 ```
 
 ## Additional species 
@@ -125,5 +131,5 @@ sprayingparams <- set_spraying(
 
 output <- run_simulation(sim_length, sprayingparams)
 
-plot_prev(output)
+plot_prev()
 ```

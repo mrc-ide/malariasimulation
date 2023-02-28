@@ -47,6 +47,8 @@ simparams <- get_parameters(
 )
 
 simparams <- set_equilibrium(simparams, starting_EIR)
+
+output_control <- run_simulation(sim_length, simparams)
 ```
 
 ### Plotting functions
@@ -56,13 +58,17 @@ cols <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
           "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 # Plotting functions
-plot_prevalence <- function(output) {
+plot_prev <- function() {
   plot(x = output$timestep, y = output$n_detect_730_3650/output$n_730_3650, 
        type = 'l', col = cols[4], lwd = 2.5,
        xlab = 'Time (days)', ylab = expression(paste(italic(Pf),"PR"[2-10])),
-       xaxs = "i", yaxs = "i", bty = "l")
-  abline(v = bednetstimesteps, col = cols[7], lty = 2, lwd = 2.5)
-  legend('topright', box.lty = 0, legend = 'Bednets',col = cols[7], lty = 2, lwd = 2.5)
+       xaxs = "i", yaxs = "i", bty = "l", ylim = c(0.15, 0.93))
+  lines(x = output_control$timestep, y = output_control$n_detect_730_3650/output_control$n_730_3650,
+        col = cols[6], lwd = 2.5)
+  abline(v = bednetstimesteps, col = cols[1], lty = 2, lwd = 2.5)
+  grid(lty = 2, col = 'grey80', lwd = 1)
+  legend('topright', box.lty = 0, legend = c('Bednets','Prevalence for bednet scenario','Prevalence for control scenario'),
+         col = c(cols[1], cols[4], cols[6]), lty = c(2,1,1), lwd = 2.5)
 }
 ```
 
@@ -88,7 +94,7 @@ bednetparams <- set_bednets(
 
 output <- run_simulation(sim_length, bednetparams)
 
-plot_prevalence(output)
+plot_prev()
 ```
   
 ## Visualising bednet usage 
@@ -110,6 +116,7 @@ plot(x = output$timestep, y = output$prop_use_net, type = 'l',
      col = cols[4], lwd = 2.5,
      xlab = 'Timestep (days)', ylab = 'Proportion of population using bednets',
      xaxs = "i", yaxs = "i", bty = "l")
+grid(lty = 2, col = 'grey80', lwd = 1)
 ```
   
 ## Using the `netz` package to estimate coverage inputs needed to achieve target population usage

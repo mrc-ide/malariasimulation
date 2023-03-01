@@ -147,7 +147,7 @@ plot(x = Test_Sim$timestep, y = Test_Sim$n_detect_730_3650/Test_Sim$n_730_3650, 
 
 ## Mosquito modelling
 
-### Species distribution 
+### Species distribution
 
 `malariasimulation` contains in built parameter sets for three mosquito species: *A. arabiensis* (`arab_params`), *A. funestus* (`fun_params`) and *A. gambiae* (`gamb_params`). Each parameter set contains feeding rates, foraging time etc.
 

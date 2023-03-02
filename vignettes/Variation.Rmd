@@ -1,6 +1,6 @@
 ---
 title: "Variation"
-output: html_document
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Variation}
   %\VignetteEngine{knitr::rmarkdown}

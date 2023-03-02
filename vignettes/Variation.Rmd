@@ -7,84 +7,82 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
+```{r setup}
 library(malariasimulation)
 ```
 
-### Variation in outputs
-
-`malariasimulation` is a stochastic model, meaning that randomness is incorporated, creating random variation in model outputs. To illustrate this, we could compare the prevalence of malaria over a year in simulations with a small and a larger population. A smaller population would be more likely to have wide variations in the output compared to a larger one. 
+`malariasimulation` is a stochastic, individual-based model and, as such, simulations run with identical parameterisations will generate non-identical, sometimes highly variable, outputs. To illustrate this, we could compare the prevalence of malaria over a year in simulations with a small and a larger population. A smaller population would be more likely to have wide variations in the output compared to a larger one. 
 
 ### Plotting functions
 First, we will create a few plotting functions to visualise outputs. 
 ```{r}
-cols <- c("#000000", "#E69F00", "#56B4E9", "#009E73", 
+cols <- c("#E69F00", "#56B4E9", "#009E73", 
           "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
           
-plot_n_detect <- function(output){
+plot_n_detect <- function(output, ylab=TRUE){
+  if (ylab==TRUE) {
+    ylab = "Cases detected in children aged 2-10 years"
+    } else {ylab=''}
   plot(x = output$timestep, y = output$n_detect_730_3650, 
-       type = 'l', col = cols[4],
-       xlab = 'Time (days)', ylab = "Cases detected in children aged 2-10 years",
+       type = 'l', col = cols[3],
+       xlab = 'Time (days)', ylab = ylab,
        xaxs = "i", yaxs = "i", bty = "l")
-}
-
-plot_p_detect <- function(output){
-  par(mar = c(5, 6, 4, 2) + 0.1)
-  plot(x = output$timestep, y = output$p_detect_730_3650, 
-       type = 'l', col = cols[4],
-       xlab = 'Time (days)', ylab = "Sum of probabilities of case detection\nin children aged 2-10 years",
-       xaxs = "i", yaxs = "i", bty = "l")
+  grid(lty = 2, col = 'grey80', lwd = 1)
 }
 ```
 
-## Simulations
-
-The `n_detect` output below shows the result of sampling individuals who would have cases of malaria that were detected by microscopy, while the `p_detect` output shows the sum of individual probabilities of detection of malaria in the population.
-
-Notice that the `p_detect` output is slightly smoother. This is because it forgoes the sampling step, so especially at low population sizes, `p_detect` will be smoother than its `n_detect` counterpart. 
-```{r, fig.align='center',fig.height=6, fig.width=9}
-# A small population
-params <- get_parameters(list(
-  human_population = 1000,
+## Parameterisation
+First, we will use the `get_parameters()` function to generate a list of parameters, accepting the default values, for two different population sizes. Then we will update the parameters to match equilibrium parameters and to achieve the initial EIR using `set_equilibrium()`
+```{r}
+# A small population 
+simparams <- get_parameters(list(
+  human_population = 100,
   individual_mosquitoes = FALSE
 ))
-params <- set_equilibrium(params, 2)
-small_pop <- run_simulation(365, params)
 
-# A larger population
-params <- get_parameters(list(
+simparams <- set_equilibrium(simparams, init_EIR = 20)
+
+# A larger population 
+simparams <- get_parameters(list(
   human_population = 10000,
   individual_mosquitoes = FALSE
 ))
-params <- set_equilibrium(params, 2)
-big_pop <- run_simulation(365, params)
 
-par(mfrow = c(2,2))
-plot_n_detect(small_pop)
-title('n_detect at n = 1,000')
-plot_p_detect(small_pop)
-title('p_detect at n = 1,000')
-plot_n_detect(big_pop)
-title('n_detect at n = 10,000')
-plot_p_detect(big_pop)
-title('p_detect at n = 10,000')
+simparams <- set_equilibrium(simparams, init_EIR = 20)
 ```
 
 
+## Simulations
+
+The `n_detect_730_3650` output below shows the total number of individuals in the age group rendered (here, 730-3650 timesteps or 2-10 years) who have microscopy-detectable malaria. Notice that the output is smoother at a higher population.
+
+```{r, fig.align='center',fig.height=4, fig.width=10}
+# A small population
+output_small_pop <- run_simulation(365, simparams)
+
+# A larger population
+output_big_pop <- run_simulation(365, simparams)
+
+# Plotting 
+par(mfrow = c(1,2))
+plot_n_detect(output_small_pop); title('n_detect at n = 100')
+plot_n_detect(output_big_pop, ylab = FALSE); title('n_detect at n = 10,000')
+```
+
 ## Estimating variation 
 
-We can estimate the variation in the number of detectable cases by repeating the simulation several times and plotting the IQR and 95% confidence intervals. These are useful techniques for comparing the expected variance from model outputs to outcomes from trials that might have had lower population sizes.
+We can estimate the variation in the number of detectable cases by repeating the simulation several times with the function `run_simulation_with_repetitions()`, then plotting the IQR and 95% confidence intervals. These are useful techniques for comparing the expected variance from model outputs to outcomes from trials that might have had lower population sizes.
 
-```{r, fig.align='center',fig.height=4, fig.width=8}
+```{r, fig.align='center',fig.height=4, fig.width=10}
 outputs <- run_simulation_with_repetitions(
-  timesteps = 365,
-  repetitions = 10,
-  overrides = params,
-  parallel=TRUE
+  timesteps = 365, # We will run each simulation for 365 timesteps.
+  repetitions = 10, # The simulation will be run 10 times
+  overrides = simparams, # using the parameter list with the larger population that we created earlier.
+  parallel = TRUE # The runs will be done in parallel.
 )
 
 # Calculate IQR and 95% confidence intervals for each of the repetitions
-df <- aggregate(
+output <- aggregate(
   outputs$n_detect_730_3650,
   by = list(outputs$timestep),
   FUN = function(x) {
@@ -99,33 +97,35 @@ df <- aggregate(
   }
 )
 
-df <- data.frame(cbind(timestep = df$Group.1, df$x))
+output <- data.frame(cbind(timestep = output$Group.1, output$x))
 
 # Plot the IQR and 95% CI
 par(mfrow = c(1,2))
-xx <- c(df$timestep, rev(df$timestep))
-yy <- c(df$lowq, rev(df$highq))
-plot(x = df$timestep, y = df$median, 
-       type = 'n', xlim = c(-1,365),ylim = c(500,565),
+xx <- c(output$timestep, rev(output$timestep))
+yy <- c(output$lowq, rev(output$highq))
+plot(x = output$timestep, y = output$median, 
+       type = 'n', xlim = c(-1,365),ylim = c(1400,1700),
        xlab = 'Time (days)', ylab = "Cases detected in children aged 2-10 years",
        xaxs = "i", yaxs = "i", bty = "l")
 polygon(xx, yy,
         col = 'grey90', border= 'grey95')
-lines(x = df$timestep, y = df$median, col = cols[4], lwd = 2)
+lines(x = output$timestep, y = output$median, col = cols[3], lwd = 2)
+grid(lty = 2, col = 'grey80', lwd = 1)
 title('IQR spread')
-legend('bottom', legend = c('Median','IQR Spread'), col = c(cols[4],'grey90'),
+legend('bottomleft', legend = c('Median','IQR Spread'), col = c(cols[3],'grey90'),
        lwd = 5, xpd = TRUE, horiz = TRUE, cex = 1, seg.len=1, bty = 'n')
 
-xx <- c(df$timestep, rev(df$timestep))
-yy <- c(df$lowci, rev(df$highci))
-plot(x = df$timestep, y = df$mean, 
-       type = 'n', xlim = c(-1,365),ylim = c(460,600),
-       xlab = 'Time (days)', ylab = "Cases detected in children aged 2-10 years",
+xx <- c(output$timestep, rev(output$timestep))
+yy <- c(output$lowci, rev(output$highci))
+plot(x = output$timestep, y = output$mean, 
+       type = 'n', xlim = c(-1,365),ylim = c(1400,1700),
+       xlab = 'Time (days)', ylab = "",
        xaxs = "i", yaxs = "i", bty = "l")
 polygon(xx, yy,
         col = 'grey90', border= 'grey95')
-lines(x = df$timestep, y = df$mean, col = cols[4], lwd = 2)
+lines(x = output$timestep, y = output$mean, col = cols[3], lwd = 2)
+grid(lty = 2, col = 'grey80', lwd = 1)
 title('95% Confidence interval')
-legend('bottom', inset = 0, legend = c('Mean','95% CI'), col = c(cols[4],'grey90'),
+legend('bottomleft', inset = 0, legend = c('Mean','95% CI'), col = c(cols[3],'grey90'),
        lwd = 5, xpd = TRUE, horiz = TRUE, cex = 1, seg.len=1, bty = 'n')
 ```

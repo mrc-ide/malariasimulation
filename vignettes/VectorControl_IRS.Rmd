@@ -75,7 +75,7 @@ output_control <- run_simulation(sim_length, simparams)
   
 ## Simulation 
 
-Then we can run the simulation for a variety of IRS strategies. In the example below, there are two rounds of IRS at 80% coverage, each 3 months prior to peak transmission for that year. Notice that the matrices specified for the parameters for `ls_theta`, `ls_gamma`, `ks_theta`, `ks_gamma`, `ms_theta`, and `ms_gamma` have two rows, one for each timestep where IRS occurs, and 1 column for all mosquitoes, not divided by species.
+Then we can run the simulation for a variety of IRS strategies. In the example below, there are two rounds of IRS at 80% coverage, each 3 months prior to peak rainfall for that year. The function `peak_season_offset()` outputs a timestep when peak rainfall will be observed. Notice that the matrices specified for the parameters for `ls_theta`, `ls_gamma`, `ks_theta`, `ks_gamma`, `ms_theta`, and `ms_gamma` have two rows, one for each timestep where IRS occurs, and 1 column for all mosquitoes, not divided by species.
 
 ```{r, fig.align='center', fig.height=4, fig.width=6}
 peak <- peak_season_offset(simparams)
@@ -104,7 +104,9 @@ plot_prev()
 ```
 
 ## Additional species 
-It is possible to account for varying proportions of mosquito species in the setting you are modelling using the `set_species()` function. If you have specified more than 1 species, then the arguments for `set_spraying()` and `set_bednets()` must be populated with values for each species at each time point. 
+It is possible to account for varying proportions of mosquito species in the setting you are modelling using the `set_species()` function. There are preset parameters for *An. gambiae*, *An. arabiensis*, and *An. funestus* that can be set by the helper functions `gamb_params()`, `arab_params()`, and `fun_params()`, respectively. IRS could be expected to have different impacts depending on the proportion of each mosquito species because of variations in indoor resting, insecticide resistance, and proportion of bites on humans versus animals by species.
+
+If you have specified more than 1 species, then the arguments for `set_spraying()` and `set_bednets()` must be populated with values for each species at each time point. 
 
 We will run the same model with IRS as above, but this time with 3 species of mosquitoes. Note that now there are 3 columns for the `ls_theta`, `ls_gamma`, `ks_theta`, `ks_gamma`, `ms_theta`, and `ms_gamma` arguments. Each column corresponds to a species of mosquito, and each row corresponds to the timestep when a round of IRS occurred. Here, we are assuming the same values for each species at each timepoint for simplicity, but the matrix could be edited to have different values by species or over time. 
 
@@ -124,11 +126,11 @@ sprayingparams <- set_spraying(
   simparams,
   timesteps = sprayingtimesteps,
   coverages = rep(.8, 2), # # Each round covers 80% of the population 
-  ls_theta = matrix(2.025, nrow=length(sprayingtimesteps), ncol=3), # Matrix of mortality parameters; nrows=length(timesteps), ncols=length(species) 
+  ls_theta = matrix(2.025, nrow=length(sprayingtimesteps), ncol=3), # Matrix of mortality parameters per timestep; nrows=length(timesteps), ncols=length(species) 
   ls_gamma = matrix(-0.009, nrow=length(sprayingtimesteps), ncol=3), # Matrix of mortality parameters per timestep
-  ks_theta = matrix(-2.222, nrow=length(sprayingtimesteps), ncol=3), # Matrix of feeding success parameters
-  ks_gamma = matrix(0.008, nrow=length(sprayingtimesteps), ncol=3), # Matrix of feeding success parameters per timestep
-  ms_theta = matrix(-1.232, nrow=length(sprayingtimesteps), ncol=3), # Matrix of deterrence parameters
+  ks_theta = matrix(-2.222, nrow=length(sprayingtimesteps), ncol=3), # Matrix of feeding success parameters per timestep
+  ks_gamma = matrix(0.008, nrow=length(sprayingtimesteps), ncol=3), # Matrix of feeding success parametersper timestep
+  ms_theta = matrix(-1.232, nrow=length(sprayingtimesteps), ncol=3), # Matrix of deterrence parameters per timestep
   ms_gamma = matrix(-0.009, nrow=length(sprayingtimesteps), ncol=3) # Matrix of deterrence parameters per timestep
 )
 

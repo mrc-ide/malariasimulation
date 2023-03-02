@@ -44,7 +44,7 @@ plot_prev <- function() {
   
 ### Parameterisation
 
-Use the get_parameters() function to generate the list of parameters for a seasonal profile, accepting the default values to run the simulation from an equilibrium starting point. The seasonality will drive mosquito dynamics in the absence of interventions. 
+Use the `get_parameters()` function to generate the list of parameters for a seasonal profile, accepting the default values to run the simulation from an equilibrium starting point. The seasonality will drive mosquito dynamics in the absence of interventions. 
 
 ```{r}
 year <- 365

@@ -19,11 +19,32 @@ library(malariasimulation)
 library(malariaEquilibrium)
 ```
 
-Indoor residual spraying (IRS) is another common intervention to prevent malaria. We can add IRS in the model with different timings and coverages and in settings with specified proportions of mosquito species with the help of the `set_spraying()` function. 
+Indoor Residual Spraying (IRS) involves periodically treating indoor walls with insecticides to eliminate adult female mosquitoes that rest indoors. `malariasimulation` can be used to investigate the effect of malaria control strategies that deploy IRS. The model has the functionality to allow users to specify a range of IRS campaigns, including different timings and coverages and in settings with specified proportions of mosquito species with the help of the `set_spraying()` function. 
 
-### Parameterisation
+### Plotting functions
+We will create a few plotting functions to visualise the output.
+```{r}
+cols <- c("#E69F00", "#56B4E9", "#009E73", 
+          "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-We will set the default parameters to run the simulation from an equilibrium.
+# Plotting functions
+plot_prev <- function() {
+  plot(x = output$timestep, y = output$n_detect_730_3650/output$n_730_3650, 
+       type = 'l', col = cols[3], lwd = 2.5,
+       xlab = 'Time (days)', ylab = expression(paste(italic(Pf),"PR"[2-10])),
+       xaxs = "i", yaxs = "i", bty = "l", ylim = c(0,1))
+  lines(x = output_control$timestep, y = output_control$n_detect_730_3650/output_control$n_730_3650,
+        col = cols[5], lwd = 2.5)
+  abline(v = sprayingtimesteps, lty = 2, lwd = 2.5, col = 'black')
+  grid(lty = 2, col = 'grey80', lwd = 1)
+  legend('bottomleft', box.lty = 0, legend = c('Spraying', 'Prevalence for IRS scenario','Prevalence for control scenario'),
+         col = c('black', cols[3], cols[5]), lty = c(2,1,1), lwd = 2.5)
+}
+```
+
+### Parameterisation 
+
+Use the `get_parameters()` function to generate the list of parameters for a seasonal profile, accepting the default values to run the simulation from an equilibrium starting point. The seasonality will drive mosquito dynamics in the absence of interventions. 
 
 ```{r}
 year <- 365
@@ -35,7 +56,7 @@ starting_EIR <- 50
 simparams <- get_parameters(
   list(
     human_population = human_population,
-    # carrying capacity parameters
+    # seasonality parameters
     model_seasonality = TRUE, # Let's try a bi-modal model
     g0 = 0.28605,
     g = c(0.20636, -0.0740318, -0.0009293),
@@ -48,42 +69,21 @@ simparams <- get_parameters(
 
 simparams <- set_equilibrium(simparams, starting_EIR)
 
+# Running simulation with no IRS
 output_control <- run_simulation(sim_length, simparams)
 ```
+  
+## Simulation 
 
-### Plotting functions
-We can create a few plotting functions to visualise the output.
-```{r}
-cols <- c("#000000", "#E69F00", "#56B4E9", "#009E73", 
-          "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+Then we can run the simulation for a variety of IRS strategies. In the example below, there are two rounds of IRS at 80% coverage, each 3 months prior to peak transmission for that year. Notice that the matrices specified for the parameters for `ls_theta`, `ls_gamma`, `ks_theta`, `ks_gamma`, `ms_theta`, and `ms_gamma` have two rows, one for each timestep where IRS occurs, and 1 column for all mosquitoes, not divided by species.
 
-# Plotting functions
-plot_prev <- function() {
-  plot(x = output$timestep, y = output$n_detect_730_3650/output$n_730_3650, 
-       type = 'l', col = cols[4], lwd = 2.5,
-       xlab = 'Time (days)', ylab = expression(paste(italic(Pf),"PR"[2-10])),
-       xaxs = "i", yaxs = "i", bty = "l", ylim = c(0.05, 0.9))
-  lines(x = output_control$timestep, y = output_control$n_detect_730_3650/output_control$n_730_3650,
-        col = cols[6], lwd = 2.5)
-  abline(v = sprayingtimesteps, lty = 2, lwd = 2.5, col = cols[1])
-  grid(lty = 2, col = 'grey80', lwd = 1)
-  legend('topright', box.lty = 0, legend = c('Spraying', 'Prevalence for IRS scenario','Prevalence for control scenario'),
-         col = c(cols[1], cols[4], cols[6]), lty = c(2,1,1), lwd = 2.5)
-}
-```
-
-## Adding indoor residual spraying (IRS)
-
-Then we can run the simulation for a variety of IRS strategies. In the example below, there are two rounds of IRS, each 3 months prior to peak transmission for that year. 
 ```{r, fig.align='center', fig.height=4, fig.width=6}
-sprayingparams <- simparams
-
-peak <- peak_season_offset(sprayingparams)
+peak <- peak_season_offset(simparams)
 
 sprayingtimesteps <- c(1, 2) * year + peak - 3 * month # There is a round of IRS in the 1st and second year 3 months prior to peak transmission.
 
 sprayingparams <- set_spraying(
-  sprayingparams,
+  simparams,
   timesteps = sprayingtimesteps,
   coverages = rep(.8, 2), # # Each round covers 80% of the population 
   ls_theta = matrix(c(2.025, 2.025), nrow=2, ncol=1), # Matrix of mortality parameters
@@ -95,7 +95,11 @@ sprayingparams <- set_spraying(
 )
 
 output <- run_simulation(sim_length, sprayingparams)
+```
 
+
+### Plot prevalence
+```{r,fig.align='center', fig.height=5, fig.width=7}
 plot_prev()
 ```
 
@@ -103,6 +107,7 @@ plot_prev()
 It is possible to account for varying proportions of mosquito species in the setting you are modelling using the `set_species()` function. If you have specified more than 1 species, then the arguments for `set_spraying()` and `set_bednets()` must be populated with values for each species at each time point. 
 
 We will run the same model with IRS as above, but this time with 3 species of mosquitoes. Note that now there are 3 columns for the `ls_theta`, `ls_gamma`, `ks_theta`, `ks_gamma`, `ms_theta`, and `ms_gamma` arguments. Each column corresponds to a species of mosquito, and each row corresponds to the timestep when a round of IRS occurred. Here, we are assuming the same values for each species at each timepoint for simplicity, but the matrix could be edited to have different values by species or over time. 
+
 ```{r, fig.align='center', fig.height=4, fig.width=6}
 ## Setting 3 species of mosquitoes, 25% An. arabiensis, 25% An. funestus, and 50% An. gambiae
 simparams <- set_species(
@@ -111,14 +116,12 @@ simparams <- set_species(
   proportions = c(0.25, 0.25, 0.5)
 )
 
-sprayingparams <- simparams
-
-peak <- peak_season_offset(sprayingparams)
+peak <- peak_season_offset(simparams)
 
 sprayingtimesteps <- c(1, 2) * year + peak - 3 * month # There is a round of IRS in the 1st and second year 3 months prior to peak transmission.
 
 sprayingparams <- set_spraying(
-  sprayingparams,
+  simparams,
   timesteps = sprayingtimesteps,
   coverages = rep(.8, 2), # # Each round covers 80% of the population 
   ls_theta = matrix(2.025, nrow=length(sprayingtimesteps), ncol=3), # Matrix of mortality parameters; nrows=length(timesteps), ncols=length(species) 
@@ -130,6 +133,24 @@ sprayingparams <- set_spraying(
 )
 
 output <- run_simulation(sim_length, sprayingparams)
+```
 
+### Plot prevalence
+```{r,fig.align='center', fig.height=5, fig.width=7}
 plot_prev()
 ```
+
+### Plot adult female infectious mosquitoes by species over time
+```{r,fig.align='center', fig.height=5, fig.width=7}
+plot(x = output$timestep, y = output$Im_gamb_count,
+     type = 'l', col = cols[5], lwd = 2.5,
+     xlab = 'Time (days)', ylab = 'N mosquitoes',
+       xaxs = "i", yaxs = "i", bty = "l")
+lines(x = output$timestep, y = output$Im_fun_count,
+      col = cols[6], lwd = 2.5)
+lines(x = output$timestep, y = output$Im_arab_count,
+      col = cols[3], lwd = 2.5)
+grid(lty = 2, col = 'grey80', lwd = 1)
+legend('topright', box.lty = 0, legend = c(expression(paste('N ', italic('An. gambiae'))), expression(paste('N ', italic('An. funestus'))),expression(paste('N ', italic('An. arabiensis')))), col = c(cols[5], cols[6], cols[3]), lty = c(1,1,1), lwd = 2.5)
+```
+

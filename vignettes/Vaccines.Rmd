@@ -232,7 +232,7 @@ plot_doses()
 
 ## RTS,S EPI
 
-You can also opt to vaccinate using the EPI strategy, where individuals will be vaccinated once they reach a certain age. In the example below, individuals will be vaccinated once they reach 5 months of age. For this intervention, we see a much more gradual impact following implementation.
+We can also opt to vaccinate using the EPI strategy, where individuals will be vaccinated once they reach a certain age. In the example below, individuals will be vaccinated once they reach 5 months of age. For this intervention, we see a much more gradual impact following implementation.
 
 ```{r}
 # Add RTS,S strategy

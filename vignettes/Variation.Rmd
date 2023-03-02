@@ -11,7 +11,7 @@ vignette: >
 library(malariasimulation)
 ```
 
-`malariasimulation` is a stochastic, individual-based model and, as such, simulations run with identical parameterisations will generate non-identical, sometimes highly variable, outputs. To illustrate this, we could compare the prevalence of malaria over a year in simulations with a small and a larger population. A smaller population would be more likely to have wide variations in the output compared to a larger one. 
+`malariasimulation` is a stochastic, individual-based model and, as such, simulations run with identical parameterisations will generate non-identical, sometimes highly variable, outputs. To illustrate this, we will compare the prevalence of malaria over a year in simulations with a small and a larger population, where a smaller population is more likely to have wide variations between simulation runs. 
 
 ### Plotting functions
 First, we will create a few plotting functions to visualise outputs. 
@@ -71,7 +71,7 @@ plot_n_detect(output_big_pop, ylab = FALSE); title('n_detect at n = 10,000')
 
 ## Estimating variation 
 
-We can estimate the variation in the number of detectable cases by repeating the simulation several times with the function `run_simulation_with_repetitions()`, then plotting the IQR and 95% confidence intervals. These are useful techniques for comparing the expected variance from model outputs to outcomes from trials that might have had lower population sizes.
+We can estimate the variation in the number of detectable cases by repeating the simulation several times with the function `run_simulation_with_repetitions()`, then plotting the IQR and 95% confidence intervals. Running multiple simulations is particularly important for simulations of a small population size, due to the disproportionate impact of stochasticity in small populations. 
 
 ```{r, fig.align='center',fig.height=4, fig.width=10}
 outputs <- run_simulation_with_repetitions(

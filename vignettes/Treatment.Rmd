@@ -25,19 +25,51 @@ This vignette describes how to implement clinical drug treatments in malariasimu
 
 The malariasimulation package contains in-built parameters sets for three anti-malarial drugs:
 
-1.  AL_params: artemether-lumefantrine
-2.  DHA_PQP_params: dihydroartemisinin and piperaquine
-3.  SP_AQ: sulfadoxine-pyrimethamine and amodiaquine
+1.  `AL_params`: artemether-lumefantrine (AL)
+2.  `DHA_PQP_params`: dihydroartemisinin and piperaquine (DHA-PQP)
+3.  `SP_AQ_params`: sulfadoxine-pyrimethamine and amodiaquine (SP-AQ)
 
-which can be included using the `set_drugs()` function. Multiple drugs can be used simultaneously, input as a list as shown in the below example.
+While all these drugs can be used to treat malaria, DHA-PQP and SP-AQ remain in the body for some time following treatment, making them good candidates for chemoprevention in mass drug administrations (see [Mass Drug Administration](https://mrc-ide.github.io/malariasimulation/articles/MDA.html). Any of these drugs can be included in the parameter list using the `set_drugs()` function (see [drugs_parameters.R](https://github.com/mrc-ide/malariasimulation/blob/master/R/drug_parameters.R) for full parameter details).
 
-Each drug parameter set is a vector of length four, that represent the `drug efficacy`, ***drug_rel_c***, ***drug_prophylaxis_shape***, and ***drug_prophylaxis_scale***. ***I don't fully know the impact of changing these parameters, or what they mean exactly, e.g. rel_c is relative concentration? prophylaxis_shape? Scale? What does that look like*** \
+Each drug parameter set is a vector of length four, that represent the drug efficacy, the infectiousness following treatment relative to an untreated infection, and parameters that determine the protection against reinfection ($P$): shape ($w$) and scale ($\lambda$) using an exponential decrease as follows:
 
-For example:
+$$P = e^{{(-t/\lambda)}^w}$$
 
-```{r}
-AL_params
+The $P$ for each drug following treatment through time is plotted below.
+
+```{r, echo = FALSE, fig.align = 'center', fig.height = 5, fig.width = 7}
+cols  <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+calc_P <- function(w, lambda, t){
+  P <- exp(-(t/lambda)^w)
+}
+
+t <- 1:70
+
+P_matrix <- lapply(list(AL_params, DHA_PQP_params, SP_AQ_params), function(x){
+  calc_P(w = x[3], lambda = x[4], t = t)
+})
+
+plot(x = t, y = P_matrix[[1]], type = "l", col = cols[1],
+     xlab = "Days", ylab = expression(paste("Protection against reinfection (",italic(P),")")))
+grid()
+
+# 
+invisible(sapply(2:3, function(x){
+  points(x = t, y = P_matrix[[x]], type = "l", col = cols[x])
+}))
+
+# Add legend
+legend("topright", legend = c("AL","DHA-PQP","SP-AQ"), col = cols, lty = 1)
+
 ```
+
+For more details, please see:
+
+Okell, L., Cairns, M., Griffin, J. *et al.* Contrasting benefits of different artemisinin combination therapies as first-line malaria treatments using model-based cost-effectiveness analysis. *Nat Commun* **5**, 5606 (2014). <https://doi.org/10.1038/ncomms6606>.
+
+
+## Functions
 
 Drug parameters can be incorporated into a complete parameter set:
 
@@ -45,20 +77,25 @@ Drug parameters can be incorporated into a complete parameter set:
 Intro_parms <- set_drugs(parameters = get_parameters(), drugs = AL_params)
 ```
 
-A treatment regiment for each drug can then be described using the `set_clinical_treatment()` function which takes the drug index, a vector of timesteps for each change in coverage and a vector of coverages for the drug, as well as the complete parameter set. This function must be used for each drug included (e.g., if there are two drugs, `set_clinical_treatment()` must be called twice).
+A treatment regimen for each drug can then be described using the `set_clinical_treatment()` function which takes the drug index, a vector of timesteps at which a change in coverage occurs (where the initial coverage is 0 until the first timestep specified) and a vector of coverages for the drug that correspond with the timestep changes, as well as the complete parameter set.
+
+In this example, the AL coverage would be at 0% from the start until day 9, 20% during days 10-14, 50% during days 15-19 and 100% from day 20 until the end of the simulation.
 
 ```{r}
-Intro_parms <- set_clinical_treatment(parameters = Intro_parms, drug = 1,
-                                      timesteps = c(10,15,20), coverages = c(0.2,0.5,1))
+Intro_params <- set_clinical_treatment(parameters = Intro_parms,
+                                       drug = 1,
+                                       timesteps = c(10,15,20),
+                                       coverages = c(0.2,0.5,1))
 ```
 
-\
+Multiple drugs can be modelled simultaneously, with treatment coverage that can be specified for each drug. This function must be used for each drug included (e.g., if there are two drugs, `set_clinical_treatment()` must be called twice).
+
 
 # Example
 
-## Parameterisation
+## Parameterisation and simulation
 
-Set up some initial parameters:
+We will run several simulations that vary the coverages of drug programs for AL and DHA-PQ that begin on day one. For simplicity, the coverages will match for each drug. These simulations will last for two years for a population of one thousand individuals. In each simulation, the function `set_equilibrium` must also be used to generate equilibrium values for the human and mosquito populations.
 
 ```{r}
 # Daily simulation timesteps for two years
@@ -67,58 +104,59 @@ sim_length <- 2 * year
 
 # With a population size of 1000
 human_population <- 1000
-simparams <- get_parameters(list(human_population = human_population))
-```
 
-Update parameter set with chosen drug-specific parameters:
+# Set human population size
+simparams <- get_parameters(overrides = list(human_population = human_population))
 
-```{r}
-# Incorporate drug parameters (AL and DHA/PQP) into complete parameter set
+# Update parameter set with chosen drug-specific parameters (AL and DHA/PQP)
 simparams <- set_drugs(simparams, list(AL_params, DHA_PQP_params))
 
-```
+# Choose initial EIR to 10
+starting_EIR <- 10 
 
-\
-
-## Simulation
-
-This simulation will be run for 2 years for different drug coverage programs:
-
-```{r}
-outputs <- list() # Create an empty list for results
-starting_EIR <- 10 # Set initial EIR to 10
-
-# We will vary coverage values between 0 and 0.5
+# And choose coverage values between 0 and 50%
 covs <- seq(0, 0.5, by = 0.1) 
+
+# Create an empty list for results
+outputs <- list() 
 
 # Iterate over coverage values
 for (cov in covs) {
   
-  # Set treatment programs for each drug (1 and 2), starting on day 1: 
-  simparams <- set_clinical_treatment(simparams, 1, 1, cov) # Set treatment program for AL
-  simparams <- set_clinical_treatment(simparams, 2, 1, cov) # Set treatment program for DHA/PQP
+  ## Set treatment programs for each drug (1 and 2), starting on day 1: 
+  # Set treatment program for AL
+  simparams <- set_clinical_treatment(
+    parameters = simparams,
+    drug = 1, # First drug specified (AL)
+    timesteps =  1, # Treatment will begin on day 1
+    coverages =  cov) # Coverage as found in covs vector 
+  
+  # Set treatment program for DHA-PQP
+  simparams <- set_clinical_treatment(
+    parameters = simparams, 
+    drug =  2, # Second drug specified (DHA-PQP)
+    timesteps = 1, # Treatment will begin on day 1
+    coverages =  cov) # Coverage as found in covs vector
   
   # Use set_equilibrium to update the parameter set for a given initial EIR
-  simparams2 <- set_equilibrium(simparams, starting_EIR) 
+  simparams <- set_equilibrium(simparams, starting_EIR) 
   
   # Run simulation:
   output <- run_simulation(sim_length, simparams)
+  
   # remove the first year (which can be considered a warmup)
   output <- output[output$timestep > year,]
+  
   # Add output to outputs list
   outputs[[length(outputs) + 1]] <- output 
 }
 ```
 
-\
-
 ## Visualisation
 
-We will plot the effect of drug treatment coverage on *Pf*PR~2-10~ through time using the n_detect_730_3650 and n_730_3650 outputs.
+Following simulation of malaria transmission under 0-50% drug treatment coverages, we can now visualise the effect of coverage on *Pf*PR~2-10~ through time using the `n_detect_730_3650` and `n_730_3650` outputs.
 
-```{r}
-Rich_cols  <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-
+```{r, fig.align = 'center', fig.height = 5, fig.width = 7}
 # Join listed results into a single data frame
 df <- do.call('rbind', lapply(seq_along(outputs), function(i) {
   
@@ -134,7 +172,8 @@ df <- do.call('rbind', lapply(seq_along(outputs), function(i) {
   # return results
   df
 }))
-    
+
+# Create plot function 
 Treatment_plot_function <- function(df){
   
   # Set figure margins and sections
@@ -144,18 +183,21 @@ Treatment_plot_function <- function(df){
   with(df[df$coverage==unique(df$coverage)[1],],
        expr = plot(x = timestep, y = PfPR2_10, type = "l",
                    xlab = "Days", ylab = expression(paste(italic(Pf),"PR"[2-10])),
-                   ylim = c(min(df$PfPR2_10),max(df$PfPR2_10)), col = Rich_cols[1]))
+                   ylim = c(min(df$PfPR2_10),max(df$PfPR2_10)), col = cols[1]))
+  
+  # Add grid lines
+  grid()
   
   # Add remaining results
   invisible(sapply(2:length(unique(df$coverage)), function(x){
     with(df[df$coverage==unique(df$coverage)[x],],
-         expr = points(x = timestep, y = PfPR2_10, type = "l",col = Rich_cols[x]))
+         expr = points(x = timestep, y = PfPR2_10, type = "l",col = cols[x]))
 }))
   
   # Add figure legend
   par(fig=c(0.9,1,0,1), cex = 0.8, new = T, xpd = T, mai = c(0,0,0,0))
   legend("right", legend = paste0(100*unique(df$coverage),"%"),
-         col = Rich_cols, bty = "n", lty = 1, title = "Coverage")
+         col = cols, bty = "n", lty = 1, title = "Coverage")
 }
 
 Treatment_plot_function(df)

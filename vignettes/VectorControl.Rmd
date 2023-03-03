@@ -1,8 +1,8 @@
 ---
-title: "Vector Control: Bednets"
+title: "Vector Control"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vector Control: Bednets}
+  %\VignetteIndexEntry{Vector Control}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -15,13 +15,15 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
+suppressPackageStartupMessages(library(ggplot2))
 library(malariasimulation)
 library(malariaEquilibrium)
+library(reshape2)
 ```
 
 # Parameterisation
 
-We will set the default parameters to run the simulation from an equilibrium.
+We are going to set the default parameters to run the simulation from an equilibrium.
 
 ```{r}
 year <- 365
@@ -29,98 +31,89 @@ month <- 30
 sim_length <- 3 * year
 human_population <- 1000
 starting_EIR <- 50
-
 simparams <- get_parameters(
   list(
     human_population = human_population,
-    # carrying capacity parameters
     model_seasonality = TRUE, # Let's try a bi-modal model
     g0 = 0.28605,
     g = c(0.20636, -0.0740318, -0.0009293),
     h = c(0.173743, -0.0730962, -0.116019),
-    # Here, we are asking for the output to contain information on severe incidence in children 2-10 years old.
-    clinical_incidence_rendering_min_ages = 2*year,
-    clinical_incidence_rendering_max_ages = 10*year
+    severe_incidence_rendering_min_ages = 2*year,
+    severe_incidence_rendering_max_ages = 10*year
   )
 )
-
 simparams <- set_equilibrium(simparams, starting_EIR)
-```
-
-We can create a few plotting functions to visualise the output.
-```{r}
-cols <- c("#000000", "#E69F00", "#56B4E9", "#009E73", 
-          "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-
 # Plotting functions
 plot_prevalence <- function(output) {
-  plot(x = output$timestep, y = output$n_detect_730_3650/output$n_730_3650, 
-       type = 'l', col = cols[4],
-       xlab = 'Time (days)', ylab = expression(paste(italic(Pf),"PR"[2-10])),
-       xaxs = "i", yaxs = "i", bty = "l")
+  ggplot(output) + geom_line(
+    aes(x = timestep, y = (n_inc_severe_730_3650 / n_730_3650))) + 
+    labs(x = "timestep", y = "Severe incidence")
 }
-
 add_intervention_lines <- function(plot, events) {
-  plot
-  abline(v = events$timestep, lty = 2, lwd = 2.5)
-  text(x = events$timestep - 20, y = 0.4, events$name,
-       cex = 1, col = cols[1], srt = 90)
+  plot + geom_vline(
+    data = events,
+    mapping = aes(xintercept=timestep),
+    color="blue"
+  ) + geom_text(
+    data = events,
+    mapping = aes(x = timestep, y = 0, label = name),
+    size = 4,
+    angle = 90,
+    vjust = -0.4,
+    hjust = 0
+  )
 }
 ```
 
-## Adding bednets
+Then we can run the simulation for a variety of vector control strategies:
 
-Then we can run the simulation for a variety of bednet strategies. In the example below, we distribute bednets once a year for two years, changing the characteristics of the bed nets for each distribution.
-  
+## Bed nets
+
+We can distribute bed nets once a year for two years, changing the
+characteristics of the bed nets on each distribution...
+
 ```{r}
 bednetparams <- simparams
-
 bednet_events = data.frame(
-  timestep = c(1, 2) * year,       # The bednets will be distributed at the end of the first and the second year. 
-  name=c("Bednets 1", "Bednets 2") # These are labels for the two distributions. 
+  timestep = c(1, 2) * year,
+  name=c("Bednets 1", "Bednets 2")
 )
-
 bednetparams <- set_bednets(
   bednetparams,
-  timesteps = bednet_events$timestep, 
-  coverages = c(.8, .8),  # Each round is distributed to 80% of the population 
-  retention = 5 * year, # Nets are kept on average 5 years
-  dn0 = matrix(c(.533, .45), nrow=2, ncol=1), # Matrix of death probabilities for each mosquito species over time
-  rn = matrix(c(.56, .5), nrow=2, ncol=1), # Matrix of repelling probabilities for each mosquito species over time
-  rnm = matrix(c(.24, .24), nrow=2, ncol=1), # Matrix of minimum repelling probabilities for each mosquito species over time
-  gamman = rep(2.64 * 365, 2) # Vector of bednet half-lives for each distribution timestep
+  timesteps = bednet_events$timestep,
+  coverages = c(.8, .8),
+  retention = 5 * year,
+  dn0 = matrix(c(.533, .45), nrow=2, ncol=1),
+  rn = matrix(c(.56, .5), nrow=2, ncol=1),
+  rnm = matrix(c(.24, .24), nrow=2, ncol=1),
+  gamman = rep(2.64 * 365, 2)
 )
-
 output <- run_simulation(sim_length, bednetparams)
-
 add_intervention_lines(plot_prevalence(output), bednet_events)
 ```
-  
 
-It is important to understand the difference between the input `coverages` argument of `malariasimulation::set_bednets()` and the resulting population bednet usage over time in the model. In the above example, bednets are distributed to 80% of the population at each distribution round. 
-  
-The average population bednet usage will be influenced by: 
-* The size and frequency of distributions specified in `set_bednets()`
-* The assumed net retention half life
-* Correlations in the recipients of nets between rounds
-  
-### Visualising bednet usage
+## Indoor spraying
 
-The output from `malariasimulation::run_simulation()` has a variable that shows the number of people using bednets at any given timestep. We can visualise this to understand how bednet usage changes over time. 
+We can do the same for IRS...
 
 ```{r}
-output$prop_use_net <- output$n_use_net / human_population
-
-plot(x = output$timestep, y = output$prop_use_net, type = 'l', col = cols[1],
-     xlab = 'Timestep (days)', ylab = 'Proportion using bednets',
-     xaxs = "i", yaxs = "i", bty = "l")
+sprayingparams <- simparams
+peak <- peak_season_offset(sprayingparams)
+spraying_events = data.frame(
+  timestep = c(1, 2) * year + peak - 3 * month,
+  name=c("Spraying 1", "Spraying 2")
+)
+sprayingparams <- set_spraying(
+  sprayingparams,
+  timesteps = spraying_events$timestep,
+  coverages = rep(.8, 2),
+  ls_theta = matrix(c(2.025, 2.025), nrow=2, ncol=1),
+  ls_gamma = matrix(c(-0.009, -0.009), nrow=2, ncol=1),
+  ks_theta = matrix(c(-2.222, -2.222), nrow=2, ncol=1),
+  ks_gamma = matrix(c(0.008, 0.008), nrow=2, ncol=1),
+  ms_theta = matrix(c(-1.232, -1.232), nrow=2, ncol=1),
+  ms_gamma = matrix(c(-0.009, -0.009), nrow=2, ncol=1)
+)
+output <- run_simulation(sim_length, sprayingparams)
+add_intervention_lines(plot_prevalence(output), spraying_events)
 ```
-  
-## Using the `netz` package to estimate coverage inputs needed to achieve target population usage
-
-The [`netz` package](https://mrc-ide.github.io/netz/index.html) is a useful tool to help set up bednets in `malariasimulation`. `malariasimulation` takes as input the proportion of the population who were distributed a bednet at specific time points, but available data for a specific region or country do not always have this information. `netz` allows for simple conversions between bednet metrics like crop, access, distribution, and usage.  
-  
-See the vignettes from the `netz` package that explain these concepts more comprehensively: 
-* [This vignette](https://mrc-ide.github.io/netz/articles/overview.html) explains how to estimate the distribution coverage from a specified bednet usage. 
-* [This vignette](https://mrc-ide.github.io/netz/articles/population_usage.html) demonstrates how to estimate population bednet usage from input distribution. 
-

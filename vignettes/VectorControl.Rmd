@@ -31,6 +31,7 @@ month <- 30
 sim_length <- 3 * year
 human_population <- 1000
 starting_EIR <- 50
+
 simparams <- get_parameters(
   list(
     human_population = human_population,
@@ -42,13 +43,16 @@ simparams <- get_parameters(
     severe_incidence_rendering_max_ages = 10*year
   )
 )
+
 simparams <- set_equilibrium(simparams, starting_EIR)
+
 # Plotting functions
 plot_prevalence <- function(output) {
   ggplot(output) + geom_line(
     aes(x = timestep, y = (n_inc_severe_730_3650 / n_730_3650))) + 
     labs(x = "timestep", y = "Severe incidence")
 }
+
 add_intervention_lines <- function(plot, events) {
   plot + geom_vline(
     data = events,
@@ -74,10 +78,12 @@ characteristics of the bed nets on each distribution...
 
 ```{r}
 bednetparams <- simparams
+
 bednet_events = data.frame(
   timestep = c(1, 2) * year,
   name=c("Bednets 1", "Bednets 2")
 )
+
 bednetparams <- set_bednets(
   bednetparams,
   timesteps = bednet_events$timestep,
@@ -88,7 +94,9 @@ bednetparams <- set_bednets(
   rnm = matrix(c(.24, .24), nrow=2, ncol=1),
   gamman = rep(2.64 * 365, 2)
 )
+
 output <- run_simulation(sim_length, bednetparams)
+
 add_intervention_lines(plot_prevalence(output), bednet_events)
 ```
 
@@ -98,11 +106,13 @@ We can do the same for IRS...
 
 ```{r}
 sprayingparams <- simparams
+
 peak <- peak_season_offset(sprayingparams)
 spraying_events = data.frame(
   timestep = c(1, 2) * year + peak - 3 * month,
   name=c("Spraying 1", "Spraying 2")
 )
+
 sprayingparams <- set_spraying(
   sprayingparams,
   timesteps = spraying_events$timestep,
@@ -114,6 +124,8 @@ sprayingparams <- set_spraying(
   ms_theta = matrix(c(-1.232, -1.232), nrow=2, ncol=1),
   ms_gamma = matrix(c(-0.009, -0.009), nrow=2, ncol=1)
 )
+
 output <- run_simulation(sim_length, sprayingparams)
+
 add_intervention_lines(plot_prevalence(output), spraying_events)
 ```

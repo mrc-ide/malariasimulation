@@ -164,7 +164,7 @@
 #' clinically diseased (these values refer to the index in drug_* parameters); default = NULL, NULL, NULL
 #' * clinical_treatment_coverage - a vector of coverage values for each drug; default = NULL, NULL, NULL
 #'
-#' PEV paramters: 
+#' PEV parameters: 
 #' please set vaccine strategies with the convenience functions in
 #' `pev_parameters.R:set_pev_epi`
 #' `pev_parameters.R:set_mass_pev`

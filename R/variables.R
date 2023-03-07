@@ -18,7 +18,7 @@
 #' * ID - Acquired immunity to detectability
 #' * zeta - Heterogeneity of human individuals
 #' * zeta_group - Discretised heterogeneity of human individuals
-#' * pev_timestep - The timstep of the last pev vaccination (-1 if there
+#' * pev_timestep - The timestep of the last pev vaccination (-1 if there
 #' haven't been any)
 #' * pev_profile - The index of the profile of the last administered pev vaccine 
 #' (-1 if there haven't been any)

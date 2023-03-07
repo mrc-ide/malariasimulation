@@ -23,7 +23,7 @@ This is an individual based model for *P. falciparum* and malaria interventions.
 
 The human variables are documented in [R/variables.R](https://github.com/mrc-ide/malariasimulation/blob/master/R/variables.R).
 
-The human biological processes are spread out between the following files:
+The functions governing the human flow of infection and immunity processes are described in the following files:
 
 1.  [R/human_infection.R](https://github.com/mrc-ide/malariasimulation/blob/master/R/human_infection.R)
 2.  [R/disease_progression.R](https://github.com/mrc-ide/malariasimulation/blob/master/R/disease_progression.R)
@@ -37,33 +37,73 @@ Modelled human states are Susceptible (*S*), Treated (*Tr*), Clinical disease (*
 
 ### Parameters
 
-Parameters shown on the infographic include: the force of infection ($\Lambda_i$), the probability of clinical disease ($\phi_i$), the probability of receiving treatment ($f_T$, or force of treatment), and rates of recovery from clinical disease to asymptomatic infection ($r_D$), asymptomatic infection to sub-patent infection ($r_A$), sub-patent infection and treated disease to complete recovery ($r_T$ and $r_U$). Superinfection may occur in individuals with asymptomatic or sub-patent infections at the same rates as standard infection (dashed arrows).
+Parameters shown on the infographic include:
 
-The force of infection ($\Lambda_i$) is impacted by pre-erythrocytic immunity, mosquito biting rate and population size and level of infectivity (specific details can be found in the references below). All default parameters can be found using [get_parameters()](https://mrc-ide.github.io/malariasimulation/reference/get_parameters.html) where the rate parameters shown here represent delays are input into the model by first converting to duration in days, e.g. for the input `dr`, $dr = \frac{1}{r_D}$.
+-   $\Lambda_i$: the age-specific (*i*) force of infection
+-   $\phi_i$: the age-specific (*i*) probability of clinical disease
+-   $f_T$: the probability of receiving treatment (or force of treatment)
+
+with the rates of recovery:
+
+-   $r_D$: from clinical disease to asymptomatic infection
+-   $r_A$: from asymptomatic infection to sub-patent infection
+-   $r_U$: from sub-patent infection to complete recovery
+-   $r_T$: from treated clinical disease to complete recovery
+
+Superinfection may occur in individuals with asymptomatic or sub-patent infections at the same rates as standard infection (dashed arrows).
+
+The force of infection ($\Lambda_i$) is impacted by pre-erythrocytic immunity, mosquito biting rate and population size and level of infectivity (specific details can be found in the references below). All default parameters can be found in the documentation for the function `get_parameters()`. Please also note that while the infographic above displays rate parameters, the parameter list uses delays durations, e.g. the rate $r_D$ is the inverse of the delay from state *D* to *A* (`dr` in the model):
+
+$$r_D=dr^{-1}$$
 
 To maintain a constant population size during simulations, the birth rate of new susceptible individuals is set to be equal to the overall death rate.
 
 ## Mosquito Biology
 
-The mosquito biological processes are spread out between the following files:
+The functions governing mosquito biological processes and dynamics are spread out between the following files:
 
 1.  [src/mosquito_ode.cpp]() ***Can't find a file with this name***
 2.  [src/mosquito_emergence.cpp]() ***Can't find a file with this name***''
 3.  [R/mosquito_biology.R](https://github.com/mrc-ide/malariasimulation/blob/master/R/mosquito_biology.R)
 
-<img src="Model_mos_figure.svg" style="display:block; margin: 0 auto; border-width: 0; width: 80%"/>
+<img src="Model_mos_figure_complete.svg" style="display:block; margin: 0 auto; border-width: 0; width: 80%"/>
 
 ### States
 
-Modelled mosquito states are separated into early (*E*) and late (*L*) larval stages, the pupal stage (*P*) and three adult states for susceptible (*Sm*), incubating (*Pm*) and infectious individuals (*Im*).
+Modelled mosquito states are separated into three juvenile stages: early (*E*) and late (*L*) larval stages, the pupal stage (*P*), and three adult states: susceptible (*S*<sub>M</sub>), incubating (*P*<sub>M</sub>) and infectious individuals (*I*<sub>M</sub>). Mosquitoes in any state may die, where they enter the NonExistent state. The model tracks both male and female juvenile mosquitoes, but only female adult mosquitoes.
 
 ### Parameters
 
-Parameters shown on the infographic include: mosquito developmental rates from early to late larval stages ($r_{EL}$), to the pupal stage ($r_{L}$) and to adult stage ($r_P$). Susceptible adults (*Sm*) may become infected (***These rates are not clear to me and it would be good to add these to the model infographic and to this text***) with a latent period (*Pm*) before becoming infectious (*Im*). Larval and pupal stages die at a rate of $\mu_p$ while adults die at a density dependent rate of $\mu_m$, where they then enter the *NonExistent* state. ***I need to read up on this density dependence.***
+Parameters shown on the infographic include mosquito developmental rates:
 
-***Density dependence of mosquito deaths***
+-   $r_{EL}$: from early to late larval stage
 
-***Could show how these models are connected together in a bit more detail***
+-   $r_{L}$: from late larval stage to pupal stage
+
+-   $r_P$: from pupal stage to adult stage
+
+Mosquito infection and incubation rates:
+
+-   $\Lambda_M$: the force of mosquito infection (FOIM)
+
+-   $r_{EM}$: extrinsic incubation period
+
+And mortality rates:
+
+-   $\mu_E(t)$: the early larval stage death rate
+
+-   $\mu_L(t)$: the late larval stage death rate
+
+-   $\mu_P$: the pupal death rate
+
+-   $\mu_M$: the adult mosquito death rate
+
+Larval mosquitoes experience density dependent mortality due to a carrying capacity, $K(t)$, which may change seasonally with rainfall and where $\gamma$ is the effect of density-dependence on late stage larvae compared with early stage larvae as follows:
+
+$$
+\mu_E = \mu_E^0(1+\frac{E(t)+L(t)}{K(t)}) \\
+\mu_L = \mu_L^0(1+\gamma\frac{E(t)+L(t)}{K(t)})
+$$
 
 ## Model References
 
@@ -81,16 +121,16 @@ Griffin, J. T., Bhatt, S., Sinka, M. E., Gething, P. W., Lynch, M., Patouillard,
 
 ### Simulation code
 
-The key package function is `run_simulation()` which, in its most basic form, simply requires a number of timesteps in days. Default parameter settings assume a human population of size of 100, an initial mosquito population size of 1000 with all species in equal proportions, with no treatment interventions and no seasonality. The full parameters list can be seen using [get_parameters()](https://mrc-ide.github.io/malariasimulation/reference/get_parameters.html).
+The key package function is `run_simulation()` which, in its most basic form, simply requires a number of timesteps in days. Default parameter settings assume a human population of size of 100, an initial mosquito population size of 1000 with all species in equal proportions, with no treatment interventions and no seasonality. The full parameters list can be seen in the documentation for `get_parameters()`.
 
 ```{r, output.lines=6}
 library(malariasimulation)
-Test_Sim <- run_simulation(timesteps = 100)
+test_sim <- run_simulation(timesteps = 100)
 ```
 
 ### Output
 
-The model then simulates a malaria epidemic and returns key outputs such as:
+The `run_simulation()` function then simulates malaria transmission dynamics and returns a dataframe for the following parameters through time:
 
 -   `infectivity`: human infectiousness
 -   `EIR_All`: the entomological inoculation rate
@@ -113,12 +153,16 @@ The model then simulates a malaria epidemic and returns key outputs such as:
 -   `mosquito_deaths`: mosquito deaths
 
 ```{r, output.lines=6}
-head(Test_Sim, n = 3)
+head(test_sim, n = 3)
 ```
+
+Additional output details can be found in the `run_simulation()` documentation.
+
+In your bit in bold about mu_All - I wonder if it relates to all mosquito species across all adult female mosquito infectious states? I guess the same applies to the L/L/P/Sm/Pm/Im_All_count values too?
 
 ### Additional outputs
 
-**Age stratified** results for **incidence**, **clinical incidence** and **severe case incidence** may also be included in the output if desired and must be specified in the parameter list (see [get_parameters()](https://mrc-ide.github.io/malariasimulation/reference/get_parameters.html) for more details and [Demography](https://mrc-ide.github.io/malariasimulation/articles/Demography.html) for an example). These inputs will add extra columns to the output for the number of infections (**`n_`**) and the sum of probabilities of infection (**`p_`**) for the relevant total, clinical or severe incidences for each specified age group.
+**Age stratified** results for **incidence**, **clinical incidence** and **severe case incidence** may also be included in the output if desired and must be specified in the parameter list (see `get_parameters()` for more details and [Demography](https://mrc-ide.github.io/malariasimulation/articles/Demography.html) for an example). These inputs will add extra columns to the output for the number of infections (**`n_`**) and the sum of probabilities of infection (**`p_`**) for the relevant total, clinical or severe incidences for each specified age group.
 
 Where **treatments** are specified, `n_treated` will report the number that have received treatment. Where **bed nets** are distributed, `net_usage` specifies the number sleeping under a bednet.
 
@@ -128,28 +172,59 @@ Where **treatments** are specified, `n_treated` will report the number that have
 
 These outputs can then be visualised, such as the population changes in states. Another key output is the prevalence of detectable infections between the ages of 2-10 (*Pf*PR~2-10~), which can be obtained by dividing `n_detect_730_3650` by `n_730_3650`.
 
-```{r, out.width = "45%", echo = FALSE}
-cols_to_plot <- paste0(c("S","A","D","U","Tr"),"_count")
-Rich_cols  <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+```{r, fig.align = 'center', fig.height = 5, fig.width = 7}
+# Set color palette
+cols  <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+# Define vector of column names to plot
+cols_to_plot <- paste0(c("S","D","A","U","Tr"),"_count")
+
+# Create plotting function
 states_plot <- function(){
-  plot(x = Test_Sim$timestep, y = Test_Sim[,cols_to_plot[1]], type = "l", col = Rich_cols[1], ylim = c(0,80), ylab = "Population size", xlab = "Days")
-  sapply(2:5, function(x){points(x = Test_Sim$timestep, y = Test_Sim[,cols_to_plot[x]], type = "l", col = Rich_cols[x])})
-  legend("topleft", legend = c("S","A","D","U","Tr"), col = Rich_cols, lty = 1, bty = "n", ncol = 5)
+  
+  # Set up plot with first state
+  plot(x = test_sim$timestep, y = test_sim[,cols_to_plot[1]],
+       type = "l", col = cols[1], ylim = c(0,80),
+       ylab = "Population size", xlab = "Days")
+  
+  # Add remaining states
+  sapply(2:5, function(x){
+    points(x = test_sim$timestep, y = test_sim[,cols_to_plot[x]], type = "l", col = cols[x])})
+  
+  # Add legend
+  legend("topleft", legend = c("S","D","A","U","Tr"), col = cols, lty = 1, bty = "n", ncol = 5)
 }
 
 states_plot()
-plot(x = Test_Sim$timestep, y = Test_Sim$n_detect_730_3650/Test_Sim$n_730_3650, type = "l", col = Rich_cols[7], ylim = c(0,1), ylab = expression(paste(italic(Pf),"PR"[2-10])), xlab = "Days")
+
+# Calculate Pf PR 2-10
+test_sim$PfPR2_10 <- test_sim$n_detect_730_3650/test_sim$n_730_3650
+
+
+# Plot Pf PR 2-10
+plot(x = test_sim$timestep, y = test_sim$PfPR2_10, type = "l",
+     col = cols[7], ylim = c(0,1),
+     ylab = expression(paste(italic(Pf),"PR"[2-10])), xlab = "Days")
 ```
 
-\
-
 # Changing parameters
+
+The `get_parameters()` function generates a complete parameter set that may be fed into `run_simulation()`. A number of **helper functions** have been designed to assist in changing and setting key parameters, which are explained across the remaining vignettes.
+
+Some parameters (e.g. population size, age group rendering, setting seasonality) must still be replaced directly. When this is the case, care must be taken to ensure the replacement parameters are in the same class as the default parameters (e.g. if the parameter is a numeric, its replacement must also be numeric, if logical, the replacement must also be logical). Parameters are replaced by passing a list of named parameters to the `get_parameters()` function using the `overrides` argument. An example showing how to change the `human_population` parameter is given below.
+
+```{r}
+# Use get_parameters(overrides = list(...))) to set new parameters
+new_params <- get_parameters(overrides = list(human_population = 200)) 
+```
+
+While other parameters can be changed individually, we do not generally recommended adjusting these without close attention and a detailed understanding of how this will impact the model assumptions. We strongly encourage users to stick with the parameter setting functions and methods described in these vignettes when adjusting parameter settings.
 
 ## Mosquito modelling
 
 ### Species distribution
 
-`malariasimulation` contains in built parameter sets for three mosquito species: *A. arabiensis* (`arab_params`), *A. funestus* (`fun_params`) and *A. gambiae* (`gamb_params`). Each parameter set contains feeding rates, foraging time etc.
+`malariasimulation` contains in built parameter sets for three mosquito species: *A. arabiensis* (`arab_params`), *A. funestus* (`fun_params`) and *A. gambiae* (`gamb_params`). Each parameter set contains feeding rates, foraging time etc. Full details can be found in the [vector_parameters.R](https://github.com/mrc-ide/malariasimulation/blob/master/R/vector_parameters.R) file.
 
 ```{r}
 unlist(arab_params)
@@ -157,12 +232,14 @@ unlist(arab_params)
 
 The proportion of each species can be set using the `set_species()` function, requiring a full parameter set and arguments of a list of species parameter sets and a vector of relative species proportions.
 
-```{r}
+```{r, fig.align = 'center', fig.height = 5, fig.width = 7}
 # Create list of default parameters
 params <- get_parameters()
 
 # Update parameter list with species distributions
-params_species <- set_species(parameters = params, species = list(arab_params, fun_params, gamb_params), proportions = c(0.1,0.3,0.6))
+params_species <- set_species(parameters = params,
+                              species = list(arab_params, fun_params, gamb_params),
+                              proportions = c(0.1,0.3,0.6))
 
 # Run simulation
 species_simulation <- run_simulation(timesteps = 100, parameters = params_species)
@@ -177,13 +254,18 @@ Mos_sp_dist_sim <- cbind(species_simulation$timestep,
                          rowSums(species_simulation[,arab_cols]),
                          rowSums(species_simulation[,fun_cols]),
                          rowSums(species_simulation[,gamb_cols]))
-      
-cols  <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 species_plot <- function(Mos_pops){
-  plot(x = Mos_pops[,1], y = Mos_pops[,2], type = "l", col = cols[2], ylim = c(0,140000), ylab = "Mosquito population size", xlab = "Days")
-  sapply(3:4, function(x){points(x = Mos_pops[,1], y = Mos_pops[,x], type = "l", col = cols[x])})
-  legend("topright", legend = c("A. arab","A. fun","A. gamb"), col = cols[-1], lty = 1, bty = "n", ncol = 1)
+  plot(x = Mos_pops[,1], y = Mos_pops[,2], type = "l", col = cols[2],
+       ylim = c(0,140000), ylab = "Mosquito population size", xlab = "Days")
+  
+  grid()
+  
+  sapply(3:4, function(x){
+    points(x = Mos_pops[,1], y = Mos_pops[,x], type = "l", col = cols[x])})
+  
+  legend("topright", legend = c("A. arab","A. fun","A. gamb"),
+         col = cols[-1], lty = 1, bty = "n", ncol = 1)
 }
 
 species_plot(Mos_sp_dist_sim)
@@ -191,9 +273,11 @@ species_plot(Mos_sp_dist_sim)
 
 ### Seasonality
 
-We can also include the impact of seasonality on mosquito prevalence. To do this, we must set the parameter `model_seasonality = TRUE` and assign values to parameters that determine seasonality: `g0`, `g` and `h`. These parameters must be set directly using the `overrides` argument of `get_parameters()`. `overrides` takes a list of named parameters that can be overwritten.
+The `malariasimulation` package has the capacity to simulate malaria transmission for a range of seasonal transmission profiles. This is achieved by specifying an annual rainfall profile that shapes mosquito population dynamics, thereby impacting malaria transmission.
 
-```{r}
+To include seasonality, we must set the parameter `model_seasonality = TRUE` and assign values to parameters that determine seasonality: `g0`, `g` and `h`. These parameters must be set directly by passing a list of named parameters to the `overrides` argument of the `get_parameters()` function.
+
+```{r, fig.align = 'center', fig.height = 5, fig.width = 7}
 # Set parameters, inclusing seasonality parameters
 params_seasons <- get_parameters(overrides = list(
   model_seasonality = TRUE,
@@ -208,14 +292,18 @@ seasonality_simulation <- run_simulation(timesteps = 600, parameters = params_se
 All_mos_cols <- paste0(c("E","L","P","Sm","Pm", "Im", "NonExistent"),"_All_count")
 
 # Plot results
-plot(seasonality_simulation[,1], rowSums(seasonality_simulation[,All_mos_cols]), ylim = c(0, 200000), type = "l", xlab = "Days", ylab = "Mosquito population size")
-
+plot(seasonality_simulation[,1], rowSums(seasonality_simulation[,All_mos_cols]),
+     ylim = c(0, 200000), type = "l", xlab = "Days", ylab = "Mosquito population size")
+grid()
 ### Run simulation using seasonality over previous species distribution
 # Update seasonality parameter set to include species distributions
-params_seasons_species <- set_species(parameters = params_seasons, species = list(arab_params, fun_params, gamb_params), proportions = c(0.1,0.3,0.6))
+params_seasons_species <- set_species(parameters = params_seasons,
+                                      species = list(arab_params, fun_params, gamb_params),
+                                      proportions = c(0.1,0.3,0.6))
 
 # Run simulation
-seasonality_species_simulation <- run_simulation(timesteps = 600, parameters = params_seasons_species)
+seasonality_species_simulation <- run_simulation(timesteps = 600,
+                                                 parameters = params_seasons_species)
 
 # Collect results
 Mos_season_species_sim <- cbind(seasonality_species_simulation$timestep,
@@ -226,12 +314,19 @@ Mos_season_species_sim <- cbind(seasonality_species_simulation$timestep,
 # Plot results
 species_plot(Mos_season_species_sim)
 
-
 ```
 
-### Individual or deterministic life
+The mosquito population size is no longer constant and follows the patterns set by rainfall.
 
-## 
+### Individual or deterministic mosquitoes
+
+Mosquitoes may also be modelled deterministically, rather than individually (which is the default).
+
+This can be done by setting `individual_mosquitoes` to `FALSE` in the `overrides` argument of `get_parameters()`.
+
+```{r, fig.align = 'center', fig.height = 5, fig.width = 7}
+simparams <- get_parameters(overrides = list(individual_mosquitoes = FALSE))
+```
 
 ## Vignettes
 
@@ -251,8 +346,11 @@ The remaining vignettes describe how to adjust sets of parameters through a numb
 3.  [MDA and Chemoprevention](https://mrc-ide.github.io/malariasimulation/articles/MDA.html)
 
     -   `set_mda()`: implementation of mass drug administration interventions
+
     -   `set_smc()`: implementation of seasonal malarial chemoprevention interventions
+
     -   `set_pmc()`: implementation of perrenial malarial chemoprevention interventions
+
     -   `peak_season_offset()`: correlating timed interventions with seasonal malaria
 
 4.  [Vaccines](https://mrc-ide.github.io/malariasimulation/articles/Vaccines.html)
@@ -277,23 +375,8 @@ The remaining vignettes describe how to adjust sets of parameters through a numb
 
 8.  [Metapopulation Modelling](https://mrc-ide.github.io/malariasimulation/articles/Metapopulation.html)
 
-    -   `run_metapop_simulation()`: to model multiple areas simulateously
+    -   `run_metapop_simulation()`: to model multiple areas simultaneously
 
 9.  [Variation](https://mrc-ide.github.io/malariasimulation/articles/Variation.html)
 
     -   `run_simulation_with_repetitions()`: running simulations with replicates
-
-## Changing other parameters
-
-It is not recommended that parameters are adjusted without using these functions without close and detailed attention, but if this is necessary, any parameter may be changed using the `overrides` argument in the `get_parameters()` function. The `get_parameters()` function generates a complete parameter set that may be fed into `run_simulation()`. New parameters must be in the same class as the parameters they replace (e.g. if the parameter is a numeric, its replacement must also be numeric, if logical, the replacement must also be logical) and inputs must be given as a list. An example is given below.
-
-This simple example shows how to change the human population size. The parameter name for human population size is `human_population`.
-
-```{r}
-# Use get_parameters(overrides = list(...))) to set new parameters
-new_params <- get_parameters(overrides = list(human_population = 200)) 
-```
-
-### 
-
-***Which parameters don't get addressed in the vignettes? What do these parameters do?*** Correlation_Parameters find_birthrates() get_correlation_parameters() parameterise_mosquito_equilibrium() parameterise_total_M()

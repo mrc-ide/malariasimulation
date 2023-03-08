@@ -19,7 +19,7 @@ library(malariasimulation)
 library(malariaEquilibrium)
 ```
 
-Indoor Residual Spraying (IRS) involves periodically treating indoor walls with insecticides to eliminate adult female mosquitoes that rest indoors. `malariasimulation` can be used to investigate the effect of malaria control strategies that deploy IRS. The model has the functionality to allow users to specify a range of IRS campaigns, including different timings and coverages and in settings with specified proportions of mosquito species with the help of the `set_spraying()` function. 
+Indoor Residual Spraying (IRS) involves periodically treating indoor walls with insecticides to eliminate adult female mosquitoes that rest indoors. `malariasimulation` can be used to investigate the effect of malaria control strategies that deploy IRS. Users can set IRS in the model using the set_spraying() function to parameterize timing of spraying campaigns and coverage levels. 
 
 ### Plotting functions
 We will create a few plotting functions to visualise the output.
@@ -44,7 +44,7 @@ plot_prev <- function() {
 
 ### Parameterisation 
 
-Use the `get_parameters()` function to generate the list of parameters for a seasonal profile, accepting the default values to run the simulation from an equilibrium starting point. The seasonality will drive mosquito dynamics in the absence of interventions. 
+Use the `get_parameters()` function to generate a list of parameters, accepting most of the default values, but modifying seasonality values to model a seasonal setting. Then, we use the `set_equilibrium()` function to to initialise the model at a given entomological innoculation rate (EIR).
 
 ```{r}
 year <- 365
@@ -57,25 +57,22 @@ simparams <- get_parameters(
   list(
     human_population = human_population,
     # seasonality parameters
-    model_seasonality = TRUE, # Let's try a bi-modal model
-    g0 = 0.28605,
-    g = c(0.20636, -0.0740318, -0.0009293),
-    h = c(0.173743, -0.0730962, -0.116019),
-    # Here, we are asking for the output to contain information on severe incidence in children 2-10 years old.
-    clinical_incidence_rendering_min_ages = 2*year,
-    clinical_incidence_rendering_max_ages = 10*year
+    model_seasonality = TRUE, 
+    g0 = 0.285277,
+    g = c(-0.0248801, -0.0529426, -0.0168910),
+    h = c(-0.0216681, -0.0242904, -0.0073646),
   )
 )
 
 simparams <- set_equilibrium(simparams, starting_EIR)
 
 # Running simulation with no IRS
-output_control <- run_simulation(sim_length, simparams)
+output_control <- run_simulation(timesteps = sim_length, parameters = simparams)
 ```
   
 ## Simulation 
 
-Then we can run the simulation for a variety of IRS strategies. In the example below, there are two rounds of IRS at 80% coverage, each 3 months prior to peak rainfall for that year. The function `peak_season_offset()` outputs a timestep when peak rainfall will be observed. Notice that the matrices specified for the parameters for `ls_theta`, `ls_gamma`, `ks_theta`, `ks_gamma`, `ms_theta`, and `ms_gamma` have two rows, one for each timestep where IRS occurs, and 1 column for all mosquitoes, not divided by species.
+Then we can run the simulations for a variety of IRS strategies. In the example below, there are two rounds of IRS at 80% coverage, each 3 months prior to peak rainfall for that year. The function `peak_season_offset()` outputs a timestep when peak rainfall will be observed based on the seasonality profile we set above. Notice that the matrices specified for the parameters for `ls_theta`, `ls_gamma`, `ks_theta`, `ks_gamma`, `ms_theta`, and `ms_gamma` have two rows, one for each timestep where IRS occurs, and 1 column for all mosquitoes, not divided by species.
 
 ```{r, fig.align='center', fig.height=4, fig.width=6}
 peak <- peak_season_offset(simparams)
@@ -85,7 +82,7 @@ sprayingtimesteps <- c(1, 2) * year + peak - 3 * month # There is a round of IRS
 sprayingparams <- set_spraying(
   simparams,
   timesteps = sprayingtimesteps,
-  coverages = rep(.8, 2), # # Each round covers 80% of the population 
+  coverages = rep(.8, 2), # Each round covers 80% of the population 
   ls_theta = matrix(c(2.025, 2.025), nrow=2, ncol=1), # Matrix of mortality parameters
   ls_gamma = matrix(c(-0.009, -0.009), nrow=2, ncol=1), # Matrix of mortality parameters per timestep
   ks_theta = matrix(c(-2.222, -2.222), nrow=2, ncol=1), # Matrix of feeding success parameters

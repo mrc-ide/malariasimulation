@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-In this tutorial, we will explore how to model different strategies for both pre-erythrocytic malaria vaccines and a theoretical malaria transmission blocking vaccine (TBV). Parameters for the pre-erythrocytic vaccine can be set for a routine Expanded Programme on Immunization (EPI) strategy or a mass vaccination strategy using the helper functions `set_rtss_epi()` and `set_mass_rtss()`, while parameters for a TBV can be set using `set_tbv()`. Under an EPI strategy, everybody within a certain age range will be vaccinated within the routine immunisation system. A mass vaccination strategy is typically a one-time event where everybody, or everybody within a certain age group, is targeted for vaccination during a relatively short window of time. If you are modelling a seasonal setting, then it is also possible to schedule vaccination relative to the expected peak of malaria prevalence given by `peak_season_offset()`.
+In this tutorial, we will explore how to model different strategies for both pre-erythrocytic malaria vaccines and a theoretical malaria transmission blocking vaccine (TBV). Parameters for the pre-erythrocytic vaccine can be set for a routine age-based Expanded Programme on Immunization (EPI) strategy or a mass vaccination strategy using the helper functions `set_rtss_epi()` and `set_mass_rtss()`, while parameters for a TBV can be set using `set_tbv()`. Under an EPI strategy, everybody within a certain age range will be vaccinated within the routine immunisation system. A mass vaccination strategy is typically a one-time event where everybody, or everybody within a certain age group, is targeted for vaccination during a relatively short window of time. If you are modelling a seasonal setting, then it is also possible to schedule vaccination relative to the expected peak of malaria prevalence given by `peak_season_offset()`.
 
 ```{r setup, message=FALSE}
 library(malariasimulation)
@@ -29,38 +29,38 @@ First, we will define a few functions to visualise the outputs.
 
 ```{r}
 # Plotting clinical incidence 
-plot_inci <- function(type = 'not seasonal'){
-  if(type == 'seasonal'){
+plot_inci <- function(type = "not seasonal"){
+  if(type == "seasonal"){
     comparison <- output_seas_control
     vaccinetime <- round(year + (peak - month * 3.5), 0) / 365
   } else {
     comparison <- output_control
     vaccinetime <- 1
   }
-  output$clinical_incidence <- 1000 * output$n_inc_0_1825 / output$n_0_1825
+  output$clinical_incidence <- 1000 * output$n_inc_clinical_0_1825 / output$n_0_1825
   output$time_year <- output$timestep / year
-  comparison$clinical_incidence <- 1000 * comparison$n_inc_0_1825 / comparison$n_0_1825
+  comparison$clinical_incidence <- 1000 * comparison$n_inc_clinical_0_1825 / comparison$n_0_1825
   comparison$time_year <- comparison$timestep / year
 
   plot(x = output$time_year, y = output$clinical_incidence, 
-       type = 'l', col = cols[2],
-       xlab = 'Time (years)', ylab = 'Clinical incidence (per 1000 children aged 0-5)',
+       type = "l", col = cols[2],
+       xlab = "Time (years)", ylab = "Clinical incidence (per 1000 children aged 0-5)",
        xaxs = "i", yaxs = "i", bty = "l", xaxs = "i", yaxs = "i")
-  grid(lty = 2, col = 'grey80', lwd = 1)
-  abline(v = vaccinetime, col = 'black', lty = 2, lwd = 2.5)
-  curve_values <- loess(clinical_incidence ~ time_year, data = output, span = 0.3, method = 'loess') 
+  grid(lty = 2, col = "grey80", lwd = 1)
+  abline(v = vaccinetime, col = "black", lty = 2, lwd = 2.5)
+  curve_values <- loess(clinical_incidence ~ time_year, data = output, span = 0.3, method = "loess") 
   lines(output$time_year, predict(curve_values),
         col = cols[5], lwd = 3)
-  curve_valuescomp <- loess(clinical_incidence ~ time_year, data = comparison, span = 0.3, method = 'loess') 
+  curve_valuescomp <- loess(clinical_incidence ~ time_year, data = comparison, span = 0.3, method = "loess") 
   lines(comparison$time_year, predict(curve_valuescomp), 
         col = cols[6], lwd = 3)
-  legend('topright', box.lty = 0, legend = c('Start of vaccination', 'Incidence for vaccine scenario', 'Smoothed incidence for \nno intervention scenario'),
-         col = c('black', cols[5], cols[5]), lty = c(2,1,1), lwd = 2.5)
+  legend("topright", box.lty = 0, legend = c("Start of vaccination", "Incidence for vaccine scenario", "Smoothed incidence for \nno intervention scenario"),
+         col = c("black", cols[2], cols[5]), lty = c(2,1,1), lwd = 2.5)
 }
 
 # Plot parasite prevalence
-plot_prev <- function(type = 'not seasonal'){
-    if(type == 'seasonal'){
+plot_prev <- function(type = "not seasonal"){
+    if(type == "seasonal"){
     comparison <- output_seas_control
     vaccinetime <- round(year + (peak - month * 3.5), 0) / 365
   } else {
@@ -71,40 +71,40 @@ plot_prev <- function(type = 'not seasonal'){
   comparison$time_year <- comparison$timestep / year
 
   plot(x = output$time_year, y = output$n_detect_730_3650/output$n_730_3650, 
-       type = 'l', col = cols[3], ylim=c(0,1),
-       xlab = 'Time (years)', ylab = expression(paste(italic(Pf),"PR"[2-10])),
+       type = "l", col = cols[3], ylim=c(0,1), lwd = 3,
+       xlab = "Time (years)", ylab = expression(paste(italic(Pf),"PR"[2-10])),
        xaxs = "i", yaxs = "i", bty = "l", xaxs = "i", yaxs = "i")
-  grid(lty = 2, col = 'grey80', lwd = 1)
+  grid(lty = 2, col = "grey80", lwd = 1)
   lines(x = comparison$time_year, y = comparison$n_detect_730_3650/comparison$n_730_3650,
-        col = cols[6])
-  abline(v = vaccinetime, col = 'black', lty = 2, lwd = 2.5)
-  legend('topright', box.lty = 0, legend = c('Start of vaccination', 'Prevalence for vaccine scenario', 'Prevalence for no intervention scenario'),
-         col = c('black', cols[3], cols[6]), lty = c(2,1,1), lwd = 2.5)
+        col = cols[6], lwd = 3,)
+  abline(v = vaccinetime, col = "black", lty = 2, lwd = 2.5)
+  legend("topright", box.lty = 0, legend = c("Start of vaccination", "Prevalence for vaccine scenario", "Prevalence for no intervention scenario"),
+         col = c("black", cols[3], cols[6]), lty = c(2, 1, 1), lwd = 2.5)
 }
 
 # Plot dose timing
 plot_doses <- function(){
   output$month <- ceiling(output$timestep / month)
-  doses <- output[,c(2:5,38)]
+  doses <- output[,c(2:5, 38)]
   doses <- aggregate(cbind(doses[1:4]),
                       by = list(doses$month), 
                       FUN = sum)
-  doses <- as.matrix(t(doses[,-1]))
+  doses <- as.matrix(t(doses[, -1]))
   
   barplot(doses, xlab = "Month",
-          ylab = 'Number of doses',
+          ylab = "Number of doses",
         col = cols[1:6],space = 0, 
         beside = FALSE, xaxs = "i", yaxs = "i")
-  grid(lty = 2, col = 'grey80', lwd = 1)
+  grid(lty = 2, col = "grey80", lwd = 1)
   axis(side = 1, lty = 1, col = "black", pos = 0); axis(side = 2, lty = 1, col = "black")
-  legend('topleft', box.lty = 0, legend = c('Dose 1','Dose 2','Dose 3','Booster 1'),
+  legend("topleft", box.lty = 0, legend = c("Dose 1","Dose 2","Dose 3","Booster 1"),
          col = cols[1:6], lty = rep(1, 4), lwd = 2.5, bg="transparent")
 }
 ```
 
 ## Parameterisation
 
-We will set the default parameters to run the simulation from an equilibrium starting point that has no seasonality using the `set_equilibrium()` function.
+We use the `get_parameters()` function to generate a list of parameters, accepting most of the default values, and then use the `set_equilibrium()` function to to initialise the model at a given entomological inoculation rate (EIR)
 
 ```{r}
 year <- 365
@@ -115,23 +115,23 @@ starting_EIR <- 20
 
 simparams <- get_parameters(list(
     human_population = human_population,
-    incidence_rendering_min_ages = 0,
-    incidence_rendering_max_ages = 5 * year,
+    clinical_incidence_rendering_min_ages = 0,
+    clinical_incidence_rendering_max_ages = 5 * year,
     individual_mosquitoes = FALSE
   )
 )
 
-simparams <- set_equilibrium(simparams, starting_EIR)
+simparams <- set_equilibrium(parameters = simparams, init_EIR = starting_EIR)
 
 # Run a model with no interventions in a setting with no seasonality
-output_control <- run_simulation(sim_length * 2, simparams)
+output_control <- run_simulation(timesteps = sim_length * 2, parameters = simparams)
 ```
 
 Then we can run the simulation for a variety of vaccination strategies.
 
 ## Mass RTS,S
 
-First, we will model a single round of RTS,S vaccine given in a mass vaccination strategy where those within a given age range will be vaccinated to a specified coverage level and during a short window of time. In this example, individuals aged between 5 months and 10 years are vaccinated with a primary series (3 doses) followed by a single booster 12 months after the initial vaccination. The age groups to be vaccinated as well as timing of all vaccinations can be modified within the `set_mass_rtss()` function.
+First, we will model a single round of RTS,S vaccine given in a mass vaccination strategy where those within a given age range will be vaccinated to a specified coverage level and during a short window of time. In this example, individuals aged between 5 and 17 months are vaccinated with a primary series (3 doses) followed by a single booster 12 months after the initial vaccination. The age groups to be vaccinated as well as timing of all vaccinations can be modified within the `set_mass_rtss()` function.
 
 We specify that the intervention should use the RTS,S vaccine through the `profile` and `booster_profile` inputs.
 
@@ -140,36 +140,38 @@ rtssparams <- set_mass_rtss(
   simparams,
   timesteps = 1 * year, # The single round of vaccination is at 1 year into the simulation.
   coverages = 1, # The vaccine is given to 100% of the population between the specified ages.
-  min_wait = 0, # The minimum acceptable time since the last vaccination is 0.
+  min_wait = 0, # The minimum acceptable time since the last vaccination is 0 because in our case we are only implementing one round of vaccination.
   min_ages = 5 * month, # The minimum age for the target population to be vaccinated. 
-  max_ages = 10 * year, # The maximum age for the target population to be vaccinated.
-  boosters = 12 * month, # The booster is given at 12 months after the initial vaccination. 
+  max_ages = 5 * year, # The maximum age for the target population to be vaccinated.
+  boosters = 12 * month, # The booster is given at 12 months after the primary series. 
   booster_coverage = 0.95 # Coverage of the booster dose is 95%.
 )
 
-output <- run_simulation(sim_length, rtssparams)
+output <- run_simulation(timesteps = sim_length, parameters = rtssparams)
 ```
 
-#### Plot clinical incidence and prevalence
+#### Plot clinical incidence
 
-```{r, fig.width = 8, fig.height = 4, fig.align = 'center'}
-par(mfrow = c(1,2))
+```{r, fig.width = 7, fig.height = 5, fig.align = "center"}
 plot_inci()
+```
+
+#### Plot prevalence
+```{r, fig.width = 7, fig.height = 5, fig.align = "center"}
 plot_prev()
 ```
-We see a much more gradual decrease in clinical incidence following EPI implementation compared to the mass vaccination strategy.  
-  
+
 #### Plot doses
 
 You can look at the distribution of doses using the `n_rtss_mass_dose_*` or `n_rtss_epi_dose_*` outputs. It is always a good idea to check the timing of vaccine doses to ensure that it is specified as intended.
 
-```{r, fig.width = 6, fig.height = 4, fig.align = 'center', message=FALSE}
+```{r, fig.width = 7, fig.height = 5, fig.align = "center", message=FALSE}
 plot_doses()
 ```
 
 ### Seasonal mass vaccination
 
-Mass vaccination can also be targeted seasonally. For example, we may want to have a mass vaccination campaign a few months prior to the peak transmission season. In the example below, we will create a parameter set with seasonality and first run a simulation with no vaccine, then run a simulation with a mass vaccination campaign targeting everyone between the ages of 5 months and 15 years.
+Mass vaccination can also be targeted seasonally. For example, we may want to have a mass vaccination campaign take place a few months prior to the peak transmission season. In the example below, we will create a parameter set with seasonality and first run a simulation with no vaccine, then run a simulation with a mass vaccination campaign targeting everyone between the ages of 5 months and 15 years.
 
 We specify that the intervention should use the RTS,S vaccine through the `profile` and `booster_profile` inputs.
 
@@ -178,13 +180,13 @@ We specify that the intervention should use the RTS,S vaccine through the `profi
 seas_simparams <- get_parameters(
 	list(
     	human_population = human_population,
-    	incidence_rendering_min_ages = 0,
-    	incidence_rendering_max_ages = 5 * year,
+    	clinical_incidence_rendering_min_ages = 0,
+    	clinical_incidence_rendering_max_ages = 5 * year,
     	individual_mosquitoes = FALSE,
-    	model_seasonality = TRUE, # Let's try a bi-modal model
+    	model_seasonality = TRUE, 
     	g0 = 0.285505,
-    	g = c(-0.325352,-0.0109352,0.0779865),
-    	h = c(-0.132815,0.104675,-0.013919)
+    	g = c(-0.325352, -0.0109352, 0.0779865),
+    	h = c(-0.132815, 0.104675, -0.013919)
   )
 )
 
@@ -203,8 +205,8 @@ seasmass_simparams <- set_mass_rtss(
   parameters = seas_simparams,
   timesteps = round(year + (peak - month * 3.5), 0),# The vaccination will begin 3.5 months prior to the peak seasonality in the second year.
   coverages = 1, # 100% of the population between min_ages and max_ages is vaccinated.
-  min_ages = 5 * month, #
-  max_ages = 15 * year,
+  min_ages = 5 * month, # The minimum age for the target population to be vaccinated. 
+  max_ages = 5 * year, # The maximum age for the target population to be vaccinated.
   min_wait = 0, # There is no minimum wait between the last vaccination.
   boosters = round(c(12 * month + 2 * month)), # The booster is given 14 months after the first dose. 
   booster_coverage = 1) # 100% of the vaccinated population is boosted.
@@ -214,59 +216,66 @@ output <- run_simulation(sim_length * 2, seasmass_simparams)
 
 #### Plot clinical incidence
 
-```{r, fig.width = 6, fig.height = 4 fig.align = 'center'}
-plot_inci(type = 'seasonal')
+```{r, fig.width = 7, fig.height = 5, fig.align = "center"}
+plot_inci(type = "seasonal")
 ```
 
 #### Plot prevalence
-```{r, fig.width = 6, fig.height = 4 fig.align = 'center'}
-plot_prev(type = 'seasonal')
+```{r, fig.width = 7, fig.height = 5, fig.align = "center"}
+plot_prev(type = "seasonal")
 ```
 
 #### Plot doses
 
-```{r, fig.width = 6, fig.height = 4, fig.align = 'center', message=FALSE}
+```{r, fig.width = 7, fig.height = 5, fig.align = "center", message=FALSE}
 plot_doses()
 ```
 
 
 ## RTS,S EPI
 
-We can also opt to vaccinate using the EPI strategy, where individuals will be vaccinated once they reach a certain age. In the example below, individuals will be vaccinated once they reach 5 months of age. For this intervention, we see a much more gradual impact following implementation.
+We can also opt to vaccinate using the EPI strategy, where individuals will be vaccinated once they reach a certain age. In the example below, individuals will be vaccinated once they reach 5 months of age. For this intervention, we see a much more gradual impact following implementation. Note: the model assumes that protection from the vaccine begins after the third dose. 
 
 ```{r}
 # Add RTS,S strategy
 rtssepiparams <- set_rtss_epi(
   simparams,
-  timesteps = 1 * year, # Vaccination will begin at 1 year.
+  timesteps = 1 * year, # Vaccination will begin at 1 year into the simulation.
   coverages = 1, # Vaccine coverage is 100%.
   min_wait = 0, # There is no minimum wait since the last vaccination.
   age = 5 * month, # Individuals will be vaccinated once they reach 5 months of age.
-  boosters = 12 * month, # The booster is administered 12 months following the initial vaccination. 
+  boosters = 12 * month, # The booster is administered 12 months following the third dose. 
   booster_coverage = 0.95 # 95% of those vaccinated with the primary series will be boosted.
 )
 
 output <- run_simulation(sim_length * 2, rtssepiparams)
 ```
 
+The default values for the `rtss_doses` variable shows that individuals will be vaccinated with dose one at day 0, or the day that the vaccine campaign begins (this is at 1 year in the example above), with dose two 45 days afterwards, and with dose three 90 days after the first dose. This will correspond to ages 5, 6.5, and 8 months for the primary series. The booster will be administered 12 months after dose three, at 20 months of age in the example above.   
+```{r}
+rtssepiparams$rtss_doses
+```
+
+
 #### Plot clinical incidence
 
-```{r, fig.width = 6, fig.height = 4 fig.align = 'center'}
+```{r, fig.width = 7, fig.height = 5, fig.align = "center"}
 plot_inci()
 ```
 
 #### Plot prevalence
-```{r, fig.width = 6, fig.height = 4 fig.align = 'center'}
+```{r, fig.width = 7, fig.height = 5, fig.align = "center"}
 plot_prev()
 ```
 
 #### Plot doses
 
-```{r, fig.width = 6, fig.height = 4, fig.align = 'center', message=FALSE}
+```{r, fig.width = 7, fig.height = 5, fig.align = "center", message=FALSE}
 plot_doses()
 ```
-
-### RTS,S seasonal boosters
+We see a much more gradual decrease in clinical incidence following EPI implementation compared to the mass vaccination strategy.  
+  
+### RTS,S EPI with seasonal boosters
 
 In a seasonal setting, we can set booster timesteps relative to the start of the year instead of relative to the last dose. This allows us to consider seasonal dynamics and implement booster doses right before the start of the high transmission season to maximize impact.
 
@@ -282,7 +291,7 @@ rtssepiseasonalparams <- set_rtss_epi(
   min_wait = 6 * month, # When seasonal_boosters = TRUE, this is the minimum time between an individual receiving the final dose and the first booster.
   age = 5 * month, # Individuals will be vaccinated once they reach 5 months of age.
   boosters = peak - month * 3.5 , # Because seasonal_boosters = TRUE, the timestep here is relative to the start of the year. Here, we will give a booster at 3.5 months prior to peak transmission. 
-  booster_coverage = c(.7), # 70% of the vaccinated population is boosted.
+  booster_coverage = 0.95, # 95% of the vaccinated population is boosted.
   seasonal_boosters = TRUE
 )
 
@@ -291,24 +300,24 @@ output <- run_simulation(sim_length * 2, rtssepiseasonalparams)
 
 #### Plot clinical incidence
 
-```{r, fig.width = 6, fig.height = 4 fig.align = 'center'}
-plot_inci(type = 'seasonal')
+```{r, fig.width = 7, fig.height = 5, fig.align = "center"}
+plot_inci(type = "seasonal")
 ```
 
 #### Plot prevalence
-```{r, fig.width = 6, fig.height = 4 fig.align = 'center'}
-plot_prev(type = 'seasonal')
+```{r, fig.width = 7, fig.height = 5, fig.align = "center"}
+plot_prev(type = "seasonal")
 ```
 
 #### Plot doses
 
-```{r, fig.width = 6, fig.height = 4, fig.align = 'center', message=FALSE}
+```{r, fig.width = 7, fig.height = 5, fig.align = "center", message=FALSE}
 plot_doses()
 ```
 
 ### RTS,S dosing
 
-You can try different dosing schedules using the `pev_doses` parameter. Here we administer dose 1 at 5 months, dose 2 30 days after dose 1, and dose 3 60 days after dose 1. We also administer two  booster doses 12 and 24 months following dose 3. As before, it is a good idea to visualise the timing of the vaccination strategy to ensure that you have implemented it as intended.
+You can try different dosing schedules using the `pev_doses` parameter. Here we administer dose one at 5 months, dose two 30 days after dose one, and dose three 60 days after dose one. We also administer two  booster doses 12 and 24 months following dose three. As before, it is a good idea to visualise the timing of the vaccination strategy to ensure that you have implemented it as intended.
 
 ```{r}
 rtssepiparams2 <- set_rtss_epi(
@@ -328,18 +337,18 @@ output <- run_simulation(sim_length * 2, rtssepiparams2)
 
 #### Plot clinical incidence
 
-```{r, fig.width = 6, fig.height = 4 fig.align = 'center'}
+```{r, fig.width = 7, fig.height = 5, fig.align = "center"}
 plot_inci()
 ```
 
 #### Plot prevalence
-```{r, fig.width = 6, fig.height = 4 fig.align = 'center'}
+```{r, fig.width = 7, fig.height = 5, fig.align = "center"}
 plot_prev()
 ```
 
 #### Plot doses
 
-```{r, fig.width = 6, fig.height = 4, fig.align = 'center', message=FALSE}
+```{r, fig.width = 7, fig.height = 5, fig.align = "center", message=FALSE}
 output$month <- ceiling(output$timestep / month)
 doses <- output[,c(2:6,39)]
 doses <- aggregate(cbind(doses[1:5]),
@@ -348,12 +357,12 @@ doses <- aggregate(cbind(doses[1:5]),
 doses <- as.matrix(t(doses[,-1]))
 
 barplot(doses, xlab = "Month",
-        ylab = 'Number of doses',
+        ylab = "Number of doses",
       col = cols[1:6],space = 0, 
       beside = FALSE, xaxs = "i", yaxs = "i")
-grid(lty = 2, col = 'grey80', lwd = 1)
+grid(lty = 2, col = "grey80", lwd = 1)
 axis(side = 1, lty = 1, col = "black", pos = 0); axis(side = 2, lty = 1, col = "black")
-legend('topleft', box.lty = 0, legend = c('Dose 1','Dose 2','Dose 3','Booster 1', 'Booster 2'),
+legend("topright", box.lty = 0, legend = c("Dose 1","Dose 2","Dose 3","Booster 1", "Booster 2"),
        col = cols[1:6], lty = rep(1, 4), lwd = 2.5,bg="transparent")
 ```
 
@@ -374,11 +383,11 @@ output <- run_simulation(sim_length, tbvparams)
 
 #### Plot clinical incidence
 
-```{r, fig.width = 6, fig.height = 4 fig.align = 'center'}
+```{r, fig.width = 7, fig.height = 5, fig.align = "center"}
 plot_inci()
 ```
 
 #### Plot prevalence
-```{r, fig.width = 6, fig.height = 4 fig.align = 'center'}
+```{r, fig.width = 7, fig.height = 5, fig.align = "center"}
 plot_prev()
 ```

@@ -1,0 +1,175 @@
+---
+title: "Setting mosquito species"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vector Control: IRS}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(malariasimulation)
+library(malariaEquilibrium)
+```
+    
+### Plotting functions
+We will create a few plotting functions to visualise the output.
+```{r}
+cols <- c("#E69F00", "#56B4E9", "#009E73", 
+          "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+# Plotting functions
+plot_prev <- function() {
+  plot(x = output$timestep, y = output$n_detect_730_3650 / output$n_730_3650, 
+       type = "l", col = cols[3], lwd = 2.5,
+       xlab = "Time (days)", ylab = expression(paste(italic(Pf),"PR"[2-10])),
+       xaxs = "i", yaxs = "i", bty = "l", ylim = c(0,1))
+  lines(x = output_all$timestep, y = output_all$n_detect_730_3650 / output_all$n_730_3650,
+        col = cols[5], lwd = 2.5)
+  abline(v = sprayingtimesteps, lty = 2, lwd = 2.5, col = "black")
+  grid(lty = 2, col = "grey80", lwd = 1)
+  legend("bottomleft", box.lty = 0, legend = c("Spraying", "Prevalence for all mosquitoes scenario","Prevalence for species-specific scenario"),
+         col = c("black", cols[3], cols[5]), lty = c(2,1,1), lwd = 2.5)
+}
+```
+    
+As alluded to in the IRS and Bednet vignettes, it is possible to account for varying proportions of mosquito species in the setting you are modelling using the `set_species()` function. IRS and bednets could be expected to have different impacts depending on the proportion of each mosquito species because of variations in indoor resting, insecticide resistance, and proportion of bites on humans versus animals by species. If you have specified more than 1 species, then the arguments for `set_spraying()` and/or `set_bednets()` must be populated with values for each species at each timestep that the intervention is implemented. 
+
+There are preset parameters for *An. gambiae*, *An. arabiensis*, and *An. funestus* that can be set by the helper functions `gamb_params()`, `arab_params()`, and `fun_params()`, respectively. The default values for each species in these helper functions are from 10.1073/pnas.1820646116. The parameters are:  
+
+* `blood_meal_rates`: the blood meal rates for each species 
+* `foraging_time`: time spent taking blood meals    
+* `Q0`: proportion of blood meals taken on humans  
+* `phi_bednets`: proportion of bites taken in bed    
+* `phi_indoors`: proportion of bites taken indoors    
+
+We will demonstrate how to specify different mosquito species and how this could alter intervention impact using an example with IRS.
+
+## IRS with default mosquito settings
+
+Use the `get_parameters()` function to generate a list of parameters, accepting most of the default values, but modifying seasonality values to model a seasonal setting. We will model IRS with the default mosquito settings, which is to model all mosquito species together. Then, we use the `set_equilibrium()` function to to initialise the model at a given entomological inoculation rate (EIR). 
+
+```{r}
+year <- 365
+month <- 30
+sim_length <- 3 * year
+human_population <- 1000
+starting_EIR <- 50
+
+simparams <- get_parameters(
+  list(
+    human_population = human_population,
+    # seasonality parameters
+    model_seasonality = TRUE, 
+    g0 = 0.285277,
+    g = c(-0.0248801, -0.0529426, -0.0168910),
+    h = c(-0.0216681, -0.0242904, -0.0073646)
+  )
+)
+
+peak <- peak_season_offset(simparams)
+
+sprayingtimesteps <- c(1, 2) * year + peak - 3 * month # There is a round of IRS in the 1st and second year 3 months prior to peak transmission.
+
+simparams <- set_spraying(
+  simparams,
+  timesteps = sprayingtimesteps,
+  coverages = rep(.8, 2), # # Each round covers 80% of the population 
+  # nrows=length(timesteps), ncols=length(species) 
+  ls_theta = matrix(2.025, nrow=length(sprayingtimesteps), ncol=1), # Matrix of mortality parameters per round of IRS and per species 
+  ls_gamma = matrix(-0.009, nrow=length(sprayingtimesteps), ncol=1), # Matrix of mortality parameters per round of IRS and per species
+  ks_theta = matrix(-2.222, nrow=length(sprayingtimesteps), ncol=1), # Matrix of feeding success parameters per round of IRS and per species
+  ks_gamma = matrix(0.008, nrow=length(sprayingtimesteps), ncol=1), # Matrix of feeding success parameters per round of IRS and per species
+  ms_theta = matrix(-1.232, nrow=length(sprayingtimesteps), ncol=1), # Matrix of deterrence parameters per round of IRS and per species
+  ms_gamma = matrix(-0.009, nrow=length(sprayingtimesteps), ncol=1) # Matrix of deterrence parameters per round of IRS and per species
+)
+
+simparams <- set_equilibrium(simparams, starting_EIR)
+
+# Running simulation with no IRS
+output_all <- run_simulation(timesteps = sim_length, parameters = simparams)
+```
+
+The default setting is to model all mosquito species together. 
+```{r}
+simparams$species
+simparams$species_proportions
+```
+
+### Plot species over time
+```{r,fig.align="center", fig.height=5, fig.width=7}
+plot(x = output_all$timestep, y = output_all$Im_All_count,
+     type = "l", col = cols[5], lwd = 2.5,
+     xlab = "Time (days)", ylab = "N mosquitoes",
+       xaxs = "i", yaxs = "i", bty = "l")
+abline(v = sprayingtimesteps, lty = 2, lwd = 2.5, col = "black")
+grid(lty = 2, col = "grey80", lwd = 1)
+legend("topright", box.lty = 0, legend = c("Spraying", "All mosquitoes"), col = c("black", cols[5]), lty = c(2, 1), lwd = 2.5)
+```
+
+
+## IRS with multiple mosquito species
+
+We will run the same model with IRS as above, but this time with 3 species of mosquitoes. Note that now there are 3 columns for the `ls_theta`, `ls_gamma`, `ks_theta`, `ks_gamma`, `ms_theta`, and `ms_gamma` arguments. Each column corresponds to a species of mosquito, and each row corresponds to the timestep when a round of IRS occurred. Here, we are assuming the same values for each species at each IRS round for simplicity, but the matrix could be edited to have different values by species or over time by adding new columns or rows. 
+
+```{r, fig.align="center", fig.height=4, fig.width=6}
+## Setting 3 species of mosquitoes, 25% An. arabiensis, 25% An. funestus, and 50% An. gambiae
+simparams <- set_species(
+  simparams, 
+  species = list(arab_params, fun_params, gamb_params),
+  proportions = c(0.25, 0.25, 0.5)
+)
+
+peak <- peak_season_offset(simparams)
+
+sprayingtimesteps <- c(1, 2) * year + peak - 3 * month # There is a round of IRS in the 1st and second year 3 months prior to peak transmission.
+
+simparams <- set_spraying(
+  simparams,
+  timesteps = sprayingtimesteps,
+  coverages = rep(.8, 2), # # Each round covers 80% of the population 
+  ls_theta = matrix(2.025, nrow=length(sprayingtimesteps), ncol=3), # Matrix of mortality parameters; nrows=length(timesteps), ncols=length(species) 
+  ls_gamma = matrix(-0.009, nrow=length(sprayingtimesteps), ncol=3), # Matrix of mortality parameters per round of IRS and per species
+  ks_theta = matrix(-2.222, nrow=length(sprayingtimesteps), ncol=3), # Matrix of feeding success parameters per round of IRS and per species
+  ks_gamma = matrix(0.008, nrow=length(sprayingtimesteps), ncol=3), # Matrix of feeding success parameters per round of IRS and per species
+  ms_theta = matrix(-1.232, nrow=length(sprayingtimesteps), ncol=3), # Matrix of deterrence parameters per round of IRS and per species
+  ms_gamma = matrix(-0.009, nrow=length(sprayingtimesteps), ncol=3) # Matrix of deterrence parameters per round of IRS and per species
+)
+
+output <- run_simulation(timesteps = sim_length, parameters = simparams)
+```
+
+Here we can see that now there are 3 species of mosquitoes at the proportions we specified in `set_species()`.
+```{r}
+simparams$species
+simparams$species_proportions
+```
+
+  
+### Plot prevalence
+```{r,fig.align="center", fig.height=5, fig.width=7}
+plot_prev()
+```
+
+### Plot adult female infectious mosquitoes by species over time
+```{r,fig.align="center", fig.height=5, fig.width=7}
+plot(x = output$timestep, y = output$Im_gamb_count,
+     type = "l", col = cols[5], lwd = 2.5,
+     xlab = "Time (days)", ylab = "N mosquitoes",
+       xaxs = "i", yaxs = "i", bty = "l")
+abline(v = sprayingtimesteps, lty = 2, lwd = 2.5, col = "black")
+lines(x = output$timestep, y = output$Im_fun_count,
+      col = cols[6], lwd = 2.5)
+lines(x = output$timestep, y = output$Im_arab_count,
+      col = cols[3], lwd = 2.5)
+grid(lty = 2, col = "grey80", lwd = 1)
+legend("topright", box.lty = 0, legend = c("Spraying", expression(italic("An. gambiae")), expression(italic("An. funestus")),expression(italic("An. arabiensis"))), col = c("black", cols[5], cols[6], cols[3]), lty = c(2, 1, 1, 1), lwd = 2.5)
+```
+

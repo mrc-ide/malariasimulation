@@ -19,7 +19,7 @@ library(malariasimulation)
 library(malariaEquilibrium)
 ```
 
-Long-lasting insecticidal bednets are highly effective and relatively cheap interventions to prevent malaria. The effects of insecticidal bed net distribution campsigns can be simulated using malariasimulation. The model provides the user with the flexibility to specify parameters that describe the net distribution campaign (e.g. timing, coverage, and target population), the bed nets distributed (e.g. efficacy, longevity), and the relative densities of the mosquito species present in the target population. We will illustrate this through an example with two bednet distributions, once per year.
+Long-lasting insecticide-treated bednets is a highly effective intervention to prevent malaria. The effects of insecticidal bednet distribution campaigns can be simulated using `malariasimulation`. The model provides the user with the flexibility to specify parameters that describe the net distribution campaign (e.g. timing, coverage, and target population) and the bednets distributed (e.g. efficacy, longevity). We will illustrate this through an example with two bednet distributions, once per year.
 
 ### Plotting functions
 We can create a few plotting functions to visualise the output.
@@ -29,22 +29,22 @@ cols <- c("#E69F00", "#56B4E9", "#009E73",
 
 # Plotting functions
 plot_prev <- function() {
-  plot(x = output$timestep, y = output$n_detect_730_3650/output$n_730_3650, 
-       type = 'l', col = cols[3], lwd = 2.5,
-       xlab = 'Time (days)', ylab = expression(paste(italic(Pf),"PR"[2-10])),
-       xaxs = "i", yaxs = "i", bty = "l", ylim = c(0.15, 0.93))
-  lines(x = output_control$timestep, y = output_control$n_detect_730_3650/output_control$n_730_3650,
+  plot(x = output$timestep, y = output$n_detect_730_3650 / output$n_730_3650, 
+       type = "l", col = cols[3], lwd = 2.5,
+       xlab = "Time (days)", ylab = expression(paste(italic(Pf),"PR"[2-10])),
+       xaxs = "i", yaxs = "i", bty = "l", ylim = c(0, 1))
+  lines(x = output_control$timestep, y = output_control$n_detect_730_3650 / output_control$n_730_3650,
         col = cols[5], lwd = 2.5)
-  abline(v = bednetstimesteps, col = 'black', lty = 2, lwd = 2.5)
-  grid(lty = 2, col = 'grey80', lwd = 1)
-  legend('bottomleft', box.lty = 0, legend = c('Bednets','Prevalence for bednet scenario','Prevalence for control scenario'),
-         col = c('black', cols[3], cols[5]), lty = c(2,1,1), lwd = 2.5)
+  abline(v = bednetstimesteps, col = "black", lty = 2, lwd = 2.5)
+  grid(lty = 2, col = "grey80", lwd = 1)
+  legend("bottomleft", box.lty = 0, legend = c("Bednets","Prevalence for bednet scenario","Prevalence for control scenario"),
+         col = c("black", cols[3], cols[5]), lty = c(2,1,1), lwd = 2.5)
 }
 ```
   
 ### Parameterisation
 
-Use the `get_parameters()` function to generate the list of parameters for a seasonal profile, accepting the default values to run the simulation from an equilibrium starting point. The seasonality will drive mosquito dynamics in the absence of interventions. 
+Use the `get_parameters()` function to generate the list of parameters for a perennial profile, accepting the default values to run the simulation from an equilibrium starting point. 
 
 ```{r}
 year <- 365
@@ -53,17 +53,7 @@ human_population <- 1000
 starting_EIR <- 50
 
 simparams <- get_parameters(
-  list(
-    human_population = human_population,
-    # seasonality parameters
-    model_seasonality = TRUE, # Let's try a bi-modal model
-    g0 = 0.28605,
-    g = c(0.20636, -0.0740318, -0.0009293),
-    h = c(0.173743, -0.0730962, -0.116019),
-    # Here, we are asking for the output to contain information on severe incidence in children 2-10 years old.
-    clinical_incidence_rendering_min_ages = 2*year,
-    clinical_incidence_rendering_max_ages = 10*year
-  )
+  list(human_population = human_population)
 )
 
 # Setting 3 species of mosquitoes, 25% An. arabiensis, 25% An. funestus, and 50% An. gambiae
@@ -73,16 +63,26 @@ simparams <- set_species(
   proportions = c(0.25, 0.25, 0.5)
 )
 
-simparams <- set_equilibrium(simparams, starting_EIR)
+simparams <- set_equilibrium(parameters = simparams, init_EIR = starting_EIR)
 
-output_control <- run_simulation(sim_length, simparams)
+output_control <- run_simulation(timesteps = sim_length, parameters = simparams)
 ```
 
+#### A note on mosquito species  
+It is also possible to use the `set_species()` function to account for 3 different mosquito species in the simulation. In this case, the matrices would need to have additional column corresponding to each mosquito species. For example, if we specified that there were 3 species of mosquitoes in the model and nets were distributed at two timesteps, then the matrices would have 2 rows and 3 columns. If you are not already familiar with the `set_species()` function, see the Set Species vignette.  
+
+The default setting is to model all mosquito species together. 
+```{r}
+simparams$species
+simparams$species_proportions
+```
+  
 ## Simulation
 
-Having established a base set of parameters, we can now create a copy of this parameter list and update it to specify a net distribution campaign. In the example below, we distribute bednets once a year for two years, the first round to 80% of the population and the second round to 50% of the population. It is possible to change the characteristics of the bednets for each distribution timestep by modifying the values for `dn0`, `rn`, `rnm`, and `gamman`. Because there are 3 mosquito species specified in `set_species()` above and two timesteps when nets are distributed, the matrices for `dn0`, `rn`, and `rnm` have 3 columns and 2 rows.
+Having established a base set of parameters, we can now create a copy of this parameter list and update it to specify a net distribution campaign. In the example below, we distribute bednets once a year for two years, the first round to 80% of the population and the second round to 50% of the population. It is possible to change the characteristics of the bednets for each distribution timestep if different types of bednets are distributed that have different insecticides, different levels of insecticide resistance, etc. This can be done by modifying the matrices for `dn0`, `rn`, `rnm`, and `gamman`. Because there are 3 mosquito species specified in `set_species()` above and two timesteps when nets are distributed, the matrices for `dn0`, `rn`, and `rnm` have 3 columns and 2 rows.
+
   
-```{r, fig.align='center', fig.height=4, fig.width=6}
+```{r, fig.align="center", fig.height=4, fig.width=6}
 bednetstimesteps <- c(1, 2) * year # The bednets will be distributed at the end of the first and the second year. 
 
 bednetparams <- set_bednets(
@@ -90,23 +90,23 @@ bednetparams <- set_bednets(
   timesteps = bednetstimesteps,
   coverages = c(.8, .5),  # The first round is distributed to 80% of the population and the second round to 50%.
   retention = 5 * year, # Nets are kept on average 5 years
-  dn0 = matrix(c(.533, .45), nrow=2, ncol=3), # Matrix of death probabilities for each mosquito species over time
-  rn = matrix(c(.56, .5), nrow=2, ncol=3), # Matrix of repelling probabilities for each mosquito species over time
-  rnm = matrix(c(.24, .24), nrow=2, ncol=3), # Matrix of minimum repelling probabilities for each mosquito species over time
+  dn0 = matrix(c(.533, .533), nrow = 2, ncol = 3), # Matrix of death probabilities for each mosquito species over time
+  rn = matrix(c(.56, .56), nrow = 2, ncol = 3), # Matrix of repelling probabilities for each mosquito species over time
+  rnm = matrix(c(.24, .24), nrow = 2, ncol = 3), # Matrix of minimum repelling probabilities for each mosquito species over time
   gamman = rep(2.64 * 365, 2) # Vector of bednet half-lives for each distribution timestep
 )
 
-output <- run_simulation(sim_length, bednetparams)
+output <- run_simulation(timesteps = sim_length, parameters = bednetparams)
 ```
 
 ### Plot prevalence
-```{r, fig.align='center', fig.height=5, fig.width=7}
+```{r, fig.align="center", fig.height=5, fig.width=7}
 plot_prev()
 ```
   
-## Visualisation 
+## Comparing input coverage and population bednet usage 
 
-It is important to understand the difference between the input `coverages` argument of `malariasimulation::set_bednets()` and the resulting population bednet usage over time in the model. In the above example, bednets are distributed to a specified percentage of the population at each distribution round; however, the level of bednet usage may be different. 
+It is important to understand the difference between the input `coverages` argument of `malariasimulation::set_bednets()` and the resulting population bednet usage over time in the model. When we set coverages in the above example to 0.8, we are telling the model to distribute bednets to 80% of the population at year one, and to 50% of the population at year 2. However, the level of average bednet usage is not necessarily equal to 80% or 50%. Between these time points, bednet use will slowly decline over time (in reality this decline stems from things like disuse, holes in nets, lost nets, etc.).
   
 The average population bednet usage will be influenced by:   
 
@@ -116,14 +116,14 @@ The average population bednet usage will be influenced by:
   
 The output from `malariasimulation::run_simulation()` has a variable `n_use_net` that shows the number of people using bednets at any given timestep. We can visualise the proportion of the population using bednets over time to understand how bednet usage changes. 
 
-```{r, fig.align='center', fig.height=5, fig.width=7}
+```{r, fig.align="center", fig.height=5, fig.width=7}
 output$prop_use_net <- output$n_use_net / human_population
 
-plot(x = output$timestep, y = output$prop_use_net, type = 'l', 
+plot(x = output$timestep, y = output$prop_use_net, type = "l", 
      col = cols[3], lwd = 2.5, ylim = c(0,1),
-     xlab = 'Timestep (days)', ylab = 'Proportion of population using bednets',
+     xlab = "Timestep (days)", ylab = "Proportion of population using bednets",
      xaxs = "i", yaxs = "i", bty = "l")
-grid(lty = 2, col = 'grey80', lwd = 1)
+grid(lty = 2, col = "grey80", lwd = 1)
 axis(side = 1, lty = 1, col = "black", pos = 0); axis(side = 2, lty = 1, col = "black")
 ```
   
@@ -133,6 +133,5 @@ The [`netz` package](https://mrc-ide.github.io/netz/index.html) is a useful tool
   
 See the vignettes from the `netz` package that explain these concepts more comprehensively:  
   
-* [This vignette](https://mrc-ide.github.io/netz/articles/overview.html) explains how to estimate the distribution coverage from a specified bednet usage.   
 * [This vignette](https://mrc-ide.github.io/netz/articles/population_usage.html) demonstrates how to estimate population bednet usage from an input distribution. 
 

@@ -1,5 +1,5 @@
 ---
-title: "Variation"
+title: "Stochastic Variation"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Variation}
@@ -11,7 +11,7 @@ vignette: >
 library(malariasimulation)
 ```
 
-`malariasimulation` is a stochastic, individual-based model and, as such, simulations run with identical parameterisations will generate non-identical, sometimes highly variable, outputs. To illustrate this, we will compare the prevalence of malaria over a year in simulations with a small and a larger population, where a smaller population is more likely to have wide variations between simulation runs. 
+`malariasimulation` is a stochastic, individual-based model and, as such, simulations run with identical parameterisations will generate non-identical, sometimes highly variable, outputs. To illustrate this, we will compare the prevalence and incidence of malaria over a year in simulations with a small and a larger population, where a smaller population and the incidence measure are both more likely to have wide variations between simulation runs.
 
 ### Plotting functions
 First, we will create a few plotting functions to visualise outputs. 
@@ -19,65 +19,86 @@ First, we will create a few plotting functions to visualise outputs.
 cols <- c("#E69F00", "#56B4E9", "#009E73", 
           "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
           
-plot_n_detect <- function(output, ylab=TRUE){
-  if (ylab==TRUE) {
-    ylab = "Cases detected in children aged 2-10 years"
-    } else {ylab=''}
-  plot(x = output$timestep, y = output$n_detect_730_3650, 
-       type = 'l', col = cols[3],
-       xlab = 'Time (days)', ylab = ylab,
+plot_prev <- function(output, ylab = TRUE){
+  if (ylab == TRUE) {
+    ylab = "Prevalence in children aged 2-10 years"
+    } else {ylab = ""}
+  plot(x = output$timestep, y = output$n_detect_730_3650 / output$n_730_3650, 
+       type = "l", col = cols[3], ylim = c(0, 1),
+       xlab = "Time (days)", ylab = ylab, lwd = 2,
        xaxs = "i", yaxs = "i", bty = "l")
-  grid(lty = 2, col = 'grey80', lwd = 1)
+  grid(lty = 2, col = "grey80", lwd = 1)
+}
+
+plot_inci <- function(output, ylab = TRUE){
+  if (ylab == TRUE) {
+    ylab = "Incidence in children aged 0-5 years"
+    } else {ylab = ""}
+  plot(x = output$timestep, y = output$n_inc_clinical_0_1825 / output$n_0_1825, 
+       type = "l", col = cols[5], ylim = c(0, 0.1),
+       xlab = "Time (days)", ylab = ylab, lwd = 2,
+       xaxs = "i", yaxs = "i", bty = "l")
+  grid(lty = 2, col = "grey80", lwd = 1)
 }
 ```
 
-## Parameterisation
-First, we will use the `get_parameters()` function to generate a list of parameters, accepting the default values, for two different population sizes. Then we will update the parameters to match equilibrium parameters and to achieve the initial EIR using `set_equilibrium()`
+## Parameterisation  
+First, we will use the `get_parameters()` function to generate a list of parameters, accepting the default values, for two different population sizes and use the `set_equilibrium()` function to initialise the model at a given entomological inoculation rate (EIR). The only parameter which changes between the two parameter sets is the argument for `human_population`.  
 ```{r}
 # A small population 
-simparams <- get_parameters(list(
-  human_population = 100,
+simparams_small <- get_parameters(list(
+  human_population = 1000,
+  clinical_incidence_rendering_min_ages = 0,
+  clinical_incidence_rendering_max_ages = 5 * 365,
   individual_mosquitoes = FALSE
 ))
 
-simparams <- set_equilibrium(simparams, init_EIR = 20)
+simparams_small <- set_equilibrium(parameters = simparams_small, init_EIR = 50)
 
 # A larger population 
-simparams <- get_parameters(list(
+simparams_big <- get_parameters(list(
   human_population = 10000,
+  clinical_incidence_rendering_min_ages = 0,
+  clinical_incidence_rendering_max_ages = 5 * 365,
   individual_mosquitoes = FALSE
 ))
 
-simparams <- set_equilibrium(simparams, init_EIR = 20)
+simparams_big <- set_equilibrium(parameters = simparams_big, init_EIR = 50)
 ```
 
 
 ## Simulations
 
-The `n_detect_730_3650` output below shows the total number of individuals in the age group rendered (here, 730-3650 timesteps or 2-10 years) who have microscopy-detectable malaria. Notice that the output is smoother at a higher population.
+The `n_detect_730_3650` output below shows the total number of individuals in the age group rendered (here, 730-3650 timesteps or 2-10 years) who have microscopy-detectable malaria. Notice that the output is smoother at a higher population.  
 
-```{r, fig.align='center',fig.height=4, fig.width=10}
+Some outcomes will be more sensitive than others to stochastic variation. In the plots below, prevalence is smoother than incidence even at the same population. 
+
+```{r, fig.align="center",fig.height=6, fig.width=8}
 # A small population
-output_small_pop <- run_simulation(365, simparams)
+output_small_pop <- run_simulation(timesteps = 365, parameters = simparams_small)
 
 # A larger population
-output_big_pop <- run_simulation(365, simparams)
+output_big_pop <- run_simulation(timesteps = 365, parameters = simparams_big)
 
 # Plotting 
-par(mfrow = c(1,2))
-plot_n_detect(output_small_pop); title('n_detect at n = 100')
-plot_n_detect(output_big_pop, ylab = FALSE); title('n_detect at n = 10,000')
+par(mfrow = c(2,2))
+plot_prev(output_small_pop); title("Prevalence at n = 1,000")
+plot_inci(output_small_pop); title("Incidence at n = 1,000")
+plot_prev(output_big_pop, ylab = FALSE); title("Prevalence at n = 10,000")
+plot_inci(output_big_pop); title("Incidence at n = 10,000")
 ```
 
-## Estimating variation 
+## Estimating stochastic variation 
 
-We can estimate the variation in the number of detectable cases by repeating the simulation several times with the function `run_simulation_with_repetitions()`, then plotting the IQR and 95% confidence intervals. Running multiple simulations is particularly important for simulations of a small population size, due to the disproportionate impact of stochasticity in small populations. 
+One way to estimate the variation in prevalence is by repeating the simulation several times with the function `run_simulation_with_repetitions()`, then plotting the IQR and 95% confidence intervals. Running multiple simulations is particularly important for simulations of a small population size, due to the disproportionate impact of stochasticity in small populations. 
 
-```{r, fig.align='center',fig.height=4, fig.width=10}
+__However, it is important to note that while running a simulation with repetitions is an option that we illustrate in this example, for the majority of use cases, it is much preferable to increase population size to minimise stochastic variation or to use parameter draws, while also using a large enough population, to estimate uncertainty (see the Parameter Draws vignette for more information). The required population size might depend on the outcome of interest. For example, a larger population size would be needed if measuring the impact of an intervention given only to children, versus an intervention given to the entire population. Additionally, as demonstrated above, some outcomes will be more sensitive than others to stochastic variation.__
+  
+```{r, fig.align="center",fig.height=4, fig.width=10}
 outputs <- run_simulation_with_repetitions(
-  timesteps = 365, # We will run each simulation for 365 timesteps.
-  repetitions = 10, # The simulation will be run 10 times
-  overrides = simparams, # using the parameter list with the larger population that we created earlier.
+  timesteps = 365, # Each repetition will be run for 365 days.
+  repetitions = 10, # The simulation will be run 10 times.
+  overrides = simparams_big, # Using the parameter list with the larger population that we created earlier.
   parallel = TRUE # The runs will be done in parallel.
 )
 
@@ -91,8 +112,8 @@ output <- aggregate(
       lowq = unname(quantile(x, probs = .25)),
       highq = unname(quantile(x, probs = .75)),
       mean = mean(x),
-      lowci = mean(x) + 1.96*sd(x),
-      highci = mean(x) - 1.96*sd(x)
+      lowci = mean(x) + 1.96 * sd(x),
+      highci = mean(x) - 1.96 * sd(x)
     )
   }
 )
@@ -100,32 +121,31 @@ output <- aggregate(
 output <- data.frame(cbind(timestep = output$Group.1, output$x))
 
 # Plot the IQR and 95% CI
-par(mfrow = c(1,2))
+par(mfrow = c(1, 2))
 xx <- c(output$timestep, rev(output$timestep))
 yy <- c(output$lowq, rev(output$highq))
 plot(x = output$timestep, y = output$median, 
-       type = 'n', xlim = c(-1,365),ylim = c(1400,1700),
-       xlab = 'Time (days)', ylab = "Cases detected in children aged 2-10 years",
+       type = "n", xlim = c(-1, 365), ylim = c(1400, 1700),
+       xlab = "Time (days)", ylab = "Cases detected in children aged 2-10 years",
        xaxs = "i", yaxs = "i", bty = "l")
 polygon(xx, yy,
-        col = 'grey90', border= 'grey95')
+        col = "grey90", border= "grey95")
 lines(x = output$timestep, y = output$median, col = cols[3], lwd = 2)
-grid(lty = 2, col = 'grey80', lwd = 1)
-title('IQR spread')
-legend('bottomleft', legend = c('Median','IQR Spread'), col = c(cols[3],'grey90'),
-       lwd = 5, xpd = TRUE, horiz = TRUE, cex = 1, seg.len=1, bty = 'n')
+grid(lty = 2, col = "grey80", lwd = 1)
+title("IQR spread")
+legend("bottomleft", legend = c("Median","IQR Spread"), col = c(cols[3], "grey90"),
+       lwd = 5, xpd = TRUE, horiz = TRUE, cex = 1, seg.len = 1, bty = "n")
 
 xx <- c(output$timestep, rev(output$timestep))
 yy <- c(output$lowci, rev(output$highci))
 plot(x = output$timestep, y = output$mean, 
-       type = 'n', xlim = c(-1,365),ylim = c(1400,1700),
-       xlab = 'Time (days)', ylab = "",
+       type = "n", xlim = c(-1, 365), ylim = c(1400, 1700),
+       xlab = "Time (days)", ylab = "",
        xaxs = "i", yaxs = "i", bty = "l")
-polygon(xx, yy,
-        col = 'grey90', border= 'grey95')
+polygon(xx, yy, col = "grey90", border= "grey95")
 lines(x = output$timestep, y = output$mean, col = cols[3], lwd = 2)
-grid(lty = 2, col = 'grey80', lwd = 1)
-title('95% Confidence interval')
-legend('bottomleft', inset = 0, legend = c('Mean','95% CI'), col = c(cols[3],'grey90'),
-       lwd = 5, xpd = TRUE, horiz = TRUE, cex = 1, seg.len=1, bty = 'n')
+grid(lty = 2, col = "grey80", lwd = 1)
+title("95% Confidence interval")
+legend("bottomleft", inset = 0, legend = c("Mean", "95% CI"), col = c(cols[3], "grey90"),
+       lwd = 5, xpd = TRUE, horiz = TRUE, cex = 1, seg.len = 1, bty = "n")
 ```

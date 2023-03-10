@@ -86,7 +86,7 @@ test_that('pev epi targets correct age and respects min_wait', {
   variables$birth <- individual::IntegerVariable$new(
     -c(18, 18, 2.9, 18, 18) * 365 + timestep
   )
-  variables$vaccinated_timestep <- mock_integer(
+  variables$pev_timestep <- mock_integer(
     c(50, -1, -1, 4*365, -1)
   )
 

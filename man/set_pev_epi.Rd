@@ -26,7 +26,8 @@ set_pev_epi(
 
 \item{timesteps}{a vector of timesteps associated with coverages}
 
-\item{age}{for the target population, (in timesteps)}
+\item{age}{the age when an individual will receive the first dose of the
+vaccine (in timesteps)}
 
 \item{min_wait}{the minimum acceptable time since the last vaccination (in
 timesteps); When seasonal_boosters = TRUE, this represents the minimum time

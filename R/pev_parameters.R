@@ -65,7 +65,8 @@ rtss_booster_profile <- create_pev_profile(
 #' @param profile primary vaccine profile of type PEVProfile
 #' @param coverages a vector of coverages for the primary doses
 #' @param timesteps a vector of timesteps associated with coverages
-#' @param age for the target population, (in timesteps)
+#' @param age the age when an individual will receive the first dose of the
+#' vaccine (in timesteps)
 #' @param min_wait the minimum acceptable time since the last vaccination (in
 #' timesteps); When seasonal_boosters = TRUE, this represents the minimum time
 #' between an individual receiving the final dose and the first booster. When using

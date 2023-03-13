@@ -183,23 +183,14 @@ clinically diseased (these values refer to the index in drug_* parameters); defa
 \item clinical_treatment_coverage - a vector of coverage values for each drug; default = NULL, NULL, NULL
 }
 
-RTS,S paramters:
-please set RTS,S strategies with the convenience functions in
-\code{vaccine_parameters.R:set_rtss_epi}
-\code{vaccine_parameters.R:set_mass_rtss}
+PEV parameters:
+please set vaccine strategies with the convenience functions in
+\code{pev_parameters.R:set_pev_epi}
+\code{pev_parameters.R:set_mass_pev}
 \itemize{
-\item rtss_doses - the dosing schedule before the vaccine takes effect; default =
+\item pev_doses - the dosing schedule before the vaccine takes effect; default =
 c(0, 1.5 * 30, 3 * 30)
 default = 365
-\item rtss_vmax - the maximum efficacy of the vaccine; default = 0.93
-\item rtss_alpha - shape parameter for the vaccine efficacy model; default = 0.74
-\item rtss_beta - scale parameter for the vaccine efficacy model; default = 99.4
-\item rtss_cs - peak parameters for the antibody model (mean and std. dev); default = 6.37008, 0.35
-\item rtss_cs_boost - peak parameters for the antibody model for booster rounds (mean and std. dev); default = 5.56277, 0.35
-\item rtss_rho - delay parameters for the antibody model (mean and std. dev); default = 2.37832, 1.00813
-\item rtss_rho_boost - delay parameters for the antibody model for booster rounds (mean and std. dev); default = 1.03431, 1.02735
-\item rtss_ds - delay parameters for the antibody model, short-term weaning (mean and std. dev); default = 3.74502, 0.341185 (White MT et al. 2015 Lancet ID)
-\item rtss_dl - delay parameters for the antibody model, long-term weaning (mean and std. dev); default = 6.30365, 0.396515 (White MT et al. 2015 Lancet ID)
 }
 
 MDA, SMC and PMC parameters:

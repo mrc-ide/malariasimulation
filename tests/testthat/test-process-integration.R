@@ -26,9 +26,9 @@ test_that('attach_event_listeners makes valid listeners', {
   variables <- create_variables(parameters)
   renderer <- individual::Render$new(2)
   attach_event_listeners(events, variables, parameters, correlations, renderer)
-
   for (event in events) {
     for (listener in event$.listeners) {
+      print('here')
       expect(
         (is.function(listener) && length(args(listener)) >= 1 && length(args(listener)) <= 2)  
           || inherits(process, 'externalptr'),

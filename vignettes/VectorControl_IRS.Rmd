@@ -19,7 +19,7 @@ library(malariasimulation)
 library(malariaEquilibrium)
 ```
 
-Indoor Residual Spraying (IRS) involves periodically treating indoor walls with insecticides to eliminate adult female mosquitoes that rest indoors. `malariasimulation` can be used to investigate the effect of malaria control strategies that deploy IRS. Users can set IRS in the model using the set_spraying() function to parameterize timing of spraying campaigns and coverage levels. 
+Indoor Residual Spraying (IRS) involves periodically treating indoor walls with insecticides to eliminate adult female mosquitoes that rest indoors. `malariasimulation` can be used to investigate the effect of malaria control strategies that deploy IRS. Users can set IRS in the model using the `set_spraying()` function to parameterise the time and coverage of spraying campaigns. 
 
 ### Plotting functions
 We will create a few plotting functions to visualise the output.
@@ -83,7 +83,7 @@ simparams$species
 
 Then we can run the simulations for a variety of IRS strategies. In the example below, there are two rounds of IRS at 80% coverage, each 3 months prior to peak rainfall for that year. The function `peak_season_offset()` outputs a timestep when peak rainfall will be observed based on the seasonality profile we set above. Notice that the matrices specified for the parameters for `ls_theta`, `ls_gamma`, `ks_theta`, `ks_gamma`, `ms_theta`, and `ms_gamma` have two rows, one for each timestep where IRS is implemented, and a number of columns corresponding to mosquito species. In this example, we only have 1 column because the species is set to "All" as we saw above.
 
-The structure for IRS model is documented in the supplementary information from 10.1038/s41467-018-07357-w.
+The structure for IRS model is documented in the supplementary information from [Sherrard-Smith et al., 2018](https://doi.org/10.1038/s41467-018-07357-w).
 
 ```{r, fig.align="center", fig.height=4, fig.width=6}
 peak <- peak_season_offset(simparams)
@@ -93,7 +93,7 @@ sprayingtimesteps <- c(1, 2) * year + peak - 3 * month # A round of IRS is imple
 sprayingparams <- set_spraying(
   simparams,
   timesteps = sprayingtimesteps,
-  coverages = rep(.8, 2), # # Each round covers 80% of the population 
+  coverages = c(0.3, 0.8), # # The first round covers 30% of the population and the second covers 80%. 
   ls_theta = matrix(2.025, nrow=length(sprayingtimesteps), ncol=1), # Matrix of mortality parameters; nrows=length(timesteps), ncols=length(species) 
   ls_gamma = matrix(-0.009, nrow=length(sprayingtimesteps), ncol=1), # Matrix of mortality parameters per round of IRS and per species
   ks_theta = matrix(-2.222, nrow=length(sprayingtimesteps), ncol=1), # Matrix of feeding success parameters per round of IRS and per species

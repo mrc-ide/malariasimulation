@@ -62,11 +62,12 @@ To maintain a constant population size during simulations, the birth rate of new
 
 The functions governing mosquito biological processes and dynamics are spread out between the following files:
 
-1.  [src/mosquito_ode.cpp]() ***Can't find a file with this name***
-2.  [src/mosquito_emergence.cpp]() ***Can't find a file with this name***''
-3.  [R/mosquito_biology.R](https://github.com/mrc-ide/malariasimulation/blob/master/R/mosquito_biology.R)
+1.  [src/adult_mosquito_eqs.cpp](https://github.com/mrc-ide/malariasimulation/blob/master/src/adult_mosquito.cpp)
+2.  [src/aquatic_mosquito_eqs.cpp](https://github.com/mrc-ide/malariasimulation/blob/master/src/aquatic_mosquito.cpp)
+3.  [src/mosquito_biology.cpp](https://github.com/mrc-ide/malariasimulation/blob/master/src/mosquito_biology.cpp)
+4.  [R/mosquito_biology.R](https://github.com/mrc-ide/malariasimulation/blob/master/R/mosquito_biology.R)
 
-<img src="Model_mos_figure_complete.svg" style="display:block; margin: 0 auto; border-width: 0; width: 80%"/>
+<img src="Model_mos.svg" style="display:block; margin: 0 auto; border-width: 0; width: 80%"/>
 
 ### States
 
@@ -135,7 +136,7 @@ The `run_simulation()` function then simulates malaria transmission dynamics and
 -   `infectivity`: human infectiousness
 -   `EIR_All`: the entomological inoculation rate
 -   `FOIM`: the force of mosquito infection
--   `mu_All`: adult mosquito death rate ***Why is this important? isn't this just mu_m? I suppose it's density dependent. Look into this in more detail***
+-   `mu_All`: adult mosquito death rate
 -   `n_bitten`: the number of infectious bites
 -   `n_infections`: the number human infections
 -   `natural_deaths`: deaths from old age
@@ -158,15 +159,11 @@ head(test_sim, n = 3)
 
 Additional output details can be found in the `run_simulation()` documentation.
 
-In your bit in bold about mu_All - I wonder if it relates to all mosquito species across all adult female mosquito infectious states? I guess the same applies to the L/L/P/Sm/Pm/Im_All_count values too?
-
 ### Additional outputs
 
 **Age stratified** results for **incidence**, **clinical incidence** and **severe case incidence** may also be included in the output if desired and must be specified in the parameter list (see `get_parameters()` for more details and [Demography](https://mrc-ide.github.io/malariasimulation/articles/Demography.html) for an example). These inputs will add extra columns to the output for the number of infections (**`n_`**) and the sum of probabilities of infection (**`p_`**) for the relevant total, clinical or severe incidences for each specified age group.
 
 Where **treatments** are specified, `n_treated` will report the number that have received treatment. Where **bed nets** are distributed, `net_usage` specifies the number sleeping under a bednet.
-
-***`rate_D_A`, `rate_A_U`, `rate_U_S`*** These are found in the help page for `run_simulation()` How are these output???
 
 ### Output visualisation
 
@@ -199,7 +196,6 @@ states_plot()
 
 # Calculate Pf PR 2-10
 test_sim$PfPR2_10 <- test_sim$n_detect_730_3650/test_sim$n_730_3650
-
 
 # Plot Pf PR 2-10
 plot(x = test_sim$timestep, y = test_sim$PfPR2_10, type = "l",
@@ -369,9 +365,7 @@ The remaining vignettes describe how to adjust sets of parameters through a numb
 
 7.  [Matching PfPR2-10 to EIR](https://mrc-ide.github.io/malariasimulation/articles/EIRprevmatch.html)
 
-    -   ***Need to work out what this is doing and why***
-    -   malariaEquilibrium::human equilibrium (Is there anything else from this package that would be useful to describe?). Also, links to package information???
-    -   set an equilibrium \<based on...??\> (set_equilibrium)
+    -   Using *Pf*PR~2-10~ data to estimate EIR
 
 8.  [Metapopulation Modelling](https://mrc-ide.github.io/malariasimulation/articles/Metapopulation.html)
 

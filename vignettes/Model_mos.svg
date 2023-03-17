@@ -10,7 +10,7 @@
    viewBox="0 0 254.9846 174"
    version="1.1"
    id="svg184"
-   sodipodi:docname="Model_mos_figure_complete.svg"
+   sodipodi:docname="Model_mos.svg"
    inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -73,7 +73,7 @@
      inkscape:window-x="74"
      inkscape:window-y="27"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg184" />
+     inkscape:current-layer="edge11" />
   <path
      style="opacity:0.47;fill:#ffeeaa;fill-opacity:1;stroke-width:0.75"
      id="rect1306-8"
@@ -658,7 +658,7 @@
          id="polygon2792" />
       <text
          text-anchor="start"
-         x="102.3556"
+         x="108.3556"
          y="-64.947197"
          font-family="Times, serif"
          font-style="italic"
@@ -667,7 +667,7 @@
          id="text2794">µ</text>
       <text
          text-anchor="start"
-         x="106.4359"
+         x="112.4359"
          y="-64.947197"
          font-family="Times, serif"
          font-style="italic"
@@ -694,7 +694,7 @@
          id="polygon2803" />
       <text
          text-anchor="start"
-         x="131.15379"
+         x="128.15379"
          y="-88.189598"
          font-family="Times, serif"
          font-style="italic"
@@ -703,7 +703,7 @@
          id="text2805">r</text>
       <text
          text-anchor="start"
-         x="133.4841"
+         x="130.4841"
          y="-88.189598"
          font-family="Times, serif"
          font-style="italic"
@@ -805,12 +805,12 @@
       <polygon
          fill="#ffa500"
          stroke="#ffa500"
-         points="24.8152,-37.4072 22.0511,-40.6196 26.2152,-39.832 "
+         points="26.2152,-39.832 24.8152,-37.4072 22.0511,-40.6196 "
          id="polygon2839" />
       <text
          text-anchor="start"
-         x="35.612"
-         y="-31.0812"
+         x="38.612"
+         y="-34.0812"
          font-family="Times, serif"
          font-style="italic"
          font-size="7px"
@@ -818,8 +818,8 @@
          id="text2841">r</text>
       <text
          text-anchor="start"
-         x="37.942299"
-         y="-31.0812"
+         x="40.942299"
+         y="-34.0812"
          font-family="Times, serif"
          font-style="italic"
          baseline-shift="sub"
@@ -887,7 +887,7 @@
      id="text5435"><tspan
        sodipodi:role="line"
        id="tspan5433"
-       style="stroke-width:0.75"></tspan></text>
+       style="stroke-width:0.75" /></text>
   <text
      xml:space="preserve"
      style="font-style:normal;font-weight:normal;font-size:6.59651px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.164913"

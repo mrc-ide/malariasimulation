@@ -68,7 +68,6 @@ For more details, please see:
 
 Okell, L., Cairns, M., Griffin, J. *et al.* Contrasting benefits of different artemisinin combination therapies as first-line malaria treatments using model-based cost-effectiveness analysis. *Nat Commun* **5**, 5606 (2014). <https://doi.org/10.1038/ncomms6606>.
 
-
 ## Functions
 
 Drug parameters can be incorporated into a complete parameter set:
@@ -89,7 +88,6 @@ Intro_params <- set_clinical_treatment(parameters = Intro_parms,
 ```
 
 Multiple drugs can be modelled simultaneously, with treatment coverage that can be specified for each drug. This function must be used for each drug included (e.g., if there are two drugs, `set_clinical_treatment()` must be called twice).
-
 
 # Example
 

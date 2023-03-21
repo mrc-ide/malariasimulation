@@ -54,8 +54,8 @@ plot_inci <- function(type = "not seasonal"){
   curve_valuescomp <- loess(clinical_incidence ~ time_year, data = comparison, span = 0.3, method = "loess") 
   lines(comparison$time_year, predict(curve_valuescomp), 
         col = cols[6], lwd = 3)
-  legend("topright", box.lty = 0, legend = c("Start of vaccination", "Incidence for vaccine scenario", "Smoothed incidence for \nno intervention scenario"),
-         col = c("black", cols[2], cols[5]), lty = c(2,1,1), lwd = 2.5)
+  legend("topright", box.lty = 0, legend = c("Start of vaccination", "Unsmoothed incidence for vaccine scenario", "Smoothed incidence for vaccine scenario", "Smoothed incidence for no\nintervention scenario"),
+         col = c("black", cols[2], cols[5], cols[6]), lty = c(2, 1, 1, 1), lwd = 2.5)
 }
 
 # Plot parasite prevalence
@@ -85,7 +85,7 @@ plot_prev <- function(type = "not seasonal"){
 # Plot dose timing
 plot_doses <- function(){
   output$month <- ceiling(output$timestep / month)
-  doses <- output[,c(2:5, 38)]
+  doses <- output[, c(grep("n_rtss" , names(output)), grep("month", names(output)))]
   doses <- aggregate(cbind(doses[1:4]),
                       by = list(doses$month), 
                       FUN = sum)
@@ -131,7 +131,7 @@ Then we can run the simulation for a variety of vaccination strategies.
 
 ## Mass RTS,S
 
-First, we will model a single round of RTS,S vaccine given in a mass vaccination strategy where those within a given age range will be vaccinated to a specified coverage level and during a short window of time. In this example, individuals aged between 5 and 17 months are vaccinated with a primary series (3 doses) followed by a single booster 12 months after the initial vaccination. The age groups to be vaccinated as well as timing of all vaccinations can be modified within the `set_mass_rtss()` function.
+First, we will model a single round of RTS,S vaccine given in a mass vaccination strategy where those within a given age range will be vaccinated to a specified coverage level and during a short window of time. In this example, individuals aged between 5 months and 50 years are vaccinated with a primary series (3 doses) followed by a single booster 12 months after the initial vaccination. The age groups to be vaccinated as well as timing of all vaccinations can be modified within the `set_mass_rtss()` function. The model assumes that protection starts following the 3rd dose of the primary series.
 
 We specify that the intervention should use the RTS,S vaccine through the `profile` and `booster_profile` inputs.
 
@@ -142,7 +142,7 @@ rtssparams <- set_mass_rtss(
   coverages = 1, # The vaccine is given to 100% of the population between the specified ages.
   min_wait = 0, # The minimum acceptable time since the last vaccination is 0 because in our case we are only implementing one round of vaccination.
   min_ages = 5 * month, # The minimum age for the target population to be vaccinated. 
-  max_ages = 5 * year, # The maximum age for the target population to be vaccinated.
+  max_ages = 50 * year, # The maximum age for the target population to be vaccinated.
   boosters = 12 * month, # The booster is given at 12 months after the primary series. 
   booster_coverage = 0.95 # Coverage of the booster dose is 95%.
 )
@@ -152,12 +152,12 @@ output <- run_simulation(timesteps = sim_length, parameters = rtssparams)
 
 #### Plot clinical incidence
 
-```{r, fig.width = 7, fig.height = 5, fig.align = "center"}
+```{r, fig.width = 8, fig.height = 5, fig.align = "center"}
 plot_inci()
 ```
 
 #### Plot prevalence
-```{r, fig.width = 7, fig.height = 5, fig.align = "center"}
+```{r, fig.width = 8, fig.height = 5, fig.align = "center"}
 plot_prev()
 ```
 
@@ -165,7 +165,7 @@ plot_prev()
 
 You can look at the distribution of doses using the `n_rtss_mass_dose_*` or `n_rtss_epi_dose_*` outputs. It is always a good idea to check the timing of vaccine doses to ensure that it is specified as intended.
 
-```{r, fig.width = 7, fig.height = 5, fig.align = "center", message=FALSE}
+```{r, fig.width = 8, fig.height = 5, fig.align = "center", message=FALSE}
 plot_doses()
 ```
 
@@ -206,7 +206,7 @@ seasmass_simparams <- set_mass_rtss(
   timesteps = round(year + (peak - month * 3.5), 0),# The vaccination will begin 3.5 months prior to the peak seasonality in the second year.
   coverages = 1, # 100% of the population between min_ages and max_ages is vaccinated.
   min_ages = 5 * month, # The minimum age for the target population to be vaccinated. 
-  max_ages = 5 * year, # The maximum age for the target population to be vaccinated.
+  max_ages = 15 * year, # The maximum age for the target population to be vaccinated.
   min_wait = 0, # There is no minimum wait between the last vaccination.
   boosters = round(c(12 * month + 2 * month)), # The booster is given 14 months after the first dose. 
   booster_coverage = 1) # 100% of the vaccinated population is boosted.
@@ -216,18 +216,18 @@ output <- run_simulation(sim_length * 2, seasmass_simparams)
 
 #### Plot clinical incidence
 
-```{r, fig.width = 7, fig.height = 5, fig.align = "center"}
+```{r, fig.width = 8, fig.height = 5, fig.align = "center"}
 plot_inci(type = "seasonal")
 ```
 
 #### Plot prevalence
-```{r, fig.width = 7, fig.height = 5, fig.align = "center"}
+```{r, fig.width = 8, fig.height = 5, fig.align = "center"}
 plot_prev(type = "seasonal")
 ```
 
 #### Plot doses
 
-```{r, fig.width = 7, fig.height = 5, fig.align = "center", message=FALSE}
+```{r, fig.width = 8, fig.height = 5, fig.align = "center", message=FALSE}
 plot_doses()
 ```
 
@@ -259,18 +259,18 @@ rtssepiparams$rtss_doses
 
 #### Plot clinical incidence
 
-```{r, fig.width = 7, fig.height = 5, fig.align = "center"}
+```{r, fig.width = 8, fig.height = 5, fig.align = "center"}
 plot_inci()
 ```
 
 #### Plot prevalence
-```{r, fig.width = 7, fig.height = 5, fig.align = "center"}
+```{r, fig.width = 8, fig.height = 5, fig.align = "center"}
 plot_prev()
 ```
 
 #### Plot doses
 
-```{r, fig.width = 7, fig.height = 5, fig.align = "center", message=FALSE}
+```{r, fig.width = 8, fig.height = 5, fig.align = "center", message=FALSE}
 plot_doses()
 ```
 We see a much more gradual decrease in clinical incidence following EPI implementation compared to the mass vaccination strategy.  
@@ -300,18 +300,18 @@ output <- run_simulation(sim_length * 2, rtssepiseasonalparams)
 
 #### Plot clinical incidence
 
-```{r, fig.width = 7, fig.height = 5, fig.align = "center"}
+```{r, fig.width = 8, fig.height = 5, fig.align = "center"}
 plot_inci(type = "seasonal")
 ```
 
 #### Plot prevalence
-```{r, fig.width = 7, fig.height = 5, fig.align = "center"}
+```{r, fig.width = 8, fig.height = 5, fig.align = "center"}
 plot_prev(type = "seasonal")
 ```
 
 #### Plot doses
 
-```{r, fig.width = 7, fig.height = 5, fig.align = "center", message=FALSE}
+```{r, fig.width = 8, fig.height = 5, fig.align = "center", message=FALSE}
 plot_doses()
 ```
 
@@ -337,18 +337,18 @@ output <- run_simulation(sim_length * 2, rtssepiparams2)
 
 #### Plot clinical incidence
 
-```{r, fig.width = 7, fig.height = 5, fig.align = "center"}
+```{r, fig.width = 8, fig.height = 5, fig.align = "center"}
 plot_inci()
 ```
 
 #### Plot prevalence
-```{r, fig.width = 7, fig.height = 5, fig.align = "center"}
+```{r, fig.width = 8, fig.height = 5, fig.align = "center"}
 plot_prev()
 ```
 
 #### Plot doses
 
-```{r, fig.width = 7, fig.height = 5, fig.align = "center", message=FALSE}
+```{r, fig.width = 8, fig.height = 5, fig.align = "center", message=FALSE}
 output$month <- ceiling(output$timestep / month)
 doses <- output[,c(2:6,39)]
 doses <- aggregate(cbind(doses[1:5]),
@@ -362,8 +362,8 @@ barplot(doses, xlab = "Month",
       beside = FALSE, xaxs = "i", yaxs = "i")
 grid(lty = 2, col = "grey80", lwd = 1)
 axis(side = 1, lty = 1, col = "black", pos = 0); axis(side = 2, lty = 1, col = "black")
-legend("topright", box.lty = 0, legend = c("Dose 1","Dose 2","Dose 3","Booster 1", "Booster 2"),
-       col = cols[1:6], lty = rep(1, 4), lwd = 2.5,bg="transparent")
+legend("topleft", box.lty = 0, legend = c("Dose 1","Dose 2","Dose 3","Booster 1", "Booster 2"),
+       col = cols[1:6], lty = rep(1, 4), lwd = 2.5, bg="transparent")
 ```
 
 ## TBV
@@ -383,11 +383,11 @@ output <- run_simulation(sim_length, tbvparams)
 
 #### Plot clinical incidence
 
-```{r, fig.width = 7, fig.height = 5, fig.align = "center"}
+```{r, fig.width = 8, fig.height = 5, fig.align = "center"}
 plot_inci()
 ```
 
 #### Plot prevalence
-```{r, fig.width = 7, fig.height = 5, fig.align = "center"}
+```{r, fig.width = 8, fig.height = 5, fig.align = "center"}
 plot_prev()
 ```

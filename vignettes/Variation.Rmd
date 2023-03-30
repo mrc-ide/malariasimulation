@@ -12,7 +12,7 @@ library(malariasimulation)
 set.seed(123)
 ```
 
-`malariasimulation` is a stochastic, individual-based model and, as such, simulations run with identical parameterisations will generate non-identical, sometimes highly variable, outputs. To illustrate this, we will compare the prevalence and incidence of malaria over a year in simulations with a small and a larger population. The simulation with a smaller population compared to the larger population, and the incidence measure compared to the prevalence measure will have larger variation between simulation runs.
+`malariasimulation` is a stochastic, individual-based model and, as such, simulations run with identical parameterisations will generate non-identical, sometimes highly variable, outputs. To illustrate this, we will compare the prevalence and incidence of malaria over a year in simulations with a small and a larger population. 
 
 ### Plotting functions
 First, we will create a few plotting functions to visualise outputs. 

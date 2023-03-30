@@ -2,7 +2,7 @@
 title: "Mosquito species"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vector Control: IRS}
+  %\VignetteIndexEntry{Mosquito species}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -53,7 +53,9 @@ We will demonstrate how to specify different mosquito species and how this could
 
 ## IRS with default mosquito settings
 
-Use the `get_parameters()` function to generate a list of parameters, accepting most of the default values, but modifying seasonality values to model a seasonal setting. We will model IRS with the default mosquito settings, which is to model all mosquito species together. Then, we use the `set_equilibrium()` function to to initialise the model at a given entomological inoculation rate (EIR). 
+Use the `get_parameters()` function to generate a list of parameters, accepting most of the default values, but modifying seasonality values to model a seasonal setting. We will model IRS with the default mosquito settings, which is to model all mosquito species together. Then, we use the `set_equilibrium()` function to to initialise the model at a given entomological inoculation rate (EIR).  
+
+Use the `set_spraying()` function to set an IRS intervention. This function takes as arguments the parameter list, timesteps of spraying, coverage of IRS in the population and a series of paremters related to the insecticide used in the IRS. `ls` is the proportion of mosquitoes dying following entering a hut, which is dependent on the parameters `ls_theta`, is the initial efficacy, and `ls_gamma`, how it changes over time. `ks` is the proportion of mosquitoes successfully feeding, which is dependent on `ks_theta`, the initial impact of the insecticide in IRS, and `ks_gamma`, how the impact changes over time. Finally, `ms` is the proportion of mosquitoes being deterred away from a sprayed hut, depending on `ms_theta`, the initial impact of IRS, and `ms_gamma`, the change in impact over time. See a more comprehensive explanation in the Supplementary Information of [Sherrard-Smith et al., 2018](https://doi.org/10.1038/s41467-018-07357-w).
 
 ```{r}
 year <- 365
@@ -81,7 +83,7 @@ simparams <- set_spraying(
   simparams,
   timesteps = sprayingtimesteps,
   coverages = rep(.8, 2), # # Each round covers 80% of the population 
-  # nrows=length(timesteps), ncols=length(species) 
+                                                                    # nrows=length(timesteps), ncols=length(species) 
   ls_theta = matrix(2.025, nrow=length(sprayingtimesteps), ncol=1), # Matrix of mortality parameters per round of IRS and per species 
   ls_gamma = matrix(-0.009, nrow=length(sprayingtimesteps), ncol=1), # Matrix of mortality parameters per round of IRS and per species
   ks_theta = matrix(-2.222, nrow=length(sprayingtimesteps), ncol=1), # Matrix of feeding success parameters per round of IRS and per species
@@ -92,7 +94,7 @@ simparams <- set_spraying(
 
 simparams <- set_equilibrium(simparams, starting_EIR)
 
-# Running simulation with no IRS
+# Running simulation with IRS
 output_all <- run_simulation(timesteps = sim_length, parameters = simparams)
 ```
 
@@ -116,7 +118,7 @@ legend("topright", box.lty = 0, legend = c("Spraying", "All mosquitoes"), col = 
 
 ## IRS with different mosquito species
 
-We will run the same model with IRS as above, but this time with 3 species of mosquitoes: *An. arabiensis*, *An. gambiae*, and an example mosquito species similar to *An. funestus*, but with a lower propensity to bite indoors. Note that now there are 3 columns for the `ls_theta`, `ls_gamma`, `ks_theta`, `ks_gamma`, `ms_theta`, and `ms_gamma` arguments. Each column corresponds to a species of mosquito, and each row corresponds to the timestep when a round of IRS occurred. Here, we are assuming the same values for each species at each IRS round for simplicity, but the matrix could be edited to have different values by species or over time by adding new columns or rows. 
+We will run the same model with IRS as above, but this time with 3 species of mosquitoes: *An. arabiensis*, *An. gambiae*, and an example mosquito species similar to *An. funestus*, but with a lower propensity to bite indoors. Note that now there are 3 columns for the `ls_theta`, `ls_gamma`, `ks_theta`, `ks_gamma`, `ms_theta`, and `ms_gamma` arguments. Each column corresponds to a species of mosquito, and each row corresponds to the timestep when a round of IRS occurred. Here, we are assuming the same values for each species at each IRS round for simplicity, but the matrix could be edited to have different values by species or over time by editing columns or rows. 
 
 ```{r, fig.align="center", fig.height=4, fig.width=6}
 # Create an example mosquito species with a low value for `phi_indoors`
@@ -128,7 +130,7 @@ example_mosquito_params$species <- 'example'
 simparams <- set_species(
   simparams, 
   species = list(arab_params, gamb_params, example_mosquito_params),
-  proportions = c(0.2, 0.2, 0.6)
+  proportions = c(1/3, 1/3, 1/3)
 )
 
 peak <- peak_season_offset(simparams)

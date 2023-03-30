@@ -72,7 +72,7 @@ simparams_big <- set_equilibrium(parameters = simparams_big, init_EIR = 50)
 
 The `n_detect_730_3650` output below shows the total number of individuals in the age group rendered (here, 730-3650 timesteps or 2-10 years) who have microscopy-detectable malaria. Notice that the output is smoother at a higher population.  
 
-Some outcomes will be more sensitive than others to stochastic variation. In the plots below, prevalence is smoother than incidence even at the same population. 
+Some outcomes will be more sensitive than others to stochastic variation even with the same population size. In the plots below, prevalence is smoother than incidence even at the same population. This is because prevalence is a measure of existing infection, while incidence is recording new cases per timestep.
 
 ```{r, fig.align="center",fig.height=6, fig.width=8}
 # A small population
@@ -90,7 +90,7 @@ plot_inci(output_big_pop, ylim = c(0, 25)); title("Incidence per 1000 children a
 ```
 
 ## Stochastic elimination 
-With stochastic models, random elimination of malaria in a small population with low transmisison may happen. In the example below, we run two simulations: one with a very small population, and one with a larger population. There is stochastic fade out (elimination) in the smaller population, while the larger population has stable transmission over time. For this reason, it is important to run models with large-enough populations to avoid stochastic elimination or trends that are not realistic. 
+With stochastic models, random elimination of malaria in a small population with low transmisison may happen. In the example below, we run two simulations: one with a very small population, and one with a larger population. There is stochastic fade out (elimination) in the smaller population, while the larger population has stable transmission over time. For this reason, it is important to run models with large-enough populations to avoid stochastic elimination. 
 ```{r}
 # A small population 
 simparams_small <- get_parameters(list(

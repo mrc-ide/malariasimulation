@@ -136,18 +136,20 @@ First, we will model a single round of RTS,S vaccine given in a mass vaccination
 We specify that the intervention should use the RTS,S vaccine through the `profile` and `booster_profile` inputs.
 
 ```{r}
-rtssparams <- set_mass_rtss(
+rtssmassparams <- set_mass_pev(
   simparams,
+  profile = rtss_profile,
   timesteps = 1 * year, # The single round of vaccination is at 1 year into the simulation.
   coverages = 1, # The vaccine is given to 100% of the population between the specified ages.
   min_wait = 0, # The minimum acceptable time since the last vaccination is 0 because in our case we are only implementing one round of vaccination.
   min_ages = 5 * month, # The minimum age for the target population to be vaccinated. 
   max_ages = 50 * year, # The maximum age for the target population to be vaccinated.
   boosters = 12 * month, # The booster is given at 12 months after the primary series. 
-  booster_coverage = 0.95 # Coverage of the booster dose is 95%.
+  booster_coverage = 0.95, # Coverage of the booster dose is 95%.
+  booster_profile = rtss_booster_profile
 )
 
-output <- run_simulation(timesteps = sim_length, parameters = rtssparams)
+output <- run_simulation(timesteps = sim_length, parameters = rtssmassparams)
 ```
 
 #### Plot clinical incidence
@@ -190,10 +192,10 @@ seas_simparams <- get_parameters(
   )
 )
 
-seas_simparams <- set_equilibrium(seas_simparams, starting_EIR)
+seas_simparams <- set_equilibrium(parameters = seas_simparams, init_EIR = starting_EIR)
 
 # Run no vaccine scenario
-output_seas_control <- run_simulation(sim_length *2, seas_simparams)
+output_seas_control <- run_simulation(timesteps = sim_length *2, parameters = seas_simparams)
 ```
 
 Next, we will run the scenario with a seasonal mass vaccination campaign implemented starting 3.5 months before the peak of the transmission season.
@@ -201,17 +203,20 @@ Next, we will run the scenario with a seasonal mass vaccination campaign impleme
 # Find the peak seasonality
 peak <- peak_season_offset(seas_simparams)
 
-seasmass_simparams <- set_mass_rtss(
+seasmass_simparams <- set_mass_pev(
   parameters = seas_simparams,
+  profile = rtss_profile,
   timesteps = round(year + (peak - month * 3.5), 0),# The vaccination will begin 3.5 months prior to the peak seasonality in the second year.
   coverages = 1, # 100% of the population between min_ages and max_ages is vaccinated.
   min_ages = 5 * month, # The minimum age for the target population to be vaccinated. 
   max_ages = 15 * year, # The maximum age for the target population to be vaccinated.
   min_wait = 0, # There is no minimum wait between the last vaccination.
   boosters = round(c(12 * month + 2 * month)), # The booster is given 14 months after the first dose. 
-  booster_coverage = 1) # 100% of the vaccinated population is boosted.
+  booster_coverage = 1, # 100% of the vaccinated population is boosted.
+  booster_profile = rtss_booster_profile
+  ) 
 
-output <- run_simulation(sim_length * 2, seasmass_simparams)
+output <- run_simulation(timesteps = sim_length * 2, parameters = seasmass_simparams)
 ```
 
 #### Plot clinical incidence
@@ -238,22 +243,24 @@ We can also opt to vaccinate using the EPI strategy, where individuals will be v
 
 ```{r}
 # Add RTS,S strategy
-rtssepiparams <- set_rtss_epi(
+rtssepiparams <- set_pev_epi(
   simparams,
+  profile = rtss_profile,
   timesteps = 1 * year, # Vaccination will begin at 1 year into the simulation.
   coverages = 1, # Vaccine coverage is 100%.
   min_wait = 0, # There is no minimum wait since the last vaccination.
   age = 5 * month, # Individuals will be vaccinated once they reach 5 months of age.
   boosters = 12 * month, # The booster is administered 12 months following the third dose. 
-  booster_coverage = 0.95 # 95% of those vaccinated with the primary series will be boosted.
+  booster_coverage = 0.95, # 95% of those vaccinated with the primary series will be boosted.
+  booster_profile = rtss_booster_profile
 )
 
-output <- run_simulation(sim_length * 2, rtssepiparams)
+output <- run_simulation(timesteps = sim_length * 2, parameters = rtssepiparams)
 ```
 
-The default values for the `rtss_doses` variable shows that individuals will be vaccinated with dose one at day 0, or the day that the vaccine campaign begins (this is at 1 year in the example above), with dose two 45 days afterwards, and with dose three 90 days after the first dose. This will correspond to ages 5, 6.5, and 8 months for the primary series. The booster will be administered 12 months after dose three, at 20 months of age in the example above.   
+The default values for the `pev_doses` variable shows that individuals will be vaccinated with dose one at day 0, or the day that the vaccine campaign begins (this is at 1 year in the example above), with dose two 45 days afterwards, and with dose three 90 days after the first dose. This will correspond to ages 5, 6.5, and 8 months for the primary series. The booster will be administered 12 months after dose three, at 20 months of age in the example above.   
 ```{r}
-rtssepiparams$rtss_doses
+rtssepiparams$pev_doses
 ```
 
 
@@ -284,18 +291,20 @@ In a seasonal setting, we can set booster timesteps relative to the start of the
 peak <- peak_season_offset(seas_simparams) 
 
 # Add RTS,S seasonal strategy
-rtssepiseasonalparams <- set_rtss_epi(
+rtssepiseasonalparams <- set_pev_epi(
   seas_simparams,
+  profile = rtss_profile,
   timesteps = 1 * year, # Vaccination begins 1 year after the start of the simulation. 
   coverages = 1, # Vaccine coverage is 100%.
   min_wait = 6 * month, # When seasonal_boosters = TRUE, this is the minimum time between an individual receiving the final dose and the first booster.
   age = 5 * month, # Individuals will be vaccinated once they reach 5 months of age.
   boosters = peak - month * 3.5 , # Because seasonal_boosters = TRUE, the timestep here is relative to the start of the year. Here, we will give a booster at 3.5 months prior to peak transmission. 
   booster_coverage = 0.95, # 95% of the vaccinated population is boosted.
-  seasonal_boosters = TRUE
+  seasonal_boosters = TRUE,
+  booster_profile = rtss_booster_profile
 )
 
-output <- run_simulation(sim_length * 2, rtssepiseasonalparams)
+output <- run_simulation(timesteps = sim_length * 2, parameters = rtssepiseasonalparams)
 ```
 
 #### Plot clinical incidence
@@ -320,19 +329,21 @@ plot_doses()
 You can try different dosing schedules using the `pev_doses` parameter. Here we administer dose one at 5 months, dose two 30 days after dose one, and dose three 60 days after dose one. We also administer two  booster doses 12 and 24 months following dose three. As before, it is a good idea to visualise the timing of the vaccination strategy to ensure that you have implemented it as intended.
 
 ```{r}
-rtssepiparams2 <- set_rtss_epi(
+rtssepiparams2 <- set_pev_epi(
   simparams,
+  profile = rtss_profile,
   timesteps = 1 * year,
   coverages = 1,
   age = 5 * month,
   min_wait = 0,
   boosters = c(12 * month, 24 * month), # Here, we are testing a strategy with 2 boosters.
-  booster_coverage = c(1, 1)
+  booster_coverage = c(1, 1),
+  booster_profile = rtss_booster_profile
 )
 
-rtssepiparams2$rtss_doses <- c(0, 30, 60) # setting the timesteps for the 3 doses in the primary series at 0, 1, 2 months
+rtssepiparams2$pev_doses <- c(0, 30, 60) # setting the timesteps for the 3 doses in the primary series at 0, 1, 2 months
 
-output <- run_simulation(sim_length * 2, rtssepiparams2)
+output <- run_simulation(timesteps = sim_length * 2, parameters = rtssepiparams2)
 ```
 
 #### Plot clinical incidence
@@ -350,20 +361,20 @@ plot_prev()
 
 ```{r, fig.width = 8, fig.height = 5, fig.align = "center", message=FALSE}
 output$month <- ceiling(output$timestep / month)
-doses <- output[,c(2:6,39)]
+doses <- output[, c(2:6, 39)]
 doses <- aggregate(cbind(doses[1:5]),
                     by = list(doses$month), 
                     FUN = sum)
-doses <- as.matrix(t(doses[,-1]))
+doses <- as.matrix(t(doses[, -1]))
 
 barplot(doses, xlab = "Month",
         ylab = "Number of doses",
-      col = cols[1:6],space = 0, 
-      beside = FALSE, xaxs = "i", yaxs = "i")
+        col = cols[1:6], space = 0, 
+        beside = FALSE, xaxs = "i", yaxs = "i")
 grid(lty = 2, col = "grey80", lwd = 1)
 axis(side = 1, lty = 1, col = "black", pos = 0); axis(side = 2, lty = 1, col = "black")
 legend("topleft", box.lty = 0, legend = c("Dose 1","Dose 2","Dose 3","Booster 1", "Booster 2"),
-       col = cols[1:6], lty = rep(1, 4), lwd = 2.5, bg="transparent")
+       col = cols[1:6], lty = rep(1, 4), lwd = 2.5, bg = "transparent")
 ```
 
 ## TBV
@@ -378,7 +389,7 @@ tbvparams <- set_tbv(
   ages = 5:60 # The age range in years of those receiving the vaccine. 
 )
 
-output <- run_simulation(sim_length, tbvparams)
+output <- run_simulation(timesteps = sim_length, parameters = tbvparams)
 ```
 
 #### Plot clinical incidence

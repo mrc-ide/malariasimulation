@@ -139,7 +139,6 @@ text(x = 310, y = max(output$n_detect_730_3650)+4, labels = "Treatment\nbegins",
 abline(v = 600, lty = 2)
 text(x = 610, y = max(output$n_detect_730_3650)+4, labels = "Treatment\nends", adj = 0)
 
-
 # Add grid lines
 grid()
 ```

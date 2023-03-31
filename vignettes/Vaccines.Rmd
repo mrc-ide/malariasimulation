@@ -163,7 +163,7 @@ plot_prev()
 
 #### Plot doses
 
-You can look at the distribution of doses using the `n_rtss_mass_dose_*` or `n_rtss_epi_dose_*` outputs. It is always a good idea to check the timing of vaccine doses to ensure that it is specified as intended.
+You can look at the distribution of doses using the `n_pev_mass_dose_*` or `n_pev_epi_dose_*` outputs. It is always a good idea to check the timing of vaccine doses to ensure that it is specified as intended.
 
 ```{r, fig.width = 8, fig.height = 5, fig.align = "center", message=FALSE}
 plot_doses()

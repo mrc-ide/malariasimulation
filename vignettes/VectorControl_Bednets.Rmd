@@ -47,7 +47,7 @@ Use the `get_parameters()` function to generate the list of parameters for a per
 
 ```{r}
 year <- 365
-sim_length <- 3 * year
+sim_length <- 6 * year
 human_population <- 1000
 starting_EIR <- 50
 
@@ -71,16 +71,18 @@ simparams$species_proportions
   
 ## Simulation
 
-Having established a base set of parameters, we can now create a copy of this parameter list and update it to specify a net distribution campaign. In the example below, we distribute bed nets once a year for two years, the first round to 50% of the population and the second round to 80% of the population. It is possible to change the characteristics of the bed nets for each distribution timestep if different types of bed nets are distributed that have different insecticides, different levels of insecticide resistance, etc. This can be done by modifying the matrices for `dn0`, `rn`, `rnm`, and `gamman`. Because we are using the default proportions of mosquito species and there are two timesteps when nets are distributed, the matrices for `dn0`, `rn`, and `rnm` have 1 column and 2 rows.
+Having established a base set of parameters, we can now create a copy of this parameter list and update it to specify a net distribution campaign. In the example below, we distribute bed nets to 50% of the population every three years. It is possible to change the characteristics of the bed nets for each distribution timestep if different types of bed nets are distributed that have different insecticides, different levels of insecticide resistance, etc. This can be done by modifying the matrices for `dn0`, `rn`, `rnm`, and `gamman`. Because we are using the default proportions of mosquito species and there are two timesteps when nets are distributed, the matrices for `dn0`, `rn`, and `rnm` have 1 column and 2 rows.
+
+The parameter values for pyrethroid-only and pyrethroid-PBO nets at various resistance levels can be found in Table S1.3 in the Supplementary Appendix 2 of [Sherrard-Smith, et al., 2022](https://doi.org/10.1016/S2542-5196(21)00296-5).
 
   
 ```{r, fig.align="center", fig.height=4, fig.width=6}
-bednetstimesteps <- c(1, 2) * year # The bed nets will be distributed at the end of the first and the second year. 
+bednetstimesteps <- c(1, 4) * year # The bed nets will be distributed at the end of the first and the 4th year. 
 
 bednetparams <- set_bednets(
   simparams,
   timesteps = bednetstimesteps,
-  coverages = c(.5, .8),  # The first round is distributed to 50% of the population and the second round to 80%.
+  coverages = c(.5, .5),  # Each round is distributed to 50% of the population.
   retention = 5 * year, # Nets are kept on average 5 years
   dn0 = matrix(c(.533, .533), nrow = 2, ncol = 1), # Matrix of death probabilities for each mosquito species over time
   rn = matrix(c(.56, .56), nrow = 2, ncol = 1), # Matrix of repelling probabilities for each mosquito species over time
@@ -98,7 +100,7 @@ plot_prev()
   
 ## Comparing input coverage and population bed net usage 
 
-It is important to understand the difference between the input `coverages` argument of `set_bednets()` and the resulting population bed net usage over time in the model. When we set coverages in the above example to 0.8, we are telling the model to distribute bed nets to 80% of the population at year one, and to 50% of the population at year 2. However, the level of average bed net usage is not necessarily equal to 80% or 50%. Between these time points, bed net use will slowly decline over time (in reality this decline stems from things like disuse, holes in nets, lost nets, etc.).
+It is important to understand the difference between the input `coverages` argument of `set_bednets()` and the resulting population bed net usage over time in the model. When we set coverages in the above example to 0.8, we are telling the model to distribute bed nets to 50% of the population at year one and to 50% of the population at year 4. However, the level of average bed net usage is not necessarily equal to 50%. Between these time points, bed net use will slowly decline over time (in reality this decline stems from things like disuse, holes in nets, lost nets, etc.).
   
 The average population bed net usage will be influenced by:   
 

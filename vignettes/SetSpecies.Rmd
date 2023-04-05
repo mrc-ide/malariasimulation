@@ -41,7 +41,7 @@ plot_prev <- function() {
     
 As alluded to in the Model Structure, Vector Control: IRS, and Vector Control: Bed net vignettes, it is possible to account for varying proportions of mosquito species in the setting you are modelling using the `set_species()` function. IRS and bed nets could be expected to have different impacts depending on the proportion of each mosquito species because of variations in indoor resting, insecticide resistance, and proportion of bites on humans versus animals by species. If you have specified more than 1 species, then the arguments for `set_spraying()` and/or `set_bednets()` must be populated with values for each species at each timestep that the intervention is implemented. 
 
-There are preset parameters for *An. gambiae*, *An. arabiensis*, and *An. funestus* that can be set by the helper functions `gamb_params()`, `arab_params()`, and `fun_params()`, respectively. The default values for each species in these helper functions are from [Sherrard-Smith et al., 2019](https://doi.org/10.1073/pnas.1820646116). The parameters are:  
+There are preset parameters for *An. gambiae*, *An. arabiensis*, and *An. funestus* that can be set by the helper functions `gamb_params()`, `arab_params()`, and `fun_params()`, respectively. The default values for each species in these helper functions are from [Sherrard-Smith et al., 2018](https://doi.org/10.1038/s41467-018-07357-w). The parameters are:  
 
 * `blood_meal_rates`: the blood meal rates for each species 
 * `foraging_time`: time spent taking blood meals    

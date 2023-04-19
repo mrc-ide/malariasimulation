@@ -12,6 +12,34 @@ test_that('set_bednets validates coverages', {
       gamman = c(963.6, 963.6)
     )
   )
+  
+  expect_error(
+    set_bednets(
+      parameters,
+      timesteps = c(5, 50),
+      coverages = c(-1, 0.5),
+      retention = 40,
+      dn0 = matrix(c(.533, .533), nrow=2, ncol=1),
+      rn = matrix(c(.56, .56), nrow=2, ncol=1),
+      rnm = matrix(c(.24, .24), nrow=2, ncol=1),
+      gamman = c(963.6, 963.6)
+    ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
+    fixed = TRUE
+  )
+  
+  expect_error(
+    set_bednets(
+      parameters,
+      timesteps = c(5, 50),
+      coverages = c(0.5, 1.5),
+      retention = 40,
+      dn0 = matrix(c(.533, .533), nrow=2, ncol=1),
+      rn = matrix(c(.56, .56), nrow=2, ncol=1),
+      rnm = matrix(c(.24, .24), nrow=2, ncol=1),
+      gamman = c(963.6, 963.6)
+    ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
+    fixed = TRUE
+  )
 })
 
 test_that('set_bednets validates matrices', {
@@ -108,13 +136,13 @@ test_that('distribute_bednets process sets net_time correctly', {
     parameters,
     correlations
   )
-
+  
   target_mock <- mockery::mock(c(FALSE, FALSE, TRUE, TRUE))
   mockery::stub(process, 'sample_intervention', target_mock)
   mockery::stub(process, 'log_uniform', mockery::mock(c(3, 4)))
-
+  
   process(timestep)
-
+  
   mockery::expect_args(target_mock, 1, seq(4), 'bednets', .9, correlations)
   mockery::expect_args(
     variables$net_time$queue_update_mock(),
@@ -148,9 +176,9 @@ test_that('throw_away_bednets process resets net_time correctly', {
   variables <- create_variables(parameters)
   variables$net_time <- mock_double(rep(0, 4))
   listener <- throw_away_nets(variables)
-
+  
   listener(timestep, individual::Bitset$new(4)$insert(c(2, 3)))
-
+  
   expect_bitset_update(
     variables$net_time$queue_update_mock(),
     -1,
@@ -179,12 +207,12 @@ test_that('indoor_spraying process sets spray_time correctly', {
     parameters,
     correlations
   )
-
+  
   target_mock <- mockery::mock(c(FALSE, FALSE, TRUE, TRUE))
   mockery::stub(process, 'sample_intervention', target_mock)
-
+  
   process(timestep)
-
+  
   mockery::expect_args(target_mock, 1, seq(4), 'spraying', .9, correlations)
   mockery::expect_args(
     spray_time$queue_update_mock(),
@@ -200,7 +228,7 @@ test_that('prob_bitten defaults to 1 with no protection', {
   variables <- create_variables(parameters)
   variables$net_time <- individual::DoubleVariable$new(rep(-1, 4))
   variables$spray_time <- individual::DoubleVariable$new(rep(-1, 4))
-
+  
   expect_equal(
     prob_bitten(timestep, variables, 1, parameters),
     list(
@@ -229,7 +257,7 @@ test_that('prob_bitten correctly calculates net only probabilities', {
     c(-1, 5, 50, 100)
   )
   variables$spray_time <- individual::DoubleVariable$new(rep(-1, 4))
-
+  
   expect_equal(
     prob_bitten(timestep, variables, 1, parameters),
     list(
@@ -256,12 +284,12 @@ test_that('prob_bitten correctly calculates spraying only probabilities', {
     ms_gamma = matrix(rep(-0.009, 3), nrow=3, ncol=1)
   )
   variables <- create_variables(parameters)
-
+  
   variables$net_time <- individual::IntegerVariable$new(rep(-1, 4))
   variables$spray_time <- individual::IntegerVariable$new(
     c(-1, 5, 50, 100)
   )
-
+  
   expect_equal(
     prob_bitten(timestep, variables, 1, parameters),
     list(
@@ -304,7 +332,7 @@ test_that('prob_bitten correctly combines spraying and net probabilities', {
   variables$spray_time <- individual::IntegerVariable$new(
     c(-1, 5, 50, 100)
   )
-
+  
   expect_equal(
     prob_bitten(timestep, variables, 1, parameters),
     list(
@@ -318,17 +346,99 @@ test_that('prob_bitten correctly combines spraying and net probabilities', {
 
 test_that('usage renderer outputs correct values', {
   timestep <- 150
-
+  
   all <- individual::IntegerVariable$new(c(100, 50, 5, 50))
   half <- individual::IntegerVariable$new(c(100, 50, -1, -1))
   none <- individual::IntegerVariable$new(rep(-1, 4))
-
+  
   renderer <- list(render = mockery::mock())
   net_usage_renderer(all, renderer)(timestep)
   net_usage_renderer(half, renderer)(timestep)
   net_usage_renderer(none, renderer)(timestep)
-
+  
   mockery::expect_args(renderer$render, 1, 'n_use_net', 4, timestep)
   mockery::expect_args(renderer$render, 2, 'n_use_net', 2, timestep)
   mockery::expect_args(renderer$render, 3, 'n_use_net', 0, timestep)
+})
+
+test_that('set_carrying_capacity_scaling validates inputs', {
+  parameters <- get_parameters()
+  expect_error(
+    set_carrying_capacity_scaling(
+      parameters,
+      timesteps = -1,
+      scaler = matrix(0.1)
+    ),
+    "min(timesteps) >= 0 is not TRUE",
+    fixed = TRUE
+  )
+  expect_error(
+    set_carrying_capacity_scaling(
+      parameters,
+      timesteps = 1,
+      scaler = matrix(-0.1)
+    ),
+    "min(scaler) >= 0 is not TRUE",
+    fixed = TRUE
+  )
+  expect_error(
+    set_carrying_capacity_scaling(
+      parameters,
+      timesteps = 1,
+      scaler = matrix(c(1, 1))
+    ),
+    "scaler rows need to align with timesteps"
+  )
+  expect_error(
+    set_carrying_capacity_scaling(
+      parameters,
+      timesteps = 1,
+      scaler = matrix(c(1, 1), ncol = 2)
+    ),
+    "scaler cols need to align with number of mosquito species"
+  )
+})
+
+test_that('set_carrying_capacity_scaling modifies parameters list correctly ', {
+  parameters <- get_parameters()
+  
+  expect_equal(parameters$scale_carrying_capacity, FALSE)
+  
+  p1 <- set_carrying_capacity_scaling(
+    parameters,
+    timesteps = 1,
+    scaler = matrix(2)
+  )
+  expect_equal(p1$scale_carrying_capacity, TRUE)
+  expect_equal(p1$carrying_capacity_timesteps, 1)
+  expect_equal(p1$carrying_capacity_scaler, matrix(2))
+  
+})
+
+test_that('carrying capacity scaler vectors specified correctly ', {
+  parameters <- get_parameters()
+  timesteps <- 100
+  
+  cc1 <- parameterise_carrying_capacity(parameters, timesteps)
+  expect_equal(cc1, list(rep(1, timesteps)))
+  
+  # Single species
+  p2 <- parameters |>
+    set_carrying_capacity_scaling(
+      timesteps = 51,
+      scaler = matrix(0.5)
+    )
+  cc2 <- parameterise_carrying_capacity(p2, timesteps)
+  expect_equal(cc2, list(rep(c(1, 0.5), each = 50)))
+  
+  # Multiple species
+  p3 <- parameters |>
+    set_species(list(arab_params, gamb_params), c(0.5, 0.5)) |>
+    set_carrying_capacity_scaling(
+      timesteps = 51,
+      scaler = matrix(c(0.5, 0.9), ncol = 2)
+    )
+  cc3 <- parameterise_carrying_capacity(p3, timesteps)
+  expect_equal(cc3[1], list(rep(c(1, 0.5), each = 50)))
+  expect_equal(cc3[2], list(rep(c(1, 0.9), each = 50)))
 })

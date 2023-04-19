@@ -395,6 +395,10 @@ get_parameters <- function(overrides = list()) {
     tbv_timesteps = NULL,
     tbv_coverages = NULL,
     tbv_ages = NULL,
+    # carrying capacity scaling
+    scale_carrying_capacity = FALSE,
+    carrying_capacity_timesteps = NULL,
+    carrying_capacity_scaler = NULL,
     # rendering
     prevalence_rendering_min_ages = 2 * 365,
     prevalence_rendering_max_ages = 10 * 365,
@@ -413,25 +417,26 @@ get_parameters <- function(overrides = list()) {
     human_population = 100,
     human_population_timesteps = 0,
     mosquito_limit   = 100 * 1000,
-    individual_mosquitoes = TRUE,
+    individual_mosquitoes = FALSE,
     enable_heterogeneity = TRUE,
     r_tol = 1e-4,
     a_tol = 1e-4,
-    ode_max_steps = 1e6
+    ode_max_steps = 1e6,
+    progress_bar = FALSE
   )
-
+  
   # Override parameters with any client specified ones
   if (!is.list(overrides)) {
     stop('overrides must be a list')
   }
-
+  
   for (name in names(overrides)) {
     if (!(name %in% names(parameters))) {
       stop(paste('unknown parameter', name, sep=' '))
     }
     parameters[[name]] <- overrides[[name]]
   }
-
+  
   props <- c(
     parameters$s_proportion,
     parameters$d_proportion,
@@ -439,11 +444,11 @@ get_parameters <- function(overrides = list()) {
     parameters$u_proportion,
     parameters$t_proportion
   )
-
+  
   if (!approx_sum(props, 1)) {
     stop("Starting proportions do not sum to 1")
   }
-
+  
   parameters
 }
 

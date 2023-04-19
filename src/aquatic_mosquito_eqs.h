@@ -26,7 +26,7 @@ enum class AquaticState : size_t {E, L, P};
 template<typename T>
 constexpr auto get_idx(T value)
 {
-    return static_cast<std::underlying_type_t<T>>(value);
+  return static_cast<std::underlying_type_t<T>>(value);
 }
 
 /*
@@ -38,47 +38,49 @@ constexpr auto get_idx(T value)
  * total_M, biting rate and mortality are updated each timestep
  */
 struct AquaticMosquitoModel {
-    /* Parameters */
-    const double beta; //egg laying rate
-    const double de; //delay for early larval growth
-    const double mue; //death rate for early larvae
-    const double K0; //baseline carrying capacity
-    const double gamma; //carrying capacity parameter for late larvae
-    const double dl; //delay for late larval growth
-    const double mul; //death rate for late larvae
-    const double dp; //delay for for pupal growth
-    const double mup; //death rate for pupae
-    size_t total_M; //the number of adult female mosquitos in the model
-    const bool model_seasonality; //whether to model seasonality
-    const double g0; //fourier shape parameter
-    const std::vector<double> g; //fourier shape parameters
-    const std::vector<double> h; //fourier shape parameters
-    const double R_bar; //average rainfall
-    double mum; //adult mortality rate
-    double f; //biting rate
-    double rainfall_floor; //minimum rainfall
-
-    AquaticMosquitoModel(
-        double beta,
-        double de,
-        double mue,
-        double K0,
-        double gamma,
-        double dl,
-        double mul,
-        double dp,
-        double mup,
-        size_t total_M,
-        bool model_seasonality,
-        double g0,
-        std::vector<double> g,
-        std::vector<double> h,
-        double R_bar,
-        double mum,
-        double f,
-        double rainfall_floor
-    );
-    virtual ~AquaticMosquitoModel() {};
+  /* Parameters */
+  const double beta; //egg laying rate
+  const double de; //delay for early larval growth
+  const double mue; //death rate for early larvae
+  const double K0; //baseline carrying capacity
+  const double gamma; //carrying capacity parameter for late larvae
+  const double dl; //delay for late larval growth
+  const double mul; //death rate for late larvae
+  const double dp; //delay for for pupal growth
+  const double mup; //death rate for pupae
+  size_t total_M; //the number of adult female mosquitoes in the model
+  const bool model_seasonality; //whether to model seasonality
+  const double g0; //fourier shape parameter
+  const std::vector<double> g; //fourier shape parameters
+  const std::vector<double> h; //fourier shape parameters
+  const double R_bar; //average rainfall
+  double mum; //adult mortality rate
+  double f; //biting rate
+  double rainfall_floor; //minimum rainfall,
+  std::vector<double> k_scaler; //vector of scaling for baseline carrying capacity
+  
+  AquaticMosquitoModel(
+    double beta,
+    double de,
+    double mue,
+    double K0,
+    double gamma,
+    double dl,
+    double mul,
+    double dp,
+    double mup,
+    size_t total_M,
+    bool model_seasonality,
+    double g0,
+    std::vector<double> g,
+    std::vector<double> h,
+    double R_bar,
+    double mum,
+    double f,
+    double rainfall_floor,
+    std::vector<double> k_scaler
+  );
+  virtual ~AquaticMosquitoModel() {};
 };
 
 integration_function_t create_eqs(AquaticMosquitoModel& model);

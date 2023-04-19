@@ -1,7 +1,8 @@
 ODE_INDICES <- c(E = 1, L = 2, P = 3)
 ADULT_ODE_INDICES <- c(Sm = 4, Pm = 5, Im = 6)
 
-parameterise_mosquito_models <- function(parameters) {
+parameterise_mosquito_models <- function(parameters, scaler) {
+  
   lapply(
     seq_along(parameters$species),
     function(i) {
@@ -25,9 +26,10 @@ parameterise_mosquito_models <- function(parameters) {
         calculate_R_bar(parameters),
         parameters$mum[[i]],
         parameters$blood_meal_rates[[i]],
-        parameters$rainfall_floor
+        parameters$rainfall_floor,
+        scaler[[i]]
       )
-
+      
       if (!parameters$individual_mosquitoes) {
         susceptible <- initial_mosquito_counts(
           parameters,
@@ -84,7 +86,7 @@ create_compartmental_rendering_process <- function(renderer, solvers, parameters
   } else {
     indices <- c(ODE_INDICES, ADULT_ODE_INDICES)
   }
-
+  
   function(timestep) {
     counts <- rep(0, length(indices))
     for (s_i in seq_along(solvers)) {
@@ -118,4 +120,35 @@ create_solver_stepping_process <- function(solvers, parameters) {
       }
     }
   }
+}
+
+#' @title Carrying capacity scaling
+#' @description Infers the species-specific vector for scaling baseline carrying capacity
+#'
+#' @noRd
+parameterise_carrying_capacity <- function(parameters, timesteps){
+  # Default is no rescaling of baseline carrying capacity
+  scaler <- lapply(parameters$species, function(x, timesteps){
+    rep(1, timesteps)
+  }, timesteps = timesteps)
+  
+  
+  if(parameters$scale_carrying_capacity){
+    scaler <- list()
+    for(i in 1:length(parameters$species)){
+      species_scaler <- rep(NA, timesteps)
+      species_scaler[parameters$carrying_capacity_timesteps] <- parameters$carrying_capacity_scaler[,i]
+      if(is.na(species_scaler[1])){
+        species_scaler[1] <- 1
+      }
+      for(j in 2:length(species_scaler)){
+        if (is.na(species_scaler[j])) {
+          species_scaler[j] <- species_scaler[j - 1]
+        }
+      }
+      scaler[[i]] <- species_scaler
+    }
+  }
+  
+  return(scaler)
 }

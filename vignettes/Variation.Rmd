@@ -9,7 +9,7 @@ vignette: >
 
 ```{r setup}
 library(malariasimulation)
-set.seed(123)
+set.seed(555)
 ```
 
 `malariasimulation` is a stochastic, individual-based model and, as such, simulations run with identical parameterisations will generate non-identical, sometimes highly variable, outputs. To illustrate this, we will compare the prevalence and incidence of malaria over a year in simulations with a small and a larger population. 
@@ -116,7 +116,7 @@ simparams_big <- set_equilibrium(parameters = simparams_big, init_EIR = 1)
 ## Simulations
 
 ```{r, fig.align="center",fig.height=6, fig.width=8}
-set.seed(555)
+set.seed(444)
 # A small population
 output_small_pop <- run_simulation(timesteps = 365 * 2, parameters = simparams_small)
 
@@ -125,6 +125,6 @@ output_big_pop <- run_simulation(timesteps = 365 * 2, parameters = simparams_big
 
 # Plotting 
 par(mfrow = c(1, 2))
-plot_prev(output_small_pop, ylim = c(0, 1)); title(expression(paste(italic(Pf),"PR"[2-10], " at n = 50")))
-plot_prev(output_big_pop, ylab = FALSE, ylim = c(0, 1)); title(expression(paste(italic(Pf),"PR"[2-10], " at n = 1,000")))
+plot_prev(output_small_pop, ylim = c(0, 0.2)); title(expression(paste(italic(Pf),"PR"[2-10], " at n = 50")))
+plot_prev(output_big_pop, ylab = FALSE, ylim = c(0, 0.2)); title(expression(paste(italic(Pf),"PR"[2-10], " at n = 1,000")))
 ```

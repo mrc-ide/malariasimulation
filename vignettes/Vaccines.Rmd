@@ -17,7 +17,6 @@ knitr::opts_chunk$set(
 In this tutorial, we will explore how to model different strategies for both pre-erythrocytic malaria vaccines and a theoretical malaria transmission blocking vaccine (TBV). Parameters for a pre-erythrocytic vaccine can be set for a routine age-based Expanded Programme on Immunization (EPI) strategy or a mass vaccination strategy using the helper functions `set_pev_epi()` and `set_mass_pev()`, while parameters for a TBV can be set using `set_tbv()`. Under an EPI strategy, everybody within a certain age range will be vaccinated within the routine immunisation system. A mass vaccination strategy is typically a one-time event where everybody, or everybody within a certain age group, is targeted for vaccination during a relatively short window of time. If you are modelling a seasonal setting, then it is also possible to schedule vaccination relative to the expected peak of malaria prevalence given by `peak_season_offset()`.
 
 ```{r setup, message=FALSE}
-remotes::install_github('mrc-ide/malariasimulation@dev')
 library(malariasimulation)
 
 cols <- c("#E69F00", "#56B4E9", "#009E73", 

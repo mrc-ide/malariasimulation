@@ -164,22 +164,20 @@ set_spraying <- function(
 #' equal the number of species and rows must align with timesteps
 #'
 #' @export
-set_carrying_capacity_scaling <- function(
+set_flexible_carrying_capacity <- function(
     parameters,
-    timesteps,
-    scaler
+    carrying_capacity
 ){
-  if(ncol(scaler) != length(parameters$species)){
-    stop("scaler cols need to align with number of mosquito species")
+  if(ncol(carrying_capacity) != length(parameters$species)){
+    stop("carrying_capacity cols need to align with number of mosquito species")
   }
-  if(nrow(scaler) != length(timesteps)){
-    stop("scaler rows need to align with timesteps")
+  if(nrow(carrying_capacity) != timesteps){
+    stop("carrying_capacity rows need to align with timesteps")
   }
-  stopifnot(min(scaler) >= 0)
+  stopifnot(min(carrying_capacity) >= 0)
   stopifnot(min(timesteps) >= 0)
   
-  parameters$scale_carrying_capacity <- TRUE
-  parameters$carrying_capacity_timesteps <- timesteps
-  parameters$carrying_capacity_scaler <- scaler
+  parameters$flexible_carrying_capacity <- TRUE
+  parameters$carrying_capacity <- carrying_capacity
   parameters
 }

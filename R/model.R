@@ -102,8 +102,7 @@ run_simulation <- function(
     correlations,
     renderer
   )
-  carrying_capacity_scaler <- parameterise_carrying_capacity(parameters, timesteps)
-  vector_models <- parameterise_mosquito_models(parameters, carrying_capacity_scaler)
+  vector_models <- parameterise_mosquito_models(parameters, timesteps)
   solvers <- parameterise_solvers(vector_models, parameters)
   individual::simulation_loop(
     processes = create_processes(

@@ -1,18 +1,26 @@
 ODE_INDICES <- c(E = 1, L = 2, P = 3)
 ADULT_ODE_INDICES <- c(Sm = 4, Pm = 5, Im = 6)
 
-parameterise_mosquito_models <- function(parameters, scaler) {
+parameterise_mosquito_models <- function(parameters, timesteps) {
   
   lapply(
     seq_along(parameters$species),
     function(i) {
       p <- parameters$species_proportions[[i]]
       m <- p * parameters$total_M
+      
+      if(parameters$flexible_carrying_capacity){
+        carrying_capacity <- parameters$carrying_capacity[,i]
+      } else {
+        p <- parameters$species_proportions[[i]]
+        m <- p * parameters$total_M
+        carrying_capacity <- rep(calculate_carrying_capacity(parameters, m, i), timesteps)
+      }
       growth_model <- create_aquatic_mosquito_model(
         parameters$beta,
         parameters$del,
         parameters$me,
-        calculate_carrying_capacity(parameters, m, i),
+        carrying_capacity,
         parameters$gamma,
         parameters$dl,
         parameters$ml,
@@ -26,8 +34,7 @@ parameterise_mosquito_models <- function(parameters, scaler) {
         calculate_R_bar(parameters),
         parameters$mum[[i]],
         parameters$blood_meal_rates[[i]],
-        parameters$rainfall_floor,
-        scaler[[i]]
+        parameters$rainfall_floor
       )
       
       if (!parameters$individual_mosquitoes) {
@@ -120,35 +127,4 @@ create_solver_stepping_process <- function(solvers, parameters) {
       }
     }
   }
-}
-
-#' @title Carrying capacity scaling
-#' @description Infers the species-specific vector for scaling baseline carrying capacity
-#'
-#' @noRd
-parameterise_carrying_capacity <- function(parameters, timesteps){
-  # Default is no rescaling of baseline carrying capacity
-  scaler <- lapply(parameters$species, function(x, timesteps){
-    rep(1, timesteps)
-  }, timesteps = timesteps)
-  
-  
-  if(parameters$scale_carrying_capacity){
-    scaler <- list()
-    for(i in 1:length(parameters$species)){
-      species_scaler <- rep(NA, timesteps)
-      species_scaler[parameters$carrying_capacity_timesteps] <- parameters$carrying_capacity_scaler[,i]
-      if(is.na(species_scaler[1])){
-        species_scaler[1] <- 1
-      }
-      for(j in 2:length(species_scaler)){
-        if (is.na(species_scaler[j])) {
-          species_scaler[j] <- species_scaler[j - 1]
-        }
-      }
-      scaler[[i]] <- species_scaler
-    }
-  }
-  
-  return(scaler)
 }

@@ -16,9 +16,9 @@ integration_function_t create_eqs(AquaticMosquitoModel& model) {
       model.g0,
       model.g,
       model.h,
-      model.K0 * model.k_scaler[std::round(t)],
-                               model.R_bar,
-                               model.rainfall_floor
+      model.K0[std::round(t)],
+      model.R_bar,
+      model.rainfall_floor
     );
     
     auto beta = eggs_laid(model.beta, model.mum, model.f);
@@ -42,7 +42,7 @@ AquaticMosquitoModel::AquaticMosquitoModel(
   double beta,
   double de,
   double mue,
-  double K0,
+  std::vector<double> K0,
   double gamma,
   double dl,
   double mul,
@@ -56,8 +56,7 @@ AquaticMosquitoModel::AquaticMosquitoModel(
   double R_bar,
   double mum,
   double f,
-  double rainfall_floor,
-  std::vector<double> k_scaler
+  double rainfall_floor
 ):
   beta(beta),
   de(de),
@@ -76,8 +75,7 @@ AquaticMosquitoModel::AquaticMosquitoModel(
   R_bar(R_bar),
   mum(mum),
   f(f),
-  rainfall_floor(rainfall_floor),
-  k_scaler(k_scaler)
+  rainfall_floor(rainfall_floor)
 {}
 
 
@@ -87,7 +85,7 @@ Rcpp::XPtr<AquaticMosquitoModel> create_aquatic_mosquito_model(
     double beta,
     double de,
     double mue,
-    double K0,
+    std::vector<double> K0,
     double gamma,
     double dl,
     double mul,
@@ -101,8 +99,7 @@ Rcpp::XPtr<AquaticMosquitoModel> create_aquatic_mosquito_model(
     double R_bar,
     double mum,
     double f,
-    double rainfall_floor,
-    std::vector<double> k_scaler
+    double rainfall_floor
 ) {
   auto model = new AquaticMosquitoModel(
     beta,
@@ -122,8 +119,7 @@ Rcpp::XPtr<AquaticMosquitoModel> create_aquatic_mosquito_model(
     R_bar,
     mum,
     f,
-    rainfall_floor,
-    k_scaler
+    rainfall_floor
   );
   return Rcpp::XPtr<AquaticMosquitoModel>(model, true);
 }

@@ -396,9 +396,8 @@ get_parameters <- function(overrides = list()) {
     tbv_coverages = NULL,
     tbv_ages = NULL,
     # carrying capacity scaling
-    scale_carrying_capacity = FALSE,
-    carrying_capacity_timesteps = NULL,
-    carrying_capacity_scaler = NULL,
+    flexible_carrying_capacity = FALSE,
+    carrying_capacity = NULL,
     # rendering
     prevalence_rendering_min_ages = 2 * 365,
     prevalence_rendering_max_ages = 10 * 365,

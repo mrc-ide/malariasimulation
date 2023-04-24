@@ -13,8 +13,8 @@ create_adult_solver <- function(model, init, r_tol, a_tol, max_steps) {
     .Call(`_malariasimulation_create_adult_solver`, model, init, r_tol, a_tol, max_steps)
 }
 
-create_aquatic_mosquito_model <- function(beta, de, mue, K0, gamma, dl, mul, dp, mup, total_M, model_seasonality, g0, g, h, R_bar, mum, f, rainfall_floor, k_scaler) {
-    .Call(`_malariasimulation_create_aquatic_mosquito_model`, beta, de, mue, K0, gamma, dl, mul, dp, mup, total_M, model_seasonality, g0, g, h, R_bar, mum, f, rainfall_floor, k_scaler)
+create_aquatic_mosquito_model <- function(beta, de, mue, K0, gamma, dl, mul, dp, mup, total_M, model_seasonality, g0, g, h, R_bar, mum, f, rainfall_floor) {
+    .Call(`_malariasimulation_create_aquatic_mosquito_model`, beta, de, mue, K0, gamma, dl, mul, dp, mup, total_M, model_seasonality, g0, g, h, R_bar, mum, f, rainfall_floor)
 }
 
 aquatic_mosquito_model_update <- function(model, total_M, f, mum) {

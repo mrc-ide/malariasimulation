@@ -42,7 +42,7 @@ struct AquaticMosquitoModel {
   const double beta; //egg laying rate
   const double de; //delay for early larval growth
   const double mue; //death rate for early larvae
-  const double K0; //baseline carrying capacity
+  const std::vector<double> K0; //baseline carrying capacity
   const double gamma; //carrying capacity parameter for late larvae
   const double dl; //delay for late larval growth
   const double mul; //death rate for late larvae
@@ -56,14 +56,13 @@ struct AquaticMosquitoModel {
   const double R_bar; //average rainfall
   double mum; //adult mortality rate
   double f; //biting rate
-  double rainfall_floor; //minimum rainfall,
-  std::vector<double> k_scaler; //vector of scaling for baseline carrying capacity
+  double rainfall_floor; //minimum rainfall
   
   AquaticMosquitoModel(
     double beta,
     double de,
     double mue,
-    double K0,
+    std::vector<double> K0,
     double gamma,
     double dl,
     double mul,
@@ -77,8 +76,7 @@ struct AquaticMosquitoModel {
     double R_bar,
     double mum,
     double f,
-    double rainfall_floor,
-    std::vector<double> k_scaler
+    double rainfall_floor
   );
   virtual ~AquaticMosquitoModel() {};
 };

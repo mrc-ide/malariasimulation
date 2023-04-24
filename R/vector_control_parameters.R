@@ -136,32 +136,29 @@ set_spraying <- function(
   parameters
 }
 
-#' @title Parameterise rescaling of the baseline carrying capacity
+#' @title Parameterise custom baseline carrying capacity
 #' 
 #' @description
-#' For a number of reasons we may wish to increase or decrease the carrying capacity
+#' For a number of reasons we may wish to provide a custom carrying capacity
 #' for a mosquito species throughout the simulation. For example:
 #' 
 #' \strong{Larval source management}.
 #' 
 #' To simulate larval source management, we may wish to decrease the
-#' baseline carrying capacity. For example, to simulate a 20% reduction in the 
-#' baseline carrying capacity (which may approximate a 20% reduction in larval
-#' breeding sites) we can set the scaler to 0.8 at the time of implementation.
+#' baseline carrying capacity. 
 #' 
 #' \strong{Invasive species}
 #' 
 #' To capture the expansion of an invasive species into a new niche, 
 #' we may wish to increase the baseline carrying capacity for that species at the
-#' point of invasion. In this instance we set the scaler to be > 1. Note, that the
-#' invading species proportion must be initialised to >0, so in this case set the 
-#' initial proportion at a very low value (e.g 0.005), then scale up the carrying
-#' capacity at the point of invasion by setting the scaler for that species >>1.
+#' point of invasion. Note, that the invading species proportion must be 
+#' initialised to >0, so in this case set the initial proportion at a very 
+#' low value (e.g 0.005), then scale up the carrying capacity at the point of invasion.
+#' 
 #' 
 #' @param parameters a list of parameters to modify 
-#' @param timesteps the timesteps when rescaling of baseline carrying capacity will occur
-#' @param scaler A matrix of scaling factors for baseline carrying capacity where cols must
-#' equal the number of species and rows must align with timesteps
+#' @param carrying_capacity A matrix of baseline carrying capacity values for each
+#' timestep. Cols must equal the number of species and rows must align with timesteps
 #'
 #' @export
 set_flexible_carrying_capacity <- function(

@@ -36,7 +36,7 @@ parameterise_mosquito_models <- function(parameters, timesteps) {
       if(parameters$larval_source_management){
         lsm_impact <- interpolate_vector(
           values = parameters$lsm_coverages[,i],
-          indices = prameters$lsm_timesteps,
+          indices = parameters$lsm_timesteps,
           vec_length = timesteps,
           default = 0
           )

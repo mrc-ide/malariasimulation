@@ -178,7 +178,7 @@ set_rescaled_carrying_capacity <- function(
   stopifnot(nrow(scalers) == length(timesteps))
   stopifnot(ncol(scalers) == length(parameters$species))
   stopifnot(min(timesteps) > 0)
-  stopifnot(min(scaler) >= 0)
+  stopifnot(min(scalers) >= 0)
   parameters$rescale_carrying_capacity <- TRUE
   parameters$rcc_timesteps <- timesteps
   parameters$rcc_scalers <- scalers

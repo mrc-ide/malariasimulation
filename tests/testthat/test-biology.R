@@ -13,7 +13,7 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR', {
 
     #set up arguments for EIR calculation
     variables <- create_variables(parameters)
-    vector_models <- parameterise_mosquito_models(parameters)
+    vector_models <- parameterise_mosquito_models(parameters, 1)
     solvers <- parameterise_solvers(vector_models, parameters)
     estimated_eir <- calculate_eir(1, solvers, variables, parameters, 0)
     age <- get_age(variables$birth$get_values(), 0)
@@ -41,7 +41,7 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR (with h
     parameters <- set_equilibrium(parameters, EIR)
 
     variables <- create_variables(parameters)
-    vector_models <- parameterise_mosquito_models(parameters)
+    vector_models <- parameterise_mosquito_models(parameters, 1)
     solvers <- parameterise_solvers(vector_models, parameters)
     estimated_eir <- calculate_eir(1, solvers, variables, parameters, 0)
     age <- get_age(variables$birth$get_values(), 0)
@@ -85,7 +85,7 @@ test_that('FOIM is consistent with equilibrium', {
       parameters <- set_equilibrium(parameters, EIR)
 
       variables <- create_variables(parameters)
-      vector_models <- parameterise_mosquito_models(parameters)
+      vector_models <- parameterise_mosquito_models(parameters, 1)
       solvers <- parameterise_solvers(vector_models, parameters)
       a <- human_blood_meal_rate(1, variables, parameters, 0)
       age <- get_age(variables$birth$get_values(), 0)

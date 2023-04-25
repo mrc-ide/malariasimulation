@@ -8,40 +8,8 @@ parameterise_mosquito_models <- function(parameters, timesteps) {
     function(i) {
       p <- parameters$species_proportions[[i]]
       m <- p * parameters$total_M
-      cc <- calculate_carrying_capacity(parameters, m, i)
-      carrying_capacity <- rep(cc, timesteps)
       
-      # Specify flexible baseline carrying capacity for each timestep
-      if(parameters$flexible_carrying_capacity){
-        carrying_capacity <- interpolate_vector(
-          values = parameters$fcc[,i],
-          indices = parameters$fcc_timesteps,
-          vec_length = timesteps,
-          default = cc
-        )
-      }
-      
-      # Modify the baseline carrying capacity by scaling factor
-      if(parameters$rescale_carrying_capacity){
-        scaler <- interpolate_vector(
-          values = parameters$rcc_scalers[,i],
-          indices = parameters$rcc_timesteps,
-          vec_length = timesteps,
-          default = 1
-        )
-        carrying_capacity <- carrying_capacity * scaler
-      }
-      
-      # Modify the baseline carrying capacity for LSM impact
-      if(parameters$larval_source_management){
-        lsm_impact <- interpolate_vector(
-          values = parameters$lsm_coverages[,i],
-          indices = parameters$lsm_timesteps,
-          vec_length = timesteps,
-          default = 0
-          )
-        carrying_capacity <- carrying_capacity * (1 - lsm_impact)
-      }
+      carrying_capacity <- parameterise_carrying_capacity(parameters, timesteps, m, i)
       
       growth_model <- create_aquatic_mosquito_model(
         parameters$beta,
@@ -177,4 +145,52 @@ interpolate_vector <- function(values, indices, vec_length, default){
     }
   }
   return(val)
+}
+
+#' @title Calculate the baseline carrying capacity vector
+#' @description Creates a vector of carrying caacity values for each timestep,
+#' modified where user-specified
+#'
+#' @param parameters model parameters
+#' @param timesteps simulation timesteps
+#' @param m species m
+#' @param i species index
+#' @noRd
+parameterise_carrying_capacity <- function(parameters, timesteps, m, i){
+  cc <- calculate_carrying_capacity(parameters, m, i)
+  carrying_capacity <- rep(cc, timesteps)
+  
+  # Specify flexible baseline carrying capacity for each timestep
+  if(parameters$flexible_carrying_capacity){
+    carrying_capacity <- interpolate_vector(
+      values = parameters$fcc[,i],
+      indices = parameters$fcc_timesteps,
+      vec_length = timesteps,
+      default = cc
+    )
+  }
+  
+  # Modify the baseline carrying capacity by scaling factor
+  if(parameters$rescale_carrying_capacity){
+    scaler <- interpolate_vector(
+      values = parameters$rcc_scalers[,i],
+      indices = parameters$rcc_timesteps,
+      vec_length = timesteps,
+      default = 1
+    )
+    carrying_capacity <- carrying_capacity * scaler
+  }
+  
+  # Modify the baseline carrying capacity for LSM impact
+  if(parameters$larval_source_management){
+    lsm_impact <- interpolate_vector(
+      values = parameters$lsm_coverages[,i],
+      indices = parameters$lsm_timesteps,
+      vec_length = timesteps,
+      default = 0
+    )
+    carrying_capacity <- carrying_capacity * (1 - lsm_impact)
+  }
+  
+  return(carrying_capacity)
 }

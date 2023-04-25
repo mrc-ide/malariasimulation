@@ -72,7 +72,7 @@ calculate_omega <- function(parameters, species) {
 #' @param parameters model parameters
 #' @param m number of adult mosquitoes
 #' @param species index of the species to calculate for
-#' @noRd
+#' @export
 calculate_carrying_capacity <- function(parameters, m, species) {
   omega <- calculate_omega(parameters, species)
 

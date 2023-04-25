@@ -146,6 +146,7 @@ set_spraying <- function(
 #' @param coverages matrix of coverages 
 #' With nrows = length(timesteps), ncols=length(species)
 #' 
+#' @export
 set_larval_source_management <- function(
     parameters,
     timesteps,
@@ -170,6 +171,7 @@ set_larval_source_management <- function(
 #' @param scalers matrix of scalers 
 #' With nrows = length(timesteps), ncols=length(species)
 #' 
+#' @export
 set_rescaled_carrying_capacity <- function(
     parameters,
     timesteps,
@@ -195,6 +197,7 @@ set_rescaled_carrying_capacity <- function(
 #' @param carrying_capacity matrix of baseline carrying_capacity for each species 
 #' With nrows = length(timesteps), ncols=length(species)
 #' 
+#' @export
 set_flexible_carrying_capacity <- function(
     parameters,
     timesteps,

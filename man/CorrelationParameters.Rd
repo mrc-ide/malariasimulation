@@ -14,17 +14,17 @@ Describes an event in the simulation
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{CorrelationParameters$new()}}
-\item \href{#method-inter_round_rho}{\code{CorrelationParameters$inter_round_rho()}}
-\item \href{#method-inter_intervention_rho}{\code{CorrelationParameters$inter_intervention_rho()}}
-\item \href{#method-sigma}{\code{CorrelationParameters$sigma()}}
-\item \href{#method-mvnorm}{\code{CorrelationParameters$mvnorm()}}
-\item \href{#method-clone}{\code{CorrelationParameters$clone()}}
+\item \href{#method-CorrelationParameters-new}{\code{CorrelationParameters$new()}}
+\item \href{#method-CorrelationParameters-inter_round_rho}{\code{CorrelationParameters$inter_round_rho()}}
+\item \href{#method-CorrelationParameters-inter_intervention_rho}{\code{CorrelationParameters$inter_intervention_rho()}}
+\item \href{#method-CorrelationParameters-sigma}{\code{CorrelationParameters$sigma()}}
+\item \href{#method-CorrelationParameters-mvnorm}{\code{CorrelationParameters$mvnorm()}}
+\item \href{#method-CorrelationParameters-clone}{\code{CorrelationParameters$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-CorrelationParameters-new"></a>}}
+\if{latex}{\out{\hypertarget{method-CorrelationParameters-new}{}}}
 \subsection{Method \code{new()}}{
 initialise correlation parameters
 \subsection{Usage}{
@@ -40,8 +40,8 @@ initialise correlation parameters
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-inter_round_rho"></a>}}
-\if{latex}{\out{\hypertarget{method-inter_round_rho}{}}}
+\if{html}{\out{<a id="method-CorrelationParameters-inter_round_rho"></a>}}
+\if{latex}{\out{\hypertarget{method-CorrelationParameters-inter_round_rho}{}}}
 \subsection{Method \code{inter_round_rho()}}{
 Add rho between rounds
 \subsection{Usage}{
@@ -60,8 +60,8 @@ the intervention}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-inter_intervention_rho"></a>}}
-\if{latex}{\out{\hypertarget{method-inter_intervention_rho}{}}}
+\if{html}{\out{<a id="method-CorrelationParameters-inter_intervention_rho"></a>}}
+\if{latex}{\out{\hypertarget{method-CorrelationParameters-inter_intervention_rho}{}}}
 \subsection{Method \code{inter_intervention_rho()}}{
 Add rho between interventions
 \subsection{Usage}{
@@ -83,8 +83,8 @@ the intervention}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-sigma"></a>}}
-\if{latex}{\out{\hypertarget{method-sigma}{}}}
+\if{html}{\out{<a id="method-CorrelationParameters-sigma"></a>}}
+\if{latex}{\out{\hypertarget{method-CorrelationParameters-sigma}{}}}
 \subsection{Method \code{sigma()}}{
 Standard deviation of each intervention between rounds
 \subsection{Usage}{
@@ -93,8 +93,8 @@ Standard deviation of each intervention between rounds
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-mvnorm"></a>}}
-\if{latex}{\out{\hypertarget{method-mvnorm}{}}}
+\if{html}{\out{<a id="method-CorrelationParameters-mvnorm"></a>}}
+\if{latex}{\out{\hypertarget{method-CorrelationParameters-mvnorm}{}}}
 \subsection{Method \code{mvnorm()}}{
 multivariate norm draws for these parameters
 \subsection{Usage}{
@@ -103,8 +103,8 @@ multivariate norm draws for these parameters
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-CorrelationParameters-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-CorrelationParameters-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

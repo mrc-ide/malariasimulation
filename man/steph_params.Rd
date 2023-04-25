@@ -25,7 +25,9 @@ mum: 0.112
 
 parameters reference:
 https://bmcmedicine.biomedcentral.com/articles/10.1186/s12916-022-02324-1
-values are the average from:
+Values for phi are from:
+https://github.com/arranhamlet/stephensi_ETH_publication/blob/297352e244f8ed658e8bc3f32be42f011269c7f0/R/functions/cluster_hypercube_sampling_djibouti.R#L14-L21
+values for Q0: are the average from:
 ttps://github.com/cwhittaker1000/stephenseasonality/blob/main/data/bionomic_species_all_LHC_100.csv
 }
 \keyword{datasets}

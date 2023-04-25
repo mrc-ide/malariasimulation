@@ -179,7 +179,7 @@ run_metapop_simulation <- function(
       renderer[[i]]
     )
   }
-  vector_models <- lapply(parameters, parameterise_mosquito_models)
+  vector_models <- lapply(parameters, parameterise_mosquito_models, timesteps = timesteps)
   solvers <- lapply(
     seq_along(parameters),
     function(i) parameterise_solvers(vector_models[[i]], parameters[[i]])

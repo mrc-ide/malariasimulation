@@ -25,8 +25,10 @@ integration_function_t create_eqs(AquaticMosquitoModel& model) {
     auto n_larvae = x[get_idx(AquaticState::E)] + x[get_idx(AquaticState::L)];
     
     if(K == 0){
+      // If carrying capacity 0 then all aquatic stages removed
       dxdt[get_idx(AquaticState::E)]  = - x[get_idx(AquaticState::E)];
       dxdt[get_idx(AquaticState::L)] = - x[get_idx(AquaticState::L)];
+      dxdt[get_idx(AquaticState::P)] = - x[get_idx(AquaticState::P)];
     } else {
       dxdt[get_idx(AquaticState::E)] = beta * (model.total_M) //new eggs
       - x[get_idx(AquaticState::E)] / model.de //growth to late larval stage
@@ -35,11 +37,11 @@ integration_function_t create_eqs(AquaticMosquitoModel& model) {
       dxdt[get_idx(AquaticState::L)] = x[get_idx(AquaticState::E)] / model.de //growth from early larval
       - x[get_idx(AquaticState::L)] / model.dl //growth to pupal
       - x[get_idx(AquaticState::L)] * model.mul * (1 + model.gamma * n_larvae / K); //late larval deaths
+      
+      dxdt[get_idx(AquaticState::P)] = x[get_idx(AquaticState::L)] / model.dl //growth to pupae
+      - x[get_idx(AquaticState::P)] / model.dp //growth to adult
+      - x[get_idx(AquaticState::P)] * model.mup; // death of pupae
     }
-    
-    dxdt[get_idx(AquaticState::P)] = x[get_idx(AquaticState::L)] / model.dl //growth to pupae
-    - x[get_idx(AquaticState::P)] / model.dp //growth to adult
-    - x[get_idx(AquaticState::P)] * model.mup; // death of pupae
   };
 }
 

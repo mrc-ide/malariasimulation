@@ -68,7 +68,8 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
   timestep <- 5
   renderer <- individual::Render$new(5)
   parameters <- get_parameters(
-    list(human_population = population)
+    list(human_population = population,
+         individual_mosquitoes = TRUE)
   )
   events <- create_events(parameters)
   variables <- create_variables(parameters)

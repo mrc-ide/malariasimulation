@@ -129,24 +129,27 @@ calculate_infections <- function(
 
   # calculate vaccine efficacy
   vaccine_efficacy <- rep(0, length(source_vector))
-  vaccine_times <- pmax(
-    variables$rtss_vaccinated$get_values(source_vector),
-    variables$rtss_boosted$get_values(source_vector)
-  )
-  vaccinated <- which(vaccine_times > -1)
+  vaccine_times <- variables$pev_timestep$get_values(source_vector)
+  vaccinated <- vaccine_times > -1
+  pev_profile <- variables$pev_profile$get_values(source_vector)
+  pev_profile <- pev_profile[vaccinated]
   if (length(vaccinated) > 0) {
-    vaccinated_index <- source_vector[vaccine_times > -1]
-    antibodies <- calculate_rtss_antibodies(
+    antibodies <- calculate_pev_antibodies(
       timestep - vaccine_times[vaccinated],
-      variables$rtss_cs$get_values(vaccinated_index),
-      variables$rtss_rho$get_values(vaccinated_index),
-      variables$rtss_ds$get_values(vaccinated_index),
-      variables$rtss_dl$get_values(vaccinated_index),
+      exp(sample_pev_param(pev_profile, parameters$pev_profiles, 'cs')),
+      invlogit(sample_pev_param(pev_profile, parameters$pev_profiles, 'rho')),
+      exp(sample_pev_param(pev_profile, parameters$pev_profiles, 'ds')),
+      exp(sample_pev_param(pev_profile, parameters$pev_profiles, 'dl')),
       parameters
     )
-    vaccine_efficacy[vaccinated] <- calculate_rtss_efficacy(
+    vmax <- vnapply(parameters$pev_profiles, function(p) p$vmax)
+    beta <- vnapply(parameters$pev_profiles, function(p) p$beta)
+    alpha <- vnapply(parameters$pev_profiles, function(p) p$alpha)
+    vaccine_efficacy[vaccinated] <- calculate_pev_efficacy(
       antibodies,
-      parameters
+      vmax[pev_profile],
+      beta[pev_profile],
+      alpha[pev_profile]
     )
   }
 

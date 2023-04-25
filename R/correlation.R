@@ -1,6 +1,6 @@
 INTS <- c(
   'pmc',
-  'rtss',
+  'pev',
   'mda',
   'smc',
   'tbv',
@@ -130,16 +130,18 @@ CorrelationParameters <- R6::R6Class(
 #' # get the default model parameters
 #' parameters <- get_parameters()
 #' 
-#' # Set some rtss strategy
-#' parameters <- set_mass_rtss(
+#' # Set some vaccination strategy
+#' parameters <- set_mass_pev(
 #'   parameters,
+#'   profile = rtss_profile,
 #'   timesteps = 100,
 #'   coverages = .9,
 #'   min_wait = 0,
 #'   min_ages = 100,
 #'   max_ages = 1000,
-#'   boosters = numeric(0),
-#'   booster_coverage = numeric(0)
+#'   booster_timestep = numeric(0),
+#'   booster_coverage = numeric(0),
+#'   booster_profile = NULL
 #' )
 #' 
 #' # Set some smc strategy
@@ -153,9 +155,9 @@ CorrelationParameters <- R6::R6Class(
 #'   max_age = 1000
 #' )
 #' 
-#' # Correlate the rtss and smc targets
+#' # Correlate the vaccination and smc targets
 #' correlations <- get_correlation_parameters(parameters)
-#' correlations$inter_intervention_rho('rtss', 'smc', 1)
+#' correlations$inter_intervention_rho('pev', 'smc', 1)
 #' 
 #' # Correlate the rounds of smc
 #' correlations$inter_round_rho('smc', 1)

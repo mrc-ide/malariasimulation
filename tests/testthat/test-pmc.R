@@ -18,6 +18,26 @@ test_that("pmc parameterisation works", {
     ages = c(30, 60, 90)
   )
   
+  expect_error(
+    parameters <- set_pmc(
+      parameters = p,
+      drug = 1,
+      timesteps = c(5, 10),
+      coverages = c(-0.5, 0.5),
+      ages = c(30, 60, 90)
+    ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
+    fixed = TRUE)
+  
+  expect_error(
+    parameters <- set_pmc(
+      parameters = p,
+      drug = 1,
+      timesteps = c(5, 10),
+      coverages = c(0.5, 1.5),
+      ages = c(30, 60, 90)
+    ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
+    fixed = TRUE)
+  
   expect_true(p$pmc)
   expect_equal(p$pmc_ages, c(30, 60, 90))
   expect_equal(p$pmc_coverages, c(0.5, 1))

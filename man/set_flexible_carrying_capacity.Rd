@@ -4,28 +4,17 @@
 \alias{set_flexible_carrying_capacity}
 \title{Parameterise custom baseline carrying capacity}
 \usage{
-set_flexible_carrying_capacity(parameters, carrying_capacity)
+set_flexible_carrying_capacity(parameters, timesteps, carrying_capacity)
 }
 \arguments{
-\item{parameters}{a list of parameters to modify}
+\item{parameters}{the model parameters}
 
-\item{carrying_capacity}{A matrix of baseline carrying capacity values for each
-timestep. Cols must equal the number of species and rows must align with timesteps}
+\item{timesteps}{vector of timesteps for each rescale change}
+
+\item{carrying_capacity}{matrix of baseline carrying_capacity for each species
+With nrows = length(timesteps), ncols=length(species)}
 }
 \description{
-For a number of reasons we may wish to provide a custom carrying capacity
-for a mosquito species throughout the simulation. For example:
-
-\strong{Larval source management}.
-
-To simulate larval source management, we may wish to decrease the
-baseline carrying capacity.
-
-\strong{Invasive species}
-
-To capture the expansion of an invasive species into a new niche,
-we may wish to increase the baseline carrying capacity for that species at the
-point of invasion. Note, that the invading species proportion must be
-initialised to >0, so in this case set the initial proportion at a very
-low value (e.g 0.005), then scale up the carrying capacity at the point of invasion.
+Allows the user to set a completely flexible and custom
+carrying capacity for each species
 }

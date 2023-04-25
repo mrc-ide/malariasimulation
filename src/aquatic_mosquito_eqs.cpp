@@ -17,20 +17,25 @@ integration_function_t create_eqs(AquaticMosquitoModel& model) {
       model.g,
       model.h,
       model.K0[std::round(t)],
-      model.R_bar,
-      model.rainfall_floor
+              model.R_bar,
+              model.rainfall_floor
     );
     
     auto beta = eggs_laid(model.beta, model.mum, model.f);
     auto n_larvae = x[get_idx(AquaticState::E)] + x[get_idx(AquaticState::L)];
     
-    dxdt[get_idx(AquaticState::E)] = beta * (model.total_M) //new eggs
+    if(K == 0){
+      dxdt[get_idx(AquaticState::E)]  = - x[get_idx(AquaticState::E)];
+      dxdt[get_idx(AquaticState::L)] = - x[get_idx(AquaticState::L)];
+    } else {
+      dxdt[get_idx(AquaticState::E)] = beta * (model.total_M) //new eggs
       - x[get_idx(AquaticState::E)] / model.de //growth to late larval stage
-    - x[get_idx(AquaticState::E)] * model.mue * (1 + n_larvae / K); //early larval deaths
-    
-    dxdt[get_idx(AquaticState::L)] = x[get_idx(AquaticState::E)] / model.de //growth from early larval
-    - x[get_idx(AquaticState::L)] / model.dl //growth to pupal
-    - x[get_idx(AquaticState::L)] * model.mul * (1 + model.gamma * n_larvae / K); //late larval deaths
+      - x[get_idx(AquaticState::E)] * model.mue * (1 + n_larvae / K); //early larval deaths
+      
+      dxdt[get_idx(AquaticState::L)] = x[get_idx(AquaticState::E)] / model.de //growth from early larval
+      - x[get_idx(AquaticState::L)] / model.dl //growth to pupal
+      - x[get_idx(AquaticState::L)] * model.mul * (1 + model.gamma * n_larvae / K); //late larval deaths
+    }
     
     dxdt[get_idx(AquaticState::P)] = x[get_idx(AquaticState::L)] / model.dl //growth to pupae
     - x[get_idx(AquaticState::P)] / model.dp //growth to adult

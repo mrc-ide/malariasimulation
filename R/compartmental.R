@@ -8,14 +8,41 @@ parameterise_mosquito_models <- function(parameters, timesteps) {
     function(i) {
       p <- parameters$species_proportions[[i]]
       m <- p * parameters$total_M
+      cc <- calculate_carrying_capacity(parameters, m, i)
+      carrying_capacity <- rep(cc, timesteps)
       
+      # Specify flexible baseline carrying capacity for each timestep
       if(parameters$flexible_carrying_capacity){
-        carrying_capacity <- parameters$carrying_capacity[,i]
-      } else {
-        p <- parameters$species_proportions[[i]]
-        m <- p * parameters$total_M
-        carrying_capacity <- rep(calculate_carrying_capacity(parameters, m, i), timesteps)
+        carrying_capacity <- interpolate_vector(
+          values = parameters$fcc[,i],
+          indices = parameters$fcc_timesteps,
+          vec_length = timesteps,
+          default = cc
+        )
       }
+      
+      # Modify the baseline carrying capacity by scaling factor
+      if(parameters$rescale_carrying_capacity){
+        scaler <- interpolate_vector(
+          values = parameters$rcc_scalers[,i],
+          indices = parameters$rcc_timesteps,
+          vec_length = timesteps,
+          default = 1
+        )
+        carrying_capacity <- carrying_capacity * scaler
+      }
+      
+      # Modify the baseline carrying capacity for LSM impact
+      if(parameters$larval_source_management){
+        lsm_impact <- interpolate_vector(
+          values = parameters$lsm_coverages[,i],
+          indices = prameters$lsm_timesteps,
+          vec_length = timesteps,
+          default = 0
+          )
+        carrying_capacity <- carrying_capacity * (1 - lsm_impact)
+      }
+      
       growth_model <- create_aquatic_mosquito_model(
         parameters$beta,
         parameters$del,
@@ -127,4 +154,27 @@ create_solver_stepping_process <- function(solvers, parameters) {
       }
     }
   }
+}
+
+#' @title Interpolate vector blocks
+#' @description Creates a vector of values for each indices given values
+#' and indices points
+#'
+#' @param values vector of values
+#' @param indices vector of value change points
+#' @param vec_length return vector length
+#' @param default default value for vector
+#' @noRd
+interpolate_vector <- function(values, indices, vec_length, default){
+  val <- rep(NA, vec_length)
+  val[indices] <- values
+  if(is.na(val[1])){
+    val[1] <- default
+  }
+  for(i in 2:vec_length){
+    if(is.na(val[i])){
+      val[i] <- val[i - 1]
+    }
+  }
+  return(val)
 }

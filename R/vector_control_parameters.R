@@ -136,45 +136,77 @@ set_spraying <- function(
   parameters
 }
 
+#' @title Parameterise larval source management
+#' 
+#' @description Reduces the baseline carrying capacity for a given species by
+#' (1 - coverage).
+#' 
+#' @param parameters the model parameters
+#' @param timesteps vector of timesteps for each coverage change
+#' @param coverages matrix of coverages 
+#' With nrows = length(timesteps), ncols=length(species)
+#' 
+set_larval_source_management <- function(
+    parameters,
+    timesteps,
+    coverages
+){
+  stopifnot(nrow(coverages) == length(timesteps))
+  stopifnot(ncol(coverages) == length(parameters$species))
+  stopifnot(min(timesteps) > 0)
+  stopifnot(max(coverages) <= 1)
+  parameters$larval_source_management <- TRUE
+  parameters$lsm_timesteps <- timesteps
+  parameters$lsm_coverages <- coverages
+  parameters
+}
+
+#' @title Rescale baseline carrying capacity
+#' 
+#' @description Rescales the baseline carrying capacity for a given species.
+#' 
+#' @param parameters the model parameters
+#' @param timesteps vector of timesteps for each rescale change
+#' @param scalers matrix of scalers 
+#' With nrows = length(timesteps), ncols=length(species)
+#' 
+set_rescaled_carrying_capacity <- function(
+    parameters,
+    timesteps,
+    scalers
+){
+  stopifnot(nrow(scalers) == length(timesteps))
+  stopifnot(ncol(scalers) == length(parameters$species))
+  stopifnot(min(timesteps) > 0)
+  stopifnot(min(scaler) >= 0)
+  parameters$rescale_carrying_capacity <- TRUE
+  parameters$rcc_timesteps <- timesteps
+  parameters$rcc_scalers <- scalers
+  parameters
+}
+
 #' @title Parameterise custom baseline carrying capacity
 #' 
-#' @description
-#' For a number of reasons we may wish to provide a custom carrying capacity
-#' for a mosquito species throughout the simulation. For example:
+#' @description Allows the user to set a completely flexible and custom
+#' carrying capacity for each species
 #' 
-#' \strong{Larval source management}.
+#' @param parameters the model parameters
+#' @param timesteps vector of timesteps for each rescale change
+#' @param carrying_capacity matrix of baseline carrying_capacity for each species 
+#' With nrows = length(timesteps), ncols=length(species)
 #' 
-#' To simulate larval source management, we may wish to decrease the
-#' baseline carrying capacity. 
-#' 
-#' \strong{Invasive species}
-#' 
-#' To capture the expansion of an invasive species into a new niche, 
-#' we may wish to increase the baseline carrying capacity for that species at the
-#' point of invasion. Note, that the invading species proportion must be 
-#' initialised to >0, so in this case set the initial proportion at a very 
-#' low value (e.g 0.005), then scale up the carrying capacity at the point of invasion.
-#' 
-#' 
-#' @param parameters a list of parameters to modify 
-#' @param carrying_capacity A matrix of baseline carrying capacity values for each
-#' timestep. Cols must equal the number of species and rows must align with timesteps
-#'
-#' @export
 set_flexible_carrying_capacity <- function(
     parameters,
+    timesteps,
     carrying_capacity
 ){
-  if(ncol(carrying_capacity) != length(parameters$species)){
-    stop("carrying_capacity cols need to align with number of mosquito species")
-  }
-  if(nrow(carrying_capacity) != timesteps){
-    stop("carrying_capacity rows need to align with timesteps")
-  }
+  stopifnot(nrow(carrying_capacity) == length(timesteps))
+  stopifnot(ncol(carrying_capacity) == length(parameters$species))
+  stopifnot(min(timesteps) > 0)
   stopifnot(min(carrying_capacity) >= 0)
-  stopifnot(min(timesteps) >= 0)
-  
+
   parameters$flexible_carrying_capacity <- TRUE
-  parameters$carrying_capacity <- carrying_capacity
+  parameters$fcc_timesteps <- timesteps
+  parameters$fcc <- carrying_capacity
   parameters
 }

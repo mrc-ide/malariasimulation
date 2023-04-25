@@ -156,6 +156,7 @@ set_larval_source_management <- function(
   stopifnot(ncol(coverages) == length(parameters$species))
   stopifnot(min(timesteps) > 0)
   stopifnot(max(coverages) <= 1)
+  stopifnot(min(coverages) >= 0)
   parameters$larval_source_management <- TRUE
   parameters$lsm_timesteps <- timesteps
   parameters$lsm_coverages <- coverages

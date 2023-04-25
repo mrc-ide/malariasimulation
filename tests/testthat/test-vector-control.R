@@ -361,84 +361,120 @@ test_that('usage renderer outputs correct values', {
   mockery::expect_args(renderer$render, 3, 'n_use_net', 0, timestep)
 })
 
-test_that('set_carrying_capacity_scaling validates inputs', {
-  parameters <- get_parameters()
+test_that('set_larval_source_management works',{
+  p <- list()
+  p$species <- "All"
+  p_out <- set_larval_source_management(p, 1, matrix(0.1))
+  
+  expect_equal(
+    p_out,
+    list(
+      species = "All",
+      larval_source_management = TRUE,
+      lsm_timesteps = 1,
+      lsm_coverages = matrix(0.1)
+    )
+  )
+  
   expect_error(
-    set_carrying_capacity_scaling(
-      parameters,
-      timesteps = -1,
-      scaler = matrix(0.1)
-    ),
-    "min(timesteps) >= 0 is not TRUE",
+    set_larval_source_management(p, 1, matrix(c(0.1, 0.1), nrow = 2)),
+    "nrow(coverages) == length(timesteps) is not TRUE",
     fixed = TRUE
   )
   expect_error(
-    set_carrying_capacity_scaling(
-      parameters,
-      timesteps = 1,
-      scaler = matrix(-0.1)
-    ),
-    "min(scaler) >= 0 is not TRUE",
+    set_larval_source_management(p, 1, matrix(c(0.1, 0.1), ncol = 2)),
+    "ncol(coverages) == length(parameters$species) is not TRUE",
     fixed = TRUE
   )
   expect_error(
-    set_carrying_capacity_scaling(
-      parameters,
-      timesteps = 1,
-      scaler = matrix(c(1, 1))
-    ),
-    "scaler rows need to align with timesteps"
+    set_larval_source_management(p, -1, matrix(0.1)),
+    "min(timesteps) > 0 is not TRUE",
+    fixed = TRUE
   )
   expect_error(
-    set_carrying_capacity_scaling(
-      parameters,
-      timesteps = 1,
-      scaler = matrix(c(1, 1), ncol = 2)
-    ),
-    "scaler cols need to align with number of mosquito species"
+    set_larval_source_management(p, 1, matrix(1.1)),
+    "max(coverages) <= 1 is not TRUE",
+    fixed = TRUE
+  )
+  expect_error(
+    set_larval_source_management(p, 1, matrix(-1.1)),
+    "min(coverages) >= 0 is not TRUE",
+    fixed = TRUE
   )
 })
 
-test_that('set_carrying_capacity_scaling modifies parameters list correctly ', {
-  parameters <- get_parameters()
+test_that('set_rescaled_carrying_capacity works',{
+  p <- list()
+  p$species <- "All"
+  p_out <- set_rescaled_carrying_capacity(p, 1, matrix(0.1))
   
-  expect_equal(parameters$scale_carrying_capacity, FALSE)
-  
-  p1 <- set_carrying_capacity_scaling(
-    parameters,
-    timesteps = 1,
-    scaler = matrix(2)
+  expect_equal(
+    p_out,
+    list(
+      species = "All",
+      rescale_carrying_capacity = TRUE,
+      rcc_timesteps = 1,
+      rcc_scalers = matrix(0.1)
+    )
   )
-  expect_equal(p1$scale_carrying_capacity, TRUE)
-  expect_equal(p1$carrying_capacity_timesteps, 1)
-  expect_equal(p1$carrying_capacity_scaler, matrix(2))
   
+  expect_error(
+    set_rescaled_carrying_capacity(p, 1, matrix(c(0.1, 0.1), nrow = 2)),
+    "nrow(scalers) == length(timesteps) is not TRUE",
+    fixed = TRUE
+  )
+  expect_error(
+    set_rescaled_carrying_capacity(p, 1, matrix(c(0.1, 0.1), ncol = 2)),
+    "ncol(scalers) == length(parameters$species) is not TRUE",
+    fixed = TRUE
+  )
+  expect_error(
+    set_rescaled_carrying_capacity(p, -1, matrix(0.1)),
+    "min(timesteps) > 0 is not TRUE",
+    fixed = TRUE
+  )
+  expect_error(
+    set_rescaled_carrying_capacity(p, 1, matrix(-1)),
+    "min(scalers) >= 0",
+    fixed = TRUE
+  )
 })
 
-test_that('carrying capacity scaler vectors specified correctly ', {
-  parameters <- get_parameters()
-  timesteps <- 100
+
+test_that('set_flexible_carrying_capacity works',{
+  p <- list()
+  p$species <- "All"
+  p_out <- set_flexible_carrying_capacity(p, 1, matrix(0.1))
   
-  cc1 <- parameterise_carrying_capacity(parameters, timesteps)
-  expect_equal(cc1, list(rep(1, timesteps)))
-  
-  # Single species
-  p2 <- parameters |>
-    set_carrying_capacity_scaling(
-      timesteps = 51,
-      scaler = matrix(0.5)
+  expect_equal(
+    p_out,
+    list(
+      species = "All",
+      flexible_carrying_capacity = TRUE,
+      fcc_timesteps = 1,
+      fcc = matrix(0.1)
     )
-  cc2 <- parameterise_carrying_capacity(p2, timesteps)
-  expect_equal(cc2, list(rep(c(1, 0.5), each = 50)))
+  )
   
-  # Multiple species
-  p3 <- parameters |>
-    set_species(list(arab_params, gamb_params), c(0.5, 0.5)) |>
-    set_carrying_capacity_scaling(
-      timesteps = 51,
-      scaler = matrix(c(0.5, 0.9), ncol = 2)
-    )
-  cc3 <- parameterise_carrying_capacity(p3, timesteps)
-  expect_equal(cc3[1], list(rep(c(1, 0.5), each = 50)))
-  expect_equal(cc3[2], list(rep(c(1, 0.9), each = 50)))
+  expect_error(
+    set_flexible_carrying_capacity(p, 1, matrix(c(0.1, 0.1), nrow = 2)),
+    "nrow(carrying_capacity) == length(timesteps) is not TRUE",
+    fixed = TRUE
+  )
+  expect_error(
+    set_flexible_carrying_capacity(p, 1, matrix(c(0.1, 0.1), ncol = 2)),
+    "ncol(carrying_capacity) == length(parameters$species) is not TRUE",
+    fixed = TRUE
+  )
+  expect_error(
+    set_flexible_carrying_capacity(p, -1, matrix(0.1)),
+    "min(timesteps) > 0 is not TRUE",
+    fixed = TRUE
+  )
+  expect_error(
+    set_flexible_carrying_capacity(p, 1, matrix(-1)),
+    "min(carrying_capacity) >= 0",
+    fixed = TRUE
+  )
 })
+

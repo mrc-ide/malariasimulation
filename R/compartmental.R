@@ -134,17 +134,11 @@ create_solver_stepping_process <- function(solvers, parameters) {
 #' @param default default value for vector
 #' @noRd
 interpolate_vector <- function(values, indices, vec_length, default){
-  val <- rep(NA, vec_length)
-  val[indices] <- values
-  if(is.na(val[1])){
-    val[1] <- default
-  }
-  for(i in 2:vec_length){
-    if(is.na(val[i])){
-      val[i] <- val[i - 1]
-    }
-  }
-  return(val)
+  iv <- rep(
+    c(default, values),
+    diff(c(0, indices - 1, vec_length))
+  )
+  return(iv)
 }
 
 #' @title Calculate the baseline carrying capacity vector
@@ -168,28 +162,6 @@ parameterise_carrying_capacity <- function(parameters, timesteps, m, i){
       vec_length = timesteps,
       default = cc
     )
-  }
-  
-  # Modify the baseline carrying capacity by scaling factor
-  if(parameters$rescale_carrying_capacity){
-    scaler <- interpolate_vector(
-      values = parameters$rcc_scalers[,i],
-      indices = parameters$rcc_timesteps,
-      vec_length = timesteps,
-      default = 1
-    )
-    carrying_capacity <- carrying_capacity * scaler
-  }
-  
-  # Modify the baseline carrying capacity for LSM impact
-  if(parameters$larval_source_management){
-    lsm_impact <- interpolate_vector(
-      values = parameters$lsm_coverages[,i],
-      indices = parameters$lsm_timesteps,
-      vec_length = timesteps,
-      default = 0
-    )
-    carrying_capacity <- carrying_capacity * (1 - lsm_impact)
   }
   
   return(carrying_capacity)

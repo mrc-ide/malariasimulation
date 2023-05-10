@@ -361,118 +361,38 @@ test_that('usage renderer outputs correct values', {
   mockery::expect_args(renderer$render, 3, 'n_use_net', 0, timestep)
 })
 
-test_that('set_larval_source_management works',{
+test_that('set_carrying_capacity works',{
   p <- list()
   p$species <- "All"
-  p_out <- set_larval_source_management(p, 1, matrix(0.1))
+  p_out <- set_carrying_capacity(p, 1, matrix(0.1))
   
   expect_equal(
     p_out,
     list(
       species = "All",
-      larval_source_management = TRUE,
-      lsm_timesteps = 1,
-      lsm_coverages = matrix(0.1)
+      carrying_capacity = TRUE,
+      carrying_capacity_timesteps = 1,
+      carrying_capacity_values = matrix(0.1)
     )
   )
   
   expect_error(
-    set_larval_source_management(p, 1, matrix(c(0.1, 0.1), nrow = 2)),
-    "nrow(coverages) == length(timesteps) is not TRUE",
-    fixed = TRUE
-  )
-  expect_error(
-    set_larval_source_management(p, 1, matrix(c(0.1, 0.1), ncol = 2)),
-    "ncol(coverages) == length(parameters$species) is not TRUE",
-    fixed = TRUE
-  )
-  expect_error(
-    set_larval_source_management(p, -1, matrix(0.1)),
-    "min(timesteps) > 0 is not TRUE",
-    fixed = TRUE
-  )
-  expect_error(
-    set_larval_source_management(p, 1, matrix(1.1)),
-    "max(coverages) <= 1 is not TRUE",
-    fixed = TRUE
-  )
-  expect_error(
-    set_larval_source_management(p, 1, matrix(-1.1)),
-    "min(coverages) >= 0 is not TRUE",
-    fixed = TRUE
-  )
-})
-
-test_that('set_rescaled_carrying_capacity works',{
-  p <- list()
-  p$species <- "All"
-  p_out <- set_rescaled_carrying_capacity(p, 1, matrix(0.1))
-  
-  expect_equal(
-    p_out,
-    list(
-      species = "All",
-      rescale_carrying_capacity = TRUE,
-      rcc_timesteps = 1,
-      rcc_scalers = matrix(0.1)
-    )
-  )
-  
-  expect_error(
-    set_rescaled_carrying_capacity(p, 1, matrix(c(0.1, 0.1), nrow = 2)),
-    "nrow(scalers) == length(timesteps) is not TRUE",
-    fixed = TRUE
-  )
-  expect_error(
-    set_rescaled_carrying_capacity(p, 1, matrix(c(0.1, 0.1), ncol = 2)),
-    "ncol(scalers) == length(parameters$species) is not TRUE",
-    fixed = TRUE
-  )
-  expect_error(
-    set_rescaled_carrying_capacity(p, -1, matrix(0.1)),
-    "min(timesteps) > 0 is not TRUE",
-    fixed = TRUE
-  )
-  expect_error(
-    set_rescaled_carrying_capacity(p, 1, matrix(-1)),
-    "min(scalers) >= 0",
-    fixed = TRUE
-  )
-})
-
-
-test_that('set_flexible_carrying_capacity works',{
-  p <- list()
-  p$species <- "All"
-  p_out <- set_flexible_carrying_capacity(p, 1, matrix(0.1))
-  
-  expect_equal(
-    p_out,
-    list(
-      species = "All",
-      flexible_carrying_capacity = TRUE,
-      fcc_timesteps = 1,
-      fcc = matrix(0.1)
-    )
-  )
-  
-  expect_error(
-    set_flexible_carrying_capacity(p, 1, matrix(c(0.1, 0.1), nrow = 2)),
+    set_carrying_capacity(p, 1, matrix(c(0.1, 0.1), nrow = 2)),
     "nrow(carrying_capacity) == length(timesteps) is not TRUE",
     fixed = TRUE
   )
   expect_error(
-    set_flexible_carrying_capacity(p, 1, matrix(c(0.1, 0.1), ncol = 2)),
+    set_carrying_capacity(p, 1, matrix(c(0.1, 0.1), ncol = 2)),
     "ncol(carrying_capacity) == length(parameters$species) is not TRUE",
     fixed = TRUE
   )
   expect_error(
-    set_flexible_carrying_capacity(p, -1, matrix(0.1)),
+    set_carrying_capacity(p, -1, matrix(0.1)),
     "min(timesteps) > 0 is not TRUE",
     fixed = TRUE
   )
   expect_error(
-    set_flexible_carrying_capacity(p, 1, matrix(-1)),
+    set_carrying_capacity(p, 1, matrix(-1)),
     "min(carrying_capacity) >= 0",
     fixed = TRUE
   )

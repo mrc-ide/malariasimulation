@@ -83,4 +83,9 @@ struct AquaticMosquitoModel {
 
 integration_function_t create_eqs(AquaticMosquitoModel& model);
 
+double linear_interpolate(
+    const double t,
+    const std::vector<double> values
+);
+
 #endif /* SRC_MOSQUITO_ODE_H_ */

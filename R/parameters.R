@@ -377,18 +377,10 @@ get_parameters <- function(overrides = list()) {
     tbv_timesteps = NULL,
     tbv_coverages = NULL,
     tbv_ages = NULL,
-    # Larval source management
-    larval_source_management = FALSE,
-    lsm_timesteps = NULL,
-    lsm_coverages = NULL,
-    # carrying capacity scaling
-    rescale_carrying_capacity = FALSE,
-    rcc_timesteps = NULL,
-    rcc_scalers = NULL,
     # flexible carrying capacity
-    flexible_carrying_capacity = FALSE,
-    fcc_timesteps = NULL,
-    fcc = NULL,
+    carrying_capacity = FALSE,
+    carrying_capacity_timesteps = NULL,
+    carrying_capacity_values = NULL,
     # rendering
     prevalence_rendering_min_ages = 2 * 365,
     prevalence_rendering_max_ages = 10 * 365,

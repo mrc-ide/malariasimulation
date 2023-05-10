@@ -10,15 +10,19 @@
 
 integration_function_t create_eqs(AquaticMosquitoModel& model) {
   return [&model](const state_t& x, state_t& dxdt, double t) {
+    double kt = linear_interpolate(
+      t,
+      model.K0
+    );
     auto K = carrying_capacity(
       t,
       model.model_seasonality,
       model.g0,
       model.g,
       model.h,
-      model.K0[std::round(t)],
-              model.R_bar,
-              model.rainfall_floor
+      kt,
+      model.R_bar,
+      model.rainfall_floor
     );
     
     auto beta = eggs_laid(model.beta, model.mum, model.f);
@@ -156,4 +160,18 @@ Rcpp::XPtr<Solver> create_aquatic_solver(
     new Solver(init, create_eqs(*model), r_tol, a_tol, max_steps),
     true
   );
+}
+
+//[[Rcpp::export]]
+double linear_interpolate(
+    const double t,
+    const std::vector<double> values
+) {
+  int max_index = values.size() - 1;
+  double lower;
+  double t_float = std::modf(t, &lower);
+  double a = values[std::min(int(lower), max_index)];
+  double b = values[std::min(int(lower) + 1, max_index)];
+  double interp = a + t_float * (b - a);
+  return(interp);
 }

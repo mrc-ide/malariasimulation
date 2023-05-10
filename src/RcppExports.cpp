@@ -111,6 +111,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// linear_interpolate
+double linear_interpolate(const double t, const std::vector<double> values);
+RcppExport SEXP _malariasimulation_linear_interpolate(SEXP tSEXP, SEXP valuesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const double >::type t(tSEXP);
+    Rcpp::traits::input_parameter< const std::vector<double> >::type values(valuesSEXP);
+    rcpp_result_gen = Rcpp::wrap(linear_interpolate(t, values));
+    return rcpp_result_gen;
+END_RCPP
+}
 // create_history
 Rcpp::XPtr<History> create_history(size_t size, double default_value);
 RcppExport SEXP _malariasimulation_create_history(SEXP sizeSEXP, SEXP default_valueSEXP) {
@@ -268,6 +280,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_malariasimulation_create_aquatic_mosquito_model", (DL_FUNC) &_malariasimulation_create_aquatic_mosquito_model, 18},
     {"_malariasimulation_aquatic_mosquito_model_update", (DL_FUNC) &_malariasimulation_aquatic_mosquito_model_update, 4},
     {"_malariasimulation_create_aquatic_solver", (DL_FUNC) &_malariasimulation_create_aquatic_solver, 5},
+    {"_malariasimulation_linear_interpolate", (DL_FUNC) &_malariasimulation_linear_interpolate, 2},
     {"_malariasimulation_create_history", (DL_FUNC) &_malariasimulation_create_history, 2},
     {"_malariasimulation_history_at", (DL_FUNC) &_malariasimulation_history_at, 2},
     {"_malariasimulation_history_push", (DL_FUNC) &_malariasimulation_history_push, 3},

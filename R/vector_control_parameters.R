@@ -136,58 +136,6 @@ set_spraying <- function(
   parameters
 }
 
-#' @title Parameterise larval source management
-#' 
-#' @description Reduces the baseline carrying capacity for a given species by
-#' (1 - coverage).
-#' 
-#' @param parameters the model parameters
-#' @param timesteps vector of timesteps for each coverage change
-#' @param coverages matrix of coverages 
-#' With nrows = length(timesteps), ncols=length(species)
-#' 
-#' @export
-set_larval_source_management <- function(
-    parameters,
-    timesteps,
-    coverages
-){
-  stopifnot(nrow(coverages) == length(timesteps))
-  stopifnot(ncol(coverages) == length(parameters$species))
-  stopifnot(min(timesteps) > 0)
-  stopifnot(max(coverages) <= 1)
-  stopifnot(min(coverages) >= 0)
-  parameters$larval_source_management <- TRUE
-  parameters$lsm_timesteps <- timesteps
-  parameters$lsm_coverages <- coverages
-  parameters
-}
-
-#' @title Rescale baseline carrying capacity
-#' 
-#' @description Rescales the baseline carrying capacity for a given species.
-#' 
-#' @param parameters the model parameters
-#' @param timesteps vector of timesteps for each rescale change
-#' @param scalers matrix of scalers 
-#' With nrows = length(timesteps), ncols=length(species)
-#' 
-#' @export
-set_rescaled_carrying_capacity <- function(
-    parameters,
-    timesteps,
-    scalers
-){
-  stopifnot(nrow(scalers) == length(timesteps))
-  stopifnot(ncol(scalers) == length(parameters$species))
-  stopifnot(min(timesteps) > 0)
-  stopifnot(min(scalers) >= 0)
-  parameters$rescale_carrying_capacity <- TRUE
-  parameters$rcc_timesteps <- timesteps
-  parameters$rcc_scalers <- scalers
-  parameters
-}
-
 #' @title Parameterise custom baseline carrying capacity
 #' 
 #' @description Allows the user to set a completely flexible and custom
@@ -196,10 +144,10 @@ set_rescaled_carrying_capacity <- function(
 #' @param parameters the model parameters
 #' @param timesteps vector of timesteps for each rescale change
 #' @param carrying_capacity matrix of baseline carrying_capacity for each species 
-#' With nrows = length(timesteps), ncols=length(species)
+#' With nrows = length(timesteps), ncols = length(species)
 #' 
 #' @export
-set_flexible_carrying_capacity <- function(
+set_carrying_capacity <- function(
     parameters,
     timesteps,
     carrying_capacity
@@ -208,9 +156,24 @@ set_flexible_carrying_capacity <- function(
   stopifnot(ncol(carrying_capacity) == length(parameters$species))
   stopifnot(min(timesteps) > 0)
   stopifnot(min(carrying_capacity) >= 0)
-
-  parameters$flexible_carrying_capacity <- TRUE
-  parameters$fcc_timesteps <- timesteps
-  parameters$fcc <- carrying_capacity
+  
+  parameters$carrying_capacity <- TRUE
+  parameters$carrying_capacity_timesteps <- timesteps
+  parameters$carrying_capacity_values <- carrying_capacity
   parameters
+}
+
+#' Get initialised carrying capacity for each species
+#'
+#' @param parameters the model parameters
+#'
+#' @return a vector of carrying initialised carrying capacity estimates for
+#' each vector species 
+#' @export
+get_init_carrying_capacity <- function(parameters){
+  init_cc <- sapply(1:length(parameters$species), function(x){
+    calculate_carrying_capacity(parameters, parameters$total_M, x)
+  })
+  names(init_cc) <- p$species
+  return(init_cc)
 }

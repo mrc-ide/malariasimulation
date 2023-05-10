@@ -25,6 +25,10 @@ create_aquatic_solver <- function(model, init, r_tol, a_tol, max_steps) {
     .Call(`_malariasimulation_create_aquatic_solver`, model, init, r_tol, a_tol, max_steps)
 }
 
+linear_interpolate <- function(t, values) {
+    .Call(`_malariasimulation_linear_interpolate`, t, values)
+}
+
 create_history <- function(size, default_value) {
     .Call(`_malariasimulation_create_history`, size, default_value)
 }

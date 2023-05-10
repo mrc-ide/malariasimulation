@@ -155,10 +155,10 @@ parameterise_carrying_capacity <- function(parameters, timesteps, m, i){
   carrying_capacity <- rep(cc, timesteps)
   
   # Specify flexible baseline carrying capacity for each timestep
-  if(parameters$flexible_carrying_capacity){
+  if(parameters$carrying_capacity){
     carrying_capacity <- interpolate_vector(
-      values = parameters$fcc[,i],
-      indices = parameters$fcc_timesteps,
+      values = parameters$carrying_capacity_values[,i],
+      indices = parameters$carrying_capacity_timesteps,
       vec_length = timesteps,
       default = cc
     )

@@ -197,7 +197,7 @@ dyn_dem_params <- set_demography(
 
 ```
 
-## Simulations
+## Simulation
 Having established the parameter list for the dynamic death rate simulation, we can now run the simulation using the `run_simulation()` function.
 
 ```{r}
@@ -208,7 +208,7 @@ dyn_dem_output <- run_simulation(sim_length, dyn_dem_params)
 
 ## Visualisation
 
-Boxplots of the age structure of the human population at the end of each year show the marked effect that increasing the death rate within a small subset of age classes can have on the demography of the human population over time.
+Bar plots of the age structure of the human population at the end of each year show the marked effect that increasing the death rate within a small subset of age classes can have on the demography of the human population over time.
 
 ```{r, fig.width = 7.2, fig.height = 3, fig.fullwidth = TRUE}
 

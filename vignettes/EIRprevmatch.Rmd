@@ -15,7 +15,6 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup, message=F, warning=F}
-
 # Load in the requisite functions
 library(malariasimulation)
 library(malariaEquilibrium)
@@ -27,10 +26,10 @@ plot_cols <- c("#E69F00", "#56B4E9", "#009E73", "#CC79A7","#F0E442", "#0072B2", 
 ```
 
 ## Introduction
-The entomological inoculation rate (EIR), defined as the number of infectious bites experienced per person per unit time, malaria prevalence, the proportion of the population with detectable malaria, are two metrics used widely to describe malaria transmission and status within an affected population. With respect to the latter, focus is often given to prevalence in the age groups 2-10 years old, denoted *Pf*PR~2-10~, the prevalence rate of *Plasmodium falciparum* in children aged two to ten.
 
-**Explanation for why a user might want to match *Pf*PR~2-10~ to EIR**
+The entomological inoculation rate (EIR), defined as the number of infectious bites experienced per person per unit time, and malaria prevalence, the proportion of the population with detectable malaria, are two metrics commonly used to measure and/or describe malaria transmission. With respect to the latter, focus is often given to prevalence in the age groups 2-10 years old, denoted *Pf*PR~2-10~, the prevalence rate of *Plasmodium falciparum* in children aged two to ten. When setting up a simulation run, users often need to specify a baseline EIR or *Pf*PR~2-10~ . While `malariasimulation` enables users to set and and calibrate to an initial EIR (using the `set_equilibrium()` function), establishing a user-defined baseline *Pf*PR~2-10~ requires additional steps, outlined in this vignette.
 
+Briefly, the user establishes their set of baseline parameters and runs simulations for a range of initial EIR values for a duration sufficient for the model to reach equilibrium. The equilibrial *Pf*PR~2-10~ is then extracted from the simulation outputs and a curve fit relating these values to the initial EIR. Using this curve, the user can then estimate the initial EIR value required to yield the desired *Pf*PR~2-10~ (given the parameter set). This method is contrasted with an alternative, which uses the `malariaEquilibrium` package's `human_equilibrium()` function to calculate the equilibrial *Pf*PR~2-10~ for a given EIR using the canonical equilibrium solution for the `malariasimulation` model. An alternative method, not covered here, is to calibrate the model using the `cali` package (see <https://github.com/mrc-ide/cali> for more information).
 
 ## Parameterisation
 
@@ -178,7 +177,7 @@ malEq_P2E <- cbind.data.frame(EIR = malEq_EIR, prev = malEq_prev)
 
 ## Predicting *Pf*PR~2-10~ using Initial EIR
 
-Having run `malariasimulation` simulations for a range of initial EIRs, we can fit a line of best fit through the initial EIR and *Pf*PR~2-10~ data and use it to predict the prevalence for a wider range of initial EIRs (given the set of parameters used).
+Having run `malariasimulation` simulations for a range of initial EIRs, we can fit a line of best fit through the initial EIR and *Pf*PR~2-10~ data and use it to predict the prevalence for a wider range of initial EIRs (given the set of parameters used). Note that the `newdata` argument is used to generate a series of additional initial EIR and *Pf*PR~2-10~ pairs for plotting.
 
 ```{r}
 
@@ -207,8 +206,8 @@ plot(x = 1, type = "n",
      xaxs = "i", yaxs = "i")
 
 # Overlay the initial EIR and corresponding PfPR2-10 points from malariasimulation
-points(x= malSim_P2E$init_EIR, 
-       y= malSim_P2E$prev,
+points(x = malSim_P2E$init_EIR, 
+       y = malSim_P2E$prev,
        pch = 19,
        col = 'black')
 
@@ -237,7 +236,7 @@ legend("topright",
 
 ## Matching EIR to *Pf*PR~2-10~ values
 
-We can also create a function that extracts EIR values from the fitted line for *Pf*PR~2-10~ values of interest. The function works by finding the closest *Pf*PR~2-10~ value from the model fit to that specified by the user, and then using that index to return the corresponding EIR value.
+We can also create a function that extracts EIR values from the fitted line for *Pf*PR~2-10~ values of interest. The function works by finding the closest *Pf*PR~2-10~ value from the model fit to that specified by the user, and then using that index to return the corresponding initial EIR value.
 
 ```{r table, warning=F}
 

@@ -1,5 +1,5 @@
 ---
-title: "Matching PfPR2-10 to EIR"
+title: "Matching *Pf*PR~2-10~ to EIR"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{EIRprevmatch}
@@ -15,58 +15,105 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup, message=F, warning=F}
+
+# Load in the requisite functions
 library(malariasimulation)
+library(malariaEquilibrium)
 library(mgcv)
+
+# Define a colour palette for plotting:
+plot_cols <- c("#E69F00", "#56B4E9", "#009E73", "#CC79A7","#F0E442", "#0072B2", "#D55E00")
+
 ```
 
-Begin by parameterizing the model you wish to run. Be sure to include any seasonality factors and interventions you want to include at baseline. 
+## Introduction
+The entomological inoculation rate (EIR), defined as the number of infectious bites experienced per person per unit time, malaria prevalence, the proportion of the population with detectable malaria, are two metrics used widely to describe malaria transmission and status within an affected population. With respect to the latter, focus is often given to prevalence in the age groups 2-10 years old, denoted *Pf*PR~2-10~, the prevalence rate of *Plasmodium falciparum* in children aged two to ten.
+
+**Explanation for why a user might want to match *Pf*PR~2-10~ to EIR**
+
+
+## Parameterisation
+
+To run `malariasimulation`, the first step is to generate a list of parameters using the `get_parameters()` function, which loads the default `malariasimulation` parameter list. Within this function call, we adapt the average age of the human population to flatten its demographic profile, specify seasonal malaria transmission, instruct the model to output malaria prevalence in the age range of 2-10 years old, and switch off the individual-based mosquito module. The `set_species()` function is then called to specify the composition of the vector community. The `set_drugs()` function is used to append the in-built parameters for Artemether Lumefantrine (AL) and, finally, the `set_clinical_treatment()` function is called to specify a treatment campaign that distribute AL to 45% of the population in the first time step (t = 1).
 
 ```{r parameters}
+
+# Specify the time frame over which to simulate and the human population size:
 year <- 365
 human_population <- 5000
 
-params <- get_parameters(list(
+# Use the get_parameters() function to establish a list of simulation parameters:
+simparams <- get_parameters(list(
+  
+  # Set the population size
   human_population = human_population,
-  average_age = 8453.323,     # to match flat_demog
-  model_seasonality = TRUE,   # assign seasonality
+  
+  # Set the average age of the population
+  average_age = 8453.323,   
+  
+  # Turn on a specfiy seasonal transmission pattern
+  model_seasonality = TRUE,
   g0 = 0.284596,                              
   g = c(-0.317878, -0.0017527, 0.116455),     
-  h = c(-0.331361, 0.293128, -0.0617547),     
-  prevalence_rendering_min_ages = 2 * year,    # set prev age range
+  h = c(-0.331361, 0.293128, -0.0617547),
+  
+  # Instruct model to render prevalence in age group 2-10
+  prevalence_rendering_min_ages = 2 * year,    
   prevalence_rendering_max_ages = 10 * year,
+  
+  # Turn off the individual mosquitoes module
   individual_mosquitoes = FALSE))
 
-  # set species / drugs / treatment parameters
-params <- set_species(params, species = list(arab_params, fun_params, gamb_params), 
-                      proportions = c(0.25, 0.25, 0.5))
-params <- set_drugs(params, list(AL_params))
-params <- set_clinical_treatment(params, 1, c(1), c(0.45))
+# Use the set_species() function to specify the mosquito population (species and 
+# relative abundances)
+simparams <- set_species(parameters = simparams, 
+                         species = list(arab_params, fun_params, gamb_params), 
+                         proportions = c(0.25, 0.25, 0.5))
+
+# Use the set_drugs() function to append the in-built parameters for the 
+# drug Artemether Lumefantrine (AL)
+simparams <- set_drugs(simparams, list(AL_params))
+
+# Use the set_clinical_treatment() function to parameterise human 
+# population treatment with AL in the first timestep
+simparams <- set_clinical_treatment(parameters = simparams, 
+                                    drug = 1,
+                                    timesteps = c(1),
+                                    coverages = c(0.45))
 
 ```
 
-Now run `malariasimulation` over a range of EIRs. The goal is to run enough points to generate a curve to which you can match PfPR2-10 to EIR effectively.
+## *Pf*PR~2-10~ Matching using malariasimulation
+
+Having established a set of `malariasimulation` parameters, we are now ready to run simulations. In the following code chunk, we'll run the `run_simulation()` across a range of initial EIR values to generate sufficient points to fit a curve matching *Pf*PR~2-10~ to the initial EIR. For each initial EIR, we first use the `set_equilibrium()` to update the model parameter list with the human and vector population parameter values required to achieve the specified EIR at equilibrium. This updated parameter list is then used to run the simulation.
+
+The `run_simulation()` outputs an EIR per time step, per species, across the entire human population. We first convert these to get the number of infectious bites experienced, on average, by each individual across the final year across all vector species. Next, the average *Pf*PR~2-10~ across the final year of the simulation is calculated by dividing the total number of individuals aged 2-10 by the number (`n_730_3650`) of detectable cases of malaria in individuals aged 2-10 (`n_detect_730_3650`) on each day and calculating the mean of these values. Finally, initial EIR, output EIR, and *Pf*PR~2-10~ are stored in a data frame.
 
 ```{r model}
-# loop over malariasimulation runs
-init_EIR <- c(0.01, 0.1, 1, 5, 10, 25, 50) # set EIR values
 
-# run model
-outputs <- lapply(
+# Establish a vector of initial EIR values to simulate over and generate matching
+# PfPR2-10 values:
+init_EIR <- c(0.01, 0.1, 1, 5, 10, 25, 50)
+
+# For each initial EIR, calculate equilibriual parameter set and run the simulation
+malSim_outs <- lapply(
   init_EIR,
   function(init) {
-    p_i <- set_equilibrium(params, init)
-    run_simulation(5 * year, p_i) # sim time = 5 years
+    p_i <- set_equilibrium(simparams, init)
+    run_simulation(5 * year, p_i)
   }
 )
 
-# output EIR values
-EIR <- lapply(
-  outputs,
+# Convert the default EIR output (per vector species, per timestep, across 
+# the entire human population) to a cross-vector species average EIR per
+# person per year across the final year of the simulation:
+malSim_EIR <- lapply(
+  malSim_outs,
   function(output) {
     mean(
       rowSums(
         output[
-          output$timestep %in% seq(4 * 365, 5 * 365), # just use data from the last year
+          output$timestep %in% seq(4 * 365, 5 * 365),
           grepl('EIR_', names(output))
         ] / human_population * year
       )
@@ -74,9 +121,10 @@ EIR <- lapply(
   }
 )
 
-# output prev 2-10 values
-prev <- lapply(
-  outputs,
+# Calculate the average PfPR2-10 value across the final year for each initial
+# EIR value
+malSim_prev <- lapply(
+  malSim_outs,
   function(output) {
     mean(
       output[
@@ -89,85 +137,127 @@ prev <- lapply(
     )
   }
 )
-
-# create dataframe of initial EIR, output EIR, and prev 2-10 results
-EIR_prev <- cbind.data.frame(init_EIR, output_EIR = unlist(EIR), prev = unlist(prev))
+ 
+# Create dataframe of initial EIR, output EIR, and prev 2-10 results
+malSim_P2E <- cbind.data.frame(init_EIR, EIR = unlist(malSim_EIR), prev = unlist(malSim_prev))
 
 ```
 
-Now plot your results! Code is included to compare the results of matching PfPR2-10 to EIR based on `malariaEquilibrium` (blue line) versus matching based on parameterized `malariasimulation` runs (red line). Notice that the generated points do not form a smooth curve. We ran `malariasimulation` using a population of just 5,000. Increasing the population to 10,000 or even 100,000 will generate more accurate estimates, but will take longer to run. 
+## *Pf*PR~2-10~ Matching using malariaEquilibrium
 
-```{r plot}
-# calculate EIR / prev 2-10 relationship from malariaEquilibrium
-eir <- seq(from = 0.1, to = 50, by=.5)
-eq_params <- malariaEquilibrium::load_parameter_set("Jamie_parameters.rds")
+We can also use the `malariaEquilibrium` package function `human_equilibrium()` to calculate the canonical equilibrium state of the system for a range of EIRs and match the *Pf*PR~2-10~ (see <https://github.com/mrc-ide/malariaEquilibrium> for more information). This method does not involve running simulations and is therefore faster, so we first generate a larger vector of EIR values to generate matching *Pf*PR~2-10~ values for, and then load the package's default parameter set. For each EIR value, we run the `human_equilibrium()` function and calculate the *Pf*PR~2-10~ from the output by summing the number of positive cases in ages 2-10 by the number of people in the age classes 2-10. Finally, we store the matching EIR and *Pf*PR~2-10~ values in a data frame.
 
-prev <- vapply( # calculate prevalence between 2:10 for a bunch of EIRs
-  eir,
+```{r}
+
+# Establish a range of EIR values to generate matching PfPR2-10 values for
+malEq_EIR <- seq(from = 0.1, to = 50, by = 0.5)
+
+# Load the base malariaSimulation parameter set:
+eq_simparams <- malariaEquilibrium::load_parameter_set("Jamie_parameters.rds")
+
+# Use human_equilibrium to calculate the PfPR2-10 values for the range of
+# EIR values
+malEq_prev <- vapply(
+  malEq_EIR,
   function(eir) {
     eq <- malariaEquilibrium::human_equilibrium(
       eir,
-      ft=0,
-      p=eq_params,
-      age=0:100
+      ft = 0,
+      p = eq_simparams,
+      age = 0:100
     )
-    sum(eq$states[2:10, 'pos_M']) / sum(eq$states[2:10, 'prop'])
+    sum(eq$states[3:11, 'pos_M']) / sum(eq$states[3:11, 'prop'])
   },
   numeric(1)
 )
 
-prevmatch <- cbind.data.frame(eir, prev)
-
-# calculate best fit line through malariasimulation data
-fit <- predict(gam(prev~s(init_EIR, k=5), data=EIR_prev), 
-               newdata = data.frame(init_EIR=c(0,seq(0.1,50,0.1))),  type="response")
-fit <- cbind(fit, data.frame(init_EIR=c(0,seq(0.1,50,0.1))))
-
-# plot
-plot(x=1, type = "n", 
-     frame = F, 
-     xlab = "initial EIR", 
-     ylab = expression(paste(italic(Pf),"PR"[2-10])),
-     xlim = c(0,50), 
-     ylim = c(0,.7))
-
-points(x=EIR_prev$init_EIR, 
-       y=EIR_prev$prev,
-       pch = 19,
-       col = 'black')
-
-lines(x=fit$init_EIR, 
-      y=fit$fit, 
-      col = "red", 
-      type = "l", 
-      lty = 1)
-
-lines(x=prevmatch$eir, 
-      y=prevmatch$prev, 
-      col = "blue", 
-      type = "l", 
-      lty = 1)
-
-legend("bottomright", legend=c("malariasimulation", "malariaEquilibrium"), col=c("red", "blue"), lty = c(1,1), cex=0.8)
+# Establish a dataframe containing the matching EIR and PfPR2-10 values
+malEq_P2E <- cbind.data.frame(EIR = malEq_EIR, prev = malEq_prev)
 
 ```
 
-Now extract values from the fitted line to generate EIR estimates at your desired PfPR2-10 values.
+## Predicting *Pf*PR~2-10~ using Initial EIR
+
+Having run `malariasimulation` simulations for a range of initial EIRs, we can fit a line of best fit through the initial EIR and *Pf*PR~2-10~ data and use it to predict the prevalence for a wider range of initial EIRs (given the set of parameters used).
+
+```{r}
+
+# Fit a line of best fit through malariasimulation initial EIR and prevalence
+malSim_fit <- predict(gam(prev~s(init_EIR, k = 5), data = malSim_P2E), 
+                      newdata = data.frame(init_EIR = c(0, seq(0.1, 50, 0.1))),
+                      type = "response")
+
+# Append vector of initial EIR values to model fit to establish dataframe 
+# for plotting
+malSim_fit <- cbind(malSim_fit, data.frame(init_EIR = c(0 ,seq(0.1, 50, 0.1))))
+
+```
+
+## Visualisation
+
+Now lets visually compare our two methods for matching EIR to *Pf*PR~2-10~ values. In the section below we open a blank plot, plot the intial EIR and resulting *Pf*PR~2-10~ points generated using `malariasimulation` runs, overlay the line of best fit (orange line). Also overlayed is a line mapping EIR and *Pf*PR~2-10~ values calculated using `malariaEquilibrium` (blue line).
+
+```{r,  fig.width = 6.8, fig.height = 4}
+
+# Establish a plotting window:
+plot(x = 1, type = "n", 
+     frame = F, 
+     xlab = "Initial EIR", ylab = expression(paste(italic(Pf),"PR"[2-10])),
+     xlim = c(0,50), ylim = c(0, 1),
+     xaxs = "i", yaxs = "i")
+
+# Overlay the initial EIR and corresponding PfPR2-10 points from malariasimulation
+points(x= malSim_P2E$init_EIR, 
+       y= malSim_P2E$prev,
+       pch = 19,
+       col = 'black')
+
+# Overlay the malariasimulation line of best fit:
+lines(x = malSim_fit$init_EIR, 
+      y = malSim_fit$malSim_fit, 
+      col = plot_cols[1],
+      lwd = 2,
+      type = "l", 
+      lty = 1)
+
+# Overlay the malariaEquilibrium Initial EIR to PfPR2-10 line
+lines(x = malEq_P2E$EIR, 
+      y = malEq_P2E$prev, 
+      col = plot_cols[2], 
+      type = "l",
+      lwd = 2,
+      lty = 1)
+
+# Add a legend
+legend("topright",
+       legend=c("malariasimulation", "malariaEquilibrium"),
+       col=c(plot_cols[1:2]), lty = c(1,1), cex=0.8)
+
+```
+
+## Matching EIR to *Pf*PR~2-10~ values
+
+We can also create a function that extracts EIR values from the fitted line for *Pf*PR~2-10~ values of interest. The function works by finding the closest *Pf*PR~2-10~ value from the model fit to that specified by the user, and then using that index to return the corresponding EIR value.
 
 ```{r table, warning=F}
-# Pre-intervention baseline PfPR2-10 starting at values 10, 25, 35, 55 
-PfPR <- c(.10, .25, .35, .45)
 
-# match via stat_smooth predictions
-match <- function(x){
+# Store some pre-intervention baseline PfPR2-10 values
+PfPRs_to_match <- c(.10, .25, .35, .45)
+
+# Create a function to these baseline PfPR2-10 values to EIR values using
+# our model fit:
+match_EIR_to_PfPR <- function(x){
   
-  m <- which.min(abs(fit$fit-x)) # index of closest prev match
-  fit[m,2]                       # print match
+  m <- which.min(abs(malSim_fit$malSim_fit-x))
+  malSim_fit[m,2]
   
 }
 
-eir <- unlist(lapply(PfPR, match))
+# Use the function to extract the EIR values for the specified 
+# PfPR2-10 values:
+matched_EIRs <- unlist(lapply(PfPRs_to_match, match_EIR_to_PfPR))
 
-cbind.data.frame(PfPR, eir)
+# Create a dataframe of matched PfPR2-10 and EIR values:
+cbind.data.frame(PfPR = PfPRs_to_match, Matched_EIR = matched_EIRs)
 
 ```

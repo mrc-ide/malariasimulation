@@ -26,7 +26,7 @@ void History::push(double value, double time) {
 double History::at(double time, bool linear) const {
     auto it = values.lower_bound(time);
     if (it == values.end()) {
-        if (!linear) {
+        if (values.size() > 0 && !linear) {
           it--;
           return it->second;
         }

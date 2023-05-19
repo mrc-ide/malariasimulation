@@ -13,7 +13,7 @@ LaggedValue <- R6::R6Class(
     },
     
     get = function(timestep) {
-      history_at(private$history, timestep)
+      history_at(private$history, timestep, TRUE)
     }
   )
 )

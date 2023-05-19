@@ -10,8 +10,8 @@ parameterise_mosquito_models <- function(parameters, timesteps) {
       m <- p * parameters$total_M
       # Baseline carrying capacity
       k0 <- calculate_carrying_capacity(parameters, m, i)
-      k_history <- create_history(size = length(parameters$carrying_capacity_timesteps) + 1, k0)
-      history_push(k_history, k0, 0.0)
+      # Create the carrying capacity object
+      k_history <- create_history(size = length(parameters$carrying_capacity_timesteps), k0)
       if(parameters$carrying_capacity){
         for(j in 1:length(parameters$carrying_capacity_timesteps)){
           history_push(k_history, parameters$carrying_capacity_values[j,i], parameters$carrying_capacity_timesteps[j])

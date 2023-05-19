@@ -43,7 +43,7 @@ struct AquaticMosquitoModel {
   const double beta; //egg laying rate
   const double de; //delay for early larval growth
   const double mue; //death rate for early larvae
-  History K_history; //carrying capacity history
+  Rcpp::XPtr<History> k_history; //carrying capacity history
   const double gamma; //carrying capacity parameter for late larvae
   const double dl; //delay for late larval growth
   const double mul; //death rate for late larvae
@@ -63,7 +63,7 @@ struct AquaticMosquitoModel {
     double beta,
     double de,
     double mue,
-    History K_history,
+    Rcpp::XPtr<History> k_history,
     double gamma,
     double dl,
     double mul,

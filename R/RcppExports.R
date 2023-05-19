@@ -13,8 +13,8 @@ create_adult_solver <- function(model, init, r_tol, a_tol, max_steps) {
     .Call(`_malariasimulation_create_adult_solver`, model, init, r_tol, a_tol, max_steps)
 }
 
-create_aquatic_mosquito_model <- function(beta, de, mue, K0, carrying_capacity, K, K_tt, gamma, dl, mul, dp, mup, total_M, model_seasonality, g0, g, h, R_bar, mum, f, rainfall_floor) {
-    .Call(`_malariasimulation_create_aquatic_mosquito_model`, beta, de, mue, K0, carrying_capacity, K, K_tt, gamma, dl, mul, dp, mup, total_M, model_seasonality, g0, g, h, R_bar, mum, f, rainfall_floor)
+create_aquatic_mosquito_model <- function(beta, de, mue, k_history, gamma, dl, mul, dp, mup, total_M, model_seasonality, g0, g, h, R_bar, mum, f, rainfall_floor) {
+    .Call(`_malariasimulation_create_aquatic_mosquito_model`, beta, de, mue, k_history, gamma, dl, mul, dp, mup, total_M, model_seasonality, g0, g, h, R_bar, mum, f, rainfall_floor)
 }
 
 aquatic_mosquito_model_update <- function(model, total_M, f, mum) {
@@ -29,8 +29,8 @@ create_history <- function(size, default_value) {
     .Call(`_malariasimulation_create_history`, size, default_value)
 }
 
-history_at <- function(history, timestep) {
-    .Call(`_malariasimulation_history_at`, history, timestep)
+history_at <- function(history, timestep, linear) {
+    .Call(`_malariasimulation_history_at`, history, timestep, linear)
 }
 
 history_push <- function(history, value, timestep) {

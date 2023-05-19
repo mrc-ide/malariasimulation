@@ -8,14 +8,17 @@ parameterise_mosquito_models <- function(parameters, timesteps) {
     function(i) {
       p <- parameters$species_proportions[[i]]
       m <- p * parameters$total_M
-      
-      carrying_capacity <- parameterise_carrying_capacity(parameters, timesteps, m, i)
+      # Baseline carrying capacity
+      k0 <- calculate_carrying_capacity(parameters, m, i)
       
       growth_model <- create_aquatic_mosquito_model(
         parameters$beta,
         parameters$del,
         parameters$me,
-        carrying_capacity,
+        k0,
+        parameters$carrying_capacity,
+        parameters$carrying_capacity_values[,i],
+        parameters$carrying_capacity_timesteps,
         parameters$gamma,
         parameters$dl,
         parameters$ml,
@@ -122,47 +125,4 @@ create_solver_stepping_process <- function(solvers, parameters) {
       }
     }
   }
-}
-
-#' @title Interpolate vector blocks
-#' @description Creates a vector of values for each indices given values
-#' and indices points
-#'
-#' @param values vector of values
-#' @param indices vector of value change points
-#' @param vec_length return vector length
-#' @param default default value for vector
-#' @noRd
-interpolate_vector <- function(values, indices, vec_length, default){
-  iv <- rep(
-    c(default, values),
-    diff(c(0, indices - 1, vec_length))
-  )
-  return(iv)
-}
-
-#' @title Calculate the baseline carrying capacity vector
-#' @description Creates a vector of carrying caacity values for each timestep,
-#' modified where user-specified
-#'
-#' @param parameters model parameters
-#' @param timesteps simulation timesteps
-#' @param m species m
-#' @param i species index
-#' @noRd
-parameterise_carrying_capacity <- function(parameters, timesteps, m, i){
-  cc <- calculate_carrying_capacity(parameters, m, i)
-  carrying_capacity <- rep(cc, timesteps)
-  
-  # Specify flexible baseline carrying capacity for each timestep
-  if(parameters$carrying_capacity){
-    carrying_capacity <- interpolate_vector(
-      values = parameters$carrying_capacity_values[,i],
-      indices = parameters$carrying_capacity_timesteps,
-      vec_length = timesteps,
-      default = cc
-    )
-  }
-  
-  return(carrying_capacity)
 }

@@ -15,7 +15,7 @@ context("History") {
         h.push(1.5, 4.);
         expect_true(h.at(1.) == 1.);
     }
-
+  
     test_that("Can get history at interpolated time point") {
         History h;
         h.push(0., 1.);
@@ -44,4 +44,40 @@ context("History") {
         h.push(4., 2.);
         expect_error(h.at(1));
     }
+  
+  test_that("Can get history at exact time point with linear set to false") {
+    History h;
+    h.push(1., 1.);
+    h.push(1.5, 4.);
+    expect_true(h.at(1., false) == 1.);
+  }
+  
+  test_that("Can get history at interpolated time point with linear set to false") {
+    History h;
+    h.push(0., 1.);
+    h.push(4., 2.);
+    expect_true(h.at(1.5, false) == 1.);
+  }
+  
+  test_that("Errors gracefully when I search before the history with linear set to false") {
+    History h;
+    h.push(0., 1.);
+    h.push(4., 2.);
+    expect_error(h.at(0.));
+  }
+  
+  test_that("Errors gracefully when I search after the history with linear set to false") {
+    History h;
+    h.push(0., 1.);
+    h.push(4., 2.);
+    expect_error(h.at(4., false));
+  }
+  
+  test_that("Can restrict size of history with linear set to false") {
+    History h(2);
+    h.push(3, 2.5);
+    h.push(0., 1.);
+    h.push(4., 2.);
+    expect_error(h.at(1, false));
+  }
 }

@@ -174,6 +174,6 @@ get_init_carrying_capacity <- function(parameters){
   init_cc <- sapply(1:length(parameters$species), function(x){
     calculate_carrying_capacity(parameters, parameters$total_M, x)
   })
-  names(init_cc) <- p$species
+  names(init_cc) <- parameters$species
   return(init_cc)
 }

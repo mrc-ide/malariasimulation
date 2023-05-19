@@ -23,9 +23,13 @@ void History::push(double value, double time) {
     }
 }
 
-double History::at(double time) const {
+double History::at(double time, bool linear) const {
     auto it = values.lower_bound(time);
     if (it == values.end()) {
+        if (!linear) {
+          it--;
+          return it->second;
+        }
         if (has_default) {
             return default_value;
         }
@@ -50,10 +54,14 @@ double History::at(double time) const {
         it--;
     }
 
-    // Interpolate
-    return it->second + (
-        (time - it->first) / (after_element.first - it->first)
-    ) * (after_element.second - it->second);
+    if(linear) {
+      // Interpolate
+      return it->second + (
+          (time - it->first) / (after_element.first - it->first)
+      ) * (after_element.second - it->second);
+    }
+    
+    return it->second;
 }
 
 //[[Rcpp::export]]
@@ -62,8 +70,8 @@ Rcpp::XPtr<History> create_history(size_t size, double default_value) {
 }
 
 //[[Rcpp::export]]
-double history_at(Rcpp::XPtr<History> history, double timestep) {
-    return history->at(timestep);
+double history_at(Rcpp::XPtr<History> history, double timestep, bool linear) {
+    return history->at(timestep, linear);
 }
 
 //[[Rcpp::export]]

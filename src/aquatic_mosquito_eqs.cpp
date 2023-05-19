@@ -10,10 +10,7 @@
 
 integration_function_t create_eqs(AquaticMosquitoModel& model) {
   return [&model](const state_t& x, state_t& dxdt, double t) {
-    double kt = linear_interpolate(
-      t,
-      model.K0
-    );
+    auto kt = model.K_history.at(t, false); 
     auto K = carrying_capacity(
       t,
       model.model_seasonality,
@@ -53,7 +50,7 @@ AquaticMosquitoModel::AquaticMosquitoModel(
   double beta,
   double de,
   double mue,
-  std::vector<double> K0,
+  History K_history,
   double gamma,
   double dl,
   double mul,
@@ -72,7 +69,7 @@ AquaticMosquitoModel::AquaticMosquitoModel(
   beta(beta),
   de(de),
   mue(mue),
-  K0(K0),
+  K_history(K_history),
   gamma(gamma),
   dl(dl),
   mul(mul),
@@ -96,7 +93,10 @@ Rcpp::XPtr<AquaticMosquitoModel> create_aquatic_mosquito_model(
     double beta,
     double de,
     double mue,
-    std::vector<double> K0,
+    double K0,
+    bool carrying_capacity,
+    std::vector<double> K,
+    std::vector<double> K_tt,
     double gamma,
     double dl,
     double mul,
@@ -112,11 +112,27 @@ Rcpp::XPtr<AquaticMosquitoModel> create_aquatic_mosquito_model(
     double f,
     double rainfall_floor
 ) {
+  
+  // Create the carrying capacity object
+  History K_history(K_tt.size() + 1, K0);
+  K_history.push(K0, 0.0);
+  if(carrying_capacity){
+    for(int i = 0; i < K_tt.size(); ++i){
+      Rcpp::Rcout << "Adding: " << K[i] << " at " << K_tt[i] << "\n";
+      K_history.push(K[i], K_tt[i]);
+    }
+  }
+  Rcpp::Rcout << "T1: " << K_history.at(1, false) << "\n";
+  Rcpp::Rcout << "T200: " << K_history.at(200, false) << "\n";
+  Rcpp::Rcout << "T364: " << K_history.at(364, false) << "\n";
+  Rcpp::Rcout << "T365: " << K_history.at(365, false) << "\n";
+  Rcpp::Rcout << "T366: " << K_history.at(366, false) << "\n";
+  
   auto model = new AquaticMosquitoModel(
     beta,
     de,
     mue,
-    K0,
+    K_history,
     gamma,
     dl,
     mul,
@@ -160,18 +176,4 @@ Rcpp::XPtr<Solver> create_aquatic_solver(
     new Solver(init, create_eqs(*model), r_tol, a_tol, max_steps),
     true
   );
-}
-
-//[[Rcpp::export]]
-double linear_interpolate(
-    const double t,
-    const std::vector<double> values
-) {
-  int max_index = values.size() - 1;
-  double lower;
-  double t_float = std::modf(t, &lower);
-  double a = values[std::min(int(lower), max_index)];
-  double b = values[std::min(int(lower) + 1, max_index)];
-  double interp = a + t_float * (b - a);
-  return(interp);
 }

@@ -22,7 +22,7 @@ public:
     History(size_t);
     History(size_t, double);
     void push(double, double);
-    double at(double) const;
+    double at(double, bool = true) const;
 };
 
 #endif /* SRC_HISTORY_H_ */

@@ -13,6 +13,7 @@
 #include <type_traits>
 #include "mosquito_biology.h"
 #include "solver.h"
+#include "history.h"
 
 /*
  * The states are:
@@ -42,7 +43,7 @@ struct AquaticMosquitoModel {
   const double beta; //egg laying rate
   const double de; //delay for early larval growth
   const double mue; //death rate for early larvae
-  const std::vector<double> K0; //baseline carrying capacity
+  History K_history; //carrying capacity history
   const double gamma; //carrying capacity parameter for late larvae
   const double dl; //delay for late larval growth
   const double mul; //death rate for late larvae
@@ -62,7 +63,7 @@ struct AquaticMosquitoModel {
     double beta,
     double de,
     double mue,
-    std::vector<double> K0,
+    History K_history,
     double gamma,
     double dl,
     double mul,

@@ -29,6 +29,7 @@ create_prevelance_renderer <- function(
       parameters
     )
     asymptomatic_detected <- bitset_at(asymptomatic, bernoulli_multi_p(prob))
+
     clinically_detected <- state$get_index_of(c('Tr', 'D'))
     detected <- clinically_detected$copy()$or(asymptomatic_detected)
 

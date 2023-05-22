@@ -1,4 +1,5 @@
 #' @title Run the simulation
+#'
 #' @description
 #' Run the simulation for some time given some parameters. This currently
 #' returns a dataframe with the number of individuals in each state at each
@@ -20,7 +21,7 @@
 #'  * A_count: number of humans who are Asymptomatic
 #'  * D_count: number of humans who have the clinical malaria
 #'  * U_count: number of subpatent infections in humans
-#'  * Tr_count: number of infections being treated in humans
+#'  * Tr_count: number of detectable infections being treated in humans
 #'  * ica_mean: the mean acquired immunity to clinical infection over the population of humans
 #'  * icm_mean: the mean maternal immunity to clinical infection over the population of humans
 #'  * ib_mean: the mean blood immunity to all infection over the population of humans

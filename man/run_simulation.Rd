@@ -37,7 +37,7 @@ the whole population)
 \item A_count: number of humans who are Asymptomatic
 \item D_count: number of humans who have the clinical malaria
 \item U_count: number of subpatent infections in humans
-\item Tr_count: number of infections being treated in humans
+\item Tr_count: number of detectable infections being treated in humans
 \item ica_mean: the mean acquired immunity to clinical infection over the population of humans
 \item icm_mean: the mean maternal immunity to clinical infection over the population of humans
 \item ib_mean: the mean blood immunity to all infection over the population of humans

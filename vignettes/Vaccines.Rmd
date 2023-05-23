@@ -39,7 +39,6 @@ simparams <- get_parameters(list(
 )
 
 simparams <- set_equilibrium(simparams, starting_EIR)
-
 ```
 
 Then we can run the simulation for a variety of vaccination strategies:

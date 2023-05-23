@@ -83,7 +83,7 @@ create_mass_pev_listener <- function(
     if (parameters$mass_pev_min_wait == 0) {
       target <- in_age_group$to_vector()
     } else {
-      not_recently_vaccinated <- variables$vaccinated_timestep$get_index_of(
+      not_recently_vaccinated <- variables$pev_timestep$get_index_of(
         a = max(timestep - parameters$mass_pev_min_wait, 0),
         b = timestep
       )$not(TRUE)

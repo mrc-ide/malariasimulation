@@ -1,16 +1,16 @@
 /*
- * history.h
+ * timeseries.h
  *
  *  Created on: 08 Apr 2021
  *      Author: gc1610
  */
 
-#ifndef SRC_HISTORY_H_
-#define SRC_HISTORY_H_
+#ifndef SRC_TIMESERIES_H_
+#define SRC_TIMESERIES_H_
 
 #include <map>
 
-class History {
+class Timeseries {
 private:
     std::map<double,double> values;
     size_t max_size;
@@ -18,11 +18,11 @@ private:
     bool has_default;
     double default_value;
 public:
-    History();
-    History(size_t);
-    History(size_t, double);
+    Timeseries();
+    Timeseries(size_t);
+    Timeseries(size_t, double);
     void push(double, double);
     double at(double, bool = true) const;
 };
 
-#endif /* SRC_HISTORY_H_ */
+#endif /* SRC_TIMESERIES_ */

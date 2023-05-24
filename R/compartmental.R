@@ -11,17 +11,21 @@ parameterise_mosquito_models <- function(parameters, timesteps) {
       # Baseline carrying capacity
       k0 <- calculate_carrying_capacity(parameters, m, i)
       # Create the carrying capacity object
-      k_history <- create_history(size = length(parameters$carrying_capacity_timesteps), k0)
+      k_timeseries <- create_timeseries(size = length(parameters$carrying_capacity_timesteps), k0)
       if(parameters$carrying_capacity){
         for(j in 1:length(parameters$carrying_capacity_timesteps)){
-          history_push(k_history, parameters$carrying_capacity_values[j,i], parameters$carrying_capacity_timesteps[j])
+          timeseries_push(
+            k_timeseries,
+            parameters$carrying_capacity_values[j,i],
+            parameters$carrying_capacity_timesteps[j]
+          )
         }
       }
       growth_model <- create_aquatic_mosquito_model(
         parameters$beta,
         parameters$del,
         parameters$me,
-        k_history,
+        k_timeseries,
         parameters$gamma,
         parameters$dl,
         parameters$ml,

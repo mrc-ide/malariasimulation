@@ -10,7 +10,7 @@
 
 integration_function_t create_eqs(AquaticMosquitoModel& model) {
   return [&model](const state_t& x, state_t& dxdt, double t) {
-    auto kt = model.k_history->at(t, false); 
+    auto kt = model.k_timeseries->at(t, false); 
     auto K = carrying_capacity(
       t,
       model.model_seasonality,
@@ -50,7 +50,7 @@ AquaticMosquitoModel::AquaticMosquitoModel(
   double beta,
   double de,
   double mue,
-  Rcpp::XPtr<History> k_history,
+  Rcpp::XPtr<Timeseries> k_timeseries,
   double gamma,
   double dl,
   double mul,
@@ -69,7 +69,7 @@ AquaticMosquitoModel::AquaticMosquitoModel(
   beta(beta),
   de(de),
   mue(mue),
-  k_history(k_history),
+  k_timeseries(k_timeseries),
   gamma(gamma),
   dl(dl),
   mul(mul),
@@ -93,7 +93,7 @@ Rcpp::XPtr<AquaticMosquitoModel> create_aquatic_mosquito_model(
     double beta,
     double de,
     double mue,
-    Rcpp::XPtr<History> k_history,
+    Rcpp::XPtr<Timeseries> k_timeseries,
     double gamma,
     double dl,
     double mul,
@@ -113,7 +113,7 @@ Rcpp::XPtr<AquaticMosquitoModel> create_aquatic_mosquito_model(
     beta,
     de,
     mue,
-    k_history,
+    k_timeseries,
     gamma,
     dl,
     mul,

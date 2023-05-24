@@ -15,7 +15,6 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-suppressPackageStartupMessages(library(ggplot2))
 library(malariasimulation)
 library(malariaEquilibrium)
 ```
@@ -112,13 +111,45 @@ output <- aggregate(prev2to10 ~ mix + EIR + year, data = output, FUN = mean)
 Now let's visualize the results of mixing on PfPR2-10:
 
 ```{r}
-# plot
-ggplot(data = output) + 
-  geom_line(aes(x = year, y = prev2to10, color = factor(EIR))) +
-  facet_wrap(~ mix) +
-  scale_y_continuous(limits = c(0, 0.35)) + 
-  labs(x = 'time (years)',
-       y = 'PfPR 2-10 (month)',
-       color = 'EIR') +
-  theme_classic()
+
+colorBlindBlack8  <- c("#000000", "#E69F00", "#56B4E9", "#009E73", 
+                       "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+Panel_spec <- rbind(c(0,0.37,0,1),
+                    c(0.37,0.635,0,1),
+                    c(0.635,0.9,0,1),
+                    c(0.9,1,0,1))
+
+Margin_spec <- rbind(c(0.8,0.8,0.3,0.1),
+                     c(0.8,0.1,0.3,0.1),
+                     c(0.8,0.1,0.3,0.1))
+
+
+Mix_vec <- unique(output$mix)
+EIR_vec <- unique(output$EIR)
+
+Xlab_vec <- c("","Time (years)","")
+Ylab_vec <- c(expression(paste(italic(Pf),"PR"[2-10])),"","")
+New_vec <- c(F,T,T)
+
+Plot_Mixing <- function(output){
+  for(i in 1:3){
+    par(fig=Panel_spec[i,], cex = 0.8, mai = Margin_spec[i,], new = New_vec[i])
+    with(subset(output,output$mix == Mix_vec[i] & output$EIR == EIR_vec[1]),{
+      plot(x = year, y = prev2to10, type = "l", col = colorBlindBlack8[1], ylim = c(0,0.36), yaxt = "n", xaxs = "i", yaxs = "i", ylab = Ylab_vec[i], xlab = Xlab_vec[i])
+      if(i ==1){axis(side = 2, at = seq(0,0.4,by=0.1))}
+      title(gsub("(^[[:alpha:]])", "\\U\\1", Mix_vec[i], perl=TRUE), line = -1.5)
+      abline(h = 0.325)
+      
+    })
+    for(j in 2:3){
+            with(subset(output,output$mix == Mix_vec[i] & output$EIR == EIR_vec[j]), points(x = year, y = prev2to10, type = "l", col = colorBlindBlack8[j]))
+    }
+  }
+  par(fig=c(0.9,1,0,1), cex = 0.8, new = T, xpd = T, mai = c(0,0,0,0))
+  legend("left", legend = EIR_vec, col = colorBlindBlack8[1:3], bty = "n", lty = 1, title = "EIR")
+}
+
+Plot_Mixing(output)
+
 ```

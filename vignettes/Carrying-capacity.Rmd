@@ -37,8 +37,6 @@ All of these phenomena can be captured in malariasimulation using a
 selection of functions to modify the parameter list. These are
 demonstrated below.
 
-**Seasonality**
-
 First we can set up the basic parameter list
 
 ```{r}
@@ -47,7 +45,9 @@ p <- get_parameters(overrides = list(human_population = 5000)) |>
   set_equilibrium(init_EIR = 5)
 ```
 
-and create a new parmeter list with a seasonal profile
+## Seasonality
+
+We can modify our basic parameter list to include a seasonal profile
 
 ```{r}
 p_seasonal <- p
@@ -59,9 +59,9 @@ p_seasonal <- p_seasonal |>
   set_equilibrium(init_EIR = 5)
 ```
 
-We can run the simulations and compare the outputs
+and can run the simulations and compare the outputs
 
-```{r, fig.width = 5}
+```{r, fig.width = 7, fig.height = 4}
 set.seed(123)
 s <- run_simulation(timesteps = timesteps, parameters = p)
 s$pfpr <- s$n_detect_730_3650 / s$n_730_3650
@@ -76,17 +76,35 @@ plot(s$pfpr ~ s$timestep, t = "l", ylim = c(0, 1), xlab = "Time", ylab = "PfPr")
 lines(s_seasonal$pfpr ~ s_seasonal$timestep, col = "darkorchid3")
 ```
 
-**Larval source management**
+## Custom modification of the mosquito carrying capacity
+
+In malariasimulation, we can also modify the carrying capacity over time in a more
+bespoke manner. Firstly it is helpful to start with our baseline (equilibrium)
+carrying capacity. We can access this for our baseline parameters with:
+
+```{r}
+cc <- get_init_carrying_capacity(p)
+cc
+```
+
+We can then use this in combination with `set_carrying_capacity()` to provide
+modified, species-specific carrying capacity values at given timepoints. This
+allows us to model a number of useful things:
+
+### Larval source management
 
 The impact of larval source management (LSM) is captured by reducing the
-carrying capacity. The helper function `set_larval_source_management()`
+carrying capacity. The helper function `set_carrying_capacity()`
 can be used to specify this intervention
 
-```{r, fig.width = 5}
+```{r, fig.width = 7, fig.height = 4}
+# Specify the LSM coverage
+lsm_coverage <- 0.8
+# Set LSM by reducing the carrying capacity by (1 - coverage)
 p_lsm <- p |>
-  set_larval_source_management(
-    timesteps = 365,
-    coverages = matrix(0.75)
+  set_carrying_capacity(
+    carrying_capacity = matrix(cc * (1 - lsm_coverage), ncol = 1),
+    timesteps = 365
   )
 set.seed(123)
 s_lsm <- run_simulation(timesteps = timesteps, parameters = p_lsm)
@@ -101,30 +119,29 @@ lines(s_lsm$pfpr ~ s_lsm$timestep, col = "darkorchid3")
 abline(v = 365, lty = 2, col = "grey60")
 ```
 
-**Invasive species**
+### Invasive species
 
 An invasive species may exploit a new niche, increase the carrying
 capacity at the point of invasion. The functions
-`set_rescaled_carrying_capacity()` and
-`set_flexible_carrying_capacity()` give complete freedom to allow
-relative or absolute changes to the carrying capacity to be made. Here
+`set_carrying_capacity()` gives complete freedom to allow
+changes to the carrying capacity to be made. Here
 we will demonstrate using carrying capacity rescaling to capture the
 invasion of _Anopheles stephensi_.
 
-```{r, fig.width = 5}
+```{r, fig.width = 7, fig.height = 4}
 # First initialise the mosquito species so that the invasive species starts with
 # a negligible, but non-zero proportion.
 p_stephensi <- p |>
   set_species(list(gamb_params, steph_params), c(0.995, 1 - 0.995)) |>
   set_equilibrium(init_EIR = 5)
-
+cc_invasive <- get_init_carrying_capacity(p_stephensi)
 # Next, at the time point of invasion, we scale up the carrying capacity for
 # the invasive species by a factor that will be dependent on the proporties of
 # the invasion.
 p_stephensi <- p_stephensi |>
-  set_rescaled_carrying_capacity(
-    timesteps = 365,
-    scalers = matrix(c(1, 2000), ncol = 2)
+  set_carrying_capacity(
+    carrying_capacity = matrix(cc_invasive * c(1, 2000), ncol = 2),
+    timesteps = 365
   )
 
 set.seed(123)
@@ -140,20 +157,18 @@ plot(s_stephensi$pfpr ~ s_stephensi$timestep, t = "l", ylim = c(0, 1), xlab = "T
 abline(v = 365, lty = 2, col = "grey60")
 ```
 
-**More flexibility**
+### Full flexibility 
 
-The functions `set_rescaled_carrying_capacity()` and
-`set_flexible_carrying_capacity()` can be used to modify or set very
+The function `set_carrying_capacity()` can be used to modify or set very
 specific carrying capacity changes over time. We can demonstrate this
 below by arbitrarily stepping the carrying capacity up and down over
 time
 
-```{r, fig.width = 5}
-cc <- calculate_carrying_capacity(p, p$total_M, 1)
+```{r, fig.width = 7, fig.height = 4}
 p_flexible <- p |>
-  set_flexible_carrying_capacity(
-    timesteps = seq(100, 500, 100),
-    carrying_capacity = cc * matrix(c(0.1, 2, 0.1, 0.5, 0.9), ncol = 1)
+  set_carrying_capacity(
+    carrying_capacity = cc * matrix(c(0.1, 2, 0.1, 0.5, 0.9), ncol = 1),
+    timesteps = seq(100, 500, 100)
   )
 
 set.seed(123)

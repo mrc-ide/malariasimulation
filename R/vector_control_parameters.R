@@ -172,7 +172,9 @@ set_carrying_capacity <- function(
 #' @export
 get_init_carrying_capacity <- function(parameters){
   init_cc <- sapply(1:length(parameters$species), function(x){
-    calculate_carrying_capacity(parameters, parameters$total_M, x)
+    p <- parameters$species_proportions[[x]]
+    m <- p * parameters$total_M
+    calculate_carrying_capacity(parameters, m, x)
   })
   names(init_cc) <- parameters$species
   return(init_cc)

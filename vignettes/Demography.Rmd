@@ -21,7 +21,7 @@ library(malariasimulation)
 
 # Introduction
 
-The dynamics of malaria transmission, and the efficacy of interventions designed to interrupt it, are highly context specific and an important consideration is the demography of the population(s) under investigation. To suit the research needs of the user, `malariasimulation` allows for the specification of custom human population demographics by allowing them to specify age-group specific death rates parameters. It also enables users to instruct the model to render outputs with variables of interest (e.g. human population, number of cases detectable by microscopy, number of severe cases, etc.) presented by user-defined age groups. In this vignette we'll use simple, illustrative cases to demonstrate how to customise the output rendered by the `run_simulation()` function, specify both fixed and time-varying custom death rates.
+The dynamics of malaria transmission, and the efficacy of interventions designed to interrupt it, are highly context specific and an important consideration is the demography of the population(s) under investigation. To suit the research needs of the user, `malariasimulation` allows for the specification of custom human population demographics by allowing them to specify age-group specific death rates parameters. It also enables users to instruct the model to render outputs with variables of interest (e.g. human population, number of cases detectable by microscopy, number of severe cases, etc.) presented by user-defined age groups. In this vignette, we use simple, illustrative cases to demonstrate how to customise the output rendered by the `run_simulation()` function, and how to specify both fixed and time-varying custom death rates.
 
 # Specifying human death rates by age group
 
@@ -29,9 +29,9 @@ The `malariasimulation` package allows users to capture different human populati
 
 ## Default Parameterisation
 
-First, we'll establish a base set of parameters using the `get_parameters()` function and accepting the default values. The `run_simulation()` function's default behaviour is to output only the number of individuals aged 2-10 years old (`output$n_730_3650`, where 730 and 3650 are the ages in days). However, the user can instruct the model to output the number of individuals in age groups of their choosing using the `age_group_rendering_min_ages` and `age_group_rendering_max_ages` parameters. These arguments take vectors containing the minimum and maximum ages (in daily time steps) of each group to be captured. To allow us to see the effect of changing demographic parameters, we'll use this functionality to output the number of individuals in ages groups ranging from 0 to 85 at 5 year intervals. Note that the same is possible for other model outputs, including the number (`n_detect` , `p_detect`, `n_severe`, `n_inc`, `p_inc`, `n_inc_clinical`, `p_inc_clinical`, `n_inc_severe`, and `p_inc_severe` ) using their equivalent min/max age-class rendering arguments (run `?run_simulation()` for more detail).
+First, we'll establish a base set of parameters using the `get_parameters()` function and accept the default values. The `run_simulation()` function's default behaviour is to output only the number of individuals aged 2-10 years old (`output$n_730_3650`, where 730 and 3650 are the ages in days). However, the user can instruct the model to output the number of individuals in age groups of their choosing using the `age_group_rendering_min_ages` and `age_group_rendering_max_ages` parameters. These arguments take vectors containing the minimum and maximum ages (in daily time steps) of each age group to be rendered To allow us to see the effect of changing demographic parameters, we'll use this functionality to output the number of individuals in ages groups ranging from 0 to 85 at 5 year intervals. Note that the same is possible for other model outputs using their equivalent min/max age-class rendering arguments (`n_detect` , `p_detect`, `n_severe`, `n_inc`, `p_inc`, `n_inc_clinical`, `p_inc_clinical`, `n_inc_severe`, and `p_inc_severe`, run `?run_simulation()` for more detail).
 
-We next use the `set_equilibrium()` function to tune the initial parameter set to that required to observe the specified initial entomological inoculation rate (`starting_EIR`). We now have a set of default parameters ready to use to run simulations.
+We next use the `set_equilibrium()` function to tune the initial parameter set to those required to observe the specified initial entomological inoculation rate (`starting_EIR`) at equilibrium. We now have a set of default parameters ready to use to run simulations.
 
 ```{r}
 
@@ -46,7 +46,8 @@ starting_EIR <- 5
 age_min <- seq(0, 80, 5) * 365
 age_max <- seq(5, 85, 5) * 365
 
-# Use the get_parameters() function to establish the default simulation parameters, specifying age categories from 0-85 in 5 year intervals.
+# Use the get_parameters() function to establish the default simulation parameters, specifying
+# age categories from 0-85 in 5 year intervals.
 simparams <- get_parameters(
   list(
     human_population = human_population,
@@ -55,14 +56,15 @@ simparams <- get_parameters(
   )
 )
 
-# Use set_equilibrium to tune the human and mosquito populations to those required for the defined EIR
+# Use set_equilibrium to tune the human and mosquito populations to those required for the
+# defined EIR
 simparams <- set_equilibrium(simparams, starting_EIR)
 
 ```
 
 ## **Custom Demographic Parameterisation**
 
-Next, we'll use the the in-built `set_demography()` function to specify human death rates by age group. This function accepts as inputs a parameter list to update, a vector of the age groups (in days) for which we specify death rates, a vector of time steps in which we want the death rates to be updated, and a matrix containing the death rates for each age group in each timestep. The `set_demography()` function appends these to the parameter list and updates the `custom_demography` parameter to `TRUE`.
+Next, we'll use the the in-built `set_demography()` function to specify human death rates by age group. This function accepts as inputs a parameter list to update, a vector of the age groups (in days) for which we specify death rates, a vector of time steps in which we want the death rates to be updated, and a matrix containing the death rates for each age group in each timestep. The `set_demography()` function appends these to the parameter list and updates the `custom_demography` parameter to `TRUE`. Here, we instruct the model to implement these changes to the demographic  parameters at the beginning of the simulation (`timesteps = 0`).
 
 ```{r}
 
@@ -70,7 +72,8 @@ Next, we'll use the the in-built `set_demography()` function to specify human de
 dem_params <- simparams
 
 # We can set our own custom demography:
-ages <- round(c(0.083333, 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 200) * year)
+ages <- round(c(0.083333, 1, 5, 10, 15, 20, 25, 30, 35, 40, 45,
+                50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 200) * year)
 
 # Set deathrates for each age group (looks like by taking annual values and dividing by 365:
 deathrates <- c(
@@ -79,7 +82,9 @@ deathrates <- c(
   .0234852, .0988317, .046755, .1638875, .1148753, .3409079, .2239224,
   .8338688) / 365
 
-# Pass these custom ages and death rates through the in-built set_demography function 
+# Update the parameter list with the custom ages and death rates through the in-built
+# set_demography() function, instructing the custom demography to be implemented at the
+# beginning of the model run (timestep = 0):
 dem_params <- set_demography(
   dem_params,
   agegroups = ages,
@@ -98,11 +103,11 @@ Having established parameter sets with both default and custom demographic param
 
 ```{r}
 
-# Run the simulation with the default (?) demogaphic set-up
+# Run the simulation with the default demographic set-up:
 exp_output <- run_simulation(sim_length, simparams)
 exp_output$run <- 'exponential'
 
-# Run the simulation for the custom demographic set-up
+# Run the simulation for the custom demographic set-up:
 custom_output <- run_simulation(sim_length, dem_params)
 custom_output$run <- 'custom'
 
@@ -176,7 +181,7 @@ Using the `timesteps` and `deathrates` arguments, we can also use the `set_demog
 
 ## Parameterisation
 
-We'll start by making a copy of the base parameters which have been instructed to output the population size through time (`simparams`). Next, we create a version of the `deathrates` vector created earlier updated to increase the death rates of the 5-10, 10-15, and 15-20 age groups by 1000%. Finally, we use `set_demography()` to update our parameter list and specify our custom demography. This is achieved providing the `timesteps` argument with a vector of days to update the death rates (0 and 730 days), and providing `deathrates` with a matrix of death rates where each row corresponds to a set of death rates for a given update.
+We'll start by making a copy of the base parameters which have been instructed to output the population size through time (`simparams`). Next, we create a version of the `deathrates` vector created earlier updated to increase the death rates of the 5-10, 10-15, and 15-20 age groups by 10%. Finally, we use `set_demography()` to update our parameter list and specify our custom demography. This is achieved providing the `timesteps` argument with a vector of days to update the death rates (0 and 730 days), and providing `deathrates` with a matrix of death rates where each row corresponds to a set of death rates for a given update.
 
 ```{r}
 
@@ -212,7 +217,8 @@ Bar plots of the age structure of the human population at the end of each year s
 
 ```{r, fig.width = 7.2, fig.height = 3, fig.fullwidth = TRUE}
 
-# Filter out the end-of-year population sizes, add a column naming the run, and convert dataframe to long-form:
+# Filter out the end-of-year population sizes, add a column naming the run, and convert
+# dataframe to long-form:
 dyn_dem_output <- dyn_dem_output[dyn_dem_output$timestep %in% (1:5 * 365),]
 dyn_dem_output$run <- 'dynamic'
 dyn_dem_output <- convert_to_long(age_min, age_max, dyn_dem_output)

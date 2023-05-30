@@ -7,9 +7,10 @@ test_that('Seasonality correctly affects P', {
     species_proportions = 1
   ))
   total_M <- 1000
-  models <- parameterise_mosquito_models(parameters)
-  solvers <- parameterise_solvers(models, parameters)
   timesteps <- 365 * 40
+  models <- parameterise_mosquito_models(parameters, timesteps)
+  solvers <- parameterise_solvers(models, parameters)
+  
 
   counts <- c()
   

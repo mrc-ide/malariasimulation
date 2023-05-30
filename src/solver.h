@@ -40,7 +40,10 @@ public:
                 Rcpp::Rcout << ", dx[" << i << "]:" << dx[i];
             }
             Rcpp::Rcout << std::endl;
-            Rcpp::stop("Too much work");
+            Rcpp::stop("Solver error: too much work! \
+            The ODE solver is used in mosquito aquatic life stage model. \
+            Check for extreme changes in carrying capacity possibly as a result \
+            of seasonality or set_carrying_capacity() parameterisation");
         }
     }
     void reset() {

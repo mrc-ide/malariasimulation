@@ -119,7 +119,7 @@ Griffin, J. T., Bhatt, S., Sinka, M. E., Gething, P. W., Lynch, M., Patouillard,
 
 ### Code
 
-The key package function is `run_simulation()` which, in its most basic form, simply requires a number of timesteps in days. Default parameter settings assume a human population of size of 100, an initial mosquito population size of 1000 with all species in equal proportions, with no treatment interventions and no seasonality. The full parameters list can be seen in the documentation for `get_parameters()`.
+The key package function is `run_simulation()` which, in its most basic form, simply requires a number of timesteps in days. Default parameter settings assume a human population of size of 100, an initial mosquito population size of 1000 of a single species, with no treatment interventions and no seasonality. The full parameters list can be seen in the documentation for `get_parameters()`.
 
 ```{r, output.lines=6}
 library(malariasimulation)
@@ -290,6 +290,6 @@ The remaining vignettes describe how to adjust sets of parameters through a numb
 
     -   `run_metapop_simulation()`: to model multiple areas simultaneously
 
-10.  [Variation](https://mrc-ide.github.io/malariasimulation/articles/Variation.html)
+9.  [Variation](https://mrc-ide.github.io/malariasimulation/articles/Variation.html)
 
     -   `run_simulation_with_repetitions()`: running simulations with replicates

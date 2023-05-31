@@ -1,7 +1,5 @@
 ---
 title: "Model Structure"
-header-includes:
-  -\usepackage{svg}
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Model Structure}
@@ -12,8 +10,7 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
-  dev="svglite"
+  comment = "#>"
 )
 ```
 
@@ -52,7 +49,7 @@ with the rates of recovery:
 
 Superinfection may occur in individuals with asymptomatic or sub-patent infections at the same rates as standard infection (dashed arrows).
 
-The force of infection ($\Lambda_i$) is impacted by pre-erythrocytic immunity, mosquito biting rate and population size and level of infectivity (specific details can be found in the references below). All default parameters can be found in the documentation for the function `get_parameters()`. Please also note that while the infographic above displays rate parameters, the parameter list uses delays durations, e.g. the rate $r_D$ is the inverse of the delay from state *D* to *A* (`dr` in the model):
+The force of infection ($\Lambda_i$) is impacted by pre-erythrocytic immunity, mosquito biting rate and population size and level of infectivity (specific details can be found in the references below). All default parameters can be found in the documentation for the function `get_parameters()`. Please also note that while the infographic above displays rate parameters, the parameter list uses delay durations, e.g. the rate $r_D$ is the inverse of the delay from state *D* to *A* (`dr` in the model):
 
 $$r_D=dr^{-1}$$
 
@@ -67,7 +64,7 @@ The functions governing mosquito biological processes and dynamics are spread ou
 3.  [src/mosquito_biology.cpp](https://github.com/mrc-ide/malariasimulation/blob/master/src/mosquito_biology.cpp)
 4.  [R/mosquito_biology.R](https://github.com/mrc-ide/malariasimulation/blob/master/R/mosquito_biology.R)
 
-<img src="Model_mos.svg" style="display:block; margin: 0 auto; border-width: 0; width: 80%"/>
+<img src="Model_mos.svg" style="display:block; margin: 0 auto; border-width: 0; width: 100%"/>
 
 ### States
 
@@ -85,7 +82,7 @@ Parameters shown on the infographic include mosquito developmental rates:
 
 Mosquito infection and incubation rates:
 
--   $\Lambda_M$: the force of mosquito infection (FOIM)
+-   $\Lambda_M$: the force of infection on mosquitos (FOIM, i.e. from human to mosquito)
 
 -   $r_{EM}$: extrinsic incubation period
 
@@ -106,7 +103,7 @@ $$
 \mu_L = \mu_L^0(1+\gamma\frac{E(t)+L(t)}{K(t)})
 $$
 
-## Model References
+## Key Model References (structure and dynamics)
 
 Griffin JT, Hollingsworth TD, Okell LC, Churcher TS, White M, et al. (2010) Reducing *Plasmodium falciparum* Malaria Transmission in Africa: A Model-Based Evaluation of Intervention Strategies. PLOS Medicine 7(8): e1000324. <https://doi.org/10.1371/journal.pmed.1000324>
 
@@ -120,7 +117,7 @@ Griffin, J. T., Bhatt, S., Sinka, M. E., Gething, P. W., Lynch, M., Patouillard,
 
 # Basic simulation
 
-### Simulation code
+### Code
 
 The key package function is `run_simulation()` which, in its most basic form, simply requires a number of timesteps in days. Default parameter settings assume a human population of size of 100, an initial mosquito population size of 1000 with all species in equal proportions, with no treatment interventions and no seasonality. The full parameters list can be seen in the documentation for `get_parameters()`.
 
@@ -151,7 +148,7 @@ The `run_simulation()` function then simulates malaria transmission dynamics and
 -   `n_detect_730_3650`: number with possible detection through microscopy of a given age group
 -   `p_detect_730_3650`: the sum of probabilities of detection through microscopy of a given age group
 -   `E_All_count`, `L_All_count`, `P_All_count`, `Sm_All_count`, `Pm_All_count`, `Im_All_count`, `NonExistent_All_count`: mosquito population sizes in each state
--   `mosquito_deaths`: mosquito deaths
+-   `total_M_All`: number of adult mosquitoes
 
 ```{r, output.lines=6}
 head(test_sim, n = 3)
@@ -177,22 +174,23 @@ cols  <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#C
 cols_to_plot <- paste0(c("S","D","A","U","Tr"),"_count")
 
 # Create plotting function
-states_plot <- function(){
+states_plot <- function(sim){
   
   # Set up plot with first state
-  plot(x = test_sim$timestep, y = test_sim[,cols_to_plot[1]],
+  plot(x = sim$timestep, y = sim[,cols_to_plot[1]],
        type = "l", col = cols[1], ylim = c(0,80),
        ylab = "Population size", xlab = "Days")
   
   # Add remaining states
   sapply(2:5, function(x){
-    points(x = test_sim$timestep, y = test_sim[,cols_to_plot[x]], type = "l", col = cols[x])})
+    points(x = sim$timestep, y = sim[,cols_to_plot[x]], type = "l", col = cols[x])})
   
   # Add legend
   legend("topleft", legend = c("S","D","A","U","Tr"), col = cols, lty = 1, bty = "n", ncol = 5)
 }
 
-states_plot()
+par(mfrow = c(1,2))
+states_plot(test_sim)
 
 # Calculate Pf PR 2-10
 test_sim$PfPR2_10 <- test_sim$n_detect_730_3650/test_sim$n_730_3650
@@ -201,6 +199,28 @@ test_sim$PfPR2_10 <- test_sim$n_detect_730_3650/test_sim$n_730_3650
 plot(x = test_sim$timestep, y = test_sim$PfPR2_10, type = "l",
      col = cols[7], ylim = c(0,1),
      ylab = expression(paste(italic(Pf),"PR"[2-10])), xlab = "Days")
+```
+
+Note that the model will not begin simulations from an equilibrium state as default. In the case of our simulation that means that the population in each state and the prevalence (*Pf*PR~2-10~) move towards an equilibrium. To begin the simulation at approximate equilibrium conditions, please use the `set_equilibrium()` function, which requires you to specify an initial EIR value:
+
+```{r, fig.align = 'center', fig.height = 5, fig.width = 7}
+params <- get_parameters() |> 
+  set_equilibrium(init_EIR = 5)
+
+test_sim_eq <- run_simulation(timesteps = 100, parameters = params)
+
+par(mfrow = c(1,2))
+states_plot(test_sim_eq)
+
+# Calculate Pf PR 2-10
+test_sim_eq$PfPR2_10 <- test_sim_eq$n_detect_730_3650/test_sim_eq$n_730_3650
+
+# Plot Pf PR 2-10
+plot(x = test_sim_eq$timestep, y = test_sim_eq$PfPR2_10, type = "l",
+     col = cols[7], ylim = c(0,1),
+     ylab = expression(paste(italic(Pf),"PR"[2-10])), xlab = "Days")
+
+
 ```
 
 # Changing parameters
@@ -216,113 +236,7 @@ new_params <- get_parameters(overrides = list(human_population = 200))
 
 While other parameters can be changed individually, we do not generally recommended adjusting these without close attention and a detailed understanding of how this will impact the model assumptions. We strongly encourage users to stick with the parameter setting functions and methods described in these vignettes when adjusting parameter settings.
 
-## Mosquito modelling
 
-### Species distribution
-
-`malariasimulation` contains in built parameter sets for three mosquito species: *A. arabiensis* (`arab_params`), *A. funestus* (`fun_params`) and *A. gambiae* (`gamb_params`). Each parameter set contains feeding rates, foraging time etc. Full details can be found in the [vector_parameters.R](https://github.com/mrc-ide/malariasimulation/blob/master/R/vector_parameters.R) file.
-
-```{r}
-unlist(arab_params)
-```
-
-The proportion of each species can be set using the `set_species()` function, requiring a full parameter set and arguments of a list of species parameter sets and a vector of relative species proportions.
-
-```{r, fig.align = 'center', fig.height = 5, fig.width = 7}
-# Create list of default parameters
-params <- get_parameters()
-
-# Update parameter list with species distributions
-params_species <- set_species(parameters = params,
-                              species = list(arab_params, fun_params, gamb_params),
-                              proportions = c(0.1,0.3,0.6))
-
-# Run simulation
-species_simulation <- run_simulation(timesteps = 100, parameters = params_species)
-
-## Plot species distributions
-# Collect species column names
-arab_cols <- paste0(c("E","L","P","Sm","Pm", "Im", "NonExistent"),"_arab_count")
-fun_cols <- paste0(c("E","L","P","Sm","Pm", "Im", "NonExistent"),"_fun_count")
-gamb_cols <- paste0(c("E","L","P","Sm","Pm", "Im", "NonExistent"),"_gamb_count")
-
-Mos_sp_dist_sim <- cbind(species_simulation$timestep,
-                         rowSums(species_simulation[,arab_cols]),
-                         rowSums(species_simulation[,fun_cols]),
-                         rowSums(species_simulation[,gamb_cols]))
-
-species_plot <- function(Mos_pops){
-  plot(x = Mos_pops[,1], y = Mos_pops[,2], type = "l", col = cols[2],
-       ylim = c(0,140000), ylab = "Mosquito population size", xlab = "Days")
-  
-  grid()
-  
-  sapply(3:4, function(x){
-    points(x = Mos_pops[,1], y = Mos_pops[,x], type = "l", col = cols[x])})
-  
-  legend("topright", legend = c("A. arab","A. fun","A. gamb"),
-         col = cols[-1], lty = 1, bty = "n", ncol = 1)
-}
-
-species_plot(Mos_sp_dist_sim)
-```
-
-### Seasonality
-
-The `malariasimulation` package has the capacity to simulate malaria transmission for a range of seasonal transmission profiles. This is achieved by specifying an annual rainfall profile that shapes mosquito population dynamics, thereby impacting malaria transmission.
-
-To include seasonality, we must set the parameter `model_seasonality = TRUE` and assign values to parameters that determine seasonality: `g0`, `g` and `h`. These parameters must be set directly by passing a list of named parameters to the `overrides` argument of the `get_parameters()` function.
-
-```{r, fig.align = 'center', fig.height = 5, fig.width = 7}
-# Set parameters, inclusing seasonality parameters
-params_seasons <- get_parameters(overrides = list(
-  model_seasonality = TRUE,
-  g0 = 0.28,
-  g = c(0.2, -0.07, -0.001),
-  h = c(0.2, -0.07, -0.1)))
-
-# Run simulation
-seasonality_simulation <- run_simulation(timesteps = 600, parameters = params_seasons)
-
-# Collect results
-All_mos_cols <- paste0(c("E","L","P","Sm","Pm", "Im", "NonExistent"),"_All_count")
-
-# Plot results
-plot(seasonality_simulation[,1], rowSums(seasonality_simulation[,All_mos_cols]),
-     ylim = c(0, 200000), type = "l", xlab = "Days", ylab = "Mosquito population size")
-grid()
-### Run simulation using seasonality over previous species distribution
-# Update seasonality parameter set to include species distributions
-params_seasons_species <- set_species(parameters = params_seasons,
-                                      species = list(arab_params, fun_params, gamb_params),
-                                      proportions = c(0.1,0.3,0.6))
-
-# Run simulation
-seasonality_species_simulation <- run_simulation(timesteps = 600,
-                                                 parameters = params_seasons_species)
-
-# Collect results
-Mos_season_species_sim <- cbind(seasonality_species_simulation$timestep,
-                         rowSums(seasonality_species_simulation[,arab_cols]),
-                         rowSums(seasonality_species_simulation[,fun_cols]),
-                         rowSums(seasonality_species_simulation[,gamb_cols]))
-
-# Plot results
-species_plot(Mos_season_species_sim)
-
-```
-
-The mosquito population size is no longer constant and follows the patterns set by rainfall.
-
-### Individual or deterministic mosquitoes
-
-Mosquitoes may also be modelled deterministically, rather than individually (which is the default).
-
-This can be done by setting `individual_mosquitoes` to `FALSE` in the `overrides` argument of `get_parameters()`.
-
-```{r, fig.align = 'center', fig.height = 5, fig.width = 7}
-simparams <- get_parameters(overrides = list(individual_mosquitoes = FALSE))
-```
 
 ## Vignettes
 
@@ -332,14 +246,19 @@ The remaining vignettes describe how to adjust sets of parameters through a numb
 
     -   Age group rendering
     -   `set_demography()`: setting demographies
-    -   `set_equilibrium()`: establishing initial human and mosquito populations to achieve initial equilibrium conditions
 
-2.  [Treatment](https://mrc-ide.github.io/malariasimulation/articles/Treatment.html)
+2.  [Carrying capacity](https://mrc-ide.github.io/malariasimulation/articles/Carrying-capacity.html)
+
+    -   Seasonality
+    -   `set_carrying_capacity()`: changes mosquito carrying capacity, e.g. to model larval source management impact
+    -   `set_species`: to model multiple species and species invasion
+
+3.  [Treatment](https://mrc-ide.github.io/malariasimulation/articles/Treatment.html)
 
     -   `set_drugs()`: for drug-specific parameters (with in-built parameter sets)
     -   `set_clinical_treatment()`: implemention of clinical treatment interventions
 
-3.  [MDA and Chemoprevention](https://mrc-ide.github.io/malariasimulation/articles/MDA.html)
+4.  [MDA and Chemoprevention](https://mrc-ide.github.io/malariasimulation/articles/MDA.html)
 
     -   `set_mda()`: implementation of mass drug administration interventions
 
@@ -349,28 +268,28 @@ The remaining vignettes describe how to adjust sets of parameters through a numb
 
     -   `peak_season_offset()`: correlating timed interventions with seasonal malaria
 
-4.  [Vaccines](https://mrc-ide.github.io/malariasimulation/articles/Vaccines.html)
+5.  [Vaccines](https://mrc-ide.github.io/malariasimulation/articles/Vaccines.html)
 
-    -   `set_mass_rtss()`: implementation of a RTS,S vaccination intervention
-    -   `set_rtss_epi()`: Implementation of RTS,S vaccination intervention from a certain age
-    -   `set_tbv()`: implementation of a tbv vaccination intervention
+    -   `set_mass_pev()`: implementation of a pre-erythrocytic vaccination intervention
+    -   `set_pev_epi()`: Implementation of a pre-erythrocytic vaccination intervention from a certain age
+    -   `set_tbv()`: implementation of a transmission blocking vaccination intervention
 
-5.  [Vector Control: Bednets](https://mrc-ide.github.io/malariasimulation/articles/VectorControl.html)
+6.  [Vector Control: Bednets](https://mrc-ide.github.io/malariasimulation/articles/VectorControl.html)
 
     -   `set_bednets()`: implementation of bednet distribution intervention
 
-6.  [Vector Control: Indoor Residual Spraying](https://mrc-ide.github.io/malariasimulation/articles/VectorControl.html)
+7.  [Vector Control: Indoor Residual Spraying](https://mrc-ide.github.io/malariasimulation/articles/VectorControl.html)
 
     -   `set_spraying()`: implementation of an indoor residual spraying intervention
 
-7.  [Matching PfPR2-10 to EIR](https://mrc-ide.github.io/malariasimulation/articles/EIRprevmatch.html)
+8.  [Matching PfPR2-10 to EIR](https://mrc-ide.github.io/malariasimulation/articles/EIRprevmatch.html)
 
     -   Using *Pf*PR~2-10~ data to estimate EIR
 
-8.  [Metapopulation Modelling](https://mrc-ide.github.io/malariasimulation/articles/Metapopulation.html)
+9.  [Metapopulation Modelling](https://mrc-ide.github.io/malariasimulation/articles/Metapopulation.html)
 
     -   `run_metapop_simulation()`: to model multiple areas simultaneously
 
-9.  [Variation](https://mrc-ide.github.io/malariasimulation/articles/Variation.html)
+10.  [Variation](https://mrc-ide.github.io/malariasimulation/articles/Variation.html)
 
     -   `run_simulation_with_repetitions()`: running simulations with replicates

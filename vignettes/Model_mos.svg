@@ -5,19 +5,19 @@
 <!-- Title: %0 Pages: 1 -->
 
 <svg
-   width="255pt"
-   height="174pt"
-   viewBox="0 0 254.9846 174"
+   width="480pt"
+   height="80pt"
+   viewBox="0 0 480 80.421053"
    version="1.1"
-   id="svg184"
-   sodipodi:docname="Model_mos.svg"
+   id="svg232"
+   sodipodi:docname="Model_mos_figure_complete_2.svg"
    inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg">
   <defs
-     id="defs188">
+     id="defs236">
     <inkscape:path-effect
        effect="fillet_chamfer"
        id="path-effect1388"
@@ -54,63 +54,764 @@
        hide_knots="false" />
   </defs>
   <sodipodi:namedview
-     id="namedview186"
+     id="namedview234"
      pagecolor="#ffffff"
      bordercolor="#666666"
      borderopacity="1.0"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="true"
+     inkscape:pagecheckerboard="0"
      inkscape:document-units="pt"
      showgrid="false"
-     showguides="false"
-     width="166pt"
-     inkscape:zoom="2.1694281"
-     inkscape:cx="176.08327"
-     inkscape:cy="126.07009"
+     inkscape:zoom="1.4042128"
+     inkscape:cx="278.44783"
+     inkscape:cy="11.750356"
      inkscape:window-width="1846"
      inkscape:window-height="1016"
      inkscape:window-x="74"
      inkscape:window-y="27"
      inkscape:window-maximized="1"
-     inkscape:current-layer="edge11" />
+     inkscape:current-layer="svg232" />
   <path
      style="opacity:0.47;fill:#ffeeaa;fill-opacity:1;stroke-width:0.75"
      id="rect1306-8"
-     width="152.1729"
-     height="63.311996"
-     x="2.9949999"
-     y="108.30651"
+     width="152.97382"
+     height="42.221054"
+     x="185.2153"
+     y="7.2378955"
      inkscape:path-effect="#path-effect1388-2"
      sodipodi:type="rect"
-     d="m 14.245,108.30651 129.6729,0 a 11.25,11.25 45 0 1 11.25,11.25 v 40.812 a 11.25,11.25 135 0 1 -11.25,11.25 l -129.6729,0 a 11.25,11.25 45 0 1 -11.2500001,-11.25 v -40.812 A 11.25,11.25 135 0 1 14.245,108.30651 Z" />
+     d="m 196.4653,7.2378955 h 130.47382 a 11.25,11.25 45 0 1 11.25,11.2499995 V 38.20895 a 11.25,11.25 135 0 1 -11.25,11.25 H 196.4653 a 11.25,11.25 45 0 1 -11.25,-11.25 V 18.487895 a 11.25,11.25 135 0 1 11.25,-11.2499995 z" />
   <path
      style="opacity:0.47;fill:#aaeeff;fill-opacity:1;stroke-width:0.75"
      id="rect1306"
-     width="152.56503"
-     height="63.046432"
-     x="2.9949999"
-     y="1.7997215"
+     width="156.58282"
+     height="42.221054"
+     x="4.306859"
+     y="7.2378955"
      inkscape:path-effect="#path-effect1388"
-     d="m 14.245,1.7997215 h 130.06503 a 11.25,11.25 45 0 1 11.25,11.2499995 v 40.546433 a 11.25,11.25 135 0 1 -11.25,11.25 H 14.245 a 11.25,11.25 45 0 1 -11.2500001,-11.25 V 13.049721 A 11.25,11.25 135 0 1 14.245,1.7997215 Z"
-     sodipodi:type="rect" />
+     sodipodi:type="rect"
+     d="M 15.556859,7.2378955 H 149.63968 a 11.25,11.25 45 0 1 11.25,11.2499995 V 38.20895 a 11.25,11.25 135 0 1 -11.25,11.25 H 15.556859 a 11.25,11.25 45 0 1 -11.25,-11.25 V 18.487895 a 11.25,11.25 135 0 1 11.25,-11.2499995 z" />
   <g
      id="graph0"
      class="graph"
-     transform="matrix(0.64684629,0,0,0.64684629,162.58238,105.71913)">
+     transform="translate(10.031579,90.49474)">
     <title
-       id="title6146">%0</title>
-    <polygon
-       fill="#ffffff"
-       stroke="transparent"
-       points="113,-61 113,4 -4,4 -4,-61 "
-       id="polygon6148" />
-    <!-- g2 -->
+       id="title2">%0</title>
+    <!-- E -->
     <g
        id="node1"
        class="node">
       <title
-         id="title6150">g2</title>
+         id="title4">E</title>
+      <path
+         fill="none"
+         stroke="#000000"
+         d="m 16.6667,-68.4 c 0,0 -7.3334,0 -7.3334,0 C 5.6667,-68.4 2,-64.7333 2,-61.0667 c 0,0 0,7.3334 0,7.3334 0,3.6666 3.6667,7.3333 7.3333,7.3333 0,0 7.3334,0 7.3334,0 3.6666,0 7.3333,-3.6667 7.3333,-7.3333 0,0 0,-7.3334 0,-7.3334 0,-3.6666 -3.6667,-7.3333 -7.3333,-7.3333"
+         id="path6" />
+      <text
+         text-anchor="middle"
+         x="13"
+         y="-53.200001"
+         font-family="Times, serif"
+         font-size="14px"
+         fill="#000000"
+         id="text8">E</text>
+    </g>
+    <!-- L -->
+    <g
+       id="node2"
+       class="node">
+      <title
+         id="title11">L</title>
+      <path
+         fill="none"
+         stroke="#000000"
+         d="m 75.6667,-68.4 c 0,0 -7.3334,0 -7.3334,0 -3.6666,0 -7.3333,3.6667 -7.3333,7.3333 0,0 0,7.3334 0,7.3334 0,3.6666 3.6667,7.3333 7.3333,7.3333 0,0 7.3334,0 7.3334,0 3.6666,0 7.3333,-3.6667 7.3333,-7.3333 0,0 0,-7.3334 0,-7.3334 0,-3.6666 -3.6667,-7.3333 -7.3333,-7.3333"
+         id="path13" />
+      <text
+         text-anchor="middle"
+         x="72"
+         y="-53.200001"
+         font-family="Times, serif"
+         font-size="14px"
+         fill="#000000"
+         id="text15">L</text>
+    </g>
+    <!-- E&#45;&gt;L -->
+    <g
+       id="edge1"
+       class="edge">
+      <title
+         id="title18">E-&gt;L</title>
+      <path
+         fill="none"
+         stroke="#00cd00"
+         d="m 24.0974,-57.4 c 9.889,0 24.3717,0 34.8213,0"
+         id="path20" />
+      <polygon
+         fill="#00cd00"
+         stroke="#00cd00"
+         points="58.9523,-56.7001 58.9523,-58.1001 60.9523,-57.4 "
+         id="polygon22" />
+      <text
+         text-anchor="start"
+         x="38.8913"
+         y="-63.5"
+         font-family="Times, serif"
+         font-style="italic"
+         font-size="7px"
+         fill="#000000"
+         id="text24">r</text>
+      <text
+         text-anchor="start"
+         x="41.2216"
+         y="-63.5"
+         font-family="Times, serif"
+         font-style="italic"
+         baseline-shift="sub"
+         font-size="4px"
+         fill="#000000"
+         id="text26">EL</text>
+    </g>
+    <!-- I1 -->
+    <g
+       id="node7"
+       class="node">
+      <title
+         id="title29">I1</title>
+    </g>
+    <!-- E&#45;&gt;I1 -->
+    <g
+       id="edge7"
+       class="edge">
+      <title
+         id="title32">E-&gt;I1</title>
+    </g>
+    <!-- I2 -->
+    <g
+       id="node8"
+       class="node">
+      <title
+         id="title35">I2</title>
+    </g>
+    <!-- E&#45;&gt;I2 -->
+    <g
+       id="edge14"
+       class="edge">
+      <title
+         id="title38">E-&gt;I2</title>
+      <path
+         fill="none"
+         stroke="#ff0000"
+         d="m 24.0974,-48.6725 c 9.9715,7.8419 24.6134,19.3569 35.0817,27.5896"
+         id="path40" />
+      <polygon
+         fill="#ff0000"
+         stroke="#ff0000"
+         points="58.9475,-20.3745 59.8129,-21.475 60.9523,-19.6884 "
+         id="polygon42" />
+      <text
+         text-anchor="start"
+         x="48"
+         y="-33.099998"
+         font-family="Times, serif"
+         font-style="italic"
+         font-size="7px"
+         fill="#000000"
+         id="text44">µ</text>
+      <text
+         text-anchor="start"
+         x="52.080299"
+         y="-33.099998"
+         font-family="Times, serif"
+         font-style="italic"
+         baseline-shift="sub"
+         font-size="4px"
+         fill="#000000"
+         id="text46">E</text>
+      <text
+         text-anchor="start"
+         x="54.523899"
+         y="-33.099998"
+         font-family="Times, serif"
+         font-style="italic"
+         font-size="7px"
+         fill="#000000"
+         id="text48">(t)</text>
+    </g>
+    <!-- P -->
+    <g
+       id="node3"
+       class="node">
+      <title
+         id="title51">P</title>
+      <path
+         fill="none"
+         stroke="#000000"
+         d="m 137.6667,-68.4 c 0,0 -7.3334,0 -7.3334,0 -3.6666,0 -7.3333,3.6667 -7.3333,7.3333 0,0 0,7.3334 0,7.3334 0,3.6666 3.6667,7.3333 7.3333,7.3333 0,0 7.3334,0 7.3334,0 3.6666,0 7.3333,-3.6667 7.3333,-7.3333 0,0 0,-7.3334 0,-7.3334 0,-3.6666 -3.6667,-7.3333 -7.3333,-7.3333"
+         id="path53" />
+      <text
+         text-anchor="middle"
+         x="134"
+         y="-53.200001"
+         font-family="Times, serif"
+         font-size="14px"
+         fill="#000000"
+         id="text55">P</text>
+    </g>
+    <!-- L&#45;&gt;P -->
+    <g
+       id="edge2"
+       class="edge">
+      <title
+         id="title58">L-&gt;P</title>
+      <path
+         fill="none"
+         stroke="#00cd00"
+         d="m 83.0844,-57.4 c 10.4492,0 26.1337,0 37.331,0"
+         id="path60" />
+      <polygon
+         fill="#00cd00"
+         stroke="#00cd00"
+         points="120.5921,-56.7001 120.5922,-58.1001 122.5921,-57.4 "
+         id="polygon62" />
+      <text
+         text-anchor="start"
+         x="100.6131"
+         y="-63.5"
+         font-family="Times, serif"
+         font-style="italic"
+         font-size="7px"
+         fill="#000000"
+         id="text64">r</text>
+      <text
+         text-anchor="start"
+         x="102.9434"
+         y="-63.5"
+         font-family="Times, serif"
+         font-style="italic"
+         baseline-shift="sub"
+         font-size="4px"
+         fill="#000000"
+         id="text66">L</text>
+    </g>
+    <!-- L&#45;&gt;I2 -->
+    <g
+       id="edge8"
+       class="edge">
+      <title
+         id="title69">L-&gt;I2</title>
+    </g>
+    <!-- I3 -->
+    <g
+       id="node9"
+       class="node">
+      <title
+         id="title72">I3</title>
+    </g>
+    <!-- L&#45;&gt;I3 -->
+    <g
+       id="edge15"
+       class="edge">
+      <title
+         id="title75">L-&gt;I3</title>
+      <path
+         fill="none"
+         stroke="#ff0000"
+         d="m 83.2631,-49.1046 c 10.9297,8.0498 27.4963,20.2512 38.9238,28.6677"
+         id="path77" />
+      <polygon
+         fill="#ff0000"
+         stroke="#ff0000"
+         points="121.8089,-19.846 122.6391,-20.9733 123.8344,-19.2236 "
+         id="polygon79" />
+      <text
+         text-anchor="start"
+         x="110"
+         y="-33.099998"
+         font-family="Times, serif"
+         font-style="italic"
+         font-size="7px"
+         fill="#000000"
+         id="text81">µ</text>
+      <text
+         text-anchor="start"
+         x="114.0803"
+         y="-33.099998"
+         font-family="Times, serif"
+         font-style="italic"
+         baseline-shift="sub"
+         font-size="4px"
+         fill="#000000"
+         id="text83">L</text>
+      <text
+         text-anchor="start"
+         x="116.5239"
+         y="-33.099998"
+         font-family="Times, serif"
+         font-style="italic"
+         font-size="7px"
+         fill="#000000"
+         id="text85">(t)</text>
+      <text
+         text-anchor="start"
+         x="123.1298"
+         y="-33.099998"
+         font-family="Times, serif"
+         font-size="7px"
+         fill="#000000"
+         id="text87" />
+    </g>
+    <!-- Sm -->
+    <g
+       id="node4"
+       class="node">
+      <title
+         id="title90">Sm</title>
+      <path
+         fill="none"
+         stroke="#000000"
+         d="m 195.6667,-68.4 c 0,0 -7.3334,0 -7.3334,0 -3.6666,0 -7.3333,3.6667 -7.3333,7.3333 0,0 0,7.3334 0,7.3334 0,3.6666 3.6667,7.3333 7.3333,7.3333 0,0 7.3334,0 7.3334,0 3.6666,0 7.3333,-3.6667 7.3333,-7.3333 0,0 0,-7.3334 0,-7.3334 0,-3.6666 -3.6667,-7.3333 -7.3333,-7.3333"
+         id="path92" />
+      <text
+         text-anchor="start"
+         x="185.442"
+         y="-54.200001"
+         font-family="Times, serif"
+         font-size="14px"
+         fill="#000000"
+         id="text94">S</text>
+      <text
+         text-anchor="start"
+         x="193.22459"
+         y="-54.200001"
+         font-family="Times, serif"
+         baseline-shift="sub"
+         font-size="6px"
+         fill="#000000"
+         id="text96">M</text>
+    </g>
+    <!-- P&#45;&gt;Sm -->
+    <g
+       id="edge3"
+       class="edge">
+      <title
+         id="title99">P-&gt;Sm</title>
+      <path
+         fill="none"
+         stroke="#00cd00"
+         d="m 145.183,-57.4 c 9.5483,0 23.304,0 33.4352,0"
+         id="path101" />
+      <polygon
+         fill="#00cd00"
+         stroke="#00cd00"
+         points="178.8513,-56.7001 178.8514,-58.1001 180.8513,-57.4 "
+         id="polygon103" />
+      <text
+         text-anchor="start"
+         x="160.7231"
+         y="-63.5"
+         font-family="Times, serif"
+         font-style="italic"
+         font-size="7px"
+         fill="#000000"
+         id="text105">r</text>
+      <text
+         text-anchor="start"
+         x="163.05341"
+         y="-63.5"
+         font-family="Times, serif"
+         font-style="italic"
+         baseline-shift="sub"
+         font-size="4px"
+         fill="#000000"
+         id="text107">P</text>
+    </g>
+    <!-- P&#45;&gt;I3 -->
+    <g
+       id="edge9"
+       class="edge">
+      <title
+         id="title110">P-&gt;I3</title>
+    </g>
+    <!-- I4 -->
+    <g
+       id="node10"
+       class="node">
+      <title
+         id="title113">I4</title>
+    </g>
+    <!-- P&#45;&gt;I4 -->
+    <g
+       id="edge16"
+       class="edge">
+      <title
+         id="title116">P-&gt;I4</title>
+      <path
+         fill="none"
+         stroke="#ff0000"
+         d="m 145.183,-48.4536 c 9.6286,7.7028 23.5355,18.8284 33.6899,26.9519"
+         id="path118" />
+      <polygon
+         fill="#ff0000"
+         stroke="#ff0000"
+         points="178.8523,-20.6217 179.7269,-21.715 180.8513,-19.9189 "
+         id="polygon120" />
+      <text
+         text-anchor="start"
+         x="169"
+         y="-33.099998"
+         font-family="Times, serif"
+         font-style="italic"
+         font-size="7px"
+         fill="#000000"
+         id="text122">µ</text>
+      <text
+         text-anchor="start"
+         x="173.08031"
+         y="-33.099998"
+         font-family="Times, serif"
+         font-style="italic"
+         baseline-shift="sub"
+         font-size="4px"
+         fill="#000000"
+         id="text124">P</text>
+    </g>
+    <!-- Pm -->
+    <g
+       id="node5"
+       class="node">
+      <title
+         id="title127">Pm</title>
+      <path
+         fill="none"
+         stroke="#000000"
+         d="m 253.6667,-68.4 c 0,0 -7.3334,0 -7.3334,0 -3.6666,0 -7.3333,3.6667 -7.3333,7.3333 0,0 0,7.3334 0,7.3334 0,3.6666 3.6667,7.3333 7.3333,7.3333 0,0 7.3334,0 7.3334,0 3.6666,0 7.3333,-3.6667 7.3333,-7.3333 0,0 0,-7.3334 0,-7.3334 0,-3.6666 -3.6667,-7.3333 -7.3333,-7.3333"
+         id="path129" />
+      <text
+         text-anchor="start"
+         x="243.442"
+         y="-54.200001"
+         font-family="Times, serif"
+         font-size="14px"
+         fill="#000000"
+         id="text131">P</text>
+      <text
+         text-anchor="start"
+         x="251.22459"
+         y="-54.200001"
+         font-family="Times, serif"
+         baseline-shift="sub"
+         font-size="6px"
+         fill="#000000"
+         id="text133">M</text>
+    </g>
+    <!-- Sm&#45;&gt;Pm -->
+    <g
+       id="edge4"
+       class="edge">
+      <title
+         id="title136">Sm-&gt;Pm</title>
+      <path
+         fill="none"
+         stroke="#ffa500"
+         d="m 203.183,-57.4 c 9.5483,0 23.304,0 33.4352,0"
+         id="path138" />
+      <polygon
+         fill="#ffa500"
+         stroke="#ffa500"
+         points="236.8513,-56.7001 236.8514,-58.1001 238.8513,-57.4 "
+         id="polygon140" />
+      <text
+         text-anchor="start"
+         x="217.1821"
+         y="-63.5"
+         font-family="Times, serif"
+         font-size="7px"
+         fill="#000000"
+         id="text142">Λ</text>
+      <text
+         text-anchor="start"
+         x="221.26241"
+         y="-63.5"
+         font-family="Times, serif"
+         font-style="italic"
+         baseline-shift="sub"
+         font-size="4px"
+         fill="#000000"
+         id="text144">M</text>
+    </g>
+    <!-- Sm&#45;&gt;I4 -->
+    <g
+       id="edge10"
+       class="edge">
+      <title
+         id="title147">Sm-&gt;I4</title>
+    </g>
+    <!-- I5 -->
+    <g
+       id="node11"
+       class="node">
+      <title
+         id="title150">I5</title>
+    </g>
+    <!-- Sm&#45;&gt;I5 -->
+    <g
+       id="edge17"
+       class="edge">
+      <title
+         id="title153">Sm-&gt;I5</title>
+      <path
+         fill="none"
+         stroke="#ff0000"
+         d="m 203.183,-48.4536 c 9.6286,7.7028 23.5355,18.8284 33.6899,26.9519"
+         id="path155" />
+      <polygon
+         fill="#ff0000"
+         stroke="#ff0000"
+         points="236.8523,-20.6217 237.7269,-21.715 238.8513,-19.9189 "
+         id="polygon157" />
+      <text
+         text-anchor="start"
+         x="227"
+         y="-33.099998"
+         font-family="Times, serif"
+         font-style="italic"
+         font-size="7px"
+         fill="#000000"
+         id="text159">µ</text>
+      <text
+         text-anchor="start"
+         x="231.08031"
+         y="-33.099998"
+         font-family="Times, serif"
+         font-style="italic"
+         baseline-shift="sub"
+         font-size="4px"
+         fill="#000000"
+         id="text161">M</text>
+    </g>
+    <!-- Im -->
+    <g
+       id="node6"
+       class="node">
+      <title
+         id="title164">Im</title>
+      <path
+         fill="none"
+         stroke="#000000"
+         d="m 311.6667,-68.4 c 0,0 -7.3334,0 -7.3334,0 -3.6666,0 -7.3333,3.6667 -7.3333,7.3333 0,0 0,7.3334 0,7.3334 0,3.6666 3.6667,7.3333 7.3333,7.3333 0,0 7.3334,0 7.3334,0 3.6666,0 7.3333,-3.6667 7.3333,-7.3333 0,0 0,-7.3334 0,-7.3334 0,-3.6666 -3.6667,-7.3333 -7.3333,-7.3333"
+         id="path166" />
+      <text
+         text-anchor="start"
+         x="303.00299"
+         y="-54.200001"
+         font-family="Times, serif"
+         font-size="14px"
+         fill="#000000"
+         id="text168">I</text>
+      <text
+         text-anchor="start"
+         x="307.6636"
+         y="-54.200001"
+         font-family="Times, serif"
+         baseline-shift="sub"
+         font-size="6px"
+         fill="#000000"
+         id="text170">M</text>
+    </g>
+    <!-- Pm&#45;&gt;Im -->
+    <g
+       id="edge5"
+       class="edge">
+      <title
+         id="title173">Pm-&gt;Im</title>
+      <path
+         fill="none"
+         stroke="#ffa500"
+         d="m 261.183,-57.4 c 9.5483,0 23.304,0 33.4352,0"
+         id="path175" />
+      <polygon
+         fill="#ffa500"
+         stroke="#ffa500"
+         points="294.8513,-56.7001 294.8514,-58.1001 296.8513,-57.4 "
+         id="polygon177" />
+      <text
+         text-anchor="start"
+         x="274.83521"
+         y="-63.5"
+         font-family="Times, serif"
+         font-style="italic"
+         font-size="7px"
+         fill="#000000"
+         id="text179">r</text>
+      <text
+         text-anchor="start"
+         x="277.16559"
+         y="-63.5"
+         font-family="Times, serif"
+         font-style="italic"
+         baseline-shift="sub"
+         font-size="4px"
+         fill="#000000"
+         id="text181">EM</text>
+    </g>
+    <!-- Pm&#45;&gt;I5 -->
+    <g
+       id="edge11"
+       class="edge">
+      <title
+         id="title184">Pm-&gt;I5</title>
+    </g>
+    <!-- I6 -->
+    <g
+       id="node12"
+       class="node">
+      <title
+         id="title187">I6</title>
+    </g>
+    <!-- Pm&#45;&gt;I6 -->
+    <g
+       id="edge18"
+       class="edge">
+      <title
+         id="title190">Pm-&gt;I6</title>
+      <path
+         fill="none"
+         stroke="#ff0000"
+         d="m 261.183,-48.4536 c 9.6286,7.7028 23.5355,18.8284 33.6899,26.9519"
+         id="path192" />
+      <polygon
+         fill="#ff0000"
+         stroke="#ff0000"
+         points="294.8523,-20.6217 295.7269,-21.715 296.8513,-19.9189 "
+         id="polygon194" />
+      <text
+         text-anchor="start"
+         x="284"
+         y="-33.099998"
+         font-family="Times, serif"
+         font-style="italic"
+         font-size="7px"
+         fill="#000000"
+         id="text196">µ</text>
+      <text
+         text-anchor="start"
+         x="288.08029"
+         y="-33.099998"
+         font-family="Times, serif"
+         font-style="italic"
+         baseline-shift="sub"
+         font-size="4px"
+         fill="#000000"
+         id="text198">M</text>
+      <text
+         text-anchor="start"
+         x="291.63589"
+         y="-33.099998"
+         font-family="Times, serif"
+         font-size="7px"
+         fill="#000000"
+         id="text200" />
+    </g>
+    <!-- Im&#45;&gt;I6 -->
+    <g
+       id="edge12"
+       class="edge">
+      <title
+         id="title203">Im-&gt;I6</title>
+    </g>
+    <!-- I7 -->
+    <g
+       id="node13"
+       class="node">
+      <title
+         id="title206">I7</title>
+    </g>
+    <!-- Im&#45;&gt;I7 -->
+    <g
+       id="edge19"
+       class="edge">
+      <title
+         id="title209">Im-&gt;I7</title>
+      <path
+         fill="none"
+         stroke="#ff0000"
+         d="m 319.183,-48.4536 c 9.6286,7.7028 23.5355,18.8284 33.6899,26.9519"
+         id="path211" />
+      <polygon
+         fill="#ff0000"
+         stroke="#ff0000"
+         points="352.8523,-20.6217 353.7269,-21.715 354.8513,-19.9189 "
+         id="polygon213" />
+      <text
+         text-anchor="start"
+         x="342"
+         y="-33.099998"
+         font-family="Times, serif"
+         font-style="italic"
+         font-size="7px"
+         fill="#000000"
+         id="text215">µ</text>
+      <text
+         text-anchor="start"
+         x="346.08029"
+         y="-33.099998"
+         font-family="Times, serif"
+         font-style="italic"
+         baseline-shift="sub"
+         font-size="4px"
+         fill="#000000"
+         id="text217">M</text>
+      <text
+         text-anchor="start"
+         x="349.63589"
+         y="-33.099998"
+         font-family="Times, serif"
+         font-size="7px"
+         fill="#000000"
+         id="text219" />
+    </g>
+    <!-- I8 -->
+    <g
+       id="node14"
+       class="node">
+      <title
+         id="title222">I8</title>
+    </g>
+    <!-- Im&#45;&gt;I8 -->
+    <g
+       id="edge6"
+       class="edge">
+      <title
+         id="title225">Im-&gt;I8</title>
+    </g>
+    <!-- I8&#45;&gt;I7 -->
+    <g
+       id="edge13"
+       class="edge">
+      <title
+         id="title228">I8-&gt;I7</title>
+    </g>
+  </g>
+  <g
+     id="graph0-3"
+     class="graph"
+     transform="matrix(0.79701191,0,0,0.79701191,384.60817,54.892214)">
+    <title
+       id="title1053">%0</title>
+    <polygon
+       fill="#ffffff"
+       stroke="transparent"
+       points="-4,4 -4,-61 113,-61 113,4 "
+       id="polygon1055" />
+    <!-- g2 -->
+    <g
+       id="node1-6"
+       class="node">
+      <title
+         id="title1057">g2</title>
       <text
          text-anchor="start"
          x="46.063499"
@@ -118,14 +819,14 @@
          font-family="Times, serif"
          font-size="10px"
          fill="#000000"
-         id="text6152">Development</text>
+         id="text1059">Development</text>
     </g>
     <!-- y2 -->
     <g
-       id="node2"
+       id="node2-7"
        class="node">
       <title
-         id="title6155">y2</title>
+         id="title1062">y2</title>
       <text
          text-anchor="start"
          x="54.952999"
@@ -133,14 +834,14 @@
          font-family="Times, serif"
          font-size="10px"
          fill="#000000"
-         id="text6157">Infection</text>
+         id="text1064">Infection</text>
     </g>
     <!-- r2 -->
     <g
-       id="node3"
+       id="node3-5"
        class="node">
       <title
-         id="title6160">r2</title>
+         id="title1067">r2</title>
       <text
          text-anchor="start"
          x="54.113499"
@@ -148,760 +849,115 @@
          font-family="Times, serif"
          font-size="10px"
          fill="#000000"
-         id="text6162">Mortality</text>
+         id="text1069">Mortality</text>
     </g>
     <!-- y1 -->
     <g
-       id="node4"
+       id="node4-3"
        class="node">
       <title
-         id="title6165">y1</title>
+         id="title1072">y1</title>
     </g>
     <!-- y1&#45;&gt;y2 -->
     <g
-       id="edge1"
+       id="edge1-5"
        class="edge">
       <title
-         id="title6168">y1-&gt;y2</title>
+         id="title1075">y1-&gt;y2</title>
       <path
          fill="none"
          stroke="#ffa500"
          d="m 1.3142,-28.5 c 4.281,0 24.6688,0 42.6126,0"
-         id="path6170" />
+         id="path1077" />
       <polygon
          fill="#ffa500"
          stroke="#ffa500"
          points="43.9481,-27.1001 43.9481,-29.9001 47.9481,-28.5 "
-         id="polygon6172" />
+         id="polygon1079" />
     </g>
     <!-- r1 -->
     <g
-       id="node5"
+       id="node5-6"
        class="node">
       <title
-         id="title6175">r1</title>
+         id="title1082">r1</title>
     </g>
     <!-- y1&#45;&gt;r1 -->
     <g
-       id="edge5"
+       id="edge5-2"
        class="edge">
       <title
-         id="title6178">y1-&gt;r1</title>
+         id="title1085">y1-&gt;r1</title>
     </g>
     <!-- r1&#45;&gt;r2 -->
     <g
-       id="edge2"
+       id="edge2-9"
        class="edge">
       <title
-         id="title6181">r1-&gt;r2</title>
+         id="title1088">r1-&gt;r2</title>
       <path
          fill="none"
          stroke="#ff0000"
          d="m 1.3142,-3.5 c 4.281,0 24.6688,0 42.6126,0"
-         id="path6183" />
+         id="path1090" />
       <polygon
          fill="#ff0000"
          stroke="#ff0000"
          points="43.9481,-2.1001 43.9481,-4.9001 47.9481,-3.5 "
-         id="polygon6185" />
+         id="polygon1092" />
     </g>
     <!-- g1 -->
     <g
-       id="node6"
+       id="node6-1"
        class="node">
       <title
-         id="title6188">g1</title>
+         id="title1095">g1</title>
     </g>
     <!-- g1&#45;&gt;g2 -->
     <g
-       id="edge3"
+       id="edge3-2"
        class="edge">
       <title
-         id="title6191">g1-&gt;g2</title>
+         id="title1098">g1-&gt;g2</title>
       <path
          fill="none"
          stroke="#00cd00"
          d="m 1.3142,-53.5 c 3.4128,0 17.0614,0 31.5479,0"
-         id="path6193" />
+         id="path1100" />
       <polygon
          fill="#00cd00"
          stroke="#00cd00"
          points="32.9624,-52.1001 32.9624,-54.9001 36.9624,-53.5 "
-         id="polygon6195" />
+         id="polygon1102" />
     </g>
     <!-- g1&#45;&gt;y1 -->
     <g
-       id="edge4"
+       id="edge4-7"
        class="edge">
       <title
-         id="title6198">g1-&gt;y1</title>
-    </g>
-  </g>
-  <g
-     id="graph0-5"
-     class="graph"
-     transform="translate(5.8965084,169.23511)">
-    <title
-       id="title2664">%0</title>
-    <!-- NonExistent -->
-    <g
-       id="node1-5"
-       class="node">
-      <title
-         id="title2666">NonExistent</title>
-      <path
-         fill="none"
-         stroke="#000000"
-         d="m 98.5205,-94 c 0,0 -50.3333,0 -50.3333,0 -3.6667,0 -7.3334,3.6667 -7.3334,7.3333 0,0 0,7.3334 0,7.3334 0,3.6666 3.6667,7.3333 7.3334,7.3333 0,0 50.3333,0 50.3333,0 3.6667,0 7.3333,-3.6667 7.3333,-7.3333 0,0 0,-7.3334 0,-7.3334 0,-3.6666 -3.6666,-7.3333 -7.3333,-7.3333"
-         id="path2668" />
-      <text
-         text-anchor="middle"
-         x="73.353798"
-         y="-80.300003"
-         font-family="Times, serif"
-         font-size="9px"
-         fill="#000000"
-         id="text2670">NonExistent</text>
-    </g>
-    <!-- P -->
-    <g
-       id="node2-4"
-       class="node">
-      <title
-         id="title2673">P</title>
-      <path
-         fill="none"
-         stroke="#000000"
-         d="m 139.3743,-130 c 0,0 -7.3333,0 -7.3333,0 -3.6667,0 -7.3333,3.6667 -7.3333,7.3333 0,0 0,7.3334 0,7.3334 0,3.6666 3.6666,7.3333 7.3333,7.3333 0,0 7.3333,0 7.3333,0 3.6667,0 7.3334,-3.6667 7.3334,-7.3333 0,0 0,-7.3334 0,-7.3334 0,-3.6666 -3.6667,-7.3333 -7.3334,-7.3333"
-         id="path2675" />
-      <text
-         text-anchor="middle"
-         x="135.7077"
-         y="-116.3"
-         font-family="Times, serif"
-         font-size="9px"
-         fill="#000000"
-         id="text2677">P</text>
-    </g>
-    <!-- NonExistent&#45;&gt;P -->
-    <g
-       id="edge3-7"
-       class="edge">
-      <title
-         id="title2680">NonExistent-&gt;P</title>
-      <path
-         fill="none"
-         stroke="#ff0000"
-         d="m 95.4747,-95.7715 c 9.828,-5.6742 20.9707,-12.1074 29.0336,-16.7625"
-         id="path2682" />
-      <polygon
-         fill="#ff0000"
-         stroke="#ff0000"
-         points="95.8643,-94.784 92.7412,-94.1933 94.8142,-96.6027 "
-         id="polygon2684" />
-      <text
-         text-anchor="start"
-         x="103.6876"
-         y="-107.2528"
-         font-family="Times, serif"
-         font-style="italic"
-         font-size="7px"
-         fill="#000000"
-         id="text2686">µ</text>
-      <text
-         text-anchor="start"
-         x="107.7679"
-         y="-107.2528"
-         font-family="Times, serif"
-         font-style="italic"
-         baseline-shift="sub"
-         font-size="4px"
-         fill="#000000"
-         id="text2688">P</text>
-    </g>
-    <!-- L -->
-    <g
-       id="node3-6"
-       class="node">
-      <title
-         id="title2691">L</title>
-      <path
-         fill="none"
-         stroke="#000000"
-         d="m 77.0205,-166 c 0,0 -7.3333,0 -7.3333,0 -3.6667,0 -7.3334,3.6667 -7.3334,7.3333 0,0 0,7.3334 0,7.3334 0,3.6666 3.6667,7.3333 7.3334,7.3333 0,0 7.3333,0 7.3333,0 3.6667,0 7.3333,-3.6667 7.3333,-7.3333 0,0 0,-7.3334 0,-7.3334 0,-3.6666 -3.6666,-7.3333 -7.3333,-7.3333"
-         id="path2693" />
-      <text
-         text-anchor="middle"
-         x="73.353798"
-         y="-152.3"
-         font-family="Times, serif"
-         font-size="9px"
-         fill="#000000"
-         id="text2695">L</text>
-    </g>
-    <!-- NonExistent&#45;&gt;L -->
-    <g
-       id="edge2-5"
-       class="edge">
-      <title
-         id="title2698">NonExistent-&gt;L</title>
-      <path
-         fill="none"
-         stroke="#ff0000"
-         d="m 73.3538,-97.5567 c 0,-13.5829 0,-33.5737 0,-46.0347"
-         id="path2700" />
-      <polygon
-         fill="#ff0000"
-         stroke="#ff0000"
-         points="74.4039,-97.25 73.3538,-94.25 72.3039,-97.25 "
-         id="polygon2702" />
-      <text
-         text-anchor="start"
-         x="58.473999"
-         y="-123.6741"
-         font-family="Times, serif"
-         font-style="italic"
-         font-size="7px"
-         fill="#000000"
-         id="text2704">µ</text>
-      <text
-         text-anchor="start"
-         x="62.554298"
-         y="-123.6741"
-         font-family="Times, serif"
-         font-style="italic"
-         baseline-shift="sub"
-         font-size="4px"
-         fill="#000000"
-         id="text2706">L</text>
-      <text
-         text-anchor="start"
-         x="64.997902"
-         y="-123.6741"
-         font-family="Times, serif"
-         font-style="italic"
-         font-size="7px"
-         fill="#000000"
-         id="text2708">(t)</text>
-      <text
-         text-anchor="start"
-         x="71.603798"
-         y="-123.6741"
-         font-family="Times, serif"
-         font-size="7px"
-         fill="#000000"
-         id="text2710" />
-    </g>
-    <!-- E -->
-    <g
-       id="node4-6"
-       class="node">
-      <title
-         id="title2713">E</title>
-      <path
-         fill="none"
-         stroke="#000000"
-         d="m 14.6667,-130 c 0,0 -7.3334,0 -7.3334,0 -3.6666,0 -7.3333,3.6667 -7.3333,7.3333 0,0 0,7.3334 0,7.3334 0,3.6666 3.6667,7.3333 7.3333,7.3333 0,0 7.3334,0 7.3334,0 3.6666,0 7.3333,-3.6667 7.3333,-7.3333 0,0 0,-7.3334 0,-7.3334 C 22,-126.3333 18.3333,-130 14.6667,-130"
-         id="path2715" />
-      <text
-         text-anchor="middle"
-         x="11"
-         y="-116.3"
-         font-family="Times, serif"
-         font-size="9px"
-         fill="#000000"
-         id="text2717">E</text>
-    </g>
-    <!-- NonExistent&#45;&gt;E -->
-    <g
-       id="edge1-9"
-       class="edge">
-      <title
-         id="title2720">NonExistent-&gt;E</title>
-      <path
-         fill="none"
-         stroke="#ff0000"
-         d="m 51.233,-95.7715 c -9.828,-5.6742 -20.9708,-12.1074 -29.0336,-16.7625"
-         id="path2722" />
-      <polygon
-         fill="#ff0000"
-         stroke="#ff0000"
-         points="51.8934,-96.6027 53.9665,-94.1933 50.8434,-94.784 "
-         id="polygon2724" />
-      <text
-         text-anchor="start"
-         x="18.336399"
-         y="-98.852798"
-         font-family="Times, serif"
-         font-size="7px"
-         fill="#000000"
-         id="text2726">  </text>
-      <text
-         text-anchor="start"
-         x="23.586399"
-         y="-98.852798"
-         font-family="Times, serif"
-         font-style="italic"
-         font-size="7px"
-         fill="#000000"
-         id="text2728">µ</text>
-      <text
-         text-anchor="start"
-         x="27.6667"
-         y="-98.852798"
-         font-family="Times, serif"
-         font-style="italic"
-         baseline-shift="sub"
-         font-size="4px"
-         fill="#000000"
-         id="text2730">E</text>
-      <text
-         text-anchor="start"
-         x="30.1103"
-         y="-98.852798"
-         font-family="Times, serif"
-         font-style="italic"
-         font-size="7px"
-         fill="#000000"
-         id="text2732">(t)</text>
-    </g>
-    <!-- Im -->
-    <g
-       id="node5-3"
-       class="node">
-      <title
-         id="title2735">Im</title>
-      <path
-         fill="none"
-         stroke="#000000"
-         d="m 14.6667,-58 c 0,0 -7.3334,0 -7.3334,0 C 3.6667,-58 0,-54.3333 0,-50.6667 c 0,0 0,7.3334 0,7.3334 0,3.6666 3.6667,7.3333 7.3333,7.3333 0,0 7.3334,0 7.3334,0 3.6666,0 7.3333,-3.6667 7.3333,-7.3333 0,0 0,-7.3334 0,-7.3334 C 22,-54.3333 18.3333,-58 14.6667,-58"
-         id="path2737" />
-      <text
-         text-anchor="start"
-         x="6.8351998"
-         y="-45.299999"
-         font-family="Times, serif"
-         font-size="9px"
-         fill="#000000"
-         id="text2739">I</text>
-      <text
-         text-anchor="start"
-         x="9.8312998"
-         y="-45.299999"
-         font-family="Times, serif"
-         baseline-shift="sub"
-         font-size="6px"
-         fill="#000000"
-         id="text2741">M</text>
-    </g>
-    <!-- NonExistent&#45;&gt;Im -->
-    <g
-       id="edge5-7"
-       class="edge">
-      <title
-         id="title2744">NonExistent-&gt;Im</title>
-      <path
-         fill="none"
-         stroke="#ff0000"
-         d="m 51.233,-70.2285 c -9.828,5.6742 -20.9708,12.1074 -29.0336,16.7625"
-         id="path2746" />
-      <polygon
-         fill="#ff0000"
-         stroke="#ff0000"
-         points="50.8434,-71.216 53.9665,-71.8067 51.8934,-69.3973 "
-         id="polygon2748" />
-      <text
-         text-anchor="start"
-         x="27.330299"
-         y="-64.947197"
-         font-family="Times, serif"
-         font-style="italic"
-         font-size="7px"
-         fill="#000000"
-         id="text2750">µ</text>
-      <text
-         text-anchor="start"
-         x="31.410601"
-         y="-64.947197"
-         font-family="Times, serif"
-         font-style="italic"
-         baseline-shift="sub"
-         font-size="4px"
-         fill="#000000"
-         id="text2752">M</text>
-      <text
-         text-anchor="start"
-         x="34.966202"
-         y="-64.947197"
-         font-family="Times, serif"
-         font-size="7px"
-         fill="#000000"
-         id="text2754" />
-    </g>
-    <!-- Pm -->
-    <g
-       id="node6-4"
-       class="node">
-      <title
-         id="title2757">Pm</title>
-      <path
-         fill="none"
-         stroke="#000000"
-         d="m 77.0205,-22 c 0,0 -7.3333,0 -7.3333,0 -3.6667,0 -7.3334,3.6667 -7.3334,7.3333 0,0 0,7.3334 0,7.3334 0,3.6666 3.6667,7.3333 7.3334,7.3333 0,0 7.3333,0 7.3333,0 3.6667,0 7.3333,-3.6667 7.3333,-7.3333 0,0 0,-7.3334 0,-7.3334 0,-3.6666 -3.6666,-7.3333 -7.3333,-7.3333"
-         id="path2759" />
-      <text
-         text-anchor="start"
-         x="68.1856"
-         y="-9.3000002"
-         font-family="Times, serif"
-         font-size="9px"
-         fill="#000000"
-         id="text2761">P</text>
-      <text
-         text-anchor="start"
-         x="73.188698"
-         y="-9.3000002"
-         font-family="Times, serif"
-         baseline-shift="sub"
-         font-size="6px"
-         fill="#000000"
-         id="text2763">M</text>
-    </g>
-    <!-- NonExistent&#45;&gt;Pm -->
-    <g
-       id="edge6"
-       class="edge">
-      <title
-         id="title2766">NonExistent-&gt;Pm</title>
-      <path
-         fill="none"
-         stroke="#ff0000"
-         d="m 73.3538,-68.4433 c 0,13.5829 0,33.5737 0,46.0347"
-         id="path2768" />
-      <polygon
-         fill="#ff0000"
-         stroke="#ff0000"
-         points="72.3039,-68.75 73.3538,-71.75 74.4039,-68.75 "
-         id="polygon2770" />
-      <text
-         text-anchor="start"
-         x="63.967899"
-         y="-48.525902"
-         font-family="Times, serif"
-         font-style="italic"
-         font-size="7px"
-         fill="#000000"
-         id="text2772">µ</text>
-      <text
-         text-anchor="start"
-         x="68.048203"
-         y="-48.525902"
-         font-family="Times, serif"
-         font-style="italic"
-         baseline-shift="sub"
-         font-size="4px"
-         fill="#000000"
-         id="text2774">M</text>
-      <text
-         text-anchor="start"
-         x="71.603798"
-         y="-48.525902"
-         font-family="Times, serif"
-         font-size="7px"
-         fill="#000000"
-         id="text2776" />
-    </g>
-    <!-- Sm -->
-    <g
-       id="node7"
-       class="node">
-      <title
-         id="title2779">Sm</title>
-      <path
-         fill="none"
-         stroke="#000000"
-         d="m 139.3743,-58 c 0,0 -7.3333,0 -7.3333,0 -3.6667,0 -7.3333,3.6667 -7.3333,7.3333 0,0 0,7.3334 0,7.3334 0,3.6666 3.6666,7.3333 7.3333,7.3333 0,0 7.3333,0 7.3333,0 3.6667,0 7.3334,-3.6667 7.3334,-7.3333 0,0 0,-7.3334 0,-7.3334 0,-3.6666 -3.6667,-7.3333 -7.3334,-7.3333"
-         id="path2781" />
-      <text
-         text-anchor="start"
-         x="130.5394"
-         y="-45.299999"
-         font-family="Times, serif"
-         font-size="9px"
-         fill="#000000"
-         id="text2783">S</text>
-      <text
-         text-anchor="start"
-         x="135.5425"
-         y="-45.299999"
-         font-family="Times, serif"
-         baseline-shift="sub"
-         font-size="6px"
-         fill="#000000"
-         id="text2785">M</text>
-    </g>
-    <!-- NonExistent&#45;&gt;Sm -->
-    <g
-       id="edge4-5"
-       class="edge">
-      <title
-         id="title2788">NonExistent-&gt;Sm</title>
-      <path
-         fill="none"
-         stroke="#ff0000"
-         d="m 95.4747,-70.2285 c 9.828,5.6742 20.9707,12.1074 29.0336,16.7625"
-         id="path2790" />
-      <polygon
-         fill="#ff0000"
-         stroke="#ff0000"
-         points="94.8142,-69.3973 92.7412,-71.8067 95.8643,-71.216 "
-         id="polygon2792" />
-      <text
-         text-anchor="start"
-         x="108.3556"
-         y="-64.947197"
-         font-family="Times, serif"
-         font-style="italic"
-         font-size="7px"
-         fill="#000000"
-         id="text2794">µ</text>
-      <text
-         text-anchor="start"
-         x="112.4359"
-         y="-64.947197"
-         font-family="Times, serif"
-         font-style="italic"
-         baseline-shift="sub"
-         font-size="4px"
-         fill="#000000"
-         id="text2796">M</text>
-    </g>
-    <!-- P&#45;&gt;Sm -->
-    <g
-       id="edge9"
-       class="edge">
-      <title
-         id="title2799">P-&gt;Sm</title>
-      <path
-         fill="none"
-         stroke="#00cd00"
-         d="m 135.7077,-107.75 c 0,12.1866 0,31.7071 0,45.3208"
-         id="path2801" />
-      <polygon
-         fill="#00cd00"
-         stroke="#00cd00"
-         points="137.1078,-62.4086 135.7077,-58.4086 134.3078,-62.4086 "
-         id="polygon2803" />
-      <text
-         text-anchor="start"
-         x="128.15379"
-         y="-88.189598"
-         font-family="Times, serif"
-         font-style="italic"
-         font-size="7px"
-         fill="#000000"
-         id="text2805">r</text>
-      <text
-         text-anchor="start"
-         x="130.4841"
-         y="-88.189598"
-         font-family="Times, serif"
-         font-style="italic"
-         baseline-shift="sub"
-         font-size="4px"
-         fill="#000000"
-         id="text2807">P</text>
-    </g>
-    <!-- L&#45;&gt;P -->
-    <g
-       id="edge8"
-       class="edge">
-      <title
-         id="title2810">L-&gt;P</title>
-      <path
-         fill="none"
-         stroke="#00cd00"
-         d="m 84.5014,-148.5639 c 10.197,5.8872 25.351,14.6364 36.5295,21.0903"
-         id="path2812" />
-      <polygon
-         fill="#00cd00"
-         stroke="#00cd00"
-         points="121.8925,-128.5928 124.6566,-125.3804 120.4924,-126.168 "
-         id="polygon2814" />
-      <text
-         text-anchor="start"
-         x="97.992302"
-         y="-141.1188"
-         font-family="Times, serif"
-         font-style="italic"
-         font-size="7px"
-         fill="#000000"
-         id="text2816">r</text>
-      <text
-         text-anchor="start"
-         x="100.3226"
-         y="-141.1188"
-         font-family="Times, serif"
-         font-style="italic"
-         baseline-shift="sub"
-         font-size="4px"
-         fill="#000000"
-         id="text2818">L</text>
-    </g>
-    <!-- E&#45;&gt;L -->
-    <g
-       id="edge7"
-       class="edge">
-      <title
-         id="title2821">E-&gt;L</title>
-      <path
-         fill="none"
-         stroke="#00cd00"
-         d="m 22.1476,-125.4361 c 10.1969,-5.8872 25.351,-14.6364 36.5295,-21.0903"
-         id="path2823" />
-      <polygon
-         fill="#00cd00"
-         stroke="#00cd00"
-         points="58.1386,-147.832 62.3027,-148.6196 59.5386,-145.4072 "
-         id="polygon2825" />
-      <text
-         text-anchor="start"
-         x="33.194801"
-         y="-139.08121"
-         font-family="Times, serif"
-         font-style="italic"
-         font-size="7px"
-         fill="#000000"
-         id="text2827">r</text>
-      <text
-         text-anchor="start"
-         x="35.525101"
-         y="-139.08121"
-         font-family="Times, serif"
-         font-style="italic"
-         baseline-shift="sub"
-         font-size="4px"
-         fill="#000000"
-         id="text2829">EL</text>
-    </g>
-    <!-- Im&#45;&gt;E -->
-    <g
-       id="edge12"
-       class="edge">
-      <title
-         id="title2832">Im-&gt;E</title>
-    </g>
-    <!-- Pm&#45;&gt;Im -->
-    <g
-       id="edge11"
-       class="edge">
-      <title
-         id="title2835">Pm-&gt;Im</title>
-      <path
-         fill="none"
-         stroke="#ffa500"
-         d="M 62.2062,-17.4361 C 52.0093,-23.3233 36.8552,-32.0725 25.6768,-38.5264"
-         id="path2837" />
-      <polygon
-         fill="#ffa500"
-         stroke="#ffa500"
-         points="26.2152,-39.832 24.8152,-37.4072 22.0511,-40.6196 "
-         id="polygon2839" />
-      <text
-         text-anchor="start"
-         x="38.612"
-         y="-34.0812"
-         font-family="Times, serif"
-         font-style="italic"
-         font-size="7px"
-         fill="#000000"
-         id="text2841">r</text>
-      <text
-         text-anchor="start"
-         x="40.942299"
-         y="-34.0812"
-         font-family="Times, serif"
-         font-style="italic"
-         baseline-shift="sub"
-         font-size="4px"
-         fill="#000000"
-         id="text2843">EM</text>
-    </g>
-    <!-- Sm&#45;&gt;Pm -->
-    <g
-       id="edge10"
-       class="edge">
-      <title
-         id="title2846">Sm-&gt;Pm</title>
-      <path
-         fill="none"
-         stroke="#ffa500"
-         d="m 124.56,-40.5639 c -10.1969,5.8872 -25.3509,14.6364 -36.5294,21.0903"
-         id="path2848" />
-      <polygon
-         fill="#ffa500"
-         stroke="#ffa500"
-         points="88.5691,-18.168 84.4049,-17.3804 87.169,-20.5928 "
-         id="polygon2850" />
-      <text
-         text-anchor="start"
-         x="98.659401"
-         y="-33.118801"
-         font-family="Times, serif"
-         font-size="7px"
-         fill="#000000"
-         id="text2852">Λ</text>
-      <text
-         text-anchor="start"
-         x="102.7397"
-         y="-33.118801"
-         font-family="Times, serif"
-         font-style="italic"
-         baseline-shift="sub"
-         font-size="4px"
-         fill="#000000"
-         id="text2854">M</text>
+         id="title1105">g1-&gt;y1</title>
     </g>
   </g>
   <text
      xml:space="preserve"
-     style="font-style:normal;font-weight:normal;font-size:6.59651px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.164913"
-     x="133.0159"
-     y="9.7573557"
+     style="font-style:normal;font-weight:normal;font-size:6.63123px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.165781"
+     x="45.657978"
+     y="16.598707"
      id="text4749"><tspan
        sodipodi:role="line"
-       id="tspan4747"
-       style="text-align:center;text-anchor:middle;stroke-width:0.164913"
-       x="133.0159"
-       y="9.7573557">Juvenile</tspan><tspan
-       sodipodi:role="line"
-       style="text-align:center;text-anchor:middle;stroke-width:0.164913"
-       x="133.0159"
-       y="18.002993"
-       id="tspan5685">mosquitoes</tspan></text>
+       style="text-align:center;text-anchor:middle;stroke-width:0.165781"
+       x="45.657978"
+       y="16.598707"
+       id="tspan5685">Juvenile mosquitoes</tspan></text>
   <text
      xml:space="preserve"
-     style="font-style:normal;font-weight:normal;font-size:30px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.75"
-     x="304.78525"
-     y="70.714859"
-     id="text5435"><tspan
-       sodipodi:role="line"
-       id="tspan5433"
-       style="stroke-width:0.75" /></text>
-  <text
-     xml:space="preserve"
-     style="font-style:normal;font-weight:normal;font-size:6.59651px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.164913"
-     x="130.21741"
-     y="155.48996"
+     style="font-style:normal;font-weight:normal;font-size:6.63123px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.165781"
+     x="220.77356"
+     y="16.598707"
      id="text4749-2"><tspan
        sodipodi:role="line"
-       id="tspan4747-5"
-       style="text-align:center;text-anchor:middle;stroke-width:0.164913"
-       x="130.21741"
-       y="155.48996">Adult</tspan><tspan
-       sodipodi:role="line"
-       style="text-align:center;text-anchor:middle;stroke-width:0.164913"
-       x="130.21741"
-       y="163.7356"
-       id="tspan5685-4">mosquitoes</tspan></text>
+       style="text-align:center;text-anchor:middle;stroke-width:0.165781"
+       x="220.77356"
+       y="16.598707"
+       id="tspan5685-4">Adult mosquitoes</tspan></text>
 </svg>

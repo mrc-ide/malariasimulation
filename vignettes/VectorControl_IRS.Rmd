@@ -70,12 +70,13 @@ simparams <- set_equilibrium(parameters = simparams, init_EIR = starting_EIR)
 output_control <- run_simulation(timesteps = sim_length, parameters = simparams)
 ```
 
-#### A note on mosquito species
-It is also possible to use the `set_species()` function to account for 3 different mosquito species in the simulation. In this case, the matrices would need to have additional column corresponding to each mosquito species. For example, if we specified that there were 3 species of mosquitoes in the model and IRS was implemented at two timesteps, then the matrices would have 2 rows and 3 columns. If you are not already familiar with the `set_species()` function, see the Set Species vignette.  
+#### A note on mosquito species  
+It is also possible to use the `set_species()` function to account for 3 different mosquito species in the simulation. In this case, the matrices would need to have additional column corresponding to each mosquito species. For example, if we specified that there were 3 species of mosquitoes in the model and nets were distributed at two timesteps, then the matrices would have 2 rows and 3 columns. If you are not already familiar with the `set_species()` function, see the Mosquito Species vignette.  
 
 The default setting is to model all mosquito species together. 
 ```{r}
 simparams$species
+simparams$species_proportions
 ```
 
 

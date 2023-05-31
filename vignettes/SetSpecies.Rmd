@@ -18,23 +18,23 @@ knitr::opts_chunk$set(
 library(malariasimulation)
 ```
     
-### Plotting functions
-We will create a few plotting functions to visualise the output.
+### Plotting function
+We will create a plotting function to visualise the output.
 ```{r}
 cols <- c("#E69F00", "#56B4E9", "#009E73", 
           "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 # Plotting functions
 plot_prev <- function() {
-  plot(x = output$timestep, y = output$n_detect_730_3650 / output$n_730_3650, 
+  plot(x = output_endophilic$timestep, y = output_endophilic$n_detect_730_3650 / output_endophilic$n_730_3650, 
        type = "l", col = cols[3], lwd = 2.5,
        xlab = "Time (days)", ylab = expression(paste(italic(Pf),"PR"[2-10])),
        xaxs = "i", yaxs = "i", bty = "l", ylim = c(0,1))
-  lines(x = output_all$timestep, y = output_all$n_detect_730_3650 / output_all$n_730_3650,
+  lines(x = output_exophilic$timestep, y = output_exophilic$n_detect_730_3650 / output_exophilic$n_730_3650,
         col = cols[5], lwd = 2.5)
   abline(v = sprayingtimesteps, lty = 2, lwd = 2.5, col = "black")
   grid(lty = 2, col = "grey80", lwd = 1)
-  legend("bottomleft", box.lty = 0, legend = c("Spraying", "Prevalence for species-specific scenario", "Prevalence for default all mosquitoes scenario"),
+  legend("bottomleft", box.lty = 0, legend = c("Spraying", "Prevalence for endophilic mosquitoes", "Prevalence for exophilic mosquitoes"),
          col = c("black", cols[3], cols[5]), lty = c(2,1,1), lwd = 2.5)
 }
 ```
@@ -51,11 +51,11 @@ There are preset parameters for *An. gambiae*, *An. arabiensis*, and *An. funest
 
 We will demonstrate how to specify different mosquito species and how this could alter intervention impact using an example with IRS.
 
-## IRS with default mosquito settings
+## IRS with single endophilic mosquito species 
 
-Use the `get_parameters()` function to generate a list of parameters, accepting most of the default values, but modifying seasonality values to model a seasonal setting. We will model IRS with the default mosquito settings, which is to model all mosquito species together. Then, we use the `set_equilibrium()` function to to initialise the model at a given entomological inoculation rate (EIR).  
+Use the `get_parameters()` function to generate a list of parameters, accepting most of the default values, but modifying seasonality values to model a seasonal setting. We will use `set_species` to model mosquitoes similar to *An. funestus* but with a higher propensity to bite indoors. Then, we use the `set_equilibrium()` function to to initialise the model at a given entomological inoculation rate (EIR).  
 
-Use the `set_spraying()` function to set an IRS intervention. This function takes as arguments the parameter list, timesteps of spraying, coverage of IRS in the population and a series of parameters related to the insecticide used in the IRS. The proportion of mosquitoes dying following entering a hut is dependent on the parameters `ls_theta`, the initial efficacy, and `ls_gamma`, how it changes over time. The proportion of mosquitoes successfully feeding is dependent on `ks_theta`, the initial impact of the insecticide in IRS, and `ks_gamma`, how the impact changes over time. Finally, the proportion of mosquitoes being deterred away from a sprayed hut depends on `ms_theta`, the initial impact of IRS, and `ms_gamma`, the change in impact over time. See a more comprehensive explanation in the Supplementary Information of [Sherrard-Smith et al., 2018](https://doi.org/10.1038/s41467-018-07357-w).
+We used the `set_spraying()` function to set an IRS intervention. This function takes as arguments the parameter list, timesteps of spraying, coverage of IRS in the population and a series of parameters related to the insecticide used in the IRS. The proportion of mosquitoes dying following entering a hut is dependent on the parameters `ls_theta`, the initial efficacy, and `ls_gamma`, how it changes over time. The proportion of mosquitoes successfully feeding is dependent on `ks_theta`, the initial impact of the insecticide in IRS, and `ks_gamma`, how the impact changes over time. Finally, the proportion of mosquitoes being deterred away from a sprayed hut depends on `ms_theta`, the initial impact of IRS, and `ms_gamma`, the change in impact over time. See a more comprehensive explanation in the Supplementary Information of [Sherrard-Smith et al., 2018](https://doi.org/10.1038/s41467-018-07357-w).
 
 ```{r}
 year <- 365
@@ -77,13 +77,25 @@ simparams <- get_parameters(
 
 peak <- peak_season_offset(simparams)
 
+# Create an example mosquito species with a high value for `phi_indoors`
+endophilic_mosquito_params <- fun_params
+endophilic_mosquito_params$phi_indoors <- 0.9
+endophilic_mosquito_params$species <- 'endophilic'
+
+## Set mosquito species  with a high propensity for indoor biting
+simparams <- set_species(
+  simparams, 
+  species = list(endophilic_mosquito_params),
+  proportions = c(1)
+)
+
 sprayingtimesteps <- c(1, 2) * year + peak - 3 * month # There is a round of IRS in the 1st and second year 3 months prior to peak transmission.
 
 simparams <- set_spraying(
   simparams,
   timesteps = sprayingtimesteps,
   coverages = rep(.8, 2), # # Each round covers 80% of the population 
-                                                                    # nrows=length(timesteps), ncols=length(species) 
+  # nrows=length(timesteps), ncols=length(species) 
   ls_theta = matrix(2.025, nrow=length(sprayingtimesteps), ncol=1), # Matrix of mortality parameters per round of IRS and per species 
   ls_gamma = matrix(-0.009, nrow=length(sprayingtimesteps), ncol=1), # Matrix of mortality parameters per round of IRS and per species
   ks_theta = matrix(-2.222, nrow=length(sprayingtimesteps), ncol=1), # Matrix of feeding success parameters per round of IRS and per species
@@ -95,42 +107,31 @@ simparams <- set_spraying(
 simparams <- set_equilibrium(simparams, starting_EIR)
 
 # Running simulation with IRS
-output_all <- run_simulation(timesteps = sim_length, parameters = simparams)
+output_endophilic <- run_simulation(timesteps = sim_length, parameters = simparams)
 ```
 
-The default setting is to model all mosquito species together. 
+We can see below that only the endophilic species is modelled. 
 ```{r}
 simparams$species
 simparams$species_proportions
 ```
 
-### Plot species over time
-```{r,fig.align="center", fig.height=5, fig.width=7}
-plot(x = output_all$timestep, y = output_all$Im_All_count,
-     type = "l", col = cols[5], lwd = 2.5,
-     xlab = "Time (days)", ylab = "N mosquitoes",
-       xaxs = "i", yaxs = "i", bty = "l")
-abline(v = sprayingtimesteps, lty = 2, lwd = 2.5, col = "black")
-grid(lty = 2, col = "grey80", lwd = 1)
-legend("topright", box.lty = 0, legend = c("Spraying", "All mosquitoes"), col = c("black", cols[5]), lty = c(2, 1), lwd = 2.5)
-```
 
+## IRS with single exophilic mosquito species 
 
-## IRS with different mosquito species
-
-We will run the same model with IRS as above, but this time with 3 species of mosquitoes: *An. arabiensis*, *An. gambiae*, and an example mosquito species similar to *An. funestus*, but with a lower propensity to bite indoors. Note that now there are 3 columns for the `ls_theta`, `ls_gamma`, `ks_theta`, `ks_gamma`, `ms_theta`, and `ms_gamma` arguments. See the Vector Control: IRS vignette for more information about setting IRS with different mosquito species. 
+We will run the same model with IRS as above, but this time with an example mosquito species similar to *An. funestus*, but with a lower propensity to bite indoors. Note that now there are 3 columns for the `ls_theta`, `ls_gamma`, `ks_theta`, `ks_gamma`, `ms_theta`, and `ms_gamma` arguments. See the Vector Control: IRS vignette for more information about setting IRS with different mosquito species. 
 
 ```{r, fig.align="center", fig.height=4, fig.width=6}
 # Create an example mosquito species with a low value for `phi_indoors`
-example_mosquito_params <- fun_params
-example_mosquito_params$phi_indoors <- 0.2
-example_mosquito_params$species <- 'example'
+exophilic_mosquito_params <- fun_params
+exophilic_mosquito_params$phi_indoors <- 0.2
+exophilic_mosquito_params$species <- 'exophilic'
 
 ## Set 3 species of mosquitoes, 10% An. arabiensis, 10% An. gambia, and 80% an example species with a lower propensity for indoor biting
 simparams <- set_species(
   simparams, 
-  species = list(arab_params, gamb_params, example_mosquito_params),
-  proportions = c(1/3, 1/3, 1/3)
+  species = list(exophilic_mosquito_params),
+  proportions = c(1)
 )
 
 peak <- peak_season_offset(simparams)
@@ -141,42 +142,21 @@ simparams <- set_spraying(
   simparams,
   timesteps = sprayingtimesteps,
   coverages = rep(.8, 2), # # Each round covers 80% of the population 
-  ls_theta = matrix(2.025, nrow=length(sprayingtimesteps), ncol=3), # Matrix of mortality parameters; nrows=length(timesteps), ncols=length(species) 
-  ls_gamma = matrix(-0.009, nrow=length(sprayingtimesteps), ncol=3), # Matrix of mortality parameters per round of IRS and per species
-  ks_theta = matrix(-2.222, nrow=length(sprayingtimesteps), ncol=3), # Matrix of feeding success parameters per round of IRS and per species
-  ks_gamma = matrix(0.008, nrow=length(sprayingtimesteps), ncol=3), # Matrix of feeding success parameters per round of IRS and per species
-  ms_theta = matrix(-1.232, nrow=length(sprayingtimesteps), ncol=3), # Matrix of deterrence parameters per round of IRS and per species
-  ms_gamma = matrix(-0.009, nrow=length(sprayingtimesteps), ncol=3) # Matrix of deterrence parameters per round of IRS and per species
+  # nrows=length(timesteps), ncols=length(species) 
+  ls_theta = matrix(2.025, nrow=length(sprayingtimesteps), ncol=1), # Matrix of mortality parameters
+  ls_gamma = matrix(-0.009, nrow=length(sprayingtimesteps), ncol=1), # Matrix of mortality parameters per round of IRS and per species
+  ks_theta = matrix(-2.222, nrow=length(sprayingtimesteps), ncol=1), # Matrix of feeding success parameters per round of IRS and per species
+  ks_gamma = matrix(0.008, nrow=length(sprayingtimesteps), ncol=1), # Matrix of feeding success parameters per round of IRS and per species
+  ms_theta = matrix(-1.232, nrow=length(sprayingtimesteps), ncol=1), # Matrix of deterrence parameters per round of IRS and per species
+  ms_gamma = matrix(-0.009, nrow=length(sprayingtimesteps), ncol=1) # Matrix of deterrence parameters per round of IRS and per species
 )
 
-output <- run_simulation(timesteps = sim_length, parameters = simparams)
-```
-
-Here we can see that now there are 3 species of mosquitoes at the proportions we specified in `set_species()`.
-```{r}
-simparams$species
-simparams$species_proportions
-```
-
-  
-### Plot prevalence
-In the plot below, we can see that IRS is much more effective when the default mosquito species are used compared to the scenario where we added an example mosquito species with a lower propensity for biting indoors. In this case, IRS will not be as effective because a larger proportion of bites take place outside of the home.
-```{r,fig.align="center", fig.height=5, fig.width=7}
-plot_prev()
+output_exophilic <- run_simulation(timesteps = sim_length, parameters = simparams)
 ```
 
 ### Plot adult female infectious mosquitoes by species over time
+In the plot below, we can see that IRS is much more effective when the endophilic mosquito species is modelled compared to the scenario where an exophilic species is modelled. In this case, IRS will not be as effective because a larger proportion of bites take place outside of the home.  
 ```{r,fig.align="center", fig.height=5, fig.width=7}
-plot(x = output$timestep, y = output$Im_example_count,
-     type = "l", col = cols[5], lwd = 2.5, ylim = c(0, 600),
-     xlab = "Time (days)", ylab = "N mosquitoes",
-     xaxs = "i", yaxs = "i", bty = "l")
-abline(v = sprayingtimesteps, lty = 2, lwd = 2.5, col = "black")
-lines(x = output$timestep, y = output$Im_arab_count,
-      col = cols[6], lwd = 2.5)
-lines(x = output$timestep, y = output$Im_gamb_count,
-      col = cols[3], lwd = 2.5)
-grid(lty = 2, col = "grey80", lwd = 1)
-legend("topright", box.lty = 0, legend = c("Spraying", "Example mosquito species", expression(italic("An. arabiensis")), expression(italic("An. gambiae"))), col = c("black", cols[5], cols[6], cols[3]), lty = c(2, 1, 1, 1), lwd = 2.5)
+plot_prev()
 ```
 

@@ -22,6 +22,8 @@ integration_function_t create_eqs(AquaticMosquitoModel& model) {
       model.rainfall_floor
     );
     
+    
+    
     auto beta = eggs_laid(model.beta, model.mum, model.f);
     auto n_larvae = x[get_idx(AquaticState::E)] + x[get_idx(AquaticState::L)];
     
@@ -29,13 +31,15 @@ integration_function_t create_eqs(AquaticMosquitoModel& model) {
     Rcpp::Rcout << "kt = " << kt << std::endl;
     Rcpp::Rcout << "K = " << K << std::endl;
     Rcpp::Rcout << "beta = " << beta << std::endl;
-    Rcpp::Rcout << "n_larvae = " << n_larvae << std::endl;
     Rcpp::Rcout << "E = " << x[get_idx(AquaticState::E)] << std::endl;
+    Rcpp::Rcout << "L = " << x[get_idx(AquaticState::L)] << std::endl;
+    Rcpp::Rcout << "n_larvae = " << n_larvae << std::endl;
+    Rcpp::Rcout << "model.total_M = " << model.total_M << std::endl;
+    Rcpp::Rcout << "model.de = " << model.de << std::endl;
+    Rcpp::Rcout << "model.mue = " << model.mue << std::endl;
+
     if(n_larvae < 0.1){
-      Rcpp::stop("Done");
-    }
-    if(K == 0 < 0.1){
-      Rcpp::Rcout << "K is zero!" << std::endl;
+      Rcpp::stop("Erroring!");
     }
     
     if(K == 0){

@@ -25,6 +25,19 @@ integration_function_t create_eqs(AquaticMosquitoModel& model) {
     auto beta = eggs_laid(model.beta, model.mum, model.f);
     auto n_larvae = x[get_idx(AquaticState::E)] + x[get_idx(AquaticState::L)];
     
+    Rcpp::Rcout << "t = " << t << std::endl;
+    Rcpp::Rcout << "kt = " << kt << std::endl;
+    Rcpp::Rcout << "K = " << K << std::endl;
+    Rcpp::Rcout << "beta = " << beta << std::endl;
+    Rcpp::Rcout << "n_larvae = " << n_larvae << std::endl;
+    Rcpp::Rcout << "E = " << x[get_idx(AquaticState::E)] << std::endl;
+    if(n_larvae < 0.1){
+      Rcpp::stop("Done");
+    }
+    if(K == 0 < 0.1){
+      Rcpp::Rcout << "K is zero!" << std::endl;
+    }
+    
     if(K == 0){
       // If carrying capacity 0 then all aquatic stages removed
       dxdt[get_idx(AquaticState::E)]  = - x[get_idx(AquaticState::E)];

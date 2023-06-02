@@ -78,10 +78,10 @@ reset_target <- function(variables, events, target, state, timestep) {
   if (target$size() > 0) {
     # clear events
     to_clear <- c(
-      'rtss_mass_doses',
-      'rtss_mass_booster',
-      'rtss_epi_doses',
-      'rtss_epi_boosters'
+      'mass_pev_doses',
+      'mass_pev_boosters',
+      'pev_epi_doses',
+      'pev_epi_boosters'
     )
     for (event in unlist(events[to_clear])) {
       event$clear_schedule(target)
@@ -106,8 +106,8 @@ reset_target <- function(variables, events, target, state, timestep) {
     variables$drug_time$queue_update(-1, target)
 
     # vaccination
-    variables$rtss_vaccinated$queue_update(-1, target)
-    variables$rtss_boosted$queue_update(-1, target)
+    variables$pev_timestep$queue_update(-1, target)
+    variables$pev_profile$queue_update(-1, target)
     variables$tbv_vaccinated$queue_update(-1, target)
 
     # onwards infectiousness

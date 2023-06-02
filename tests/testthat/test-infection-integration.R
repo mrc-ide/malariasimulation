@@ -113,6 +113,18 @@ test_that('calculate_infections works various combinations of drug and vaccinati
   parameters <- get_parameters()
   parameters <- set_drugs(parameters, list(AL_params, DHA_PQP_params))
   parameters <- set_clinical_treatment(parameters, 2, 1, .5)
+  parameters <- set_mass_pev(
+    parameters,
+    rtss_profile,
+    timesteps = 1,
+    coverages = .5,
+    min_ages = 0,
+    max_ages = 100 * 365,
+    min_wait = 0,
+    booster_timestep = 365,
+    booster_coverage = 1,
+    booster_profile = list(rtss_booster_profile)
+  )
 
   variables <- list(
     state = individual::CategoricalVariable$new(
@@ -121,25 +133,31 @@ test_that('calculate_infections works various combinations of drug and vaccinati
     ),
     drug = individual::DoubleVariable$new(c(1, 2, 0, 0)),
     drug_time = individual::DoubleVariable$new(c(20, 30, -1, -1)),
-    rtss_vaccinated = individual::DoubleVariable$new(c(-1, 10, 40, -1)),
-    rtss_boosted = individual::DoubleVariable$new(c(-1, 40, -1, -1)),
-    rtss_cs = individual::DoubleVariable$new(c(1, .5, 1, 1)),
-    rtss_rho = individual::DoubleVariable$new(c(.75, .25, .75, .75)),
-    rtss_ds = individual::DoubleVariable$new(c(1, .5, 1, 1)),
-    rtss_dl = individual::DoubleVariable$new(c(5, 2, 5, 5)),
+    pev_timestep = individual::DoubleVariable$new(c(-1, 10, 40, -1)),
+    pev_profile = individual::IntegerVariable$new(c(-1, 1, 2, -1)),
     ib = individual::DoubleVariable$new(c(.2, .3, .5, .9))
   )
         
   immunity_mock <- mockery::mock(c(.2, .3, .4))
   weibull_mock <- mockery::mock(.2)
-  rtss_antibodies_mock <- mockery::mock(c(2, 3))
-  rtss_efficacy_mock <- mockery::mock(c(.2, .3))
+  vaccine_antibodies_mock <- mockery::mock(c(2, 3))
+  vaccine_efficacy_mock <- mockery::mock(c(.2, .3))
   bernoulli_mock <- mockery::mock(2)
   mockery::stub(calculate_infections, 'blood_immunity', immunity_mock)
   mockery::stub(calculate_infections, 'weibull_survival', weibull_mock)
-  mockery::stub(calculate_infections, 'calculate_rtss_antibodies', rtss_antibodies_mock)
-  mockery::stub(calculate_infections, 'calculate_rtss_efficacy', rtss_efficacy_mock)
+  mockery::stub(calculate_infections, 'calculate_pev_antibodies', vaccine_antibodies_mock)
+  mockery::stub(calculate_infections, 'calculate_pev_efficacy', vaccine_efficacy_mock)
   mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
+
+  # remove randomness from vaccine parameters
+  mockery::stub(
+    calculate_infections,
+    'sample_pev_param',
+    function(index, profiles, name) {
+      vnapply(index, function(i) profiles[[i]][[name]][[1]]) # return mu
+    },
+    depth = 4
+  )
 
   bitten_humans <- individual::Bitset$new(4)$insert(c(1, 2, 3, 4))
 
@@ -161,21 +179,24 @@ test_that('calculate_infections works various combinations of drug and vaccinati
     parameters$drug_prophylaxis_shape[[2]],
     parameters$drug_prophylaxis_scale[[2]]
   )
+
   mockery::expect_args(
-    rtss_antibodies_mock,
+    vaccine_antibodies_mock,
     1,
-    c(10, 10),
-    c(.5, 1),
-    c(.25, .75),
-    c(.5, 1),
-    c(2, 5),
+    50 - c(10, 40),
+    exp(c(rtss_profile$cs[[1]], rtss_booster_profile$cs[[1]])),
+    invlogit(c(rtss_profile$rho[[1]], rtss_booster_profile$rho[[1]])),
+    exp(c(rtss_profile$ds[[1]], rtss_booster_profile$ds[[1]])),
+    exp(c(rtss_profile$dl[[1]], rtss_booster_profile$dl[[1]])),
     parameters
   )
   mockery::expect_args(
-    rtss_efficacy_mock,
+    vaccine_efficacy_mock,
     1,
     c(2, 3),
-    parameters
+    c(rtss_profile$vmax, rtss_booster_profile$vmax),
+    c(rtss_profile$beta, rtss_booster_profile$beta),
+    c(rtss_profile$alpha, rtss_booster_profile$alpha)
   )
   mockery::expect_args(
     bernoulli_mock,
@@ -345,8 +366,8 @@ test_that('prophylaxis is considered for medicated humans', {
     ),
     drug = individual::DoubleVariable$new(c(0, 2, 1, 0)),
     drug_time = individual::DoubleVariable$new(c(-1, 49, 40, -1)),
-    rtss_vaccinated = individual::DoubleVariable$new(c(-1, -1, -1, -1)),
-    rtss_boosted = individual::DoubleVariable$new(c(-1, -1, -1, -1)),
+    pev_timestep = individual::DoubleVariable$new(c(-1, -1, -1, -1)),
+    pev_profile = individual::IntegerVariable$new(c(-1, -1, -1, -1)),
     ib = individual::DoubleVariable$new(c(.2, .3, .5, .9))
   )
 

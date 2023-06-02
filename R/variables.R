@@ -18,14 +18,10 @@
 #' * ID - Acquired immunity to detectability
 #' * zeta - Heterogeneity of human individuals
 #' * zeta_group - Discretised heterogeneity of human individuals
-#' * rtss_vaccinated - The timstep of the last rtss vaccination (-1 if there
+#' * pev_timestep - The timestep of the last pev vaccination (-1 if there
 #' haven't been any)
-#' * rtss_boosted  - The timstep of the last rtss booster (-1 if there
-#' haven't been any)
-#' * rtss_cs - peak antibodies
-#' * rtss_rho - antibody component variable
-#' * rtss_ds - short-lived antibody delay variable
-#' * rtss_dl - long-lived antibody delay variable
+#' * pev_profile - The index of the profile of the last administered pev vaccine 
+#' (-1 if there haven't been any)
 #' * tbv_vaccinated - The timstep of the last tbv vaccination (-1 if there
 #' haven't been any
 #' * net_time - The timestep when a net was last put up (-1 if never)
@@ -192,22 +188,8 @@ create_variables <- function(parameters) {
   drug <- individual::IntegerVariable$new(rep(0, size))
   drug_time <- individual::IntegerVariable$new(rep(-1, size))
 
-  rtss_vaccinated <- individual::IntegerVariable$new(rep(-1, size))
-  rtss_boosted <- individual::IntegerVariable$new(rep(-1, size))
-
-  rtss_cs <- individual::DoubleVariable$new(
-    exp(rnorm(size, parameters$rtss_cs[[1]], parameters$rtss_cs[[2]]))
-  )
-  rtss_rho <- individual::DoubleVariable$new(
-    invlogit(rnorm(size, parameters$rtss_rho[[1]], parameters$rtss_rho[[2]]))
-  )
-  rtss_ds <- individual::DoubleVariable$new(
-    exp(rnorm(size, parameters$rtss_ds[[1]], parameters$rtss_ds[[2]]))
-  )
-
-  rtss_dl <- individual::DoubleVariable$new(
-    exp(rnorm(size, parameters$rtss_dl[[1]], parameters$rtss_dl[[2]]))
-  )
+  pev_timestep <- individual::IntegerVariable$new(rep(-1, size))
+  pev_profile <- individual::IntegerVariable$new(rep(-1, size))
 
   tbv_vaccinated <- individual::DoubleVariable$new(rep(-1, size))
 
@@ -233,12 +215,8 @@ create_variables <- function(parameters) {
     infectivity = infectivity,
     drug = drug,
     drug_time = drug_time,
-    rtss_vaccinated = rtss_vaccinated,
-    rtss_boosted = rtss_boosted,
-    rtss_cs = rtss_cs,
-    rtss_rho = rtss_rho,
-    rtss_ds = rtss_ds,
-    rtss_dl = rtss_dl,
+    pev_timestep = pev_timestep,
+    pev_profile = pev_profile,
     tbv_vaccinated = tbv_vaccinated,
     net_time = net_time,
     spray_time = spray_time

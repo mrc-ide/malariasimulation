@@ -24,6 +24,7 @@ SP_AQ_params <- c(0.9, 0.32, 4.3, 38.1)
 #' @param drugs a list of drug parameters, can be set using presets
 #' @export
 set_drugs <- function(parameters, drugs) {
+  stopifnot(is.list(drugs))
   keys <- c(
     'drug_efficacy',
     'drug_rel_c',

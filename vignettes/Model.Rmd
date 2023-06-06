@@ -119,7 +119,7 @@ Griffin, J. T., Bhatt, S., Sinka, M. E., Gething, P. W., Lynch, M., Patouillard,
 
 ### Code
 
-The key package function is `run_simulation()` which, in its most basic form, simply requires a number of timesteps in days. Default parameter settings assume a human population of size of 100, an initial mosquito population size of 1000 of a single species, with no treatment interventions and no seasonality. The full parameters list can be seen in the documentation for `get_parameters()`.
+The key package function is `run_simulation()` which, in its most basic form, simply requires a number of timesteps in days. Default parameter settings assume a human population of size of 100, an initial mosquito population size of 1000 of a single species (default set to *Anopheles gambiae* parameters), with no treatment interventions and no seasonality. The full parameters list can be seen in the documentation for `get_parameters()`.
 
 ```{r, output.lines=6}
 library(malariasimulation)
@@ -131,9 +131,9 @@ test_sim <- run_simulation(timesteps = 100)
 The `run_simulation()` function then simulates malaria transmission dynamics and returns a dataframe for the following parameters through time:
 
 -   `infectivity`: human infectiousness
--   `EIR_All`: the entomological inoculation rate
--   `FOIM`: the force of mosquito infection
--   `mu_All`: adult mosquito death rate
+-   `EIR_All`: the entomological inoculation rate (for all mosquito species)
+-   `FOIM`: the force of infection on mosquitoes
+-   `mu_All`: adult mosquito death rate (for all species)
 -   `n_bitten`: the number of infectious bites
 -   `n_infections`: the number human infections
 -   `natural_deaths`: deaths from old age
@@ -186,7 +186,7 @@ states_plot <- function(sim){
     points(x = sim$timestep, y = sim[,cols_to_plot[x]], type = "l", col = cols[x])})
   
   # Add legend
-  legend("topleft", legend = c("S","D","A","U","Tr"), col = cols, lty = 1, bty = "n", ncol = 5)
+  legend("topleft", legend = c("S","D","A","U","Tr"), col = cols, lty = 1, bty = "n", ncol = 2)
 }
 
 par(mfrow = c(1,2))
@@ -236,8 +236,6 @@ new_params <- get_parameters(overrides = list(human_population = 200))
 
 While other parameters can be changed individually, we do not generally recommended adjusting these without close attention and a detailed understanding of how this will impact the model assumptions. We strongly encourage users to stick with the parameter setting functions and methods described in these vignettes when adjusting parameter settings.
 
-
-
 ## Vignettes
 
 The remaining vignettes describe how to adjust sets of parameters through a number of functions as follows:
@@ -245,11 +243,11 @@ The remaining vignettes describe how to adjust sets of parameters through a numb
 1.  [Population Demography](https://mrc-ide.github.io/malariasimulation/articles/Demography.html)
 
     -   Age group rendering
-    -   `set_demography()`: setting demographies
+    -   `set_demography()`: setting demographies and time-varying death rates
 
 2.  [Carrying capacity](https://mrc-ide.github.io/malariasimulation/articles/Carrying-capacity.html)
 
-    -   Seasonality
+    -   Setting seasonality parameters
     -   `set_carrying_capacity()`: changes mosquito carrying capacity, e.g. to model larval source management impact
     -   `set_species`: to model multiple species and species invasion
 
@@ -290,6 +288,6 @@ The remaining vignettes describe how to adjust sets of parameters through a numb
 
     -   `run_metapop_simulation()`: to model multiple areas simultaneously
 
-9.  [Variation](https://mrc-ide.github.io/malariasimulation/articles/Variation.html)
+10. [Variation](https://mrc-ide.github.io/malariasimulation/articles/Variation.html)
 
     -   `run_simulation_with_repetitions()`: running simulations with replicates

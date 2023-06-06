@@ -1,8 +1,8 @@
 ---
-title: "Matching *Pf*PR~2-10~ to EIR"
+title: "Matching EIR to *Pf*PR~2-10~"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{EIRprevmatch}
+  %\VignetteIndexEntry{Matching EIR to *Pf*PR~2-10~}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,20 +18,57 @@ knitr::opts_chunk$set(
 # Load in the requisite functions
 library(malariasimulation)
 library(malariaEquilibrium)
+library(cali)
 library(mgcv)
-
-# Define a colour palette for plotting:
-plot_cols <- c("#E69F00", "#56B4E9", "#009E73", "#CC79A7","#F0E442", "#0072B2", "#D55E00")
 
 ```
 
 ## Introduction
 
-The entomological inoculation rate (EIR), defined as the number of infectious bites experienced per person per unit time, and malaria prevalence, the proportion of the population with detectable malaria, are two metrics commonly used to measure and/or describe malaria transmission. With respect to the latter, focus is often given to prevalence in the age groups 2-10 years old, denoted *Pf*PR~2-10~, the prevalence rate of *Plasmodium falciparum* in children aged two to ten. When setting up a simulation run, users often need to specify a baseline EIR or *Pf*PR~2-10~ . While `malariasimulation` enables users to set and and calibrate to an initial EIR (using the `set_equilibrium()` function), establishing a user-defined baseline *Pf*PR~2-10~ requires additional steps, outlined in this vignette.
+The entomological inoculation rate (EIR), defined as the number of infectious bites experienced per person per unit time, and malaria prevalence, the proportion of the population with detectable malaria, are two metrics commonly used to measure and/or describe malaria transmission. With respect to the latter, focus is often given to prevalence in the age group 2-10 years old, denoted *Pf*PR~2-10~, the prevalence rate of *Plasmodium falciparum* in children aged two to ten years old. When setting up a simulation run, users often need to specify a baseline EIR or *Pf*PR~2-10~ . While `malariasimulation` enables users to set and and calibrate to an initial EIR (using the `set_equilibrium()` function), establishing a user-defined baseline *Pf*PR~2-10~ requires to identify the EIR value that would yield the target baseline *Pf*PR~2-10~ value.
 
-Briefly, the user establishes their set of baseline parameters and runs simulations for a range of initial EIR values for a duration sufficient for the model to reach equilibrium. The equilibrial *Pf*PR~2-10~ is then extracted from the simulation outputs and a curve fit relating these values to the initial EIR. Using this curve, the user can then estimate the initial EIR value required to yield the desired *Pf*PR~2-10~ (given the parameter set). This method is contrasted with an alternative, which uses the `malariaEquilibrium` package's `human_equilibrium()` function to calculate the equilibrial *Pf*PR~2-10~ for a given EIR using the canonical equilibrium solution for the `malariasimulation` model. An alternative method, not covered here, is to calibrate the model using the `cali` package (see <https://github.com/mrc-ide/cali> for more information).
+In this vignette, three methods for matching the EIR to a target *Pf*PR~2-10~ are outlined and compared. The first uses the `malariaEquilibrium` package's `human_equilibrium()` function to quickly calculate the equilibrial *Pf*PR~2-10~ for a given EIR using the canonical equilibrium solution for the `malariasimulation` model. The second method involves running `malariasimualtion` simulations across a range of initial EIR values, extracting the *Pf*PR~2-10~ from each simulation run, fitting a model relating initial EIR to *Pf*PR~2-10~, and using the model to predict the initial EIR value required to yield the desired *Pf*PR~2-10~. The third approach is to calibrate the model using the `cali` package's (see <https://github.com/mrc-ide/cali> for more information) `calibrate()` function, which searches a user-defined initial EIR parameter space and identifies the value which yields a target *Pf*PR~2-10~ within a defined tolerance.
 
-## Parameterisation
+## *Pf*PR~2-10~ matching using malariaEquilibrium
+
+The `malariaEquilibrium` package function `human_equilibrium()` can be used to return the canonical equilibrium solution of the system for a given EIR and the matching *Pf*PR~2-10~ calculated from the output (see <https://github.com/mrc-ide/malariaEquilibrium> for more information). First, we generate a large vector of EIR values for which we want to generate matching *Pf*PR~2-10~ values. Next, we load the package's default parameter set (`Jamie_parameters.rds`) and, for each EIR value generated, run the `human_equilibrium()` function. The `human_equilibrium()` function returns a dataframe containing the proportion of each age class in each state variables at equilibrium. The *Pf*PR~2-10~ is then calculated from the output for each EIR value by summing the proportion of people aged 2-10 with cases of malaria (`pos_M`) to get the proportion of individuals aged 2-10 with malaria, and dividing this proportion by the proportion of the population between the ages 2-10 (`prop`). Finally, we store the matching EIR and *Pf*PR~2-10~ values in a data frame.
+
+```{r}
+
+# Establish a range of EIR values to generate matching PfPR2-10 values for
+malEq_EIR <- seq(from = 0.1, to = 50, by = 0.5)
+
+# Load the base malariaSimulation parameter set:
+eq_simparams <- malariaEquilibrium::load_parameter_set("Jamie_parameters.rds")
+
+# Use human_equilibrium to calculate the PfPR2-10 values for the range of
+# EIR values
+malEq_prev <- vapply(
+  malEq_EIR,
+  function(eir) {
+    eq <- malariaEquilibrium::human_equilibrium(
+      eir,
+      ft = 0,
+      p = eq_simparams,
+      age = 0:100
+    )
+    sum(eq$states[3:11, 'pos_M']) / sum(eq$states[3:11, 'prop'])
+  },
+  numeric(1)
+)
+
+# Establish a dataframe containing the matching EIR and PfPR2-10 values
+malEq_P2E <- cbind.data.frame(EIR = malEq_EIR, prev = malEq_prev)
+
+```
+
+This method does not involve running simulations and can therefore be used to return matching *Pf*PR~2-10~ for a wide range of EIR values very quickly. However, it is only viable for systems at steady state and with a fixed set of parameter values and with limited options for capturing the effects of interventions designed to combat malaria transmission. Often, when running `malariasimulation` simulations, one or both of these conditions are not met and, therefore, a different solution is required.
+
+## *Pf*PR~2-10~ matching using malariasimulation
+
+Where the `malariaEquilibrium` method is not viable, a slower, more flexible alternative is to run `malariasimulation` simulations over a smaller range of initial EIR values, extract the PfPR2-10 from each run, fit a model relating initial EIR to PfPR2-10, and use the model to predict the initial EIR value required to yield the desired PfPR2-10. An example of this method is outlined below.
+
+### Establish malariasimulation parameters
 
 To run `malariasimulation`, the first step is to generate a list of parameters using the `get_parameters()` function, which loads the default `malariasimulation` parameter list. Within this function call, we adapt the average age of the human population to flatten its demographic profile, specify seasonal malaria transmission, instruct the model to output malaria prevalence in the age range of 2-10 years old, and switch off the individual-based mosquito module. The `set_species()` function is then called to specify the composition of the vector community. The `set_drugs()` function is used to append the in-built parameters for Artemether Lumefantrine (AL) and, finally, the `set_clinical_treatment()` function is called to specify a treatment campaign that distribute AL to 45% of the population in the first time step (t = 1).
 
@@ -51,10 +88,10 @@ simparams <- get_parameters(list(
   average_age = 8453.323,   
   
   # Turn on a specfiy seasonal transmission pattern
-  model_seasonality = TRUE,
-  g0 = 0.284596,                              
-  g = c(-0.317878, -0.0017527, 0.116455),     
-  h = c(-0.331361, 0.293128, -0.0617547),
+  #model_seasonality = TRUE,
+  #g0 = 0.284596,                              
+  #g = c(-0.317878, -0.0017527, 0.116455),     
+  #h = c(-0.331361, 0.293128, -0.0617547),
   
   # Instruct model to render prevalence in age group 2-10
   prevalence_rendering_min_ages = 2 * year,    
@@ -82,9 +119,9 @@ simparams <- set_clinical_treatment(parameters = simparams,
 
 ```
 
-## *Pf*PR~2-10~ Matching using malariasimulation
+### Run simulations and calculate *Pf*PR~2-10~
 
-Having established a set of `malariasimulation` parameters, we are now ready to run simulations. In the following code chunk, we'll run the `run_simulation()` across a range of initial EIR values to generate sufficient points to fit a curve matching *Pf*PR~2-10~ to the initial EIR. For each initial EIR, we first use the `set_equilibrium()` to update the model parameter list with the human and vector population parameter values required to achieve the specified EIR at equilibrium. This updated parameter list is then used to run the simulation.
+Having established a set of `malariasimulation` parameters, we are now ready to run simulations. In the following code chunk, we'll run the `run_simulation()` function across a range of initial EIR values to generate sufficient points to fit a curve matching *Pf*PR~2-10~ to the initial EIR. For each initial EIR, we first use the `set_equilibrium()` to update the model parameter list with the human and vector population parameter values required to achieve the specified EIR at equilibrium. This updated parameter list is then used to run the simulation.
 
 The `run_simulation()` outputs an EIR per time step, per species, across the entire human population. We first convert these to get the number of infectious bites experienced, on average, by each individual across the final year across all vector species. Next, the average *Pf*PR~2-10~ across the final year of the simulation is calculated by dividing the total number of individuals aged 2-10 by the number (`n_730_3650`) of detectable cases of malaria in individuals aged 2-10 (`n_detect_730_3650`) on each day and calculating the mean of these values. Finally, initial EIR, output EIR, and *Pf*PR~2-10~ are stored in a data frame.
 
@@ -94,7 +131,7 @@ The `run_simulation()` outputs an EIR per time step, per species, across the ent
 # PfPR2-10 values:
 init_EIR <- c(0.01, 0.1, 1, 5, 10, 25, 50)
 
-# For each initial EIR, calculate equilibriual parameter set and run the simulation
+# For each initial EIR, calculate equilibrial parameter set and run the simulation
 malSim_outs <- lapply(
   init_EIR,
   function(init) {
@@ -142,40 +179,7 @@ malSim_P2E <- cbind.data.frame(init_EIR, EIR = unlist(malSim_EIR), prev = unlist
 
 ```
 
-## *Pf*PR~2-10~ Matching using malariaEquilibrium
-
-We can also use the `malariaEquilibrium` package function `human_equilibrium()` to calculate the canonical equilibrium state of the system for a range of EIRs and match the *Pf*PR~2-10~ (see <https://github.com/mrc-ide/malariaEquilibrium> for more information). This method does not involve running simulations and is therefore faster, so we first generate a larger vector of EIR values to generate matching *Pf*PR~2-10~ values for, and then load the package's default parameter set. For each EIR value, we run the `human_equilibrium()` function and calculate the *Pf*PR~2-10~ from the output by summing the number of positive cases in ages 2-10 by the number of people in the age classes 2-10. Finally, we store the matching EIR and *Pf*PR~2-10~ values in a data frame.
-
-```{r}
-
-# Establish a range of EIR values to generate matching PfPR2-10 values for
-malEq_EIR <- seq(from = 0.1, to = 50, by = 0.5)
-
-# Load the base malariaSimulation parameter set:
-eq_simparams <- malariaEquilibrium::load_parameter_set("Jamie_parameters.rds")
-
-# Use human_equilibrium to calculate the PfPR2-10 values for the range of
-# EIR values
-malEq_prev <- vapply(
-  malEq_EIR,
-  function(eir) {
-    eq <- malariaEquilibrium::human_equilibrium(
-      eir,
-      ft = 0,
-      p = eq_simparams,
-      age = 0:100
-    )
-    sum(eq$states[3:11, 'pos_M']) / sum(eq$states[3:11, 'prop'])
-  },
-  numeric(1)
-)
-
-# Establish a dataframe containing the matching EIR and PfPR2-10 values
-malEq_P2E <- cbind.data.frame(EIR = malEq_EIR, prev = malEq_prev)
-
-```
-
-## Predicting *Pf*PR~2-10~ using Initial EIR
+### Fit line of best fit relating initial EIR values to *Pf*PR~2-10~
 
 Having run `malariasimulation` simulations for a range of initial EIRs, we can fit a line of best fit through the initial EIR and *Pf*PR~2-10~ data and use it to predict the prevalence for a wider range of initial EIRs (given the set of parameters used). Note that the `newdata` argument is used to generate a series of additional initial EIR and *Pf*PR~2-10~ pairs for plotting.
 
@@ -194,9 +198,12 @@ malSim_fit <- cbind(malSim_fit, data.frame(init_EIR = c(0 ,seq(0.1, 50, 0.1))))
 
 ## Visualisation
 
-Now lets visually compare our two methods for matching EIR to *Pf*PR~2-10~ values. In the section below we open a blank plot, plot the intial EIR and resulting *Pf*PR~2-10~ points generated using `malariasimulation` runs, overlay the line of best fit (orange line). Also overlayed is a line mapping EIR and *Pf*PR~2-10~ values calculated using `malariaEquilibrium` (blue line).
+Let's visually compare our the `malariaEquilibrium` and `malariasimulation` methods for matching EIR to *Pf*PR~2-10~ values. In the section below we open a blank plot, plot the initial EIR and resulting *Pf*PR~2-10~ points generated using `malariasimulation` runs, overlay the line of best fit (orange line). Also overlayed is a line mapping EIR and *Pf*PR~2-10~ values calculated using `malariaEquilibrium` (blue line).
 
 ```{r,  fig.width = 6.8, fig.height = 4}
+
+# Define a colour palette for plotting:
+plot_cols <- c("#E69F00", "#56B4E9", "#009E73", "#CC79A7","#F0E442", "#0072B2", "#D55E00")
 
 # Establish a plotting window:
 plot(x = 1, type = "n", 
@@ -229,14 +236,16 @@ lines(x = malEq_P2E$EIR,
 
 # Add a legend
 legend("topright",
-       legend=c("malariasimulation", "malariaEquilibrium"),
-       col=c(plot_cols[1:2]), lty = c(1,1), cex=0.8)
+       legend = c("malariasimulation", "malariaEquilibrium"),
+       col = c(plot_cols[1:2]), lty = c(1, 1), cex=0.8, box.col = "white")
 
 ```
 
+Looking at the plot, we can see that, to achieve a given *Pf*PR~2-10~, the `malariaEquilibrium` and `malariasimulation` approaches recommend a quite different EIR value, with the `malariaEquilibrium` method typically requiring a much lower EIR value to achieve a given *Pf*PR~2-10~ (given the `malariasimulation` parameter set used).
+
 ## Matching EIR to *Pf*PR~2-10~ values
 
-We can also create a function that extracts EIR values from the fitted line for *Pf*PR~2-10~ values of interest. The function works by finding the closest *Pf*PR~2-10~ value from the model fit to that specified by the user, and then using that index to return the corresponding initial EIR value.
+Using the fitted relationship between initial EIR and *Pf*PR~2-10~, we can create a function that returns the EIR value(s) estimated to yield a target *Pf*PR~2-10~ given the model parameters. The function below works by finding the closest *Pf*PR~2-10~ value from the values generated when we fit the model to the target value input by the user, and then using that index to return the corresponding initial EIR value.
 
 ```{r table, warning=F}
 
@@ -258,5 +267,115 @@ matched_EIRs <- unlist(lapply(PfPRs_to_match, match_EIR_to_PfPR))
 
 # Create a dataframe of matched PfPR2-10 and EIR values:
 cbind.data.frame(PfPR = PfPRs_to_match, Matched_EIR = matched_EIRs)
+
+```
+
+## Calibrating *Pf*PR~2,10~ using the cali package
+
+A final option is to use the `calibrate()` function from the `cali` package (for details see: <https://github.com/mrc-ide/cali>) to return the EIR required to yield a target *Pf*PR~2-10~. Rather than manually running a series of simulations with varied EIRs, this package contains the `calibrate()` function, which calibrates `malariasimulation` simulation outputs to a target *Pf*PR~2-10~ value within a user-specified tolerance by trying a series of EIR values.
+
+The `calibrate()` function accepts as inputs a list of `malariasimulation` parameters, a summary function that takes the `malariasimulation` output and returns a vector of the target variable (e.g. a function that returns the *Pf*PR\~2-10), a tolerance within which to accept the output target variable value and terminate the routine. To reduce the time taken by the `calibrate()` function, the user can also specify upper and lower bounds for the model to vary the EIR between. The function then runs through a series of `malariasimulation` simulations, trying different EIRs and hoing in on the target value of the target variable, terminating when the target value output falls within the tolerance specified.
+
+```{r, echo = T, results = 'hide'}
+
+# Prepare a summary function that returns the mean PfPR2-10 from the final 
+summary_mean_pfpr_2_10 <- function (x) {
+ 
+ # calculate the PfPR2-10
+ prev_2_10 <- mean(x$n_detect_730_3650/x$n_730_3650)
+ 
+ # Return the calculated PfPR2-10
+ return(prev_2_10)
+}
+
+# Establish a target value
+target_pfpr <- 0.3
+
+# Add a parameter to the parameter list specifying the number of timesteps to
+# simulate over. Note, increasing the number of steps gives the simulation longer
+# to stablise/equilibrate, but will increase the time runtime for calibrate().  
+simparams$timesteps <- 3 * 365
+
+# Use the match_EIR_to_PfPR() function to return the EIR predicted to be required under the
+# malariasimulation method
+malsim_EIR <- match_EIR_to_PfPR(x = target_pfpr)
+
+# Establish a tolerance value:
+pfpr_tolerance <- 0.01
+
+# Set upper and lower EIR bounds for the calibrate function to check (remembering EIR is
+# the variable that is used to tune to the target PfPR):
+lower_EIR <- 8; upper_EIR <- 12
+
+# Run the calibrate() function:
+cali_EIR <- calibrate(target = target_pfpr,
+                      summary_function = summary_mean_pfpr_2_10,
+                      parameters = simparams,
+                      tolerance = pfpr_tolerance, 
+                      low = lower_EIR, high = upper_EIR)
+
+```
+
+The `calibrate()` function is a useful tool, but be aware that it relies on the user selecting and accurately coding an effective summary function, providing reasonable bounds on the EIR space to explore, and selecting a population size sufficiently large to limit the influence of stochasticity.
+
+As a final exercise, let's compare graphically the `calibrate()` approach with the `malariasimulation` method when the same parameter set is used. The plot below shows the change in *Pf*PR~2,10~ over the duration of the simulation under the initial EIR values recommended by the a) `cali` and b) `malariasimulation` methods. The blue horizontal line represents the target *Pf*PR~2,10~ the methods were attempting to match to, and the black lines either side the upper and lower tolerance limits specified for the `cali` method.
+
+```{r,  fig.width = 6.8, fig.height = 4}
+
+# Use the set_equilibrium() function to equilibriate the simparams to the calibrated EIR:
+simparams_cali <- set_equilibrium(simparams, init_EIR = cali_EIR)
+simparams_malsim  <- set_equilibrium(simparams, init_EIR = malsim_EIR)
+
+# Run the simulation:
+cali_sim <- run_simulation(timesteps = (simparams_cali$timesteps),
+                           parameters = simparams_cali)
+malsim_sim <- run_simulation(timesteps = (simparams_malsim$timesteps),
+                             parameters = simparams_malsim)
+
+# Extract the PfPR2-10 values for the cali and malsim simulation outputs:
+cali_pfpr2_10 <- cali_sim$n_detect_730_3650 / cali_sim$n_730_3650
+malsim_pfpr2_10 <- malsim_sim$n_detect_730_3650 / malsim_sim$n_730_3650
+
+# Store the PfPR2-10 from the two methods for the two methods:
+df <- data.frame(timestep = seq(1, length(cali_pfpr2_10)),
+                 cali_pfpr = cali_pfpr2_10,
+                 malsim_pfpr = malsim_pfpr2_10)
+
+# Set the plotting window
+par(mfrow = c(1, 2), mar = c(4, 4, 1, 1))
+
+# Plot the PfPR2-10 under the EIR recommended by the cali method
+plot(x = df$timestep,
+     y = df$malsim_pfpr,
+     type = "b",
+     ylab = expression(paste(italic(Pf),"PR"[2-10])),
+     xlab = "Time (days)",
+     ylim = c(target_pfpr - 0.2, target_pfpr + 0.2),
+     #ylim = c(0, 1),
+     col = plot_cols[3])
+
+# Add textual identifier and lines indicating target PfPR2-10 with tolerance bounds
+text(x = 10, y = 0.47, pos = 4, cex = 0.9,
+     paste0("a) cali \n init_EIR = ", round(cali_EIR, digits = 3)))
+abline(h = target_pfpr, col = "dodgerblue", lwd = 2)
+abline(h = target_pfpr - pfpr_tolerance, lwd = 2)
+abline(h = target_pfpr + pfpr_tolerance, lwd = 2)
+
+# Plot the PfPR2-10 under the EIR recommended by the malariasimulation method
+plot(x = df$timestep,
+     y = df$cali_pfpr,
+     type = "b",
+     xlab = "Time (days)",
+     ylab = "",
+     ylim = c(target_pfpr - 0.2, target_pfpr + 0.2),
+     #ylim = c(0, 1),
+     col = plot_cols[1])
+
+# Add textual identifier and lines indicating target PfPR2-10 with tolerance bounds
+text(x = 10, y = 0.47, pos = 4, cex = 0.9,
+     paste0("b) malariasimulation \n init_EIR = ", round(malsim_EIR, digits = 3)))
+abline(h = target_pfpr, col = "dodgerblue", lwd = 2)
+abline(h = target_pfpr - pfpr_tolerance, lwd = 2)
+abline(h = target_pfpr + pfpr_tolerance, lwd = 2)
 
 ```

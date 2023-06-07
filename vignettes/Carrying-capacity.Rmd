@@ -70,8 +70,8 @@ s_seasonal <- run_simulation(timesteps = timesteps, parameters = p_seasonal)
 s_seasonal$pfpr <- s_seasonal$n_detect_730_3650 / s_seasonal$n_730_3650
 
 par(mfrow = c(1, 2))
-plot(s$EIR_All ~ s$timestep, t = "l", ylim = c(0, 200), xlab = "Time", ylab = "EIR")
-lines(s_seasonal$EIR_All ~ s_seasonal$timestep, col = "darkorchid3")
+plot(s$EIR_gamb ~ s$timestep, t = "l", ylim = c(0, 200), xlab = "Time", ylab = "EIR")
+lines(s_seasonal$EIR_gamb ~ s_seasonal$timestep, col = "darkorchid3")
 plot(s$pfpr ~ s$timestep, t = "l", ylim = c(0, 1), xlab = "Time", ylab = "PfPr")
 lines(s_seasonal$pfpr ~ s_seasonal$timestep, col = "darkorchid3")
 ```
@@ -111,8 +111,8 @@ s_lsm <- run_simulation(timesteps = timesteps, parameters = p_lsm)
 s_lsm$pfpr <- s_lsm$n_detect_730_3650 / s_lsm$n_730_3650
 
 par(mfrow = c(1, 2))
-plot(s$EIR_All ~ s$timestep, t = "l", ylim = c(0, 150), xlab = "Time", ylab = "EIR")
-lines(s_lsm$EIR_All ~ s_lsm$timestep, col = "darkorchid3")
+plot(s$EIR_gamb ~ s$timestep, t = "l", ylim = c(0, 150), xlab = "Time", ylab = "EIR")
+lines(s_lsm$EIR_gamb ~ s_lsm$timestep, col = "darkorchid3")
 abline(v = 365, lty = 2, col = "grey60")
 plot(s$pfpr ~ s$timestep, t = "l", ylim = c(0, 1), xlab = "Time", ylab = "PfPr")
 lines(s_lsm$pfpr ~ s_lsm$timestep, col = "darkorchid3")
@@ -176,8 +176,8 @@ s_flexible <- run_simulation(timesteps = timesteps, parameters = p_flexible)
 s_flexible$pfpr <- s_flexible$n_detect_730_3650 / s_flexible$n_730_3650
 
 par(mfrow = c(1, 2))
-plot(s$EIR_All ~ s$timestep, t = "l", ylim = c(0, 150), xlab = "Time", ylab = "EIR")
-lines(s_flexible$EIR_All ~ s_flexible$timestep, col = "darkorchid3")
+plot(s$EIR_gamb ~ s$timestep, t = "l", ylim = c(0, 150), xlab = "Time", ylab = "EIR")
+lines(s_flexible$EIR_gamb ~ s_flexible$timestep, col = "darkorchid3")
 abline(v = 365, lty = 2, col = "grey60")
 plot(s$pfpr ~ s$timestep, t = "l", ylim = c(0, 1), xlab = "Time", ylab = "PfPr")
 lines(s_flexible$pfpr ~ s_flexible$timestep, col = "darkorchid3")

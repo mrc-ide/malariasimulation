@@ -363,13 +363,13 @@ test_that('usage renderer outputs correct values', {
 
 test_that('set_carrying_capacity works',{
   p <- list()
-  p$species <- "All"
+  p$species <- "gamb"
   p_out <- set_carrying_capacity(p, 1, matrix(0.1))
   
   expect_equal(
     p_out,
     list(
-      species = "All",
+      species = "gamb",
       carrying_capacity = TRUE,
       carrying_capacity_timesteps = 1,
       carrying_capacity_values = matrix(0.1)

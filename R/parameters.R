@@ -84,16 +84,20 @@
 #' * n_heterogeneity_groups - number discretised groups for heterogeneity, used
 #' for sampling mothers; default = 5
 #'
-#' mortality parameters:
+#' incubation periods:
+#'
+#' * de - Duration of the human latent period of infection; default = 12
+#' * delay_gam - Lag from parasites to infectious gametocytes; default = 12.5
+#' * dem - Extrinsic incubation period in mosquito population model; default = 10
+#'
+#' human mortality parameters:
 #'
 #' * average_age - the average age of humans (in timesteps), this is only used
 #' if custom_demography is FALSE; default = 7663
 #' * pcm - new-born clinical immunity relative to mother's; default = 0.774368
 #' * pvm - new-born severe immunity relative to mother's; default = 0.195768
-#' * me - early stage larval mortality rate; default = 0.0338
-#' * ml - late stage larval mortality rate; default = 0.0348
 #'
-#' carrying capacity parameters:
+#' seasonality and carrying capacity parameters:
 #'
 #' * model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall; default = FALSE
 #' * g0 - rainfall fourier parameter; default = 2
@@ -102,6 +106,19 @@
 #' * gamma - effect of density dependence on late instars relative to early
 #' instars; default = 13.25
 #' * rainfall_floor - the minimum rainfall value (must be above 0); default 0.001
+#'
+#' flexible carrying capacity parameters:
+#' please set carrying capacity using the convenience function
+#' `set_carrying_capacity`
+#' 
+#' * carrying_capacity; default = FALSE
+#' * carrying_capacity_timesteps; default = NULL
+#' * carrying_capacity_values; default = NULL
+#'  
+#' larval mortality rates:
+#'
+#' * me - early stage larval mortality rate; default = 0.0338
+#' * ml - late stage larval mortality rate; default = 0.0348
 #'
 #' initial state proportions:
 #'
@@ -123,14 +140,10 @@
 #' * init_iva - the initial acquired immunity from severe disease; default = 0
 #' * init_id  - the initial acquired immunity to detectability; default = 0
 #'
-#' incubation periods:
-#'
-#' * de - Duration of the human latent period of infection; default = 12
-#' * delay_gam - Lag from parasites to infectious gametocytes; default = 12.5
-#' * dem - Extrinsic incubation period in mosquito population model; default = 10
-#'
 #' vector biology:
 #' species specific values are vectors
+#' #' please set species parameters using the convenience function
+#' `set_species`
 #'
 #' * beta - the average number of eggs laid per female mosquito per day; default = 21.2
 #' * total_M - the initial number of adult mosquitos in the simulation; default = 1000
@@ -151,8 +164,8 @@
 #' * phi_indoors - proportion of bites taken indoors; default = 0.90
 #'
 #' treatment parameters:
-#' please set treatment parameters with the convenience functions in
-#' `drug_parameters.R`
+#' please set drug and treatment parameters with the convenience functions
+#' `set_drugs` and `set_clinical_treatment`
 #'
 #' * drug_efficacy - a vector of efficacies for available drugs; default = turned off
 #' * drug_rel_c - a vector of relative onward infectiousness values for drugs; default = turned off
@@ -160,26 +173,31 @@
 #' model prophylaxis for each drug; default = turned off
 #' * drug_prophylaxis_scale - a vector of scale parameters for weibull curves to
 #' model prophylaxis for each drug; default = turned off
-#' * clinical_treatment_drugs - a vector of drugs that are available for
-#' clinically diseased (these values refer to the index in drug_* parameters); default = NULL, NULL, NULL
-#' * clinical_treatment_coverage - a vector of coverage values for each drug; default = NULL, NULL, NULL
+#' * clinical_treatment_drugs - a list of drugs that are available for
+#' clinically diseased (these values refer to the index in drug_* parameters); default = NULL
+#' * clinical_treatment_timesteps - a list of vectors giving timesteps at which the
+#' clinical treatment coverage changes (these values refer to the index in drug_* parameters); default = NULL
+#' * clinical_treatment_coverage - a list of vectors giving coverage values for each drug; default = NULL
 #'
 #' PEV parameters: 
-#' please set vaccine strategies with the convenience functions in
-#' `pev_parameters.R:set_pev_epi`
-#' `pev_parameters.R:set_mass_pev`
+#' please set vaccine strategies with the convenience functions
+#' `set_pev_epi` and `set_mass_pev`
 #'
+#' * pev - PEV strategy implemented; default = FALSE
 #' * pev_doses - the dosing schedule before the vaccine takes effect; default =
 #' c(0, 1.5 * 30, 3 * 30)
 #' default = 365
 #'
 #' MDA, SMC and PMC parameters:
-#' please set these parameters with the convenience functions in `mda_parameters.R`
+#' please set these parameters with the convenience functions
+#' `set_mda`, `set_smc` and `set_pmc`,
+#' with `peak_season_offset `
 #'
 #' TBV parameters:
-#' please set TBV parameters with the convenience functions in
-#' `vaccine_parameters.R:set_tbv`
+#' please set TBV parameters with the convenience functions
+#' `set_tbv`
 #'
+#' * tbv; default = FALSE
 #' * tbv_mt - effect on treated infectiousness; default = 35
 #' * tbv_md - effect on diseased infectiousness; default = 46.7
 #' * tbv_ma - effect on asymptomatic infectiousness; default = 3.6
@@ -192,10 +210,18 @@
 #' * tbv_tra_mu - transmission reduction parameter; default = 12.63
 #' * tbv_gamma1 - transmission reduction parameter; default = 2.5
 #' * tbv_gamma2 - transmission reduction parameter; default = 0.06
+#' * tbv_timesteps; default = NULL
+#' * tbv_coverages; default = NULL
+#' * tbv_ages; default = NULL
+#'
 #'
 #' rendering:
 #' All values are in timesteps and all ranges are inclusive
+#' please set rendered age groups using the convenience function
+#' `set_demography`
 #'
+#' * age_group_rendering_min_ages - the minimum ages for population size outputs; default = numeric(0)
+#' * age_group_rendering_max_ages - the corresponding max ages; default = numeric(0)
 #' * prevalence_rendering_min_ages - the minimum ages for clinical prevalence
 #' outputs; default = 730
 #' * prevalence_rendering_max_ages - the corresponding max ages; default = 3650
@@ -207,25 +233,31 @@
 #' * severe_incidence_rendering_min_ages - the minimum ages for severe incidence
 #' outputs; default = turned off
 #' * severe_incidence_rendering_max_ages - the corresponding max ages; default = turned off
+#' * severe_prevalence_rendering_min_ages - the minimum ages for severe prevalance outputs; default = numeric(0),
+#' * severe_prevalence_rendering_max_ages - the corresponding max ages; default = numeric(0),
 #'
 #' miscellaneous:
-#'
+#' 
+#' * custom_demography - population demography given; default = FALSE,
 #' * human_population - the initial number of humans to model; default = 100
 #' * human_population_timesteps - the timesteps at which the population should
 #' change; default = 0
+#' * parasite - Plasmodium species; default = "falciparum"
 #' * mosquito_limit - the maximum number of mosquitoes to allow for in the
 #' simulation; default = 1.00E+05
 #' * individual_mosquitoes - boolean whether adult mosquitoes are modeled
 #' individually or compartmentally; default = TRUE
+#' * enable_heterogeneity - boolean whether to include heterogeneity in biting
+#' rates; default = TRUE
 #' * r_tol - the relative tolerance for the ode solver; default = 1e-4
 #' * a_tol - the absolute tolerance for the ode solver; default = 1e-4
 #' * ode_max_steps - the max number of steps for the solver; default = 1e6
-#' * enable_heterogeneity - boolean whether to include heterogeneity in biting
-#' rates; default = TRUE
+#' *  progress_bar - display progress bar; default = FALSE
 #'
 #' @export
 get_parameters <- function(overrides = list()) {
   parameters <- list(
+    # fixed state transitions
     dd    = 5,
     dt    = 5,
     da    = 195,
@@ -235,8 +267,6 @@ get_parameters <- function(overrides = list()) {
     dpl   = .643,
     mup   = .249,
     mum   = .1253333,
-    sigma_squared   = 1.67,
-    n_heterogeneity_groups = 5,
     # immunity decay rates
     rm    = 67.6952,
     rvm   = 76.8365,
@@ -249,19 +279,6 @@ get_parameters <- function(overrides = list()) {
     b1    = 0.5,
     ib0   = 43.9,
     kb    = 2.16,
-    # immunity boost grace periods
-    ub    = 7.2,
-    uc    = 6.06,
-    uv    = 11.4321,
-    ud    = 9.44512,
-    # infectivity towards mosquitos
-    cd    = 0.068,
-    gamma1= 1.82425,
-    cu    = 0.0062,
-    ct    = 0.021896,
-    # unique biting rate
-    a0    = 8 * 365,
-    rho   = .85,
     # clinical immunity parameters
     phi0 = .792,
     phi1 = .00074,
@@ -275,10 +292,6 @@ get_parameters <- function(overrides = list()) {
     av      = 2493.41,
     gammav  = 2.91282,
     iv0     = 1.09629,
-    # delay for infection
-    de        = 12,
-    delay_gam = 12.5,
-    dem       = 10,
     # asymptomatic immunity parameters
     fd0   = 0.007055,
     ad    = 21.9 * 365,
@@ -286,17 +299,40 @@ get_parameters <- function(overrides = list()) {
     d1    = 0.160527,
     id0   = 1.577533,
     kd    = .476614,
-    # mortality parameters
+    # immunity boost grace periods
+    ub    = 7.2,
+    uc    = 6.06,
+    uv    = 11.4321,
+    ud    = 9.44512,
+    # infectivity towards mosquitos
+    cd    = 0.068,
+    gamma1= 1.82425,
+    cu    = 0.0062,
+    ct    = 0.021896,
+    # unique biting rate
+    a0    = 8 * 365,
+    rho   = .85,
+    sigma_squared   = 1.67,
+    n_heterogeneity_groups = 5,
+    # delay for infection
+    de        = 12,
+    delay_gam = 12.5,
+    dem       = 10,
+    # human mortality parameters
     average_age = 7663,
     pcm   = .774368,
     pvm   = .195768,
-    # carrying capacity parameters
+    # seasonality and carrying capacity parameters
+    model_seasonality = FALSE,
     g0    = 2,
     g     = c(.3, .6, .9),
     h     = c(.1, .4, .7),
     gamma = 13.25,
-    model_seasonality = FALSE,
     rainfall_floor = 0.001,
+    # flexible carrying capacity parameters
+    carrying_capacity = FALSE,
+    carrying_capacity_timesteps = NULL,
+    carrying_capacity_values = NULL,
     # larval mortality rates
     me    = .0338,
     ml    = .0348,
@@ -377,27 +413,24 @@ get_parameters <- function(overrides = list()) {
     tbv_timesteps = NULL,
     tbv_coverages = NULL,
     tbv_ages = NULL,
-    # flexible carrying capacity
-    carrying_capacity = FALSE,
-    carrying_capacity_timesteps = NULL,
-    carrying_capacity_values = NULL,
     # rendering
+    age_group_rendering_min_ages = numeric(0),
+    age_group_rendering_max_ages = numeric(0),
     prevalence_rendering_min_ages = 2 * 365,
     prevalence_rendering_max_ages = 10 * 365,
     incidence_rendering_min_ages = numeric(0),
     incidence_rendering_max_ages = numeric(0),
     clinical_incidence_rendering_min_ages = numeric(0),
     clinical_incidence_rendering_max_ages = 5 * 365,
-    severe_prevalence_rendering_min_ages = numeric(0),
-    severe_prevalence_rendering_max_ages = numeric(0),
     severe_incidence_rendering_min_ages = numeric(0),
     severe_incidence_rendering_max_ages = numeric(0),
-    age_group_rendering_min_ages = numeric(0),
-    age_group_rendering_max_ages = numeric(0),
+    severe_prevalence_rendering_min_ages = numeric(0),
+    severe_prevalence_rendering_max_ages = numeric(0),
     # misc
     custom_demography = FALSE,
     human_population = 100,
     human_population_timesteps = 0,
+    parasite = "falciparum",
     mosquito_limit   = 100 * 1000,
     individual_mosquitoes = FALSE,
     enable_heterogeneity = TRUE,

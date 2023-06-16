@@ -2,7 +2,7 @@
 #'
 #' @description
 #' The `get_parameters` function assumes as default that Plasmodium falciparum is being modelled (parasite = "falciparum").
-#' `set_parasite` takes the P. falciparum parameter set and alters it to reflect vivax parameters when the parasite = "vivax" argument is given.
+#' `set_parasite` takes the P. falciparum parameter set and alters it to reflect P. vivax parameters when the parasite argument is set to "vivax".
 #' If parasite = "falciparum" is given, it simply returns the given parameter set.
 #' The remaining documentation describes the changes that get made when "vivax" is selected.
 #' 

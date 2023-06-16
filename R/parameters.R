@@ -142,7 +142,7 @@
 #'
 #' vector biology:
 #' species specific values are vectors
-#' #' please set species parameters using the convenience function
+#' please set species parameters using the convenience function
 #' `set_species`
 #'
 #' * beta - the average number of eggs laid per female mosquito per day; default = 21.2
@@ -237,6 +237,8 @@
 #' * severe_prevalence_rendering_max_ages - the corresponding max ages; default = numeric(0),
 #'
 #' miscellaneous:
+#' please set parasite species using the convenience function
+#' `set_parasite`
 #' 
 #' * custom_demography - population demography given; default = FALSE,
 #' * human_population - the initial number of humans to model; default = 100

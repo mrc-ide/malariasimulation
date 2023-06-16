@@ -139,7 +139,7 @@ set_parasite <- function(parameters, parasite) {
     
     ## Probability of pre-erythrocytic infection
     # Now represented by a parameter (b)
-    # parameters <- parameters[!names(parameters) %in% c("b0","b1","ib0","kb")]
+    parameters <- parameters[!names(parameters) %in% c("b0","b1","ib0","kb")]
     parameters$b <- 0.5
 
     ## Probability of clinical infection

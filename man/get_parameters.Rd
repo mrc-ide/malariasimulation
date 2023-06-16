@@ -160,7 +160,7 @@ initial immunity values:
 
 vector biology:
 species specific values are vectors
-#' please set species parameters using the convenience function
+please set species parameters using the convenience function
 \code{set_species}
 \itemize{
 \item beta - the average number of eggs laid per female mosquito per day; default = 21.2
@@ -260,6 +260,8 @@ outputs; default = turned off
 }
 
 miscellaneous:
+please set parasite species using the convenience function
+\code{set_parasite}
 \itemize{
 \item custom_demography - population demography given; default = FALSE,
 \item human_population - the initial number of humans to model; default = 100

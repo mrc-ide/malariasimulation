@@ -39,7 +39,7 @@ The code chunks demonstrating the latter two methods call functions from the `mg
 
 ## *Pf*PR~2-10~ matching using malariaEquilibrium
 
-The `malariaEquilibrium` package function `human_equilibrium()` returns the canonical equilibrium solution for a given EIR and the *Pf*PR~2-10~ can be calculated the output (see <https://github.com/mrc-ide/malariaEquilibrium> for more information). The first step is to generate a large range of EIR values to generate matching *Pf*PR~2-10~ values for. Next, we load the package's default parameter set (`Jamie_parameters.rds`), specify an effective clinical treatment coverage (`ft`) of 0.45 and, for each EIR value generated, run the `human_equilibrium()` function.
+The `malariaEquilibrium` package function `human_equilibrium()` returns the canonical equilibrium solution for a given EIR and the *Pf*PR~2-10~ can be calculated the output (see <https://github.com/mrc-ide/malariaEquilibrium> for more information). The first step is to generate a large range of EIR values to generate matching *Pf*PR~2-10~ values for. Next, we load the package's default parameter set, specify an effective clinical treatment coverage (`ft`) of 0.45 and, for each EIR value generated, run the `human_equilibrium()` function.
 
 The `human_equilibrium()` function returns a dataframe containing the proportion of each age class in each state variable at equilibrium. The *Pf*PR~2-10~ can be calculated from the output for each EIR value by summing the proportion of people aged 2-10 with cases of malaria (`pos_M`) and dividing this proportion by the proportion of the population between the ages 2-10 (`prop`). Finally, we store the matching EIR and *Pf*PR~2-10~ values in a data frame.
 
@@ -49,7 +49,7 @@ The `human_equilibrium()` function returns a dataframe containing the proportion
 malEq_EIR <- seq(from = 0.1, to = 50, by = 0.5)
 
 # Load the base malariaSimulation parameter set:
-eq_simparams <- malariaEquilibrium::load_parameter_set("Jamie_parameters.rds")
+q_simparams <- malariaEquilibrium::load_parameter_set("Jamie_parameters.rds")
 
 # Use human_equilibrium() to calculate the PfPR2-10 values for the range of
 # EIR values:
@@ -59,7 +59,7 @@ malEq_prev <- vapply(
     eq <- malariaEquilibrium::human_equilibrium(
       eir,
       ft = 0.45,
-      p = eq_simparams,
+      p = q_simparams,
       age = 0:100
     )
     sum(eq$states[3:11, 'pos_M']) / sum(eq$states[3:11, 'prop'])
@@ -98,14 +98,11 @@ simparams <- get_parameters(list(
   human_population = human_population,
   
   # Set the average age (days) of the population:
-  average_age = 8453.323,   
+  average_age = 23 * year,   
   
   # Instruct model to render prevalence in age group 2-10:
   prevalence_rendering_min_ages = 2 * year,    
-  prevalence_rendering_max_ages = 10 * year,
-  
-  # Turn off the individual mosquitoes module:
-  individual_mosquitoes = FALSE))
+  prevalence_rendering_max_ages = 10 * year))
 
 # Use the set_species() function to specify the mosquito population (species and 
 # relative abundances):

@@ -171,7 +171,7 @@ set_parasite <- function(parameters, parasite) {
     parameters$cu <- 0.035 # sub-patent infection
     parameters$ct <- 0.4 # treated
     # Infectivity of asymptomatic disease is now a parameter: ca, not based on gamma1
-    # parameters <- parameters[!names(parameters) %in% c("gamma1")]
+    parameters <- parameters[!names(parameters) %in% c("gamma1")]
     parameters$ca <- 0.1 # asymptomatic
 
     ## Unique biting rate

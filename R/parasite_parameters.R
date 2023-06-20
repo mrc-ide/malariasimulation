@@ -121,7 +121,7 @@ set_parasite <- function(parameters, parasite) {
     parameters$dt <- 1
     parameters$da <- 10
     # du is now an equation
-    # parameters <- parameters[names(parameters) != "du"]
+    parameters <- parameters[names(parameters) != "du"]
     # del, dl, dpl, mup and mum are the same
     
     ## Duration of subpatent infection
@@ -134,12 +134,12 @@ set_parasite <- function(parameters, parasite) {
     parameters$rm <- 35.148
     # rvm, rva: severe parameters and immunity do not exist in the vivax model
     # rb: blood (pre-erythrocytic) immunity does not exist in the vivax model
-    # parameters <- parameters[!names(parameters) %in% c("rvm","rb","rva")]
+    parameters <- parameters[!names(parameters) %in% c("rvm","rb","rva")]
     # rc and rid are the same
     
     ## Probability of pre-erythrocytic infection
     # Now represented by a parameter (b)
-    # parameters <- parameters[!names(parameters) %in% c("b0","b1","ib0","kb")]
+    parameters <- parameters[!names(parameters) %in% c("b0","b1","ib0","kb")]
     parameters$b <- 0.5
 
     ## Probability of clinical infection
@@ -150,7 +150,7 @@ set_parasite <- function(parameters, parasite) {
 
     ## Probability of severe infection
     # Severe infection is not modelled in vivax
-    # parameters <- parameters[!names(parameters) %in% c("theta0","theta1","kv","fv0","av","gammav","iv0")]
+    parameters <- parameters[!names(parameters) %in% c("theta0","theta1","kv","fv0","av","gammav","iv0")]
     
     ## Immunity reducing probability of detection
     # This function is no longer age dependent
@@ -164,7 +164,7 @@ set_parasite <- function(parameters, parasite) {
     parameters$uc <- 7.85 # period in which clinical immunity cannot be boosted
     parameters$ud <- 19.77 # period in which immunity to detectability cannot be boosted
     # Immunity to pre-erythrocity and severe infection are not modelled in vivax
-    # parameters <- parameters[!names(parameters) %in% c("ub","uv")]
+    parameters <- parameters[!names(parameters) %in% c("ub","uv")]
     
     ## Infectivity towards mosquitoes
     parameters$cd <- 0.8 # diseased
@@ -187,7 +187,7 @@ set_parasite <- function(parameters, parasite) {
     # average_age is the same
     parameters$pcm <- 0.421
     # maternal severe immunity (pvm) is not modelled
-    # parameters <- parameters[!names(parameters) %in% c("pvm")]
+    parameters <- parameters[!names(parameters) %in% c("pvm")]
     
     ## Seasonality and carrying capacity parameters
     # These parameters (model_seasonality, g0, g, h, gamma, rainfall_floor) are mosquito associated and remain the same.
@@ -200,7 +200,7 @@ set_parasite <- function(parameters, parasite) {
     
     ## Initial immunity values
     # Blood and severe immunity removed
-    # parameters <- parameters[!names(parameters) %in% c("init_ivm","init_ib","iva")]
+    parameters <- parameters[!names(parameters) %in% c("init_ivm","init_ib","iva")]
     # Maternal immunity to detectable disease is modelled in vivax
     parameters$init_idm <- 0
 

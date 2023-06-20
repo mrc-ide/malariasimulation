@@ -18,16 +18,7 @@ simulate_infection <- function(
   timestep,
   renderer
   ) {
-  if (bitten_humans$size() > 0) {
-    boost_immunity(
-      variables$ib,
-      bitten_humans,
-      variables$last_boosted_ib,
-      timestep,
-      parameters$ub
-    )
-  }
-
+  
   # Calculate Infected
   infected_humans <- calculate_infections(
     variables,
@@ -53,21 +44,13 @@ simulate_infection <- function(
       parameters$ud
     )
   }
-
+  
   clinical_infections <- calculate_clinical_infections(
     variables,
     infected_humans,
     parameters,
     renderer,
     timestep
-  )
-
-  update_severe_disease(
-    timestep,
-    infected_humans,
-    variables,
-    parameters,
-    renderer
   )
 
   treated <- calculate_treated(
@@ -77,6 +60,26 @@ simulate_infection <- function(
     timestep,
     renderer
   )
+  
+  if(parameters$parasite == "falciparum"){
+    if (bitten_humans$size() > 0) {
+      boost_immunity(
+        variables$ib,
+        bitten_humans,
+        variables$last_boosted_ib,
+        timestep,
+        parameters$ub
+      )
+    }
+    
+    update_severe_disease(
+      timestep,
+      infected_humans,
+      variables,
+      parameters,
+      renderer
+    )
+  }
 
   renderer$render('n_infections', infected_humans$size(), timestep)
 
@@ -109,8 +112,12 @@ calculate_infections <- function(
   source_humans <- variables$state$get_index_of(
     c('S', 'A', 'U'))$and(bitten_humans)
 
-  b <- blood_immunity(variables$ib$get_values(source_humans), parameters)
-
+  if(parameters$parasite=="falciparum"){ ## P. falciparum models blood immunity
+    b <- blood_immunity(variables$ib$get_values(source_humans), parameters)
+  } else if (parameters$parasite=="vivax"){ ## P. vivax does not model blood immunity
+    b <- parameters$b
+  }
+  
   source_vector <- source_humans$to_vector()
 
   # calculate prophylaxis

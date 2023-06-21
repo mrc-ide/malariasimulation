@@ -1,11 +1,18 @@
 #' @title Get model parameters
 #' @description
 #' get_parameters creates a named list of parameters for use in the model. These
-#' parameters are passed to process functions. These parameters are explained in
+#' parameters are passed to process functions. The default parameters, which
+#' are for Plasmodium falciparum, are explained in
 #' "The US President's Malaria Initiative, Plasmodium falciparum transmission
 #' and mortality: A modelling study."
+#' 
+#' Plasmodium vivax specific parameters are explained in
+#' "Mathematical modelling of the impact of expanding levels of malaria control
+#' interventions on Plasmodium vivax." by White, Michael T., et al.
 #'
 #' @param overrides a named list of parameter values to use instead of defaults
+#' @param parasite Plasmodium parasite species ("falciparum" or "vivax"); default = "falciparum"
+#' 
 #' The parameters are defined below.
 #'
 #' fixed state transitions:
@@ -13,28 +20,36 @@
 #' * dd - the delay for humans to move from state D to A; default = 5
 #' * dt - the delay for humans to move from state Tr to Ph; default = 5
 #' * da - the delay for humans to move from state A to U; default = 195
-#' * du - the delay for humans to move from state U to S; default = 110
+#' * du - the delay for humans to move from state U to S (P.f only); default = 110
 #' * del - the delay for mosquitoes to move from state E to L; default = 6.64
 #' * dl - the delay for mosquitoes to move from state L to P; default = 3.72
 #' * dpl - the delay mosquitoes to move from state P to Sm; default = 0.643
 #' * mup - the rate at which pupal mosquitoes die; default = 0.249
-#' * mum - the rate at which developed mosquitoes die; default = 0.1253333
+#' * mum - the rate at which developed mosquitoes die; default = 0.132
+#'
+#' duration of subpatent infection: du (P.v only):
+#' 
+#' * du_max - Maximum duration of subpatent infection: default = 70
+#' * du_min - Minimum duration of subpatent infection: default = 10
+#' * ku - Shape parameter: default = 4.602
+#' * au50 - Scale parameter: default = 9.9
 #'
 #' immunity decay rates:
 #'
 #' * rm - decay rate for maternal immunity to clinical disease; default = 67.6952
-#' * rvm - decay rate for maternal immunity to severe disease; default = 76.8365
-#' * rb - decay rate for acquired pre-erythrocytic immunity; default = 3650
+#' * rvm - decay rate for maternal immunity to severe disease (P.f only); default = 76.8365
+#' * rb - decay rate for acquired pre-erythrocytic immunity (P.f only); default = 3650
 #' * rc - decay rate for acquired immunity to clinical disease; default = 10950
-#' * rva - decay rate for acquired immunity to severe disease; default = 10950
+#' * rva - decay rate for acquired immunity to severe disease (P.f only); default = 10950
 #' * rid - decay rate for acquired immunity to detectability; default = 3650
 #'
 #' probability of pre-erythrocytic infection:
 #'
-#' * b0 - maximum probability due to no immunity; default = 0.59
-#' * b1 - maximum reduction due to immunity; default = 0.5
-#' * ib0 - scale parameter; default = 43.9
-#' * kb - shape parameter; default = 2.16
+#' * b0 - maximum probability due to no immunity (P.f only); default = 0.59
+#' * b1 - maximum reduction due to immunity (P.f only); default = 0.5
+#' * ib0 - scale parameter (P.f only); default = 43.9
+#' * kb - shape parameter (P.f only); default = 2.16
+#' * b - probability of pre-erythrocytic infection (P.v only): default = 0.5
 #'
 #' probability of clinical infection:
 #'
@@ -43,7 +58,7 @@
 #' * ic0 - scale parameter; default = 18.02366
 #' * kc - shape parameter; default = 2.36949
 #'
-#' probability of severe infection:
+#' probability of severe infection (P.f only):
 #'
 #' * theta0 - maximum probability due to no immunity; default = 0.0749886
 #' * theta1 - maximum reduction due to immunity; default = 0.0001191
@@ -55,24 +70,25 @@
 #'
 #' immunity reducing probability of detection:
 #'
-#' * fd0 - time-scale at which immunity changes with age; default = 0.007055
-#' * ad - scale parameter relating age to immunity; default = 7993.5
-#' * gammad - shape parameter relating age to immunity; default = 4.8183
+#' * fd0 - time-scale at which immunity changes with age (P.f only); default = 0.007055
+#' * ad - scale parameter relating age to immunity (P.f only); default = 7993.5
+#' * gammad - shape parameter relating age to immunity (P.f only); default = 4.8183
 #' * d1 - minimum probability due to immunity; default = 0.160527
 #' * id0 - scale parameter; default = 1.577533
 #' * kd - shape parameter; default = 0.476614
 #'
 #' immunity boost grace periods:
 #'
-#' * ub - period in which pre-erythrocytic immunity cannot be boosted; default = 7.2
+#' * ub - period in which pre-erythrocytic immunity cannot be boosted (P.f only); default = 7.2
 #' * uc - period in which clinical immunity cannot be boosted; default = 6.06
-#' * uv - period in which severe immunity cannot be boosted; default = 11.4321
+#' * uv - period in which severe immunity cannot be boosted (P.f only); default = 11.4321
 #' * ud - period in which immunity to detectability cannot be boosted; default = 9.44512
 #'
 #' infectivity towards mosquitoes:
 #'
 #' * cd - infectivity of clinically diseased humans towards mosquitoes; default = 0.068
-#' * gamma1 - parameter for infectivity of asymptomatic humans; default = 1.82425
+#' * ca - infectivity of asymptomatically diseased humans towards mosquitoes (P.v only); default = 0.1
+#' * gamma1 - parameter for infectivity of asymptomatic humans (P.f only); default = 1.82425
 #' * cu - infectivity of sub-patent infection; default = 0.0062
 #' * ct - infectivity of treated infection; default = 0.021896
 #'
@@ -95,8 +111,17 @@
 #' * average_age - the average age of humans (in timesteps), this is only used
 #' if custom_demography is FALSE; default = 7663
 #' * pcm - new-born clinical immunity relative to mother's; default = 0.774368
-#' * pvm - new-born severe immunity relative to mother's; default = 0.195768
+#' * pvm - new-born severe immunity relative to mother's (P.f only); default = 0.195768
 #'
+#' initial immunity values:
+#'
+#' * init_icm - the immunity from clinical disease at birth; default = 0
+#' * init_ivm - the immunity from severe disease at birth (P.f only); default = 0
+#' * init_ib  - the initial pre-erythrocitic immunity (P.f only); default = 0
+#' * init_ica - the initial acquired immunity from clinical disease; default = 0
+#' * init_iva - the initial acquired immunity from severe disease (P.f only); default = 0
+#' * init_id  - the initial acquired immunity to detectability; default = 0
+#' 
 #' seasonality and carrying capacity parameters:
 #'
 #' * model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall; default = FALSE
@@ -130,15 +155,6 @@
 #' * u_proportion - the proportion of `human_population` that begin as
 #' subpatents; default = 0.133028023
 #' * t_proportion - the proportion of `human_population` that begin treated; default = 0
-#'
-#' initial immunity values:
-#'
-#' * init_icm - the immunity from clinical disease at birth; default = 0
-#' * init_ivm - the immunity from severe disease at birth; default = 0
-#' * init_ib  - the initial pre-erythrocitic immunity; default = 0
-#' * init_ica - the initial acquired immunity from clinical disease; default = 0
-#' * init_iva - the initial acquired immunity from severe disease; default = 0
-#' * init_id  - the initial acquired immunity to detectability; default = 0
 #'
 #' vector biology:
 #' species specific values are vectors
@@ -255,73 +271,27 @@
 #' *  progress_bar - display progress bar; default = FALSE
 #'
 #' @export
-get_parameters <- function(overrides = list()) {
-  parameters <- list(
-    # fixed state transitions
-    dd    = 5,
-    dt    = 5,
-    da    = 195,
-    du    = 110,
-    del   = 6.64,
-    dl    = 3.72,
-    dpl   = .643,
-    mup   = .249,
-    mum   = .1253333,
-    # immunity decay rates
-    rm    = 67.6952,
-    rvm   = 76.8365,
-    rb    = 10 * 365,
-    rc    = 30 * 365,
-    rva   = 30 * 365,
-    rid   = 10 * 365,
-    # blood immunity parameters
-    b0    = 0.59,
-    b1    = 0.5,
-    ib0   = 43.9,
-    kb    = 2.16,
-    # clinical immunity parameters
-    phi0 = .792,
-    phi1 = .00074,
-    ic0   = 18.02366,
-    kc    = 2.36949,
-    # severe disease immunity parameters
-    theta0  = .0749886,
-    theta1  = .0001191,
-    kv      = 2.00048,
-    fv0     = 0.141195,
-    av      = 2493.41,
-    gammav  = 2.91282,
-    iv0     = 1.09629,
-    # asymptomatic immunity parameters
-    fd0   = 0.007055,
-    ad    = 21.9 * 365,
-    gammad= 4.8183,
-    d1    = 0.160527,
-    id0   = 1.577533,
-    kd    = .476614,
-    # immunity boost grace periods
-    ub    = 7.2,
-    uc    = 6.06,
-    uv    = 11.4321,
-    ud    = 9.44512,
-    # infectivity towards mosquitos
-    cd    = 0.068,
-    gamma1= 1.82425,
-    cu    = 0.0062,
-    ct    = 0.021896,
-    # unique biting rate
-    a0    = 8 * 365,
-    rho   = .85,
-    sigma_squared   = 1.67,
-    n_heterogeneity_groups = 5,
-    # delay for infection
-    de        = 12,
-    delay_gam = 12.5,
-    dem       = 10,
+get_parameters <- function(overrides = list(), parasite = "falciparum") {
+  
+  ## Parasite-specific parameters set in parasite_parameters.csv
+  # fixed state transitions
+  # immunity decay rates
+  # blood immunity parameters
+  # clinical immunity parameters
+  # severe disease immunity parameters
+  # asymptomatic immunity parameters
+  # immunity boost grace periods
+  # infectivity towards mosquitos
+  # unique biting rate
+  # delay for infection
+  # initial immunities
+  
+  parameters <- as.list(
+    parasite_parameters[parasite_parameters$parasite == parasite, !is.na(parasite_parameters[parasite_parameters$parasite == parasite,])])
+  
+  parameters <- c(parameters, list(
     # human mortality parameters
     average_age = 7663,
-    pcm   = .774368,
-    pvm   = .195768,
     # seasonality and carrying capacity parameters
     model_seasonality = FALSE,
     g0    = 2,
@@ -342,13 +312,6 @@ get_parameters <- function(overrides = list()) {
     a_proportion = 0.439323667,
     u_proportion = 0.133028023,
     t_proportion = 0,
-    # initial immunities
-    init_ica = 0,
-    init_iva = 0,
-    init_icm = 0,
-    init_ivm = 0,
-    init_id  = 0,
-    init_ib  = 0,
     # vector biology
     beta     = 21.2,
     total_M  = 1000,
@@ -438,7 +401,7 @@ get_parameters <- function(overrides = list()) {
     a_tol = 1e-4,
     ode_max_steps = 1e6,
     progress_bar = FALSE
-  )
+  ))
   
   # Override parameters with any client specified ones
   if (!is.list(overrides)) {

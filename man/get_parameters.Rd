@@ -4,10 +4,13 @@
 \alias{get_parameters}
 \title{Get model parameters}
 \usage{
-get_parameters(overrides = list())
+get_parameters(overrides = list(), parasite = "falciparum")
 }
 \arguments{
-\item{overrides}{a named list of parameter values to use instead of defaults
+\item{overrides}{a named list of parameter values to use instead of defaults}
+
+\item{parasite}{Plasmodium parasite species ("falciparum" or "vivax"); default = "falciparum"
+
 The parameters are defined below.
 
 fixed state transitions:
@@ -15,30 +18,39 @@ fixed state transitions:
 \item dd - the delay for humans to move from state D to A; default = 5
 \item dt - the delay for humans to move from state Tr to Ph; default = 5
 \item da - the delay for humans to move from state A to U; default = 195
-\item du - the delay for humans to move from state U to S; default = 110
+\item du - the delay for humans to move from state U to S (P.f only); default = 110
 \item del - the delay for mosquitoes to move from state E to L; default = 6.64
 \item dl - the delay for mosquitoes to move from state L to P; default = 3.72
 \item dpl - the delay mosquitoes to move from state P to Sm; default = 0.643
 \item mup - the rate at which pupal mosquitoes die; default = 0.249
-\item mum - the rate at which developed mosquitoes die; default = 0.1253333
+\item mum - the rate at which developed mosquitoes die; default = 0.132
+}
+
+duration of subpatent infection: du (P.v only):
+\itemize{
+\item du_max - Maximum duration of subpatent infection: default = 70
+\item du_min - Minimum duration of subpatent infection: default = 10
+\item ku - Shape parameter: default = 4.602
+\item au50 - Scale parameter: default = 9.9
 }
 
 immunity decay rates:
 \itemize{
 \item rm - decay rate for maternal immunity to clinical disease; default = 67.6952
-\item rvm - decay rate for maternal immunity to severe disease; default = 76.8365
-\item rb - decay rate for acquired pre-erythrocytic immunity; default = 3650
+\item rvm - decay rate for maternal immunity to severe disease (P.f only); default = 76.8365
+\item rb - decay rate for acquired pre-erythrocytic immunity (P.f only); default = 3650
 \item rc - decay rate for acquired immunity to clinical disease; default = 10950
-\item rva - decay rate for acquired immunity to severe disease; default = 10950
+\item rva - decay rate for acquired immunity to severe disease (P.f only); default = 10950
 \item rid - decay rate for acquired immunity to detectability; default = 3650
 }
 
 probability of pre-erythrocytic infection:
 \itemize{
-\item b0 - maximum probability due to no immunity; default = 0.59
-\item b1 - maximum reduction due to immunity; default = 0.5
-\item ib0 - scale parameter; default = 43.9
-\item kb - shape parameter; default = 2.16
+\item b0 - maximum probability due to no immunity (P.f only); default = 0.59
+\item b1 - maximum reduction due to immunity (P.f only); default = 0.5
+\item ib0 - scale parameter (P.f only); default = 43.9
+\item kb - shape parameter (P.f only); default = 2.16
+\item b - probability of pre-erythrocytic infection (P.v only): default = 0.5
 }
 
 probability of clinical infection:
@@ -49,7 +61,7 @@ probability of clinical infection:
 \item kc - shape parameter; default = 2.36949
 }
 
-probability of severe infection:
+probability of severe infection (P.f only):
 \itemize{
 \item theta0 - maximum probability due to no immunity; default = 0.0749886
 \item theta1 - maximum reduction due to immunity; default = 0.0001191
@@ -62,9 +74,9 @@ probability of severe infection:
 
 immunity reducing probability of detection:
 \itemize{
-\item fd0 - time-scale at which immunity changes with age; default = 0.007055
-\item ad - scale parameter relating age to immunity; default = 7993.5
-\item gammad - shape parameter relating age to immunity; default = 4.8183
+\item fd0 - time-scale at which immunity changes with age (P.f only); default = 0.007055
+\item ad - scale parameter relating age to immunity (P.f only); default = 7993.5
+\item gammad - shape parameter relating age to immunity (P.f only); default = 4.8183
 \item d1 - minimum probability due to immunity; default = 0.160527
 \item id0 - scale parameter; default = 1.577533
 \item kd - shape parameter; default = 0.476614
@@ -72,16 +84,17 @@ immunity reducing probability of detection:
 
 immunity boost grace periods:
 \itemize{
-\item ub - period in which pre-erythrocytic immunity cannot be boosted; default = 7.2
+\item ub - period in which pre-erythrocytic immunity cannot be boosted (P.f only); default = 7.2
 \item uc - period in which clinical immunity cannot be boosted; default = 6.06
-\item uv - period in which severe immunity cannot be boosted; default = 11.4321
+\item uv - period in which severe immunity cannot be boosted (P.f only); default = 11.4321
 \item ud - period in which immunity to detectability cannot be boosted; default = 9.44512
 }
 
 infectivity towards mosquitoes:
 \itemize{
 \item cd - infectivity of clinically diseased humans towards mosquitoes; default = 0.068
-\item gamma1 - parameter for infectivity of asymptomatic humans; default = 1.82425
+\item ca - infectivity of asymptomatically diseased humans towards mosquitoes (P.v only); default = 0.1
+\item gamma1 - parameter for infectivity of asymptomatic humans (P.f only); default = 1.82425
 \item cu - infectivity of sub-patent infection; default = 0.0062
 \item ct - infectivity of treated infection; default = 0.021896
 }
@@ -107,7 +120,17 @@ human mortality parameters:
 \item average_age - the average age of humans (in timesteps), this is only used
 if custom_demography is FALSE; default = 7663
 \item pcm - new-born clinical immunity relative to mother's; default = 0.774368
-\item pvm - new-born severe immunity relative to mother's; default = 0.195768
+\item pvm - new-born severe immunity relative to mother's (P.f only); default = 0.195768
+}
+
+initial immunity values:
+\itemize{
+\item init_icm - the immunity from clinical disease at birth; default = 0
+\item init_ivm - the immunity from severe disease at birth (P.f only); default = 0
+\item init_ib  - the initial pre-erythrocitic immunity (P.f only); default = 0
+\item init_ica - the initial acquired immunity from clinical disease; default = 0
+\item init_iva - the initial acquired immunity from severe disease (P.f only); default = 0
+\item init_id  - the initial acquired immunity to detectability; default = 0
 }
 
 seasonality and carrying capacity parameters:
@@ -146,16 +169,6 @@ asymptomatic; default = 0.439323667
 \item u_proportion - the proportion of \code{human_population} that begin as
 subpatents; default = 0.133028023
 \item t_proportion - the proportion of \code{human_population} that begin treated; default = 0
-}
-
-initial immunity values:
-\itemize{
-\item init_icm - the immunity from clinical disease at birth; default = 0
-\item init_ivm - the immunity from severe disease at birth; default = 0
-\item init_ib  - the initial pre-erythrocitic immunity; default = 0
-\item init_ica - the initial acquired immunity from clinical disease; default = 0
-\item init_iva - the initial acquired immunity from severe disease; default = 0
-\item init_id  - the initial acquired immunity to detectability; default = 0
 }
 
 vector biology:
@@ -280,7 +293,12 @@ rates; default = TRUE
 }
 \description{
 get_parameters creates a named list of parameters for use in the model. These
-parameters are passed to process functions. These parameters are explained in
+parameters are passed to process functions. The default parameters, which
+are for Plasmodium falciparum, are explained in
 "The US President's Malaria Initiative, Plasmodium falciparum transmission
 and mortality: A modelling study."
+
+Plasmodium vivax specific parameters are explained in
+"Mathematical modelling of the impact of expanding levels of malaria control
+interventions on Plasmodium vivax." by White, Michael T., et al.
 }

@@ -15,10 +15,11 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
+# Load the requisite packages:
 library(malariasimulation)
+# Set colour palette:
+cols  <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 ```
-
-# Introduction
 
 This vignette describes how to implement clinical drug treatments in malariasimulation.
 
@@ -28,7 +29,7 @@ The malariasimulation package contains built-in parameters sets for three anti-m
 2.  `DHA_PQP_params`: dihydroartemisinin and piperaquine (DHA-PQP)
 3.  `SP_AQ_params`: sulfadoxine-pyrimethamine and amodiaquine (SP-AQ)
 
-While all these drugs can be used to treat malaria, DHA-PQP and SP-AQ remain in the body for some time following treatment, making them good candidates for chemoprevention in mass drug administrations (see [Mass Drug Administration](https://mrc-ide.github.io/malariasimulation/articles/MDA.html)). Any of these drugs can be included in the parameter list using the `set_drugs()` function (see [drugs_parameters.R](https://github.com/mrc-ide/malariasimulation/blob/master/R/drug_parameters.R) for full parameter details).
+While all these drugs can be used to treat malaria, DHA-PQP and SP-AQ remain in the body for some time following treatment, making them good candidates for chemoprevention in mass drug administrations (see [Mass Drug Administration and Chemoprevention](https://mrc-ide.github.io/malariasimulation/articles/MDA.html)). Any of these drugs can be included in the parameter list using the `set_drugs()` function (see [drugs_parameters.R](https://github.com/mrc-ide/malariasimulation/blob/master/R/drug_parameters.R) for full parameter details).
 
 Each drug parameter set is a vector of length four, with parameters that represent the drug efficacy, the infectiousness following treatment relative to an untreated infection, and parameters that determine the protection against reinfection ($P$): shape ($w$) and scale ($\lambda$). The decay of protection against infection follows a weibull distribution as follows:
 
@@ -36,9 +37,7 @@ $$P = e^{{(-t/\lambda)}^w}$$
 
 The $P$ for each drug following treatment through time is plotted below.
 
-```{r, echo = FALSE, fig.align = 'center', fig.height = 5, fig.width = 7}
-cols  <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-
+```{r, fig.align = 'center', out.width='100%'}
 calc_P <- function(w, lambda, t){
   P <- exp(-(t/lambda)^w)
 }
@@ -50,39 +49,36 @@ P_matrix <- lapply(list(AL_params, DHA_PQP_params, SP_AQ_params), function(x){
 })
 
 plot(x = t, y = P_matrix[[1]], type = "l", col = cols[1],
-     xlab = "Days", ylab = expression(paste("Protection against reinfection (",italic(P),")")))
-grid()
+     xlab = "Days", ylab = expression(paste("Protection against reinfection (",italic(P),")")),
+     xaxs = "i", yaxs = "i", lwd = 2)
+grid(lty = 2, col = "grey80", lwd = 0.5)
 
 # 
 invisible(sapply(2:3, function(x){
-  points(x = t, y = P_matrix[[x]], type = "l", col = cols[x])
+  points(x = t, y = P_matrix[[x]], type = "l", col = cols[x], lwd = 2)
 }))
 
 # Add legend
-legend("topright", legend = c("AL","DHA-PQP","SP-AQ"), col = cols, lty = 1)
-
+legend("topright", legend = c("AL","DHA-PQP","SP-AQ"), col = cols, lty = 1, lwd = 2, cex = 0.8)
 ```
 
 For more details, please see:
 
 Okell, L., Cairns, M., Griffin, J. *et al.* Contrasting benefits of different artemisinin combination therapies as first-line malaria treatments using model-based cost-effectiveness analysis. *Nat Commun* **5**, 5606 (2014). <https://doi.org/10.1038/ncomms6606>.
 
-## Functions
+## Setting drugs and clinical treatment
 
-Drug parameters can be incorporated into a complete parameter set using the `set_drugs` function which takes the full parameter set and a list of drug parameter sets.
+Drug parameters can be incorporated into a complete parameter set using the `set_drugs()` function which takes the full parameter set and a list of drug parameter sets.
 
 A treatment regimen for each drug can then be described using the `set_clinical_treatment()` function which takes the drug index, a vector of timesteps at which a change in coverage occurs (where the initial coverage is 0 until the first timestep specified) and a vector of coverages for the drug that correspond with the timestep changes, as well as the complete parameter set.
 
 Multiple drugs can be modelled simultaneously, with treatment coverage that can be specified for each drug. This function must be used for each drug included (e.g., if there are two drugs, `set_clinical_treatment()` must be called twice to specify the treatment plan).
 
-
-# Example
+### Parameterisation and simulation
 
 We will run a simulation for two years using AL and DHA-PQP treatment regimens. We begin our AL and DHA-PQP treatments on day 300 at 40% and 30% coverage, respectively. We provide these treatments for 300 days before the regimen ends. Note that the sum of treatment coverages cannot exceed 100% at any timestep.
 
 Prior to the simulation, the function `set_equilibrium` can also be used to generate equilibrium values for the human and mosquito populations.
-
-## Parameterisation and simulation
 
 ```{r}
 # Daily simulation timesteps for two years
@@ -106,7 +102,8 @@ treatment_params <- set_clinical_treatment(
   parameters = drug_params,
   drug = 1,
   timesteps =  c(300,600), # Treatment coverage changes on day 300 and day 600
-  coverages =  c(0.4,0)) # The initial treatment coverage (0%) is the default and does not need to be set
+  coverages =  c(0.4,0)) # The initial treatment coverage (0%) is the default 
+# and does not need to be set
 
 # Set treatment program for DHA-PQP (drug index = 2)
 treatment_params <- set_clinical_treatment(
@@ -123,22 +120,23 @@ output <- run_simulation(sim_length, treatment_params)
 
 ```
 
-## Visualisation
+### Visualisation
 
 Following simulation of malaria transmission under this treatment regimen, we can now visualise the effect of the regimen on the number of detectable cases through time using the `n_detect_730_3650`.
 
-```{r, fig.align = 'center', fig.height = 5, fig.width = 7}
+```{r, fig.align = 'center', out.width='100%'}
 # Plot results
 plot(x = output$timestep, y = output$n_detect_730_3650, type = "l",
      xlab = "Days", ylab = "Detectable cases", col = cols[1],
-     ylim = c(min(output$n_detect_730_3650)-1, max(output$n_detect_730_3650)+7))
+     ylim = c(min(output$n_detect_730_3650)-1, max(output$n_detect_730_3650)+7),
+     xaxs = "i", yaxs = "i")
 
 # Show treatment times
 abline(v = 300, lty = 2)
-text(x = 310, y = max(output$n_detect_730_3650)+4, labels = "Treatment\nbegins", adj = 0)
+text(x = 310, y = max(output$n_detect_730_3650), labels = "Treatment\nbegins", adj = 0, cex = 0.8)
 abline(v = 600, lty = 2)
-text(x = 610, y = max(output$n_detect_730_3650)+4, labels = "Treatment\nends", adj = 0)
+text(x = 610, y = max(output$n_detect_730_3650), labels = "Treatment\nends", adj = 0, cex = 0.8)
 
 # Add grid lines
-grid()
+grid(lty = 2, col = "grey80", nx = 11, ny = 10, lwd = 0.5)
 ```

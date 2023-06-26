@@ -1,1 +1,101 @@
 destination: docs
+
+navbar:
+  title: "malariasimulation"
+  structure:
+    left: [vignettes, functions, news]
+    right: [icon]
+  components:
+    vignettes:
+      text: "Vignettes"
+      menu:
+      - text: "Model Introduction"
+        href: articles/Model.html
+      - text: "Demography"
+        href: articles/Demography.html
+      - text: "Treatment"
+        href: articles/Treatment.html
+      - text: "MDA and Chemoprevention"
+        href: articles/MDA.html
+      - text: "Vaccines"
+        href: articles/Vaccines.html
+      - text: "Vector Control: Bednets"
+        href: articles/VectorControl_Bednets.html
+      - text: "Vector Control: Indoor Residual Spraying"
+        href: articles/VectorControl_IRS.html
+      - text: "Mosquito Species"
+        href: articles/SetSpecies.html
+      - text: "Carrying Capacity"
+        href: articles/Carrying-capacity.html
+      - text: "Matching PfPR2-10 to EIR"
+        href: articles/EIRprevmatch.html
+      - text: "Metapopulation Modelling"
+        href: articles/Metapopulation.html
+      - text: "Stochastic Variation"
+        href: articles/Variation.html
+      - text: "Parameter Variation"
+        href: articles/Parameter_variation.html
+    functions:
+      text: "Functions"
+      href: reference/index.html
+    icon:
+      icon: fa-github
+      href: https://github.com/mrc-ide/malariasimulation
+
+reference:
+- title: "Run functions"
+  contents:
+    - run_simulation
+    - run_metapop_simulation
+    - run_simulation_with_repetitions
+- title: "Parameter functions"
+  contents:
+    - get_parameters
+    - get_correlation_parameters
+    - set_parameter_draw
+    - set_equilibrium
+- title: "Demography functions"
+  contents:
+    - set_demography
+- title: "Mosquito species functions and parameters"
+  contents:
+    - set_species
+    # - set_carrying_capacity
+    - arab_params
+    - fun_params
+    - gamb_params
+    # - steph_params
+- title: "Intervention functions"
+- subtitle: "Drug treatments"
+  contents:
+    - set_drugs
+    - set_clinical_treatment
+    - AL_params
+    - DHA_PQP_params
+    - SP_AQ_params
+- subtitle: "MDA and chemoprevention"
+  contents:
+    - set_mda
+    - set_pmc
+    - set_smc
+    - peak_season_offset
+- subtitle: "Vaccines"
+  contents:
+    - set_mass_pev
+    - set_pev_epi
+    - set_tbv
+- subtitle: "Vector control"
+  contents:
+    - set_bednets
+    - set_spraying
+- title: "Non-user functions"
+  contents:
+    - CorrelationParameters
+    - create_pev_profile
+    - create_progress_process
+    - find_birthrates
+    - parameter_draws
+    - parameterise_mosquito_equilibrium
+    - parameterise_total_M
+    - rtss_booster_profile
+    - rtss_profile

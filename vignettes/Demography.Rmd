@@ -15,26 +15,21 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-# Load in the requisite package(s):
+# Load the requisite packages:
 library(malariasimulation)
+# Set colour palette:
+cols <- c("#E69F00", "#56B4E9", "#009E73", "#CC79A7","#F0E442", "#0072B2", "#D55E00")
 ```
 
-# Introduction
+The dynamics of malaria transmission, and the efficacy of interventions designed to interrupt it, are highly context specific and an important consideration is the demography of the population(s) under investigation. To suit the research needs of the user, `malariasimulation` allows for the specification of custom human population demographics by allowing them to specify age-group specific death rate parameters. It also enables users to instruct the model to render outputs with variables of interest (e.g. human population, number of cases detectable by microscopy, number of severe cases, etc.) presented by user-defined age groups. In this vignette, we use simple, illustrative cases to demonstrate how to customise the output rendered by the `run_simulation()` function, and how to specify both fixed and time-varying custom death rates.
 
-The dynamics of malaria transmission, and the efficacy of interventions designed to interrupt it, are highly context specific and an important consideration is the demography of the population(s) under investigation. To suit the research needs of the user, `malariasimulation` allows for the specification of custom human population demographics by allowing them to specify age-group specific death rates parameters. It also enables users to instruct the model to render outputs with variables of interest (e.g. human population, number of cases detectable by microscopy, number of severe cases, etc.) presented by user-defined age groups. In this vignette, we use simple, illustrative cases to demonstrate how to customise the output rendered by the `run_simulation()` function, and how to specify both fixed and time-varying custom death rates.
-
-# Specifying human death rates by age group
-
-The `malariasimulation` package allows users to capture different human population demographies by specifying age-specific death rates. In the first section, we'll demonstrate how to instruct the model to output population and disease metrics by user-defined age groups and how to establish and run simulations with age-specific death rates. We'll illustrate the effect this has by comparing the demographic make-up of this custom parameterisation with that produced using the demographic profile established by the default parameters.
-
-## Default Parameterisation
+## Age group rendering
 
 First, we'll establish a base set of parameters using the `get_parameters()` function and accept the default values. The `run_simulation()` function's default behaviour is to output only the number of individuals aged 2-10 years old (`output$n_730_3650`, where 730 and 3650 are the ages in days). However, the user can instruct the model to output the number of individuals in age groups of their choosing using the `age_group_rendering_min_ages` and `age_group_rendering_max_ages` parameters. These arguments take vectors containing the minimum and maximum ages (in daily time steps) of each age group to be rendered To allow us to see the effect of changing demographic parameters, we'll use this functionality to output the number of individuals in ages groups ranging from 0 to 85 at 5 year intervals. Note that the same is possible for other model outputs using their equivalent min/max age-class rendering arguments (`n_detect` , `p_detect`, `n_severe`, `n_inc`, `p_inc`, `n_inc_clinical`, `p_inc_clinical`, `n_inc_severe`, and `p_inc_severe`, run `?run_simulation()` for more detail).
 
 We next use the `set_equilibrium()` function to tune the initial parameter set to those required to observe the specified initial entomological inoculation rate (`starting_EIR`) at equilibrium. We now have a set of default parameters ready to use to run simulations.
 
 ```{r}
-
 # Set the timespan over which to simulate
 year <- 365; years <- 5; sim_length <- year * years
 
@@ -59,15 +54,13 @@ simparams <- get_parameters(
 # Use set_equilibrium to tune the human and mosquito populations to those required for the
 # defined EIR
 simparams <- set_equilibrium(simparams, starting_EIR)
-
 ```
 
-## **Custom Demographic Parameterisation**
+## Set custom demography
 
 Next, we'll use the the in-built `set_demography()` function to specify human death rates by age group. This function accepts as inputs a parameter list to update, a vector of the age groups (in days) for which we specify death rates, a vector of time steps in which we want the death rates to be updated, and a matrix containing the death rates for each age group in each timestep. The `set_demography()` function appends these to the parameter list and updates the `custom_demography` parameter to `TRUE`. Here, we instruct the model to implement these changes to the demographic  parameters at the beginning of the simulation (`timesteps = 0`).
 
 ```{r}
-
 # Copy the simulation parameters as demography parameters:
 dem_params <- simparams
 
@@ -94,15 +87,13 @@ dem_params <- set_demography(
 
 # Confirm that the custom demography has been set:
 dem_params$custom_demography
-
 ```
 
-## Simulations
+### Simulation
 
 Having established parameter sets with both default and custom demographic parameterisations, we can now run a simulation for each using the `run_simulation()` function. We'll also add a column to each identify the runs.
 
 ```{r}
-
 # Run the simulation with the default demographic set-up:
 exp_output <- run_simulation(sim_length, simparams)
 exp_output$run <- 'exponential'
@@ -110,16 +101,13 @@ exp_output$run <- 'exponential'
 # Run the simulation for the custom demographic set-up:
 custom_output <- run_simulation(sim_length, dem_params)
 custom_output$run <- 'custom'
-
-
 ```
 
-## Visualisation
+### Visualisation
 
 Using barplots, we can visualise the effect of altering the demographic parameters by comparing the distribution of people among the age-classes we instructed the model to output on the final day of the simulation. The default demography is depicted in blue, while the custom demography is given in orange. Under the custom demography, the frequency in individuals in older age classes declines almost linearly, while in the default demography the number of individuals in each age class declines exponentially with age.
 
-```{r, fig.width = 7.2, fig.height = 4, fig.fullwidth = TRUE}
-
+```{r, fig.align = 'center', out.width='100%', fig.asp=0.5}
 # Combine the two dataframes:
 dem_output <- rbind(exp_output, custom_output)
 
@@ -146,45 +134,39 @@ convert_to_long <- function(age_min, age_max, output) {
 # Convert the output for plotting:
 dem_output <- convert_to_long(age_min, age_max, dem_output)
 
-# Define a colour palette for plotting:
-dem_cols <- c("#E69F00", "#56B4E9", "#009E73", "#CC79A7","#F0E442", "#0072B2", "#D55E00")
-
 # Define the plotting window
 par(mfrow = c(1, 2), mar = c(4, 4, 1, 1))
 
 # a) Default/Exponentially-distributed demography
-plot.new(); grid(lty = 1, col = "darkgrey", nx = 17, ny = 10, lwd = 0.5); par(new = TRUE)
+plot.new(); grid(lty = 2, col = "grey80", lwd = 0.5, ny = 5, nx = 6); par(new = TRUE)
 barplot(height = dem_output[dem_output$run == "exponential", c("n", "age_plot")]$n,
-        names = dem_output[dem_output$run == "exponential", c("n", "age_plot")]$age_plot,
+        names = c(paste0(seq(0,75, by = 5),"-",seq(0,75, by = 5)+4), "80+"),
         axes = TRUE, space = 0, ylim = c(0, 250), xaxs = "i", yaxs = "i",
         main = "Default", xlab = "Age Group", ylab = "Individuals",
-        cex.axis = 0.8, cex.lab = 1, cex.main = 1,
-        col = dem_cols[2]); box()
+        cex.axis = 0.8, cex.names = 0.8, cex.lab = 1, cex.main = 1, las = 2,
+        col = cols[2]); box()
 
 # b) Custom demography
 plot.new()
-grid(lty = 1, col = "darkgrey", nx = 17, ny = 10, lwd = 0.5)
+grid(lty = 2, col = "grey80", lwd = 0.5, ny = 5, nx = 6)
 par(new = TRUE)
 barplot(height = dem_output[dem_output$run == "custom", c("n", "age_plot")]$n,
-        names = dem_output[dem_output$run == "custom", c("n", "age_plot")]$age_plot,
+        names = c(paste0(seq(0,75, by = 5),"-",seq(0,75, by = 5)+4), "80+"),
         axes = TRUE, space = 0, ylim = c(0, 250), xaxs = "i", yaxs = "i",
         main = "Custom", xlab = "Age Group",
-        cex.axis = 0.8, cex.lab = 1, cex.main = 1,
-        col = dem_cols[1]); box()
-
-
+        cex.axis = 0.8, cex.names = 0.8, cex.lab = 1, cex.main = 1, las = 2,
+        col = cols[1]); box()
 ```
 
-# Dynamic demography: time-varying death rates
+## Set dynamic demography
 
 Using the `timesteps` and `deathrates` arguments, we can also use the `set_demography()` function to update the death rates of specific age groups through time. In the following example, we'll use this functionality to first set our own initial death rates by age group, then instruct the model to increase the death rates in the age groups 5-10, 10-15, and 15-20 years old by a factor of 10 after 2 years. We'll finish by plotting the number of individuals in each age class at the end of each year to visualise the effect of time-varying death rates on the human population age-structure.
 
-## Parameterisation
+### Parameterisation
 
 We'll start by making a copy of the base parameters which have been instructed to output the population size through time (`simparams`). Next, we create a version of the `deathrates` vector created earlier updated to increase the death rates of the 5-10, 10-15, and 15-20 age groups by 10%. Finally, we use `set_demography()` to update our parameter list and specify our custom demography. This is achieved providing the `timesteps` argument with a vector of days to update the death rates (0 and 730 days), and providing `deathrates` with a matrix of death rates where each row corresponds to a set of death rates for a given update.
 
 ```{r}
-
 # Store the simulation parameters in a new object for modification
 dyn_dem_params <- simparams
 
@@ -199,48 +181,44 @@ dyn_dem_params <- set_demography(
   timesteps = c(0, 2*365),
   deathrates = matrix(c(deathrates, deathrates_increased), nrow = 2, byrow = TRUE)
 )
-
 ```
 
-## Simulation
+### Simulation
 Having established the parameter list for the dynamic death rate simulation, we can now run the simulation using the `run_simulation()` function.
 
 ```{r}
 # Run the simulation for the dynamic death rate demography
 dyn_dem_output <- run_simulation(sim_length, dyn_dem_params)
-
 ```
 
-## Visualisation
+### Visualisation
 
 Bar plots of the age structure of the human population at the end of each year show the marked effect that increasing the death rate within a small subset of age classes can have on the demography of the human population over time.
 
-```{r, fig.width = 7.2, fig.height = 3, fig.fullwidth = TRUE}
-
+```{r, fig.align = 'center', out.width='100%', fig.asp=0.35}
 # Filter out the end-of-year population sizes, add a column naming the run, and convert
 # dataframe to long-form:
-dyn_dem_output <- dyn_dem_output[dyn_dem_output$timestep %in% (1:5 * 365),]
+dyn_dem_output <- dyn_dem_output[dyn_dem_output$timestep %in% (c(1,3,5) * 365),]
 dyn_dem_output$run <- 'dynamic'
 dyn_dem_output <- convert_to_long(age_min, age_max, dyn_dem_output)
 
 # Set a 1x5 plotting window:
-par(mfrow = c(1,5), mar = c(4, 4, 1, 1))
+par(mfrow = c(1,3), mar = c(4, 4, 1, 1))
 
 # Loop through the years to plot:
-for(i in 1:5) {
+for(i in c(1,3,5)) {
   plot.new()
-  grid(lty = 1, col = "darkgrey", nx = 11, ny = 10, lwd = 0.5)
+  grid(lty = 2, col = "grey80", lwd = 0.5, ny = 5, nx = 6)
   par(new = TRUE)
   barplot(height = dyn_dem_output[dyn_dem_output$timestep/365 == i,c("n", "age_plot")]$n,
-          names = dyn_dem_output[dyn_dem_output$timestep/365 == i,c("n", "age_plot")]$age_plot,
+          names = c(paste0(seq(0,75, by = 5),"-",seq(0,75, by = 5)+4), "80+"),
           axes = TRUE, space = 0,
           ylim = c(0, 500),
           main = paste0("Year ", i), cex.main = 1.4,
           xlab = ifelse(i == 3, "Age Group", ""),
           ylab = ifelse(i == 1, "Individuals", ""),
-          xaxs = "i", yaxs = "i",
-          cex.axis = 0.8, cex.lab = 1, cex.main = 1, col = dem_cols[3])
+          xaxs = "i", yaxs = "i", las = 2,
+          cex.axis = 0.8, cex.names = 0.8, cex.lab = 1, cex.main = 1, col = cols[3])
   box()
 }
-
 ```

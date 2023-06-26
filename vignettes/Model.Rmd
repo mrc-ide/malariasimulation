@@ -1,8 +1,8 @@
 ---
-title: "Model Structure"
+title: "Model Introduction"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Model Structure}
+  %\VignetteIndexEntry{Model Introduction}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,9 +14,18 @@ knitr::opts_chunk$set(
 )
 ```
 
-This is an individual based model for *P. falciparum* and malaria interventions.
+```{r, output.lines=6}
+# Load the requisite packages:
+library(malariasimulation)
+# Set colour palette:
+cols  <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+```
 
-## Human Biology
+This vignette gives a high-level overview of the individual-based malariasimulation model. It then gives a basic example of how the model can be used, how to initiate the model with equilibrium conditions, and demonstrates how to change named parameter inputs, including setting seasonality parameters. Finally, it lists and broadly describes the content of the remaining vignettes, summarising parameter and intervention setting functions.
+
+## Model structure
+
+### Human Biology
 
 The human variables are documented in [R/variables.R](https://github.com/mrc-ide/malariasimulation/blob/master/R/variables.R).
 
@@ -28,11 +37,11 @@ The functions governing the human flow of infection and immunity processes are d
 
 <img src="Model_human.svg" style="display:block; margin: 0 auto; border-width: 0; width: 100%"/>
 
-### States
+#### States
 
 Modelled human states are Susceptible (*S*), Treated (*Tr*), Clinical disease (*D*), Asymptomatic infection (*A*) and Sub-patent infection (*U*).
 
-### Parameters
+#### Parameters
 
 Parameters shown on the infographic include:
 
@@ -55,22 +64,21 @@ $$r_D=dr^{-1}$$
 
 To maintain a constant population size during simulations, the birth rate of new susceptible individuals is set to be equal to the overall death rate.
 
-## Mosquito Biology
+### Mosquito Biology
 
 The functions governing mosquito biological processes and dynamics are spread out between the following files:
 
-1.  [src/adult_mosquito_eqs.cpp](https://github.com/mrc-ide/malariasimulation/blob/master/src/adult_mosquito.cpp)
-2.  [src/aquatic_mosquito_eqs.cpp](https://github.com/mrc-ide/malariasimulation/blob/master/src/aquatic_mosquito.cpp)
-3.  [src/mosquito_biology.cpp](https://github.com/mrc-ide/malariasimulation/blob/master/src/mosquito_biology.cpp)
-4.  [R/mosquito_biology.R](https://github.com/mrc-ide/malariasimulation/blob/master/R/mosquito_biology.R)
+1.  [R/mosquito_biology.R](https://github.com/mrc-ide/malariasimulation/blob/master/R/mosquito_biology.R)
+2.  [R/biting_process.R](https://github.com/mrc-ide/malariasimulation/blob/master/R/biting_process.R)
+3.  [R/compartmental.R](https://github.com/mrc-ide/malariasimulation/blob/master/R/compartmental.R)
 
 <img src="Model_mos.svg" style="display:block; margin: 0 auto; border-width: 0; width: 100%"/>
 
-### States
+#### States
 
 Modelled mosquito states are separated into three juvenile stages: early (*E*) and late (*L*) larval stages, the pupal stage (*P*), and three adult states: susceptible (*S*<sub>M</sub>), incubating (*P*<sub>M</sub>) and infectious individuals (*I*<sub>M</sub>). Mosquitoes in any state may die, where they enter the NonExistent state. The model tracks both male and female juvenile mosquitoes, but only female adult mosquitoes.
 
-### Parameters
+#### Parameters
 
 Parameters shown on the infographic include mosquito developmental rates:
 
@@ -103,7 +111,7 @@ $$
 \mu_L = \mu_L^0(1+\gamma\frac{E(t)+L(t)}{K(t)})
 $$
 
-## Key Model References (structure and dynamics)
+### Key Model References (structure and dynamics)
 
 Griffin JT, Hollingsworth TD, Okell LC, Churcher TS, White M, et al. (2010) Reducing *Plasmodium falciparum* Malaria Transmission in Africa: A Model-Based Evaluation of Intervention Strategies. PLOS Medicine 7(8): e1000324. <https://doi.org/10.1371/journal.pmed.1000324>
 
@@ -115,20 +123,19 @@ Griffin, J. T., Déirdre Hollingsworth, T., Reyburn, H., Drakeley, C. J., Riley,
 
 Griffin, J. T., Bhatt, S., Sinka, M. E., Gething, P. W., Lynch, M., Patouillard, E., Shutes, E., Newman, R. D., Alonso, P., Cibulskis, R. E., & Ghani, A. C. (2016). Potential for reduction of burden and local elimination of malaria by reducing Plasmodium falciparum malaria transmission: A mathematical modelling study. The Lancet Infectious Diseases, 16(4), 465--472. [https://doi.org/10.1016/S1473-3099(15)00423-5](https://doi.org/10.1016/S1473-3099(15)00423-5)
 
-# Basic simulation
+## Run simulation
 
 ### Code
 
-The key package function is `run_simulation()` which, in its most basic form, simply requires a number of timesteps in days. Default parameter settings assume a human population of size of 100, an initial mosquito population size of 1000 of a single species (default set to *Anopheles gambiae* parameters), with no treatment interventions and no seasonality. The full parameters list can be seen in the documentation for `get_parameters()`.
+The key package function is `run_simulation()` which simply requires, in its most basic form, a number of timesteps in days. Default parameter settings assume a human population size of 100, an initial mosquito population size of 1000 (where the default species is set to *Anopheles gambiae*), with no treatment interventions and no seasonality and models the spread of *Plasmodium falciparum*. The full parameters list can be seen in the documentation for `get_parameters()`.
 
 ```{r, output.lines=6}
-library(malariasimulation)
 test_sim <- run_simulation(timesteps = 100)
 ```
 
 ### Output
 
-The `run_simulation()` function then simulates malaria transmission dynamics and returns a dataframe for the following parameters through time:
+The `run_simulation()` function then simulates malaria transmission dynamics and returns a dataframe containing the following outputs through time:
 
 -   `infectivity`: human infectiousness
 -   `EIR_All`: the entomological inoculation rate (for all mosquito species)
@@ -147,8 +154,8 @@ The `run_simulation()` function then simulates malaria transmission dynamics and
 -   `n_730_3650`: population size of an age group of interest (where the default is set to 730-3650 days old, or 2-10 years, but which may be adjusted (see [Demography](https://mrc-ide.github.io/malariasimulation/articles/Demography.html) vignette for more details)
 -   `n_detect_730_3650`: number with possible detection through microscopy of a given age group
 -   `p_detect_730_3650`: the sum of probabilities of detection through microscopy of a given age group
--   `E_All_count`, `L_All_count`, `P_All_count`, `Sm_All_count`, `Pm_All_count`, `Im_All_count`, `NonExistent_All_count`: mosquito population sizes in each state
--   `total_M_All`: number of adult mosquitoes
+-   `E_gamb_count`, `L_gamb_count`, `P_gamb_count`, `Sm_gamb_count`, `Pm_gamb_count`, `Im_gamb_count`: species-specific mosquito population sizes in each state (default set to *An. gambiae*)
+-   `total_M_gamb`: species-specific number of adult mosquitoes (default set to *An. gambiae*)
 
 ```{r, output.lines=6}
 head(test_sim, n = 3)
@@ -166,10 +173,7 @@ Where **treatments** are specified, `n_treated` will report the number that have
 
 These outputs can then be visualised, such as the population changes in states. Another key output is the prevalence of detectable infections between the ages of 2-10 (*Pf*PR~2-10~), which can be obtained by dividing `n_detect_730_3650` by `n_730_3650`.
 
-```{r, fig.align = 'center', fig.height = 5, fig.width = 7}
-# Set color palette
-cols  <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-
+```{r, fig.align = 'center', out.width='100%', fig.asp=0.55}
 # Define vector of column names to plot
 cols_to_plot <- paste0(c("S","D","A","U","Tr"),"_count")
 
@@ -179,14 +183,17 @@ states_plot <- function(sim){
   # Set up plot with first state
   plot(x = sim$timestep, y = sim[,cols_to_plot[1]],
        type = "l", col = cols[1], ylim = c(0,80),
-       ylab = "Population size", xlab = "Days")
+       ylab = "Population size", xlab = "Days",
+       xaxs = "i", yaxs = "i", lwd = 2)
   
   # Add remaining states
   sapply(2:5, function(x){
-    points(x = sim$timestep, y = sim[,cols_to_plot[x]], type = "l", col = cols[x])})
-  
+    points(x = sim$timestep, y = sim[,cols_to_plot[x]],
+           type = "l", lwd = 2, col = cols[x])})
+  grid(lty = 2, col = "grey80", lwd = 0.5)
   # Add legend
-  legend("topleft", legend = c("S","D","A","U","Tr"), col = cols, lty = 1, bty = "n", ncol = 2)
+  legend("topleft", legend = c("S","D","A","U","Tr"), col = cols,
+         lty = 1, lwd = 2, bty = "n", ncol = 3,  cex = 0.7)
 }
 
 par(mfrow = c(1,2))
@@ -197,13 +204,17 @@ test_sim$PfPR2_10 <- test_sim$n_detect_730_3650/test_sim$n_730_3650
 
 # Plot Pf PR 2-10
 plot(x = test_sim$timestep, y = test_sim$PfPR2_10, type = "l",
-     col = cols[7], ylim = c(0,1),
-     ylab = expression(paste(italic(Pf),"PR"[2-10])), xlab = "Days")
+     col = cols[7], ylim = c(0,1), lwd = 2,
+     ylab = expression(paste(italic(Pf),"PR"[2-10])), xlab = "Days",
+     xaxs = "i", yaxs = "i")
+grid(lty = 2, col = "grey80", lwd = 0.5)
 ```
 
-Note that the model will not begin simulations from an equilibrium state as default. In the case of our simulation that means that the population in each state and the prevalence (*Pf*PR~2-10~) move towards an equilibrium. To begin the simulation at approximate equilibrium conditions, please use the `set_equilibrium()` function, which requires you to specify an initial EIR value:
+## Set equilibrium
 
-```{r, fig.align = 'center', fig.height = 5, fig.width = 7}
+Note that the model will not begin simulations from an equilibrium state as default (as in the simulation above). To begin the simulation at approximate equilibrium conditions, please use the `set_equilibrium()` function, which requires you to specify an initial EIR value:
+
+```{r, fig.align = 'center', out.width='100%', fig.asp=0.55}
 params <- get_parameters() |> 
   set_equilibrium(init_EIR = 5)
 
@@ -218,45 +229,80 @@ test_sim_eq$PfPR2_10 <- test_sim_eq$n_detect_730_3650/test_sim_eq$n_730_3650
 # Plot Pf PR 2-10
 plot(x = test_sim_eq$timestep, y = test_sim_eq$PfPR2_10, type = "l",
      col = cols[7], ylim = c(0,1),
-     ylab = expression(paste(italic(Pf),"PR"[2-10])), xlab = "Days")
-
+     ylab = expression(paste(italic(Pf),"PR"[2-10])), xlab = "Days",
+     xaxs = "i", yaxs = "i", lwd = 2)
+grid(lty = 2, col = "grey80", lwd = 0.5)
 
 ```
 
-# Changing parameters
+## Override parameters
 
 The `get_parameters()` function generates a complete parameter set that may be fed into `run_simulation()`. A number of **helper functions** have been designed to assist in changing and setting key parameters, which are explained across the remaining vignettes.
 
-Some parameters (e.g. population size, age group rendering, setting seasonality) must still be replaced directly. When this is the case, care must be taken to ensure the replacement parameters are in the same class as the default parameters (e.g. if the parameter is a numeric, its replacement must also be numeric, if logical, the replacement must also be logical). Parameters are replaced by passing a list of named parameters to the `get_parameters()` function using the `overrides` argument. An example showing how to change the `human_population` parameter is given below.
+Some parameters (e.g. population size, age group rendering, setting seasonality) must still be replaced directly. When this is the case, care must be taken to ensure the replacement parameters are in the same class as the default parameters (e.g. if the parameter is a numeric, its replacement must also be numeric, if logical, the replacement must also be logical). Parameters are replaced by passing a list of named parameters to the `get_parameters()` function using the `overrides` argument. The following example shows how to change the `human_population` parameter.
 
 ```{r}
 # Use get_parameters(overrides = list(...))) to set new parameters
 new_params <- get_parameters(overrides = list(human_population = 200)) 
 ```
 
-While other parameters can be changed individually, we do not generally recommended adjusting these without close attention and a detailed understanding of how this will impact the model assumptions. We strongly encourage users to stick with the parameter setting functions and methods described in these vignettes when adjusting parameter settings.
+While other parameters can be changed individually, we do not generally recommended adjusting these without a detailed understanding of how this will impact the model assumptions. We strongly encourage users to stick with the parameter setting functions and methods described in these vignettes when adjusting parameter settings.
+
+## Seasonality
+
+The `malariasimulation` package has the capacity to simulate malaria transmission for a range of seasonal transmission profiles. This is achieved by specifying an annual rainfall profile that shapes mosquito population dynamics, thereby impacting malaria transmission. Please see the [Umbrella](https://github.com/mrc-ide/umbrella) package for instructions on generating seasonality parameters.
+
+To include seasonality, we must set the parameter `model_seasonality = TRUE` and assign values to parameters that determine seasonality: `g0`, `g` and `h` (which represent fourier coefficients). These parameters must be set directly by passing a list of named parameters to the `overrides` argument of the `get_parameters()` function.
+
+```{r, fig.align = 'center', out.width='100%'}
+# Set parameters, inclusing seasonality parameters
+params_seasons <- get_parameters(overrides = list(
+  model_seasonality = TRUE,
+  g0 = 0.28,
+  g = c(0.2, -0.07, -0.001),
+  h = c(0.2, -0.07, -0.1)))
+
+# Run simulation
+seasonality_simulation <- run_simulation(timesteps = 600, parameters = params_seasons)
+
+# Collect results
+All_mos_cols <- paste0(c("E","L","P","Sm","Pm", "Im"),"_All_count")
+
+# Plot results
+plot(seasonality_simulation[,1], rowSums(seasonality_simulation[,All_mos_cols]), lwd = 2,
+     ylim = c(0, 120000), type = "l", xlab = "Days", ylab = "Mosquito population size")
+grid()
+```
+
+The mosquito population size is no longer constant and follows the patterns set by rainfall.
+
+## Individual mosquitoes
+
+Mosquitoes may also be modelled deterministically (the default) or individually.
+
+To model individual mosquitoes, set `individual_mosquitoes` to `TRUE` in the `overrides` argument of `get_parameters()`.
+
+```{r}
+simparams <- get_parameters(overrides = list(individual_mosquitoes = TRUE))
+```
 
 ## Vignettes
 
-The remaining vignettes describe how to adjust sets of parameters through a number of functions as follows:
+The remaining vignettes describe how to adjust sets of parameters through a number of methods and functions as follows:
 
-1.  [Population Demography](https://mrc-ide.github.io/malariasimulation/articles/Demography.html)
+1.  [Demography](https://mrc-ide.github.io/malariasimulation/articles/Demography.html)
 
-    -   Age group rendering
-    -   `set_demography()`: setting demographies and time-varying death rates
-
-2.  [Carrying capacity](https://mrc-ide.github.io/malariasimulation/articles/Carrying-capacity.html)
-
-    -   Setting seasonality parameters
-    -   `set_carrying_capacity()`: changes mosquito carrying capacity, e.g. to model larval source management impact
-    -   `set_species`: to model multiple species and species invasion
-
-3.  [Treatment](https://mrc-ide.github.io/malariasimulation/articles/Treatment.html)
+    -   Population age group rendering
+    
+    -   `set_demography()`: setting population demographies and time-varying death rates
+    
+2.  [Treatment](https://mrc-ide.github.io/malariasimulation/articles/Treatment.html)
 
     -   `set_drugs()`: for drug-specific parameters (with in-built parameter sets)
+    
     -   `set_clinical_treatment()`: implemention of clinical treatment interventions
 
-4.  [MDA and Chemoprevention](https://mrc-ide.github.io/malariasimulation/articles/MDA.html)
+3.  [MDA and Chemoprevention](https://mrc-ide.github.io/malariasimulation/articles/MDA.html)
 
     -   `set_mda()`: implementation of mass drug administration interventions
 
@@ -266,28 +312,42 @@ The remaining vignettes describe how to adjust sets of parameters through a numb
 
     -   `peak_season_offset()`: correlating timed interventions with seasonal malaria
 
-5.  [Vaccines](https://mrc-ide.github.io/malariasimulation/articles/Vaccines.html)
+4.  [Vaccines](https://mrc-ide.github.io/malariasimulation/articles/Vaccines.html)
 
     -   `set_mass_pev()`: implementation of a pre-erythrocytic vaccination intervention
-    -   `set_pev_epi()`: Implementation of a pre-erythrocytic vaccination intervention from a certain age
+    
+    -   `set_pev_epi()`: implementation of a pre-erythrocytic vaccination intervention from a certain age
+    
     -   `set_tbv()`: implementation of a transmission blocking vaccination intervention
 
-6.  [Vector Control: Bednets](https://mrc-ide.github.io/malariasimulation/articles/VectorControl.html)
+5.  [Vector Control: Bednets](https://mrc-ide.github.io/malariasimulation/articles/VectorControl_Bednets.html)
 
     -   `set_bednets()`: implementation of bednet distribution intervention
 
-7.  [Vector Control: Indoor Residual Spraying](https://mrc-ide.github.io/malariasimulation/articles/VectorControl.html)
+6.  [Vector Control: Indoor Residual Spraying](https://mrc-ide.github.io/malariasimulation/articles/VectorControl_IRS.html)
 
     -   `set_spraying()`: implementation of an indoor residual spraying intervention
 
-8.  [Matching PfPR2-10 to EIR](https://mrc-ide.github.io/malariasimulation/articles/EIRprevmatch.html)
+7.  [Mosquito Species](https://mrc-ide.github.io/malariasimulation/articles/SetSpecies.html)
+
+    -   `set_species()`: setting mosquito distribution
+
+8.  [Carrying Capacity](https://mrc-ide.github.io/malariasimulation/articles/Carrying-capacity.html)
+
+    -   `set_carrying_capacity()`: changes mosquito carrying capacity, e.g. to model larval source management impact
+    
+9.  [Matching PfPR2-10 to EIR](https://mrc-ide.github.io/malariasimulation/articles/EIRprevmatch.html)
 
     -   Using *Pf*PR~2-10~ data to estimate EIR
 
 9.  [Metapopulation Modelling](https://mrc-ide.github.io/malariasimulation/articles/Metapopulation.html)
 
-    -   `run_metapop_simulation()`: to model multiple areas simultaneously
+    -   `run_metapop_simulation()`: model multiple areas simultaneously
 
-10. [Variation](https://mrc-ide.github.io/malariasimulation/articles/Variation.html)
+11. [Stochastic Variation](https://mrc-ide.github.io/malariasimulation/articles/Variation.html)
 
     -   `run_simulation_with_repetitions()`: running simulations with replicates
+    
+12. [Parameter Variation](https://mrc-ide.github.io/malariasimulation/articles/ParameterVariation.html)
+
+    -   `set_parameter_draw()`: incorporating parameter variation

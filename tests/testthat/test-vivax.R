@@ -1,7 +1,7 @@
 test_that('Test falciparum switch produces same', {
-  parameters <- get_parameters()
+  parameters_def <- get_parameters()
   parameters_fal <- get_parameters(parasite = "falciparum")
-  expect_identical(parameters, parameters_fal)
+  expect_identical(parameters_def, parameters_fal)
 })
 
 test_that('Test vivax model runs', {

@@ -293,155 +293,153 @@
 #' @export
 get_parameters <- function(overrides = list(), parasite = "falciparum") {
   
-  ## Parasite-specific parameters set in parasite_parameters.csv
-  # human fixed state transitions
-  # duration of sub-patent infection
-  # initial immunity values
-  # immunity boost grace periods
-  # maternal immunity parameters
-  # immunity decay rates
-  # probability of pre-erythrocytic infection/blood immunity
-  # probability of asymptomatic detection/detectbility immunity 
-  # probability of asymptomatic infection/antiparasite immunity
-  # probability of clinical infection/clinical immunity
-  # probability of severe infection/severe disease immunity
-  # infectivity towards mosquitos
-  # parasite incubation periods
-  # hypnozoite parameters
-  
-  parameters <- as.list(parasite_parameters[parasite_parameters$parasite==parasite,c("default")])
-  names(parameters) <- parasite_parameters[parasite_parameters$parasite==parasite,c("parameter")]
-
-  ## Add remaining parameters
-  parameters <- c(parameters, list(
-
-    # parasite parameter
-    parasite = parasite,
+  parameters <- c(
+    ## Parasite-specific parameters set in parasite_parameters.csv
+    # human fixed state transitions
+    # duration of sub-patent infection
+    # initial immunity values
+    # immunity boost grace periods
+    # maternal immunity parameters
+    # immunity decay rates
+    # probability of pre-erythrocytic infection/blood immunity
+    # probability of asymptomatic detection/detectbility immunity 
+    # probability of asymptomatic infection/antiparasite immunity
+    # probability of clinical infection/clinical immunity
+    # probability of severe infection/severe disease immunity
+    # infectivity towards mosquitos
+    # parasite incubation periods
+    # hypnozoite parameters
+    parasite_parameters[[parasite]],
     
-    # human population parameters
-    human_population = 100,
-    human_population_timesteps = 0,
-    custom_demography = FALSE,
-    average_age = 7663,
-    # initial state proportions
-    s_proportion = 0.420433246,
-    d_proportion = 0.007215064,
-    a_proportion = 0.439323667,
-    u_proportion = 0.133028023,
-    t_proportion = 0,
-    # rendering
-    age_group_rendering_min_ages = numeric(0),
-    age_group_rendering_max_ages = numeric(0),
-    prevalence_rendering_min_ages = 2 * 365,
-    prevalence_rendering_max_ages = 10 * 365,
-    incidence_rendering_min_ages = numeric(0),
-    incidence_rendering_max_ages = numeric(0),
-    clinical_incidence_rendering_min_ages = numeric(0),
-    clinical_incidence_rendering_max_ages = 5 * 365,
-    severe_incidence_rendering_min_ages = numeric(0),
-    severe_incidence_rendering_max_ages = numeric(0),
-    severe_prevalence_rendering_min_ages = numeric(0),
-    severe_prevalence_rendering_max_ages = numeric(0),
-    
-    # mosquito life stage transitions
-    del =  6.64,
-    dl  =  3.72,
-    dpl =  0.643,
-    mup =  0.249,
-    mum =  0.132,
-    # unique biting rate
-    a0  =  2920,
-    rho =  0.85,
-    sigma_squared  = 1.67,
-    n_heterogeneity_groups  =  5,
-    # seasonality and carrying capacity parameters
-    model_seasonality = FALSE,
-    g0    = 2,
-    g     = c(.3, .6, .9),
-    h     = c(.1, .4, .7),
-    gamma = 13.25,
-    rainfall_floor = 0.001,
-    # flexible carrying capacity parameters
-    carrying_capacity = FALSE,
-    carrying_capacity_timesteps = NULL,
-    carrying_capacity_values = NULL,
-    # larval mortality rates
-    me    = .0338,
-    ml    = .0348,
-    # vector biology
-    beta     = 21.2,
-    total_M  = 1000,
-    init_foim= 0,
-    # order of species: An gambiae s.s, An arabiensis, An funestus
-    species             = 'All',
-    species_proportions = 1,
-    blood_meal_rates    = 1/3,
-    Q0                  = .92,
-    foraging_time       = .69,
-    # bed nets
-    bednets = FALSE,
-    phi_bednets = .85,
-    k0 = .699,
-    # indoor spraying
-    spraying = FALSE,
-    phi_indoors = .90,
-    # treatment
-    drug_efficacy          = numeric(0),
-    drug_rel_c             = numeric(0),
-    drug_prophylaxis_shape = numeric(0),
-    drug_prophylaxis_scale = numeric(0),
-    clinical_treatment_drugs     = list(),
-    clinical_treatment_timesteps = list(),
-    clinical_treatment_coverages = list(),
-    # rts,s
-    pev = FALSE,
-    pev_doses = c(0, 1.5 * 30, 3 * 30),
-    # MDA
-    mda = FALSE,
-    mda_drug = 0,
-    mda_timesteps = NULL,
-    mda_coverages = NULL,
-    mda_min_ages = -1,
-    mda_max_ages = -1,
-    smc = FALSE,
-    smc_drug = 0,
-    smc_timesteps = NULL,
-    smc_coverages = NULL,
-    smc_min_ages = -1,
-    smc_max_ages = -1,
-    # PMC
-    pmc = FALSE,
-    pmc_drug = 0,
-    pmc_timesteps = NULL,
-    pmc_coverages = NULL,
-    pcs_ages = -1,
-    # tbv
-    tbv = FALSE,
-    tbv_mt = 35,
-    tbv_md = 46.7,
-    tbv_ma = 3.6,
-    tbv_mu = 0.8,
-    tbv_k = 0.9,
-    tbv_tau = 22,
-    tbv_rho = .7,
-    tbv_ds = 45,
-    tbv_dl = 591,
-    tbv_tra_mu = 12.63,
-    tbv_gamma1 = 2.5,
-    tbv_gamma2 = .06,
-    tbv_timesteps = NULL,
-    tbv_coverages = NULL,
-    tbv_ages = NULL,
-    
-    # misc
-    mosquito_limit   = 100 * 1000,
-    individual_mosquitoes = FALSE,
-    enable_heterogeneity = TRUE,
-    r_tol = 1e-4,
-    a_tol = 1e-4,
-    ode_max_steps = 1e6,
-    progress_bar = FALSE
-  ))
+    ## Add remaining parameters
+    list(
+      # parasite parameter
+      parasite = parasite,
+      
+      # human population parameters
+      human_population = 100,
+      human_population_timesteps = 0,
+      custom_demography = FALSE,
+      average_age = 7663,
+      # initial state proportions
+      s_proportion = 0.420433246,
+      d_proportion = 0.007215064,
+      a_proportion = 0.439323667,
+      u_proportion = 0.133028023,
+      t_proportion = 0,
+      # rendering
+      age_group_rendering_min_ages = numeric(0),
+      age_group_rendering_max_ages = numeric(0),
+      prevalence_rendering_min_ages = 2 * 365,
+      prevalence_rendering_max_ages = 10 * 365,
+      incidence_rendering_min_ages = numeric(0),
+      incidence_rendering_max_ages = numeric(0),
+      clinical_incidence_rendering_min_ages = numeric(0),
+      clinical_incidence_rendering_max_ages = 5 * 365,
+      severe_incidence_rendering_min_ages = numeric(0),
+      severe_incidence_rendering_max_ages = numeric(0),
+      severe_prevalence_rendering_min_ages = numeric(0),
+      severe_prevalence_rendering_max_ages = numeric(0),
+      
+      # mosquito life stage transitions
+      del =  6.64,
+      dl  =  3.72,
+      dpl =  0.643,
+      mup =  0.249,
+      mum =  0.132,
+      # unique biting rate
+      a0  =  2920,
+      rho =  0.85,
+      sigma_squared  = 1.67,
+      n_heterogeneity_groups  =  5,
+      # seasonality and carrying capacity parameters
+      model_seasonality = FALSE,
+      g0    = 2,
+      g     = c(.3, .6, .9),
+      h     = c(.1, .4, .7),
+      gamma = 13.25,
+      rainfall_floor = 0.001,
+      # flexible carrying capacity parameters
+      carrying_capacity = FALSE,
+      carrying_capacity_timesteps = NULL,
+      carrying_capacity_values = NULL,
+      # larval mortality rates
+      me    = .0338,
+      ml    = .0348,
+      # vector biology
+      beta     = 21.2,
+      total_M  = 1000,
+      init_foim= 0,
+      # order of species: An gambiae s.s, An arabiensis, An funestus
+      species             = 'All',
+      species_proportions = 1,
+      blood_meal_rates    = 1/3,
+      Q0                  = .92,
+      foraging_time       = .69,
+      # bed nets
+      bednets = FALSE,
+      phi_bednets = .85,
+      k0 = .699,
+      # indoor spraying
+      spraying = FALSE,
+      phi_indoors = .90,
+      # treatment
+      drug_efficacy          = numeric(0),
+      drug_rel_c             = numeric(0),
+      drug_prophylaxis_shape = numeric(0),
+      drug_prophylaxis_scale = numeric(0),
+      clinical_treatment_drugs     = list(),
+      clinical_treatment_timesteps = list(),
+      clinical_treatment_coverages = list(),
+      # rts,s
+      pev = FALSE,
+      pev_doses = c(0, 1.5 * 30, 3 * 30),
+      # MDA
+      mda = FALSE,
+      mda_drug = 0,
+      mda_timesteps = NULL,
+      mda_coverages = NULL,
+      mda_min_ages = -1,
+      mda_max_ages = -1,
+      smc = FALSE,
+      smc_drug = 0,
+      smc_timesteps = NULL,
+      smc_coverages = NULL,
+      smc_min_ages = -1,
+      smc_max_ages = -1,
+      # PMC
+      pmc = FALSE,
+      pmc_drug = 0,
+      pmc_timesteps = NULL,
+      pmc_coverages = NULL,
+      pcs_ages = -1,
+      # tbv
+      tbv = FALSE,
+      tbv_mt = 35,
+      tbv_md = 46.7,
+      tbv_ma = 3.6,
+      tbv_mu = 0.8,
+      tbv_k = 0.9,
+      tbv_tau = 22,
+      tbv_rho = .7,
+      tbv_ds = 45,
+      tbv_dl = 591,
+      tbv_tra_mu = 12.63,
+      tbv_gamma1 = 2.5,
+      tbv_gamma2 = .06,
+      tbv_timesteps = NULL,
+      tbv_coverages = NULL,
+      tbv_ages = NULL,
+      
+      # misc
+      mosquito_limit   = 100 * 1000,
+      individual_mosquitoes = FALSE,
+      enable_heterogeneity = TRUE,
+      r_tol = 1e-4,
+      a_tol = 1e-4,
+      ode_max_steps = 1e6,
+      progress_bar = FALSE
+      ))
   
   # Override parameters with any client specified ones
   if (!is.list(overrides)) {

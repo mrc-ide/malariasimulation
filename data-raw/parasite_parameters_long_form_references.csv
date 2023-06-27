@@ -1,0 +1,132 @@
+parasite,parameter,default,reference,Notes,
+falciparum,dd,5,,Parasite specific,human durations
+falciparum,dt,5,,Parasite specific,human durations
+falciparum,da,195,,Parasite specific,human durations
+falciparum,du,110,,Parasite specific,human durations
+falciparum,del,6.64,,Not a parasite parameter?,Mosquito duration
+falciparum,dl,3.72,,Not a parasite parameter?,Mosquito duration
+falciparum,dpl,0.643,,Not a parasite parameter?,Mosquito duration
+falciparum,mup,0.249,,Not a parasite parameter?,Mosquito duration
+falciparum,mum,0.132,,Not a parasite parameter?,Mosquito duration
+falciparum,rm,67.6952,,Parasite specific,Immunity
+falciparum,rvm,76.8365,,Parasite specific,Immunity
+falciparum,rb,3650,,Parasite specific,Immunity
+falciparum,rva,10950,,Parasite specific,Immunity
+falciparum,rc,10950,,Consistent between parasites,Immunity
+falciparum,rid,3650,,Consistent between parasites,Immunity
+falciparum,b0,0.59,,Parasite specific,FOI
+falciparum,b1,0.5,,Parasite specific,FOI
+falciparum,ib0,43.9,,Parasite specific,FOI
+falciparum,kb,2.16,,Parasite specific,FOI
+falciparum,phi0,0.792,,Parasite specific,Clinical
+falciparum,phi1,0.00074,,Parasite specific,Clinical
+falciparum,ic0,18.02366,,Parasite specific,Clinical
+falciparum,kc,2.36949,,Parasite specific,Clinical
+falciparum,theta0,0.0749886,,Parasite specific,Severe
+falciparum,theta1,0.0001191,,Parasite specific,Severe
+falciparum,iv0,1.09629,,Parasite specific,Severe
+falciparum,kv,2.00048,,Parasite specific,Severe
+falciparum,fv0,0.141195,,Parasite specific,Severe
+falciparum,av,2493.41,,Parasite specific,Severe
+falciparum,gammav,2.91282,,Parasite specific,Severe
+falciparum,fd0,0.007055,,Parasite specific,detectability of A
+falciparum,ad,7993.5,,Parasite specific,detectability of A
+falciparum,gammad,4.9183,,Parasite specific,detectability of A
+falciparum,d1,0.160527,,Parasite specific,detectability of A
+falciparum,id0,1.577533,,Parasite specific,detectability of A
+falciparum,kd,0.476614,,Parasite specific,detectability of A
+falciparum,ub,7.2,,Parasite specific,Immunity lag
+falciparum,uc,6.06,,Parasite specific,Immunity lag
+falciparum,uv,11.4321,,Parasite specific,Immunity lag
+falciparum,ud,9.44512,,Parasite specific,Immunity lag
+falciparum,cd,0.068,,Parasite specific,FOIM
+falciparum,gamma1,1.82425,,Parasite specific,FOIM
+falciparum,cu,0.0062,,Parasite specific,FOIM
+falciparum,ct,0.021896,,Parasite specific,FOIM
+falciparum,a0,2920,,Not a parasite parameter?,Biting rates
+falciparum,rho,0.85,,Not a parasite parameter?,Biting rates
+falciparum,sigma_squared,1.67,,Parasite specific – or is it mosquito specific?,Biting rates
+falciparum,n_heterogeneity_groups,5,,Consistent between parasites,Biting rates
+falciparum,de,12,,Parasite specific,Incubation periods
+falciparum,delay_gam,12.5,,Parasite specific,Incubation periods
+falciparum,dem,10,,Parasite specific,Incubation periods
+falciparum,pcm,0.774368,,Parasite specific,Human mortality – immunity related
+falciparum,pvm,0.195768,,Parasite specific,Human mortality – immunity related
+falciparum,init_ica,0,,Parasite specific,immunity
+falciparum,init_iva,0,,Parasite specific,immunity
+falciparum,init_icm,0,,Parasite specific,immunity
+falciparum,init_ivm,0,,Parasite specific,immunity
+falciparum,init_id,0,,Parasite specific,immunity
+falciparum,init_ib,0,,Parasite specific,immunity
+vivax,dd,5,,Parasite specific,human durations
+vivax,dt,1,,Parasite specific,human durations
+vivax,da,10,,Parasite specific,human durations
+vivax,du,110,,TO BE REMOVED: NOT VIVAX: Job 3: subpatent duration,
+vivax,del,6.64,,Not a parasite parameter?,Mosquito duration
+vivax,dl,3.72,,Not a parasite parameter?,Mosquito duration
+vivax,dpl,0.643,,Not a parasite parameter?,Mosquito duration
+vivax,mup,0.249,,Not a parasite parameter?,Mosquito duration
+vivax,mum,0.132,,Not a parasite parameter?,Mosquito duration
+vivax,du_max,70,,Parasite specific,human durations
+vivax,du_min,10,,Parasite specific,human durations
+vivax,ku,4.602,,Parasite specific,human durations
+vivax,au50,9.9,,Parasite specific,human durations
+vivax,rm,35.148,,Parasite specific,Immunity
+vivax,rvm,76.8365,,TO BE REMOVED: NOT VIVAX: Job 4: Immunity,
+vivax,rb,3650,,TO BE REMOVED: NOT VIVAX: Job 4: Immunity,
+vivax,rid,3650,,Parasite specific,Immunity
+vivax,rc,10950,,Parasite specific,Immunity
+vivax,rva,10950,,TO BE REMOVED: NOT VIVAX: Job 4: Immunity,
+vivax,b0,0.59,,TO BE REMOVED: NOT VIVAX: Job 2: FOI,
+vivax,b1,0.5,,TO BE REMOVED: NOT VIVAX: Job 2: FOI,
+vivax,ib0,43.9,,TO BE REMOVED: NOT VIVAX: Job 2: FOI,
+vivax,kb,2.16,,TO BE REMOVED: NOT VIVAX: Job 2: FOI,
+vivax,b,0.5,,Parasite specific,FOI
+vivax,phi0lm,0.8605,,Parasite specific,Asymptomatic infection
+vivax,phi1lm,0.020918070889018,,Parasite specific,Asymptomatic infection
+vivax,ic0lm,11.538,,Parasite specific,Asymptomatic infection
+vivax,kclm,2.25,,Parasite specific,Asymptomatic infection
+vivax,phi0,0.8605,,Parasite specific,Clinical
+vivax,phi1,0.020918070889018,,Parasite specific,Clinical
+vivax,ic0,11.538,,Parasite specific,Clinical
+vivax,kc,2.25,,Parasite specific,Clinical
+vivax,theta0,0.0749886,,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/severity,
+vivax,theta1,0.0001191,,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/severity,
+vivax,iv0,1.09629,,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/severity,
+vivax,kv,2.00048,,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/severity,
+vivax,fv0,0.141195,,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/severity,
+vivax,av,2493.41,,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/severity,
+vivax,gammav,2.91282,,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/severity,
+vivax,fd0,0.007055,,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/detectability,
+vivax,ad,7993.5,,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/detectability,
+vivax,gammad,4.9183,,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/detectability,
+vivax,d1,0.160527,,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/detectability,
+vivax,id0,1.577533,,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/detectability,
+vivax,kd,0.476614,,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/detectability,
+vivax,ub,7.2,,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/blood,
+vivax,ud,19.77,,Parasite specific,Immunity lag
+vivax,uc,7.85,,Parasite specific,Immunity lag
+vivax,uv,11.4321,,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/severity,
+vivax,cd,0.8,,Parasite specific,FOIM
+vivax,ca,0.1,,Parasite specific,FOIM
+vivax,gamma1,1.82425,,TO BE REMOVED: NOT VIVAX: Job 1: asymptomatic infectivity,
+vivax,cu,0.035,,Parasite specific,FOIM
+vivax,ct,0.4,,Parasite specific,FOIM
+vivax,a0,2920,,Not a parasite parameter?,Biting rates
+vivax,rho,0.85,,Not a parasite parameter?,Biting rates
+vivax,sigma_squared,1.29,,Parasite specific – or is it mosquito specific?,Biting rates
+vivax,n_heterogeneity_groups,5,,Consistent between parasites,Biting rates
+vivax,de,10,,Parasite specific,Incubation periods
+vivax,delay_gam,0,,Parasite specific,Incubation periods
+vivax,dem,8.4,,Parasite specific,Incubation periods
+vivax,pcm,0.421,,Parasite specific,Human mortality – immunity related
+vivax,pvm,0.195768,,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/severity,
+vivax,init_icm,0,,Parasite specific,immunity
+vivax,init_ivm,0,,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/severity,
+vivax,init_ib,0,,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/blood,
+vivax,init_id,0,,Parasite specific,immunity
+vivax,init_idm,0,,Parasite specific,immunity
+vivax,init_ica,0,,Parasite specific,immunity
+vivax,init_iva,0,,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/severity,
+vivax,f,0.024,,Parasite specific,Hypnozoite
+vivax,gammal,0.0026,,Parasite specific,Hypnozoite

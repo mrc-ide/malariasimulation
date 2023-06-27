@@ -39,9 +39,9 @@
 #' * rm - decay rate for maternal immunity to clinical disease; default = 67.6952
 #' * rvm - decay rate for maternal immunity to severe disease (P.f only); default = 76.8365
 #' * rb - decay rate for acquired pre-erythrocytic immunity (P.f only); default = 3650
+#' * rid - decay rate for acquired immunity to detectability; default = 3650
 #' * rc - decay rate for acquired immunity to clinical disease; default = 10950
 #' * rva - decay rate for acquired immunity to severe disease (P.f only); default = 10950
-#' * rid - decay rate for acquired immunity to detectability; default = 3650
 #'
 #' probability of pre-erythrocytic infection:
 #'
@@ -51,6 +51,13 @@
 #' * kb - shape parameter (P.f only); default = 2.16
 #' * b - probability of pre-erythrocytic infection (P.v only): default = 0.5
 #'
+#' probability of asymptomatic infection (P.v only):
+#'
+#' * phi0lm - maximum probability due to no immunity; default = 0.8918
+#' * phi1lm - maximum reduction due to immunity; default = 0.00482170890334156
+#' * ic0lm - scale parameter; default = 27.52
+#' * kclm - shape parameter; default = 2.403
+#' 
 #' probability of clinical infection:
 #'
 #' * phi0 - maximum probability due to no immunity; default = 0.792
@@ -68,11 +75,11 @@
 #' * av - age dependent modifier; default = 2493.41
 #' * gammav - age dependent modifier; default = 2.91282
 #'
-#' immunity reducing probability of detection:
+#' immunity reducing probability of detection (P.f only):
 #'
-#' * fd0 - time-scale at which immunity changes with age (P.f only); default = 0.007055
-#' * ad - scale parameter relating age to immunity (P.f only); default = 7993.5
-#' * gammad - shape parameter relating age to immunity (P.f only); default = 4.8183
+#' * fd0 - time-scale at which immunity changes with age; default = 0.007055
+#' * ad - scale parameter relating age to immunity; default = 7993.5
+#' * gammad - shape parameter relating age to immunity; default = 4.8183
 #' * d1 - minimum probability due to immunity; default = 0.160527
 #' * id0 - scale parameter; default = 1.577533
 #' * kd - shape parameter; default = 0.476614
@@ -80,9 +87,9 @@
 #' immunity boost grace periods:
 #'
 #' * ub - period in which pre-erythrocytic immunity cannot be boosted (P.f only); default = 7.2
+#' * ud - period in which immunity to detectability cannot be boosted; default = 9.44512
 #' * uc - period in which clinical immunity cannot be boosted; default = 6.06
 #' * uv - period in which severe immunity cannot be boosted (P.f only); default = 11.4321
-#' * ud - period in which immunity to detectability cannot be boosted; default = 9.44512
 #'
 #' infectivity towards mosquitoes:
 #'
@@ -115,11 +122,11 @@
 #'
 #' initial immunity values:
 #'
+#' * init_ica - the initial acquired immunity from clinical disease; default = 0
 #' * init_icm - the immunity from clinical disease at birth; default = 0
+#' * init_iva - the initial acquired immunity from severe disease (P.f only); default = 0
 #' * init_ivm - the immunity from severe disease at birth (P.f only); default = 0
 #' * init_ib  - the initial pre-erythrocitic immunity (P.f only); default = 0
-#' * init_ica - the initial acquired immunity from clinical disease; default = 0
-#' * init_iva - the initial acquired immunity from severe disease (P.f only); default = 0
 #' * init_id  - the initial acquired immunity to detectability; default = 0
 #' 
 #' seasonality and carrying capacity parameters:
@@ -286,8 +293,8 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
   # delay for infection
   # initial immunities
   
-  parameters <- as.list(
-    parasite_parameters[parasite_parameters$parasite == parasite, !is.na(parasite_parameters[parasite_parameters$parasite == parasite,])])
+  parameters <- as.list(parasite_parameters[parasite_parameters$parasite=="vivax",c("default")])
+  names(parameters) <- parasite_parameters[parasite_parameters$parasite=="vivax",c("parameter")]
   
   parameters <- c(parameters, list(
     # human mortality parameters

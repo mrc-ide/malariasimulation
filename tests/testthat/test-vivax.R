@@ -5,8 +5,7 @@ test_that('Test falciparum switch produces same', {
 })
 
 test_that('Test vivax model runs', {
-  vivax_parameters <- get_parameters(parasite = "vivax_tmp")
-  vivax_parameters$parasite <- "vivax"
+  vivax_parameters <- get_parameters(parasite = "vivax")
   sim_res <- run_simulation(timesteps = 100, parameters = vivax_parameters)
   expect_equal(nrow(sim_res), 100)
 })

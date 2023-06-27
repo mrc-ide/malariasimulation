@@ -25,7 +25,7 @@ The dynamics of malaria transmission, and the efficacy of interventions designed
 
 ## Age group rendering
 
-First, we'll establish a base set of parameters using the `get_parameters()` function and accept the default values. The `run_simulation()` function's default behaviour is to output only the number of individuals aged 2-10 years old (`output$n_730_3650`, where 730 and 3650 are the ages in days). However, the user can instruct the model to output the number of individuals in age groups of their choosing using the `age_group_rendering_min_ages` and `age_group_rendering_max_ages` parameters. These arguments take vectors containing the minimum and maximum ages (in daily time steps) of each age group to be rendered To allow us to see the effect of changing demographic parameters, we'll use this functionality to output the number of individuals in ages groups ranging from 0 to 85 at 5 year intervals. Note that the same is possible for other model outputs using their equivalent min/max age-class rendering arguments (`n_detect` , `p_detect`, `n_severe`, `n_inc`, `p_inc`, `n_inc_clinical`, `p_inc_clinical`, `n_inc_severe`, and `p_inc_severe`, run `?run_simulation()` for more detail).
+First, we'll establish a base set of parameters using the `get_parameters()` function and accept the default values. The `run_simulation()` function's default behaviour is to output only the number of individuals aged 2-10 years old (`output$n_730_3650`, where 730 and 3650 are the ages in days). However, the user can instruct the model to output the number of individuals in age groups of their choosing using the `age_group_rendering_min_ages` and `age_group_rendering_max_ages` parameters. These arguments take vectors containing the minimum and maximum ages (in daily time steps) of each age group to be rendered. To allow us to see the effect of changing demographic parameters, we'll use this functionality to output the number of individuals in ages groups ranging from 0 to 85 at 5 year intervals. Note that the same is possible for other model outputs using their equivalent min/max age-class rendering arguments (`n_detect` , `p_detect`, `n_severe`, `n_inc`, `p_inc`, `n_inc_clinical`, `p_inc_clinical`, `n_inc_severe`, and `p_inc_severe`, run `?run_simulation()` for more detail).
 
 We next use the `set_equilibrium()` function to tune the initial parameter set to those required to observe the specified initial entomological inoculation rate (`starting_EIR`) at equilibrium. We now have a set of default parameters ready to use to run simulations.
 
@@ -58,7 +58,7 @@ simparams <- set_equilibrium(simparams, starting_EIR)
 
 ## Set custom demography
 
-Next, we'll use the the in-built `set_demography()` function to specify human death rates by age group. This function accepts as inputs a parameter list to update, a vector of the age groups (in days) for which we specify death rates, a vector of time steps in which we want the death rates to be updated, and a matrix containing the death rates for each age group in each timestep. The `set_demography()` function appends these to the parameter list and updates the `custom_demography` parameter to `TRUE`. Here, we instruct the model to implement these changes to the demographic  parameters at the beginning of the simulation (`timesteps = 0`).
+Next, we'll use the in-built `set_demography()` function to specify human death rates by age group. This function accepts as inputs a parameter list to update, a vector of the age groups (in days) for which we specify death rates, a vector of time steps in which we want the death rates to be updated, and a matrix containing the death rates for each age group in each timestep. The `set_demography()` function appends these to the parameter list and updates the `custom_demography` parameter to `TRUE`. Here, we instruct the model to implement these changes to the demographic  parameters at the beginning of the simulation (`timesteps = 0`).
 
 ```{r}
 # Copy the simulation parameters as demography parameters:
@@ -91,7 +91,7 @@ dem_params$custom_demography
 
 ### Simulation
 
-Having established parameter sets with both default and custom demographic parameterisations, we can now run a simulation for each using the `run_simulation()` function. We'll also add a column to each identify the runs.
+Having established parameter sets with both default and custom demographic parameterisations, we can now run a simulation for each using the `run_simulation()` function. We'll also add a column to each to identify the runs.
 
 ```{r}
 # Run the simulation with the default demographic set-up:
@@ -105,7 +105,7 @@ custom_output$run <- 'custom'
 
 ### Visualisation
 
-Using barplots, we can visualise the effect of altering the demographic parameters by comparing the distribution of people among the age-classes we instructed the model to output on the final day of the simulation. The default demography is depicted in blue, while the custom demography is given in orange. Under the custom demography, the frequency in individuals in older age classes declines almost linearly, while in the default demography the number of individuals in each age class declines exponentially with age.
+Using barplots, we can visualise the effect of altering the demographic parameters by comparing the distribution of people among the age-classes we instructed the model to output on the final day of the simulation. The default demography is depicted in blue, while the custom demography is given in orange. Under the custom demography, the frequency of individuals in older age classes declines almost linearly, while in the default demography the number of individuals in each age class declines exponentially with age.
 
 ```{r, fig.align = 'center', out.width='100%', fig.asp=0.5}
 # Combine the two dataframes:

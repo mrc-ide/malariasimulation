@@ -309,7 +309,7 @@ malsim_EIR <- match_EIR_to_PfPR(x = target_pfpr)
 
 The `calibrate()` function is a useful tool, but be aware that it relies on the user selecting and accurately coding an effective summary function, providing reasonable bounds on the EIR space to explore, and selecting a population size sufficiently large to limit the influence of stochasticity.
 
-As a final exercise, let's compare graphically the `calibrate()` approach with the `malariasimulation` method when the same parameter set is used. The plot below shows the change in *Pf*PR~2-10~ over the duration of the simulation under the initial EIR values recommended by the a) `cali` and b) `malariasimulation` methods to achieve the target *Pf*PR~2-10~ value of 0.3. The blue horizontal line represents the target *Pf*PR~2-10~ and the black lines either side the upper and lower tolerance limits specified for the `cali` method.
+As a final exercise, let's compare graphically the `calibrate()` approach with the `malariasimulation` method when the same parameter set is used. The plot below shows the change in *Pf*PR~2-10~ over the duration of the simulation under the initial EIR values recommended by the a) `cali` and b) `malariasimulation` methods to achieve the target *Pf*PR~2-10~ value of 0.3. The blue horizontal line represents the target *Pf*PR~2-10~ and the black lines either side are the upper and lower tolerance limits specified for the `cali` method.
 
 ```{r,  eval = F}
 # Use the set_equilibrium() function to calibrate the simulation parameters to the EIR:

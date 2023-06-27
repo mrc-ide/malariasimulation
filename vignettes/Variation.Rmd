@@ -63,12 +63,12 @@ plot_variation_function <- function(df, title_str){
        c(1,1),
        ylim = c(-4, 14),
        xaxs = "i", yaxs = "i",
-       xlab = 'timestep', ylab ='n_detect', main = title_str,
+       xlab = 'timestep', ylab ='Light miscroscopy detectable infections', main = title_str,
        font.main = 1)
   grid(lty = 2, col = "grey80", lwd = 0.5)
-  polygon(x = c(df$t,rev(df$t)), y = c(df$highci, rev(df$lowci)), col = "lightgrey", border = "lightgrey")
-  polygon(x = c(df$t,rev(df$t)), y = c(df$highq, rev(df$lowq)), col = "darkgrey", border = "darkgrey")
-  points(x = df$t, y = df$median, type = "l", ylim = c(25,40), lwd = 2)
+  polygon(x = c(df$t,rev(df$t)), y = c(df$highci, rev(df$lowci)), col = cols[2], border = cols[2])
+  polygon(x = c(df$t,rev(df$t)), y = c(df$highq, rev(df$lowq)), col = cols[5], border = cols[5])
+  points(x = df$t, y = df$median, type = "l", ylim = c(25,40), lwd = 2, col = "black")
 }
 ```
 
@@ -190,6 +190,6 @@ df_many <- aggregate_function(output_many_reps)
 par(mfrow = c(1,2))
 plot_variation_function(df = df_few, title_str = "Repetitions = 5")
 legend("topleft", legend = c("Median", "IQR", "95% CI"), ncol = 1, 
-       fill = c("black", "darkgrey","lightgrey"), cex = 0.8, bty = "n")
+       fill = c("black", cols[5], cols[2]), cex = 0.8, bty = "n")
 plot_variation_function(df = df_many, title_str = "Repetitions = 50")
 ```

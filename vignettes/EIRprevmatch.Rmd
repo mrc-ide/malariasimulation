@@ -31,7 +31,7 @@ The first and fastest method uses the `malariaEquilibrium` package function `hum
 
 ## *Pf*PR~2-10~ matching using malariaEquilibrium
 
-The `malariaEquilibrium` package function `human_equilibrium()` returns the canonical equilibrium solution for a given EIR and the *Pf*PR~2-10~ can be calculated from the output (see <https://github.com/mrc-ide/malariaEquilibrium> for more information). The first step is to generate a large range of EIR values to generate matching *Pf*PR~2-10~ values for. Next, we load the package's default parameter set, specify an effective clinical treatment coverage (`ft`) of 0.45 and, for each EIR value generated, run the `human_equilibrium()` function.
+The `malariaEquilibrium` package function `human_equilibrium()` returns the canonical equilibrium solution for a given EIR and the *Pf*PR~2-10~ can be calculated from the output (see <https://github.com/mrc-ide/malariaEquilibrium> for more information). The first step is to set a large range of EIR values to generate matching *Pf*PR~2-10~ values for. Next, we load the package's default parameter set, specify an effective clinical treatment coverage (`ft`) of 0.45 and, for each EIR value generated, run the `human_equilibrium()` function.
 
 The `human_equilibrium()` function returns a dataframe containing the proportion of each age class in each state variable at equilibrium. The *Pf*PR~2-10~ can be calculated from the output for each EIR value by summing the proportion of people aged 2-10 with cases of malaria (`pos_M`) and dividing this proportion by the proportion of the population between the ages 2-10 (`prop`). Finally, we store the matching EIR and *Pf*PR~2-10~ values in a data frame.
 

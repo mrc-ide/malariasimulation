@@ -87,7 +87,7 @@ create_variables <- function(parameters) {
   }
 
   states <- c('S', 'D', 'A', 'U', 'Tr')
-  initial_states <- initial_state(parameters, initial_age, groups, eq)
+  initial_states <- initial_state(parameters, initial_age, groups, eq, states)
   state <- individual::CategoricalVariable$new(states, initial_states)
   birth <- individual::IntegerVariable$new(-initial_age)
   last_boosted_ib <- individual::DoubleVariable$new(rep(-1, size))
@@ -316,10 +316,10 @@ initial_immunity <- function(
   rep(parameter, length(age))
 }
 
-initial_state <- function(parameters, age, groups, eq) {
-  ibm_states <- c('S', 'A', 'D', 'U', 'Tr')
+initial_state <- function(parameters, age, groups, eq, states) {
+  ibm_states <- states
   if (!is.null(eq)) {
-    eq_states <- c('S', 'A', 'D', 'U', 'T')
+    eq_states <- c('S', 'D', 'A', 'U', 'T')
     age <- age / 365
     return(vcapply(
       seq_along(age),

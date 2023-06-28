@@ -92,7 +92,7 @@ test_that('FOIM is consistent with equilibrium', {
       psi <- unique_biting_rate(age, parameters)
       zeta <- variables$zeta$get_values()
       .pi <- human_pi(psi, zeta)
-      calculate_foim(a, sum(.pi * variables$infectivity$get_values()))
+      calculate_foim(a, sum(.pi * variables$infectivity$get_values()), mixing = 1)
     }
   )
   expect_equal(

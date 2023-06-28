@@ -2,7 +2,7 @@
 % Please edit documentation in R/mda_parameters.R
 \name{set_pmc}
 \alias{set_pmc}
-\title{Parameterise a perennial malaria chemoprevention (PMC, formerly IPIi)}
+\title{Parameterise a perennial malaria chemoprevention (PMC, formerly IPTi)}
 \usage{
 set_pmc(parameters, drug, timesteps, coverages, ages)
 }
@@ -19,5 +19,5 @@ round}
 \item{ages}{a vector of ages at which PMC is administered (in timesteps)}
 }
 \description{
-Parameterise a perennial malaria chemoprevention (PMC, formerly IPIi)
+Parameterise a perennial malaria chemoprevention (PMC, formerly IPTi)
 }

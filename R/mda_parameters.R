@@ -26,7 +26,7 @@ set_mda <- function(
   if(length(max_ages) != length(timesteps)){
     stop("maximum ages and timesteps do no align")
   }
-  
+
   parameters$mda <- TRUE
   parameters$mda_drug <- drug
   parameters$mda_timesteps <- timesteps
@@ -64,7 +64,7 @@ set_smc <- function(
   if(length(max_ages) != length(timesteps)){
     stop("maximum ages and timesteps do no align")
   }
-  
+
   parameters$smc <- TRUE
   parameters$smc_drug <- drug
   parameters$smc_timesteps <- timesteps
@@ -74,7 +74,7 @@ set_smc <- function(
   parameters
 }
 
-#' @title Parameterise a perennial malaria chemoprevention (PMC, formerly IPIi)
+#' @title Parameterise a perennial malaria chemoprevention (PMC, formerly IPTi)
 #' @param parameters a list of parameters to modify
 #' @param drug the index of the drug to administer
 #' @param timesteps a vector of timesteps for each round of PMC
@@ -95,7 +95,7 @@ set_pmc <- function(
   }
   # check that the drug is valid
   stopifnot((drug > 0) && (drug <= length(parameters$drug_rel_c)))
-  
+
   parameters$pmc <- TRUE
   parameters$pmc_drug <- drug
   parameters$pmc_timesteps <- timesteps

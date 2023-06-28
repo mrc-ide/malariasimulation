@@ -96,6 +96,19 @@ create_variables <- function(parameters) {
   last_boosted_id <- individual::DoubleVariable$new(rep(-1, size))
 
   # Maternal immunity
+  if(parameters$parasite == "vivax"){
+    idm <- individual::DoubleVariable$new(
+      initial_immunity(
+        parameters$init_idm,
+        initial_age,
+        groups,
+        eq,
+        parameters,
+        'IDM'
+      )
+    )
+  }
+  
   icm <- individual::DoubleVariable$new(
     initial_immunity(
       parameters$init_icm,
@@ -221,6 +234,10 @@ create_variables <- function(parameters) {
     net_time = net_time,
     spray_time = spray_time
   )
+  
+  if(parameters$parasite == "vivax"){
+    variables <- c(variables, idm = idm)
+  }
 
   # Add variables for individual mosquitoes
   if (parameters$individual_mosquitoes) {

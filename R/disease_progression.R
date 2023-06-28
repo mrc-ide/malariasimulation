@@ -84,3 +84,49 @@ update_to_asymptomatic_infection <- function(
     )
   }
 }
+
+#' @title Sub-patent progression for vivax model
+#' @description
+#' randomly selects individuals to clear sub-patent infections based on impact of 
+#' individual immunity to detectability
+#'
+#' @param state the human state variable
+#' @param variables the available human variables
+#' @param parameters model parameters
+#' @noRd
+create_subpatent_progression_process <- function(
+  state,
+  variables,
+  parameters
+  ){
+  function(timestep) {
+    ## Get rates for each subpatent individual
+    subpatent_index <- state$get_index_of("U")
+    rates <- subpatent_duration(parameters, variables, index = subpatent_index)
+    ## Get individuals who are going to change
+    to_move <- subpatent_index$sample(1/rates)
+    # tupdate individuals and infectivity
+    update_infection(
+      state,
+      to_state = "S",
+      infectivity = variables$infectivity,
+      new_infectivity = 0,
+      to_move
+    )
+  }
+}
+
+#' @title Sub-patent duration for vivax model
+#' @description
+#' calculates sub-patent duration based on detectability (anti-parasite) immunity
+#'
+#' @param parameters model parameters
+#' @param variable immunity variables
+#' @param index index of subpatent infected individuals 
+#' @noRd
+subpatent_duration <- function(parameters, variables, index){
+    parameters$du_min + (parameters$du_max - parameters$du_min) / (
+      1 + ((variables$id$get_values(index = index) + variables$idm$get_values(index = index))/parameters$au50) ** parameters$kd
+    )
+}
+

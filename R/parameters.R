@@ -204,7 +204,7 @@
 #'
 #' vector biology:
 #' species specific values are vectors
-#' #' please set species parameters using the convenience function
+#' please set species parameters using the convenience function
 #' `set_species`
 #'
 #' * beta - the average number of eggs laid per female mosquito per day; default = 21.2
@@ -278,6 +278,8 @@
 #'
 #'
 #' miscellaneous:
+#' please set parasite species using the convenience function
+#' `set_parasite`
 #' 
 #' * mosquito_limit - the maximum number of mosquitoes to allow for in the
 #' simulation; default = 1.00E+05

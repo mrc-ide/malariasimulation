@@ -278,8 +278,6 @@
 #'
 #'
 #' miscellaneous:
-#' please set parasite species using the convenience function
-#' `set_parasite`
 #' 
 #' * mosquito_limit - the maximum number of mosquitoes to allow for in the
 #' simulation; default = 1.00E+05

@@ -65,4 +65,12 @@ test_that('Test idm rendered creates output', {
   vivax_parameters <- get_parameters(parasite = "vivax")
   sim_res <- run_simulation(timesteps = 200, parameters = vivax_parameters)
   expect_vector(object = sim_res$idm_mean, size = 200) 
+  
+  expect_vector(sim_res$n_detect_730_3650)
+  expect_vector(sim_res$p_detect_730_3650)
+  expect_false(any(is.na(sim_res$n_detect_730_3650)))
+  expect_false(any(is.na(sim_res$p_detect_730_3650)))
+  
+  
 })
+

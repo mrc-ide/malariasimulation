@@ -22,14 +22,23 @@ create_prevelance_renderer <- function(
   renderer
   ) {
   function(timestep) {
+    
     asymptomatic <- state$get_index_of('A')
-    prob <- probability_of_detection(
-      get_age(birth$get_values(asymptomatic), timestep),
-      immunity$get_values(asymptomatic),
-      parameters
-    )
-    asymptomatic_detected <- bitset_at(asymptomatic, bernoulli_multi_p(prob))
-
+    
+    if(parameters$parasite =="falciparum"){
+      prob <- probability_of_detection(
+        get_age(birth$get_values(asymptomatic), timestep),
+        immunity$get_values(asymptomatic),
+        parameters
+      )
+      asymptomatic_detected <- bitset_at(asymptomatic, bernoulli_multi_p(prob))
+      
+    } else if (parameters$parasite =="vivax"){
+      # The vivax model defines asymptomatic infections as being detectable by PCR
+      prob <- rep(1,asymptomatic$size())
+      asymptomatic_detected <- state$get_index_of('A')
+    }
+    
     clinically_detected <- state$get_index_of(c('Tr', 'D'))
     detected <- clinically_detected$copy()$or(asymptomatic_detected)
 

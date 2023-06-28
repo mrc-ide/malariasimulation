@@ -308,15 +308,15 @@ The remaining vignettes describe how to adjust sets of parameters through a numb
 
     -   `set_smc()`: implementation of seasonal malarial chemoprevention interventions
 
-    -   `set_pmc()`: implementation of perrenial malarial chemoprevention interventions
+    -   `set_pmc()`: implementation of perennial malarial chemoprevention interventions
 
     -   `peak_season_offset()`: correlating timed interventions with seasonal malaria
 
 4.  [Vaccines](https://mrc-ide.github.io/malariasimulation/articles/Vaccines.html)
 
-    -   `set_mass_pev()`: implementation of a pre-erythrocytic vaccination intervention
+    -   `set_mass_pev()`: implementation of a pre-erythrocytic vaccination intervention via a mass distribution strategy
     
-    -   `set_pev_epi()`: implementation of a pre-erythrocytic vaccination intervention from a certain age
+    -   `set_pev_epi()`: implementation of a pre-erythrocytic vaccination intervention via an age-based distribution strategy
     
     -   `set_tbv()`: implementation of a transmission blocking vaccination intervention
 
@@ -342,7 +342,7 @@ The remaining vignettes describe how to adjust sets of parameters through a numb
 
 9.  [Metapopulation Modelling](https://mrc-ide.github.io/malariasimulation/articles/Metapopulation.html)
 
-    -   `run_metapop_simulation()`: model multiple areas simultaneously
+    -   `run_metapop_simulation()`: run multiple interacting models simultaneously
 
 11. [Stochastic Variation](https://mrc-ide.github.io/malariasimulation/articles/Variation.html)
 

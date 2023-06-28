@@ -87,7 +87,7 @@ simparams$species_proportions
 
 Then we can run the simulations for a variety of IRS strategies. In the example below, there are two rounds of IRS, the first at 30% coverage and the second at 80% coverage, each 3 months prior to peak rainfall for that year. The function `peak_season_offset()` outputs a timestep when peak rainfall will be observed based on the seasonality profile we set above. Notice that the matrices specified for the parameters for `ls_theta`, `ls_gamma`, `ks_theta`, `ks_gamma`, `ms_theta`, and `ms_gamma` have two rows, one for each timestep where IRS is implemented, and a number of columns corresponding to mosquito species. In this example, we only have 1 column because the species is set to "gamb" as we saw above.
 
-The structure for IRS model is documented in the supplementary information from Table 3 in the Supplementary Information of [Sherrard-Smith et al., 2018](https://doi.org/10.1038/s41467-018-07357-w). Table S2.1 in the Supplementary Appendix of [Sherrard-Smith et al., 2022](https://doi.org/10.1016/S2542-5196(21)00296-5) has parameter estimates for insecticide resistance for IRS.
+The structure for the IRS model is documented in the supplementary information from Table 3 in the Supplementary Information of [Sherrard-Smith et al., 2018](https://doi.org/10.1038/s41467-018-07357-w). Table S2.1 in the Supplementary Appendix of [Sherrard-Smith et al., 2022](https://doi.org/10.1016/S2542-5196(21)00296-5) has parameter estimates for insecticide resistance for IRS.
 
 ```{r, fig.align = 'center', out.width='100%'}
 peak <- peak_season_offset(simparams)

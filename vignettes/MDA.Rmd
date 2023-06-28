@@ -167,7 +167,7 @@ legend(x = 20, y = 0.99, legend = c("MDA", "No-Int"),
 
 ## Seasonal Malaria Chemoprevention
 
-To demonstrate how to simulate SMC in `malariasimulation` , in the following section we'll set-up and simulate a campaign that treats 80% of children aged 3-59 months old with four doses of SP-AQ per year. We will set the SMC campaign to begin in the second year, run for two years, and specify the four SMC events to occur at monthly intervals, starting two months prior to the peak malaria season.
+To demonstrate how to simulate SMC in `malariasimulation` , in the following section we'll set-up and simulate a campaign that treats 90% of children aged 3-59 months old with four doses of SP-AQ per year. We will set the SMC campaign to begin in the second year, run for two years, and specify the four SMC events to occur at monthly intervals, starting two months prior to the peak malaria season.
 
 ### Interventions
 

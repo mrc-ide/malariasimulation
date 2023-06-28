@@ -68,7 +68,7 @@ dem_params <- simparams
 ages <- round(c(0.083333, 1, 5, 10, 15, 20, 25, 30, 35, 40, 45,
                 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 200) * year)
 
-# Set deathrates for each age group (looks like by taking annual values and dividing by 365:
+# Set deathrates for each age group (divide annual values by 365:
 deathrates <- c(
   .4014834, .0583379, .0380348, .0395061, .0347255, .0240849, .0300902,
   .0357914, .0443123, .0604932, .0466799, .0426199, .0268332, .049361,

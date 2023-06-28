@@ -102,19 +102,6 @@ create_processes <- function(
       variables$infectivity,
       parameters$cu
     ),
-    # create_progression_process(
-    #   variables$state,
-    #   'U',
-    #   'S',
-    #   if(parameters$parasite=="falciparum"){parameters$du} else if (parameters$parasite=="vivax"){
-    #     print("ccheck here")
-    #     # rep(12,13)
-    #     subpatent_duration_process(parameters, variables)
-    #     print("ccheck this")
-    #     # browser()
-    #   },
-    #   variables$infectivity,
-    #   0),
     if(parameters$parasite=="falciparum"){
       create_progression_process(
         variables$state,

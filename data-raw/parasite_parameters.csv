@@ -1,0 +1,113 @@
+parasite,parameter,default,reference
+falciparum,dd,5,
+falciparum,dt,5,
+falciparum,da,195,
+falciparum,du,110,
+falciparum,init_ica,0,
+falciparum,init_iva,0,
+falciparum,init_icm,0,
+falciparum,init_ivm,0,
+falciparum,init_id,0,
+falciparum,init_ib,0,
+falciparum,ub,7.2,
+falciparum,uc,6.06,
+falciparum,uv,11.4321,
+falciparum,ud,9.44512,
+falciparum,pcm,0.774368,
+falciparum,pvm,0.195768,
+falciparum,rm,67.6952,
+falciparum,rvm,76.8365,
+falciparum,rb,3650,
+falciparum,rva,10950,
+falciparum,rc,10950,
+falciparum,rid,3650,
+falciparum,b0,0.59,
+falciparum,b1,0.5,
+falciparum,ib0,43.9,
+falciparum,kb,2.16,
+falciparum,fd0,0.007055,
+falciparum,ad,7993.5,
+falciparum,gammad,4.9183,
+falciparum,d1,0.160527,
+falciparum,id0,1.577533,
+falciparum,kd,0.476614,
+falciparum,phi0,0.792,
+falciparum,phi1,0.00074,
+falciparum,ic0,18.02366,
+falciparum,kc,2.36949,
+falciparum,theta0,0.0749886,
+falciparum,theta1,0.0001191,
+falciparum,iv0,1.09629,
+falciparum,kv,2.00048,
+falciparum,fv0,0.141195,
+falciparum,av,2493.41,
+falciparum,gammav,2.91282,
+falciparum,cd,0.068,
+falciparum,gamma1,1.82425,
+falciparum,cu,0.0062,
+falciparum,ct,0.021896,
+falciparum,de,12,
+falciparum,delay_gam,12.5,
+falciparum,dem,10,
+vivax,dd,5,
+vivax,dt,1,
+vivax,da,10,
+vivax,du,110,TO BE REMOVED: NOT VIVAX: Job 3: subpatent duration
+vivax,du_max,70,
+vivax,du_min,10,
+vivax,ku,4.602,
+vivax,au50,9.9,
+vivax,init_icm,0,
+vivax,init_ivm,0,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/severity
+vivax,init_ib,0,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/blood
+vivax,init_id,0,
+vivax,init_idm,0,
+vivax,init_ica,0,
+vivax,init_iva,0,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/severity
+vivax,ub,7.2,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/blood
+vivax,ud,19.77,
+vivax,uc,7.85,
+vivax,uv,11.4321,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/severity
+vivax,pcm,0.421,
+vivax,pvm,0.195768,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/severity
+vivax,rm,35.148,
+vivax,rvm,76.8365,TO BE REMOVED: NOT VIVAX: Job 4: Immunity
+vivax,rb,3650,TO BE REMOVED: NOT VIVAX: Job 4: Immunity
+vivax,rid,3650,
+vivax,rc,10950,
+vivax,rva,10950,TO BE REMOVED: NOT VIVAX: Job 4: Immunity
+vivax,b0,0.59,TO BE REMOVED: NOT VIVAX: Job 2: FOI
+vivax,b1,0.5,TO BE REMOVED: NOT VIVAX: Job 2: FOI
+vivax,ib0,43.9,TO BE REMOVED: NOT VIVAX: Job 2: FOI
+vivax,kb,2.16,TO BE REMOVED: NOT VIVAX: Job 2: FOI
+vivax,b,0.5,
+vivax,fd0,0.007055,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/detectability
+vivax,ad,7993.5,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/detectability
+vivax,gammad,4.9183,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/detectability
+vivax,d1,0.160527,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/detectability
+vivax,id0,1.577533,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/detectability
+vivax,kd,0.476614,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/detectability
+vivax,phi0lm,0.8605,
+vivax,phi1lm,0.020918070889018,
+vivax,ic0lm,11.538,
+vivax,kclm,2.25,
+vivax,phi0,0.8605,
+vivax,phi1,0.020918070889018,
+vivax,ic0,11.538,
+vivax,kc,2.25,
+vivax,theta0,0.0749886,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/severity
+vivax,theta1,0.0001191,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/severity
+vivax,iv0,1.09629,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/severity
+vivax,kv,2.00048,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/severity
+vivax,fv0,0.141195,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/severity
+vivax,av,2493.41,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/severity
+vivax,gammav,2.91282,TO BE REMOVED: NOT VIVAX: Job 4: Immunity/severity
+vivax,cd,0.8,
+vivax,ca,0.1,
+vivax,cu,0.035,
+vivax,ct,0.4,
+vivax,de,10,
+vivax,delay_gam,0,
+vivax,dem,8.4,
+vivax,f,0.024,
+vivax,gammal,0.0026,

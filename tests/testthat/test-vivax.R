@@ -29,13 +29,20 @@ test_that('Test age structure should not change vivax infectivity', {
   
   # Set all individuals to asymptomatic
   # And ID immunity to not 0 (ID impacts age-specific asymptomatic infectivity)
-  parameters <- get_parameters(overrides =   list(s_proportion = 0,
-                                                  d_proportion = 0,
-                                                  a_proportion = 1,
-                                                  u_proportion = 0,
-                                                  t_proportion = 0,
-                                                  init_id  = 0.5)
-  )
+  parameters <- get_parameters(overrides = list(s_proportion = 0,
+                                                d_proportion = 0,
+                                                a_proportion = 1,
+                                                u_proportion = 0,
+                                                t_proportion = 0,
+                                                init_id  = 0.5))
+  
+  vivax_parameters <- get_parameters(parasite = "vivax",
+                                     overrides = list(s_proportion = 0,
+                                                      d_proportion = 0,
+                                                      a_proportion = 1,
+                                                      u_proportion = 0,
+                                                      t_proportion = 0,
+                                                      init_id  = 0.5))
   
   # Generate different age structure
   year <- 365
@@ -51,20 +58,24 @@ test_that('Test age structure should not change vivax infectivity', {
     deathrates = matrix(deathrates, nrow = 1)
   )
   
-  # Turn each of these to use vivax model: 
-  vivax_parameters <- set_parasite(parameters = parameters, parasite = "vivax")
-  vivax_dem_parameters <- set_parasite(parameters = dem_parameters, parasite = "vivax")
+  vivax_dem_parameters <- set_demography(
+    vivax_parameters,
+    agegroups = ages,
+    timesteps = 0,
+    deathrates = matrix(deathrates, nrow = 1)
+  )
+  
+  # vivax asymptomatic infectivity should equal ca
+  expect_true(all(
+    c(create_variables(vivax_parameters)$infectivity$get_values(),
+      create_variables(vivax_dem_parameters)$infectivity$get_values())==vivax_parameters$ca))
 
-  # Run simulations for a single timestep
-  sim <- run_simulation(timesteps = 1, parameters = parameters)
-  sim_d <- run_simulation(timesteps = 1, parameters = dem_parameters)
-  sim_v <- run_simulation(timesteps = 1, parameters = vivax_parameters)
-  sim_v_d <- run_simulation(timesteps = 1, parameters = vivax_dem_parameters)
-  
-  # Compare infectivity
-  if(sim$infectivity == sim_d$infectivity){
-    stop("Something has gone wrong with the falciparum code, likely the part that 
-    calculates asymptomatic infectivity")}
-  
-  expect_equal(sim_v$infectivity, sim_v_d$infectivity)
+  # falciparum asymptomatic infectivity should not equal ca
+  expect_false(any(
+    c(create_variables(parameters)$infectivity$get_values(),
+      create_variables(dem_parameters)$infectivity$get_values())==vivax_parameters$ca))
+
+  # falciparum asymptomatic infectivity should change with age structure
+  expect_false(any(
+    c(create_variables(parameters)$infectivity$get_values() == create_variables(dem_parameters)$infectivity$get_values())))
 })

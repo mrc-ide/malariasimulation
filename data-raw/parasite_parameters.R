@@ -7,6 +7,3 @@ parasite_parameters <- lapply(unique(parasite_csv$parasite), function(x){
 })
 names(parasite_parameters) <- unique(parasite_csv$parasite)
 usethis::use_data(parasite_parameters, overwrite = TRUE)
-
-
-parasite_parameters[["falciparum"]]

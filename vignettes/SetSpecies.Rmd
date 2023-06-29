@@ -135,7 +135,7 @@ simparams$species_proportions
 
 ### Single exophilic mosquito species 
 
-We will run the same model with IRS as above, but this time with an example mosquito species similar to *An. funestus*, but with a lower propensity to bite indoors (which we will name "exophilic"). Note that now there are 3 columns for the `ls_theta`, `ls_gamma`, `ks_theta`, `ks_gamma`, `ms_theta`, and `ms_gamma` arguments. See the Vector Control: IRS vignette for more information about setting IRS with different mosquito species. 
+We will run the same model with IRS as above, but this time with an example mosquito species similar to *An. funestus*, but with a lower propensity to bite indoors (which we will name "exophilic"). Note that now there are two rows for the `ls_theta`, `ls_gamma`, `ks_theta`, `ks_gamma`, `ms_theta`, and `ms_gamma` arguments (rows represent timesteps where changes occur, columns represent additional species). See the Vector Control: IRS vignette for more information about setting IRS with different mosquito species. 
 
 ```{r, fig.align = 'center', out.width='100%'}
 # Create an example mosquito species (named exophilic) with a low value for `phi_indoors`

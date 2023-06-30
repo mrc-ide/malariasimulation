@@ -13,6 +13,12 @@ library(malariasimulation)
 # Set colour palette:
 cols <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 set.seed(555)
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  dpi=300,
+  fig.width=7
+)
 ```
 
 `malariasimulation` is a stochastic, individual-based model and, as such, simulations run with identical parameterisations will generate non-identical, sometimes highly variable, outputs. To illustrate this, we will compare the prevalence and incidence of malaria over a year in simulations with a small and a larger population. Then we will demonstrate how this variation can be estimated by running multiple simulations using the `run_simulation_with_repetitions` function.

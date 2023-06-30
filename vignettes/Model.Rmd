@@ -10,7 +10,9 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  dpi=300,
+  fig.width=7
 )
 ```
 
@@ -173,7 +175,7 @@ Where **treatments** are specified, `n_treated` will report the number that have
 
 These outputs can then be visualised, such as the population changes in states. Another key output is the prevalence of detectable infections between the ages of 2-10 (*Pf*PR~2-10~), which can be obtained by dividing `n_detect_730_3650` by `n_730_3650`.
 
-```{r, fig.align = 'center', out.width='100%', fig.asp=0.55}
+```{r, fig.align = 'center', out.width='100%', fig.asp=0.55, }
 # Define vector of column names to plot
 cols_to_plot <- paste0(c("S","D","A","U","Tr"),"_count")
 
@@ -255,7 +257,7 @@ The `malariasimulation` package has the capacity to simulate malaria transmissio
 To include seasonality, we must set the parameter `model_seasonality = TRUE` and assign values to parameters that determine seasonality: `g0`, `g` and `h` (which represent fourier coefficients). These parameters must be set directly by passing a list of named parameters to the `overrides` argument of the `get_parameters()` function.
 
 ```{r, fig.align = 'center', out.width='100%'}
-# Set parameters, inclusing seasonality parameters
+# Set parameters, including seasonality parameters
 params_seasons <- get_parameters(overrides = list(
   model_seasonality = TRUE,
   g0 = 0.28,
@@ -266,7 +268,7 @@ params_seasons <- get_parameters(overrides = list(
 seasonality_simulation <- run_simulation(timesteps = 600, parameters = params_seasons)
 
 # Collect results
-All_mos_cols <- paste0(c("E","L","P","Sm","Pm", "Im"),"_All_count")
+All_mos_cols <- paste0(c("E","L","P","Sm","Pm", "Im"),"_gamb_count")
 
 # Plot results
 plot(seasonality_simulation[,1], rowSums(seasonality_simulation[,All_mos_cols]), lwd = 2,

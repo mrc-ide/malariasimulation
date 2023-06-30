@@ -149,7 +149,7 @@ set_pev_epi <- function(
 #' @param min_ages for the target population, inclusive (in timesteps)
 #' @param max_ages for the target population, inclusive (in timesteps)
 #' @param booster_timestep the timesteps (following the initial vaccination) at which booster vaccinations are administered
-#' @param booster_coverage  the proportion of the vaccinated population relative to the last vaccination whether booster or primary series who will
+#' @param booster_coverage the proportion of the vaccinated population relative to the last vaccination whether booster or primary series who will
 #' receive each booster vaccine
 #' @param booster_profile list of booster vaccine profiles, of type
 #' PEVProfile, for each timestep in booster_timeteps

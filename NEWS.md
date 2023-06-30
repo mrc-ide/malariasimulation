@@ -1,5 +1,7 @@
 # malariasimulation 1.6.0
 
+  * New vignettes
+  * Stephensi parameters
   * Fix MDA bug where undetectable asymptomatics are treated
 
 # malariasimulation 1.5.0

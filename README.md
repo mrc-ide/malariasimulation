@@ -63,6 +63,8 @@ library('malariasimulation')
 output <- run_simulation(100)
 ```
 
+Please see [vignettes](https://mrc-ide.github.io/malariasimulation/articles/Model.html) for more detailed use.
+
 ## Code organisation
 
 *model.R* - is the entry point for the model. It creates the different

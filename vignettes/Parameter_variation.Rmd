@@ -13,6 +13,12 @@ vignette: >
 library(malariasimulation)
 # Set colour palette:
 cols <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  dpi=300,
+  fig.width=7
+)
 ```
 
 This vignette describes how variation in estimated model parameters can be incorporated into model simulations.

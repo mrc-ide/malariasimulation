@@ -10,7 +10,9 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  dpi=300,
+  fig.width=7
 )
 ```
 
@@ -185,9 +187,9 @@ smcparams <- set_drugs(smcparams, list(SP_AQ_params))
 peak <- peak_season_offset(smcparams)
 
 # Create a variable for total mosquito population through time:
-noint_output$mosq_total = noint_output$Sm_All_count +
-  noint_output$Im_All_count +
-  noint_output$Pm_All_count
+noint_output$mosq_total = noint_output$Sm_gamb_count +
+  noint_output$Im_gamb_count +
+  noint_output$Pm_gamb_count
 
 # Schedule drug administration times (in daily time steps) before, during and after the seasonal peak:
 admin_days <- c(-60, -30, 0, 30)

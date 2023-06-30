@@ -60,11 +60,11 @@ reference:
 - title: "Mosquito species functions and parameters"
   contents:
     - set_species
-    # - set_carrying_capacity
+    - set_carrying_capacity
     - arab_params
     - fun_params
     - gamb_params
-    # - steph_params
+    - steph_params
 - title: "Intervention functions"
 - subtitle: "Drug treatments"
   contents:

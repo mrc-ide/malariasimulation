@@ -10,3 +10,5 @@ LICENSE.md
 codecov.yml
 .github
 ^data-raw$
+^doc$
+^Meta$

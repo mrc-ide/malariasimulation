@@ -63,7 +63,7 @@ p_seasonal <- p_seasonal |>
 
 and can run the simulations and compare the outputs
 
-```{r, fig.width = 7, fig.height = 4}
+```{r, fig.width = 7, fig.height = 4, out.width='100%'}
 set.seed(123)
 s <- run_simulation(timesteps = timesteps, parameters = p)
 s$pfpr <- s$n_detect_730_3650 / s$n_730_3650
@@ -99,7 +99,7 @@ The impact of larval source management (LSM) is captured by reducing the
 carrying capacity. The helper function `set_carrying_capacity()`
 can be used to specify this intervention
 
-```{r, fig.width = 7, fig.height = 4}
+```{r, fig.width = 7, fig.height = 4, out.width='100%'}
 # Specify the LSM coverage
 lsm_coverage <- 0.8
 # Set LSM by reducing the carrying capacity by (1 - coverage)
@@ -130,7 +130,7 @@ changes to the carrying capacity to be made. Here
 we will demonstrate using carrying capacity rescaling to capture the
 invasion of _Anopheles stephensi_.
 
-```{r, fig.width = 7, fig.height = 4}
+```{r, fig.width = 7, fig.height = 4, out.width='100%'}
 # First initialise the mosquito species so that the invasive species starts with
 # a negligible, but non-zero proportion.
 p_stephensi <- p |>
@@ -166,7 +166,7 @@ specific carrying capacity changes over time. We can demonstrate this
 below by arbitrarily stepping the carrying capacity up and down over
 time
 
-```{r, fig.width = 7, fig.height = 4}
+```{r, fig.width = 7, fig.height = 4, out.width='100%'}
 p_flexible <- p |>
   set_carrying_capacity(
     carrying_capacity = cc * matrix(c(0.1, 2, 0.1, 0.5, 0.9), ncol = 1),

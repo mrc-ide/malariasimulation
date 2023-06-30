@@ -20,7 +20,7 @@ fixed state transitions:
 \item dl - the delay for mosquitoes to move from state L to P; default = 3.72
 \item dpl - the delay mosquitoes to move from state P to Sm; default = 0.643
 \item mup - the rate at which pupal mosquitoes die; default = 0.249
-\item mum - the rate at which developed mosquitoes die; default = 0.1253333
+\item mum - the rate at which developed mosquitoes die; default (An. gambiae) = .132
 }
 
 immunity decay rates:
@@ -151,9 +151,9 @@ species specific values are vectors
 \item beta - the average number of eggs laid per female mosquito per day; default = 21.2
 \item total_M - the initial number of adult mosquitos in the simulation; default = 1000
 \item init_foim - the FOIM used to calculate the equilibrium state for mosquitoes; default = 0
-\item species - names of the species in the simulation; default = "All"
+\item species - names of the species in the simulation; default = "gamb"
 \item species_proportions - the relative proportions of each species; default = 1
-\item blood_meal_rates - the blood meal rates for each species; default = 0.3333333333
+\item blood_meal_rates - the blood meal rates for each species; default = 1/3
 \item Q0 - proportion of blood meals taken on humans; default = 0.92
 \item foraging_time - time spent taking blood meals; default = 0.69
 }

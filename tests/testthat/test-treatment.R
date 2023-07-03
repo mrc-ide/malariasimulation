@@ -78,3 +78,12 @@ test_that('You cannot set invalid coverages', {
     )
   )
 })
+
+test_that('set_drugs errors if a list is not provided', {
+  parameters <- get_parameters()
+  expect_error(
+    set_drugs(parameters, AL_params),
+    "is.list(drugs) is not TRUE",
+    fixed = TRUE
+  )
+})

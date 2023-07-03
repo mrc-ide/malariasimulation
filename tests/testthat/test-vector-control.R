@@ -136,13 +136,13 @@ test_that('distribute_bednets process sets net_time correctly', {
     parameters,
     correlations
   )
-
+  
   target_mock <- mockery::mock(c(FALSE, FALSE, TRUE, TRUE))
   mockery::stub(process, 'sample_intervention', target_mock)
   mockery::stub(process, 'log_uniform', mockery::mock(c(3, 4)))
-
+  
   process(timestep)
-
+  
   mockery::expect_args(target_mock, 1, seq(4), 'bednets', .9, correlations)
   mockery::expect_args(
     variables$net_time$queue_update_mock(),
@@ -176,9 +176,9 @@ test_that('throw_away_bednets process resets net_time correctly', {
   variables <- create_variables(parameters)
   variables$net_time <- mock_double(rep(0, 4))
   listener <- throw_away_nets(variables)
-
+  
   listener(timestep, individual::Bitset$new(4)$insert(c(2, 3)))
-
+  
   expect_bitset_update(
     variables$net_time$queue_update_mock(),
     -1,
@@ -207,12 +207,12 @@ test_that('indoor_spraying process sets spray_time correctly', {
     parameters,
     correlations
   )
-
+  
   target_mock <- mockery::mock(c(FALSE, FALSE, TRUE, TRUE))
   mockery::stub(process, 'sample_intervention', target_mock)
-
+  
   process(timestep)
-
+  
   mockery::expect_args(target_mock, 1, seq(4), 'spraying', .9, correlations)
   mockery::expect_args(
     spray_time$queue_update_mock(),
@@ -228,7 +228,7 @@ test_that('prob_bitten defaults to 1 with no protection', {
   variables <- create_variables(parameters)
   variables$net_time <- individual::DoubleVariable$new(rep(-1, 4))
   variables$spray_time <- individual::DoubleVariable$new(rep(-1, 4))
-
+  
   expect_equal(
     prob_bitten(timestep, variables, 1, parameters),
     list(
@@ -257,7 +257,7 @@ test_that('prob_bitten correctly calculates net only probabilities', {
     c(-1, 5, 50, 100)
   )
   variables$spray_time <- individual::DoubleVariable$new(rep(-1, 4))
-
+  
   expect_equal(
     prob_bitten(timestep, variables, 1, parameters),
     list(
@@ -284,12 +284,12 @@ test_that('prob_bitten correctly calculates spraying only probabilities', {
     ms_gamma = matrix(rep(-0.009, 3), nrow=3, ncol=1)
   )
   variables <- create_variables(parameters)
-
+  
   variables$net_time <- individual::IntegerVariable$new(rep(-1, 4))
   variables$spray_time <- individual::IntegerVariable$new(
     c(-1, 5, 50, 100)
   )
-
+  
   expect_equal(
     prob_bitten(timestep, variables, 1, parameters),
     list(
@@ -332,7 +332,7 @@ test_that('prob_bitten correctly combines spraying and net probabilities', {
   variables$spray_time <- individual::IntegerVariable$new(
     c(-1, 5, 50, 100)
   )
-
+  
   expect_equal(
     prob_bitten(timestep, variables, 1, parameters),
     list(
@@ -346,17 +346,55 @@ test_that('prob_bitten correctly combines spraying and net probabilities', {
 
 test_that('usage renderer outputs correct values', {
   timestep <- 150
-
+  
   all <- individual::IntegerVariable$new(c(100, 50, 5, 50))
   half <- individual::IntegerVariable$new(c(100, 50, -1, -1))
   none <- individual::IntegerVariable$new(rep(-1, 4))
-
+  
   renderer <- list(render = mockery::mock())
   net_usage_renderer(all, renderer)(timestep)
   net_usage_renderer(half, renderer)(timestep)
   net_usage_renderer(none, renderer)(timestep)
-
+  
   mockery::expect_args(renderer$render, 1, 'n_use_net', 4, timestep)
   mockery::expect_args(renderer$render, 2, 'n_use_net', 2, timestep)
   mockery::expect_args(renderer$render, 3, 'n_use_net', 0, timestep)
 })
+
+test_that('set_carrying_capacity works',{
+  p <- list()
+  p$species <- "gamb"
+  p_out <- set_carrying_capacity(p, 1, matrix(0.1))
+  
+  expect_equal(
+    p_out,
+    list(
+      species = "gamb",
+      carrying_capacity = TRUE,
+      carrying_capacity_timesteps = 1,
+      carrying_capacity_values = matrix(0.1)
+    )
+  )
+  
+  expect_error(
+    set_carrying_capacity(p, 1, matrix(c(0.1, 0.1), nrow = 2)),
+    "nrow(carrying_capacity) == length(timesteps) is not TRUE",
+    fixed = TRUE
+  )
+  expect_error(
+    set_carrying_capacity(p, 1, matrix(c(0.1, 0.1), ncol = 2)),
+    "ncol(carrying_capacity) == length(parameters$species) is not TRUE",
+    fixed = TRUE
+  )
+  expect_error(
+    set_carrying_capacity(p, -1, matrix(0.1)),
+    "min(timesteps) > 0 is not TRUE",
+    fixed = TRUE
+  )
+  expect_error(
+    set_carrying_capacity(p, 1, matrix(-1)),
+    "min(carrying_capacity) >= 0",
+    fixed = TRUE
+  )
+})
+

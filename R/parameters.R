@@ -18,7 +18,7 @@
 #' * dl - the delay for mosquitoes to move from state L to P; default = 3.72
 #' * dpl - the delay mosquitoes to move from state P to Sm; default = 0.643
 #' * mup - the rate at which pupal mosquitoes die; default = 0.249
-#' * mum - the rate at which developed mosquitoes die; default = 0.1253333
+#' * mum - the rate at which developed mosquitoes die; default (An. gambiae) = .132
 #'
 #' immunity decay rates:
 #'
@@ -135,9 +135,9 @@
 #' * beta - the average number of eggs laid per female mosquito per day; default = 21.2
 #' * total_M - the initial number of adult mosquitos in the simulation; default = 1000
 #' * init_foim - the FOIM used to calculate the equilibrium state for mosquitoes; default = 0
-#' * species - names of the species in the simulation; default = "All"
+#' * species - names of the species in the simulation; default = "gamb"
 #' * species_proportions - the relative proportions of each species; default = 1
-#' * blood_meal_rates - the blood meal rates for each species; default = 0.3333333333
+#' * blood_meal_rates - the blood meal rates for each species; default = 1/3
 #' * Q0 - proportion of blood meals taken on humans; default = 0.92
 #' * foraging_time - time spent taking blood meals; default = 0.69
 #'
@@ -234,7 +234,7 @@ get_parameters <- function(overrides = list()) {
     dl    = 3.72,
     dpl   = .643,
     mup   = .249,
-    mum   = .1253333,
+    mum   = .132,
     sigma_squared   = 1.67,
     n_heterogeneity_groups = 5,
     # immunity decay rates
@@ -317,8 +317,8 @@ get_parameters <- function(overrides = list()) {
     beta     = 21.2,
     total_M  = 1000,
     init_foim= 0,
-    # order of species: An gambiae s.s, An arabiensis, An funestus
-    species             = 'All',
+    # species-specific vector biology (default is An. gambiae s.s)
+    species             = 'gamb',
     species_proportions = 1,
     blood_meal_rates    = 1/3,
     Q0                  = .92,
@@ -377,6 +377,10 @@ get_parameters <- function(overrides = list()) {
     tbv_timesteps = NULL,
     tbv_coverages = NULL,
     tbv_ages = NULL,
+    # flexible carrying capacity
+    carrying_capacity = FALSE,
+    carrying_capacity_timesteps = NULL,
+    carrying_capacity_values = NULL,
     # rendering
     prevalence_rendering_min_ages = 2 * 365,
     prevalence_rendering_max_ages = 10 * 365,
@@ -402,19 +406,19 @@ get_parameters <- function(overrides = list()) {
     ode_max_steps = 1e6,
     progress_bar = FALSE
   )
-
+  
   # Override parameters with any client specified ones
   if (!is.list(overrides)) {
     stop('overrides must be a list')
   }
-
+  
   for (name in names(overrides)) {
     if (!(name %in% names(parameters))) {
       stop(paste('unknown parameter', name, sep=' '))
     }
     parameters[[name]] <- overrides[[name]]
   }
-
+  
   props <- c(
     parameters$s_proportion,
     parameters$d_proportion,
@@ -422,11 +426,11 @@ get_parameters <- function(overrides = list()) {
     parameters$u_proportion,
     parameters$t_proportion
   )
-
+  
   if (!approx_sum(props, 1)) {
     stop("Starting proportions do not sum to 1")
   }
-
+  
   parameters
 }
 
@@ -519,3 +523,4 @@ set_parameter_draw <- function(parameters, draw){
   }
   return(parameters)
 }
+

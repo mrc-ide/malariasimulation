@@ -5,15 +5,15 @@ LaggedValue <- R6::R6Class(
   ),
   public = list(
     initialize = function(max_lag, default) {
-      private$history <- create_history(max_lag, default)
+      private$history <- create_timeseries(max_lag, default)
     },
 
     save = function(value, timestep) {
-      history_push(private$history, value, timestep)
+      timeseries_push(private$history, value, timestep)
     },
     
     get = function(timestep) {
-      history_at(private$history, timestep)
+      timeseries_at(private$history, timestep, TRUE)
     }
   )
 )

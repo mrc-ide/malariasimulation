@@ -1,4 +1,5 @@
 #' @title Run the simulation
+#'
 #' @description
 #' Run the simulation for some time given some parameters. This currently
 #' returns a dataframe with the number of individuals in each state at each
@@ -20,7 +21,7 @@
 #'  * A_count: number of humans who are Asymptomatic
 #'  * D_count: number of humans who have the clinical malaria
 #'  * U_count: number of subpatent infections in humans
-#'  * Tr_count: number of infections being treated in humans
+#'  * Tr_count: number of detectable infections being treated in humans
 #'  * ica_mean: the mean acquired immunity to clinical infection over the population of humans
 #'  * icm_mean: the mean maternal immunity to clinical infection over the population of humans
 #'  * ib_mean: the mean blood immunity to all infection over the population of humans
@@ -80,10 +81,10 @@
 #' @return dataframe of results
 #' @export
 run_simulation <- function(
-  timesteps,
-  parameters = NULL,
-  correlations = NULL
-  ) {
+    timesteps,
+    parameters = NULL,
+    correlations = NULL
+) {
   random_seed(ceiling(runif(1) * .Machine$integer.max))
   if (is.null(parameters)) {
     parameters <- get_parameters()
@@ -102,7 +103,7 @@ run_simulation <- function(
     correlations,
     renderer
   )
-  vector_models <- parameterise_mosquito_models(parameters)
+  vector_models <- parameterise_mosquito_models(parameters, timesteps)
   solvers <- parameterise_solvers(vector_models, parameters)
   individual::simulation_loop(
     processes = create_processes(
@@ -135,11 +136,11 @@ run_simulation <- function(
 #' @return a list of dataframe of results
 #' @export
 run_metapop_simulation <- function(
-  timesteps,
-  parameters,
-  correlations = NULL,
-  mixing
-  ) {
+    timesteps,
+    parameters,
+    correlations = NULL,
+    mixing
+) {
   random_seed(ceiling(runif(1) * .Machine$integer.max))
   if (nrow(mixing) != ncol(mixing)) {
     stop('mixing matrix must be square')
@@ -179,7 +180,7 @@ run_metapop_simulation <- function(
       renderer[[i]]
     )
   }
-  vector_models <- lapply(parameters, parameterise_mosquito_models)
+  vector_models <- lapply(parameters, parameterise_mosquito_models, timesteps = timesteps)
   solvers <- lapply(
     seq_along(parameters),
     function(i) parameterise_solvers(vector_models[[i]], parameters[[i]])
@@ -228,11 +229,11 @@ run_metapop_simulation <- function(
 #' @param parallel execute runs in parallel
 #' @export
 run_simulation_with_repetitions <- function(
-  timesteps,
-  repetitions,
-  overrides = list(),
-  parallel = FALSE
-  ) {
+    timesteps,
+    repetitions,
+    overrides = list(),
+    parallel = FALSE
+) {
   if (parallel) {
     fapply <- parallel::mclapply
   } else {

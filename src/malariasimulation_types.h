@@ -12,6 +12,6 @@
 #include "aquatic_mosquito_eqs.h"
 #include "adult_mosquito_eqs.h"
 #include "solver.h"
-#include "history.h"
+#include "timeseries.h"
 
 #endif /* MALARIASIMULATION_TYPES_H_ */

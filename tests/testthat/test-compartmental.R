@@ -31,12 +31,8 @@ test_that('ODE stays at equilibrium with a constant total_M', {
 })
 
 test_that('Adult ODE stays at equilibrium with a constant foim and mu', {
-  foim <- 0.5
-  parameters <- get_parameters(list(
-    individual_mosquitoes = FALSE,
-    init_foim = foim
-  ))
-  total_M <- 1000
+  parameters <- get_parameters()
+  parameters <- set_equilibrium(parameters, 100.)
   f <- parameters$blood_meal_rates
   timesteps <- 365 * 10
   models <- parameterise_mosquito_models(parameters, timesteps)
@@ -50,7 +46,7 @@ test_that('Adult ODE stays at equilibrium with a constant foim and mu', {
     adult_mosquito_model_update(
       models[[1]],
       parameters$mum,
-      foim,
+      parameters$init_foim,
       states[ADULT_ODE_INDICES['Sm']],
       f
     )
@@ -62,7 +58,7 @@ test_that('Adult ODE stays at equilibrium with a constant foim and mu', {
     parameters,
     1,
     parameters$init_foim,
-    total_M
+    parameters$total_M
   )
   
   for (t in seq(timesteps)) {

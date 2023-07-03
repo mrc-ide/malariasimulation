@@ -1,9 +1,9 @@
 on:
-  push:
-    branches:
-      - master
+  pull_request:
+    types:
+      - opened
 
-name: pkgdown
+name: vignettes
 
 jobs:
   pkgdown:
@@ -34,14 +34,12 @@ jobs:
       - name: Install dependencies
         run: |
           remotes::install_deps(dependencies = TRUE)
-          install.packages("pkgdown", type = "binary")
         shell: Rscript {0}
 
       - name: Install package
         run: R CMD INSTALL .
 
-      - name: Deploy package
+      - name: Check vignettes
         run: |
-          git config --local user.email "actions@github.com"
-          git config --local user.name "GitHub Actions"
-          Rscript -e 'pkgdown::deploy_to_branch(new_process = FALSE)'
+          vignettes(package="malariasimulation")
+        shell: Rscript {0}

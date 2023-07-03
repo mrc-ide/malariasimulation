@@ -37,8 +37,7 @@ an individual being vaccinated under one scheme and vaccinated under another.}
 
 \item{booster_timestep}{the timesteps (following the final dose) at which booster vaccinations are administered}
 
-\item{booster_coverage}{the proportion of the vaccinated population who will
-receive each booster vaccine}
+\item{booster_coverage}{the proportion of the vaccinated population relative to the last vaccination (whether a previous booster or the primary series)}
 
 \item{booster_profile}{list of booster vaccine profiles, of type
 PEVProfile, for each timestep in booster_timeteps}

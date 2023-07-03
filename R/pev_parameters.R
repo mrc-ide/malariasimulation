@@ -73,8 +73,7 @@ rtss_booster_profile <- create_pev_profile(
 #' both set_mass_pev and set_pev_epi, this represents the minimum time between
 #' an individual being vaccinated under one scheme and vaccinated under another.
 #' @param booster_timestep the timesteps (following the final dose) at which booster vaccinations are administered
-#' @param booster_coverage the proportion of the vaccinated population who will
-#' receive each booster vaccine
+#' @param booster_coverage the proportion of the vaccinated population relative to the last vaccination (whether a previous booster or the primary series)
 #' @param booster_profile list of booster vaccine profiles, of type
 #' PEVProfile, for each timestep in booster_timeteps
 #' @param seasonal_boosters logical, if TRUE the first booster timestep is
@@ -149,8 +148,7 @@ set_pev_epi <- function(
 #' @param min_ages for the target population, inclusive (in timesteps)
 #' @param max_ages for the target population, inclusive (in timesteps)
 #' @param booster_timestep the timesteps (following the initial vaccination) at which booster vaccinations are administered
-#' @param booster_coverage the proportion of the vaccinated population who will
-#' receive each booster vaccine
+#' @param booster_coverage the proportion of the vaccinated population relative to the last vaccination (whether a previous booster or the primary series)
 #' @param booster_profile list of booster vaccine profiles, of type
 #' PEVProfile, for each timestep in booster_timeteps
 #' @export

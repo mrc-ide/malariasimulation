@@ -10,6 +10,9 @@
     <loc>/LICENSE.html</loc>
   </url>
   <url>
+    <loc>/articles/Carrying-capacity.html</loc>
+  </url>
+  <url>
     <loc>/articles/Demography.html</loc>
   </url>
   <url>
@@ -25,6 +28,12 @@
     <loc>/articles/Model.html</loc>
   </url>
   <url>
+    <loc>/articles/Parameter_variation.html</loc>
+  </url>
+  <url>
+    <loc>/articles/SetSpecies.html</loc>
+  </url>
+  <url>
     <loc>/articles/Treatment.html</loc>
   </url>
   <url>
@@ -34,7 +43,10 @@
     <loc>/articles/Variation.html</loc>
   </url>
   <url>
-    <loc>/articles/VectorControl.html</loc>
+    <loc>/articles/VectorControl_Bednets.html</loc>
+  </url>
+  <url>
+    <loc>/articles/VectorControl_IRS.html</loc>
   </url>
   <url>
     <loc>/articles/index.html</loc>
@@ -64,6 +76,15 @@
     <loc>/reference/arab_params.html</loc>
   </url>
   <url>
+    <loc>/reference/calculate_carrying_capacity.html</loc>
+  </url>
+  <url>
+    <loc>/reference/create_pev_profile.html</loc>
+  </url>
+  <url>
+    <loc>/reference/create_progress_process.html</loc>
+  </url>
+  <url>
     <loc>/reference/find_birthrates.html</loc>
   </url>
   <url>
@@ -76,10 +97,16 @@
     <loc>/reference/get_correlation_parameters.html</loc>
   </url>
   <url>
+    <loc>/reference/get_init_carrying_capacity.html</loc>
+  </url>
+  <url>
     <loc>/reference/get_parameters.html</loc>
   </url>
   <url>
     <loc>/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>/reference/parameter_draws.html</loc>
   </url>
   <url>
     <loc>/reference/parameterise_mosquito_equilibrium.html</loc>
@@ -89,6 +116,12 @@
   </url>
   <url>
     <loc>/reference/peak_season_offset.html</loc>
+  </url>
+  <url>
+    <loc>/reference/rtss_booster_profile.html</loc>
+  </url>
+  <url>
+    <loc>/reference/rtss_profile.html</loc>
   </url>
   <url>
     <loc>/reference/run_metapop_simulation.html</loc>
@@ -103,6 +136,9 @@
     <loc>/reference/set_bednets.html</loc>
   </url>
   <url>
+    <loc>/reference/set_carrying_capacity.html</loc>
+  </url>
+  <url>
     <loc>/reference/set_clinical_treatment.html</loc>
   </url>
   <url>
@@ -115,16 +151,19 @@
     <loc>/reference/set_equilibrium.html</loc>
   </url>
   <url>
-    <loc>/reference/set_mass_rtss.html</loc>
+    <loc>/reference/set_mass_pev.html</loc>
   </url>
   <url>
     <loc>/reference/set_mda.html</loc>
   </url>
   <url>
-    <loc>/reference/set_pmc.html</loc>
+    <loc>/reference/set_parameter_draw.html</loc>
   </url>
   <url>
-    <loc>/reference/set_rtss_epi.html</loc>
+    <loc>/reference/set_pev_epi.html</loc>
+  </url>
+  <url>
+    <loc>/reference/set_pmc.html</loc>
   </url>
   <url>
     <loc>/reference/set_smc.html</loc>
@@ -137,5 +176,8 @@
   </url>
   <url>
     <loc>/reference/set_tbv.html</loc>
+  </url>
+  <url>
+    <loc>/reference/steph_params.html</loc>
   </url>
 </urlset>

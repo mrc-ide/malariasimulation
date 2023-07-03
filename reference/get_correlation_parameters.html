@@ -18,52 +18,70 @@ default, all correlations are set to 0"><!-- mathjax --><script src="https://cdn
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.6.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav"><li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li class="dropdown">
+      <ul class="nav navbar-nav"><li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Articles
+    Vignettes
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
+      <a href="../articles/Model.html">Model Introduction</a>
+    </li>
+    <li>
       <a href="../articles/Demography.html">Demography</a>
-    </li>
-    <li>
-      <a href="../articles/EIRprevmatch.html">Matching PfPR2-10 to EIR</a>
-    </li>
-    <li>
-      <a href="../articles/MDA.html">Mass Drug Administration</a>
-    </li>
-    <li>
-      <a href="../articles/Metapopulation.html">Metapopulation</a>
-    </li>
-    <li>
-      <a href="../articles/Model.html">Model Structure</a>
     </li>
     <li>
       <a href="../articles/Treatment.html">Treatment</a>
     </li>
     <li>
+      <a href="../articles/MDA.html">MDA and Chemoprevention</a>
+    </li>
+    <li>
       <a href="../articles/Vaccines.html">Vaccines</a>
     </li>
     <li>
-      <a href="../articles/Variation.html">Variation</a>
+      <a href="../articles/VectorControl_Bednets.html">Vector Control: Bednets</a>
     </li>
     <li>
-      <a href="../articles/VectorControl.html">Vector Control</a>
+      <a href="../articles/VectorControl_IRS.html">Vector Control: Indoor Residual Spraying</a>
+    </li>
+    <li>
+      <a href="../articles/SetSpecies.html">Mosquito Species</a>
+    </li>
+    <li>
+      <a href="../articles/Carrying-capacity.html">Carrying Capacity</a>
+    </li>
+    <li>
+      <a href="../articles/EIRprevmatch.html">Matching PfPR2-10 to EIR</a>
+    </li>
+    <li>
+      <a href="../articles/Metapopulation.html">Metapopulation Modelling</a>
+    </li>
+    <li>
+      <a href="../articles/Variation.html">Stochastic Variation</a>
+    </li>
+    <li>
+      <a href="../articles/Parameter_variation.html">Parameter Variation</a>
     </li>
   </ul></li>
 <li>
+  <a href="../reference/index.html">Functions</a>
+</li>
+<li>
   <a href="../news/index.html">Changelog</a>
 </li>
-      </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
+      </ul><ul class="nav navbar-nav navbar-right"><li>
+  <a href="https://github.com/mrc-ide/malariasimulation" class="external-link">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
@@ -99,16 +117,18 @@ default, all correlations are set to 0</p>
 <span class="r-in"><span><span class="co"># get the default model parameters</span></span></span>
 <span class="r-in"><span><span class="va">parameters</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_parameters.html">get_parameters</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Set some rtss strategy</span></span></span>
-<span class="r-in"><span><span class="va">parameters</span> <span class="op">&lt;-</span> <span class="fu"><a href="set_mass_rtss.html">set_mass_rtss</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span><span class="co"># Set some vaccination strategy</span></span></span>
+<span class="r-in"><span><span class="va">parameters</span> <span class="op">&lt;-</span> <span class="fu"><a href="set_mass_pev.html">set_mass_pev</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">parameters</span>,</span></span>
+<span class="r-in"><span>  profile <span class="op">=</span> <span class="va">rtss_profile</span>,</span></span>
 <span class="r-in"><span>  timesteps <span class="op">=</span> <span class="fl">100</span>,</span></span>
 <span class="r-in"><span>  coverages <span class="op">=</span> <span class="fl">.9</span>,</span></span>
 <span class="r-in"><span>  min_wait <span class="op">=</span> <span class="fl">0</span>,</span></span>
 <span class="r-in"><span>  min_ages <span class="op">=</span> <span class="fl">100</span>,</span></span>
 <span class="r-in"><span>  max_ages <span class="op">=</span> <span class="fl">1000</span>,</span></span>
-<span class="r-in"><span>  boosters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>  booster_coverage <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  booster_timestep <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  booster_coverage <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  booster_profile <span class="op">=</span> <span class="cn">NULL</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Set some smc strategy</span></span></span>
@@ -122,9 +142,9 @@ default, all correlations are set to 0</p>
 <span class="r-in"><span>  max_age <span class="op">=</span> <span class="fl">1000</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Correlate the rtss and smc targets</span></span></span>
+<span class="r-in"><span><span class="co"># Correlate the vaccination and smc targets</span></span></span>
 <span class="r-in"><span><span class="va">correlations</span> <span class="op">&lt;-</span> <span class="fu">get_correlation_parameters</span><span class="op">(</span><span class="va">parameters</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">correlations</span><span class="op">$</span><span class="fu">inter_intervention_rho</span><span class="op">(</span><span class="st">'rtss'</span>, <span class="st">'smc'</span>, <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">correlations</span><span class="op">$</span><span class="fu">inter_intervention_rho</span><span class="op">(</span><span class="st">'pev'</span>, <span class="st">'smc'</span>, <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Correlate the rounds of smc</span></span></span>
 <span class="r-in"><span><span class="va">correlations</span><span class="op">$</span><span class="fu">inter_round_rho</span><span class="op">(</span><span class="st">'smc'</span>, <span class="fl">1</span><span class="op">)</span></span></span>
@@ -140,11 +160,11 @@ default, all correlations are set to 0</p>
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Giovanni Charles, Peter Winskill, Hillary Topazian, Joseph Challenger, Richard Fitzjohn.</p>
+  <p></p><p>Developed by Giovanni Charles, Peter Winskill, Hillary Topazian, Joseph Challenger, Richard Fitzjohn, Richard Sheppard, Tom Brewer, Kelly McCain, Lydia Haile.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

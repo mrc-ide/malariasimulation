@@ -33,56 +33,75 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.6.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Articles
+    Vignettes
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/Model.html">Model Introduction</a>
+    </li>
+    <li>
       <a href="../articles/Demography.html">Demography</a>
-    </li>
-    <li>
-      <a href="../articles/EIRprevmatch.html">Matching PfPR2-10 to EIR</a>
-    </li>
-    <li>
-      <a href="../articles/MDA.html">Mass Drug Administration</a>
-    </li>
-    <li>
-      <a href="../articles/Metapopulation.html">Metapopulation</a>
-    </li>
-    <li>
-      <a href="../articles/Model.html">Model Structure</a>
     </li>
     <li>
       <a href="../articles/Treatment.html">Treatment</a>
     </li>
     <li>
+      <a href="../articles/MDA.html">MDA and Chemoprevention</a>
+    </li>
+    <li>
       <a href="../articles/Vaccines.html">Vaccines</a>
     </li>
     <li>
-      <a href="../articles/Variation.html">Variation</a>
+      <a href="../articles/VectorControl_Bednets.html">Vector Control: Bednets</a>
     </li>
     <li>
-      <a href="../articles/VectorControl.html">Vector Control</a>
+      <a href="../articles/VectorControl_IRS.html">Vector Control: Indoor Residual Spraying</a>
+    </li>
+    <li>
+      <a href="../articles/SetSpecies.html">Mosquito Species</a>
+    </li>
+    <li>
+      <a href="../articles/Carrying-capacity.html">Carrying Capacity</a>
+    </li>
+    <li>
+      <a href="../articles/EIRprevmatch.html">Matching PfPR2-10 to EIR</a>
+    </li>
+    <li>
+      <a href="../articles/Metapopulation.html">Metapopulation Modelling</a>
+    </li>
+    <li>
+      <a href="../articles/Variation.html">Stochastic Variation</a>
+    </li>
+    <li>
+      <a href="../articles/Parameter_variation.html">Parameter Variation</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../reference/index.html">Functions</a>
 </li>
 <li>
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/mrc-ide/malariasimulation" class="external-link">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -92,7 +111,7 @@
 
       
 
-      </header><script src="Vaccines_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Vaccines</h1>
@@ -106,13 +125,119 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">malariasimulation</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># Load the requisite packages:</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">malariasimulation</span><span class="op">)</span></span>
+<span><span class="co"># Set colour palette:</span></span>
+<span><span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#E69F00"</span>, <span class="st">"#56B4E9"</span>, <span class="st">"#009E73"</span>, <span class="st">"#F0E442"</span>, <span class="st">"#0072B2"</span>, <span class="st">"#D55E00"</span>, <span class="st">"#CC79A7"</span><span class="op">)</span></span></code></pre></div>
+<p>In this vignette, we will explore how to model different strategies
+for both pre-erythrocytic malaria vaccines and a theoretical malaria
+transmission blocking vaccine (TBV). Parameters for a pre-erythrocytic
+vaccine can be set for a routine age-based Expanded Programme on
+Immunization (EPI) strategy or a mass vaccination strategy using the
+helper functions <code><a href="../reference/set_pev_epi.html">set_pev_epi()</a></code> and
+<code><a href="../reference/set_mass_pev.html">set_mass_pev()</a></code>, while parameters for a TBV can be set using
+<code><a href="../reference/set_tbv.html">set_tbv()</a></code>. Under an EPI strategy, everybody within a
+certain age range will be vaccinated within the routine immunisation
+system. A mass vaccination strategy is typically a one-time event where
+everybody, or everybody within a certain age group, is targeted for
+vaccination during a relatively short window of time. If you are
+modelling a seasonal setting, then it is also possible to schedule
+vaccination relative to the expected peak of malaria prevalence given by
+<code><a href="../reference/peak_season_offset.html">peak_season_offset()</a></code>.</p>
+<p>First, we will define a few functions to visualise the outputs.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Plotting clinical incidence </span></span>
+<span><span class="va">plot_inci</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">type</span> <span class="op">=</span> <span class="st">"not seasonal"</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="kw">if</span><span class="op">(</span><span class="va">type</span> <span class="op">==</span> <span class="st">"seasonal"</span><span class="op">)</span><span class="op">{</span></span>
+<span>    <span class="va">comparison</span> <span class="op">&lt;-</span> <span class="va">output_seas_control</span></span>
+<span>    <span class="va">vaccinetime</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">year</span> <span class="op">+</span> <span class="op">(</span><span class="va">peak</span> <span class="op">-</span> <span class="va">month</span> <span class="op">*</span> <span class="fl">3.5</span><span class="op">)</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">/</span> <span class="fl">365</span></span>
+<span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>    <span class="va">comparison</span> <span class="op">&lt;-</span> <span class="va">output_control</span></span>
+<span>    <span class="va">vaccinetime</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span>  <span class="op">}</span></span>
+<span>  <span class="va">output</span><span class="op">$</span><span class="va">clinical_incidence</span> <span class="op">&lt;-</span> <span class="fl">1000</span> <span class="op">*</span> <span class="va">output</span><span class="op">$</span><span class="va">n_inc_clinical_0_1825</span> <span class="op">/</span> <span class="va">output</span><span class="op">$</span><span class="va">n_0_1825</span></span>
+<span>  <span class="va">output</span><span class="op">$</span><span class="va">time_year</span> <span class="op">&lt;-</span> <span class="va">output</span><span class="op">$</span><span class="va">timestep</span> <span class="op">/</span> <span class="va">year</span></span>
+<span>  <span class="va">comparison</span><span class="op">$</span><span class="va">clinical_incidence</span> <span class="op">&lt;-</span> <span class="fl">1000</span> <span class="op">*</span> <span class="va">comparison</span><span class="op">$</span><span class="va">n_inc_clinical_0_1825</span> <span class="op">/</span> <span class="va">comparison</span><span class="op">$</span><span class="va">n_0_1825</span></span>
+<span>  <span class="va">comparison</span><span class="op">$</span><span class="va">time_year</span> <span class="op">&lt;-</span> <span class="va">comparison</span><span class="op">$</span><span class="va">timestep</span> <span class="op">/</span> <span class="va">year</span></span>
+<span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">output</span><span class="op">$</span><span class="va">time_year</span>, y <span class="op">=</span> <span class="va">output</span><span class="op">$</span><span class="va">clinical_incidence</span>,</span>
+<span>       type <span class="op">=</span> <span class="st">"l"</span>, col <span class="op">=</span> <span class="va">cols</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,</span>
+<span>       xlab <span class="op">=</span> <span class="st">"Time (years)"</span>, ylab <span class="op">=</span> <span class="st">"Clinical incidence (per 1000 children aged 0-5)"</span>,</span>
+<span>       ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">output</span><span class="op">$</span><span class="va">clinical_incidence</span><span class="op">)</span><span class="op">*</span><span class="fl">1.3</span><span class="op">)</span>,</span>
+<span>       xaxs <span class="op">=</span> <span class="st">"i"</span>, yaxs <span class="op">=</span> <span class="st">"i"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span>lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"grey80"</span>, lwd <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="va">vaccinetime</span>, col <span class="op">=</span> <span class="st">"black"</span>, lty <span class="op">=</span> <span class="fl">2</span>, lwd <span class="op">=</span> <span class="fl">2.5</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/text.html" class="external-link">text</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">vaccinetime</span> <span class="op">+</span> <span class="fl">0.05</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">output</span><span class="op">$</span><span class="va">clinical_incidence</span><span class="op">)</span><span class="op">*</span><span class="fl">1.2</span>, labels <span class="op">=</span> <span class="st">"Start of\nvaccination"</span>, adj <span class="op">=</span> <span class="fl">0</span>, cex <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
+<span>  <span class="va">curve_values</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/loess.html" class="external-link">loess</a></span><span class="op">(</span><span class="va">clinical_incidence</span> <span class="op">~</span> <span class="va">time_year</span>, data <span class="op">=</span> <span class="va">output</span>,</span>
+<span>                        span <span class="op">=</span> <span class="fl">0.3</span>, method <span class="op">=</span> <span class="st">"loess"</span><span class="op">)</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">output</span><span class="op">$</span><span class="va">time_year</span>, <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">curve_values</span><span class="op">)</span>,</span>
+<span>        col <span class="op">=</span> <span class="va">cols</span><span class="op">[</span><span class="fl">5</span><span class="op">]</span>, lwd <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span>  <span class="va">curve_valuescomp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/loess.html" class="external-link">loess</a></span><span class="op">(</span><span class="va">clinical_incidence</span> <span class="op">~</span> <span class="va">time_year</span>, data <span class="op">=</span> <span class="va">comparison</span>, span <span class="op">=</span> <span class="fl">0.3</span>, </span>
+<span>                            method <span class="op">=</span> <span class="st">"loess"</span><span class="op">)</span> </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">comparison</span><span class="op">$</span><span class="va">time_year</span>, <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">curve_valuescomp</span><span class="op">)</span>, </span>
+<span>        col <span class="op">=</span> <span class="va">cols</span><span class="op">[</span><span class="fl">6</span><span class="op">]</span>, lwd <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, box.lty <span class="op">=</span> <span class="fl">0</span>, bg <span class="op">=</span> <span class="st">"white"</span>,</span>
+<span>         legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Unsmoothed incidence for\nvaccine scenario"</span>,</span>
+<span>                    <span class="st">"Smoothed incidence for\nvaccine scenario"</span>,</span>
+<span>                    <span class="st">"Smoothed incidence for no\nintervention scenario"</span><span class="op">)</span>,</span>
+<span>         col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">cols</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, <span class="va">cols</span><span class="op">[</span><span class="fl">5</span><span class="op">]</span>, <span class="va">cols</span><span class="op">[</span><span class="fl">6</span><span class="op">]</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">2.5</span>, cex <span class="op">=</span> <span class="fl">0.8</span>, y.intersp <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Plot parasite prevalence</span></span>
+<span><span class="va">plot_prev</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">type</span> <span class="op">=</span> <span class="st">"not seasonal"</span><span class="op">)</span><span class="op">{</span></span>
+<span>    <span class="kw">if</span><span class="op">(</span><span class="va">type</span> <span class="op">==</span> <span class="st">"seasonal"</span><span class="op">)</span><span class="op">{</span></span>
+<span>    <span class="va">comparison</span> <span class="op">&lt;-</span> <span class="va">output_seas_control</span></span>
+<span>    <span class="va">vaccinetime</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">year</span> <span class="op">+</span> <span class="op">(</span><span class="va">peak</span> <span class="op">-</span> <span class="va">month</span> <span class="op">*</span> <span class="fl">3.5</span><span class="op">)</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">/</span> <span class="fl">365</span></span>
+<span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>    <span class="va">comparison</span> <span class="op">&lt;-</span> <span class="va">output_control</span></span>
+<span>    <span class="va">vaccinetime</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
+<span>  <span class="op">}</span></span>
+<span>  <span class="va">output</span><span class="op">$</span><span class="va">time_year</span> <span class="op">&lt;-</span> <span class="va">output</span><span class="op">$</span><span class="va">timestep</span> <span class="op">/</span> <span class="va">year</span></span>
+<span>  <span class="va">comparison</span><span class="op">$</span><span class="va">time_year</span> <span class="op">&lt;-</span> <span class="va">comparison</span><span class="op">$</span><span class="va">timestep</span> <span class="op">/</span> <span class="va">year</span></span>
+<span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">output</span><span class="op">$</span><span class="va">time_year</span>, y <span class="op">=</span> <span class="va">output</span><span class="op">$</span><span class="va">n_detect_730_3650</span><span class="op">/</span><span class="va">output</span><span class="op">$</span><span class="va">n_730_3650</span>, </span>
+<span>       type <span class="op">=</span> <span class="st">"l"</span>, col <span class="op">=</span> <span class="va">cols</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>, ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span>, lwd <span class="op">=</span> <span class="fl">3</span>,</span>
+<span>       xlab <span class="op">=</span> <span class="st">"Time (years)"</span>, ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu">italic</span><span class="op">(</span><span class="va">Pf</span><span class="op">)</span>,<span class="st">"PR"</span><span class="op">[</span><span class="fl">2</span><span class="op">-</span><span class="fl">10</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>       xaxs <span class="op">=</span> <span class="st">"i"</span>, yaxs <span class="op">=</span> <span class="st">"i"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span>lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"grey80"</span>, lwd <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">comparison</span><span class="op">$</span><span class="va">time_year</span>, y <span class="op">=</span> <span class="va">comparison</span><span class="op">$</span><span class="va">n_detect_730_3650</span><span class="op">/</span><span class="va">comparison</span><span class="op">$</span><span class="va">n_730_3650</span>,</span>
+<span>        col <span class="op">=</span> <span class="va">cols</span><span class="op">[</span><span class="fl">6</span><span class="op">]</span>, lwd <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="va">vaccinetime</span>, col <span class="op">=</span> <span class="st">"black"</span>, lty <span class="op">=</span> <span class="fl">2</span>, lwd <span class="op">=</span> <span class="fl">2.5</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/text.html" class="external-link">text</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">vaccinetime</span> <span class="op">+</span> <span class="fl">0.05</span>, y <span class="op">=</span> <span class="fl">0.9</span>, labels <span class="op">=</span> <span class="st">"Start of\nvaccination"</span>, adj <span class="op">=</span> <span class="fl">0</span>, cex <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, box.lty <span class="op">=</span> <span class="fl">0</span>, </span>
+<span>         legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Prevalence for\nvaccine scenario"</span>,</span>
+<span>                    <span class="st">"Prevalence for no\nintervention scenario"</span><span class="op">)</span>,</span>
+<span>         col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">cols</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>, <span class="va">cols</span><span class="op">[</span><span class="fl">6</span><span class="op">]</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, </span>
+<span>         lwd <span class="op">=</span> <span class="fl">2.5</span>, cex <span class="op">=</span> <span class="fl">0.8</span>, y.intersp <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># Plot dose timing</span></span>
+<span><span class="va">plot_doses</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="va">output</span><span class="op">$</span><span class="va">month</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">ceiling</a></span><span class="op">(</span><span class="va">output</span><span class="op">$</span><span class="va">timestep</span> <span class="op">/</span> <span class="va">month</span><span class="op">)</span></span>
+<span>  <span class="va">doses</span> <span class="op">&lt;-</span> <span class="va">output</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"n_pev"</span> , <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">output</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"month"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">output</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">]</span></span>
+<span>  <span class="va">doses</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/aggregate.html" class="external-link">aggregate</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">doses</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>                      by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">doses</span><span class="op">$</span><span class="va">month</span><span class="op">)</span>, </span>
+<span>                      FUN <span class="op">=</span> <span class="va">sum</span><span class="op">)</span></span>
+<span>  <span class="va">doses</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">doses</span><span class="op">[</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span>  </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="va">doses</span>, xlab <span class="op">=</span> <span class="st">"Month"</span>,</span>
+<span>          ylab <span class="op">=</span> <span class="st">"Number of doses"</span>,</span>
+<span>          col <span class="op">=</span> <span class="va">cols</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>, space <span class="op">=</span> <span class="fl">0</span>, axes <span class="op">=</span> <span class="cn">T</span>,</span>
+<span>          beside <span class="op">=</span> <span class="cn">FALSE</span>, xaxs <span class="op">=</span> <span class="st">"i"</span>, yaxs <span class="op">=</span> <span class="st">"i"</span>,</span>
+<span>          ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="va">doses</span><span class="op">)</span><span class="op">)</span><span class="op">*</span><span class="fl">1.1</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span>lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"grey80"</span>, lwd <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span>;<span class="fu"><a href="https://rdrr.io/r/graphics/box.html" class="external-link">box</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/axis.html" class="external-link">axis</a></span><span class="op">(</span>side <span class="op">=</span> <span class="fl">1</span>, lty <span class="op">=</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="st">"black"</span>, pos <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topleft"</span>, box.lty <span class="op">=</span> <span class="fl">0</span>, legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Dose 1"</span>,<span class="st">"Dose 2"</span>,<span class="st">"Dose 3"</span>,<span class="st">"Booster 1"</span><span class="op">)</span>,</span>
+<span>         fill <span class="op">=</span> <span class="va">cols</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>, bg<span class="op">=</span><span class="st">"transparent"</span>, cex <span class="op">=</span> <span class="fl">0.8</span>, y.intersp <span class="op">=</span> <span class="fl">1.5</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="parameterisation">Parameterisation<a class="anchor" aria-label="anchor" href="#parameterisation"></a>
 </h2>
-<p>We are going to set the default parameters to run the simulation from an equilibrium.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<p>We use the <code><a href="../reference/get_parameters.html">get_parameters()</a></code> function to generate a list
+of parameters, accepting most of the default values, and then use the
+<code><a href="../reference/set_equilibrium.html">set_equilibrium()</a></code> function to to initialise the model at a
+given entomological inoculation rate (EIR).</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">year</span> <span class="op">&lt;-</span> <span class="fl">365</span></span>
 <span><span class="va">month</span> <span class="op">&lt;-</span> <span class="fl">30</span></span>
 <span><span class="va">sim_length</span> <span class="op">&lt;-</span> <span class="fl">3</span> <span class="op">*</span> <span class="va">year</span></span>
@@ -121,155 +246,343 @@
 <span></span>
 <span><span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_parameters.html">get_parameters</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    human_population <span class="op">=</span> <span class="va">human_population</span>,</span>
-<span>    incidence_rendering_min_ages <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>    incidence_rendering_max_ages <span class="op">=</span> <span class="fl">5</span> <span class="op">*</span> <span class="va">year</span>,</span>
+<span>    clinical_incidence_rendering_min_ages <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>    clinical_incidence_rendering_max_ages <span class="op">=</span> <span class="fl">5</span> <span class="op">*</span> <span class="va">year</span>,</span>
 <span>    individual_mosquitoes <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_equilibrium.html">set_equilibrium</a></span><span class="op">(</span><span class="va">simparams</span>, <span class="va">starting_EIR</span><span class="op">)</span></span></code></pre></div>
-<p>Then we can run the simulation for a variety of Vaccination strategies:</p>
+<span><span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_equilibrium.html">set_equilibrium</a></span><span class="op">(</span>parameters <span class="op">=</span> <span class="va">simparams</span>, init_EIR <span class="op">=</span> <span class="va">starting_EIR</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Run a model with no interventions in a setting with no seasonality</span></span>
+<span><span class="va">output_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_simulation.html">run_simulation</a></span><span class="op">(</span>timesteps <span class="op">=</span> <span class="va">sim_length</span> <span class="op">*</span> <span class="fl">2</span>, parameters <span class="op">=</span> <span class="va">simparams</span><span class="op">)</span></span></code></pre></div>
+<p>Then we can run the simulation for a variety of vaccination
+strategies.</p>
+</div>
+<div class="section level2">
+<h2 id="mass-rtss">Mass RTS,S<a class="anchor" aria-label="anchor" href="#mass-rtss"></a>
+</h2>
+<p>First, we will model a single round of RTS,S vaccine given in a mass
+vaccination strategy where those within a given age range will be
+vaccinated to a specified coverage level during a short window of time.
+In this example, individuals aged between 5 months and 50 years are
+vaccinated with a primary series (3 doses) followed by a single booster
+12 months after the initial vaccination. The age groups to be vaccinated
+as well as timing of all vaccinations can be modified within the
+<code><a href="../reference/set_mass_pev.html">set_mass_pev()</a></code> function. The model assumes that protection
+starts following the 3rd dose of the primary series.</p>
+<p>We specify that the intervention should use the RTS,S vaccine through
+the <code>profile</code> and <code>booster_profile</code> inputs.</p>
 <div class="section level3">
-<h3 id="mass-rtss">Mass RTS,S<a class="anchor" aria-label="anchor" href="#mass-rtss"></a>
+<h3 id="simulation">Simulation<a class="anchor" aria-label="anchor" href="#simulation"></a>
 </h3>
-<p>This is a round of RTS,S vaccine for individuals between 5 months and 10 years followed by a booster after 18 months:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">rtssparams</span> <span class="op">&lt;-</span> <span class="va">simparams</span></span>
-<span></span>
-<span><span class="va">rtssparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_mass_rtss.html">set_mass_rtss</a></span><span class="op">(</span></span>
-<span>  <span class="va">rtssparams</span>,</span>
-<span>  timesteps <span class="op">=</span> <span class="fl">1</span> <span class="op">*</span> <span class="va">year</span>,</span>
-<span>  coverages <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  min_wait <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  min_ages <span class="op">=</span> <span class="fl">5</span> <span class="op">*</span> <span class="va">month</span>,</span>
-<span>  max_ages <span class="op">=</span> <span class="fl">10</span> <span class="op">*</span> <span class="va">year</span>,</span>
-<span>  boosters <span class="op">=</span> <span class="fl">18</span> <span class="op">*</span> <span class="va">month</span>,</span>
-<span>  booster_coverage <span class="op">=</span> <span class="fl">0.95</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_simulation.html">run_simulation</a></span><span class="op">(</span><span class="va">sim_length</span>, <span class="va">rtssparams</span><span class="op">)</span></span>
-<span><span class="va">output</span><span class="op">$</span><span class="va">clinical_incidence</span> <span class="op">&lt;-</span> <span class="fl">1000</span> <span class="op">*</span> <span class="va">output</span><span class="op">$</span><span class="va">n_inc_0_1825</span> <span class="op">/</span> <span class="va">output</span><span class="op">$</span><span class="va">n_0_1825</span></span>
-<span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">output</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">timestep</span> <span class="op">/</span> <span class="fl">365</span>, y <span class="op">=</span> <span class="va">clinical_incidence</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>col <span class="op">=</span> <span class="st">"grey80"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">stat_smooth</a></span><span class="op">(</span>col <span class="op">=</span> <span class="st">"darkblue"</span>, se <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"year"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Clinical incidence \n (per 1000 children aged 0-5)"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'</span></span></code></pre></div>
-<p><img src="Vaccines_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
-<p>You can look at the distribution of doses using the n_rtss_mass_dose_* outputs:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dose_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>timestep <span class="op">=</span> <span class="va">output</span><span class="op">$</span><span class="va">timestep</span>,</span>
-<span>                        dose <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mass 1"</span>, <span class="st">"mass 2"</span>, <span class="st">"mass 3"</span>, <span class="st">"mass booster"</span><span class="op">)</span>, each <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">output</span><span class="op">$</span><span class="va">timestep</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>                        n <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">output</span><span class="op">$</span><span class="va">n_rtss_mass_dose_1</span>, <span class="va">output</span><span class="op">$</span><span class="va">n_rtss_mass_dose_2</span>, <span class="va">output</span><span class="op">$</span><span class="va">n_rtss_mass_dose_3</span>,</span>
-<span>                              <span class="va">output</span><span class="op">$</span><span class="va">n_rtss_mass_booster_1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">dose_data</span><span class="op">[</span><span class="va">dose_data</span><span class="op">$</span><span class="va">n</span> <span class="op">&gt;</span> <span class="fl">0</span>, <span class="op">]</span></span>
-<span><span class="co">#&gt;      timestep         dose    n</span></span>
-<span><span class="co">#&gt; 365       365       mass 1 3583</span></span>
-<span><span class="co">#&gt; 1505      410       mass 2 3555</span></span>
-<span><span class="co">#&gt; 2645      455       mass 3 3529</span></span>
-<span><span class="co">#&gt; 4280      995 mass booster 3351</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="rtss-epi">RTS,S EPI<a class="anchor" aria-label="anchor" href="#rtss-epi"></a>
-</h3>
-<p>You can opt for a more gradual dosing using the EPI strategy. Individuals will be vaccinated once they reach 5 months. For this intervention we see a much more gradual increase in impact following implementation</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">rtssepiparams</span> <span class="op">&lt;-</span> <span class="va">simparams</span></span>
-<span></span>
-<span><span class="co"># Add RTS,S strategy</span></span>
-<span><span class="va">rtssepiparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_rtss_epi.html">set_rtss_epi</a></span><span class="op">(</span></span>
-<span>  <span class="va">rtssepiparams</span>,</span>
-<span>  timesteps <span class="op">=</span> <span class="fl">1</span> <span class="op">*</span> <span class="va">year</span>,</span>
-<span>  coverages <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  min_wait <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  age <span class="op">=</span> <span class="fl">5</span> <span class="op">*</span> <span class="va">month</span>,</span>
-<span>  boosters <span class="op">=</span> <span class="fl">18</span> <span class="op">*</span> <span class="va">month</span>,</span>
-<span>  booster_coverage <span class="op">=</span> <span class="fl">0.95</span></span>
+<code class="sourceCode R"><span><span class="va">rtssmassparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_mass_pev.html">set_mass_pev</a></span><span class="op">(</span></span>
+<span>  <span class="va">simparams</span>,</span>
+<span>  profile <span class="op">=</span> <span class="va">rtss_profile</span>, <span class="co"># We will model implementation of the RTSS vaccine.</span></span>
+<span>  timesteps <span class="op">=</span> <span class="fl">1</span> <span class="op">*</span> <span class="va">year</span>, <span class="co"># The single round of vaccination is at 1 year into the simulation.</span></span>
+<span>  coverages <span class="op">=</span> <span class="fl">1</span>, <span class="co"># The vaccine is given to 100% of the population between the specified ages.</span></span>
+<span>  min_wait <span class="op">=</span> <span class="fl">0</span>, <span class="co"># The minimum acceptable time since the last vaccination is 0 because in our case we are only implementing one round of vaccination.</span></span>
+<span>  min_ages <span class="op">=</span> <span class="fl">5</span> <span class="op">*</span> <span class="va">month</span>, <span class="co"># The minimum age for the target population to be vaccinated. </span></span>
+<span>  max_ages <span class="op">=</span> <span class="fl">50</span> <span class="op">*</span> <span class="va">year</span>, <span class="co"># The maximum age for the target population to be vaccinated.</span></span>
+<span>  booster_timestep <span class="op">=</span> <span class="fl">12</span> <span class="op">*</span> <span class="va">month</span>, <span class="co"># The booster is given at 12 months after the primary series. </span></span>
+<span>  booster_coverage <span class="op">=</span> <span class="fl">0.95</span>, <span class="co"># Coverage of the booster dose is 95%.</span></span>
+<span>  booster_profile <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">rtss_booster_profile</span><span class="op">)</span> <span class="co"># We will model implementation of the RTSS booster.</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_simulation.html">run_simulation</a></span><span class="op">(</span><span class="va">sim_length</span> <span class="op">*</span> <span class="fl">2</span>, <span class="va">rtssepiparams</span><span class="op">)</span></span>
-<span><span class="va">output</span><span class="op">$</span><span class="va">clinical_incidence</span> <span class="op">&lt;-</span> <span class="fl">1000</span> <span class="op">*</span> <span class="va">output</span><span class="op">$</span><span class="va">n_inc_0_1825</span> <span class="op">/</span> <span class="va">output</span><span class="op">$</span><span class="va">n_0_1825</span></span>
-<span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">output</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">timestep</span> <span class="op">/</span> <span class="fl">365</span>, y <span class="op">=</span> <span class="va">clinical_incidence</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>col <span class="op">=</span> <span class="st">"grey80"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">stat_smooth</a></span><span class="op">(</span>col <span class="op">=</span> <span class="st">"darkblue"</span>, se <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"year"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Clinical incidence \n (per 1000 children aged 0-5)"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'</span></span></code></pre></div>
-<p><img src="Vaccines_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
+<span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_simulation.html">run_simulation</a></span><span class="op">(</span>timesteps <span class="op">=</span> <span class="va">sim_length</span>, parameters <span class="op">=</span> <span class="va">rtssmassparams</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="rtss-seasonal-boosters">RTS,S seasonal boosters<a class="anchor" aria-label="anchor" href="#rtss-seasonal-boosters"></a>
+<h3 id="visualisation">Visualisation<a class="anchor" aria-label="anchor" href="#visualisation"></a>
 </h3>
-<p>In a seasonal setting, we can set booster timesteps relative to the start of the year. This allows us to target seasonal dynamics</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Plot clinical incidence</span></span>
+<span><span class="fu">plot_inci</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Vaccines_files/figure-html/unnamed-chunk-5-1.png" width="100%" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">rtssepiseasonalparams</span> <span class="op">&lt;-</span> <span class="va">simparams</span></span>
-<span><span class="va">rtssepiseasonalparams</span><span class="op">$</span><span class="va">model_seasonality</span> <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="va">rtssepiseasonalparams</span><span class="op">$</span><span class="va">g0</span> <span class="op">=</span> <span class="fl">0.28605</span></span>
-<span><span class="va">rtssepiseasonalparams</span><span class="op">$</span><span class="va">g</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.20636</span>, <span class="op">-</span><span class="fl">0.0740318</span>, <span class="op">-</span><span class="fl">0.0009293</span><span class="op">)</span></span>
-<span><span class="va">rtssepiseasonalparams</span><span class="op">$</span><span class="va">h</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.173743</span>, <span class="op">-</span><span class="fl">0.0730962</span>, <span class="op">-</span><span class="fl">0.116019</span><span class="op">)</span></span>
-<span><span class="va">peak</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/peak_season_offset.html">peak_season_offset</a></span><span class="op">(</span><span class="va">rtssepiseasonalparams</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># Plot prevalence</span></span>
+<span><span class="fu">plot_prev</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Vaccines_files/figure-html/unnamed-chunk-6-1.png" width="100%" style="display: block; margin: auto;"></p>
+<p>You can look at the distribution of doses using the
+<code>n_pev_mass_dose_*</code> or <code>n_pev_epi_dose_*</code> outputs.
+It is always a good idea to check the timing of vaccine doses to ensure
+that it is specified as intended.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Plot doses</span></span>
+<span><span class="fu">plot_doses</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Vaccines_files/figure-html/unnamed-chunk-7-1.png" width="100%" style="display: block; margin: auto;"></p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="seasonal-mass-vaccination">Seasonal mass vaccination<a class="anchor" aria-label="anchor" href="#seasonal-mass-vaccination"></a>
+</h2>
+<p>Mass vaccination can also be targeted seasonally. For example, we may
+want to have a mass vaccination campaign take place a few months prior
+to the peak transmission season. In the example below, we will create a
+parameter set with seasonality and first run a simulation with no
+vaccine, then run a simulation with a mass vaccination campaign
+targeting everyone between the ages of 5 months and 50 years.</p>
+<p>We specify that the intervention should use the RTS,S vaccine through
+the <code>profile</code> and <code>booster_profile</code> inputs to the
+<code><a href="../reference/set_mass_pev.html">set_mass_pev()</a></code> function.</p>
+<div class="section level3">
+<h3 id="simulation-1">Simulation<a class="anchor" aria-label="anchor" href="#simulation-1"></a>
+</h3>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Use the get_parameters() function to generate a new parameter set with a seasonal profile with malaria incidence in children aged 0-5 rendered in the model output:</span></span>
+<span><span class="va">seas_simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_parameters.html">get_parameters</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>        human_population <span class="op">=</span> <span class="va">human_population</span>,</span>
+<span>        clinical_incidence_rendering_min_ages <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>        clinical_incidence_rendering_max_ages <span class="op">=</span> <span class="fl">5</span> <span class="op">*</span> <span class="va">year</span>,</span>
+<span>        individual_mosquitoes <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>        model_seasonality <span class="op">=</span> <span class="cn">TRUE</span>, </span>
+<span>        g0 <span class="op">=</span> <span class="fl">0.285505</span>,</span>
+<span>        g <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.325352</span>, <span class="op">-</span><span class="fl">0.0109352</span>, <span class="fl">0.0779865</span><span class="op">)</span>,</span>
+<span>        h <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.132815</span>, <span class="fl">0.104675</span>, <span class="op">-</span><span class="fl">0.013919</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">seas_simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_equilibrium.html">set_equilibrium</a></span><span class="op">(</span>parameters <span class="op">=</span> <span class="va">seas_simparams</span>, init_EIR <span class="op">=</span> <span class="va">starting_EIR</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Run no vaccine scenario</span></span>
+<span><span class="va">output_seas_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_simulation.html">run_simulation</a></span><span class="op">(</span>timesteps <span class="op">=</span> <span class="va">sim_length</span> <span class="op">*</span> <span class="fl">2</span>, parameters <span class="op">=</span> <span class="va">seas_simparams</span><span class="op">)</span></span></code></pre></div>
+<p>Next, we will run the scenario with a seasonal mass vaccination
+campaign implemented starting 3.5 months before the peak of the
+transmission season.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Find the peak seasonality</span></span>
+<span><span class="va">peak</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/peak_season_offset.html">peak_season_offset</a></span><span class="op">(</span><span class="va">seas_simparams</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">seasmass_simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_mass_pev.html">set_mass_pev</a></span><span class="op">(</span></span>
+<span>  parameters <span class="op">=</span> <span class="va">seas_simparams</span>,</span>
+<span>  profile <span class="op">=</span> <span class="va">rtss_profile</span>, <span class="co"># We will model implementation of the RTSS vaccine.</span></span>
+<span>  timesteps <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">year</span> <span class="op">+</span> <span class="op">(</span><span class="va">peak</span> <span class="op">-</span> <span class="va">month</span> <span class="op">*</span> <span class="fl">3.5</span><span class="op">)</span>, <span class="fl">0</span><span class="op">)</span>,<span class="co"># The vaccination will begin 3.5 months prior to the peak seasonality in the second year.</span></span>
+<span>  coverages <span class="op">=</span> <span class="fl">1</span>, <span class="co"># 100% of the population between min_ages and max_ages is vaccinated.</span></span>
+<span>  min_ages <span class="op">=</span> <span class="fl">5</span> <span class="op">*</span> <span class="va">month</span>, <span class="co"># The minimum age for the target population to be vaccinated. </span></span>
+<span>  max_ages <span class="op">=</span> <span class="fl">50</span> <span class="op">*</span> <span class="va">year</span>, <span class="co"># The maximum age for the target population to be vaccinated.</span></span>
+<span>  min_wait <span class="op">=</span> <span class="fl">0</span>, <span class="co"># There is no minimum wait between the last vaccination.</span></span>
+<span>  booster_timestep <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">12</span> <span class="op">*</span> <span class="va">month</span> <span class="op">+</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">month</span><span class="op">)</span><span class="op">)</span>, <span class="co"># The booster is given 14 months after the first dose. </span></span>
+<span>  booster_coverage <span class="op">=</span> <span class="fl">1</span>, <span class="co"># 100% of the vaccinated population is boosted.</span></span>
+<span>  booster_profile <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">rtss_booster_profile</span><span class="op">)</span> <span class="co"># We will model implementation of the RTSS booster.</span></span>
+<span>  <span class="op">)</span> </span>
+<span></span>
+<span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_simulation.html">run_simulation</a></span><span class="op">(</span>timesteps <span class="op">=</span> <span class="va">sim_length</span> <span class="op">*</span> <span class="fl">2</span>, parameters <span class="op">=</span> <span class="va">seasmass_simparams</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="visualisation-1">Visualisation<a class="anchor" aria-label="anchor" href="#visualisation-1"></a>
+</h3>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Plot clinical incidence</span></span>
+<span><span class="fu">plot_inci</span><span class="op">(</span>type <span class="op">=</span> <span class="st">"seasonal"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Vaccines_files/figure-html/unnamed-chunk-10-1.png" width="100%" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Plot prevalence</span></span>
+<span><span class="fu">plot_prev</span><span class="op">(</span>type <span class="op">=</span> <span class="st">"seasonal"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Vaccines_files/figure-html/unnamed-chunk-11-1.png" width="100%" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Plot doses</span></span>
+<span><span class="fu">plot_doses</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Vaccines_files/figure-html/unnamed-chunk-12-1.png" width="100%" style="display: block; margin: auto;"></p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="rtss-epi">RTS,S EPI<a class="anchor" aria-label="anchor" href="#rtss-epi"></a>
+</h2>
+<p>We can also opt to vaccinate using the EPI strategy, where
+individuals will be vaccinated once they reach a certain age. In the
+example below, individuals will be vaccinated once they reach 5 months
+of age. For this intervention, we see a much more gradual impact
+following implementation compared to the mass vaccination strategy.
+Note: the model assumes that protection from the vaccine begins after
+the third dose.</p>
+<div class="section level3">
+<h3 id="simulation-2">Simulation<a class="anchor" aria-label="anchor" href="#simulation-2"></a>
+</h3>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Add RTS,S EPI strategy</span></span>
+<span><span class="va">rtssepiparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_pev_epi.html">set_pev_epi</a></span><span class="op">(</span></span>
+<span>  <span class="va">simparams</span>,</span>
+<span>  profile <span class="op">=</span> <span class="va">rtss_profile</span>, <span class="co"># We will model implementation of the RTSS vaccine.</span></span>
+<span>  timesteps <span class="op">=</span> <span class="fl">1</span> <span class="op">*</span> <span class="va">year</span>, <span class="co"># Vaccination will begin at 1 year into the simulation.</span></span>
+<span>  coverages <span class="op">=</span> <span class="fl">1</span>, <span class="co"># Vaccine coverage is 100%.</span></span>
+<span>  min_wait <span class="op">=</span> <span class="fl">0</span>, <span class="co"># There is no minimum wait since the last vaccination.</span></span>
+<span>  age <span class="op">=</span> <span class="fl">5</span> <span class="op">*</span> <span class="va">month</span>, <span class="co"># Individuals will be vaccinated once they reach 5 months of age.</span></span>
+<span>  booster_timestep <span class="op">=</span> <span class="fl">12</span> <span class="op">*</span> <span class="va">month</span>, <span class="co"># The booster is administered 12 months following the third dose. </span></span>
+<span>  booster_coverage <span class="op">=</span> <span class="fl">0.95</span>, <span class="co"># 95% of those vaccinated with the primary series will be boosted.</span></span>
+<span>  booster_profile <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">rtss_booster_profile</span><span class="op">)</span> <span class="co"># We will model implementation of the RTSS booster.</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_simulation.html">run_simulation</a></span><span class="op">(</span>timesteps <span class="op">=</span> <span class="va">sim_length</span> <span class="op">*</span> <span class="fl">2</span>, parameters <span class="op">=</span> <span class="va">rtssepiparams</span><span class="op">)</span></span></code></pre></div>
+<p>The default values for the <code>pev_doses</code> variable shows that
+individuals will be vaccinated with dose one at day 0, or the day that
+the vaccine campaign begins (at 1 year in the example above), with dose
+two 45 days after the first dose, and with dose three 90 days after the
+first dose. This will correspond to ages 5, 6.5, and 8 months for the
+primary series. The booster will be administered 12 months after dose
+three, which is at 20 months of age in the example above.</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">rtssepiparams</span><span class="op">$</span><span class="va">pev_doses</span></span>
+<span><span class="co">#&gt; [1]  0 45 90</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="visualisation-2">Visualisation<a class="anchor" aria-label="anchor" href="#visualisation-2"></a>
+</h3>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Plot clinical incidence</span></span>
+<span><span class="fu">plot_inci</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Vaccines_files/figure-html/unnamed-chunk-15-1.png" width="100%" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Plot prevalence</span></span>
+<span><span class="fu">plot_prev</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Vaccines_files/figure-html/unnamed-chunk-16-1.png" width="100%" style="display: block; margin: auto;"></p>
+<p>A limited impact upon prevalence is observed because the target
+population for vaccination is small relative to the entire population,
+resulting only in direct protection of those vaccinated.</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Plot doses</span></span>
+<span><span class="fu">plot_doses</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Vaccines_files/figure-html/unnamed-chunk-17-1.png" width="100%" style="display: block; margin: auto;"></p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="rtss-epi-with-seasonal-boosters">RTS,S EPI with seasonal boosters<a class="anchor" aria-label="anchor" href="#rtss-epi-with-seasonal-boosters"></a>
+</h2>
+<p>In a seasonal setting, we can set booster timesteps relative to the
+start of the year instead of relative to the last dose. This allows us
+to consider seasonal dynamics and implement booster doses right before
+the start of the high transmission season to maximise impact.</p>
+<div class="section level3">
+<h3 id="simulation-3">Simulation<a class="anchor" aria-label="anchor" href="#simulation-3"></a>
+</h3>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Calculate the peak of the transmission season based on seasonality parameters above.</span></span>
+<span><span class="va">peak</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/peak_season_offset.html">peak_season_offset</a></span><span class="op">(</span><span class="va">seas_simparams</span><span class="op">)</span> </span>
 <span></span>
 <span><span class="co"># Add RTS,S seasonal strategy</span></span>
-<span><span class="va">rtssepiseasonalparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_rtss_epi.html">set_rtss_epi</a></span><span class="op">(</span></span>
-<span>  <span class="va">rtssepiseasonalparams</span>,</span>
-<span>  timesteps <span class="op">=</span> <span class="fl">1</span> <span class="op">*</span> <span class="va">year</span>,</span>
-<span>  coverages <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  min_wait <span class="op">=</span> <span class="fl">6</span> <span class="op">*</span> <span class="va">month</span>,</span>
-<span>  age <span class="op">=</span> <span class="fl">5</span> <span class="op">*</span> <span class="va">month</span>,</span>
-<span>  boosters <span class="op">=</span> <span class="op">(</span><span class="va">peak</span> <span class="op">-</span> <span class="fl">3</span> <span class="op">*</span> <span class="va">month</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">year</span><span class="op">)</span>,</span>
-<span>  booster_coverage <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">.7</span>, <span class="fl">2</span><span class="op">)</span>,</span>
-<span>  seasonal_boosters <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="rtss-dosing">RTS,S dosing<a class="anchor" aria-label="anchor" href="#rtss-dosing"></a>
-</h3>
-<p>You can try different dosing schedules using the rtss_doses parameter</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">rtssepiparams2</span> <span class="op">&lt;-</span> <span class="va">rtssepiparams</span></span>
-<span><span class="va">rtssepiparams2</span><span class="op">$</span><span class="va">rtss_doses</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">30</span>, <span class="fl">60</span><span class="op">)</span></span>
-<span><span class="va">rtssepiparams2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_rtss_epi.html">set_rtss_epi</a></span><span class="op">(</span></span>
-<span>  <span class="va">rtssepiparams2</span>,</span>
-<span>  timesteps <span class="op">=</span> <span class="fl">1</span> <span class="op">*</span> <span class="va">year</span>,</span>
-<span>  coverages <span class="op">=</span> <span class="fl">1</span>,</span>
-<span>  age <span class="op">=</span> <span class="fl">5</span> <span class="op">*</span> <span class="va">month</span>,</span>
-<span>  min_wait <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  boosters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">12</span> <span class="op">*</span> <span class="va">month</span>, <span class="fl">18</span> <span class="op">*</span> <span class="va">month</span>, <span class="fl">24</span> <span class="op">*</span> <span class="va">month</span><span class="op">)</span>,</span>
-<span>  booster_coverage <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="tbv">TBV<a class="anchor" aria-label="anchor" href="#tbv"></a>
-</h3>
-<p>We can also model vaccines with completely different modes of actions. For example a transmission blocking vaccines (TBV). This example shows 5 rounds of the TBV to everyone aged over 5</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">tbvparams</span> <span class="op">&lt;-</span> <span class="va">simparams</span></span>
-<span></span>
-<span><span class="va">tbvparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_tbv.html">set_tbv</a></span><span class="op">(</span></span>
-<span>  <span class="va">tbvparams</span>,</span>
-<span>  timesteps <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1.25</span>, <span class="fl">1.5</span>, <span class="fl">1.75</span>, <span class="fl">2</span><span class="op">)</span> <span class="op">*</span> <span class="fl">365</span><span class="op">)</span>,</span>
-<span>  coverages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.99</span>, <span class="fl">5</span><span class="op">)</span>,</span>
-<span>  ages <span class="op">=</span> <span class="fl">5</span><span class="op">:</span><span class="fl">60</span></span>
+<span><span class="va">rtssepiseasonalparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_pev_epi.html">set_pev_epi</a></span><span class="op">(</span></span>
+<span>  <span class="va">seas_simparams</span>,</span>
+<span>  profile <span class="op">=</span> <span class="va">rtss_profile</span>, <span class="co"># We will model implementation of the RTSS vaccine.</span></span>
+<span>  timesteps <span class="op">=</span> <span class="fl">1</span> <span class="op">*</span> <span class="va">year</span>, <span class="co"># Vaccination begins 1 year after the start of the simulation. </span></span>
+<span>  coverages <span class="op">=</span> <span class="fl">1</span>, <span class="co"># Vaccine coverage is 100%.</span></span>
+<span>  min_wait <span class="op">=</span> <span class="fl">6</span> <span class="op">*</span> <span class="va">month</span>, <span class="co"># When seasonal_boosters = TRUE, this is the minimum time between an individual receiving the final dose and the first booster.</span></span>
+<span>  age <span class="op">=</span> <span class="fl">5</span> <span class="op">*</span> <span class="va">month</span>, <span class="co"># Individuals will be vaccinated once they reach 5 months of age.</span></span>
+<span>  booster_timestep <span class="op">=</span> <span class="va">peak</span> <span class="op">-</span> <span class="va">month</span> <span class="op">*</span> <span class="fl">3.5</span> , <span class="co"># Because seasonal_boosters = TRUE, the timestep here is relative to the start of the year. Here, we will give a booster at 3.5 months prior to peak transmission. </span></span>
+<span>  booster_coverage <span class="op">=</span> <span class="fl">0.95</span>, <span class="co"># 95% of the vaccinated population is boosted.</span></span>
+<span>  seasonal_boosters <span class="op">=</span> <span class="cn">TRUE</span>, <span class="co"># Boosters will be given based on a seasonal schedule, so the timing in the boosters= argument above will be relative to the start of the year instead of relative to the 3rd dose.</span></span>
+<span>  booster_profile <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">rtss_booster_profile</span><span class="op">)</span> <span class="co"># We will model implementation of the RTSS booster.</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_simulation.html">run_simulation</a></span><span class="op">(</span><span class="va">sim_length</span>, <span class="va">tbvparams</span><span class="op">)</span></span>
-<span><span class="va">output</span><span class="op">$</span><span class="va">clinical_incidence</span> <span class="op">&lt;-</span> <span class="fl">1000</span> <span class="op">*</span> <span class="va">output</span><span class="op">$</span><span class="va">n_inc_0_1825</span> <span class="op">/</span> <span class="va">output</span><span class="op">$</span><span class="va">n_0_1825</span></span>
+<span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_simulation.html">run_simulation</a></span><span class="op">(</span>timesteps <span class="op">=</span> <span class="va">sim_length</span> <span class="op">*</span> <span class="fl">2</span>, parameters <span class="op">=</span> <span class="va">rtssepiseasonalparams</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="visualisation-3">Visualisation<a class="anchor" aria-label="anchor" href="#visualisation-3"></a>
+</h3>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Plot clinical incidence</span></span>
+<span><span class="fu">plot_inci</span><span class="op">(</span>type <span class="op">=</span> <span class="st">"seasonal"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Vaccines_files/figure-html/unnamed-chunk-19-1.png" width="100%" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Plot prevalence</span></span>
+<span><span class="fu">plot_prev</span><span class="op">(</span>type <span class="op">=</span> <span class="st">"seasonal"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Vaccines_files/figure-html/unnamed-chunk-20-1.png" width="100%" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Plot doses</span></span>
+<span><span class="fu">plot_doses</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Vaccines_files/figure-html/unnamed-chunk-21-1.png" width="100%" style="display: block; margin: auto;"></p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="rtss-dosing">RTS,S dosing<a class="anchor" aria-label="anchor" href="#rtss-dosing"></a>
+</h2>
+<p>We can implement different dosing schedules using the
+<code>pev_doses</code> parameter. Here we administer dose one at 5
+months, dose two 30 days after dose one, and dose three 60 days after
+dose one. We also administer two booster doses 12 and 24 months
+following dose three. As before, it is a good idea to visualise the dose
+timing to ensure that the vaccine is implemented as intended.</p>
+<div class="section level3">
+<h3 id="simulation-4">Simulation<a class="anchor" aria-label="anchor" href="#simulation-4"></a>
+</h3>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">rtssepiparams2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_pev_epi.html">set_pev_epi</a></span><span class="op">(</span></span>
+<span>  <span class="va">simparams</span>,</span>
+<span>  profile <span class="op">=</span> <span class="va">rtss_profile</span>, <span class="co"># We will model implementation of the RTSS vaccine.</span></span>
+<span>  timesteps <span class="op">=</span> <span class="fl">1</span> <span class="op">*</span> <span class="va">year</span>, <span class="co"># Vaccination begins 1 year after the start of the simulation. </span></span>
+<span>  coverages <span class="op">=</span> <span class="fl">1</span>, <span class="co"># Vaccine coverage is 100%.</span></span>
+<span>  age <span class="op">=</span> <span class="fl">5</span> <span class="op">*</span> <span class="va">month</span>, <span class="co"># Individuals will be vaccinated once they reach 5 months of age.</span></span>
+<span>  min_wait <span class="op">=</span> <span class="fl">0</span>, <span class="co"># When seasonal_boosters = FALSE, this is the minimum time between doses.</span></span>
+<span>  booster_timestep <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">12</span> <span class="op">*</span> <span class="va">month</span>, <span class="fl">24</span> <span class="op">*</span> <span class="va">month</span><span class="op">)</span>, <span class="co"># Here, we are testing a strategy with 2 boosters, one at 1 year after the 3rd dose and the second 2 years after the 3rd dose.</span></span>
+<span>  booster_coverage <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, <span class="co"># For each of the two boosters, coverage is 100%.</span></span>
+<span>  booster_profile <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">rtss_booster_profile</span>, <span class="va">rtss_booster_profile</span><span class="op">)</span> <span class="co"># We will model implementation of the RTSS booster.</span></span>
+<span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">output</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">timestep</span> <span class="op">/</span> <span class="fl">365</span>, y <span class="op">=</span> <span class="va">clinical_incidence</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>col <span class="op">=</span> <span class="st">"grey80"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html" class="external-link">stat_smooth</a></span><span class="op">(</span>col <span class="op">=</span> <span class="st">"darkblue"</span>, se <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_abline.html" class="external-link">geom_vline</a></span><span class="op">(</span>xintercept <span class="op">=</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="st">"red"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"year"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"Clinical incidence \n (per 1000 children aged 0-5)"</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_bw</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'</span></span></code></pre></div>
-<p><img src="Vaccines_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
+<span><span class="va">rtssepiparams2</span><span class="op">$</span><span class="va">pev_doses</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">30</span>, <span class="fl">60</span><span class="op">)</span> <span class="co"># setting the timesteps for the 3 doses in the primary series at 0, 1, 2 months</span></span>
+<span></span>
+<span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_simulation.html">run_simulation</a></span><span class="op">(</span>timesteps <span class="op">=</span> <span class="va">sim_length</span> <span class="op">*</span> <span class="fl">2</span>, parameters <span class="op">=</span> <span class="va">rtssepiparams2</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="visualisation-4">Visualisation<a class="anchor" aria-label="anchor" href="#visualisation-4"></a>
+</h3>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Plot clinical incidence</span></span>
+<span><span class="fu">plot_inci</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Vaccines_files/figure-html/unnamed-chunk-23-1.png" width="100%" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Plot prevalence</span></span>
+<span><span class="fu">plot_prev</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Vaccines_files/figure-html/unnamed-chunk-24-1.png" width="100%" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Plot doses</span></span>
+<span><span class="va">output</span><span class="op">$</span><span class="va">month</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">ceiling</a></span><span class="op">(</span><span class="va">output</span><span class="op">$</span><span class="va">timestep</span> <span class="op">/</span> <span class="va">month</span><span class="op">)</span></span>
+<span><span class="va">doses</span> <span class="op">&lt;-</span> <span class="va">output</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span><span class="op">:</span><span class="fl">6</span>, <span class="fl">38</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">doses</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/aggregate.html" class="external-link">aggregate</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span><span class="va">doses</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>                    by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">doses</span><span class="op">$</span><span class="va">month</span><span class="op">)</span>, </span>
+<span>                    FUN <span class="op">=</span> <span class="va">sum</span><span class="op">)</span></span>
+<span><span class="va">doses</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">doses</span><span class="op">[</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="va">doses</span>, xlab <span class="op">=</span> <span class="st">"Month"</span>,</span>
+<span>        ylab <span class="op">=</span> <span class="st">"Number of doses"</span>,</span>
+<span>        col <span class="op">=</span> <span class="va">cols</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>, space <span class="op">=</span> <span class="fl">0</span>, axes <span class="op">=</span> <span class="cn">T</span>,</span>
+<span>        beside <span class="op">=</span> <span class="cn">FALSE</span>, xaxs <span class="op">=</span> <span class="st">"i"</span>, yaxs <span class="op">=</span> <span class="st">"i"</span>,</span>
+<span>        ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colSums</a></span><span class="op">(</span><span class="va">doses</span><span class="op">)</span><span class="op">)</span><span class="op">*</span><span class="fl">1.1</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span>lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"grey80"</span>, lwd <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span>;<span class="fu"><a href="https://rdrr.io/r/graphics/box.html" class="external-link">box</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/axis.html" class="external-link">axis</a></span><span class="op">(</span>side <span class="op">=</span> <span class="fl">1</span>, lty <span class="op">=</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="st">"black"</span>, pos <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topleft"</span>, box.lty <span class="op">=</span> <span class="fl">0</span>, legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Dose 1"</span>,<span class="st">"Dose 2"</span>,<span class="st">"Dose 3"</span>,<span class="st">"Booster 1"</span>, <span class="st">"Booster 2"</span><span class="op">)</span>,</span>
+<span>         fill <span class="op">=</span> <span class="va">cols</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>, y.intersp <span class="op">=</span> <span class="fl">1.5</span>, bg <span class="op">=</span> <span class="st">"transparent"</span>, cex <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Vaccines_files/figure-html/unnamed-chunk-25-1.png" width="100%" style="display: block; margin: auto;"></p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="tbv">TBV<a class="anchor" aria-label="anchor" href="#tbv"></a>
+</h2>
+<p>We can also model a hypothetical transmission blocking vaccine (TBV).
+This example shows 5 rounds of a TBV to 99% of the population aged 5 and
+60.</p>
+<div class="section level3">
+<h3 id="simulation-5">Simulation<a class="anchor" aria-label="anchor" href="#simulation-5"></a>
+</h3>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">tbvparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_tbv.html">set_tbv</a></span><span class="op">(</span></span>
+<span>  <span class="va">simparams</span>, </span>
+<span>  timesteps <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1.25</span>, <span class="fl">1.5</span>, <span class="fl">1.75</span>, <span class="fl">2</span><span class="op">)</span> <span class="op">*</span> <span class="fl">365</span><span class="op">)</span>, <span class="co"># The TBV will be given at year 1, year 2, and every 3 months in between.</span></span>
+<span>  coverages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.99</span>, <span class="fl">5</span><span class="op">)</span>, <span class="co"># 99% of the population will be covered.</span></span>
+<span>  ages <span class="op">=</span> <span class="fl">5</span><span class="op">:</span><span class="fl">60</span> <span class="co"># The age range in years of those receiving the vaccine. </span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_simulation.html">run_simulation</a></span><span class="op">(</span>timesteps <span class="op">=</span> <span class="va">sim_length</span>, parameters <span class="op">=</span> <span class="va">tbvparams</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="visualisation-5">Visualisation<a class="anchor" aria-label="anchor" href="#visualisation-5"></a>
+</h3>
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Plot clinical incidence</span></span>
+<span><span class="fu">plot_inci</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Vaccines_files/figure-html/unnamed-chunk-27-1.png" width="100%" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Plot prevalence</span></span>
+<span><span class="fu">plot_prev</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Vaccines_files/figure-html/unnamed-chunk-28-1.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
 </div>
   </div>
@@ -286,12 +599,12 @@
 
       <footer><div class="copyright">
   <p></p>
-<p>Developed by Giovanni Charles, Peter Winskill, Hillary Topazian, Joseph Challenger, Richard Fitzjohn.</p>
+<p>Developed by Giovanni Charles, Peter Winskill, Hillary Topazian, Joseph Challenger, Richard Fitzjohn, Richard Sheppard, Tom Brewer, Kelly McCain, Lydia Haile.</p>
 </div>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>

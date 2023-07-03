@@ -17,52 +17,70 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.6.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav"><li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li class="dropdown">
+      <ul class="nav navbar-nav"><li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Articles
+    Vignettes
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
+      <a href="../articles/Model.html">Model Introduction</a>
+    </li>
+    <li>
       <a href="../articles/Demography.html">Demography</a>
-    </li>
-    <li>
-      <a href="../articles/EIRprevmatch.html">Matching PfPR2-10 to EIR</a>
-    </li>
-    <li>
-      <a href="../articles/MDA.html">Mass Drug Administration</a>
-    </li>
-    <li>
-      <a href="../articles/Metapopulation.html">Metapopulation</a>
-    </li>
-    <li>
-      <a href="../articles/Model.html">Model Structure</a>
     </li>
     <li>
       <a href="../articles/Treatment.html">Treatment</a>
     </li>
     <li>
+      <a href="../articles/MDA.html">MDA and Chemoprevention</a>
+    </li>
+    <li>
       <a href="../articles/Vaccines.html">Vaccines</a>
     </li>
     <li>
-      <a href="../articles/Variation.html">Variation</a>
+      <a href="../articles/VectorControl_Bednets.html">Vector Control: Bednets</a>
     </li>
     <li>
-      <a href="../articles/VectorControl.html">Vector Control</a>
+      <a href="../articles/VectorControl_IRS.html">Vector Control: Indoor Residual Spraying</a>
+    </li>
+    <li>
+      <a href="../articles/SetSpecies.html">Mosquito Species</a>
+    </li>
+    <li>
+      <a href="../articles/Carrying-capacity.html">Carrying Capacity</a>
+    </li>
+    <li>
+      <a href="../articles/EIRprevmatch.html">Matching PfPR2-10 to EIR</a>
+    </li>
+    <li>
+      <a href="../articles/Metapopulation.html">Metapopulation Modelling</a>
+    </li>
+    <li>
+      <a href="../articles/Variation.html">Stochastic Variation</a>
+    </li>
+    <li>
+      <a href="../articles/Parameter_variation.html">Parameter Variation</a>
     </li>
   </ul></li>
 <li>
+  <a href="../reference/index.html">Functions</a>
+</li>
+<li>
   <a href="../news/index.html">Changelog</a>
 </li>
-      </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
+      </ul><ul class="nav navbar-nav navbar-right"><li>
+  <a href="https://github.com/mrc-ide/malariasimulation" class="external-link">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
@@ -75,34 +93,73 @@
     </div>
 
     <table class="ref-index"><colgroup><col class="alias"><col class="title"></colgroup><tbody><tr><th colspan="2">
-          <h2 id="all-functions">All functions <a href="#all-functions" class="anchor" aria-hidden="true"></a></h2>
+          <h2 id="run-functions">Run functions <a href="#run-functions" class="anchor" aria-hidden="true"></a></h2>
           <p class="section-desc"></p>
         </th>
       </tr></tbody><tbody><tr><td>
-          <p><code><a href="AL_params.html">AL_params</a></code> </p>
+          <p><code><a href="run_simulation.html">run_simulation()</a></code> </p>
         </td>
-        <td><p>Preset parameters for the AL drug</p></td>
+        <td><p>Run the simulation</p></td>
       </tr><tr><td>
-          <p><code><a href="CorrelationParameters.html">CorrelationParameters</a></code> </p>
+          <p><code><a href="run_metapop_simulation.html">run_metapop_simulation()</a></code> </p>
         </td>
-        <td><p>Class: Correlation parameters
-Describes an event in the simulation</p></td>
+        <td><p>Run a metapopulation model</p></td>
       </tr><tr><td>
-          <p><code><a href="DHA_PQP_params.html">DHA_PQP_params</a></code> </p>
+          <p><code><a href="run_simulation_with_repetitions.html">run_simulation_with_repetitions()</a></code> </p>
         </td>
-        <td><p>Preset parameters for the DHA-PQP drug</p></td>
+        <td><p>Run the simulation with repetitions</p></td>
+      </tr></tbody><tbody><tr><th colspan="2">
+          <h2 id="parameter-functions">Parameter functions <a href="#parameter-functions" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr></tbody><tbody><tr><td>
+          <p><code><a href="get_parameters.html">get_parameters()</a></code> </p>
+        </td>
+        <td><p>Get model parameters</p></td>
       </tr><tr><td>
-          <p><code><a href="SP_AQ_params.html">SP_AQ_params</a></code> </p>
+          <p><code><a href="get_correlation_parameters.html">get_correlation_parameters()</a></code> </p>
         </td>
-        <td><p>Preset parameters for the SP-AQ drug</p></td>
+        <td><p>Get default correlation parameters</p></td>
+      </tr><tr><td>
+          <p><code><a href="set_parameter_draw.html">set_parameter_draw()</a></code> </p>
+        </td>
+        <td><p>Use parameter draw from the join posterior</p></td>
+      </tr><tr><td>
+          <p><code><a href="set_equilibrium.html">set_equilibrium()</a></code> </p>
+        </td>
+        <td><p>Set equilibrium</p></td>
+      </tr></tbody><tbody><tr><th colspan="2">
+          <h2 id="demography-functions">Demography functions <a href="#demography-functions" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr></tbody><tbody><tr><td>
+          <p><code><a href="set_demography.html">set_demography()</a></code> </p>
+        </td>
+        <td><p>Parameterise variable deathrates</p></td>
+      </tr></tbody><tbody><tr><th colspan="2">
+          <h2 id="mosquito-species-functions-and-parameters">Mosquito species functions and parameters <a href="#mosquito-species-functions-and-parameters" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr></tbody><tbody><tr><td>
+          <p><code><a href="set_species.html">set_species()</a></code> </p>
+        </td>
+        <td><p>Parameterise the mosquito species to use in the model</p></td>
+      </tr><tr><td>
+          <p><code><a href="set_carrying_capacity.html">set_carrying_capacity()</a></code> </p>
+        </td>
+        <td><p>Parameterise custom baseline carrying capacity</p></td>
+      </tr><tr><td>
+          <p><code><a href="calculate_carrying_capacity.html">calculate_carrying_capacity()</a></code> </p>
+        </td>
+        <td><p>Calculate the vector carrying capacity</p></td>
+      </tr><tr><td>
+          <p><code><a href="get_init_carrying_capacity.html">get_init_carrying_capacity()</a></code> </p>
+        </td>
+        <td><p>Get initialised carrying capacity for each species</p></td>
       </tr><tr><td>
           <p><code><a href="arab_params.html">arab_params</a></code> </p>
         </td>
         <td><p>Preset parameters for the An. arabiensis vector</p></td>
-      </tr><tr><td>
-          <p><code><a href="find_birthrates.html">find_birthrates()</a></code> </p>
-        </td>
-        <td><p>Calculate the birthrate for a population in equilibrium</p></td>
       </tr><tr><td>
           <p><code><a href="fun_params.html">fun_params</a></code> </p>
         </td>
@@ -112,13 +169,111 @@ Describes an event in the simulation</p></td>
         </td>
         <td><p>Preset parameters for the An. gambiae s.s vector</p></td>
       </tr><tr><td>
-          <p><code><a href="get_correlation_parameters.html">get_correlation_parameters()</a></code> </p>
+          <p><code><a href="steph_params.html">steph_params</a></code> </p>
         </td>
-        <td><p>Get default correlation parameters</p></td>
+        <td><p>Preset parameters for the An. stephensi vector</p></td>
+      </tr></tbody><tbody><tr><th colspan="2">
+          <h2 id="intervention-functions">Intervention functions <a href="#intervention-functions" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr></tbody><tbody><tr><th colspan="2">
+          <h3 id="drug-treatments">Drug treatments <a href="#drug-treatments" class="anchor" aria-hidden="true"></a></h3>
+          <p class="section-desc"></p>
+        </th>
+      </tr></tbody><tbody><tr><td>
+          <p><code><a href="set_drugs.html">set_drugs()</a></code> </p>
+        </td>
+        <td><p>Parameterise drugs to use in the model</p></td>
       </tr><tr><td>
-          <p><code><a href="get_parameters.html">get_parameters()</a></code> </p>
+          <p><code><a href="set_clinical_treatment.html">set_clinical_treatment()</a></code> </p>
         </td>
-        <td><p>Get model parameters</p></td>
+        <td><p>Parameterise clinical treatment</p></td>
+      </tr><tr><td>
+          <p><code><a href="AL_params.html">AL_params</a></code> </p>
+        </td>
+        <td><p>Preset parameters for the AL drug</p></td>
+      </tr><tr><td>
+          <p><code><a href="DHA_PQP_params.html">DHA_PQP_params</a></code> </p>
+        </td>
+        <td><p>Preset parameters for the DHA-PQP drug</p></td>
+      </tr><tr><td>
+          <p><code><a href="SP_AQ_params.html">SP_AQ_params</a></code> </p>
+        </td>
+        <td><p>Preset parameters for the SP-AQ drug</p></td>
+      </tr></tbody><tbody><tr><th colspan="2">
+          <h3 id="mda-and-chemoprevention">MDA and chemoprevention <a href="#mda-and-chemoprevention" class="anchor" aria-hidden="true"></a></h3>
+          <p class="section-desc"></p>
+        </th>
+      </tr></tbody><tbody><tr><td>
+          <p><code><a href="set_mda.html">set_mda()</a></code> </p>
+        </td>
+        <td><p>Parameterise a Mass Drug Administration</p></td>
+      </tr><tr><td>
+          <p><code><a href="set_pmc.html">set_pmc()</a></code> </p>
+        </td>
+        <td><p>Parameterise a perennial malaria chemoprevention (PMC, formerly IPIi)</p></td>
+      </tr><tr><td>
+          <p><code><a href="set_smc.html">set_smc()</a></code> </p>
+        </td>
+        <td><p>Parameterise a Seasonal Malaria Chemoprevention</p></td>
+      </tr><tr><td>
+          <p><code><a href="peak_season_offset.html">peak_season_offset()</a></code> </p>
+        </td>
+        <td><p>Calculate the yearly offset (in timesteps) for the peak mosquito
+season</p></td>
+      </tr></tbody><tbody><tr><th colspan="2">
+          <h3 id="vaccines">Vaccines <a href="#vaccines" class="anchor" aria-hidden="true"></a></h3>
+          <p class="section-desc"></p>
+        </th>
+      </tr></tbody><tbody><tr><td>
+          <p><code><a href="set_mass_pev.html">set_mass_pev()</a></code> </p>
+        </td>
+        <td><p>Parameterise a vaccine mass distribution strategy</p></td>
+      </tr><tr><td>
+          <p><code><a href="set_pev_epi.html">set_pev_epi()</a></code> </p>
+        </td>
+        <td><p>Parameterise a pre-erythrocytic vaccine with an EPI strategy</p></td>
+      </tr><tr><td>
+          <p><code><a href="set_tbv.html">set_tbv()</a></code> </p>
+        </td>
+        <td><p>Parameterise an TBV strategy</p></td>
+      </tr></tbody><tbody><tr><th colspan="2">
+          <h3 id="vector-control">Vector control <a href="#vector-control" class="anchor" aria-hidden="true"></a></h3>
+          <p class="section-desc"></p>
+        </th>
+      </tr></tbody><tbody><tr><td>
+          <p><code><a href="set_bednets.html">set_bednets()</a></code> </p>
+        </td>
+        <td><p>Parameterise a bed net strategy</p></td>
+      </tr><tr><td>
+          <p><code><a href="set_spraying.html">set_spraying()</a></code> </p>
+        </td>
+        <td><p>Parameterise an indoor spraying strategy</p></td>
+      </tr></tbody><tbody><tr><th colspan="2">
+          <h2 id="non-user-functions">Non-user functions <a href="#non-user-functions" class="anchor" aria-hidden="true"></a></h2>
+          <p class="section-desc"></p>
+        </th>
+      </tr></tbody><tbody><tr><td>
+          <p><code><a href="CorrelationParameters.html">CorrelationParameters</a></code> </p>
+        </td>
+        <td><p>Class: Correlation parameters
+Describes an event in the simulation</p></td>
+      </tr><tr><td>
+          <p><code><a href="create_pev_profile.html">create_pev_profile()</a></code> </p>
+        </td>
+        <td><p>create a PEV profile</p></td>
+      </tr><tr><td>
+          <p><code><a href="create_progress_process.html">create_progress_process()</a></code> </p>
+        </td>
+        <td><p>Create progress process</p></td>
+      </tr><tr><td>
+          <p><code><a href="find_birthrates.html">find_birthrates()</a></code> </p>
+        </td>
+        <td><p>Calculate the birthrate for a population in equilibrium</p></td>
+      </tr><tr><td>
+          <p><code><a href="parameter_draws.html">parameter_draws</a></code> </p>
+        </td>
+        <td><p>Parameter draws</p></td>
       </tr><tr><td>
           <p><code><a href="parameterise_mosquito_equilibrium.html">parameterise_mosquito_equilibrium()</a></code> </p>
         </td>
@@ -128,74 +283,13 @@ Describes an event in the simulation</p></td>
         </td>
         <td><p>Parameterise total_M</p></td>
       </tr><tr><td>
-          <p><code><a href="peak_season_offset.html">peak_season_offset()</a></code> </p>
+          <p><code><a href="rtss_booster_profile.html">rtss_booster_profile</a></code> </p>
         </td>
-        <td><p>Calculate the yearly offset (in timesteps) for the peak mosquito
-season</p></td>
+        <td><p>RTS,S booster vaccine profile</p></td>
       </tr><tr><td>
-          <p><code><a href="run_metapop_simulation.html">run_metapop_simulation()</a></code> </p>
+          <p><code><a href="rtss_profile.html">rtss_profile</a></code> </p>
         </td>
-        <td><p>Run a metapopulation model</p></td>
-      </tr><tr><td>
-          <p><code><a href="run_simulation.html">run_simulation()</a></code> </p>
-        </td>
-        <td><p>Run the simulation</p></td>
-      </tr><tr><td>
-          <p><code><a href="run_simulation_with_repetitions.html">run_simulation_with_repetitions()</a></code> </p>
-        </td>
-        <td><p>Run the simulation with repetitions</p></td>
-      </tr><tr><td>
-          <p><code><a href="set_bednets.html">set_bednets()</a></code> </p>
-        </td>
-        <td><p>Parameterise a bed net strategy</p></td>
-      </tr><tr><td>
-          <p><code><a href="set_clinical_treatment.html">set_clinical_treatment()</a></code> </p>
-        </td>
-        <td><p>Parameterise clinical treatment</p></td>
-      </tr><tr><td>
-          <p><code><a href="set_demography.html">set_demography()</a></code> </p>
-        </td>
-        <td><p>Parameterise variable deathrates</p></td>
-      </tr><tr><td>
-          <p><code><a href="set_drugs.html">set_drugs()</a></code> </p>
-        </td>
-        <td><p>Parameterise drugs to use in the model</p></td>
-      </tr><tr><td>
-          <p><code><a href="set_equilibrium.html">set_equilibrium()</a></code> </p>
-        </td>
-        <td><p>Set equilibrium</p></td>
-      </tr><tr><td>
-          <p><code><a href="set_mass_rtss.html">set_mass_rtss()</a></code> </p>
-        </td>
-        <td><p>Parameterise an RTS,S mass distribution strategy</p></td>
-      </tr><tr><td>
-          <p><code><a href="set_mda.html">set_mda()</a></code> </p>
-        </td>
-        <td><p>Parameterise a Mass Drug Administration</p></td>
-      </tr><tr><td>
-          <p><code><a href="set_pmc.html">set_pmc()</a></code> </p>
-        </td>
-        <td><p>Parameterise a perennial malaria chemoprevention (PMC, formerly IPIi)</p></td>
-      </tr><tr><td>
-          <p><code><a href="set_rtss_epi.html">set_rtss_epi()</a></code> </p>
-        </td>
-        <td><p>Parameterise an RTS,S epi strategy</p></td>
-      </tr><tr><td>
-          <p><code><a href="set_smc.html">set_smc()</a></code> </p>
-        </td>
-        <td><p>Parameterise a Seasonal Malaria Chemoprevention</p></td>
-      </tr><tr><td>
-          <p><code><a href="set_species.html">set_species()</a></code> </p>
-        </td>
-        <td><p>Parameterise the mosquito species to use in the model</p></td>
-      </tr><tr><td>
-          <p><code><a href="set_spraying.html">set_spraying()</a></code> </p>
-        </td>
-        <td><p>Parameterise an indoor spraying strategy</p></td>
-      </tr><tr><td>
-          <p><code><a href="set_tbv.html">set_tbv()</a></code> </p>
-        </td>
-        <td><p>Parameterise an TBV strategy</p></td>
+        <td><p>RTS,S vaccine profile</p></td>
       </tr></tbody></table></div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
@@ -205,11 +299,11 @@ season</p></td>
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Giovanni Charles, Peter Winskill, Hillary Topazian, Joseph Challenger, Richard Fitzjohn.</p>
+  <p></p><p>Developed by Giovanni Charles, Peter Winskill, Hillary Topazian, Joseph Challenger, Richard Fitzjohn, Richard Sheppard, Tom Brewer, Kelly McCain, Lydia Haile.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

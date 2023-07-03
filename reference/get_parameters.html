@@ -20,52 +20,70 @@ and mortality: A modelling study.&quot;"><!-- mathjax --><script src="https://cd
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.6.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav"><li>
-  <a href="../reference/index.html">Reference</a>
-</li>
-<li class="dropdown">
+      <ul class="nav navbar-nav"><li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Articles
+    Vignettes
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
+      <a href="../articles/Model.html">Model Introduction</a>
+    </li>
+    <li>
       <a href="../articles/Demography.html">Demography</a>
-    </li>
-    <li>
-      <a href="../articles/EIRprevmatch.html">Matching PfPR2-10 to EIR</a>
-    </li>
-    <li>
-      <a href="../articles/MDA.html">Mass Drug Administration</a>
-    </li>
-    <li>
-      <a href="../articles/Metapopulation.html">Metapopulation</a>
-    </li>
-    <li>
-      <a href="../articles/Model.html">Model Structure</a>
     </li>
     <li>
       <a href="../articles/Treatment.html">Treatment</a>
     </li>
     <li>
+      <a href="../articles/MDA.html">MDA and Chemoprevention</a>
+    </li>
+    <li>
       <a href="../articles/Vaccines.html">Vaccines</a>
     </li>
     <li>
-      <a href="../articles/Variation.html">Variation</a>
+      <a href="../articles/VectorControl_Bednets.html">Vector Control: Bednets</a>
     </li>
     <li>
-      <a href="../articles/VectorControl.html">Vector Control</a>
+      <a href="../articles/VectorControl_IRS.html">Vector Control: Indoor Residual Spraying</a>
+    </li>
+    <li>
+      <a href="../articles/SetSpecies.html">Mosquito Species</a>
+    </li>
+    <li>
+      <a href="../articles/Carrying-capacity.html">Carrying Capacity</a>
+    </li>
+    <li>
+      <a href="../articles/EIRprevmatch.html">Matching PfPR2-10 to EIR</a>
+    </li>
+    <li>
+      <a href="../articles/Metapopulation.html">Metapopulation Modelling</a>
+    </li>
+    <li>
+      <a href="../articles/Variation.html">Stochastic Variation</a>
+    </li>
+    <li>
+      <a href="../articles/Parameter_variation.html">Parameter Variation</a>
     </li>
   </ul></li>
 <li>
+  <a href="../reference/index.html">Functions</a>
+</li>
+<li>
   <a href="../news/index.html">Changelog</a>
 </li>
-      </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
+      </ul><ul class="nav navbar-nav navbar-right"><li>
+  <a href="https://github.com/mrc-ide/malariasimulation" class="external-link">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
@@ -97,13 +115,13 @@ and mortality: A modelling study."</p>
 The parameters are defined below.</p>
 <p>fixed state transitions:</p><ul><li><p>dd - the delay for humans to move from state D to A; default = 5</p></li>
 <li><p>dt - the delay for humans to move from state Tr to Ph; default = 5</p></li>
-<li><p>da - the delay for humans to move from state A to U; default = 200</p></li>
+<li><p>da - the delay for humans to move from state A to U; default = 195</p></li>
 <li><p>du - the delay for humans to move from state U to S; default = 110</p></li>
 <li><p>del - the delay for mosquitoes to move from state E to L; default = 6.64</p></li>
 <li><p>dl - the delay for mosquitoes to move from state L to P; default = 3.72</p></li>
 <li><p>dpl - the delay mosquitoes to move from state P to Sm; default = 0.643</p></li>
 <li><p>mup - the rate at which pupal mosquitoes die; default = 0.249</p></li>
-<li><p>mum - the rate at which developed mosquitoes die; default = 0.1253333</p></li>
+<li><p>mum - the rate at which developed mosquitoes die; default (An. gambiae) = .132</p></li>
 </ul><p>immunity decay rates:</p><ul><li><p>rm - decay rate for maternal immunity to clinical disease; default = 67.6952</p></li>
 <li><p>rvm - decay rate for maternal immunity to severe disease; default = 76.8365</p></li>
 <li><p>rb - decay rate for acquired pre-erythrocytic immunity; default = 3650</p></li>
@@ -178,9 +196,9 @@ subpatents; default = 0.133028023</p></li>
 species specific values are vectors</p><ul><li><p>beta - the average number of eggs laid per female mosquito per day; default = 21.2</p></li>
 <li><p>total_M - the initial number of adult mosquitos in the simulation; default = 1000</p></li>
 <li><p>init_foim - the FOIM used to calculate the equilibrium state for mosquitoes; default = 0</p></li>
-<li><p>species - names of the species in the simulation; default = "All"</p></li>
+<li><p>species - names of the species in the simulation; default = "gamb"</p></li>
 <li><p>species_proportions - the relative proportions of each species; default = 1</p></li>
-<li><p>blood_meal_rates - the blood meal rates for each species; default = 0.3333333333</p></li>
+<li><p>blood_meal_rates - the blood meal rates for each species; default = 1/3</p></li>
 <li><p>Q0 - proportion of blood meals taken on humans; default = 0.92</p></li>
 <li><p>foraging_time - time spent taking blood meals; default = 0.69</p></li>
 </ul><p>feeding cycle:
@@ -200,21 +218,12 @@ model prophylaxis for each drug; default = turned off</p></li>
 <li><p>clinical_treatment_drugs - a vector of drugs that are available for
 clinically diseased (these values refer to the index in drug_* parameters); default = NULL, NULL, NULL</p></li>
 <li><p>clinical_treatment_coverage - a vector of coverage values for each drug; default = NULL, NULL, NULL</p></li>
-</ul><p>RTS,S paramters:
-please set RTS,S strategies with the convenience functions in
-<code>vaccine_parameters.R:set_rtss_epi</code>
-<code>vaccine_parameters.R:set_mass_rtss</code></p><ul><li><p>rtss_doses - the dosing schedule before the vaccine takes effect; default =
+</ul><p>PEV parameters:
+please set vaccine strategies with the convenience functions in
+<code>pev_parameters.R:set_pev_epi</code>
+<code>pev_parameters.R:set_mass_pev</code></p><ul><li><p>pev_doses - the dosing schedule before the vaccine takes effect; default =
 c(0, 1.5 * 30, 3 * 30)
 default = 365</p></li>
-<li><p>rtss_vmax - the maximum efficacy of the vaccine; default = 0.93</p></li>
-<li><p>rtss_alpha - shape parameter for the vaccine efficacy model; default = 0.74</p></li>
-<li><p>rtss_beta - scale parameter for the vaccine efficacy model; default = 99.4</p></li>
-<li><p>rtss_cs - peak parameters for the antibody model (mean and std. dev); default = 6.37008, 0.35</p></li>
-<li><p>rtss_cs_boost - peak parameters for the antibody model for booster rounds (mean and std. dev); default = 5.56277, 0.35</p></li>
-<li><p>rtss_rho - delay parameters for the antibody model (mean and std. dev); default = 2.37832, 1.00813</p></li>
-<li><p>rtss_rho_boost - delay parameters for the antibody model for booster rounds (mean and std. dev); default = 1.03431, 1.02735</p></li>
-<li><p>rtss_ds - delay parameters for the antibody model, short-term weaning (mean and std. dev); default = 3.74502, 0.341185 (White MT et al. 2015 Lancet ID)</p></li>
-<li><p>rtss_dl - delay parameters for the antibody model, long-term weaning (mean and std. dev); default = 6.30365, 0.396515 (White MT et al. 2015 Lancet ID)</p></li>
 </ul><p>MDA, SMC and PMC parameters:
 please set these parameters with the convenience functions in <code>mda_parameters.R</code></p>
 <p>TBV parameters:
@@ -267,11 +276,11 @@ rates; default = TRUE</p></li>
 
 
       <footer><div class="copyright">
-  <p></p><p>Developed by Giovanni Charles, Peter Winskill, Hillary Topazian, Joseph Challenger, Richard Fitzjohn.</p>
+  <p></p><p>Developed by Giovanni Charles, Peter Winskill, Hillary Topazian, Joseph Challenger, Richard Fitzjohn, Richard Sheppard, Tom Brewer, Kelly McCain, Lydia Haile.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

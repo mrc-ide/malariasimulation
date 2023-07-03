@@ -33,56 +33,75 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.6.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Articles
+    Vignettes
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/Model.html">Model Introduction</a>
+    </li>
+    <li>
       <a href="../articles/Demography.html">Demography</a>
-    </li>
-    <li>
-      <a href="../articles/EIRprevmatch.html">Matching PfPR2-10 to EIR</a>
-    </li>
-    <li>
-      <a href="../articles/MDA.html">Mass Drug Administration</a>
-    </li>
-    <li>
-      <a href="../articles/Metapopulation.html">Metapopulation</a>
-    </li>
-    <li>
-      <a href="../articles/Model.html">Model Structure</a>
     </li>
     <li>
       <a href="../articles/Treatment.html">Treatment</a>
     </li>
     <li>
+      <a href="../articles/MDA.html">MDA and Chemoprevention</a>
+    </li>
+    <li>
       <a href="../articles/Vaccines.html">Vaccines</a>
     </li>
     <li>
-      <a href="../articles/Variation.html">Variation</a>
+      <a href="../articles/VectorControl_Bednets.html">Vector Control: Bednets</a>
     </li>
     <li>
-      <a href="../articles/VectorControl.html">Vector Control</a>
+      <a href="../articles/VectorControl_IRS.html">Vector Control: Indoor Residual Spraying</a>
+    </li>
+    <li>
+      <a href="../articles/SetSpecies.html">Mosquito Species</a>
+    </li>
+    <li>
+      <a href="../articles/Carrying-capacity.html">Carrying Capacity</a>
+    </li>
+    <li>
+      <a href="../articles/EIRprevmatch.html">Matching PfPR2-10 to EIR</a>
+    </li>
+    <li>
+      <a href="../articles/Metapopulation.html">Metapopulation Modelling</a>
+    </li>
+    <li>
+      <a href="../articles/Variation.html">Stochastic Variation</a>
+    </li>
+    <li>
+      <a href="../articles/Parameter_variation.html">Parameter Variation</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../reference/index.html">Functions</a>
 </li>
 <li>
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/mrc-ide/malariasimulation" class="external-link">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -92,7 +111,7 @@
 
       
 
-      </header><script src="Metapopulation_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Metapopulation</h1>
@@ -106,14 +125,24 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># Load the requisite packages:</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">malariasimulation</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">malariaEquilibrium</span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">malariaEquilibrium</span><span class="op">)</span></span>
+<span><span class="co"># Set colour palette:</span></span>
+<span><span class="va">cols</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#E69F00"</span>, <span class="st">"#56B4E9"</span>, <span class="st">"#009E73"</span>, <span class="st">"#F0E442"</span>, <span class="st">"#0072B2"</span>, <span class="st">"#D55E00"</span>, <span class="st">"#CC79A7"</span><span class="op">)</span></span></code></pre></div>
+<p>The metapopulation model runs the individual-based model for multiple
+parameterized units (countries, regions, admins, etc.) simultaneously.
+The inputted mixing matrix allows for the transmission of one unit to
+affect the transmission of another unit. ‘Mixing’ in the model occurs
+through the variables <code>foim_m</code> and <code>EIR</code>.</p>
+<p>Here we will set up a case study of three distinct units and compare
+output with various transmission mixing patterns.</p>
 <div class="section level2">
-<h2 id="parameterisation">Parameterisation<a class="anchor" aria-label="anchor" href="#parameterisation"></a>
+<h2 id="run-metapopulation-simulation">Run metapopulation simulation<a class="anchor" aria-label="anchor" href="#run-metapopulation-simulation"></a>
 </h2>
-<p>The metapopulation model runs the individual-based model for multiple parameterized units (countries, regions, admins, etc.) simultaneously. The inputted mixing matrix allows for the transmission of one unit to affect the transmission of another unit. ‘Mixing’ in the model occurs through the variables <code>foim_m</code> and <code>EIR</code>.</p>
-<p>Here we will set up a case study of three distinct units and compare output with various transmission mixing patterns.</p>
+<div class="section level3">
+<h3 id="parameterisation">Parameterisation<a class="anchor" aria-label="anchor" href="#parameterisation"></a>
+</h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># set variables</span></span>
 <span><span class="va">year</span> <span class="op">&lt;-</span> <span class="fl">365</span></span>
@@ -141,10 +170,13 @@
 <span><span class="co"># creating a list of three parameter lists</span></span>
 <span><span class="va">paramslist</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">EIR_vector</span><span class="op">)</span>, <span class="fl">1</span><span class="op">)</span>, <span class="va">ms_parameterize</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level2">
-<h2 id="modelling">Modelling<a class="anchor" aria-label="anchor" href="#modelling"></a>
-</h2>
-<p>Our parameters for the three distinct units are stored in the object <code>paramslist</code>. Next we will run the metapopulation model with these parameters. We will plug in three mixing matrices - A) isolated, B) semi-mixed, C) perfectly mixed.</p>
+<div class="section level3">
+<h3 id="simulation">Simulation<a class="anchor" aria-label="anchor" href="#simulation"></a>
+</h3>
+<p>Our parameters for the three distinct units are stored in the object
+<code>paramslist</code>. Next we will run the metapopulation model with
+these parameters. We will plug in three mixing matrices - A) isolated,
+B) semi-mixed, C) perfectly mixed.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># isolated</span></span>
 <span><span class="va">mix_1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">EIR_vector</span><span class="op">)</span><span class="op">)</span></span>
@@ -192,18 +224,59 @@
 <span><span class="va">output</span><span class="op">$</span><span class="va">year</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">ceiling</a></span><span class="op">(</span><span class="va">output</span><span class="op">$</span><span class="va">timestep</span> <span class="op">/</span> <span class="fl">365</span><span class="op">)</span></span>
 <span><span class="va">output</span><span class="op">$</span><span class="va">mix</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">output</span><span class="op">$</span><span class="va">mix</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'isolated'</span>, <span class="st">'semi-mixed'</span>, <span class="st">'perfectly-mixed'</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/aggregate.html" class="external-link">aggregate</a></span><span class="op">(</span><span class="va">prev2to10</span> <span class="op">~</span> <span class="va">mix</span> <span class="op">+</span> <span class="va">EIR</span> <span class="op">+</span> <span class="va">year</span>, data <span class="op">=</span> <span class="va">output</span>, FUN <span class="op">=</span> <span class="va">mean</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="visualisation">Visualisation<a class="anchor" aria-label="anchor" href="#visualisation"></a>
+</h3>
 <p>Now let’s visualize the results of mixing on PfPR2-10:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># plot</span></span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">output</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">year</span>, y <span class="op">=</span> <span class="va">prev2to10</span>, color <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">EIR</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span> <span class="va">mix</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_continuous.html" class="external-link">scale_y_continuous</a></span><span class="op">(</span>limits <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0.35</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">'time (years)'</span>,</span>
-<span>       y <span class="op">=</span> <span class="st">'PfPR 2-10 (month)'</span>,</span>
-<span>       color <span class="op">=</span> <span class="st">'EIR'</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggtheme.html" class="external-link">theme_classic</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Metapopulation_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
+<code class="sourceCode R"><span><span class="va">Panel_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0.37</span>,<span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span>,</span>
+<span>                    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.37</span>,<span class="fl">0.635</span>,<span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span>,</span>
+<span>                    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.635</span>,<span class="fl">0.9</span>,<span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span>,</span>
+<span>                    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.9</span>,<span class="fl">1</span>,<span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">Margin_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.8</span>,<span class="fl">0.8</span>,<span class="fl">0.3</span>,<span class="fl">0.1</span><span class="op">)</span>,</span>
+<span>                     <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.8</span>,<span class="fl">0.1</span>,<span class="fl">0.3</span>,<span class="fl">0.1</span><span class="op">)</span>,</span>
+<span>                     <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.8</span>,<span class="fl">0.1</span>,<span class="fl">0.3</span>,<span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="va">Mix_vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">output</span><span class="op">$</span><span class="va">mix</span><span class="op">)</span></span>
+<span><span class="va">EIR_vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">output</span><span class="op">$</span><span class="va">EIR</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">Xlab_vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">""</span>,<span class="st">"Time (years)"</span>,<span class="st">""</span><span class="op">)</span></span>
+<span><span class="va">Ylab_vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu">italic</span><span class="op">(</span><span class="va">Pf</span><span class="op">)</span>,<span class="st">"PR"</span><span class="op">[</span><span class="fl">2</span><span class="op">-</span><span class="fl">10</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>,<span class="st">""</span>,<span class="st">""</span><span class="op">)</span></span>
+<span><span class="va">New_vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">F</span>,<span class="cn">T</span>,<span class="cn">T</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">Plot_Mixing</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">output</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="kw">for</span><span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span><span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>fig<span class="op">=</span><span class="va">Panel_spec</span><span class="op">[</span><span class="va">i</span>,<span class="op">]</span>, cex <span class="op">=</span> <span class="fl">0.8</span>, mai <span class="op">=</span> <span class="va">Margin_spec</span><span class="op">[</span><span class="va">i</span>,<span class="op">]</span>, new <span class="op">=</span> <span class="va">New_vec</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">output</span>,<span class="va">output</span><span class="op">$</span><span class="va">mix</span> <span class="op">==</span> <span class="va">Mix_vec</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&amp;</span> <span class="va">output</span><span class="op">$</span><span class="va">EIR</span> <span class="op">==</span> <span class="va">EIR_vec</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>,<span class="op">{</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">year</span>, y <span class="op">=</span> <span class="va">prev2to10</span>, type <span class="op">=</span> <span class="st">"l"</span>, col <span class="op">=</span> <span class="va">cols</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, lwd <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>           ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0.36</span><span class="op">)</span>, yaxt <span class="op">=</span> <span class="st">"n"</span>,</span>
+<span>           xaxs <span class="op">=</span> <span class="st">"i"</span>, yaxs <span class="op">=</span> <span class="st">"i"</span>,</span>
+<span>           ylab <span class="op">=</span> <span class="va">Ylab_vec</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, xlab <span class="op">=</span> <span class="va">Xlab_vec</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.05</span>,<span class="fl">0.25</span>, by <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span>, lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"grey80"</span>, lwd <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fl">2</span><span class="op">:</span><span class="fl">4</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">{</span><span class="fu"><a href="https://rdrr.io/r/graphics/segments.html" class="external-link">segments</a></span><span class="op">(</span>x0 <span class="op">=</span> <span class="va">x</span>, x1 <span class="op">=</span> <span class="va">x</span>, y0 <span class="op">=</span> <span class="fl">0</span>, y1 <span class="op">=</span> <span class="fl">0.3</span>,</span>
+<span>                                       lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"grey80"</span>,lwd <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">}</span><span class="op">)</span></span>
+<span>      <span class="co"># grid(lty = 2, col = "grey80", lwd = 0.5)</span></span>
+<span>      <span class="kw">if</span><span class="op">(</span><span class="va">i</span> <span class="op">==</span><span class="fl">1</span><span class="op">)</span><span class="op">{</span><span class="fu"><a href="https://rdrr.io/r/graphics/axis.html" class="external-link">axis</a></span><span class="op">(</span>side <span class="op">=</span> <span class="fl">2</span>, at <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0.4</span>,by<span class="op">=</span><span class="fl">0.1</span><span class="op">)</span><span class="op">)</span><span class="op">}</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">"(^[[:alpha:]])"</span>, <span class="st">"\\U\\1"</span>, <span class="va">Mix_vec</span><span class="op">[</span><span class="va">i</span><span class="op">]</span>, perl<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>, line <span class="op">=</span> <span class="op">-</span><span class="fl">1.4</span>, cex.main <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>h <span class="op">=</span> <span class="fl">0.3</span><span class="op">)</span></span>
+<span>      </span>
+<span>    <span class="op">}</span><span class="op">)</span></span>
+<span>    <span class="kw">for</span><span class="op">(</span><span class="va">j</span> <span class="kw">in</span> <span class="fl">2</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span><span class="op">{</span></span>
+<span>            <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">output</span>,<span class="va">output</span><span class="op">$</span><span class="va">mix</span> <span class="op">==</span> <span class="va">Mix_vec</span><span class="op">[</span><span class="va">i</span><span class="op">]</span> <span class="op">&amp;</span> <span class="va">output</span><span class="op">$</span><span class="va">EIR</span> <span class="op">==</span> <span class="va">EIR_vec</span><span class="op">[</span><span class="va">j</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>                 <span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">year</span>, y <span class="op">=</span> <span class="va">prev2to10</span>, type <span class="op">=</span> <span class="st">"l"</span>, col <span class="op">=</span> <span class="va">cols</span><span class="op">[</span><span class="va">j</span><span class="op">]</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="op">}</span></span>
+<span>  <span class="op">}</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>fig<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.9</span>,<span class="fl">1</span>,<span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span>, cex <span class="op">=</span> <span class="fl">0.8</span>, new <span class="op">=</span> <span class="cn">T</span>, xpd <span class="op">=</span> <span class="cn">T</span>, mai <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">0</span>,<span class="fl">0</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"left"</span>, legend <span class="op">=</span> <span class="va">EIR_vec</span>, col <span class="op">=</span> <span class="va">cols</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span>, lwd <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>         bty <span class="op">=</span> <span class="st">"n"</span>, lty <span class="op">=</span> <span class="fl">1</span>, title <span class="op">=</span> <span class="st">"EIR"</span>, y.intersp <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="fu">Plot_Mixing</span><span class="op">(</span><span class="va">output</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Metapopulation_files/figure-html/unnamed-chunk-4-1.png" width="100%" style="display: block; margin: auto;"></p>
+</div>
 </div>
   </div>
 
@@ -219,12 +292,12 @@
 
       <footer><div class="copyright">
   <p></p>
-<p>Developed by Giovanni Charles, Peter Winskill, Hillary Topazian, Joseph Challenger, Richard Fitzjohn.</p>
+<p>Developed by Giovanni Charles, Peter Winskill, Hillary Topazian, Joseph Challenger, Richard Fitzjohn, Richard Sheppard, Tom Brewer, Kelly McCain, Lydia Haile.</p>
 </div>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>

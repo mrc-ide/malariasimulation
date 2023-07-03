@@ -33,56 +33,75 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.6.0</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-<li>
-  <a href="../reference/index.html">Reference</a>
-</li>
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-    Articles
+    Vignettes
      
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="../articles/Model.html">Model Introduction</a>
+    </li>
+    <li>
       <a href="../articles/Demography.html">Demography</a>
-    </li>
-    <li>
-      <a href="../articles/EIRprevmatch.html">Matching PfPR2-10 to EIR</a>
-    </li>
-    <li>
-      <a href="../articles/MDA.html">Mass Drug Administration</a>
-    </li>
-    <li>
-      <a href="../articles/Metapopulation.html">Metapopulation</a>
-    </li>
-    <li>
-      <a href="../articles/Model.html">Model Structure</a>
     </li>
     <li>
       <a href="../articles/Treatment.html">Treatment</a>
     </li>
     <li>
+      <a href="../articles/MDA.html">MDA and Chemoprevention</a>
+    </li>
+    <li>
       <a href="../articles/Vaccines.html">Vaccines</a>
     </li>
     <li>
-      <a href="../articles/Variation.html">Variation</a>
+      <a href="../articles/VectorControl_Bednets.html">Vector Control: Bednets</a>
     </li>
     <li>
-      <a href="../articles/VectorControl.html">Vector Control</a>
+      <a href="../articles/VectorControl_IRS.html">Vector Control: Indoor Residual Spraying</a>
+    </li>
+    <li>
+      <a href="../articles/SetSpecies.html">Mosquito Species</a>
+    </li>
+    <li>
+      <a href="../articles/Carrying-capacity.html">Carrying Capacity</a>
+    </li>
+    <li>
+      <a href="../articles/EIRprevmatch.html">Matching PfPR2-10 to EIR</a>
+    </li>
+    <li>
+      <a href="../articles/Metapopulation.html">Metapopulation Modelling</a>
+    </li>
+    <li>
+      <a href="../articles/Variation.html">Stochastic Variation</a>
+    </li>
+    <li>
+      <a href="../articles/Parameter_variation.html">Parameter Variation</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../reference/index.html">Functions</a>
 </li>
 <li>
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/mrc-ide/malariasimulation" class="external-link">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -92,7 +111,7 @@
 
       
 
-      </header><script src="Treatment_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Treatment</h1>
@@ -106,49 +125,167 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">suppressPackageStartupMessages</a></span><span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="co"># Load the requisite packages:</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">malariasimulation</span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">malariaEquilibrium</span><span class="op">)</span></span></code></pre></div>
-<p>Set up some baseline parameters:</p>
+<span><span class="co"># Set colour palette:</span></span>
+<span><span class="va">cols</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"#E69F00"</span>, <span class="st">"#56B4E9"</span>, <span class="st">"#009E73"</span>, <span class="st">"#F0E442"</span>, <span class="st">"#0072B2"</span>, <span class="st">"#D55E00"</span>, <span class="st">"#CC79A7"</span><span class="op">)</span></span></code></pre></div>
+<p>This vignette describes how to implement clinical drug treatments in
+malariasimulation.</p>
+<p>The malariasimulation package contains built-in parameters sets for
+three anti-malarial drugs:</p>
+<ol style="list-style-type: decimal">
+<li>
+<code>AL_params</code>: artemether-lumefantrine (AL)</li>
+<li>
+<code>DHA_PQP_params</code>: dihydroartemisinin and piperaquine
+(DHA-PQP)</li>
+<li>
+<code>SP_AQ_params</code>: sulfadoxine-pyrimethamine and amodiaquine
+(SP-AQ)</li>
+</ol>
+<p>While all these drugs can be used to treat malaria, DHA-PQP and SP-AQ
+remain in the body for some time following treatment, making them good
+candidates for chemoprevention in mass drug administrations (see <a href="https://mrc-ide.github.io/malariasimulation/articles/MDA.html" class="external-link">Mass
+Drug Administration and Chemoprevention</a>). Any of these drugs can be
+included in the parameter list using the <code><a href="../reference/set_drugs.html">set_drugs()</a></code>
+function (see <a href="https://github.com/mrc-ide/malariasimulation/blob/master/R/drug_parameters.R" class="external-link">drugs_parameters.R</a>
+for full parameter details).</p>
+<p>Each drug parameter set is a vector of length four, with parameters
+that represent the drug efficacy, the infectiousness following treatment
+relative to an untreated infection, and parameters that determine the
+protection against reinfection (<span class="math inline">\(P\)</span>):
+shape (<span class="math inline">\(w\)</span>) and scale (<span class="math inline">\(\lambda\)</span>). The decay of protection against
+infection follows a weibull distribution as follows:</p>
+<p><span class="math display">\[P = e^{{(-t/\lambda)}^w}\]</span></p>
+<p>The <span class="math inline">\(P\)</span> for each drug following
+treatment through time is plotted below.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">year</span> <span class="op">&lt;-</span> <span class="fl">365</span></span>
+<code class="sourceCode R"><span><span class="va">calc_P</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">w</span>, <span class="va">lambda</span>, <span class="va">t</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="va">P</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="op">-</span><span class="op">(</span><span class="va">t</span><span class="op">/</span><span class="va">lambda</span><span class="op">)</span><span class="op">^</span><span class="va">w</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">t</span> <span class="op">&lt;-</span> <span class="fl">1</span><span class="op">:</span><span class="fl">70</span></span>
+<span></span>
+<span><span class="va">P_matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">AL_params</span>, <span class="va">DHA_PQP_params</span>, <span class="va">SP_AQ_params</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="fu">calc_P</span><span class="op">(</span>w <span class="op">=</span> <span class="va">x</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>, lambda <span class="op">=</span> <span class="va">x</span><span class="op">[</span><span class="fl">4</span><span class="op">]</span>, t <span class="op">=</span> <span class="va">t</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">t</span>, y <span class="op">=</span> <span class="va">P_matrix</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"l"</span>, col <span class="op">=</span> <span class="va">cols</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span>
+<span>     xlab <span class="op">=</span> <span class="st">"Days"</span>, ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Protection against reinfection ("</span>,<span class="fu">italic</span><span class="op">(</span><span class="va">P</span><span class="op">)</span>,<span class="st">")"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>     xaxs <span class="op">=</span> <span class="st">"i"</span>, yaxs <span class="op">=</span> <span class="st">"i"</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span>lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"grey80"</span>, lwd <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># </span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="fl">2</span><span class="op">:</span><span class="fl">3</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/points.html" class="external-link">points</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">t</span>, y <span class="op">=</span> <span class="va">P_matrix</span><span class="op">[[</span><span class="va">x</span><span class="op">]</span><span class="op">]</span>, type <span class="op">=</span> <span class="st">"l"</span>, col <span class="op">=</span> <span class="va">cols</span><span class="op">[</span><span class="va">x</span><span class="op">]</span>, lwd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Add legend</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span><span class="st">"topright"</span>, legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"AL"</span>,<span class="st">"DHA-PQP"</span>,<span class="st">"SP-AQ"</span><span class="op">)</span>, col <span class="op">=</span> <span class="va">cols</span>, lty <span class="op">=</span> <span class="fl">1</span>, lwd <span class="op">=</span> <span class="fl">2</span>, cex <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Treatment_files/figure-html/unnamed-chunk-2-1.png" width="100%" style="display: block; margin: auto;"></p>
+<p>For more details, please see:</p>
+<p>Okell, L., Cairns, M., Griffin, J. <em>et al.</em> Contrasting
+benefits of different artemisinin combination therapies as first-line
+malaria treatments using model-based cost-effectiveness analysis.
+<em>Nat Commun</em> <strong>5</strong>, 5606 (2014). <a href="https://doi.org/10.1038/ncomms6606" class="external-link uri">https://doi.org/10.1038/ncomms6606</a>.</p>
+<div class="section level2">
+<h2 id="setting-drugs-and-clinical-treatment">Setting drugs and clinical treatment<a class="anchor" aria-label="anchor" href="#setting-drugs-and-clinical-treatment"></a>
+</h2>
+<p>Drug parameters can be incorporated into a complete parameter set
+using the <code><a href="../reference/set_drugs.html">set_drugs()</a></code> function which takes the full
+parameter set and a list of drug parameter sets.</p>
+<p>A treatment regimen for each drug can then be described using the
+<code><a href="../reference/set_clinical_treatment.html">set_clinical_treatment()</a></code> function which takes the drug
+index, a vector of timesteps at which a change in coverage occurs (where
+the initial coverage is 0 until the first timestep specified) and a
+vector of coverages for the drug that correspond with the timestep
+changes, as well as the complete parameter set.</p>
+<p>Multiple drugs can be modelled simultaneously, with treatment
+coverage that can be specified for each drug. This function must be used
+for each drug included (e.g., if there are two drugs,
+<code><a href="../reference/set_clinical_treatment.html">set_clinical_treatment()</a></code> must be called twice to specify
+the treatment plan).</p>
+<div class="section level3">
+<h3 id="parameterisation-and-simulation">Parameterisation and simulation<a class="anchor" aria-label="anchor" href="#parameterisation-and-simulation"></a>
+</h3>
+<p>We will run a simulation for two years using AL and DHA-PQP treatment
+regimens. We begin our AL and DHA-PQP treatments on day 300 at 40% and
+30% coverage, respectively. We provide these treatments for 300 days
+before the regimen ends. Note that the sum of treatment coverages cannot
+exceed 100% at any timestep.</p>
+<p>Prior to the simulation, the function <code>set_equilibrium</code>
+can also be used to generate equilibrium values for the human and
+mosquito populations.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Daily simulation timesteps for two years</span></span>
+<span><span class="va">year</span> <span class="op">&lt;-</span> <span class="fl">365</span></span>
 <span><span class="va">sim_length</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="op">*</span> <span class="va">year</span></span>
+<span></span>
+<span><span class="co"># With a population size of 1000</span></span>
 <span><span class="va">human_population</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
 <span></span>
-<span><span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_parameters.html">get_parameters</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>human_population <span class="op">=</span> <span class="va">human_population</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_drugs.html">set_drugs</a></span><span class="op">(</span><span class="va">simparams</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">AL_params</span>, <span class="va">DHA_PQP_params</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>Run the model for some starting EIRs and fts:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">outputs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">starting_EIR</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
-<span><span class="va">fts</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">.25</span>, <span class="fl">.5</span>, <span class="fl">.75</span>, <span class="fl">1.</span><span class="op">)</span></span>
+<span><span class="co"># Set human population size</span></span>
+<span><span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_parameters.html">get_parameters</a></span><span class="op">(</span>overrides <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>human_population <span class="op">=</span> <span class="va">human_population</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="kw">for</span> <span class="op">(</span><span class="va">ft</span> <span class="kw">in</span> <span class="va">fts</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_clinical_treatment.html">set_clinical_treatment</a></span><span class="op">(</span><span class="va">simparams</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="va">ft</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span></span>
-<span>  <span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_clinical_treatment.html">set_clinical_treatment</a></span><span class="op">(</span><span class="va">simparams</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="va">ft</span> <span class="op">/</span> <span class="fl">2</span><span class="op">)</span></span>
-<span>  <span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_equilibrium.html">set_equilibrium</a></span><span class="op">(</span><span class="va">simparams</span>, <span class="va">starting_EIR</span><span class="op">)</span></span>
-<span>  <span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_simulation.html">run_simulation</a></span><span class="op">(</span><span class="va">sim_length</span>, <span class="va">simparams</span><span class="op">)</span></span>
-<span>  <span class="co"># cut out the warmup</span></span>
-<span>  <span class="va">output</span> <span class="op">&lt;-</span> <span class="va">output</span><span class="op">[</span><span class="va">output</span><span class="op">$</span><span class="va">timestep</span> <span class="op">&gt;</span> <span class="va">year</span>,<span class="op">]</span></span>
-<span>  <span class="va">outputs</span><span class="op">[[</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">outputs</span><span class="op">)</span> <span class="op">+</span> <span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="va">output</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-<p>Let’s plot the effect of ft on PfPR2-10:</p>
+<span><span class="co"># Update parameter set with chosen drug-specific parameters (AL and DHA/PQP)</span></span>
+<span><span class="va">drug_params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_drugs.html">set_drugs</a></span><span class="op">(</span><span class="va">simparams</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">AL_params</span>, <span class="va">DHA_PQP_params</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Choose initial EIR to 10</span></span>
+<span><span class="va">starting_EIR</span> <span class="op">&lt;-</span> <span class="fl">10</span> </span>
+<span></span>
+<span><span class="co"># Set treatment program for AL (drug index = 1)</span></span>
+<span><span class="va">treatment_params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_clinical_treatment.html">set_clinical_treatment</a></span><span class="op">(</span></span>
+<span>  parameters <span class="op">=</span> <span class="va">drug_params</span>,</span>
+<span>  drug <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  timesteps <span class="op">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">300</span>,<span class="fl">600</span><span class="op">)</span>, <span class="co"># Treatment coverage changes on day 300 and day 600</span></span>
+<span>  coverages <span class="op">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.4</span>,<span class="fl">0</span><span class="op">)</span><span class="op">)</span> <span class="co"># The initial treatment coverage (0%) is the default </span></span>
+<span><span class="co"># and does not need to be set</span></span>
+<span></span>
+<span><span class="co"># Set treatment program for DHA-PQP (drug index = 2)</span></span>
+<span><span class="va">treatment_params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_clinical_treatment.html">set_clinical_treatment</a></span><span class="op">(</span></span>
+<span>  parameters <span class="op">=</span> <span class="va">treatment_params</span>,</span>
+<span>  drug <span class="op">=</span>  <span class="fl">2</span>,</span>
+<span>  timesteps <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">300</span>,<span class="fl">600</span><span class="op">)</span>,</span>
+<span>  coverages <span class="op">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.3</span>,<span class="fl">0</span><span class="op">)</span><span class="op">)</span> </span>
+<span></span>
+<span><span class="co"># Use set_equilibrium to update the parameter set for a given initial EIR</span></span>
+<span><span class="va">treatment_params</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_equilibrium.html">set_equilibrium</a></span><span class="op">(</span><span class="va">treatment_params</span>, <span class="va">starting_EIR</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Run simulation:</span></span>
+<span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_simulation.html">run_simulation</a></span><span class="op">(</span><span class="va">sim_length</span>, <span class="va">treatment_params</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="visualisation">Visualisation<a class="anchor" aria-label="anchor" href="#visualisation"></a>
+</h3>
+<p>Following simulation of malaria transmission under this treatment
+regimen, we can now visualise the effect of the regimen on the number of
+detectable cases through time using the
+<code>n_detect_730_3650</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="st">'rbind'</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">outputs</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">df</span> <span class="op">&lt;-</span> <span class="va">outputs</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">'timestep'</span>, <span class="st">'n_detect_730_3650'</span>, <span class="st">'n_730_3650'</span><span class="op">)</span><span class="op">]</span></span>
-<span>  <span class="va">df</span><span class="op">$</span><span class="va">ft</span> <span class="op">&lt;-</span> <span class="va">fts</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span></span>
-<span>  <span class="va">df</span></span>
-<span><span class="op">}</span><span class="op">)</span><span class="op">)</span></span>
-<span>    </span>
-<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">timestep</span>, y <span class="op">=</span> <span class="op">(</span><span class="va">n_detect_730_3650</span><span class="op">/</span><span class="va">n_730_3650</span><span class="op">)</span>, colour <span class="op">=</span> <span class="va">ft</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"timestep"</span>, y <span class="op">=</span> <span class="st">"PfPR2-10"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Treatment_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
+<code class="sourceCode R"><span><span class="co"># Plot results</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">output</span><span class="op">$</span><span class="va">timestep</span>, y <span class="op">=</span> <span class="va">output</span><span class="op">$</span><span class="va">n_detect_730_3650</span>, type <span class="op">=</span> <span class="st">"l"</span>,</span>
+<span>     xlab <span class="op">=</span> <span class="st">"Days"</span>, ylab <span class="op">=</span> <span class="st">"Detectable cases"</span>, col <span class="op">=</span> <span class="va">cols</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,</span>
+<span>     ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">output</span><span class="op">$</span><span class="va">n_detect_730_3650</span><span class="op">)</span><span class="op">-</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">output</span><span class="op">$</span><span class="va">n_detect_730_3650</span><span class="op">)</span><span class="op">+</span><span class="fl">7</span><span class="op">)</span>,</span>
+<span>     xaxs <span class="op">=</span> <span class="st">"i"</span>, yaxs <span class="op">=</span> <span class="st">"i"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Show treatment times</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fl">300</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/text.html" class="external-link">text</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">310</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">output</span><span class="op">$</span><span class="va">n_detect_730_3650</span><span class="op">)</span>, labels <span class="op">=</span> <span class="st">"Treatment\nbegins"</span>, adj <span class="op">=</span> <span class="fl">0</span>, cex <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fl">600</span>, lty <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/text.html" class="external-link">text</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">610</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">output</span><span class="op">$</span><span class="va">n_detect_730_3650</span><span class="op">)</span>, labels <span class="op">=</span> <span class="st">"Treatment\nends"</span>, adj <span class="op">=</span> <span class="fl">0</span>, cex <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Add grid lines</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span>lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"grey80"</span>, nx <span class="op">=</span> <span class="fl">11</span>, ny <span class="op">=</span> <span class="fl">10</span>, lwd <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
+<p><img src="Treatment_files/figure-html/unnamed-chunk-4-1.png" width="100%" style="display: block; margin: auto;"></p>
+</div>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
-      </div>
+        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
+    </nav>
+</div>
 
 </div>
 
@@ -156,12 +293,12 @@
 
       <footer><div class="copyright">
   <p></p>
-<p>Developed by Giovanni Charles, Peter Winskill, Hillary Topazian, Joseph Challenger, Richard Fitzjohn.</p>
+<p>Developed by Giovanni Charles, Peter Winskill, Hillary Topazian, Joseph Challenger, Richard Fitzjohn, Richard Sheppard, Tom Brewer, Kelly McCain, Lydia Haile.</p>
 </div>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>

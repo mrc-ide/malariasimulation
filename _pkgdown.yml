@@ -61,6 +61,8 @@ reference:
   contents:
     - set_species
     - set_carrying_capacity
+    - calculate_carrying_capacity
+    - get_init_carrying_capacity
     - arab_params
     - fun_params
     - gamb_params

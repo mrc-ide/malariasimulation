@@ -1,4 +1,4 @@
-#' @title RTS,S EPI vaccination process
+#' @title EPI PEV vaccination process
 #'
 #' @description schedules individuals to be vaccinated according to the epi
 #' strategy
@@ -8,7 +8,7 @@
 #' @param parameters the model parameters
 #' @param correlations correlation parameters
 #' @noRd
-create_rtss_epi_process <- function(
+create_epi_pev_process <- function(
   variables,
   events,
   parameters,
@@ -27,13 +27,13 @@ create_rtss_epi_process <- function(
     }
     
     to_vaccinate <- variables$birth$get_index_of(
-      set = timestep - parameters$rtss_epi_age
+      set = timestep - parameters$pev_epi_age
     )
-    if (parameters$rtss_epi_min_wait == 0) {
+    if (parameters$pev_epi_min_wait == 0) {
       target <- to_vaccinate$to_vector()
     } else {
-      not_recently_vaccinated <- variables$rtss_vaccinated$get_index_of(
-        a = max(timestep - parameters$rtss_epi_min_wait, 0),
+      not_recently_vaccinated <- variables$pev_timestep$get_index_of(
+        a = max(timestep - parameters$pev_epi_min_wait, 0),
         b = timestep
       )$not(TRUE)
       target <- to_vaccinate$and(not_recently_vaccinated)$to_vector()
@@ -42,7 +42,7 @@ create_rtss_epi_process <- function(
     target <- target[
       sample_intervention(
         target,
-       'rtss',
+       'pev',
         coverage,
         correlations
       )
@@ -52,12 +52,12 @@ create_rtss_epi_process <- function(
       target,
       events,
       parameters,
-      events$rtss_epi_doses
+      events$pev_epi_doses
     )
   }
 }
 
-#' @title RTS,S mass vaccination listener
+#' @title mass PEV listener
 #'
 #' @description schedules individuals to be vaccinated according to the mass
 #' strategy
@@ -67,7 +67,7 @@ create_rtss_epi_process <- function(
 #' @param parameters the model parameters
 #' @param correlations correlation parameters
 #' @noRd
-create_rtss_mass_listener <- function(
+create_mass_pev_listener <- function(
   variables,
   events,
   parameters,
@@ -75,27 +75,27 @@ create_rtss_mass_listener <- function(
   ) {
   function(timestep) {
     in_age_group <- individual::Bitset$new(parameters$human_population)
-    for (i in seq_along(parameters$rtss_mass_min_ages)) {
-      min_birth <- timestep - parameters$rtss_mass_max_ages[[i]]
-      max_birth <- timestep - parameters$rtss_mass_min_ages[[i]]
+    for (i in seq_along(parameters$mass_pev_min_ages)) {
+      min_birth <- timestep - parameters$mass_pev_max_ages[[i]]
+      max_birth <- timestep - parameters$mass_pev_min_ages[[i]]
       in_age_group$or(variables$birth$get_index_of(a = min_birth, b = max_birth))
     }
-    if (parameters$rtss_mass_min_wait == 0) {
+    if (parameters$mass_pev_min_wait == 0) {
       target <- in_age_group$to_vector()
     } else {
-      not_recently_vaccinated <- variables$rtss_vaccinated$get_index_of(
-        a = max(timestep - parameters$rtss_mass_min_wait, 0),
+      not_recently_vaccinated <- variables$pev_timestep$get_index_of(
+        a = max(timestep - parameters$mass_pev_min_wait, 0),
         b = timestep
       )$not(TRUE)
       target <- in_age_group$and(not_recently_vaccinated)$to_vector()
     }
     
-    time_index = which(parameters$rtss_mass_timesteps == timestep)
+    time_index = which(parameters$mass_pev_timesteps == timestep)
     target <- target[
       sample_intervention(
         target,
-       'rtss',
-        parameters$rtss_mass_coverages[[time_index]],
+       'pev',
+        parameters$mass_pev_coverages[[time_index]],
         correlations
       )
     ]
@@ -103,11 +103,11 @@ create_rtss_mass_listener <- function(
       target,
       events,
       parameters,
-      events$rtss_mass_doses
+      events$mass_pev_doses
     )
-    if (time_index < length(parameters$rtss_mass_timesteps)) {
-      events$rtss_mass_vaccination$schedule(
-        parameters$rtss_mass_timesteps[[time_index + 1]] - timestep
+    if (time_index < length(parameters$mass_pev_timesteps)) {
+      events$mass_pev$schedule(
+        parameters$mass_pev_timesteps[[time_index + 1]] - timestep
       )
     }
   }
@@ -128,59 +128,48 @@ schedule_vaccination <- function(
   dose_events
   ) {
   if (length(target) > 0) {
-    for (d in seq_along(parameters$rtss_doses)) {
-      dose_events[[d]]$schedule(target, parameters$rtss_doses[[d]])
+    for (d in seq_along(parameters$pev_doses)) {
+      dose_events[[d]]$schedule(target, parameters$pev_doses[[d]])
     }
   }
 }
 
-#' @title RTS,S efficacy listener
+#' @title pev efficacy listener
 #'
-#' @description creates a listener to start vaccine efficacy in individuals
+#' @description creates a listener to start pev efficacy in individuals
 #'
 #' @param variables list of variables in the model
+#' @param pev_profile_index the index of the pev profile to introduce
 #' @param parameters the model parameters
 #' @noRd
-create_rtss_efficacy_listener <- function(variables, parameters) {
+create_pev_efficacy_listener <- function(variables, pev_profile_index) {
   function(timestep, target) {
     if (target$size() > 0) {
-      variables$rtss_vaccinated$queue_update(timestep, target)
+      variables$pev_timestep$queue_update(timestep, target)
+      variables$pev_profile$queue_update(pev_profile_index, target)
     }
   }
 }
 
-create_rtss_booster_listener <- function(
+create_pev_booster_listener <- function(
   variables,
-  parameters,
   coverage,
   booster_number,
+  pev_profile_index,
   next_booster_event,
   next_booster_delay,
   renderer,
   strategy
   ) {
-  render_name <- paste0("n_rtss_", strategy, "_booster_", booster_number)
+  render_name <- paste0("n_pev_", strategy, "_booster_", booster_number)
   renderer$set_default(render_name, 0)
   force(next_booster_event) # because R lazy evaluation is rubbish
   force(next_booster_delay)
   force(coverage)
   function(timestep, target) {
     target <- sample_bitset(target, coverage)
-    variables$rtss_cs$queue_update(
-      exp(
-        parameters$rtss_cs_boost[[1]] + parameters$rtss_cs_boost[[2]] * rnorm(target$size())
-      ),
-      target
-    )
-
-    variables$rtss_rho$queue_update(
-      invlogit(
-        parameters$rtss_rho_boost[[1]] + parameters$rtss_rho_boost[[2]] * rnorm(target$size())
-      ),
-      target
-    )
-
-    variables$rtss_boosted$queue_update(timestep, target)
+    variables$pev_timestep$queue_update(timestep, target)
+    variables$pev_profile$queue_update(pev_profile_index, target)
     renderer$render(render_name, target$size(), timestep)
 
     if (!is.null(next_booster_event)) {
@@ -189,7 +178,7 @@ create_rtss_booster_listener <- function(
   }
 }
 
-calculate_rtss_antibodies <- function(
+calculate_pev_antibodies <- function(
   t,
   cs,
   rho,
@@ -204,27 +193,28 @@ calculate_rtss_antibodies <- function(
   )
 }
 
-calculate_rtss_efficacy <- function(antibodies, parameters) {
-  parameters$rtss_vmax * (
+calculate_pev_efficacy <- function(antibodies, vmax, beta, alpha) {
+  vmax * (
     1 - (1 / (
-      1 + (antibodies / parameters$rtss_beta) ** parameters$rtss_alpha
+      1 + (antibodies / beta) ** alpha
     ))
   )
 }
 
 create_dosage_renderer <- function(renderer, strategy, dose) {
-  output_name <- paste0('n_rtss_', strategy  ,'_dose_', dose)
+  output_name <- paste0('n_pev_', strategy  ,'_dose_', dose)
   renderer$set_default(output_name, 0)
   function(t, target) renderer$render(output_name, target$size(), t)
 }
 
-attach_rtss_dose_listeners <- function(
+attach_pev_dose_listeners <- function(
   variables,
   parameters,
   dose_events,
   booster_events,
   booster_delays,
   booster_coverages,
+  pev_profile_indices,
   strategy,
   renderer
   ) {
@@ -235,12 +225,15 @@ attach_rtss_dose_listeners <- function(
     )
     if (d == length(dose_events)) {
       dose_events[[d]]$add_listener(
-        create_rtss_efficacy_listener(variables, parameters)
+        create_pev_efficacy_listener(
+          variables,
+          pev_profile_indices[[1]]
+        )
       )
       if (length(booster_events) > 0) {
         seasonal_boosters <- FALSE
-        if (!is.null(parameters$rtss_epi_seasonal_boosters)) {
-          seasonal_boosters <- parameters$rtss_epi_seasonal_boosters
+        if (!is.null(parameters$pev_epi_seasonal_boosters)) {
+          seasonal_boosters <- parameters$pev_epi_seasonal_boosters
         }
         if (seasonal_boosters) {
           dose_events[[d]]$add_listener(
@@ -273,16 +266,17 @@ attach_rtss_dose_listeners <- function(
         booster_delays[c(b, b + 1)]
       )
     }
+
     booster_events[[b]]$add_listener(
-      create_rtss_booster_listener(
-        variables,
-        parameters,
-        booster_coverages[[b]],
-        b,
-        next_booster_event,
-        next_booster_delay,
-        renderer,
-        strategy
+      create_pev_booster_listener(
+        variables = variables,
+        coverage = booster_coverages[[b]],
+        booster_number = b,
+        pev_profile_index = pev_profile_indices[[b + 1]],
+        next_booster_event = next_booster_event,
+        next_booster_delay = next_booster_delay,
+        renderer = renderer,
+        strategy = strategy
       )
     )
   }
@@ -298,9 +292,15 @@ create_seasonal_booster_scheduler <- function(
     if (delay < 0) {
       delay <- delay + 365
     }
-    if (delay <= parameters$rtss_epi_min_wait) {
+    if (delay <= parameters$pev_epi_min_wait) {
       delay <- delay + 365
     }
     booster_event$schedule(target, delay)
   }
+}
+
+sample_pev_param <- function(profile_index, profile_list, param_name) {
+  mu <- vnapply(profile_list, function(p) p[[param_name]][[1]])
+  sigma <- vnapply(profile_list, function(p) p[[param_name]][[2]])
+  rnorm(length(profile_index), mu[profile_index], sigma[profile_index])
 }

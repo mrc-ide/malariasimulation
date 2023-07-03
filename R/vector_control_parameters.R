@@ -30,15 +30,16 @@
 #' @param gamman a vector of bednet half-lives for each distribution timestep
 #' @export
 set_bednets <- function(
-  parameters,
-  timesteps,
-  coverages,
-  retention,
-  dn0,
-  rn,
-  rnm,
-  gamman
-  ) {
+    parameters,
+    timesteps,
+    coverages,
+    retention,
+    dn0,
+    rn,
+    rnm,
+    gamman
+) {
+  stopifnot(all(coverages >= 0) && all(coverages <= 1))
   lengths <- vnapply(list(coverages, gamman), length)
   if (!all(lengths == length(timesteps))) {
     stop('timesteps and time-varying parameters must align')
@@ -93,16 +94,17 @@ set_bednets <- function(
 #' With nrows=length(timesteps), ncols=length(species)
 #' @export
 set_spraying <- function(
-  parameters,
-  timesteps,
-  coverages,
-  ls_theta,
-  ls_gamma,
-  ks_theta,
-  ks_gamma,
-  ms_theta,
-  ms_gamma
-  ) {
+    parameters,
+    timesteps,
+    coverages,
+    ls_theta,
+    ls_gamma,
+    ks_theta,
+    ks_gamma,
+    ms_theta,
+    ms_gamma
+) {
+  stopifnot(all(coverages >= 0) && all(coverages <= 1))
   if (length(coverages) != length(timesteps)) {
     stop('coverages and timesteps must must align')
   }
@@ -132,4 +134,48 @@ set_spraying <- function(
   parameters$spraying_ms_theta <- ms_theta
   parameters$spraying_ms_gamma <- ms_gamma
   parameters
+}
+
+#' @title Parameterise custom baseline carrying capacity
+#' 
+#' @description Allows the user to set a completely flexible and custom
+#' carrying capacity for each species
+#' 
+#' @param parameters the model parameters
+#' @param timesteps vector of timesteps for each rescale change
+#' @param carrying_capacity matrix of baseline carrying_capacity for each species 
+#' With nrows = length(timesteps), ncols = length(species)
+#' 
+#' @export
+set_carrying_capacity <- function(
+    parameters,
+    timesteps,
+    carrying_capacity
+){
+  stopifnot(nrow(carrying_capacity) == length(timesteps))
+  stopifnot(ncol(carrying_capacity) == length(parameters$species))
+  stopifnot(min(timesteps) > 0)
+  stopifnot(min(carrying_capacity) >= 0)
+  
+  parameters$carrying_capacity <- TRUE
+  parameters$carrying_capacity_timesteps <- timesteps
+  parameters$carrying_capacity_values <- carrying_capacity
+  parameters
+}
+
+#' Get initialised carrying capacity for each species
+#'
+#' @param parameters the model parameters
+#'
+#' @return a vector of carrying initialised carrying capacity estimates for
+#' each vector species 
+#' @export
+get_init_carrying_capacity <- function(parameters){
+  init_cc <- sapply(1:length(parameters$species), function(x){
+    p <- parameters$species_proportions[[x]]
+    m <- p * parameters$total_M
+    calculate_carrying_capacity(parameters, m, x)
+  })
+  names(init_cc) <- parameters$species
+  return(init_cc)
 }

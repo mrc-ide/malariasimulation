@@ -14,6 +14,25 @@ test_that('You can set time varying clinical treatment', {
     timesteps = c(25, 75),
     coverages = c(.3, .4)
   )
+  
+  expect_error(
+    parameters <- set_clinical_treatment(
+      parameters,
+      drug = 2,
+      timesteps = c(25, 75),
+      coverages = c(-0.5, 0.5)
+    ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
+    fixed = TRUE
+  )
+  expect_error(
+    parameters <- set_clinical_treatment(
+      parameters,
+      drug = 2,
+      timesteps = c(25, 75),
+      coverages = c(0.5, 1.5)
+    ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
+    fixed = TRUE
+  )
 
   expect_equal(
     get_treatment_coverages(parameters, 10),
@@ -57,5 +76,14 @@ test_that('You cannot set invalid coverages', {
       timesteps = c(25, 75),
       coverages = c(.3, .6)
     )
+  )
+})
+
+test_that('set_drugs errors if a list is not provided', {
+  parameters <- get_parameters()
+  expect_error(
+    set_drugs(parameters, AL_params),
+    "is.list(drugs) is not TRUE",
+    fixed = TRUE
   )
 })

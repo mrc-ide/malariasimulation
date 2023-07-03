@@ -1,17 +1,31 @@
 ODE_INDICES <- c(E = 1, L = 2, P = 3)
 ADULT_ODE_INDICES <- c(Sm = 4, Pm = 5, Im = 6)
 
-parameterise_mosquito_models <- function(parameters) {
+parameterise_mosquito_models <- function(parameters, timesteps) {
+  
   lapply(
     seq_along(parameters$species),
     function(i) {
       p <- parameters$species_proportions[[i]]
       m <- p * parameters$total_M
+      # Baseline carrying capacity
+      k0 <- calculate_carrying_capacity(parameters, m, i)
+      # Create the carrying capacity object
+      k_timeseries <- create_timeseries(size = length(parameters$carrying_capacity_timesteps), k0)
+      if(parameters$carrying_capacity){
+        for(j in 1:length(parameters$carrying_capacity_timesteps)){
+          timeseries_push(
+            k_timeseries,
+            parameters$carrying_capacity_values[j,i],
+            parameters$carrying_capacity_timesteps[j]
+          )
+        }
+      }
       growth_model <- create_aquatic_mosquito_model(
         parameters$beta,
         parameters$del,
         parameters$me,
-        calculate_carrying_capacity(parameters, m, i),
+        k_timeseries,
         parameters$gamma,
         parameters$dl,
         parameters$ml,
@@ -27,7 +41,7 @@ parameterise_mosquito_models <- function(parameters) {
         parameters$blood_meal_rates[[i]],
         parameters$rainfall_floor
       )
-
+      
       if (!parameters$individual_mosquitoes) {
         susceptible <- initial_mosquito_counts(
           parameters,
@@ -84,7 +98,7 @@ create_compartmental_rendering_process <- function(renderer, solvers, parameters
   } else {
     indices <- c(ODE_INDICES, ADULT_ODE_INDICES)
   }
-
+  
   function(timestep) {
     counts <- rep(0, length(indices))
     for (s_i in seq_along(solvers)) {

@@ -44,14 +44,24 @@ create_mda_listeners <- function(
     to_move$insert(target[successful_treatments])
 
     if (to_move$size() > 0) {
-      # Move Diseased
-      diseased <- variables$state$get_index_of(c('D', 'A'))$and(to_move)
-      if (diseased$size() > 0) {
-        variables$state$queue_update('Tr', diseased)
-      }
+      # Move detectable
+      clinical <- variables$state$get_index_of('D')
+      asymptomatic <- variables$state$get_index_of('A')
+      detectable <- calculate_asymptomatic_detectable(
+        variables$state,
+        variables$birth,
+        variables$id,
+        parameters,
+        timestep
+      )
+      to_treat <- clinical$or(asymptomatic$and(detectable))
+      variables$state$queue_update(
+        'Tr',
+        to_treat$copy()$and(to_move)
+      )
 
       # Move everyone else
-      other <- to_move$copy()$and(diseased$not(TRUE))
+      other <- to_move$copy()$and(to_treat$not(TRUE))
       if (other$size() > 0) {
         variables$state$queue_update('S', other)
       }
@@ -74,4 +84,31 @@ create_mda_listeners <- function(
       administer_event$schedule(timesteps[[time_index + 1]] - timestep)
     }
   }
+}
+
+#' @title Calculate asymptomatic detectable individuals
+#'
+#' @description Sample a bitset of individuals who are asymptomatic and also
+#' detectable by microscopy
+#' @param state human infection state
+#' @param birth variable for birth of the individual
+#' @param immunity to detection
+#' @param parameters model parameters
+#' @param timestep current timestep
+#'
+#' @noRd
+calculate_asymptomatic_detectable <- function(
+    state,
+    birth,
+    immunity,
+    parameters,
+    timestep
+  ) {
+  asymptomatic <- state$get_index_of('A')
+  prob <- probability_of_detection(
+    get_age(birth$get_values(asymptomatic), timestep),
+    immunity$get_values(asymptomatic),
+    parameters
+  )
+  bitset_at(asymptomatic, bernoulli_multi_p(prob))
 }

@@ -20,18 +20,18 @@
 #' lagged transmission lists (default: 1)
 #' @noRd
 create_processes <- function(
-  renderer,
-  variables,
-  events,
-  parameters,
-  models,
-  solvers,
-  correlations,
-  lagged_eir,
-  lagged_infectivity,
-  mixing = 1,
-  mixing_index = 1
-  ) {
+    renderer,
+    variables,
+    events,
+    parameters,
+    models,
+    solvers,
+    correlations,
+    lagged_eir,
+    lagged_infectivity,
+    mixing = 1,
+    mixing_index = 1
+) {
   # ========
   # Immunity
   # ========
@@ -46,7 +46,7 @@ create_processes <- function(
     create_exponential_decay_process(variables$iva, parameters$rva),
     create_exponential_decay_process(variables$id, parameters$rid)
   )
-
+  
   if (parameters$individual_mosquitoes) {
     processes <- c(
       processes,
@@ -59,7 +59,7 @@ create_processes <- function(
       )
     )
   }
-
+  
   # ==============================
   # Biting and mortality processes
   # ==============================
@@ -112,7 +112,7 @@ create_processes <- function(
       0
     )
   )
-
+  
   # ===============
   # ODE integration
   # ===============
@@ -120,20 +120,20 @@ create_processes <- function(
     processes,
     create_solver_stepping_process(solvers, parameters)
   )
-
+  
   # =========
   # RTS,S EPI
   # =========
-  if (!is.null(parameters$rtss_epi_coverages)) {
+  if (!is.null(parameters$pev_epi_coverage)) {
     processes <- c(
       processes,
-      create_rtss_epi_process(
+      create_epi_pev_process(
         variables,
         events,
         parameters,
         correlations,
-        parameters$rtss_epi_coverages,
-        parameters$rtss_epi_timesteps
+        parameters$pev_epi_coverage,
+        parameters$pev_epi_timesteps
       )
     )
   }
@@ -156,7 +156,7 @@ create_processes <- function(
       )
     )
   }
-
+  
   # =========
   # Rendering
   # =========
@@ -186,7 +186,7 @@ create_processes <- function(
     ),
     create_compartmental_rendering_process(renderer, solvers, parameters)
   )
-
+  
   if (parameters$individual_mosquitoes) {
     processes <- c(
       processes,
@@ -208,11 +208,11 @@ create_processes <- function(
       )
     )
   }
-
+  
   # ======================
   # Intervention processes
   # ======================
-
+  
   if (parameters$bednets) {
     processes <- c(
       processes,
@@ -225,14 +225,24 @@ create_processes <- function(
       net_usage_renderer(variables$net_time, renderer)
     )
   }
-
+  
   if (parameters$spraying) {
     processes <- c(
       processes,
       indoor_spraying(variables$spray_time, parameters, correlations)
     )
   }
-
+  
+  # ======================
+  # Progress bar process
+  # ======================
+  if (parameters$progress_bar){
+    processes <- c(
+      processes,
+      create_progress_process(timesteps)
+    )
+  }
+  
   processes
 }
 

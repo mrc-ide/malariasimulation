@@ -3,7 +3,7 @@ test_that('create_processes makes valid process functions', {
   parameters <- get_parameters()
   events <- create_events(parameters)
   variables <- create_variables(parameters)
-  vector_models <- parameterise_mosquito_models(parameters)
+  vector_models <- parameterise_mosquito_models(parameters, 1)
   solvers <- parameterise_solvers(vector_models, parameters)
   renderer <- individual::Render$new(1)
   processes <- create_processes(
@@ -26,9 +26,9 @@ test_that('attach_event_listeners makes valid listeners', {
   variables <- create_variables(parameters)
   renderer <- individual::Render$new(2)
   attach_event_listeners(events, variables, parameters, correlations, renderer)
-
   for (event in events) {
     for (listener in event$.listeners) {
+      print('here')
       expect(
         (is.function(listener) && length(args(listener)) >= 1 && length(args(listener)) <= 2)  
           || inherits(process, 'externalptr'),

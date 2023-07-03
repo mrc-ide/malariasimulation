@@ -11,7 +11,7 @@ test_that('biting_process integrates mosquito effects and human infection', {
   variables <- list(birth = individual::DoubleVariable$new((-age + timestep)))
   lagged_foim <- LaggedValue$new(1, 1)
   lagged_eir <- LaggedValue$new(1, 1)
-  models <- parameterise_mosquito_models(parameters)
+  models <- parameterise_mosquito_models(parameters, timestep)
   solvers <- parameterise_solvers(models, parameters)
 
   biting_process <- create_biting_process(
@@ -68,7 +68,8 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
   timestep <- 5
   renderer <- individual::Render$new(5)
   parameters <- get_parameters(
-    list(human_population = population)
+    list(human_population = population,
+         individual_mosquitoes = TRUE)
   )
   events <- create_events(parameters)
   variables <- create_variables(parameters)
@@ -83,8 +84,8 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
     c(rep('Im', 10), rep('Sm', 15), rep('NonExistent', 75))
   )
   variables$species <- individual::CategoricalVariable$new(
-    c('All'),
-    rep('All', 100)
+    c('gamb'),
+    rep('gamb', 100)
   )
 
   lambda_mock <- mockery::mock(c(.5, .5, .5, .5))
@@ -98,7 +99,7 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
   mockery::stub(simulate_bites, 'fast_weighted_sample', sample_mock)
   mockery::stub(simulate_bites, 'effective_biting_rates', lambda_mock)
   mockery::stub(simulate_bites, 'aquatic_mosquito_model_update', eqs_update)
-  models <- parameterise_mosquito_models(parameters)
+  models <- parameterise_mosquito_models(parameters, timestep)
   solvers <- parameterise_solvers(models, parameters)
   lagged_foim <- list(LaggedValue$new(12.5, .001))
   lagged_eir <- list(list(LaggedValue$new(12, 10)))
@@ -161,7 +162,7 @@ test_that('simulate_bites works with mixed populations', {
 
   mockery::stub(simulate_bites, 'calculate_foim', mock_foim)
   mockery::stub(simulate_bites, '.human_blood_meal_rate', mock_a)
-  models <- parameterise_mosquito_models(parameters)
+  models <- parameterise_mosquito_models(parameters, timestep)
   solvers <- parameterise_solvers(models, parameters)
   lagged_foim <- list(LaggedValue$new(12.5, .001), LaggedValue$new(12.5, .01))
   lagged_eir <- list(list(LaggedValue$new(12, 10)), list(LaggedValue$new(12, 10)))

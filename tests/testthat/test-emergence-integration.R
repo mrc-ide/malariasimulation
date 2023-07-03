@@ -5,14 +5,14 @@ test_that('emergence process fails when there are not enough individuals', {
     c(rep('Im', 1000), rep('Sm', 1000))
   )
   species <- individual::CategoricalVariable$new(
-    c('All'),
-    rep('All', 2000)
+    c('gamb'),
+    rep('gamb', 2000)
   )
   emergence_process <- create_mosquito_emergence_process(
     list(),
     state,
     species,
-    c('All'),
+    c('gamb'),
     parameters$dpl
   )
   mockery::stub(

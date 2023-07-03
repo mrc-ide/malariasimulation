@@ -1,3 +1,14 @@
+# malariasimulation 1.6.0
+
+  * Fix MDA bug where undetectable asymptomatics are treated
+  * New vignettes
+  * Progress bar for long simulations
+  * Individual mosquitoes off by default
+  * New vaccination code:
+    * pre-erythrocytic vaccine functions have been renamed to pev
+    * pev functions have PEVProfiles for alternate pev vaccines and boosters
+  * Specify carrying capacity over time
+
 # malariasimulation 1.4.0
 
   * Treatment number rendering for all treatments not just effective

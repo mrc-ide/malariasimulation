@@ -67,6 +67,33 @@ fun_params <- list(
   mum = .112
 )
 
+#' @title Preset parameters for the An. stephensi vector
+#' @details Default parameters:
+#' species: "steph"
+#' blood_meal_rates: 0.3333333
+#' foraging_time: .69
+#' Q0: 0.21
+#' phi_bednets: 0.57
+#' phi_indoors: 0.37
+#' mum: 0.112
+#'
+#' parameters reference:
+#' https://bmcmedicine.biomedcentral.com/articles/10.1186/s12916-022-02324-1
+#' Values for phi are from:
+#' https://github.com/arranhamlet/stephensi_ETH_publication/blob/297352e244f8ed658e8bc3f32be42f011269c7f0/R/functions/cluster_hypercube_sampling_djibouti.R#L14-L21
+#' values for Q0: are the average from:
+#' ttps://github.com/cwhittaker1000/stephenseasonality/blob/main/data/bionomic_species_all_LHC_100.csv
+#' @export
+steph_params <- list(
+  species = 'steph',
+  blood_meal_rates = 1/3,
+  foraging_time = .69,
+  Q0 = 0.21,
+  phi_bednets = 0.52186,
+  phi_indoors = 0.4776,
+  mum = .112
+)
+
 #' @title Parameterise the mosquito species to use in the model
 #'
 #' @param parameters the model parameters

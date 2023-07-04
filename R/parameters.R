@@ -155,6 +155,8 @@
 #' * incidence_rendering_min_ages - the minimum ages for incidence
 #' outputs (includes asymptomatic microscopy +); default = turned off
 #' * incidence_rendering_max_ages - the corresponding max ages; default = turned off
+#' * patent_incidence_rendering_min_ages - the minimum ages for patent incidence outputs (LM detectable), (P.v only); default = numeric(0)
+#' * patent_incidence_rendering_max_ages - the corresponding max ages (P.v only); default = 1825 
 #' * clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = 0
 #' * clinical_incidence_rendering_max_ages - the corresponding max ages; default = 1825
 #' * severe_incidence_rendering_min_ages - the minimum ages for severe incidence
@@ -334,6 +336,8 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       prevalence_rendering_max_ages = 10 * 365,
       incidence_rendering_min_ages = numeric(0),
       incidence_rendering_max_ages = numeric(0),
+      patent_incidence_rendering_min_ages = numeric(0),
+      patent_incidence_rendering_max_ages = numeric(0),
       clinical_incidence_rendering_min_ages = numeric(0),
       clinical_incidence_rendering_max_ages = 5 * 365,
       severe_incidence_rendering_min_ages = numeric(0),

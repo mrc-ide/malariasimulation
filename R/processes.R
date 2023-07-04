@@ -111,12 +111,12 @@ create_processes <- function(
         variables$infectivity,
         0)
     } else if (parameters$parasite=="vivax"){
-        create_subpatent_progression_process(
-          variables$state,
-          variables,
-          parameters
-        )
-      },
+      create_subpatent_progression_process(
+        variables$state,
+        variables,
+        parameters
+      )
+    },
     create_progression_process(
       variables$state,
       'Tr',
@@ -174,17 +174,23 @@ create_processes <- function(
   # =========
   # Rendering
   # =========
+  
+  imm_var_names <- c('ica','icm','ib','id','iva','ivm')
+  if(parameters$parasite == "vivax"){
+    imm_var_names <- c(imm_var_names, 'idm')
+  }
+  
   processes <- c(
     processes,
     individual::categorical_count_renderer_process(
       renderer,
       variables$state,
-      c('S', 'A', 'D', 'U', 'Tr')
+      c('S', 'D', 'A', 'U', 'Tr')
     ),
     create_variable_mean_renderer_process(
       renderer,
-      c('ica', 'icm', 'ib', 'id', 'iva', 'ivm', if(parameters$parasite == "vivax"){'idm'}),
-      variables[c('ica', 'icm', 'ib', 'id', 'iva', 'ivm', if(parameters$parasite == "vivax"){'idm'})]
+      imm_var_names,
+      variables[imm_var_names]
     ),
     create_prevelance_renderer(
       variables$state,

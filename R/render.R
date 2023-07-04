@@ -34,8 +34,9 @@ create_prevelance_renderer <- function(
       asymptomatic_detected <- bitset_at(asymptomatic, bernoulli_multi_p(prob))
       
     } else if (parameters$parasite =="vivax"){
-      # The vivax model defines asymptomatic infections as being detectable by PCR
-      prob <- rep(1,asymptomatic$size())
+      # The vivax model defines asymptomatic infections as being detectable by
+      # light microscopy
+      prob <- rep(1, asymptomatic$size())
       asymptomatic_detected <- state$get_index_of('A')
     }
     

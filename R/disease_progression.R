@@ -100,12 +100,15 @@ create_subpatent_progression_process <- function(
   parameters
   ){
   function(timestep) {
-    ## Get rates for each subpatent individual
+    ## Get recovery rates for each subpatent individual
     subpatent_index <- state$get_index_of("U")
-    rates <- subpatent_duration(parameters, variables, index = subpatent_index)
+    rate <- anti_parasite_immunity(
+      parameters$du_min, parameters$du_max, parameters$au50, parameters$ku,
+      variables$id$get_values(index = subpatent_index),
+      variables$idm$get_values(index = subpatent_index))
     ## Get individuals who are going to change
-    to_move <- subpatent_index$sample(1/rates)
-    # tupdate individuals and infectivity
+    to_move <- subpatent_index$sample(1/rate)
+    # update individuals and infectivity
     update_infection(
       state,
       to_state = "S",
@@ -115,18 +118,3 @@ create_subpatent_progression_process <- function(
     )
   }
 }
-
-#' @title Sub-patent duration for vivax model
-#' @description
-#' calculates sub-patent duration based on detectability (anti-parasite) immunity
-#'
-#' @param parameters model parameters
-#' @param variable immunity variables
-#' @param index index of subpatent infected individuals 
-#' @noRd
-subpatent_duration <- function(parameters, variables, index){
-    parameters$du_min + (parameters$du_max - parameters$du_min) / (
-      1 + ((variables$id$get_values(index = index) + variables$idm$get_values(index = index))/parameters$au50) ** parameters$kd
-    )
-}
-

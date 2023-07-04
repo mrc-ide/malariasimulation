@@ -53,14 +53,33 @@ simulate_infection <- function(
       parameters$ud
     )
   }
+  
+  if(parameters$parasite == "falciparum"){
+    clinical_infections <- calculate_clinical_infections(
+      variables,
+      infected_humans,
+      parameters,
+      renderer,
+      timestep
+    )
+  } else if (parameters$parasite == "vivax"){
+    patent_infections <- calculate_patent_infections(
+      variables,
+      infected_humans,
+      parameters,
+      renderer,
+      timestep
+    )
+    
+    clinical_infections <- calculate_clinical_infections(
+      variables,
+      patent_infections,
+      parameters,
+      renderer,
+      timestep
+    )
+  }
 
-  clinical_infections <- calculate_clinical_infections(
-    variables,
-    infected_humans,
-    parameters,
-    renderer,
-    timestep
-  )
 
   update_severe_disease(
     timestep,
@@ -171,11 +190,47 @@ calculate_infections <- function(
   infected
 }
 
-#' @title Calculate clinical infections
+#' @title Calculate patent infections (vivax only)
 #' @description
-#' Sample clinical infections from all infections
+#' Sample patent infections from all infections
 #' @param variables a list of all of the model variables
 #' @param infections bitset of infected humans
+#' @param parameters model parameters
+#' @param renderer model render
+#' @param timestep current timestep
+#' @noRd
+calculate_patent_infections <- function(
+    variables,
+    infections,
+    parameters,
+    renderer,
+    timestep
+) {
+  id <- variables$id$get_values(infections)
+  idm <- variables$idm$get_values(infections)
+  philm <- anti_parasite_immunity(
+    min = parameters$du_min, max = parameters$du_max, a50 = parameters$au50,
+    k = parameters$ku, id = id, idm = idm)
+  patent_infections <- bitset_at(infections, bernoulli_multi_p(philm))
+  incidence_renderer(
+    variables$birth,
+    renderer,
+    patent_infections,
+    infections,
+    philm,
+    'inc_patent_',
+    parameters$patent_incidence_rendering_min_ages,
+    parameters$patent_incidence_rendering_max_ages,
+    timestep
+  )
+  patent_infections
+}
+
+#' @title Calculate clinical infections
+#' @description
+#' Sample clinical infections from all infections or patent infections (vivax)
+#' @param variables a list of all of the model variables
+#' @param infections bitset of infected/patent humans
 #' @param parameters model parameters
 #' @param renderer model render
 #' @param timestep current timestep
@@ -443,4 +498,10 @@ blood_immunity <- function(ib, parameters) {
       (1 - parameters$b1) /
       (1 + (ib / parameters$ib0) ** parameters$kb)
   )
+}
+
+# Implemented from White et al., 2018 - Supplementary Information
+anti_parasite_immunity <- function(min, max, a50, k, id, idm){
+  min + (max - min) / (
+    1 + ((id + idm) / a50) ** k)
 }

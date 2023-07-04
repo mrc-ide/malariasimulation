@@ -70,7 +70,7 @@ sample_maternal_immunity <- function(variables, target, timestep, parameters) {
         variables$icm$queue_update(birth_icm, target_group)
         variables$ivm$queue_update(birth_ivm, target_group)
         
-        if(parameters$parasite=="vivax"){
+        if(parameters$parasite == "vivax"){
           birth_idm <- variables$id$get_values(mothers) * parameters$pcm
           variables$idm$queue_update(birth_idm, target_group)
         }

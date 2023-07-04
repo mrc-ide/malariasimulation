@@ -81,14 +81,14 @@ create_processes <- function(
       mixing_index
     ),
     create_mortality_process(variables, events, renderer, parameters),
-    if(parameters$parasite=="falciparum"){ ## P. falciparum has an age-dependent asymptomatic infectivity
+    if(parameters$parasite == "falciparum"){ ## P. falciparum has an age-dependent asymptomatic infectivity
       create_asymptomatic_progression_process(
         variables$state,
         parameters$dd,
         variables,
         parameters
       )
-    } else if (parameters$parasite =="vivax"){ ## P. vivax has a constant asymptomatic infectivity
+    } else if (parameters$parasite == "vivax"){ ## P. vivax has a constant asymptomatic infectivity
       create_progression_process(
         variables$state,
         'D',

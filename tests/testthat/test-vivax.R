@@ -79,3 +79,38 @@ test_that('Test age structure should not change vivax infectivity', {
   expect_false(any(
     c(create_variables(parameters)$infectivity$get_values() == create_variables(dem_parameters)$infectivity$get_values())))
 })
+
+test_that('vivax schedule_infections correctly schedules new infections', {
+  parameters <- get_parameters(list(human_population = 20), parasite = "vivax")
+  variables <- create_variables(parameters)
+
+  infections <- individual::Bitset$new(20)$insert(1:20)
+  clinical_infections <- individual::Bitset$new(20)$insert(5:15)
+  treated <- individual::Bitset$new(20)$insert(7:12)
+  
+  infection_mock <- mockery::mock()
+  
+  mockery::stub(schedule_infections, 'update_infection', infection_mock)
+  
+  schedule_infections(
+    variables,
+    clinical_infections,
+    treated,
+    infections,
+    parameters,
+    42 
+  )
+  
+  actual_infected <- mockery::mock_args(infection_mock)[[1]][[5]]$to_vector()
+  actual_asymp_infected <- mockery::mock_args(infection_mock)[[2]][[5]]$to_vector()
+  
+  expect_equal(
+    actual_infected,
+    c(5, 6, 13, 14, 15)
+  )
+
+  expect_equal(
+    actual_asymp_infected,
+    c(1, 2, 3, 4, 16, 17, 18, 19, 20)
+  )
+})

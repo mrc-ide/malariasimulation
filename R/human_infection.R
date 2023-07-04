@@ -347,20 +347,20 @@ schedule_infections <- function(
   }
 
   if(to_infect_asym$size() > 0) {
-    if(parameters$parasite=="falciparum"){ ## P. falciparum has an age-dependent asymptomatic infectivity
+    if(parameters$parasite == "falciparum"){ ## P. falciparum has an age-dependent asymptomatic infectivity
       update_to_asymptomatic_infection(
         variables,
         parameters,
         timestep,
         to_infect_asym
       )
-    } else if (parameters$parasite =="vivax"){ ## P. vivax has a constant asymptomatic infectivity
+    } else if (parameters$parasite == "vivax"){ ## P. vivax has a constant asymptomatic infectivity
       update_infection(
         variables$state,
         'A',
         variables$infectivity,
         parameters$ca,
-        to_infect
+        to_infect_asym
       )
     }
   }

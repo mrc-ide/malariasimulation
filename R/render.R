@@ -25,7 +25,7 @@ create_prevelance_renderer <- function(
     
     asymptomatic <- state$get_index_of('A')
     
-    if(parameters$parasite =="falciparum"){
+    if(parameters$parasite == "falciparum"){
       prob <- probability_of_detection(
         get_age(birth$get_values(asymptomatic), timestep),
         immunity$get_values(asymptomatic),
@@ -33,7 +33,7 @@ create_prevelance_renderer <- function(
       )
       asymptomatic_detected <- bitset_at(asymptomatic, bernoulli_multi_p(prob))
       
-    } else if (parameters$parasite =="vivax"){
+    } else if (parameters$parasite == "vivax"){
       # The vivax model defines asymptomatic infections as being detectable by
       # light microscopy
       prob <- rep(1, asymptomatic$size())

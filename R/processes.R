@@ -102,7 +102,7 @@ create_processes <- function(
       variables$infectivity,
       parameters$cu
     ),
-    if(parameters$parasite=="falciparum"){
+    if(parameters$parasite == "falciparum"){
       create_progression_process(
         variables$state,
         'U',
@@ -110,7 +110,7 @@ create_processes <- function(
         parameters$du,
         variables$infectivity,
         0)
-    } else if (parameters$parasite=="vivax"){
+    } else if (parameters$parasite == "vivax"){
       create_subpatent_progression_process(
         variables$state,
         variables,

@@ -148,6 +148,7 @@ test_that('Test default vivax rendering works', {
 test_that('that vivax patent incidence rendering works', {
   
   #################
+  timestep <- 1
   state <- individual::CategoricalVariable$new(
     c('U', 'A', 'D', 'S', 'Tr'),
     c('U', 'A', 'D', 'S')
@@ -156,8 +157,9 @@ test_that('that vivax patent incidence rendering works', {
     -c(2, 5, 10, 11) * 365
   )
   immunity <- individual::DoubleVariable$new(rep(1, 4))
-  
+  vivax_parameters <- get_parameters(parasite = "vivax")
   renderer <- mock_render(1)
+  
   process <- create_prevelance_renderer(
     state,
     birth,
@@ -174,7 +176,7 @@ test_that('that vivax patent incidence rendering works', {
     renderer$render_mock(),
     1,
     'n_730_3650',
-    3,
+    2,
     timestep
   )
   
@@ -182,7 +184,7 @@ test_that('that vivax patent incidence rendering works', {
     renderer$render_mock(),
     2,
     'n_detect_730_3650',
-    2,
+    1,
     timestep
   )
   
@@ -190,7 +192,7 @@ test_that('that vivax patent incidence rendering works', {
     renderer$render_mock(),
     3,
     'p_detect_730_3650',
-    2,
+    1,
     timestep
     )
 })
@@ -256,24 +258,60 @@ test_that('vivax schedule_infections correctly schedules new infections', {
   variables <- create_variables(parameters)
 
   infections <- individual::Bitset$new(20)$insert(1:20)
+  patent_infections <- individual::Bitset$new(20)$insert(1:16)
   clinical_infections <- individual::Bitset$new(20)$insert(5:15)
   treated <- individual::Bitset$new(20)$insert(7:12)
+  
+  # infections$to_vector()
+  # patent_infections$to_vector()
+  # clinical_infections$to_vector()
+  # treated$to_vector()
+  # 
+  # treated$to_vector()
+  # treated$not(FALSE)$to_vector()
+  # included <- treated$not(FALSE)
+  # included$to_vector()
+  # 
+  # clinical_infections$to_vector()
+  # clinical_infections$and(included)$to_vector()
+  # Infected <- clinical_infections$and(included)
+  # Infected$to_vector()
+  # 
+  # patent_infections$to_vector()
+  # patent_infections$and(included)$to_vector()
+  # patent_infections$and(clinical_infections$not(FALSE))$and(included)$to_vector()
+  # Asymp <- patent_infections$copy()$and(included)$and(clinical_infections$not(FALSE))
+  # Asymp$to_vector()
+  # 
+  # Subpat <- patent_infections$copy()$not(FALSE)$and(included)$to_vector()
+  #   
+  #   
+  # clinical_infections$copy()$not(FALSE)$and(infections)$and(included)
+  # 
+  # Asymp <- 
+  # 
+  # 
+  #   Infected <- clinical_infections$and(not(treated))$to_vector()
+  
+  
   
   infection_mock <- mockery::mock()
   
   mockery::stub(schedule_infections, 'update_infection', infection_mock)
   
   schedule_infections(
-    variables,
-    clinical_infections,
-    treated,
-    infections,
-    parameters,
-    42 
+    variables = variables,
+    patent_infections = patent_infections,
+    clinical_infections = clinical_infections,
+    treated = treated,
+    infections = infections,
+    parameters = parameters,
+    timestep = 42 
   )
   
   actual_infected <- mockery::mock_args(infection_mock)[[1]][[5]]$to_vector()
   actual_asymp_infected <- mockery::mock_args(infection_mock)[[2]][[5]]$to_vector()
+  actual_subpatent_infected <- mockery::mock_args(infection_mock)[[3]][[5]]$to_vector()
   
   expect_equal(
     actual_infected,
@@ -282,6 +320,12 @@ test_that('vivax schedule_infections correctly schedules new infections', {
 
   expect_equal(
     actual_asymp_infected,
-    c(1, 2, 3, 4, 16, 17, 18, 19, 20)
+    c(1, 2, 3, 4, 16)
   )
+  
+  expect_equal(
+    actual_subpatent_infected,
+    c(17, 18, 19, 20)
+  )
+  
 })

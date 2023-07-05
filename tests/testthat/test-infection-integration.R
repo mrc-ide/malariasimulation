@@ -48,7 +48,7 @@ test_that('simulate_infection integrates different types of infection and schedu
 
   mockery::expect_args(
     boost_immunity_mock,
-    1,
+    3,
     variables$ib,
     bitten,
     variables$last_boosted_ib,
@@ -100,6 +100,7 @@ test_that('simulate_infection integrates different types of infection and schedu
     schedule_mock,
     1,
     variables,
+    NULL, # patent infection
     clinical,
     treated,
     infected,
@@ -332,6 +333,7 @@ test_that('schedule_infections correctly schedules new infections', {
 
   schedule_infections(
     variables,
+    patent_infections = NULL,
     clinical_infections,
     treated,
     infections,

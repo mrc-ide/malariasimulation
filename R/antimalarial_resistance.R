@@ -22,24 +22,41 @@ set_antimalarial_resistance <- function(parameters,
                                         late_parasitological_prob,
                                         reinfection_prob) {
   
-  # Check that the proportion of people with artemisinin and partner-drug resistance
-  # are bounded between 0 and 1: 
-  if(artemisinin_resistance < 0 | artemisinin_resistance > 1 |
-     partner_drug_resistance < 0 | partner_drug_resistance > 1) {
-    stop("Artemisinin and partner-drug resistance proportions must fall between 0 and 1")
+  # Check that the number of values input is equal for each resistance parameter
+  if(length(artemisinin_resistance) != length(timesteps) |
+     length(partner_drug_resistance) != length(timesteps) |
+     length(slow_parasite_clearance_prob) != length(timesteps) |
+     length(early_treatment_failure_prob) != length(timesteps) |
+     length(late_clinical_failure_prob) != length(timesteps) |
+     length(late_parasitological_prob) != length(timesteps) |
+     length(reinfection_prob) != length(timesteps)) {
+    stop("Number of resistance parameter vectors do not match time steps specified for update")
   } else {
     print("OK")
   }
   
+  # Check that the proportion of people with artemisinin and partner-drug resistance
+  # are bounded between 0 and 1: 
+  for(i in length(artemisinin_resistance)) {
+    if(artemisinin_resistance[i] < 0 | artemisinin_resistance[i] > 1 |
+       partner_drug_resistance[i] < 0 | partner_drug_resistance[i] > 1) {
+      stop("Artemisinin and partner-drug resistance proportions must fall between 0 and 1")
+    } else {
+      print("OK")
+    }
+  }
+  
   # Ensure resistance phenotype probabilities bounded between 0 and 1:
-  if(slow_parasite_clearance_prob < 0 | slow_parasite_clearance_prob > 1 |
-     early_treatment_failure_prob < 0 | early_treatment_failure_prob > 1 |
-     late_clinical_failure_prob < 0 | late_clinical_failure_prob > 1 |
-     late_parasitological_prob < 0 | late_parasitological_prob > 1 |
-     reinfection_prob < 0 | reinfection_prob > 1) {
-    stop("Resistance phenotype probabilities must fall between 0 and 1")
-  } else {
-    print("OK")
+  for(i in 1:length(slow_parasite_clearance_prob)) {
+    if(slow_parasite_clearance_prob[i] < 0 | slow_parasite_clearance_prob[i] > 1 |
+       early_treatment_failure_prob[i] < 0 | early_treatment_failure_prob[i] > 1 |
+       late_clinical_failure_prob[i] < 0 | late_clinical_failure_prob[i] > 1 |
+       late_parasitological_prob[i] < 0 | late_parasitological_prob[i] > 1 |
+       reinfection_prob[i] < 0 | reinfection_prob[i] > 1) {
+      stop("Resistance phenotype probabilities must fall between 0 and 1")
+    } else {
+      print("OK")
+    }
   }
   
   # Set antimalarial_resistance to TRUE

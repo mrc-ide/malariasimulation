@@ -115,7 +115,8 @@ run_simulation <- function(
       solvers,
       correlations,
       list(create_lagged_eir(variables, solvers, parameters)),
-      list(create_lagged_infectivity(variables, parameters))
+      list(create_lagged_infectivity(variables, parameters)),
+      timesteps
     ),
     variables = variables,
     events = unlist(events),
@@ -206,6 +207,7 @@ run_metapop_simulation <- function(
         correlations[[i]],
         lagged_eir,
         lagged_infectivity,
+        timesteps,
         mixing[i,],
         i
       )

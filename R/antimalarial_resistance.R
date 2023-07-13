@@ -8,7 +8,7 @@
 #' @param slow_parasite_clearance_prob vector of updates to the proportion of artemisinin-resistant infections that result in early treatment failure
 #' @param early_treatment_failure_prob vector of updates to the proportion of artemisinin-resistant infections that result in slow parasite clearance
 #' @param late_clinical_failure_prob vector of updates to the proportion of partner-drug-resistant infections that result in late clinical failure
-#' @param late_parasitological_prob vector of updates to the proportion of partner-drug-resistant infections that result in late parasitologica; failure
+#' @param late_parasitological_prob vector of updates to the proportion of partner-drug-resistant infections that result in late parasitological failure
 #' @param reinfection_prob vector of updates to the proportion of partner-drug-resistant infections that result in reinfection during prophylaxis
 #' @export
 set_antimalarial_resistance <- function(parameters,
@@ -23,40 +23,30 @@ set_antimalarial_resistance <- function(parameters,
                                         reinfection_prob) {
   
   # Check that the number of values input is equal for each resistance parameter
-  if(length(artemisinin_resistance) != length(timesteps) |
-     length(partner_drug_resistance) != length(timesteps) |
-     length(slow_parasite_clearance_prob) != length(timesteps) |
-     length(early_treatment_failure_prob) != length(timesteps) |
-     length(late_clinical_failure_prob) != length(timesteps) |
-     length(late_parasitological_prob) != length(timesteps) |
-     length(reinfection_prob) != length(timesteps)) {
+  if(any(c(length(artemisinin_resistance),
+           length(partner_drug_resistance), 
+           length(slow_parasite_clearance_prob), 
+           length(early_treatment_failure_prob), 
+           length(late_clinical_failure_prob), 
+           length(late_parasitological_prob), 
+           length(reinfection_prob)) != length(timesteps))) {
     stop("Number of resistance parameter vectors do not match time steps specified for update")
-  } else {
-    print("OK")
   }
   
-  # Check that the proportion of people with artemisinin and partner-drug resistance
-  # are bounded between 0 and 1: 
-  for(i in length(artemisinin_resistance)) {
-    if(artemisinin_resistance[i] < 0 | artemisinin_resistance[i] > 1 |
-       partner_drug_resistance[i] < 0 | partner_drug_resistance[i] > 1) {
-      stop("Artemisinin and partner-drug resistance proportions must fall between 0 and 1")
-    } else {
-      print("OK")
-    }
+  # Ensure resistance proportions bounded between 0 and 1:
+    if(any(artemisinin_resistance < 0 | artemisinin_resistance > 1 |
+         partner_drug_resistance < 0 | partner_drug_resistance > 1)) {
+    stop("Artemisinin and partner-drug resistance proportions must fall between 0 and 1")
   }
+  
   
   # Ensure resistance phenotype probabilities bounded between 0 and 1:
-  for(i in 1:length(slow_parasite_clearance_prob)) {
-    if(slow_parasite_clearance_prob[i] < 0 | slow_parasite_clearance_prob[i] > 1 |
-       early_treatment_failure_prob[i] < 0 | early_treatment_failure_prob[i] > 1 |
-       late_clinical_failure_prob[i] < 0 | late_clinical_failure_prob[i] > 1 |
-       late_parasitological_prob[i] < 0 | late_parasitological_prob[i] > 1 |
-       reinfection_prob[i] < 0 | reinfection_prob[i] > 1) {
-      stop("Resistance phenotype probabilities must fall between 0 and 1")
-    } else {
-      print("OK")
-    }
+  if(any(slow_parasite_clearance_prob < 0 | slow_parasite_clearance_prob > 1 |
+         early_treatment_failure_prob < 0 | early_treatment_failure_prob > 1 |
+         late_clinical_failure_prob < 0 | late_clinical_failure_prob > 1 |
+         late_parasitological_prob < 0 | late_parasitological_prob > 1 |
+         reinfection_prob < 0 | reinfection_prob > 1)) {
+    stop("Resistance phenotype probabilities must fall between 0 and 1")
   }
   
   # Set antimalarial_resistance to TRUE
@@ -68,8 +58,6 @@ set_antimalarial_resistance <- function(parameters,
   # If the drug index falls outside range 1:n_drugs, terminate the operation:
   if (drug < 1 | drug > n_drugs) {
     stop('Drug index is invalid, please set drugs using set_drugs')
-  } else {
-    print("OK")
   }
   
   # Check the drug_index for the drug setting parameters for

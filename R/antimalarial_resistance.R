@@ -39,7 +39,6 @@ set_antimalarial_resistance <- function(parameters,
     stop("Artemisinin and partner-drug resistance proportions must fall between 0 and 1")
   }
   
-  
   # Ensure resistance phenotype probabilities bounded between 0 and 1:
   if(any(slow_parasite_clearance_prob < 0 | slow_parasite_clearance_prob > 1 |
          early_treatment_failure_prob < 0 | early_treatment_failure_prob > 1 |

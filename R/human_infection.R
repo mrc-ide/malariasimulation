@@ -253,6 +253,8 @@ update_severe_disease <- function(
   )
 }
 
+#===== Resistance -> Efficacy =====#
+
 #' @title Calculate treated humans
 #' @description
 #' Sample treated humans from the clinically infected
@@ -262,54 +264,130 @@ update_severe_disease <- function(
 #' @param timestep the current timestep
 #' @param renderer simulation renderer
 #' @noRd
+
 calculate_treated <- function(
-  variables,
-  clinical_infections,
-  parameters,
-  timestep,
-  renderer
-  ) {
-  treatment_coverages <- get_treatment_coverages(parameters, timestep)
+    variables,
+    clinical_infections,
+    parameters,
+    timestep,
+    renderer
+) {
+
+  # Gather the treatment coverage(s) in the current timestep:
+  treatment_coverages <- get_treatment_coverages(simparams, timestep)
+
+  # Sum to get the total treatment coverage in the current time step:
   ft <- sum(treatment_coverages)
 
+  # If total coverage = 0, return an empty Bitset for the treated individuals:
   if (ft == 0) {
-    return(individual::Bitset$new(parameters$human_population))
+    return(individual::Bitset$new(simparams$human_population))
   }
 
+  # Add the total treatment coverage to the renderer:
   renderer$render('ft', ft, timestep)
+
+  # Sample individuals from clinically infected to seek treatment using treatment coverage:
   seek_treatment <- sample_bitset(clinical_infections, ft)
+
+  # Store the number of people that seek treatment this time step:
   n_treat <- seek_treatment$size()
-  
+
+  # Add the number of people seeking treatment in the current time step to the renderer:
   renderer$render('n_treated', n_treat, timestep)
-  
-  drugs <- as.numeric(parameters$clinical_treatment_drugs[
+
+  # Assign each individual seeking treatment a drug based on their coverage(s):
+  drugs <- as.numeric(simparams$clinical_treatment_drugs[
     sample.int(
-      length(parameters$clinical_treatment_drugs),
+      length(simparams$clinical_treatment_drugs),
       n_treat,
       prob = treatment_coverages,
       replace = TRUE
     )
   ])
 
-  successful <- bernoulli_multi_p(parameters$drug_efficacy[drugs])
-  treated_index <- bitset_at(seek_treatment, successful)
+  #+++++ RESISTANCE +++++#
 
-  # Update those who have been treated
+  # Set the resistance drug index (each individuals drug):
+  AM_drug_index <- as.numeric(simparams$antimalarial_resistance_drug)[drugs]
+
+  # Open vectors to store the proportion of artemisinin resistance to the drug taken by each
+  # individual and it's probability of manifesting as early treatment failure:
+  art_resistance <- vector(); etf_prob <- vector()
+
+  # For reach individual seeking treatment, retrieve the resistance and ETF probabilities corresponding
+  # to the drug they have been administered:
+  for(i in 1:n_treat) {
+
+    # Identify the correct resistance index:
+    last_resistance <- match_timestep(ts = simparams$antimalarial_resistance_timesteps[[AM_drug_index[i]]],
+                                      t = timestep)
+
+    # Retrieve the resistance value corresponding to the drug and time step:
+    art_resistance[i] <- simparams$prop_artemisinin_resistant[[AM_drug_index[i]]][last_resistance]
+
+    # Retrieve the ETF phenotype probability corresponding to the drug and time step:
+    etf_prob[i] <- simparams$early_treatment_failure_prob[[AM_drug_index[i]]][last_resistance]
+
+  }
+
+  # Run bernoulli trials to determine which individuals experience early treatment failure given the
+  # drug they have been administered:
+  susceptible <- bernoulli_multi_p(p = 1 - (art_resistance * etf_prob))
+
+  # Calculate the number of individuals who failed treatment due to early treatment failure:
+  n_ETF <- n_treat - length(susceptible)
+
+  # Add the number of Early Treatment Failures to the renderer:
+  renderer$render('n_ETF', n_ETF, timestep)
+
+  # Remove the individuals who failed treatment due to resistance from the drugs vector:
+  drugs <- drugs[susceptible]
+
+  # Subset the people who remained susceptible
+  susceptible_index <- bitset_at(seek_treatment, susceptible)
+
+  #+++ DRUG EFFICACY +++#
+  # Determine, using drug efficacies, use bernoulli trials to see who's treatment worked:
+  successful <- bernoulli_multi_p(simparams$drug_efficacy[drugs])
+
+  # Calculate the number of people who failed treatment due to efficacy:
+  n_treat_eff_fail <- length(susceptible) - length(successful)
+
+  # Add the number of treatment efficacy failures to the renderer:
+  renderer$render('n_treat_eff_fail', n_treat_eff_fail, timestep)
+
+  # Subset the successfully treated people:
+  treated_index <- bitset_at(susceptible_index, successful)
+
+  # Add number of successfully treated individuals to the renderer
+  renderer$render('n_treat_success', treated_index$size(), timestep)
+
+  # Update the variables for those who have been successfully treated:
   if (treated_index$size() > 0) {
+
+    # Queue update to the infectious state to Tr:
     variables$state$queue_update('Tr', treated_index)
+
+    # Queue update to the infectivity to reflect their new state (Tr):
     variables$infectivity$queue_update(
       parameters$cd * parameters$drug_rel_c[drugs[successful]],
       treated_index
     )
+    # Queue update to the last drug each successfully treated person received:
     variables$drug$queue_update(
       drugs[successful],
       treated_index
     )
+    # Queue update to the time step on which each successfully treated person last
+    # received a drug:
     variables$drug_time$queue_update(
       timestep,
       treated_index
     )
   }
+
+  # Return the Bitset of treated individuals:
   treated_index
 }
 

@@ -264,7 +264,6 @@ update_severe_disease <- function(
 #' @param timestep the current timestep
 #' @param renderer simulation renderer
 #' @noRd
-
 calculate_treated <- function(
     variables,
     clinical_infections,

@@ -2,7 +2,7 @@
 #'
 #' @param parameters the model parameters
 #' @param drug the index of the drug which resistance is being set for in the parameter list
-#' @param timesteps vector of timesteps for each update to resistance proportion and/or phenotype probability
+#' @param timesteps vector of time steps for each update to resistance proportion and/or phenotype probability
 #' @param artemisinin_resistance vector of updates to the proportions of infections that are artemisinin resistant at time t
 #' @param partner_drug_resistance vector of updates to the proportions of infections that are partner-drug resistant at time t
 #' @param slow_parasite_clearance_prob vector of updates to the proportion of artemisinin-resistant infections that result in early treatment failure

@@ -208,6 +208,13 @@
 #' outputs; default = turned off
 #' * severe_incidence_rendering_max_ages - the corresponding max ages; default = turned off
 #'
+#' mixing:
+#'
+#' * rdt_intercept - the y intercept for the log logit relationship betweeen rdt
+#' and PCR prevalence; default = -0.968
+#' * rdt_coeff - the coefficient for the log logit relationship betweeen rdt
+#' and PCR prevalence; default = 1.186
+#'
 #' miscellaneous:
 #'
 #' * human_population - the initial number of humans to model; default = 100
@@ -394,6 +401,9 @@ get_parameters <- function(overrides = list()) {
     severe_incidence_rendering_max_ages = numeric(0),
     age_group_rendering_min_ages = numeric(0),
     age_group_rendering_max_ages = numeric(0),
+    # mixing
+    rdt_intercept = -0.968,
+    rdt_coeff = 1.186,
     # misc
     custom_demography = FALSE,
     human_population = 100,

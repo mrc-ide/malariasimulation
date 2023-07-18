@@ -230,6 +230,14 @@ outputs; default = turned off
 \item severe_incidence_rendering_max_ages - the corresponding max ages; default = turned off
 }
 
+mixing:
+\itemize{
+\item rdt_intercept - the y intercept for the log logit relationship betweeen rdt
+and microscopy prevalence; default = 0.108
+\item rdt_coeff - the coefficient for the log logit relationship betweeen rdt
+and microscopy prevalence; default = 0.907
+}
+
 miscellaneous:
 \itemize{
 \item human_population - the initial number of humans to model; default = 100

@@ -24,4 +24,3 @@ test_that('Test difference between falciparum and vivax parameter lists', {
   expect_true(all(names(vivax_parameters[!names(vivax_parameters) %in% names(falciparum_parameters)]) %in%
                     c("du_max","du_min","ku","au50","b","phi0lm","phi1lm","ic0lm","kclm","d0","ca","init_idm","f","gammal")))
 })
-

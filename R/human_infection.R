@@ -109,8 +109,12 @@ calculate_infections <- function(
   source_humans <- variables$state$get_index_of(
     c('S', 'A', 'U'))$and(bitten_humans)
 
-  b <- blood_immunity(variables$ib$get_values(source_humans), parameters)
-
+  if(parameters$parasite == "falciparum"){ ## P. falciparum models blood immunity
+    b <- blood_immunity(variables$ib$get_values(source_humans), parameters)
+  } else if (parameters$parasite == "vivax"){ ## P. vivax does not model blood immunity
+    b <- parameters$b
+  }
+  
   source_vector <- source_humans$to_vector()
 
   # calculate prophylaxis

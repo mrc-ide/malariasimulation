@@ -226,7 +226,7 @@ larval mortality rates:
 
 vector biology:
 species specific values are vectors
-#' please set species parameters using the convenience function
+please set species parameters using the convenience function
 \code{set_species}
 \itemize{
 \item beta - the average number of eggs laid per female mosquito per day; default = 21.2
@@ -304,6 +304,8 @@ please set TBV parameters with the convenience functions
 }
 
 miscellaneous:
+please set parasite species using the convenience function
+\code{set_parasite}
 \itemize{
 \item mosquito_limit - the maximum number of mosquitoes to allow for in the
 simulation; default = 1.00E+05

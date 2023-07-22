@@ -272,6 +272,18 @@ calculate_treated <- function(
     renderer
 ) {
   
+  #===================================================================#
+  
+  # Render the number of clinical infections in the current timestep:
+  renderer$render('n_clin_infected', clinical_infections$size(), timestep)
+  
+  # If there are no clinical infections, return an empty Bitset:
+  if(clinical_infections$size() == 0) {
+    return(individual::Bitset$new(parameters$human_population))
+  }
+  
+  #===================================================================#
+  
   # Gather the treatment coverage(s) in the current time step:
   treatment_coverages <- get_treatment_coverages(parameters, timestep)
   

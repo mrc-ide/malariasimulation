@@ -262,39 +262,6 @@ test_that('vivax schedule_infections correctly schedules new infections', {
   clinical_infections <- individual::Bitset$new(20)$insert(5:15)
   treated <- individual::Bitset$new(20)$insert(7:12)
   
-  # infections$to_vector()
-  # patent_infections$to_vector()
-  # clinical_infections$to_vector()
-  # treated$to_vector()
-  # 
-  # treated$to_vector()
-  # treated$not(FALSE)$to_vector()
-  # included <- treated$not(FALSE)
-  # included$to_vector()
-  # 
-  # clinical_infections$to_vector()
-  # clinical_infections$and(included)$to_vector()
-  # Infected <- clinical_infections$and(included)
-  # Infected$to_vector()
-  # 
-  # patent_infections$to_vector()
-  # patent_infections$and(included)$to_vector()
-  # patent_infections$and(clinical_infections$not(FALSE))$and(included)$to_vector()
-  # Asymp <- patent_infections$copy()$and(included)$and(clinical_infections$not(FALSE))
-  # Asymp$to_vector()
-  # 
-  # Subpat <- patent_infections$copy()$not(FALSE)$and(included)$to_vector()
-  #   
-  #   
-  # clinical_infections$copy()$not(FALSE)$and(infections)$and(included)
-  # 
-  # Asymp <- 
-  # 
-  # 
-  #   Infected <- clinical_infections$and(not(treated))$to_vector()
-  
-  
-  
   infection_mock <- mockery::mock()
   
   mockery::stub(schedule_infections, 'update_infection', infection_mock)

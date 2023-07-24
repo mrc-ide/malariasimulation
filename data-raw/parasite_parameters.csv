@@ -66,10 +66,6 @@ vivax,pcm,0.421,
 vivax,rm,35.148,
 vivax,rid,3650,
 vivax,rc,10950,
-vivax,b0,0.59,TO BE REMOVED: NOT VIVAX: Job 2: FOI
-vivax,b1,0.5,TO BE REMOVED: NOT VIVAX: Job 2: FOI
-vivax,ib0,43.9,TO BE REMOVED: NOT VIVAX: Job 2: FOI
-vivax,kb,2.16,TO BE REMOVED: NOT VIVAX: Job 2: FOI
 vivax,b,0.5,
 vivax,philm_min,0.0043,
 vivax,philm_max,0.8918,
@@ -79,7 +75,7 @@ vivax,phi0,0.8605,
 vivax,phi1,0.020918070889018,
 vivax,ic0,11.538,
 vivax,kc,2.25,
-vivax,cd,0.8,0.024
+vivax,cd,0.8,
 vivax,ca,0.1,
 vivax,cu,0.035,
 vivax,ct,0.4,

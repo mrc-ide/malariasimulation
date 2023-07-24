@@ -52,7 +52,7 @@ test_that('simulate_infection integrates different types of infection and schedu
     variables$ib,
     bitten,
     variables$last_boosted_ib,
-    5,
+    timestep,
     parameters$ub
   )
 
@@ -139,11 +139,11 @@ test_that('calculate_infections works various combinations of drug and vaccinati
     ib = individual::DoubleVariable$new(c(.2, .3, .5, .9))
   )
         
-  immunity_mock <- mockery::mock(c(.2, .3, .4))
+  immunity_mock <- mockery::mock(c(.1, .2, .3, .4))
   weibull_mock <- mockery::mock(.2)
   vaccine_antibodies_mock <- mockery::mock(c(2, 3))
   vaccine_efficacy_mock <- mockery::mock(c(.2, .3))
-  bernoulli_mock <- mockery::mock(2)
+  bernoulli_mock <- mockery::mock(3)
   mockery::stub(calculate_infections, 'blood_immunity', immunity_mock)
   mockery::stub(calculate_infections, 'weibull_survival', weibull_mock)
   mockery::stub(calculate_infections, 'calculate_pev_antibodies', vaccine_antibodies_mock)
@@ -172,13 +172,13 @@ test_that('calculate_infections works various combinations of drug and vaccinati
 
   expect_equal(infections$to_vector(), 3)
 
-  mockery::expect_args(immunity_mock, 1, c(.3, .5, .9), parameters)
+  mockery::expect_args(immunity_mock, 1, c(.2, .3, .5, .9), parameters)
   mockery::expect_args(
     weibull_mock,
     1,
-    20,
-    parameters$drug_prophylaxis_shape[[2]],
-    parameters$drug_prophylaxis_scale[[2]]
+    c(30, 20),
+    parameters$drug_prophylaxis_shape,
+    parameters$drug_prophylaxis_scale
   )
 
   mockery::expect_args(
@@ -202,7 +202,7 @@ test_that('calculate_infections works various combinations of drug and vaccinati
   mockery::expect_args(
     bernoulli_mock,
     1,
-    c(.2 * .8 * .8, .3 * .7, .4)
+    c(.1 * .8, .2 * .8 * .8, .3 * .7, .4)
   )
 
 })
@@ -373,13 +373,13 @@ test_that('prophylaxis is considered for medicated humans', {
     ib = individual::DoubleVariable$new(c(.2, .3, .5, .9))
   )
 
-  bitten <- individual::Bitset$new(4)$insert(seq(4))
-  m <- mockery::mock(seq(3))
+  bitten_humans <- individual::Bitset$new(4)$insert(seq(4))
+  m <- mockery::mock(c(1,1,2,3), cycle = T)
   mockery::stub(calculate_infections, 'bernoulli_multi_p', m)
 
   calculate_infections(
     variables,
-    bitten,
+    bitten_humans,
     parameters,
     mock_render(timestep),
     timestep
@@ -387,7 +387,7 @@ test_that('prophylaxis is considered for medicated humans', {
 
   expect_equal(
     mockery::mock_args(m)[[1]][[1]],
-    c(2.491951e-07, 2.384032e-01, 5.899334e-01),
+    c(5.899613e-01, 2.491951e-07, 2.384032e-01, 5.899334e-01),
     tolerance = 1e-3
   )
 })

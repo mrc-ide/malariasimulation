@@ -184,6 +184,10 @@ create_variables <- function(parameters) {
         'IDM'
       )
     )
+    
+    # Hypnozoite batch variable
+    hypnozoites <- individual::IntegerVariable$new(
+      rep(parameters$init_hyp, size))
   }
 
   # Initialise infectiousness of humans -> mosquitoes
@@ -252,7 +256,9 @@ create_variables <- function(parameters) {
                    iva = iva
     )
   } else if(parameters$parasite == "vivax"){
-    variables <- c(variables, idm = idm)
+    variables <- c(variables, 
+                   idm = idm, 
+                   hypnozoites = hypnozoites)
   }
 
   # Add variables for individual mosquitoes

@@ -4,7 +4,7 @@ in_age_range <- function(birth, timestep, lower, upper) {
 
 #' @title Render prevalence statistics
 #' 
-#' @description renders prevalence numerators and denominators for indivduals
+#' @description renders prevalence numerators and denominators for individuals
 #' detected by microscopy and with severe malaria
 #' 
 #' @param state human infection state
@@ -180,5 +180,40 @@ create_age_group_renderer <- function(
         timestep
       ) 
     }
+  }
+}
+
+create_hypnozoite_renderer_process <- function(
+    renderer,
+    hypnozoites,
+    parameters
+) {
+  function(timestep) {
+    renderer$render(
+      paste0("n_hypnozoites"),
+      sum(hypnozoites$get_values()!=0),
+      timestep
+    )
+  }
+}
+
+create_hypnozoite_age_renderer_process <- function(
+    hypnozoites,
+    birth,
+    parameters,
+    renderer
+) {
+  function(timestep) {
+    for (i in seq_along(parameters$hypnozoite_rendering_min_ages)) {
+      lower <- parameters$hypnozoite_rendering_min_ages[[i]]
+      upper <- parameters$hypnozoite_rendering_max_ages[[i]]
+      in_age <- in_age_range(birth, timestep, lower, upper)
+      renderer$render(
+        paste0('n_hypnozoites_age_', lower, '_', upper),
+        sum(hypnozoites$get_values(index = in_age$copy()$to_vector())!=0),
+        timestep
+      ) 
+    }
+    
   }
 }

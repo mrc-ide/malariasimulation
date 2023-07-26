@@ -143,27 +143,25 @@
 #' * t_proportion - the proportion of `human_population` that begin treated; default = 0
 #'
 #' rendering:
-#' All values are in timesteps and all ranges are inclusive
-#' please set rendered age groups using the convenience function
+#' All values are in timesteps and all ranges are inclusive.
+#' Please set rendered age groups using the convenience function
 #' `set_demography`
 #'
-#' * age_group_rendering_min_ages - the minimum ages for population size outputs; default = numeric(0)
-#' * age_group_rendering_max_ages - the corresponding max ages; default = numeric(0)
+#' * age_group_rendering_min_ages - the minimum ages for population size outputs; default = turned off
+#' * age_group_rendering_max_ages - the corresponding max ages; default = turned off
 #' * prevalence_rendering_min_ages - the minimum ages for clinical prevalence
-#' outputs; default = 730
+#' outputs (pcr and lm detectable infections); default = 730
 #' * prevalence_rendering_max_ages - the corresponding max ages; default = 3650
 #' * incidence_rendering_min_ages - the minimum ages for incidence
 #' outputs (includes asymptomatic microscopy +); default = turned off
 #' * incidence_rendering_max_ages - the corresponding max ages; default = turned off
-#' * patent_incidence_rendering_min_ages - the minimum ages for patent incidence outputs (LM detectable), (P.v only); default = numeric(0)
-#' * patent_incidence_rendering_max_ages - the corresponding max ages (P.v only); default = 1825 
+#' * patent_incidence_rendering_min_ages - the minimum ages for patent incidence outputs (lm detectable), (P.v only); default = turned off
+#' * patent_incidence_rendering_max_ages - the corresponding max ages (P.v only); default = turned off
 #' * clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = 0
 #' * clinical_incidence_rendering_max_ages - the corresponding max ages; default = 1825
 #' * severe_incidence_rendering_min_ages - the minimum ages for severe incidence
 #' outputs; default = turned off
 #' * severe_incidence_rendering_max_ages - the corresponding max ages; default = turned off
-#' * severe_prevalence_rendering_min_ages - the minimum ages for severe prevalance outputs; default = numeric(0),
-#' * severe_prevalence_rendering_max_ages - the corresponding max ages; default = numeric(0),
 #'
 #' mosquito life stage transitions:
 #'
@@ -338,7 +336,7 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       incidence_rendering_max_ages = numeric(0),
       patent_incidence_rendering_min_ages = numeric(0),
       patent_incidence_rendering_max_ages = numeric(0),
-      clinical_incidence_rendering_min_ages = numeric(0),
+      clinical_incidence_rendering_min_ages = 0,
       clinical_incidence_rendering_max_ages = 5 * 365,
       severe_incidence_rendering_min_ages = numeric(0),
       severe_incidence_rendering_max_ages = numeric(0),

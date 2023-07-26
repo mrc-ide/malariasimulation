@@ -159,25 +159,25 @@ subpatents; default = 0.133028023
 }
 
 rendering:
-All values are in timesteps and all ranges are inclusive
-please set rendered age groups using the convenience function
+All values are in timesteps and all ranges are inclusive.
+Please set rendered age groups using the convenience function
 \code{set_demography}
 \itemize{
-\item age_group_rendering_min_ages - the minimum ages for population size outputs; default = numeric(0)
-\item age_group_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item age_group_rendering_min_ages - the minimum ages for population size outputs; default = turned off
+\item age_group_rendering_max_ages - the corresponding max ages; default = turned off
 \item prevalence_rendering_min_ages - the minimum ages for clinical prevalence
-outputs; default = 730
+outputs (pcr and lm detectable infections); default = 730
 \item prevalence_rendering_max_ages - the corresponding max ages; default = 3650
 \item incidence_rendering_min_ages - the minimum ages for incidence
 outputs (includes asymptomatic microscopy +); default = turned off
 \item incidence_rendering_max_ages - the corresponding max ages; default = turned off
+\item patent_incidence_rendering_min_ages - the minimum ages for patent incidence outputs (lm detectable), (P.v only); default = turned off
+\item patent_incidence_rendering_max_ages - the corresponding max ages (P.v only); default = turned off
 \item clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = 0
 \item clinical_incidence_rendering_max_ages - the corresponding max ages; default = 1825
 \item severe_incidence_rendering_min_ages - the minimum ages for severe incidence
 outputs; default = turned off
 \item severe_incidence_rendering_max_ages - the corresponding max ages; default = turned off
-\item severe_prevalence_rendering_min_ages - the minimum ages for severe prevalance outputs; default = numeric(0),
-\item severe_prevalence_rendering_max_ages - the corresponding max ages; default = numeric(0),
 }
 
 mosquito life stage transitions:
@@ -226,7 +226,7 @@ larval mortality rates:
 
 vector biology:
 species specific values are vectors
-#' please set species parameters using the convenience function
+please set species parameters using the convenience function
 \code{set_species}
 \itemize{
 \item beta - the average number of eggs laid per female mosquito per day; default = 21.2

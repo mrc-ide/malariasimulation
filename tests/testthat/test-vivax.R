@@ -145,19 +145,20 @@ test_that('Test default vivax rendering works', {
   )
 })
   
-test_that('that vivax patent incidence rendering works', {
+test_that('that vivax patent prevalence rendering works', {
   
-  #################
+  timestep <- 1
   state <- individual::CategoricalVariable$new(
     c('U', 'A', 'D', 'S', 'Tr'),
-    c('U', 'A', 'D', 'S')
+    c('U', 'A', 'D', 'D', 'D', 'S')
   )
   birth <- individual::IntegerVariable$new(
-    -c(2, 5, 10, 11) * 365
+    -c(3, 4, 5, 1, 11, 6) * 365
   )
-  immunity <- individual::DoubleVariable$new(rep(1, 4))
-  
+  immunity <- individual::DoubleVariable$new(rep(1, 6))
+  vivax_parameters <- get_parameters(parasite = "vivax")
   renderer <- mock_render(1)
+  
   process <- create_prevelance_renderer(
     state,
     birth,
@@ -166,30 +167,28 @@ test_that('that vivax patent incidence rendering works', {
     renderer
   )
   
-  mockery::stub(process, 'probability_of_detection', mockery::mock(.5))
-  mockery::stub(process, 'bernoulli_multi_p', mockery::mock(1))
   process(timestep)
   
   mockery::expect_args(
     renderer$render_mock(),
     1,
     'n_730_3650',
-    3,
+    4,
     timestep
   )
   
   mockery::expect_args(
     renderer$render_mock(),
     2,
-    'n_detect_730_3650',
-    2,
+    'n_detect_pcr_730_3650',
+    3,
     timestep
   )
   
   mockery::expect_args(
     renderer$render_mock(),
     3,
-    'p_detect_730_3650',
+    'n_detect_lm_730_3650',
     2,
     timestep
   )

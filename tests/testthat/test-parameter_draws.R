@@ -7,7 +7,15 @@ test_that("Out of range error", {
 test_that("Draw overwrite works", {
   p <- get_parameters()
   p1 <- set_parameter_draw(p, 1)
-  expect_identical(p1[names(parameter_draws[[1]])], parameter_draws[[1]])
+  expect_identical(p1[names(parameter_draws_f[[1]])], parameter_draws_f[[1]])
   p2 <- set_parameter_draw(p, 1000)
-  expect_identical(p2[names(parameter_draws[[1000]])], parameter_draws[[1000]])
+  expect_identical(p2[names(parameter_draws_f[[1000]])], parameter_draws_f[[1000]])
+})
+
+test_that("vivax draw overwrite works", {
+  p <- get_parameters(parasite = "vivax")
+  p1 <- set_parameter_draw(p, 1)
+  expect_identical(p1[names(parameter_draws_v[[1]])], parameter_draws_v[[1]])
+  p2 <- set_parameter_draw(p, 1000)
+  expect_identical(p2[names(parameter_draws_v[[1000]])], parameter_draws_v[[1000]])
 })

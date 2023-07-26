@@ -303,6 +303,10 @@
 #' @export
 get_parameters <- function(overrides = list(), parasite = "falciparum") {
   
+  if(!parasite %in% c("falciparum","vivax")){
+    stop("parasite must be 'falciparum' or 'vivax'")
+  }
+  
   parameters <- c(
     ## Parasite-specific parameters set in parasite_parameters.csv
     # human fixed state transitions
@@ -453,7 +457,7 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       a_tol = 1e-4,
       ode_max_steps = 1e6,
       progress_bar = FALSE
-      ))
+    ))
   
   # Override parameters with any client specified ones
   if (!is.list(overrides)) {
@@ -565,10 +569,16 @@ set_parameter_draw <- function(parameters, draw){
   if(draw > 1000 || draw < 1){
     stop("draw must be an integer between 1 and 1000")
   }
-  parameter_draw <- parameter_draws[[draw]]
+  
+  if(parameters$parasite == "falciparum"){
+    parameter_draw <- parameter_draws_f[[draw]]} 
+  else if(parameters$parasite == "vivax"){
+    parameter_draw <- parameter_draws_v[[draw]]}
+  
   for (name in names(parameter_draw)) {
     parameters[[name]] <- parameter_draw[[name]]
   }
+  
   return(parameters)
 }
 

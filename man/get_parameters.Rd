@@ -169,12 +169,12 @@ Please set rendered age groups using the convenience function
 outputs (pcr and lm detectable infections); default = 730
 \item prevalence_rendering_max_ages - the corresponding max ages; default = 3650
 \item incidence_rendering_min_ages - the minimum ages for incidence
-outputs (includes asymptomatic microscopy +); default = turned off
+outputs (pf: D+Tr+A, pv: D+Tr+A+U); default = turned off
 \item incidence_rendering_max_ages - the corresponding max ages; default = turned off
 \item patent_incidence_rendering_min_ages - the minimum ages for patent incidence outputs (lm detectable), (P.v only); default = turned off
 \item patent_incidence_rendering_max_ages - the corresponding max ages (P.v only); default = turned off
-\item clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = 0
-\item clinical_incidence_rendering_max_ages - the corresponding max ages; default = 1825
+\item clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = turned off
+\item clinical_incidence_rendering_max_ages - the corresponding max ages; default = turned off
 \item severe_incidence_rendering_min_ages - the minimum ages for severe incidence
 outputs; default = turned off
 \item severe_incidence_rendering_max_ages - the corresponding max ages; default = turned off

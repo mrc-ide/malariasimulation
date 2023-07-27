@@ -199,7 +199,7 @@ create_age_group_renderer <- function(
       upper <- parameters$age_group_rendering_max_ages[[i]]
       in_age <- in_age_range(birth, timestep, lower, upper)
       renderer$render(
-        paste0('n_', lower, '_', upper),
+        paste0('n_age_', lower, '_', upper),
         in_age$size(),
         timestep
       ) 

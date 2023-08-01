@@ -48,7 +48,7 @@ set_antimalarial_resistance <- function(parameters,
     stop("Resistance phenotype probabilities must fall between 0 and 1")
   }
   
-  # Set antimalarial_resistance to TRUE
+  # Set antimalarial_resistance to TRUE:
   parameters$antimalarial_resistance <- TRUE
   
   # Store the number of drugs for which parameters are available in the parameter list:
@@ -59,26 +59,26 @@ set_antimalarial_resistance <- function(parameters,
     stop('Drug index is invalid, please set drugs using set_drugs')
   }
   
-  # Check the drug_index for the drug setting parameters for
+  # Check the drug_index for the we're drug setting parameters for:
   drug_index <- which(parameters$antimalarial_resistance_drug == drug)
   
-  # If drug_index is currently unpopulated
+  # If drug_index not already assigned, assign the drug the next available index:
   if (length(drug_index) == 0) {
     drug_index <- length(parameters$antimalarial_resistance_drug) + 1
   }
   
-  # Append the drug for which resistance is being assigned
+  # Append the drug for which resistance is being assigned to the generated index:
   parameters$antimalarial_resistance_drug[[drug_index]] <- drug
   
-  # Append the timesteps on which the resistance proportions are to be updated
+  # Append the timesteps on which the resistance proportions are to be updated:
   parameters$antimalarial_resistance_timesteps[[drug_index]] <- timesteps
   
   # Append the proportions of all malarial infections that are artemisinin or partner-drug
-  # resistant
+  # resistant:
   parameters$prop_artemisinin_resistant[[drug_index]] <- artemisinin_resistance
   parameters$prop_partner_drug_resistant[[drug_index]] <- partner_drug_resistance
   
-  # Append the probabilities that
+  # Append the probabilities that individuals will experience the resistance phenotypes:
   parameters$slow_parasite_clearance_prob[[drug_index]] <- slow_parasite_clearance_prob
   parameters$early_treatment_failure_prob[[drug_index]] <- early_treatment_failure_prob
   parameters$late_clinical_failure_prob[[drug_index]] <- late_clinical_failure_prob

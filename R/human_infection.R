@@ -253,8 +253,6 @@ update_severe_disease <- function(
   )
 }
 
-#===== Resistance -> Efficacy =====================================================================#
-
 #' @title Calculate treated humans
 #' @description
 #' Sample treated humans from the clinically infected
@@ -272,38 +270,24 @@ calculate_treated <- function(
     renderer
 ) {
   
-  # Render the number of clinical infections in the current timestep:
   renderer$render('n_clin_infected', clinical_infections$size(), timestep)
   
-  # If there are no clinical infections, return an empty Bitset:
   if(clinical_infections$size() == 0) {
     return(individual::Bitset$new(parameters$human_population))
   }
   
-  # Gather the treatment coverage(s) in the current time step:
   treatment_coverages <- get_treatment_coverages(parameters, timestep)
-  
-  # Sum to get the total treatment coverage in the current time step:
   ft <- sum(treatment_coverages)
   
-  # If total coverage = 0, return an empty Bitset for the treated individuals:
   if (ft == 0) {
     return(individual::Bitset$new(parameters$human_population))
   }
   
-  # Add the total treatment coverage to the renderer:
   renderer$render('ft', ft, timestep)
-  
-  # Sample individuals from clinically infected to seek treatment using treatment coverage:
   seek_treatment <- sample_bitset(clinical_infections, ft)
-  
-  # Store the number of people that seek treatment this time step:
   n_treat <- seek_treatment$size()
-  
-  # Add the number of people seeking treatment in the current time step to the renderer:
   renderer$render('n_treated', n_treat, timestep)
   
-  # Assign each individual seeking treatment a drug based on their coverage(s):
   drugs <- as.numeric(parameters$clinical_treatment_drugs[
     sample.int(
       length(parameters$clinical_treatment_drugs),
@@ -313,113 +297,61 @@ calculate_treated <- function(
     )
   ])
   
-  #+++++ RESISTANCE +++++#
-  
   if(!is.null(parameters$antimalarial_resistance)) {
     
-    # Retrieve the index of the drug administered for each individual in the resistance parameters:
     antimalarial_resistance_drug_index <- as.numeric(parameters$antimalarial_resistance_drug)[drugs]
-    
-    # Open vectors to store artemisinin resistance and early treatment probability parameters for each
-    # individual:
     artemisinin_resistance_proportion <- vector()
     early_treatment_failure_probability <- vector()
     drug_indices <- list(); drug_index <- vector()
-    
-    for(i in seq_along(parameters$antimalarial_resistance_drug)) {
-      
-      # Retrieve the indices of individuals treated with drug i
-      drug_indices[[i]] <- which(drugs == i)
-      
-      # Retrieve the index of the drug in the resistance parameters
-      drug_index[i] <- which(parameters$antimalarial_resistance_drug == i)
-      
-      # Assign these individuals the resistance proportion corresponding to drug i in the current time step
-      artemisinin_resistance_proportion[drug_indices[[i]]] <- parameters$prop_artemisinin_resistant[[drug_index[i]]][match_timestep(ts = parameters$antimalarial_resistance_timesteps[[drug_index[i]]],
+
+        for(i in seq_along(parameters$antimalarial_resistance_drug)) {
+          drug_indices[[i]] <- which(drugs == i)
+          drug_index[i] <- which(parameters$antimalarial_resistance_drug == i)
+          artemisinin_resistance_proportion[drug_indices[[i]]] <- parameters$prop_artemisinin_resistant[[drug_index[i]]][match_timestep(ts = parameters$antimalarial_resistance_timesteps[[drug_index[i]]],
                                                                                                                                     t = timestep)]
-      # Assign these individuals the ETF probability corresponding to drug i in the current time step
-      early_treatment_failure_probability[drug_indices[[i]]] <- parameters$early_treatment_failure_prob[[drug_index[i]]][match_timestep(ts = parameters$antimalarial_resistance_timesteps[[drug_index[i]]],
+          early_treatment_failure_probability[drug_indices[[i]]] <- parameters$early_treatment_failure_prob[[drug_index[i]]][match_timestep(ts = parameters$antimalarial_resistance_timesteps[[drug_index[i]]],
                                                                                                                                         t = timestep)]
     }
     
-    # Determine individuals that remain susceptible to the drug they've been administered:
     susceptible_to_treatment_index <- bernoulli_multi_p(p = 1 - (artemisinin_resistance_proportion * early_treatment_failure_probability))
-    
-    # Remove the individuals who failed treatment due to resistance from the drugs vector:
     drugs <- drugs[susceptible_to_treatment_index]
-    
-    # Subset the people who remained susceptible into new Bitset:
     susceptible_to_treatment <- bitset_at(seek_treatment, susceptible_to_treatment_index)
-    
-    # Calculate the number of individuals who failed treatment due to early treatment failure:
     n_ETF <- n_treat - susceptible_to_treatment$size()
-    
-    # Add the number of Early Treatment Failures to the renderer:
     renderer$render('n_ETF', n_ETF, timestep)
     
   } else {
     
-    # In the absence of resistance, all individuals who have sought treatment have susceptible
-    # infections
     susceptible_to_treatment <- seek_treatment
-    
-    # Calculate the number of individuals who failed treatment due to early treatment failure:
     n_ETF <- n_treat - susceptible_to_treatment$size()
-    
-    # Add the number of Early Treatment Failures to the renderer:
     renderer$render('n_ETF', n_ETF, timestep)
     
   }
   
-  #+++ DRUG EFFICACY +++#
-  
-  # Determine, using drug efficacies, use bernoulli trials to see who's treatment worked:
   successfully_treated_index <- bernoulli_multi_p(parameters$drug_efficacy[drugs])
-  
-  # Subset the successfully treated people into new Bitset:
   successfully_treated <- bitset_at(susceptible_to_treatment, successfully_treated_index)
-  
-  # Calculate the number of people who failed treatment due to efficacy:
   n_treat_eff_fail <- susceptible_to_treatment$size() - length(successfully_treated_index)
-  
-  # Add the number of treatment efficacy failures to the renderer:
   renderer$render('n_treat_eff_fail', n_treat_eff_fail, timestep)
-  
-  # Add number of successfully treated individuals to the renderer
   renderer$render('n_treat_success', successfully_treated$size(), timestep)
   
-  #+++ UPDATE VARIABLES +++#
-  
-  # Update the variables for those who have been successfully treated:
   if (successfully_treated$size() > 0) {
     
-    # Queue update to the infectious state to Tr:
     variables$state$queue_update("Tr", successfully_treated)
     
-    # Queue update to the infectivity to reflect their new state (Tr):
     variables$infectivity$queue_update(
       parameters$cd * parameters$drug_rel_c[drugs[successfully_treated_index]],
       successfully_treated
     )
-    # Queue update to the last drug each successfully treated person received:
     variables$drug$queue_update(
       drugs[successfully_treated_index],
       successfully_treated
     )
-    # Queue update to the time step on which each successfully treated person last
-    # received a drug:
     variables$drug_time$queue_update(
       timestep,
       successfully_treated
     )
   }
-  
-  # Return the Bitset of treated individuals:
   successfully_treated
-  
 }
-
-#==================================================================================================#
 
 #' @title Schedule infections
 #' @description

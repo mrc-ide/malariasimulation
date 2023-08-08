@@ -191,7 +191,7 @@ create_hypnozoite_renderer_process <- function(
   function(timestep) {
     renderer$render(
       paste0("n_hypnozoites"),
-      sum(hypnozoites$get_values()!=0),
+      hypnozoites$size() - hypnozoites$get_size_of(0),
       timestep
     )
   }
@@ -210,7 +210,7 @@ create_hypnozoite_age_renderer_process <- function(
       in_age <- in_age_range(birth, timestep, lower, upper)
       renderer$render(
         paste0('n_hypnozoites_age_', lower, '_', upper),
-        sum(hypnozoites$get_values(index = in_age$copy()$to_vector())!=0),
+        sum(hypnozoites$get_values(index = in_age)!=0),
         timestep
       ) 
     }

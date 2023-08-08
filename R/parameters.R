@@ -168,10 +168,14 @@
 #' * severe_incidence_rendering_min_ages - the minimum ages for severe incidence
 #' outputs; default = turned off
 #' * severe_incidence_rendering_max_ages - the corresponding max ages; default = turned off
-#' * severe_prevalence_rendering_min_ages - the minimum ages for severe prevalance outputs; default = numeric(0),
-#' * severe_prevalence_rendering_max_ages - the corresponding max ages; default = numeric(0),
-#' * hypnozoite_rendering_min_ages - the minimum ages for hypnozoite outputs; default = numeric(0),
-#' * hypnozoite_rendering_max_ages - the corresponding max ages; default = numeric(0),
+#' * severe_prevalence_rendering_min_ages - the minimum ages for severe prevalance outputs; default = numeric(0)
+#' * severe_prevalence_rendering_max_ages - the corresponding max ages; default = numeric(0)
+#' * hypnozoite_rendering_min_ages - the minimum ages for hypnozoite outputs (p.v only); default = numeric(0)
+#' * hypnozoite_rendering_max_ages - the corresponding max ages; default = numeric(0)
+#' * new_bite_incidence_rendering_min_ages - the minimum ages for incidence via mosquito bite outputs (not via relapse; p.v only); default = numeric(0)
+#' * new_bite_incidence_rendering_max_ages - the corresponding max ages; default = numeric(0)
+#' * relapse_incidence_rendering_min_ages - the minimum ages for hypnozoite relapse incidence outputs (p.v only); default = numeric(0)
+#' * relapse_incidence_rendering_max_ages - the corresponding max ages; default = numeric(0)
 #'
 #' mosquito life stage transitions:
 #'
@@ -347,13 +351,18 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       patent_incidence_rendering_min_ages = numeric(0),
       patent_incidence_rendering_max_ages = numeric(0),
       clinical_incidence_rendering_min_ages = numeric(0),
-      clinical_incidence_rendering_max_ages = 5 * 365,
+      clinical_incidence_rendering_max_ages = numeric(0),
       severe_incidence_rendering_min_ages = numeric(0),
       severe_incidence_rendering_max_ages = numeric(0),
       severe_prevalence_rendering_min_ages = numeric(0),
       severe_prevalence_rendering_max_ages = numeric(0),
       hypnozoite_rendering_min_ages = numeric(0),
       hypnozoite_rendering_max_ages = numeric(0),
+      new_bite_incidence_rendering_min_ages = numeric(0),
+      new_bite_incidence_rendering_max_ages = numeric(0),
+      relapse_incidence_rendering_min_ages = numeric(0),
+      relapse_incidence_rendering_max_ages = numeric(0),
+      
       
       # mosquito life stage transitions
       del =  6.64,
@@ -453,7 +462,7 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       a_tol = 1e-4,
       ode_max_steps = 1e6,
       progress_bar = FALSE
-      ))
+    ))
   
   # Override parameters with any client specified ones
   if (!is.list(overrides)) {

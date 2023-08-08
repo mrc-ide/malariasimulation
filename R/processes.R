@@ -373,14 +373,17 @@ create_lagged_eir <- function(variables, solvers, parameters) {
 #' @noRd
 create_hypnozoite_decay_process <- function(hypnozoites, gammal, renderer){
   function(timestep){
-    if(any(hypnozoites$get_values()>0)){
-      hyp_bitset <- hypnozoites$get_index_of(0)$copy()$not(FALSE)
-      hypozoite_decay <- vapply(X = hypnozoites$get_values(index = hyp_bitset),
-                                FUN = function(x){
-                                  rbinom(n = 1, size = x, prob = gammal)
-                                }, numeric(1))
-      hypnozoites$queue_update(values = hypnozoites$get_values(index = hyp_bitset) - hypozoite_decay,
-                               index = hyp_bitset)
+    if(hypnozoites$get_size_of(0)>0){
+      hyp_bitset <- hypnozoites$get_index_of(0)$not(TRUE)
+      n_hypnozoites <- hypnozoites$get_values(index = hyp_bitset)
+      hypozoite_decay <- vnapply(
+        n_hypnozoites,
+        function(x) rbinom(n = 1, size = x, prob = gammal)
+      )
+      hypnozoites$queue_update(
+        values = n_hypnozoites - hypozoite_decay,
+        index = hyp_bitset
+      )
       renderer$render('n_decayed', sum(hypozoite_decay), timestep)
     }
   }

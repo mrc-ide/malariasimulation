@@ -14,8 +14,10 @@
 #'  * EIR: the Entomological Inoculation Rate (per timestep, per species, over 
 #'  the whole population)
 #'  * n_bitten: number of humans bitten by an infectious mosquito
-#'  * n_treated: number of humans treated for clinical or severe malaria this timestep
-#'  * n_infections: number of humans who get an asymptomatic, clinical or severe malaria this timestep
+#'  * n_treated: number of humans treated for clinical or severe malaria at this timestep
+#'  * n_infections: number of humans who experience a malaria infection (p.v only: or hypnozoite relapse) at this timestep
+#'  * n_new_bite_infections: number of humans who are experience a new malaria infection via mosquito bite at this timestep (p.v only)
+#'  * n_relapses: number of humans who experience hypnozoite relapse leading to infection at this timestep (p.v only)
 #'  * natural_deaths: number of humans who die from aging
 #'  * S_count: number of humans who are Susceptible
 #'  * A_count: number of humans who are Asymptomatic
@@ -39,12 +41,30 @@
 #'  * n_severe: number of humans with a severe infection between an inclusive
 #' age range at this timestep. Age ranges can be set with
 #' severe_prevalence_rendering_min_ages and severe_prevalence_rendering_max_ages parameters.
-#'  * n_inc: number of new infections for humans between an inclusive age range at this timestep.
+#'  * n_inc: number of new infections (p.v: including relapses) for humans between an inclusive age range at this timestep.
 #' incidence columns can be set with
 #' incidence_rendering_min_ages and incidence_rendering_max_ages parameters.
-#'  * p_inc: sum of probabilities of infection for humans between an inclusive age range at this timestep.
+#'  * p_inc: sum of probabilities of infection (p.v: including relapses) for humans between an inclusive age range at this timestep.
 #' incidence columns can be set with
 #' incidence_rendering_min_ages and incidence_rendering_max_ages parameters.
+#'  * n_inc_new_bite: number of new infections via mosquito bites for humans between an inclusive age range at this timestep (p.v only).
+#' incidence via bite columns can be set with
+#' new_bite_incidence_rendering_min_ages and new_bite_incidence_rendering_max_ages parameters.
+#'  * p_inc_new_bite: sum of probabilities of infection via mosquito bites for humans between an inclusive age range at this timestep (p.v only).
+#' incidence via bite columns can be set with
+#' new_bite_incidence_rendering_min_ages and new_bite_incidence_rendering_max_ages parameters.
+#'  * n_inc_relapse: number of new hypnozoite relapses for humans between an inclusive age range at this timestep (p.v. only).
+#' relapse incidence columns can be set with
+#' relapse_incidence_rendering_min_ages and relapse_incidence_rendering_max_ages parameters.
+#'  * p_inc_relapse: sum of probabilities of hypnozoite relapses for humans between an inclusive age range at this timestep (p.v. only).
+#' incidence relapse columns can be set with
+#' relapse_incidence_rendering_min_ages and relapse_incidence_rendering_max_ages parameters.
+#'  * n_inc_patent: number of new patent infections for humans between an inclusive age range at this timestep (p.v. only). 
+#' patent incidence columns can be set with
+#' patent_incidence_rendering_min_ages and patent_incidence_rendering_max_ages parameters.
+#'  * p_inc_patent: sub of probabilities of patent infection for humans between an inclusive age range at this timestep (p.v. only). 
+#' patent incidence columns can be set with
+#' patent_incidence_rendering_min_ages and patent_incidence_rendering_max_ages parameters.
 #'  * n_inc_clinical: number of new clinical infections for humans between an inclusive age range at this timestep. 
 #' clinical incidence columns can be set with
 #' clinical_incidence_rendering_min_ages and clinical_incidence_rendering_max_ages parameters.

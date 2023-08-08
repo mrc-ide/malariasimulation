@@ -180,10 +180,14 @@ outputs (includes asymptomatic microscopy +); default = turned off
 \item severe_incidence_rendering_min_ages - the minimum ages for severe incidence
 outputs; default = turned off
 \item severe_incidence_rendering_max_ages - the corresponding max ages; default = turned off
-\item severe_prevalence_rendering_min_ages - the minimum ages for severe prevalance outputs; default = numeric(0),
-\item severe_prevalence_rendering_max_ages - the corresponding max ages; default = numeric(0),
-\item hypnozoite_rendering_min_ages - the minimum ages for hypnozoite outputs; default = numeric(0),
-\item hypnozoite_rendering_max_ages - the corresponding max ages; default = numeric(0),
+\item severe_prevalence_rendering_min_ages - the minimum ages for severe prevalance outputs; default = numeric(0)
+\item severe_prevalence_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item hypnozoite_rendering_min_ages - the minimum ages for hypnozoite outputs (p.v only); default = numeric(0)
+\item hypnozoite_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item new_bite_incidence_rendering_min_ages - the minimum ages for incidence via mosquito bite outputs (not via relapse; p.v only); default = numeric(0)
+\item new_bite_incidence_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item relapse_incidence_rendering_min_ages - the minimum ages for hypnozoite relapse incidence outputs (p.v only); default = numeric(0)
+\item relapse_incidence_rendering_max_ages - the corresponding max ages; default = numeric(0)
 }
 
 mosquito life stage transitions:

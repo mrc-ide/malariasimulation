@@ -10,14 +10,14 @@
 #' @param timestep current timestep
 #' @noRd
 simulate_infection <- function(
-  variables,
-  events,
-  bitten_humans,
-  age,
-  parameters,
-  timestep,
-  renderer
-  ) {
+    variables,
+    events,
+    bitten_humans,
+    age,
+    parameters,
+    timestep,
+    renderer
+) {
   
   # Calculate Infected
   infected_humans <- calculate_infections(
@@ -27,7 +27,7 @@ simulate_infection <- function(
     renderer,
     timestep
   )
-
+  
   if (infected_humans$size() > 0) {
     boost_immunity(
       variables$ica,
@@ -92,7 +92,7 @@ simulate_infection <- function(
       timestep
     )
   }
-
+  
   treated <- calculate_treated(
     variables,
     clinical_infections,
@@ -100,7 +100,7 @@ simulate_infection <- function(
     timestep,
     renderer
   )
-
+  
   schedule_infections(
     variables,
     patent_infections,
@@ -122,22 +122,27 @@ simulate_infection <- function(
 #' @param timestep current timestep
 #' @noRd
 calculate_infections <- function(
-  variables,
-  bitten_humans,
-  parameters,
-  renderer,
-  timestep
-  ) {
+    variables,
+    bitten_humans,
+    parameters,
+    renderer,
+    timestep
+) {
   
-  if(parameters$parasite == "falciparum"){ ## P. falciparum models blood immunity
-    b <- blood_immunity(variables$ib$get_values(bitten_humans), parameters)
+  if(parameters$parasite == "falciparum"){
+    source_humans <- variables$state$get_index_of(c('S','A','U'))$and(bitten_humans)
+    source_vector <- source_humans$to_vector()
+    ## P. falciparum models blood immunity
+    b <- blood_immunity(variables$ib$get_values(source_humans), parameters)
     
-  } else if (parameters$parasite == "vivax"){ ## P. vivax does not model blood immunity
+  } else if (parameters$parasite == "vivax"){
+    ## All infections must be checked for hypnozoite batch increases
+    source_humans <- bitten_humans
+    source_vector <- source_humans$to_vector()
+    ## P. vivax does not model blood immunity
     b <- parameters$b
   }
   
-  source_vector <- bitten_humans$to_vector()
-
   # calculate prophylaxis
   prophylaxis <- rep(0, length(source_vector))
   drug <- variables$drug$get_values(source_vector)
@@ -151,7 +156,7 @@ calculate_infections <- function(
       parameters$drug_prophylaxis_scale[drug]
     )
   }
-
+  
   # calculate vaccine efficacy
   vaccine_efficacy <- rep(0, length(source_vector))
   vaccine_times <- variables$pev_timestep$get_values(source_vector)
@@ -177,43 +182,64 @@ calculate_infections <- function(
       alpha[pev_profile]
     )
   }
-
-  prob <- b * (1 - prophylaxis) * (1 - vaccine_efficacy)
-
-  ## All bitten humans with an infectious bite (incorporating prophylaxis and vaccines)
-  infected <- bitset_at(bitten_humans, bernoulli_multi_p(prob))
-  ## Subset to those without a current infection
-  newly_infected <- infected$and(variables$state$get_index_of(c('S','A','U')))
   
-  # Render new infections caused by bites
-  renderer$render('n_newly_infected', newly_infected$size(), timestep)
-  incidence_renderer(
-    variables$birth,
-    renderer,
-    newly_infected,
-    source_humans,
-    prob,
-    'inc_',
-    parameters$incidence_rendering_min_ages,
-    parameters$incidence_rendering_max_ages,
-    timestep
-  )
-
-  if(parameters$parasite == "vivax"){
+  prob <- b * (1 - prophylaxis) * (1 - vaccine_efficacy)
+  
+  ## All bitten humans with an infectious bite (incorporating prophylaxis and vaccines)
+  newly_infected <- bitset_at(source_humans, bernoulli_multi_p(prob))
+  
+  if(parameters$parasite == "falciparum"){
+    # Render new infections caused by bites
+    renderer$render('n_infections', newly_infected$size(), timestep)
+    incidence_renderer(
+      variables$birth,
+      renderer,
+      newly_infected,
+      source_humans,
+      prob,
+      'inc_',
+      parameters$incidence_rendering_min_ages,
+      parameters$incidence_rendering_max_ages,
+      timestep
+    )
+    total_infected <- newly_infected
+  } 
+  
+  else if(parameters$parasite == "vivax"){
+    
+    SAU_humans <- variables$state$get_index_of(c('S','A','U'))
+    new_bite_infections <- newly_infected$and(SAU_humans)
+    
+    # Render new infections caused by bites
+    renderer$render('n_new_bite_infections', new_bite_infections$size(), timestep)
+    incidence_renderer(
+      variables$birth,
+      renderer,
+      new_bite_infections,
+      source_humans,
+      prob,
+      'inc_new_bite_',
+      parameters$new_bite_incidence_rendering_min_ages,
+      parameters$new_bite_incidence_rendering_max_ages,
+      timestep
+    )
     
     ## All bitten humans with an infectious bite (incorporating prophylaxis and vaccines get a new batch of hypnozoites)
     variables$hypnozoites$queue_update(
-      variables$hypnozoites$get_values(infected$to_vector()) + 1,
-      infected$to_vector()
+      variables$hypnozoites$get_values(newly_infected) + 1,
+      newly_infected
     )
     
-    # Relapsed individuals
     ## Work out any individual with a relapse, subset to SAU
-    with_hypnozoites <- variables$hypnozoites$get_index_of(0)$copy()$not(FALSE)
+    with_hypnozoites <- variables$hypnozoites$get_index_of(0)$not(TRUE)
     relapsed <- bitset_at(
       with_hypnozoites,
-      bernoulli_multi_p(variables$hypnozoites$get_values(index = with_hypnozoites)*parameters$f))$and(
-        variables$state$get_index_of(c('S','A','U')))
+      bernoulli_multi_p(
+        variables$hypnozoites$get_values(
+          with_hypnozoites
+        ) * parameters$f
+      )
+    )$and(SAU_humans)
     
     # Render relapses
     renderer$render('n_relapses', relapsed$size(), timestep)
@@ -224,31 +250,30 @@ calculate_infections <- function(
       source_humans,
       prob,
       'inc_relapse_',
-      parameters$incidence_rendering_min_ages,
-      parameters$incidence_rendering_max_ages,
+      parameters$relapse_incidence_rendering_min_ages,
+      parameters$relapse_incidence_rendering_max_ages,
       timestep
     )
-
+    
     # All infections or relapses in individuals without current blood infection 
-    newly_infected <- newly_infected$or(relapsed)
+    total_infected <- new_bite_infections$or(relapsed)
     
     # Render total new blood stage infections
-    renderer$render('n_infections', newly_infected$size(), timestep)
+    renderer$render('n_infections', total_infected$size(), timestep)
     incidence_renderer(
       variables$birth,
       renderer,
-      newly_infected,
+      total_infected,
       source_humans,
       prob,
-      'inc_total_',
+      'inc_',
       parameters$incidence_rendering_min_ages,
       parameters$incidence_rendering_max_ages,
       timestep
     )
-    
   }
   
-  newly_infected
+  total_infected
 }
 
 #' @title Calculate patent infections (vivax only)
@@ -261,12 +286,12 @@ calculate_infections <- function(
 #' @param timestep current timestep
 #' @noRd
 calculate_patent_infections <- function(
-  variables,
-  infections,
-  parameters,
-  renderer,
-  timestep
-  ) {
+    variables,
+    infections,
+    parameters,
+    renderer,
+    timestep
+) {
   id <- variables$id$get_values(infections)
   idm <- variables$idm$get_values(infections)
   philm <- anti_parasite_immunity(
@@ -297,12 +322,12 @@ calculate_patent_infections <- function(
 #' @param timestep current timestep
 #' @noRd
 calculate_clinical_infections <- function(
-  variables,
-  infections,
-  parameters,
-  renderer,
-  timestep
-  ) {
+    variables,
+    infections,
+    parameters,
+    renderer,
+    timestep
+) {
   ica <- variables$ica$get_values(infections)
   icm <- variables$icm$get_values(infections)
   phi <- clinical_immunity(ica, icm, parameters)
@@ -331,12 +356,12 @@ calculate_clinical_infections <- function(
 #' @param renderer model outputs
 #' @noRd
 update_severe_disease <- function(
-  timestep,
-  infections,
-  variables,
-  parameters,
-  renderer
-  ) {
+    timestep,
+    infections,
+    variables,
+    parameters,
+    renderer
+) {
   age <- get_age(variables$birth$get_values(infections), timestep)
   iva <- variables$iva$get_values(infections)
   ivm <- variables$ivm$get_values(infections)
@@ -378,19 +403,19 @@ update_severe_disease <- function(
 #' @param renderer simulation renderer
 #' @noRd
 calculate_treated <- function(
-  variables,
-  clinical_infections,
-  parameters,
-  timestep,
-  renderer
-  ) {
+    variables,
+    clinical_infections,
+    parameters,
+    timestep,
+    renderer
+) {
   treatment_coverages <- get_treatment_coverages(parameters, timestep)
   ft <- sum(treatment_coverages)
-
+  
   if (ft == 0) {
     return(individual::Bitset$new(parameters$human_population))
   }
-
+  
   renderer$render('ft', ft, timestep)
   seek_treatment <- sample_bitset(clinical_infections, ft)
   n_treat <- seek_treatment$size()
@@ -405,10 +430,10 @@ calculate_treated <- function(
       replace = TRUE
     )
   ])
-
+  
   successful <- bernoulli_multi_p(parameters$drug_efficacy[drugs])
   treated_index <- bitset_at(seek_treatment, successful)
-
+  
   # Update those who have been treated
   if (treated_index$size() > 0) {
     variables$state$queue_update('Tr', treated_index)
@@ -439,18 +464,18 @@ calculate_treated <- function(
 #' @param parameters model parameters
 #' @noRd
 schedule_infections <- function(
-  variables,
-  patent_infections = NULL,
-  clinical_infections,
-  treated,
-  infections,
-  parameters,
-  timestep
-  ) {
+    variables,
+    patent_infections = NULL,
+    clinical_infections,
+    treated,
+    infections,
+    parameters,
+    timestep
+) {
   included <- treated$not(FALSE)
-
+  
   to_infect <- clinical_infections$and(included)
-
+  
   if(to_infect$size() > 0) {
     update_infection(
       variables$state,
@@ -505,12 +530,12 @@ schedule_infections <- function(
 # Utility functions
 # =================
 boost_immunity <- function(
-  immunity_variable,
-  exposed_index,
-  last_boosted_variable,
-  timestep,
-  delay
-  ) {
+    immunity_variable,
+    exposed_index,
+    last_boosted_variable,
+    timestep,
+    delay
+) {
   # record who can be boosted
   exposed_index_vector <- exposed_index$to_vector()
   last_boosted <- last_boosted_variable$get_values(exposed_index)
@@ -555,7 +580,7 @@ severe_immunity <- function(age, acquired_immunity, maternal_immunity, parameter
   parameters$theta0 * (parameters$theta1 + (1 - parameters$theta1) / (
     1 + fv * (
       (acquired_immunity + maternal_immunity) / parameters$iv0) ** parameters$kv
-    )
+  )
   )
 }
 

@@ -20,7 +20,7 @@
 #' * zeta_group - Discretised heterogeneity of human individuals
 #' * pev_timestep - The timestep of the last pev vaccination (-1 if there
 #' haven't been any)
-#' * pev_profile - The index of the profile of the last administered pev vaccine 
+#' * pev_profile - The index of the profile of the last administered pev vaccine
 #' (-1 if there haven't been any)
 #' * tbv_vaccinated - The timstep of the last tbv vaccination (-1 if there
 #' haven't been any
@@ -29,8 +29,10 @@
 #' * infectivity - The onward infectiousness to mosquitos
 #' * drug - The last prescribed drug
 #' * drug_time - The timestep of the last drug
+#' * ls_drug - The last prescribed liver stage drug
+#' * ls_drug_time - The timestep of the last liver stage drug
 #'
-#' Mosquito variables are: 
+#' Mosquito variables are:
 #' * mosquito_state - the state of the mosquito, a category Sm|Pm|Im|NonExistent
 #' * species - the species of mosquito, this is a category gamb|fun|arab
 #'
@@ -92,7 +94,7 @@ create_variables <- function(parameters) {
   birth <- individual::IntegerVariable$new(-initial_age)
   last_boosted_ica <- individual::DoubleVariable$new(rep(-1, size))
   last_boosted_id <- individual::DoubleVariable$new(rep(-1, size))
-  
+
   # Maternal immunity to clinical disease
   icm <- individual::DoubleVariable$new(
     initial_immunity(
@@ -104,7 +106,7 @@ create_variables <- function(parameters) {
       'ICM'
     )
   )
-  
+
   # Acquired immunity to clinical disease
   ica <- individual::DoubleVariable$new(
     initial_immunity(
@@ -116,7 +118,7 @@ create_variables <- function(parameters) {
       'ICA'
     )
   )
-  
+
   # Acquired immunity to detectability
   id <- individual::DoubleVariable$new(
     initial_immunity(
@@ -128,14 +130,14 @@ create_variables <- function(parameters) {
       'ID'
     )
   )
-  
+
   # Severe disease and pre-ertythrocitic (blood) immunity only modelled in P. falciparum
   if(parameters$parasite == "falciparum"){
-    
+
     # Boost immunities
     last_boosted_ib <- individual::DoubleVariable$new(rep(-1, size))
     last_boosted_iva <- individual::DoubleVariable$new(rep(-1, size))
-    
+
     # Maternal severe disease immunity
     ivm <- individual::DoubleVariable$new(
       initial_immunity(
@@ -147,7 +149,7 @@ create_variables <- function(parameters) {
         'IVM'
       )
     )
-    
+
     # Acquired immunity to severe disease
     iva <- individual::DoubleVariable$new(
       initial_immunity(
@@ -159,7 +161,7 @@ create_variables <- function(parameters) {
         'IVA'
       )
     )
-    
+
     # Pre-erythoctic immunity
     ib  <- individual::DoubleVariable$new(
       initial_immunity(
@@ -171,7 +173,7 @@ create_variables <- function(parameters) {
         'IB'
       )
     )
-    
+
   } else if (parameters$parasite == "vivax"){
     # Maternal immunity to detectable disease only modelled in P. vivax
     idm <- individual::DoubleVariable$new(
@@ -184,7 +186,7 @@ create_variables <- function(parameters) {
         'IDM'
       )
     )
-    
+
     # Hypnozoite batch variable
     hypnozoites <- individual::IntegerVariable$new(
       rep(parameters$init_hyp, size))
@@ -246,9 +248,9 @@ create_variables <- function(parameters) {
     net_time = net_time,
     spray_time = spray_time
   )
-  
+
   if(parameters$parasite == "falciparum"){
-    variables <- c(variables, 
+    variables <- c(variables,
                    last_boosted_ib = last_boosted_ib,
                    last_boosted_iva = last_boosted_iva,
                    ivm = ivm,
@@ -256,9 +258,15 @@ create_variables <- function(parameters) {
                    iva = iva
     )
   } else if(parameters$parasite == "vivax"){
-    variables <- c(variables, 
-                   idm = idm, 
-                   hypnozoites = hypnozoites)
+
+    ls_drug <- individual::IntegerVariable$new(rep(0, size))
+    ls_drug_time <- individual::IntegerVariable$new(rep(-1, size))
+
+    variables <- c(variables,
+                   idm = idm,
+                   hypnozoites = hypnozoites,
+                   ls_drug = ls_drug,
+                   ls_drug_time = ls_drug_time)
   }
 
   # Add variables for individual mosquitoes

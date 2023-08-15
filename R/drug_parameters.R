@@ -1,65 +1,68 @@
 #' @title Preset parameters for the DHA-PQP drug
 #' @description From SI of Commun. 5:5606 doi: 10.1038/ncomms6606 (2014)
 #' @details Use a vector of preset parameters for the DHA-PQP drug (dihydroartemisinin-piperaquine)
-#' @details Default parameters, from L to R, are: drug_efficacy: 0.95, drug_rel_c: 0.09434, drug_prophylaxis_shape: 4.4, drug_prophylaxis_scale: 28.1
+#' @details Default parameters, from L to R, are: parasite: "falciparum", drug_efficacy: 0.95, drug_rel_c: 0.09434, drug_prophylaxis_shape: 4.4, drug_prophylaxis_scale: 28.1
 #' @export
-DHA_PQP_params <- c(.95, 0.09434, 4.4, 28.1, "falciparum")
+DHA_PQP_params <- list("falciparum", c(.95, 0.09434, 4.4, 28.1))
 
 #' @title Preset parameters for the AL drug
 #' @description From SI of Commun. 5:5606 doi: 10.1038/ncomms6606 (2014)
 #' @details Use a vector of preset parameters for the AL drug (artemether-lumefantrine)
-#' @details Default parameters, from L to R, are: drug_efficacy: 0.95, drug_rel_c: 0.05094, drug_prophylaxis_shape: 11.3, drug_prophylaxis_scale: 10.6
+#' @details Default parameters, from L to R, are: parasite: "falciparum", drug_efficacy: 0.95, drug_rel_c: 0.05094, drug_prophylaxis_shape: 11.3, drug_prophylaxis_scale: 10.6
 #' @export
-AL_params <- c(.95, 0.05094, 11.3, 10.6, "falciparum")
+AL_params <- list("falciparum", c(.95, 0.05094, 11.3, 10.6))
 
 #' @title Preset parameters for the SP-AQ drug
 #' @details Use a vector of preset parameters for the SP-AQ drug (sulphadoxine-pyrimethamine and amodiaquine)
-#' @details Default parameters, from L to R, are: drug_efficacy: 0.9, drug_rel_c: 0.32, drug_prophylaxis_shape: 4.3, drug_prophylaxis_scale: 38.1
+#' @details Default parameters, from L to R, are: parasite: "falciparum", drug_efficacy: 0.9, drug_rel_c: 0.32, drug_prophylaxis_shape: 4.3, drug_prophylaxis_scale: 38.1
 #' @export
-SP_AQ_params <- c(0.9, 0.32, 4.3, 38.1, "falciparum")
+SP_AQ_params <- list("falciparum", c(0.9, 0.32, 4.3, 38.1))
 
 #' @title Preset parameters for the CQ drug
 #' @description From SI of Nekkab et al., DOI: 10.1371/journal.pmed.1003535 (2021)
 #' @details Use a vector of preset parameters for the CQ drug (chloroquine)
-#' @details Default parameters, from L to R, are: drug_efficacy: 0.899, drug_rel_c: 1, drug_prophylaxis_shape: 1, drug_prophylaxis_scale: 1/28
+#' @details Default parameters, from L to R, are: parasite: "vivax", drug_efficacy: 0.899, drug_rel_c: 1, drug_prophylaxis_shape: 1, drug_prophylaxis_scale: 1/28
 #' @export
-CQ_params <- c(0.899, 1, 1, 1/28, "vivax")
+CQ_params <- list("vivax", c(0.899, 1, 7, 9.01))
 
 #' @title Preset parameters for the CQ-PQ drug
 #' @description From SI of Nekkab et al., DOI: 10.1371/journal.pmed.1003535 (2021)
 #' @details Use a vector of preset parameters for the CQ-PQ drug (chloroquine and primaquine)
 #' @details Default parameters, from L to R, are: drug_efficacy: 0.948, drug_rel_c: 1, drug_prophylaxis_shape: 1, drug_prophylaxis_scale: 1/28, drug_hypnozoite_efficacy: 0.713, drug_hypnozoite_prophylaxis: 8 days
+#' #' liver stage drug_efficacy: 0.899, liver stage drug_prophylaxis_shape: 1, liver stage drug_prophylaxis_scale: 1/28
 #' @export
-CQ_PQ_params <- c(0.948, 1, 1, 1/28, "vivax", 0.713, 8)
+CQ_PQ_params <- list("vivax", c(0.948, 1, 7, 9.01, 0.713, 10, 3.44))
 
 #' @title Preset parameters for the CQ-TQ drug
 #' @description From SI of Nekkab et al., DOI: 10.1038/s41467-018-05860-8 (2018)
 #' @details Use a vector of preset parameters for the CQ-TQ drug (chloroquine and tafenoquine)
 #' @details Default parameters, from L to R, are: drug_efficacy: 1.00, drug_rel_c: 1, drug_prophylaxis_shape: 1, drug_prophylaxis_scale: 1/45, drug_hypnozoite_efficacy: 0.713, drug_hypnozoite_prophylaxis: 45 days
-#' @export
-CQ_TQ_params <- c(1, 1, 1, 1/45, "vivax", 0.713, 45)
+#' liver stage drug_efficacy: 0.899, liver stage drug_prophylaxis_shape: 1, liver stage drug_prophylaxis_scale: 1/28#' @export
+CQ_TQ_params <- list("vivax", c(1, 1, 7, 9.01, 0.713, 10, 14.59))
 
 #' @title Preset parameters for the White et a., ACT drug
 #' @description From SI of White et al., DOI: 10.1371/journal.pmed.1003535 (2021)
 #' @details Use a vector of preset parameters for the ACT drug (Artemisinin combination therapy)
 #' @details Default parameters, from L to R, are: drug_efficacy: 1, drug_rel_c: 1, drug_prophylaxis_shape: 1, drug_prophylaxis_scale: 1/14
 #' @export
-white_ACT_params <- c(0.899, 1, 1, 1/14, "vivax")
+white_ACT_params <- list("vivax", c(0.899, 1, 1, 1/14))
 # AL_params_vivax <- c(0.899, 1, 1, 1/14, "vivax")
 
 #' @title Preset parameters for the ACT-PQ drug
 #' @description From SI of White et al., DOI: 10.1371/journal.pmed.1003535 (2021)
 #' @details Use a vector of preset parameters for the ACT-PQ drug (Artemisinin combination therapy and primaquine)
 #' @details Default parameters, from L to R, are: drug_efficacy: 1, drug_rel_c: 1, drug_prophylaxis_shape: 1, drug_prophylaxis_scale: 1/14, drug_hypnozoite_efficacy: 0.7, drug_hypnozoite_prophylaxis: 14 days
+#' liver stage drug_efficacy: 0.899, liver stage drug_prophylaxis_shape: 1, liver stage drug_prophylaxis_scale: 1/28
 #' @export
-white_ACT_PQ_params <- c(1, 1, 1, 1/14, "vivax", 0.7, 14)
+white_ACT_PQ_params <- list("vivax", c(1, 1, 1, 1/14, 0.7, 14))
 
 #' @title Preset parameters for the ChlQ drug
 #' @description From git repo DOI: 10.1371/journal.pmed.1003535 (2021)
 #' @details Use a vector of preset parameters for the ChlQ drug (chloroquine)
 #' @details Default parameters, from L to R, are: drug_efficacy: 1, drug_rel_c: 1, drug_prophylaxis_shape: 1, drug_prophylaxis_scale: 1/60, drug_hypnozoite_efficacy: 1, drug_hypnozoite_prophylaxis: 60 days
+#' #' liver stage drug_efficacy: 0.899, liver stage drug_prophylaxis_shape: 1, liver stage drug_prophylaxis_scale: 1/28
 #' @export
-white_ACT_TQ_params <- c(1, 1, 1, 1/60, "vivax", 1, 60)
+white_ACT_TQ_params <- list("vivax", c(1, 1, 1, 1/60, 1, 60))
 
 
 #' @title Parameterise drugs to use in the model
@@ -74,14 +77,20 @@ set_drugs <- function(parameters, drugs) {
     'drug_rel_c',
     'drug_prophylaxis_shape',
     'drug_prophylaxis_scale',
-    'parasite_target',
+    # hypnozoite parameters
     'drug_hypnozoite_efficacy',
-    'drug_hypnozoite_prophylaxis'
+    'drug_hypnozoite_prophylaxis_shape',
+    'drug_hypnozoite_prophylaxis_scale'
   )
+  length_drug_parameters <- max(sapply(drugs, function(d){length(d[[2]])}))
   for (drug in seq_along(drugs)) {
-    stopifnot("parasite and drug parameters do not align" = parameters$parasite == drugs[[drug]][5])
-    for (i in seq_along(drugs[[drug]])[-5]) {
-      parameters[[keys[[i]]]] <- c(parameters[[keys[[i]]]], drugs[[drug]][[i]])
+    stopifnot("parasite and drug parameters do not align" = parameters$parasite == drugs[[drug]][[1]])
+    for (i in 1:length_drug_parameters) {
+      if(i <= length(drugs[[drug]][[2]])){
+        parameters[[keys[[i]]]] <- c(parameters[[keys[[i]]]], drugs[[drug]][[2]][[i]])
+      } else {
+        parameters[[keys[[i]]]] <- NA
+      }
     }
   }
   parameters

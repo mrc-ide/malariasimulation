@@ -206,7 +206,6 @@ test_that('calculate_infections works various combinations of drug and vaccinati
 
 })
 
-
 test_that('calculate_clinical_infections correctly samples clinically infected', {
   timestep <- 5
   parameters <- get_parameters()
@@ -253,10 +252,33 @@ test_that('calculate_clinical_infections correctly samples clinically infected',
 })
 
 test_that('calculate_treated correctly samples treated and updates the drug state', {
+  
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters, list(AL_params, DHA_PQP_params))
-  parameters <- set_clinical_treatment(parameters, 1, 1, .25)
-  parameters <- set_clinical_treatment(parameters, 2, 1, .25)
+  parameters <- set_drugs(parameters = parameters, drugs = list(AL_params, SP_AQ_params))
+  parameters <- set_clinical_treatment(parameters = parameters, drug = 1, timesteps = 1, coverages = 0.25)
+  parameters <- set_clinical_treatment(parameters = parameters, drug = 2, timesteps = 1, coverages = 0.25)
+  parameters <- set_antimalarial_resistance(parameters = parameters,
+                                            drug = 1,
+                                            timesteps = 1,
+                                            artemisinin_resistance = 0.5,
+                                            partner_drug_resistance = 0,
+                                            slow_parasite_clearance_prob = 0,
+                                            early_treatment_failure_prob = 0.2,
+                                            late_clinical_failure_prob = 0,
+                                            late_parasitological_prob = 0,
+                                            reinfection_prob = 0)
+  parameters <- set_antimalarial_resistance(parameters = parameters,
+                                            drug = 2,
+                                            timesteps = 1,
+                                            artemisinin_resistance = 0,
+                                            partner_drug_resistance = 0,
+                                            slow_parasite_clearance_prob = 0,
+                                            early_treatment_failure_prob = 0.9,
+                                            late_clinical_failure_prob = 0,
+                                            late_parasitological_prob = 0,
+                                            reinfection_prob = 0)
+  
+  clinical_infections <- individual::Bitset$new(20)$insert(1:20)
   timestep <- 5
   events <- create_events(parameters)
   variables <- list(
@@ -265,24 +287,17 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
     drug = list(queue_update = mockery::mock()),
     drug_time = list(queue_update = mockery::mock())
   )
-
-  recovery_mock <- mockery::mock()
-  mockery::stub(calculate_treated, 'recovery$schedule', recovery_mock)
-
-  seek_treatment <- individual::Bitset$new(4)$insert(c(1, 2, 4))
-  mockery::stub(
-    calculate_treated,
-    'sample_bitset',
-    mockery::mock(seek_treatment)
-  )
-  sample_mock <- mockery::mock(c(2, 1, 1, 1))
-  mockery::stub(calculate_treated, 'sample.int', sample_mock)
-  bernoulli_mock <- mockery::mock(c(1, 3))
+  
+  seek_treatment <- individual::Bitset$new(20)$insert(c(1:10))
+  seek_treatment_mock <- mockery::mock(seek_treatment)
+  mockery::stub(where = calculate_treated, what = 'sample_bitset', how = seek_treatment_mock)
+  
+  mock_drugs <- mockery::mock(c(2, 1, 1, 1, 2, 2, 2, 1, 2, 1))
+  mockery::stub(calculate_treated, 'sample.int', mock_drugs)
+  
+  bernoulli_mock <- mockery::mock(c(1, 2, 3, 4, 5, 6, 7, 8, 9), c(1, 2, 3, 4, 5, 6, 7))
   mockery::stub(calculate_treated, 'bernoulli_multi_p', bernoulli_mock)
-  mockery::stub(calculate_treated, 'log_uniform', mockery::mock(c(3, 4)))
-
-  clinical_infections <- individual::Bitset$new(4)
-  clinical_infections$insert(c(1, 2, 3, 4))
+  
   calculate_treated(
     variables,
     clinical_infections,
@@ -290,30 +305,44 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
     timestep,
     mock_render(timestep)
   )
-
+  
   mockery::expect_args(
-    sample_mock,
+    mock_drugs,
     1,
     2,
-    3,
+    10,
     c(.25, .25),
     TRUE
   )
-
+  
+  mockery::expect_args(
+    seek_treatment_mock,
+    1,
+    clinical_infections,
+    0.5
+  )
+  
   mockery::expect_args(
     bernoulli_mock,
     1,
-    parameters$drug_efficacy[c(2, 1, 1, 1)]
+    c(1.0, 0.9, 0.9, 0.9, 1.0, 1.0, 1.0, 0.9, 1, 0.9)
   )
-
-  expect_bitset_update(variables$state$queue_update, 'Tr', c(1, 4))
+  
+  mockery::expect_args(
+    bernoulli_mock,
+    2,
+    parameters$drug_efficacy[c(2, 1, 1, 1, 2, 2, 2, 1, 2)]
+  )
+  
+  expect_bitset_update(variables$state$queue_update, 'Tr', c(1, 2, 3, 4, 5, 6, 7))
   expect_bitset_update(
     variables$infectivity$queue_update,
-    parameters$cd * parameters$drug_rel_c[c(2, 1)],
-    c(1, 4)
+    parameters$cd * parameters$drug_rel_c[c(2, 1, 1, 1, 2, 2, 2)],
+    c(1, 2, 3, 4, 5, 6, 7)
   )
-  expect_bitset_update(variables$drug$queue_update, c(2, 1), c(1, 4))
-  expect_bitset_update(variables$drug_time$queue_update, 5, c(1, 4))
+  expect_bitset_update(variables$drug$queue_update, c(2, 1, 1, 1, 2, 2, 2), c(1, 2, 3, 4, 5, 6, 7))
+  expect_bitset_update(variables$drug_time$queue_update, 5, c(1, 2, 3, 4, 5, 6, 7))
+  
 })
 
 test_that('schedule_infections correctly schedules new infections', {
@@ -530,4 +559,41 @@ test_that('update_severe_disease renders with no infections', {
     5 * 365,
     timestep
   )
+})
+
+test_that(desc = "calculate_treated returns empty Bitset when there is no clinical treatment coverage", {
+  parameters <- get_parameters()
+  parameters <- set_drugs(parameters = parameters, drugs = list(AL_params))
+  parameters <- set_clinical_treatment(parameters = parameters, drug = 1, timesteps = 1, coverages = 0)
+  parameters <- set_antimalarial_resistance(parameters = parameters,
+                                            drug = 1,
+                                            timesteps = 1,
+                                            artemisinin_resistance = 0.5,
+                                            partner_drug_resistance = 0,
+                                            slow_parasite_clearance_prob = 0,
+                                            early_treatment_failure_prob = 0.2,
+                                            late_clinical_failure_prob = 0,
+                                            late_parasitological_prob = 0,
+                                            reinfection_prob = 0)
+  clinical_infections <- individual::Bitset$new(20)$insert(1:20)
+  timestep <- 5
+  events <- create_events(parameters)
+  variables <- list(
+    state = list(queue_update = mockery::mock()),
+    infectivity = list(queue_update = mockery::mock()),
+    drug = list(queue_update = mockery::mock()),
+    drug_time = list(queue_update = mockery::mock())
+  )
+  renderer <- individual::Render$new(timesteps = 10)
+  
+  treated <- calculate_treated(variables = variables,
+                               clinical_infections = clinical_infections,
+                               parameters = parameters,
+                               timestep = timestep,
+                               renderer = renderer)
+  
+  expect_identical(object = treated$size(), expected = 0, info = "Error: calculate_treated() returning non-zero number of treated individuals
+                 in the absence of clinical treatment")
+  expect_identical(object = treated$to_vector(), expected = numeric(0), info = "Error: calculate_treated() returning non-zero number of treated individuals
+                 in the absence of clinical treatment")
 })

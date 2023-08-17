@@ -298,33 +298,27 @@ calculate_treated <- function(
   ])
   
   if(!is.null(parameters$antimalarial_resistance)) {
-    
     antimalarial_resistance_drug_index <- as.numeric(parameters$antimalarial_resistance_drug)[drugs]
     artemisinin_resistance_proportion <- vector()
     early_treatment_failure_probability <- vector()
     drug_indices <- list(); drug_index <- vector()
-
-        for(i in seq_along(parameters$antimalarial_resistance_drug)) {
-          drug_indices[[i]] <- which(drugs == i)
-          drug_index[i] <- which(parameters$antimalarial_resistance_drug == i)
-          artemisinin_resistance_proportion[drug_indices[[i]]] <- parameters$prop_artemisinin_resistant[[drug_index[i]]][match_timestep(ts = parameters$antimalarial_resistance_timesteps[[drug_index[i]]],
+    for(i in seq_along(parameters$antimalarial_resistance_drug)) {
+      drug_indices[[i]] <- which(drugs == i)
+      drug_index[i] <- which(parameters$antimalarial_resistance_drug == i)
+      artemisinin_resistance_proportion[drug_indices[[i]]] <- parameters$prop_artemisinin_resistant[[drug_index[i]]][match_timestep(ts = parameters$antimalarial_resistance_timesteps[[drug_index[i]]],
                                                                                                                                     t = timestep)]
-          early_treatment_failure_probability[drug_indices[[i]]] <- parameters$early_treatment_failure_prob[[drug_index[i]]][match_timestep(ts = parameters$antimalarial_resistance_timesteps[[drug_index[i]]],
+      early_treatment_failure_probability[drug_indices[[i]]] <- parameters$early_treatment_failure_prob[[drug_index[i]]][match_timestep(ts = parameters$antimalarial_resistance_timesteps[[drug_index[i]]],
                                                                                                                                         t = timestep)]
     }
-    
     susceptible_to_treatment_index <- bernoulli_multi_p(p = 1 - (artemisinin_resistance_proportion * early_treatment_failure_probability))
     drugs <- drugs[susceptible_to_treatment_index]
     susceptible_to_treatment <- bitset_at(seek_treatment, susceptible_to_treatment_index)
     n_ETF <- n_treat - susceptible_to_treatment$size()
     renderer$render('n_ETF', n_ETF, timestep)
-    
   } else {
-    
     susceptible_to_treatment <- seek_treatment
     n_ETF <- n_treat - susceptible_to_treatment$size()
     renderer$render('n_ETF', n_ETF, timestep)
-    
   }
   
   successfully_treated_index <- bernoulli_multi_p(parameters$drug_efficacy[drugs])
@@ -333,10 +327,9 @@ calculate_treated <- function(
   renderer$render('n_treat_eff_fail', n_treat_eff_fail, timestep)
   renderer$render('n_treat_success', successfully_treated$size(), timestep)
   
+  # Update variables of those who have been successfully treated:
   if (successfully_treated$size() > 0) {
-    
     variables$state$queue_update("Tr", successfully_treated)
-    
     variables$infectivity$queue_update(
       parameters$cd * parameters$drug_rel_c[drugs[successfully_treated_index]],
       successfully_treated

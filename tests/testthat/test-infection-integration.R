@@ -561,7 +561,7 @@ test_that('update_severe_disease renders with no infections', {
   )
 })
 
-test_that(desc = "calculate_treated returns empty Bitset when there is no clinical treatment coverage", {
+test_that('calculate_treated returns empty Bitset when there is no clinical treatment coverage', {
   parameters <- get_parameters()
   parameters <- set_drugs(parameters = parameters, drugs = list(AL_params))
   parameters <- set_clinical_treatment(parameters = parameters, drug = 1, timesteps = 1, coverages = 0)
@@ -596,4 +596,159 @@ test_that(desc = "calculate_treated returns empty Bitset when there is no clinic
                  in the absence of clinical treatment")
   expect_identical(object = treated$to_vector(), expected = numeric(0), info = "Error: calculate_treated() returning non-zero number of treated individuals
                  in the absence of clinical treatment")
+})
+
+test_that(desc = 'calculate_treated returns empty Bitset when the clinically_infected input is an empty Bitset', {
+  parameters <- get_parameters()
+  parameters <- set_drugs(parameters = parameters, drugs = list(AL_params))
+  parameters <- set_clinical_treatment(parameters = parameters, drug = 1, timesteps = 1, coverages = 1)
+  parameters <- set_antimalarial_resistance(parameters = parameters,
+                                            drug = 1,
+                                            timesteps = 1,
+                                            artemisinin_resistance = 0.5,
+                                            partner_drug_resistance = 0,
+                                            slow_parasite_clearance_prob = 0,
+                                            early_treatment_failure_prob = 0.2,
+                                            late_clinical_failure_prob = 0,
+                                            late_parasitological_prob = 0,
+                                            reinfection_prob = 0)
+  clinical_infections <- individual::Bitset$new(20)
+  timestep <- 5
+  events <- create_events(parameters)
+  variables <- list(
+    state = list(queue_update = mockery::mock()),
+    infectivity = list(queue_update = mockery::mock()),
+    drug = list(queue_update = mockery::mock()),
+    drug_time = list(queue_update = mockery::mock())
+  )
+  renderer <- individual::Render$new(timesteps = 10)
+  
+  treated <- calculate_treated(variables = variables,
+                               clinical_infections = clinical_infections,
+                               parameters = parameters,
+                               timestep = timestep,
+                               renderer = renderer)
+  
+  expect_identical(object = treated$size(), expected = 0, info = "Error: calculate_treated() returning non-zero number of treated individuals
+                 in the absence of clinically infected individuals")
+  expect_identical(object = treated$to_vector(), expected = numeric(0), info = "Error: calculate_treated() returning non-zero number of treated individuals
+                 in the absence of clinically infected individuals")
+})
+
+test_that('calculate_treated() returns an empty Bitset when the parameter list contains no clinical
+          treatment or resistance parameters', {
+            parameters <- get_parameters()
+            clinical_infections <- individual::Bitset$new(20)$insert(1:20)
+            timestep <- 5
+            events <- create_events(parameters)
+            variables <- list(
+              state = list(queue_update = mockery::mock()),
+              infectivity = list(queue_update = mockery::mock()),
+              drug = list(queue_update = mockery::mock()),
+              drug_time = list(queue_update = mockery::mock())
+            )
+            renderer <- individual::Render$new(timesteps = 10)
+            
+            treated <- calculate_treated(variables = variables,
+                                         clinical_infections = clinical_infections,
+                                         parameters = parameters,
+                                         timestep = timestep,
+                                         renderer = renderer)
+            
+            expect_identical(object = treated$size(), expected = 0, info = "Error: calculate_treated() returning non-zero number of treated individuals
+                 in the absence of clinical treatment or resistance parameters")
+            expect_identical(object = treated$to_vector(), expected = numeric(0), info = "Error: calculate_treated() returning non-zero number of treated individuals
+                 in the absence of clinical treatment or resistance parameters")
+          })
+
+test_that('calculate_treated() returns an empty Bitset when all treatment fails due to early treatment failure', {
+  parameters <- get_parameters()
+  parameters <- set_drugs(parameters = parameters, drugs = list(AL_params, SP_AQ_params))
+  parameters <- set_clinical_treatment(parameters = parameters,
+                                       drug = 1,
+                                       timesteps = 1,
+                                       coverages = round(runif(1, 0, 1/2),
+                                                         digits = 2))
+  parameters <- set_clinical_treatment(parameters = parameters,
+                                       drug = 2,
+                                       timesteps = 1,
+                                       coverages = round(runif(1, 0, 1/2),
+                                                         digits = 2))
+  parameters <- set_antimalarial_resistance(parameters = parameters,
+                                            drug = 1,
+                                            timesteps = 1,
+                                            artemisinin_resistance = 1,
+                                            partner_drug_resistance = 0,
+                                            slow_parasite_clearance_prob = 0,
+                                            early_treatment_failure_prob = 1,
+                                            late_clinical_failure_prob = 0,
+                                            late_parasitological_prob = 0,
+                                            reinfection_prob = 0)
+  parameters <- set_antimalarial_resistance(parameters = parameters,
+                                            drug = 2,
+                                            timesteps = 1,
+                                            artemisinin_resistance = 1,
+                                            partner_drug_resistance = 0,
+                                            slow_parasite_clearance_prob = 0,
+                                            early_treatment_failure_prob = 1,
+                                            late_clinical_failure_prob = 0,
+                                            late_parasitological_prob = 0,
+                                            reinfection_prob = 0)
+  
+  clinical_infections <- individual::Bitset$new(100)
+  clinical_infections$insert(sample.int(n = 100, size = round(runif(n = 1, min = 10, max = 100)), replace = FALSE))
+  timestep <- 5
+  events <- create_events(parameters)
+  variables <- create_variables(parameters = parameters)
+  renderer <- individual::Render$new(timesteps = 10)
+  
+  treated <- calculate_treated(variables = variables,
+                               clinical_infections = clinical_infections,
+                               parameters = parameters,
+                               timestep = timestep,
+                               renderer = renderer)
+  
+  expect_identical(object = treated$size(), expected = 0, info = "Error: non-zero length treated Bitset when clinical treatment coverage = 1,
+                 artemisinin resistance = 1, and early treatment probability = 1")
+  expect_identical(renderer$to_dataframe()[timestep,'n_ETF'], renderer$to_dataframe()[timestep,'n_treated'], info = "Error: Number of
+                 early treatment failures does not match number of treated individuals when artemisinin resistance proportion and
+                 and early treatment failure probability both equal 1") 
+})
+
+test_that('calculate_treated() successfully adds additional resistance columns to the renderer', {
+  parameters <- get_parameters()
+  parameters <- set_drugs(parameters = parameters, drugs = list(AL_params))
+  parameters <- set_clinical_treatment(parameters = parameters, drug = 1, timesteps = 1, coverages = 1)
+  parameters <- set_antimalarial_resistance(parameters = parameters,
+                                            drug = 1,
+                                            timesteps = 1,
+                                            artemisinin_resistance = 0.5,
+                                            partner_drug_resistance = 0,
+                                            slow_parasite_clearance_prob = 0,
+                                            early_treatment_failure_prob = 0.5,
+                                            late_clinical_failure_prob = 0,
+                                            late_parasitological_prob = 0,
+                                            reinfection_prob = 0)
+  
+  clinical_infections <- individual::Bitset$new(20)$insert(1:20)
+  timestep <- 5
+  events <- create_events(parameters)
+  variables <- list(
+    state = list(queue_update = mockery::mock()),
+    infectivity = list(queue_update = mockery::mock()),
+    drug = list(queue_update = mockery::mock()),
+    drug_time = list(queue_update = mockery::mock())
+  )
+  renderer <- individual::Render$new(timesteps = 10)
+  
+  treated <- calculate_treated(variables = variables,
+                               clinical_infections = clinical_infections,
+                               parameters = parameters,
+                               timestep = timestep,
+                               renderer = renderer)
+  
+  calculate_treated_column_names <- c("n_clin_infected", "ft", "n_treated", "n_ETF", "n_treat_eff_fail", "n_treat_success")
+  expect_identical(sum(calculate_treated_column_names %in% colnames(renderer$to_dataframe())), length(calculate_treated_column_names),
+                   "calculate_treated() not renderering all resistance columns when resistance is present, clinical treatment coverage
+                 is non-zero, and the Bitset of clinically_infected individuals input is of non-zero length.")
 })

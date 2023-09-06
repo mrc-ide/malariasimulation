@@ -17,7 +17,8 @@ test_that('run_metapop_simulation fails with incorrect mixing matrix', {
       parameters,
       NULL,
       mixing_tt = 1,
-      list(mixing),
+      export_mixing = list(mixing),
+      import_mixing = list(mixing),
       p_captured_tt = 1,
       p_captured = list(diag(nrow=2)),
       p_success = 1
@@ -37,11 +38,12 @@ test_that('run_metapop_simulation integrates two models correctly', {
     timesteps,
     parametersets,
     NULL,
-    1,
-    list(mixing),
-    1,
-    list(p_captured),
-    1
+    mixing_tt = 1,
+    export_mixing = list(mixing),
+    import_mixing = list(mixing),
+    p_captured_tt = 1,
+    p_captured = list(p_captured),
+    p_success = 1
   )
   expect_equal(length(outputs), 2)
   expect_equal(nrow(outputs[[1]]), 5)

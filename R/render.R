@@ -3,16 +3,16 @@ in_age_range <- function(birth, timestep, lower, upper) {
 }
 
 #' @title Render prevalence statistics
-#' 
+#'
 #' @description renders prevalence numerators and denominators for individuals
 #' detected by microscopy and with severe malaria
-#' 
+#'
 #' @param state human infection state
 #' @param birth variable for birth of the individual
 #' @param immunity to detection
 #' @param parameters model parameters
 #' @param renderer model renderer
-#' 
+#'
 #' @noRd
 create_prevelance_renderer <- function(
   state,
@@ -22,9 +22,9 @@ create_prevelance_renderer <- function(
   renderer
   ) {
   function(timestep) {
-    
+
     asymptomatic <- state$get_index_of('A')
-    
+
     if(parameters$parasite == "falciparum"){
       prob <- probability_of_detection(
         get_age(birth$get_values(asymptomatic), timestep),
@@ -32,14 +32,14 @@ create_prevelance_renderer <- function(
         parameters
       )
       asymptomatic_detected <- bitset_at(asymptomatic, bernoulli_multi_p(prob))
-      
+
     } else if (parameters$parasite == "vivax"){
       # The vivax model defines asymptomatic infections as being detectable by
       # light microscopy
       prob <- rep(1, asymptomatic$size())
       asymptomatic_detected <- state$get_index_of('A')
     }
-    
+
     clinically_detected <- state$get_index_of(c('Tr', 'D'))
     detected <- clinically_detected$copy()$or(asymptomatic_detected)
 
@@ -51,7 +51,7 @@ create_prevelance_renderer <- function(
         paste0('n_', lower, '_', upper),
         in_age$size(),
         timestep
-      ) 
+      )
       renderer$render(
         paste0('n_detect_', lower, '_', upper),
         in_age$copy()$and(detected)$size(),
@@ -69,9 +69,9 @@ create_prevelance_renderer <- function(
 }
 
 #' @title Render incidence statistics
-#' 
+#'
 #' @description renders incidence (new for this timestep) for indivduals
-#' 
+#'
 #' @param birth variable for birth of the individual
 #' @param renderer object for model outputs
 #' @param target incidence population
@@ -81,7 +81,7 @@ create_prevelance_renderer <- function(
 #' @param lowers age bounds
 #' @param uppers age bounds
 #' @param timestep current target
-#' 
+#'
 #' @noRd
 incidence_renderer <- function(
   birth,
@@ -178,7 +178,7 @@ create_age_group_renderer <- function(
         paste0('n_age_', lower, '_', upper),
         in_age$size(),
         timestep
-      ) 
+      )
     }
   }
 }
@@ -212,8 +212,8 @@ create_hypnozoite_age_renderer_process <- function(
         paste0('n_hypnozoites_age_', lower, '_', upper),
         sum(hypnozoites$get_values(index = in_age)!=0),
         timestep
-      ) 
+      )
     }
-    
+
   }
 }

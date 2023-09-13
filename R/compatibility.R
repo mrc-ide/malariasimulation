@@ -121,7 +121,7 @@ back_translations = list(
 )
 
 #' @description translate parameter keys from the malariaEquilibrium format
-#' to ones compatible with this IBM 
+#' to ones compatible with this IBM
 #' @param params with keys in the malariaEquilibrium format
 #' @noRd
 translate_equilibrium <- function(params) {
@@ -163,7 +163,7 @@ translate_parameters <- function(params) {
 }
 
 #' @title remove parameter keys from the malariaEquilibrium format that are not used
-#' in this IBM 
+#' in this IBM
 #' @param params with keys in the malariaEquilibrium format
 #' @noRd
 remove_unused_equilibrium <- function(params) {
@@ -190,28 +190,62 @@ remove_unused_equilibrium <- function(params) {
 #' The default malariaEquilibrium parameters will be used
 #' @export
 set_equilibrium <- function(parameters, init_EIR, eq_params = NULL) {
-  if (is.null(eq_params)) {
-    eq_params <- translate_parameters(parameters)
-  } else {
+  if(parameters$parasite == "falciparum"){
+    if (is.null(eq_params)) {
+      eq_params <- translate_parameters(parameters)
+    } else {
+      parameters <- c(
+        translate_equilibrium(remove_unused_equilibrium(eq_params)),
+        parameters
+      )
+    }
+    eq <- malariaEquilibrium::human_equilibrium(
+      EIR = init_EIR,
+      ft = sum(get_treatment_coverages(parameters, 1)),
+      p = eq_params,
+      age = EQUILIBRIUM_AGES,
+      h = malariaEquilibrium::gq_normal(parameters$n_heterogeneity_groups)
+    )
+
     parameters <- c(
-      translate_equilibrium(remove_unused_equilibrium(eq_params)),
+      list(
+        init_foim = eq$FOIM,
+        init_EIR = init_EIR,
+        eq_params = eq_params
+      ),
+      parameters
+    )
+
+  } else if (parameters$parasite == "vivax"){
+
+    eq <- malariaEquilibriumVivax::human_equilibrium_vivax_full_het(
+      EIR = init_EIR,
+      ft = sum(get_treatment_coverages(parameters, 1)),
+      p = parameters,
+      age = EQUILIBRIUM_AGES,
+      h = malariaEquilibriumVivax::gq_normal(parameters$n_heterogeneity_groups)
+    )
+
+    # sum(eq$ret[[1]][,"inf"]+eq$ret[[2]][,"inf"]+eq$ret[[3]][,"inf"]+eq$ret[[4]][,"inf"]+eq$ret[[5]][,"inf"])
+
+    eq_summary <- malariaEquilibriumVivax::human_equilibrium_vivax_summarise(eq, parameters)
+
+
+    sum(eq$ret[[1]][,"EPS"]*eq$ret[[1]][,"prop"])
+    sum(eq$ret[[1]][,"psi"]*eq$ret[[1]][,"prop"])
+    # sum(eq_summary$states[,"FOI"]*eq_summary$states[,"prop"])
+    # sum(eq_summary$states[,"FOIH"]*eq_summary$states[,"prop"])
+    # sum(eq_summary$states[,"inf"]*eq_summary$states[,"prop"])
+
+browser()
+    parameters <- c(
+      list(
+        init_foim = eq_summary$FOIM,
+        init_EIR = init_EIR
+      ),
       parameters
     )
   }
-  eq <- malariaEquilibrium::human_equilibrium(
-    EIR = init_EIR,
-    ft = sum(get_treatment_coverages(parameters, 1)),
-    p = eq_params,
-    age = EQUILIBRIUM_AGES,
-    h = malariaEquilibrium::gq_normal(parameters$n_heterogeneity_groups)
-  )
-  parameters <- c(
-    list(
-      init_foim = eq$FOIM,
-      init_EIR = init_EIR,
-      eq_params = eq_params
-    ),
-    parameters
-  )
+
   parameterise_mosquito_equilibrium(parameters, init_EIR)
 }

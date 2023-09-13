@@ -67,14 +67,15 @@ sample_maternal_immunity <- function(variables, target, timestep, parameters) {
         # set their maternal immunities
         birth_icm <- variables$ica$get_values(mothers) * parameters$pcm
         variables$icm$queue_update(birth_icm, target_group)
-        
+
         if(parameters$parasite == "falciparum"){
           birth_ivm <- variables$ica$get_values(mothers) * parameters$pvm
           variables$ivm$queue_update(birth_ivm, target_group)
-          
+
         } else if (parameters$parasite == "vivax"){
           birth_idm <- variables$id$get_values(mothers) * parameters$pcm
           variables$idm$queue_update(birth_idm, target_group)
+          variables$hypnozoites$queue_update(0, target_group)
         }
       }
     }
@@ -102,20 +103,20 @@ reset_target <- function(variables, events, target, state, timestep, parameters)
     variables$last_boosted_id$queue_update(-1, target)
     variables$ica$queue_update(0, target)
     variables$id$queue_update(0, target)
-    
+
     if(parameters$parasite == "falciparum"){
       variables$last_boosted_ib$queue_update(-1, target)
       variables$last_boosted_iva$queue_update(-1, target)
       variables$ib$queue_update(0, target)
       variables$iva$queue_update(0, target)
     }
-    
+
     variables$state$queue_update(state, target)
 
     # treatment
     variables$drug$queue_update(0, target)
     variables$drug_time$queue_update(-1, target)
-    
+
     # vaccination
     variables$pev_timestep$queue_update(-1, target)
     variables$pev_profile$queue_update(-1, target)

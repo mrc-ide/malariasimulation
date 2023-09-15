@@ -48,6 +48,11 @@ create_epi_pev_process <- function(
       )
     ]
 
+    # Update the latest vaccination time
+    variables$pev_timestep$queue_update(timestep, target)
+    # Reset the pev_profile so that we are not yet efficacious
+    variables$pev_profile$queue_update(-1, target)
+
     schedule_vaccination(
       target,
       events,
@@ -99,6 +104,13 @@ create_mass_pev_listener <- function(
         correlations
       )
     ]
+
+    # Update the latest vaccination time
+    variables$pev_timestep$queue_update(timestep, target)
+    # Reset the pev_profile so that we are not yet efficacious
+    variables$pev_profile$queue_update(-1, target)
+
+    # Schedule future doses
     schedule_vaccination(
       target,
       events,

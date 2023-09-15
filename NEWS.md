@@ -1,3 +1,9 @@
+
+# malariasimulation 1.6.1 (wip)
+
+ * Fix bug with min_wait. Min wait was working off of the final primary dose. It
+   now works of of the first dose.
+
 # malariasimulation 1.6.0
 
   * Fix MDA bug where undetectable asymptomatics are treated

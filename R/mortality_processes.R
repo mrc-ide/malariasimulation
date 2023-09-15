@@ -106,7 +106,8 @@ reset_target <- function(variables, events, target, state, timestep) {
     variables$drug_time$queue_update(-1, target)
 
     # vaccination
-    variables$pev_timestep$queue_update(-1, target)
+    variables$last_pev_timestep$queue_update(-1, target)
+    variables$last_eff_pev_timestep$queue_update(-1, target)
     variables$pev_profile$queue_update(-1, target)
     variables$tbv_vaccinated$queue_update(-1, target)
 

@@ -1,5 +1,4 @@
-#' @title Define model variables
-#' @description
+#' @title Define model variables #' @description
 #' create_variables creates the human and mosquito variables for
 #' the model. Variables are used to track real data for each individual over
 #' time, they are read and updated by processes
@@ -18,10 +17,13 @@
 #' * ID - Acquired immunity to detectability
 #' * zeta - Heterogeneity of human individuals
 #' * zeta_group - Discretised heterogeneity of human individuals
-#' * pev_timestep - The timestep of the last pev vaccination (-1 if there
-#' haven't been any)
-#' * pev_profile - The index of the profile of the last administered pev vaccine 
-#' (-1 if there haven't been any)
+#' * last_pev_timestep - The timestep of the last pev vaccination (-1 if there
+#' * last_eff_pev_timestep - The timestep of the last efficacious pev
+#' vaccination, including final primary dose and booster doses (-1 if there have not been any)
+#' * pev_profile - The index of the efficacy profile of any pev vaccinations.
+#' Not set until the final primary dose.
+#' This is only set on the final primary dose and subsequent booster doses
+#' (-1 otherwise)
 #' * tbv_vaccinated - The timstep of the last tbv vaccination (-1 if there
 #' haven't been any
 #' * net_time - The timestep when a net was last put up (-1 if never)
@@ -188,7 +190,8 @@ create_variables <- function(parameters) {
   drug <- individual::IntegerVariable$new(rep(0, size))
   drug_time <- individual::IntegerVariable$new(rep(-1, size))
 
-  pev_timestep <- individual::IntegerVariable$new(rep(-1, size))
+  last_pev_timestep <- individual::IntegerVariable$new(rep(-1, size))
+  last_eff_pev_timestep <- individual::IntegerVariable$new(rep(-1, size))
   pev_profile <- individual::IntegerVariable$new(rep(-1, size))
 
   tbv_vaccinated <- individual::DoubleVariable$new(rep(-1, size))
@@ -215,7 +218,8 @@ create_variables <- function(parameters) {
     infectivity = infectivity,
     drug = drug,
     drug_time = drug_time,
-    pev_timestep = pev_timestep,
+    last_pev_timestep = last_pev_timestep,
+    last_eff_pev_timestep = last_eff_pev_timestep,
     pev_profile = pev_profile,
     tbv_vaccinated = tbv_vaccinated,
     net_time = net_time,

@@ -40,7 +40,7 @@ create_epi_pev_process <- function(
     if (parameters$pev_epi_min_wait == 0) {
       target <- to_vaccinate$to_vector()
     } else {
-      not_recently_vaccinated <- variables$pev_timestep$get_index_of(
+      not_recently_vaccinated <- variables$last_pev_timestep$get_index_of(
         a = max(timestep - parameters$pev_epi_min_wait, 0),
         b = timestep
       )$not(TRUE)
@@ -55,6 +55,9 @@ create_epi_pev_process <- function(
         correlations
       )
     ]
+
+    # Update the latest vaccination time
+    variables$last_pev_timestep$queue_update(timestep, target)
 
     schedule_vaccination(
       target,
@@ -91,7 +94,7 @@ create_mass_pev_listener <- function(
     if (parameters$mass_pev_min_wait == 0) {
       target <- in_age_group
     } else {
-      not_recently_vaccinated <- variables$pev_timestep$get_index_of(
+      not_recently_vaccinated <- variables$last_pev_timestep$get_index_of(
         a = max(timestep - parameters$mass_pev_min_wait, 0),
         b = timestep
       )$not(TRUE)
@@ -116,6 +119,11 @@ create_mass_pev_listener <- function(
         correlations
       )
     ]
+
+    # Update the latest vaccination time
+    variables$last_pev_timestep$queue_update(timestep, target)
+
+    # Schedule future doses
     schedule_vaccination(
       target,
       events,
@@ -162,7 +170,7 @@ schedule_vaccination <- function(
 create_pev_efficacy_listener <- function(variables, pev_profile_index) {
   function(timestep, target) {
     if (target$size() > 0) {
-      variables$pev_timestep$queue_update(timestep, target)
+      variables$last_eff_pev_timestep$queue_update(timestep, target)
       variables$pev_profile$queue_update(pev_profile_index, target)
     }
   }
@@ -185,7 +193,8 @@ create_pev_booster_listener <- function(
   force(coverage)
   function(timestep, target) {
     target <- sample_bitset(target, coverage)
-    variables$pev_timestep$queue_update(timestep, target)
+    variables$last_pev_timestep$queue_update(timestep, target)
+    variables$last_eff_pev_timestep$queue_update(timestep, target)
     variables$pev_profile$queue_update(pev_profile_index, target)
     renderer$render(render_name, target$size(), timestep)
 
@@ -239,6 +248,12 @@ attach_pev_dose_listeners <- function(
   for (d in seq_along(dose_events)) {
     dose_events[[d]]$add_listener(
       create_dosage_renderer(renderer, strategy, d)
+    )
+    # update last vaccination on every primary dose
+    dose_events[[d]]$add_listener(
+      function(t, target) {
+        variables$last_pev_timestep$queue_update(t, target)
+      }
     )
     if (d == length(dose_events)) {
       dose_events[[d]]$add_listener(

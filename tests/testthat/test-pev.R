@@ -209,6 +209,74 @@ test_that('Mass vaccinations update vaccination time', {
   )
 })
 
+test_that('Mass vaccinations ignore EPI individuals', {
+  timestep <- 100
+  parameters <- get_parameters(list(human_population = 5))
+  parameters <- set_mass_pev(
+    parameters,
+    profile = rtss_profile,
+    timesteps = c(50, 100),
+    coverages = rep(0.8, 2),
+    min_wait = 0,
+    min_ages = c(1, 2, 3, 18) * 365,
+    max_ages = (c(1, 2, 3, 18) + 1) * 365 - 1,
+    booster_timestep = c(18, 36) * 30,
+    booster_coverage = c(.9, .8),
+    booster_profile = list(rtss_booster_profile, rtss_booster_profile)
+  )
+  parameters <- set_pev_epi(
+    parameters,
+    profile = rtss_profile,
+    timesteps = 10,
+    coverages = 0.8,
+    min_wait = 2*365,
+    age = 18 * 365,
+    booster_timestep = c(18, 36) * 30,
+    booster_coverage = c(.9, .8),
+    booster_profile = list(rtss_booster_profile, rtss_booster_profile)
+  )
+  events <- create_events(parameters)
+  variables <- create_variables(parameters)
+  variables$birth <- individual::IntegerVariable$new(
+    -c(18.3, 8, 2.9, 3.2, 18.4) * 365 + 100
+  )
+  variables$pev_timestep <- mock_integer(
+    c(-1, -1, -1, 50, 50)
+  )
+
+  correlations <- get_correlation_parameters(parameters)
+
+  listener <- create_mass_pev_listener(
+    variables,
+    events,
+    parameters,
+    correlations
+  )
+
+  sample_mock <- mockery::mock(c(TRUE, TRUE, FALSE, FALSE))
+
+  mockery::stub(
+    listener,
+    'sample_intervention',
+    sample_mock
+  )
+  
+  # schedule id #1 for epi vaccination
+  events$pev_epi_doses[[1]]$schedule(1, 0)
+
+  listener(timestep)
+
+  mockery::expect_args(
+    sample_mock,
+    1,
+    c(3, 4, 5),
+    'pev',
+    .8,
+    correlations
+  )
+})
+
+
 test_that('Mass boosters update profile params and reschedule correctly', {
   parameters <- get_parameters()
   parameters <- set_mass_pev(

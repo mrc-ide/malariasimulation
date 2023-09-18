@@ -1,8 +1,9 @@
-
 # malariasimulation 1.6.1 (wip)
 
  * Fix bug with min_wait. Min wait was working off of the final primary dose. It
    now works of of the first dose.
+ * Fix bug in competing hazards between mass and EPI vaccines. Where individuals
+   can be enrolled onto both strategies if applied on the same timestep.
 
 # malariasimulation 1.6.0
 

@@ -29,6 +29,14 @@ create_epi_pev_process <- function(
     to_vaccinate <- variables$birth$get_index_of(
       set = timestep - parameters$pev_epi_age
     )
+
+    #ignore those who are scheduled for mass vaccination
+    if (!is.null(events$mass_pev_doses)) {
+      to_vaccinate <- to_vaccinate$and(
+        events$mass_pev_doses[[1]]$get_scheduled()$not()
+      )
+    }
+
     if (parameters$pev_epi_min_wait == 0) {
       target <- to_vaccinate$to_vector()
     } else {
@@ -86,13 +94,22 @@ create_mass_pev_listener <- function(
       in_age_group$or(variables$birth$get_index_of(a = min_birth, b = max_birth))
     }
     if (parameters$mass_pev_min_wait == 0) {
-      target <- in_age_group$to_vector()
+      target <- in_age_group
     } else {
       not_recently_vaccinated <- variables$pev_timestep$get_index_of(
         a = max(timestep - parameters$mass_pev_min_wait, 0),
         b = timestep
       )$not(TRUE)
-      target <- in_age_group$and(not_recently_vaccinated)$to_vector()
+      target <- in_age_group$and(not_recently_vaccinated)
+    }
+
+    #ignore those who are scheduled for EPI vaccination
+    if (!is.null(events$pev_epi_doses)) {
+      target <- target$and(
+        events$pev_epi_doses[[1]]$get_scheduled()$not()
+      )$to_vector()
+    } else {
+      target <- target$to_vector()
     }
     
     time_index = which(parameters$mass_pev_timesteps == timestep)

@@ -20,9 +20,9 @@ set_antimalarial_resistance(
 \arguments{
 \item{parameters}{the model parameters}
 
-\item{drug}{the index of the drug which resistance is being set for in the parameter list}
+\item{drug}{the index of the drug which resistance is being set, as set by the set_drugs() function, in the parameter list}
 
-\item{timesteps}{vector of timesteps for each update to resistance proportion and/or phenotype probability}
+\item{timesteps}{vector of time steps for each update to resistance proportion and/or phenotype probability}
 
 \item{artemisinin_resistance}{vector of updates to the proportions of infections that are artemisinin resistant at time t}
 
@@ -34,7 +34,7 @@ set_antimalarial_resistance(
 
 \item{late_clinical_failure_prob}{vector of updates to the proportion of partner-drug-resistant infections that result in late clinical failure}
 
-\item{late_parasitological_prob}{vector of updates to the proportion of partner-drug-resistant infections that result in late parasitologica; failure}
+\item{late_parasitological_prob}{vector of updates to the proportion of partner-drug-resistant infections that result in late parasitological failure}
 
 \item{reinfection_prob}{vector of updates to the proportion of partner-drug-resistant infections that result in reinfection during prophylaxis}
 }

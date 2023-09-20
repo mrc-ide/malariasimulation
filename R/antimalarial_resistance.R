@@ -1,8 +1,8 @@
 #' @title Parameterise antimalarial resistance
 #'
 #' @param parameters the model parameters
-#' @param drug the index of the drug which resistance is being set as set by set_drugs() in the parameter list
-#' @param timesteps vector of time steps for each update to resistance proportion and/or phenotype probability
+#' @param drug the index of the drug which resistance is being set, as set by the set_drugs() function, in the parameter list
+#' @param timesteps vector of time steps for each update to resistance proportion and resistance outcome probability
 #' @param artemisinin_resistance vector of updates to the proportions of infections that are artemisinin resistant at time t
 #' @param partner_drug_resistance vector of updates to the proportions of infections that are partner-drug resistant at time t
 #' @param slow_parasite_clearance_prob vector of updates to the proportion of artemisinin-resistant infections that result in early treatment failure
@@ -39,13 +39,13 @@ set_antimalarial_resistance <- function(parameters,
     stop("Artemisinin and partner-drug resistance proportions must fall between 0 and 1")
   }
   
-  # Ensure resistance phenotype probabilities bounded between 0 and 1:
+  # Ensure resistance outcome probabilities bounded between 0 and 1:
   if(any(slow_parasite_clearance_prob < 0 | slow_parasite_clearance_prob > 1 |
          early_treatment_failure_prob < 0 | early_treatment_failure_prob > 1 |
          late_clinical_failure_prob < 0 | late_clinical_failure_prob > 1 |
          late_parasitological_prob < 0 | late_parasitological_prob > 1 |
          reinfection_prob < 0 | reinfection_prob > 1)) {
-    stop("Resistance phenotype probabilities must fall between 0 and 1")
+    stop("Resistance outcome probabilities must fall between 0 and 1")
   }
   
   # Set antimalarial_resistance to TRUE:
@@ -78,7 +78,7 @@ set_antimalarial_resistance <- function(parameters,
   parameters$prop_artemisinin_resistant[[drug_index]] <- artemisinin_resistance
   parameters$prop_partner_drug_resistant[[drug_index]] <- partner_drug_resistance
   
-  # Append the probabilities that individuals will experience the resistance phenotypes:
+  # Append the probabilities that individuals will experience the resistance outcomes:
   parameters$slow_parasite_clearance_prob[[drug_index]] <- slow_parasite_clearance_prob
   parameters$early_treatment_failure_prob[[drug_index]] <- early_treatment_failure_prob
   parameters$late_clinical_failure_prob[[drug_index]] <- late_clinical_failure_prob

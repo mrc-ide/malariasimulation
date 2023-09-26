@@ -218,7 +218,21 @@ set_equilibrium <- function(parameters, init_EIR, eq_params = NULL) {
 
   } else if (parameters$parasite == "vivax"){
 
-    eq <- malariaEquilibriumVivax::human_equilibrium_vivax_full_het(
+
+    ###########################################################
+    #### Temporary code - we may choose to revisit the choice of equilibrium
+    # eq <- malariaEquilibriumVivax::human_equilibrium_vivax_full_het(
+    #   EIR = init_EIR,
+    #   ft = sum(get_treatment_coverages(parameters, 1)),
+    #   p = parameters,
+    #   age = EQUILIBRIUM_AGES,
+    #   h = malariaEquilibriumVivax::gq_normal(parameters$n_heterogeneity_groups)
+    # )
+    #
+    # eq_summary <- malariaEquilibriumVivax::human_equilibrium_vivax_summarise(eq, parameters)
+    ###########################################################
+
+    eq <- malariaEquilibriumVivax::human_equilibrium(
       EIR = init_EIR,
       ft = sum(get_treatment_coverages(parameters, 1)),
       p = parameters,
@@ -226,21 +240,9 @@ set_equilibrium <- function(parameters, init_EIR, eq_params = NULL) {
       h = malariaEquilibriumVivax::gq_normal(parameters$n_heterogeneity_groups)
     )
 
-    # sum(eq$ret[[1]][,"inf"]+eq$ret[[2]][,"inf"]+eq$ret[[3]][,"inf"]+eq$ret[[4]][,"inf"]+eq$ret[[5]][,"inf"])
-
-    eq_summary <- malariaEquilibriumVivax::human_equilibrium_vivax_summarise(eq, parameters)
-
-
-    sum(eq$ret[[1]][,"EPS"]*eq$ret[[1]][,"prop"])
-    sum(eq$ret[[1]][,"psi"]*eq$ret[[1]][,"prop"])
-    # sum(eq_summary$states[,"FOI"]*eq_summary$states[,"prop"])
-    # sum(eq_summary$states[,"FOIH"]*eq_summary$states[,"prop"])
-    # sum(eq_summary$states[,"inf"]*eq_summary$states[,"prop"])
-
-browser()
     parameters <- c(
       list(
-        init_foim = eq_summary$FOIM,
+        init_foim = eq$FOIM,
         init_EIR = init_EIR
       ),
       parameters

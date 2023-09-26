@@ -75,8 +75,6 @@ simulate_bites <- function(
     mixing_index = 1
 ) {
 
-  # browser()
-
   bitten_humans <- individual::Bitset$new(parameters$human_population)
 
   human_infectivity <- variables$infectivity$get_values()
@@ -114,7 +112,7 @@ simulate_bites <- function(
     f <- blood_meal_rate(s_i, Z, parameters)
     a <- .human_blood_meal_rate(f, s_i, W, parameters)
     lambda <- effective_biting_rates(a, .pi, p_bitten)
-# browser()
+
     if (parameters$individual_mosquitoes) {
       species_index <- variables$species$get_index_of(
         parameters$species[[s_i]]

@@ -82,12 +82,18 @@ create_variables <- function(parameters) {
           EQUILIBRIUM_AGES
         ))
       } else if (parameters$parasite == "vivax"){
-        eq <-	malariaEquilibriumVivax::human_equilibrium_vivax_full_het(
+        eq <-	malariaEquilibriumVivax::human_equilibrium_no_het(
           parameters$init_EIR,
           sum(get_treatment_coverages(parameters, 0)),
           parameters,
           EQUILIBRIUM_AGES
-        )$ret
+        )
+        # eq <-	malariaEquilibriumVivax::human_equilibrium_vivax_full_het(
+        #   parameters$init_EIR,
+        #   sum(get_treatment_coverages(parameters, 0)),
+        #   parameters,
+        #   EQUILIBRIUM_AGES
+        # )$ret
       }
     } else {
       eq <- NULL
@@ -437,12 +443,25 @@ calculate_eq <- function(het_nodes, parameters) {
     )
 
   } else if (parameters$parasite == "vivax"){
-    malariaEquilibriumVivax::human_equilibrium_vivax_full_het(
-      EIR = parameters$init_EIR,
-      ft = ft,
-      p = parameters,
-      age = EQUILIBRIUM_AGES,
-      h = malariaEquilibriumVivax::gq_normal(parameters$n_heterogeneity_groups))$ret
+
+    lapply(
+      het_nodes,
+      function(n) {
+        malariaEquilibriumVivax::human_equilibrium_no_het(
+          parameters$init_EIR * calculate_zeta(n, parameters),
+          ft,
+          parameters,
+          EQUILIBRIUM_AGES
+        )
+      }
+    )
+
+  #   malariaEquilibriumVivax::human_equilibrium_vivax_full_het(
+  #     EIR = parameters$init_EIR,
+  #     ft = ft,
+  #     p = parameters,
+  #     age = EQUILIBRIUM_AGES,
+  #     h = malariaEquilibriumVivax::gq_normal(parameters$n_heterogeneity_groups))$ret
   }
 }
 

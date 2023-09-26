@@ -10,7 +10,7 @@ test_that('Initial states are consistent with equilibrium', {
     EIRs,
     function(EIR) {
 
-      eq <- malariaEquilibriumVivax::human_equilibrium_vivax_full_het(
+      eq <- malariaEquilibriumVivax::human_equilibrium(
         EIR = EIR,
         ft = sum(get_treatment_coverages(eq_params, 1)),
         p = eq_params,
@@ -18,14 +18,7 @@ test_that('Initial states are consistent with equilibrium', {
         h = malariaEquilibriumVivax::gq_normal(eq_params$n_heterogeneity_groups)
       )
 
-      colSums(eq$ret[[1]][,c("S","D","A","U","T")] +
-        eq$ret[[2]][,c("S","D","A","U","T")]+
-        eq$ret[[3]][,c("S","D","A","U","T")]+
-        eq$ret[[4]][,c("S","D","A","U","T")]+
-        eq$ret[[5]][,c("S","D","A","U","T")])
-
-      eq_summary <- malariaEquilibriumVivax::human_equilibrium_vivax_summarise(eq, eq_params)
-      return(colSums(eq_summary$states[,c("S","D","A","U","T")]))
+      return(colSums(eq$states[,c("S","D","A","U","T")]))
     })
 
 
@@ -45,8 +38,6 @@ test_that('Initial states are consistent with equilibrium', {
   expected_states
   actual_states
 
-
-
 })
 
 test_that('Initial immunities are consistent with equilibrium', {
@@ -60,55 +51,108 @@ test_that('Initial immunities are consistent with equilibrium', {
   expected_averages <- sapply(
     EIRs,
     function(EIR) {
-
-      eq <- malariaEquilibriumVivax::human_equilibrium_vivax_full_het(
+      eq <- malariaEquilibriumVivax::human_equilibrium(
         EIR = EIR,
         ft = sum(get_treatment_coverages(eq_params, 1)),
         p = eq_params,
         age = EQUILIBRIUM_AGES,
         h = malariaEquilibriumVivax::gq_normal(eq_params$n_heterogeneity_groups)
       )
-
-      sum(eq[[1]][,c("ICM")]*eq[[1]][,c("prop")]*malariaEquilibriumVivax::gq_normal(eq_params$n_heterogeneity_groups)$weights[[1]]+
-                eq[[2]][,c("ICM")]*eq[[1]][,c("prop")]*malariaEquilibriumVivax::gq_normal(eq_params$n_heterogeneity_groups)$weights[[2]]+
-                eq[[3]][,c("ICM")]*eq[[1]][,c("prop")]*malariaEquilibriumVivax::gq_normal(eq_params$n_heterogeneity_groups)$weights[[3]]+
-                eq[[4]][,c("ICM")]*eq[[1]][,c("prop")]*malariaEquilibriumVivax::gq_normal(eq_params$n_heterogeneity_groups)$weights[[4]]+
-                eq[[5]][,c("ICM")]*eq[[1]][,c("prop")]*malariaEquilibriumVivax::gq_normal(eq_params$n_heterogeneity_groups)$weights[[5]])
-
-      return(colSums(eq$ret[[1]][,c("ID","ICA","ICM","ID","IDM")]*eq$ret[[1]][,c("prop")]*eq$w_het[[1]]+
-        eq$ret[[2]][,c("HH","ICA","ICM","ID","IDM")]*eq$ret[[1]][,c("prop")]*eq$w_het[[2]]+
-        eq$ret[[3]][,c("HH","ICA","ICM","ID","IDM")]*eq$ret[[1]][,c("prop")]*eq$w_het[[3]]+
-        eq$ret[[4]][,c("HH","ICA","ICM","ID","IDM")]*eq$ret[[1]][,c("prop")]*eq$w_het[[4]]+
-        eq$ret[[5]][,c("HH","ICA","ICM","ID","IDM")]*eq$ret[[1]][,c("prop")]*eq$w_het[[5]]))
-
-      # eq_summary <- malariaEquilibriumVivax::human_equilibrium_vivax_summarise(eq, eq_params)
-      # browser()
-
-      # hh_imm <- Reduce("+",
-                       # lapply(1:length(eq$w_het),function(x){eq$ret[[x]][,c("HH","ICA","ICM","ID","IDM","phi","prop")] * eq$w_het[x]}))
-      ## Am I weighting prop here?
-
-
-      # return(colSums(t(t(eq_summary$states[,c("HH","ICA","ICM","ID","IDM")])*eq_summary$states[,c("prop")])))
+      colSums(eq$states[,c("ICA","ICM","ID","IDM","HH")] * eq$states[,"prop"])
     })
 
 
   actual_averages <- sapply(
     EIRs,
     function(EIR) {
-      # browser()
+
       parms <- set_equilibrium(eq_params, init_EIR = EIR)
       vars <- create_variables(parameters = parms)
 
-      return(c(mean(vars$hypnozoites$get_values()),
-               mean(vars$ica$get_values()),
+      return(c(mean(vars$ica$get_values()),
                mean(vars$icm$get_values()),
                mean(vars$id$get_values()),
-               mean(vars$idm$get_values())))})
+               mean(vars$idm$get_values()),
+               mean(vars$hypnozoites$get_values())))})
 
   expected_averages
   actual_averages
 
+})
+
+### OK. So now we've establsiehd that the initialisation is correct, let's make some plots to show the differences between the equilibrium values and the outputs.
+
+# for each EIR
+# Get initial SDAUT prevalence
+# Run 100 times for 10*365 timesteps
+#
+parms <- get_parameters(parasite = "vivax", overrides = list(human_population = 1000))
+eq_results <- lapply(c(0.1,1,10,100), function(EIR){
+
+  # Get equilibria
+  eq <- malariaEquilibriumVivax::human_equilibrium_vivax_full_het(
+    EIR = EIR,
+    ft = sum(get_treatment_coverages(eq_params, 1)),
+    p = eq_params,
+    age = EQUILIBRIUM_AGES,
+    h = malariaEquilibriumVivax::gq_normal(eq_params$n_heterogeneity_groups)
+  )
+
+  eq_summary <- malariaEquilibriumVivax::human_equilibrium_vivax_summarise(eq, parms)
+
+
+  parms_eq <- set_equilibrium(init_EIR = EIR, parms)
+  SimRes <- run_simulation_with_repetitions(timesteps = 10*365, repetitions = 10, parms_eq)
+
+
+  Timestep1 <- SimRes |> filter(timestep ==1) |>
+    group_by(timestep) |>
+    summarise(across(everything(), list(mean = mean)))
+
+  Timestep_eq <- SimRes_sum <- SimRes |>
+    group_by(timestep) |>
+    summarise(across(everything(), list(mean = mean))) |>
+    tail(50) |>
+    colMeans()
+
+  eq_sol <- c(NA,NA,NA,NA,eq_summary$foim, NA,NA,NA,NA,NA,NA,NA,NA,NA,
+    colSums(eq_summary$states[,c("S","D","A","U","T")])*1000,
+    colSums(eq_summary$states[,c("ICA","ICM","ID","IDM","HH")]*eq_summary$states[,c("prop")]),
+    NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA)
+
+
+  return(data.frame(init_EIR = EIR, eq_sol = eq_sol, t_1 = unlist(Timestep1), mod_eq = unlist(Timestep_eq)))
 
 })
+
+eq_results_out <- lapply(eq_results, function(x){x |>
+    tibble::rownames_to_column(var = 'output')})
+
+eq_comb <- do.call("rbind", eq_results_out) |>
+  tidyr::pivot_longer(cols = c(eq_sol,t_1,mod_eq), names_to = "time", values_to = "value") |>
+  filter(!output %in% c("repetition_mean","timestep"))
+
+eq_plot <- eq_comb |>
+  tidyr::pivot_wider(names_from = output, values_from = value) |>
+  mutate(prev = (D_count_mean+A_count_mean+U_count_mean)/1000) |>
+  tidyr::pivot_longer(cols = 3:35, names_to = "output", values_to = "value") |>
+  mutate(output = factor(output, levels = c(paste0(c("S","D","A","U","Tr"),"_count_mean"),"prev",
+                                            paste0(c("E","L","P","Sm","Pm","Im"),"_All_count_mean"),
+                                            paste0(c("EIR","FOIM","mu","total_M"),"_All_mean"),
+                                            paste0(c("hypnozoites","ica","icm","id","idm"),"_mean_mean"),
+                                            paste0(c("infectivity","n_730_3650","n_detect_730_3650","p_detect_730_3650",
+                                                     "n_bitten","n_new_bite_infections","n_hypnozoites","n_relapses","n_decayed",
+                                                     "n_infections_not_relapse","n_infections",
+                                                     "natural_deaths"),"_mean")
+                                            )),
+         time = factor(time, levels = c("eq_sol","t_1","mod_eq"))) |>
+  # filter(!is.na(value)) |>
+  ggplot() +
+  geom_point(aes(x = time, y = value, color = as.factor(init_EIR))) +
+  facet_wrap(~output, scales = "free_y")
+  # facet_grid(as.factor(output)~as.factor(init_EIR), scales = "free_y")
+  # theme_minimal()
+
+ggsave("../Malaria_Vivax_Projects/MalariaVivaxProjects/Analysis/Equilibrium_function_across_EIR.pdf", eq_plot,
+       height = 8, width = 15, limitsize = F)
 

@@ -38,20 +38,28 @@ create_processes <- function(
   processes <- list(
     # Maternal immunity
     create_exponential_decay_process(variables$icm, parameters$rm),
-    create_exponential_decay_process(variables$ivm, parameters$rvm),
-    # Blood immunity
-    create_exponential_decay_process(variables$ib, parameters$rb),
-    # Acquired immunity
+    # Acquired clinical immunity
     create_exponential_decay_process(variables$ica, parameters$rc),
-    create_exponential_decay_process(variables$iva, parameters$rva),
+    # Acquired immunity to detectability
     create_exponential_decay_process(variables$id, parameters$rid)
   )
 
-  if(parameters$parasite == "vivax"){
+  if(parameters$parasite == "falciparum"){
+    processes <- c(
+      processes,
+      # Severe maternal and acquired immunity
+      create_exponential_decay_process(variables$ivm, parameters$rvm),
+      create_exponential_decay_process(variables$iva, parameters$rva),
+      # Blood immunity
+      create_exponential_decay_process(variables$ib, parameters$rb)
+    )
+
+  } else if (parameters$parasite == "vivax"){
     processes <- c(
       processes,
       # Maternal immunity to detectability
-      create_exponential_decay_process(variables$idm, parameters$rm))
+      create_exponential_decay_process(variables$idm, parameters$rm)
+    )
   }
 
   if (parameters$individual_mosquitoes) {

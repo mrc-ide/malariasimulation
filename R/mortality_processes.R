@@ -103,7 +103,7 @@ reset_target <- function(variables, events, target, state, timestep, parameters)
     variables$ica$queue_update(0, target)
     variables$id$queue_update(0, target)
 
-    if(parameters$parasite=="falciparum"){
+    if(parameters$parasite == "falciparum"){
       variables$last_boosted_ib$queue_update(-1, target)
       variables$last_boosted_iva$queue_update(-1, target)
       variables$ib$queue_update(0, target)

@@ -26,7 +26,7 @@ test_that('Test difference between falciparum and vivax parameter lists', {
 })
 
 ## Test subpatent progression functions
-test_that('Test subpatent duration function works ', {
+test_that('Test anti-parasite immunity function works ', {
   vivax_parameters <- get_parameters(parasite = "vivax",
                                      overrides = list(s_proportion = 0,
                                                       d_proportion = 0,

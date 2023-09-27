@@ -72,7 +72,7 @@ probability of pre-erythrocytic infection/blood immunity:
 \item b - probability of pre-erythrocytic infection (P.v only): default = 0.5
 }
 
-probability of asymptomatic detection/detectbility immunity (P.f only):
+probability of asymptomatic detection/detectability immunity (P.f only):
 \itemize{
 \item fd0 - time-scale at which immunity changes with age; default = 0.007055
 \item ad - scale parameter relating age to immunity; default = 7993.5
@@ -159,25 +159,25 @@ subpatents; default = 0.133028023
 }
 
 rendering:
-All values are in timesteps and all ranges are inclusive
-please set rendered age groups using the convenience function
+All values are in timesteps and all ranges are inclusive.
+Please set rendered age groups using the convenience function
 \code{set_demography}
 \itemize{
-\item age_group_rendering_min_ages - the minimum ages for population size outputs; default = numeric(0)
-\item age_group_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item age_group_rendering_min_ages - the minimum ages for population size outputs; default = turned off
+\item age_group_rendering_max_ages - the corresponding max ages; default = turned off
 \item prevalence_rendering_min_ages - the minimum ages for clinical prevalence
-outputs; default = 730
+outputs (pcr and lm detectable infections); default = 730
 \item prevalence_rendering_max_ages - the corresponding max ages; default = 3650
 \item incidence_rendering_min_ages - the minimum ages for incidence
-outputs (includes asymptomatic microscopy +); default = turned off
+outputs (pf: D+Tr+A, pv: D+Tr+A+U); default = turned off
 \item incidence_rendering_max_ages - the corresponding max ages; default = turned off
-\item clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = 0
-\item clinical_incidence_rendering_max_ages - the corresponding max ages; default = 1825
+\item patent_incidence_rendering_min_ages - the minimum ages for patent incidence outputs (lm detectable), (P.v only); default = turned off
+\item patent_incidence_rendering_max_ages - the corresponding max ages (P.v only); default = turned off
+\item clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = turned off
+\item clinical_incidence_rendering_max_ages - the corresponding max ages; default = turned off
 \item severe_incidence_rendering_min_ages - the minimum ages for severe incidence
 outputs; default = turned off
 \item severe_incidence_rendering_max_ages - the corresponding max ages; default = turned off
-\item severe_prevalence_rendering_min_ages - the minimum ages for severe prevalance outputs; default = numeric(0),
-\item severe_prevalence_rendering_max_ages - the corresponding max ages; default = numeric(0),
 }
 
 mosquito life stage transitions:
@@ -304,8 +304,6 @@ please set TBV parameters with the convenience functions
 }
 
 miscellaneous:
-please set parasite species using the convenience function
-\code{set_parasite}
 \itemize{
 \item mosquito_limit - the maximum number of mosquitoes to allow for in the
 simulation; default = 1.00E+05

@@ -18,9 +18,178 @@ test_that('Test parasite = vivax sets parameters$parasite to vivax', {
 test_that('Test difference between falciparum and vivax parameter lists', {
   falciparum_parameters <- get_parameters(parasite = "falciparum")
   vivax_parameters <- get_parameters(parasite = "vivax")
-  
+
   expect_true(all(names(falciparum_parameters)[!names(falciparum_parameters) %in% names(vivax_parameters)] %in%
                     c("du","rvm","rva","rb","b0","b1","ib0","kb","theta0","theta1","kv","fv0","av","gammav","iv0","fd0","ad","gammad","d1","id0","kd","ub","uv","gamma1","pvm","init_ivm","init_ib","init_iva")))
   expect_true(all(names(vivax_parameters[!names(vivax_parameters) %in% names(falciparum_parameters)]) %in%
                     c("du_max","du_min","ku","au50","b","phi0lm","phi1lm","ic0lm","kclm","d0","ca","init_idm","f","gammal")))
+})
+
+## Test subpatent progression functions
+test_that('Test subpatent duration function works ', {
+  vivax_parameters <- get_parameters(parasite = "vivax",
+                                     overrides = list(s_proportion = 0,
+                                                      d_proportion = 0,
+                                                      a_proportion = 0,
+                                                      u_proportion = 1,
+                                                      t_proportion = 0))
+  variables <- create_variables(vivax_parameters)
+  index <- variables$state$get_index_of("U")
+  du_min <- vivax_parameters$du_min
+  du_max <- vivax_parameters$du_max
+  au50 <- vivax_parameters$au50
+  ku <- vivax_parameters$ku
+
+  expect_equal(object = anti_parasite_immunity(
+    du_min, du_max, au50, ku,
+    variables$id$get_values(index),
+    variables$idm$get_values(index)),
+               expected = rep(du_max,100))
+
+  ## Change initial values of ID, and IDM, check they are the same
+  variables$id <- individual::DoubleVariable$new(1:100)
+  ID_durations <- anti_parasite_immunity(
+    du_min, du_max, au50, ku,
+    variables$id$get_values(index),
+    variables$idm$get_values(index))
+
+  variables$id <- individual::DoubleVariable$new(rep(0,100))
+  variables$idm <- individual::DoubleVariable$new(1:100)
+  IDM_durations <- anti_parasite_immunity(
+    du_min, du_max, au50, ku,
+    variables$id$get_values(index),
+    variables$idm$get_values(index))
+
+  expect_equal(object = ID_durations, expected = IDM_durations)
+
+  ## Check convergence to min_du at high immunity
+  variables$id <- individual::DoubleVariable$new(rep(1E7,100))
+  variables$idm <- individual::DoubleVariable$new(rep(0,100))
+  expect_equal(object = anti_parasite_immunity(
+    du_min, du_max, au50, ku,
+    variables$id$get_values(index),
+    variables$idm$get_values(index)),
+               expected = rep(du_min,100),
+               tolerance = 1E-2)
+})
+
+test_that('Test default vivax rendering works', {
+
+  timestep <- 0
+  year <- 365
+  birth <- individual::IntegerVariable$new(
+    -c(2, 5, 10, 11) * year
+  )
+  vivax_parameters <- get_parameters(
+    parasite = "vivax")
+
+  renderer <- mock_render(1)
+  incidence_renderer(
+    birth,
+    renderer,
+    individual::Bitset$new(4)$insert(c(1, 2, 4)),
+    individual::Bitset$new(4)$insert(seq(4)),
+    c(.1, .2, .3, .4),
+    'inc_patent_',
+    c(0, 2) * year,
+    c(5, 10) * year,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    1,
+    'n_0_1825',
+    2,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    2,
+    'n_inc_patent_0_1825',
+    2,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    3,
+    'p_inc_patent_0_1825',
+    0.3,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    4,
+    'n_730_3650',
+    3,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    5,
+    'n_inc_patent_730_3650',
+    2,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    6,
+    'p_inc_patent_730_3650',
+    .6,
+    timestep
+  )
+})
+
+test_that('that vivax patent prevalence rendering works', {
+
+  timestep <- 1
+  state <- individual::CategoricalVariable$new(
+    c('U', 'A', 'D', 'S', 'Tr'),
+    c('U', 'A', 'D', 'D', 'D', 'S')
+  )
+  birth <- individual::IntegerVariable$new(
+    -c(3, 4, 5, 1, 11, 6) * 365
+  )
+  immunity <- individual::DoubleVariable$new(rep(1, 6))
+  vivax_parameters <- get_parameters(parasite = "vivax")
+  renderer <- mock_render(1)
+
+  process <- create_prevelance_renderer(
+    state,
+    birth,
+    immunity,
+    vivax_parameters,
+    renderer
+  )
+
+  process(timestep)
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    1,
+    'n_730_3650',
+    4,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    2,
+    'n_detect_pcr_730_3650',
+    3,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    3,
+    'n_detect_lm_730_3650',
+    2,
+    timestep
+  )
 })

@@ -46,7 +46,14 @@ create_processes <- function(
     create_exponential_decay_process(variables$iva, parameters$rva),
     create_exponential_decay_process(variables$id, parameters$rid)
   )
-  
+
+  if(parameters$parasite == "vivax"){
+    processes <- c(
+      processes,
+      # Maternal immunity to detectability
+      create_exponential_decay_process(variables$idm, parameters$rm))
+  }
+
   if (parameters$individual_mosquitoes) {
     processes <- c(
       processes,
@@ -59,7 +66,7 @@ create_processes <- function(
       )
     )
   }
-  
+
   # ==============================
   # Biting and mortality processes
   # ==============================
@@ -96,7 +103,7 @@ create_processes <- function(
         parameters$da,
         variables$infectivity,
         parameters$ca
-      )  
+      )
     },
     create_progression_process(
       variables$state,
@@ -106,14 +113,21 @@ create_processes <- function(
       variables$infectivity,
       parameters$cu
     ),
-    create_progression_process(
-      variables$state,
-      'U',
-      'S',
-      parameters$du,
-      variables$infectivity,
-      0
-    ),
+    if(parameters$parasite == "falciparum"){
+      create_progression_process(
+        variables$state,
+        'U',
+        'S',
+        parameters$du,
+        variables$infectivity,
+        0)
+    } else if (parameters$parasite == "vivax"){
+      create_subpatent_progression_process(
+        variables$state,
+        variables,
+        parameters
+      )
+    },
     create_progression_process(
       variables$state,
       'Tr',
@@ -123,7 +137,7 @@ create_processes <- function(
       0
     )
   )
-  
+
   # ===============
   # ODE integration
   # ===============
@@ -131,7 +145,7 @@ create_processes <- function(
     processes,
     create_solver_stepping_process(solvers, parameters)
   )
-  
+
   # =========
   # RTS,S EPI
   # =========
@@ -148,7 +162,7 @@ create_processes <- function(
       )
     )
   }
-  
+
   # =========
   # PMC
   # =========
@@ -167,21 +181,27 @@ create_processes <- function(
       )
     )
   }
-  
+
   # =========
   # Rendering
   # =========
+
+  imm_var_names <- c('ica','icm','ib','id','iva','ivm')
+  if(parameters$parasite == "vivax"){
+    imm_var_names <- c(imm_var_names, 'idm')
+  }
+
   processes <- c(
     processes,
     individual::categorical_count_renderer_process(
       renderer,
       variables$state,
-      c('S', 'A', 'D', 'U', 'Tr')
+      c('S', 'D', 'A', 'U', 'Tr')
     ),
     create_variable_mean_renderer_process(
       renderer,
-      c('ica', 'icm', 'ib', 'id', 'iva', 'ivm'),
-      variables[c('ica', 'icm', 'ib', 'id', 'iva', 'ivm')]
+      imm_var_names,
+      variables[imm_var_names]
     ),
     create_prevelance_renderer(
       variables$state,
@@ -197,7 +217,7 @@ create_processes <- function(
     ),
     create_compartmental_rendering_process(renderer, solvers, parameters)
   )
-  
+
   if (parameters$individual_mosquitoes) {
     processes <- c(
       processes,
@@ -219,11 +239,11 @@ create_processes <- function(
       )
     )
   }
-  
+
   # ======================
   # Intervention processes
   # ======================
-  
+
   if (parameters$bednets) {
     processes <- c(
       processes,
@@ -236,14 +256,14 @@ create_processes <- function(
       net_usage_renderer(variables$net_time, renderer)
     )
   }
-  
+
   if (parameters$spraying) {
     processes <- c(
       processes,
       indoor_spraying(variables$spray_time, parameters, correlations)
     )
   }
-  
+
   # ======================
   # Progress bar process
   # ======================
@@ -253,7 +273,7 @@ create_processes <- function(
       create_progress_process(timesteps)
     )
   }
-  
+
   processes
 }
 
@@ -277,7 +297,7 @@ create_exponential_decay_process <- function(variable, rate) {
 #' @title Create and initialise lagged_infectivity object
 #'
 #' @param variables model variables for initialisation
-#' @param parameters model parameters 
+#' @param parameters model parameters
 #' @noRd
 create_lagged_infectivity <- function(variables, parameters) {
   age <- get_age(variables$birth$get_values(), 0)
@@ -294,7 +314,7 @@ create_lagged_infectivity <- function(variables, parameters) {
 #'
 #' @param variables model variables for initialisation
 #' @param solvers model differential equation solvers
-#' @param parameters model parameters 
+#' @param parameters model parameters
 #' @noRd
 create_lagged_eir <- function(variables, solvers, parameters) {
   lapply(

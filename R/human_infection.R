@@ -411,7 +411,7 @@ schedule_infections <- function(
 
   # falciparum infection can result in D or A
   if(parameters$parasite == "falciparum"){
-    to_infect_asym <- clinical_infections$copy()$not(FALSE)$and(infections)$and(included)
+    to_infect_asym <- clinical_infections$not(FALSE)$and(included)$and(infections)
 
     if(to_infect_asym$size() > 0) {
       # falciparum has age- and immunity-dependent asymptomatic infectivity
@@ -424,8 +424,8 @@ schedule_infections <- function(
 
     # vivax infection can result in D, A or U
   } else if (parameters$parasite == "vivax"){
-    to_infect_asym <- patent_infections$copy()$and(included)$and(clinical_infections$not(FALSE))
-    to_infect_subpatent <- patent_infections$copy()$not(FALSE)$and(included)
+    to_infect_asym <- clinical_infections$not(FALSE)$and(included)$and(patent_infections)$and(infections)
+    to_infect_subpatent <- patent_infections$not(FALSE)$and(infections)
 
     if(to_infect_asym$size() > 0) {
       # vivax has constant asymptomatic infectivity

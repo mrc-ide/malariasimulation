@@ -5,14 +5,14 @@
 #' are for Plasmodium falciparum, are explained in
 #' "The US President's Malaria Initiative, Plasmodium falciparum transmission
 #' and mortality: A modelling study."
-#' 
+#'
 #' Plasmodium vivax specific parameters are explained in
 #' "Mathematical modelling of the impact of expanding levels of malaria control
 #' interventions on Plasmodium vivax." by White, Michael T., et al.
 #'
 #' @param overrides a named list of parameter values to use instead of defaults
 #' @param parasite Plasmodium parasite species ("falciparum" or "vivax"); default = "falciparum"
-#' 
+#'
 #' The parameters are defined below.
 #'
 #' human fixed state transitions:
@@ -23,7 +23,7 @@
 #' * du - the delay for humans to move from state U to S (P.f only); default = 110
 #'
 #' duration of subpatent infection: du (P.v only):
-#' 
+#'
 #' * du_max - Maximum duration of subpatent infection: default = 70
 #' * du_min - Minimum duration of subpatent infection: default = 10
 #' * ku - Shape parameter: default = 4.602
@@ -37,7 +37,7 @@
 #' * init_ivm - the immunity from severe disease at birth (P.f only); default = 0
 #' * init_ib  - the initial pre-erythrocitic immunity (P.f only); default = 0
 #' * init_id  - the initial acquired immunity to detectability; default = 0
-#' 
+#'
 #' immunity boost grace periods:
 #'
 #' * ub - period in which pre-erythrocytic immunity cannot be boosted (P.f only); default = 7.2
@@ -46,10 +46,10 @@
 #' * uv - period in which severe immunity cannot be boosted (P.f only); default = 11.4321
 #'
 #' maternal immunity parameters:
-#' 
+#'
 #' * pcm - new-born clinical immunity relative to mother's; default = 0.774368
 #' * pvm - new-born severe immunity relative to mother's (P.f only); default = 0.195768
-#' 
+#'
 #' immunity decay rates:
 #'
 #' * rm - decay rate for maternal immunity to clinical disease; default = 67.6952
@@ -67,7 +67,7 @@
 #' * kb - shape parameter (P.f only); default = 2.16
 #' * b - probability of pre-erythrocytic infection (P.v only): default = 0.5
 #'
-#' probability of asymptomatic detection/detectbility immunity (P.f only): 
+#' probability of asymptomatic detection/detectability immunity (P.f only):
 #'
 #' * fd0 - time-scale at which immunity changes with age; default = 0.007055
 #' * ad - scale parameter relating age to immunity; default = 7993.5
@@ -82,7 +82,7 @@
 #' * phi1lm - maximum reduction due to immunity; default = 0.00482170890334156
 #' * ic0lm - scale parameter; default = 27.52
 #' * kclm - shape parameter; default = 2.403
-#' 
+#'
 #' probability of clinical infection/clinical immunity:
 #'
 #' * phi0 - maximum probability due to no immunity; default = 0.792
@@ -113,16 +113,16 @@
 #' * de - Duration of the human latent period of infection; default = 12
 #' * delay_gam - Lag from parasites to infectious gametocytes; default = 12.5
 #' * dem - Extrinsic incubation period in mosquito population model; default = 10
-#' 
+#'
 #' hypnozoite parameters (P.v only):
-#' 
+#'
 #' * f - relapse rate; default = 0.024
 #' * gammal - clearance rate; default = 0.0026
-#' 
+#'
 #' parasite parameter
-#' 
+#'
 #' * parasite - parasite species (falciparum or vivax); default = "falciparum"
-#' 
+#'
 #' human population parameters:
 #' * human_population - the initial number of humans to model; default = 100
 #' * human_population_timesteps - the timesteps at which the population should
@@ -130,7 +130,7 @@
 #' * custom_demography - population demography given; default = FALSE,
 #' * average_age - the average age of humans (in timesteps), this is only used
 #' if custom_demography is FALSE; default = 7663
-#' 
+#'
 #' initial state proportions:
 #'
 #' * s_proportion - the proportion of `human_population` that begin as susceptible; default = 0.420433246
@@ -192,11 +192,11 @@
 #' flexible carrying capacity parameters:
 #' please set carrying capacity using the convenience function
 #' `set_carrying_capacity`
-#' 
+#'
 #' * carrying_capacity; default = FALSE
 #' * carrying_capacity_timesteps; default = NULL
 #' * carrying_capacity_values; default = NULL
-#'  
+#'
 #' larval mortality rates:
 #'
 #' * me - early stage larval mortality rate; default = 0.0338
@@ -241,7 +241,7 @@
 #' clinical treatment coverage changes (these values refer to the index in drug_* parameters); default = NULL
 #' * clinical_treatment_coverage - a list of vectors giving coverage values for each drug; default = NULL
 #'
-#' PEV parameters: 
+#' PEV parameters:
 #' please set vaccine strategies with the convenience functions
 #' `set_pev_epi` and `set_mass_pev`
 #'
@@ -278,7 +278,7 @@
 #'
 #'
 #' miscellaneous:
-#' 
+#'
 #' * mosquito_limit - the maximum number of mosquitoes to allow for in the
 #' simulation; default = 1.00E+05
 #' * individual_mosquitoes - boolean whether adult mosquitoes are modeled
@@ -292,7 +292,7 @@
 #'
 #' @export
 get_parameters <- function(overrides = list(), parasite = "falciparum") {
-  
+
   parameters <- c(
     ## Parasite-specific parameters set in parasite_parameters.csv
     # human fixed state transitions
@@ -302,7 +302,7 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
     # maternal immunity parameters
     # immunity decay rates
     # probability of pre-erythrocytic infection/blood immunity
-    # probability of asymptomatic detection/detectbility immunity 
+    # probability of asymptomatic detection/detectability immunity
     # probability of asymptomatic infection/antiparasite immunity
     # probability of clinical infection/clinical immunity
     # probability of severe infection/severe disease immunity
@@ -310,12 +310,12 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
     # parasite incubation periods
     # hypnozoite parameters
     parasite_parameters[[parasite]],
-    
+
     ## Add remaining parameters
     list(
       # parasite parameter
       parasite = parasite,
-      
+
       # human population parameters
       human_population = 100,
       human_population_timesteps = 0,
@@ -342,7 +342,7 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       severe_incidence_rendering_max_ages = numeric(0),
       severe_prevalence_rendering_min_ages = numeric(0),
       severe_prevalence_rendering_max_ages = numeric(0),
-      
+
       # mosquito life stage transitions
       del =  6.64,
       dl  =  3.72,
@@ -432,7 +432,7 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       tbv_timesteps = NULL,
       tbv_coverages = NULL,
       tbv_ages = NULL,
-      
+
       # misc
       mosquito_limit   = 100 * 1000,
       individual_mosquitoes = FALSE,
@@ -442,19 +442,19 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       ode_max_steps = 1e6,
       progress_bar = FALSE
       ))
-  
+
   # Override parameters with any client specified ones
   if (!is.list(overrides)) {
     stop('overrides must be a list')
   }
-  
+
   for (name in names(overrides)) {
     if (!(name %in% names(parameters))) {
       stop(paste('unknown parameter', name, sep=' '))
     }
     parameters[[name]] <- overrides[[name]]
   }
-  
+
   props <- c(
     parameters$s_proportion,
     parameters$d_proportion,
@@ -462,11 +462,11 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
     parameters$u_proportion,
     parameters$t_proportion
   )
-  
+
   if (!approx_sum(props, 1)) {
     stop("Starting proportions do not sum to 1")
   }
-  
+
   parameters
 }
 
@@ -541,7 +541,7 @@ parameterise_total_M <- function(parameters, total_M) {
 }
 
 #' Use parameter draw from the join posterior
-#' 
+#'
 #' Overrides default (median) model parameters with a single draw from the fitted
 #' joint posterior. Must be called prior to set_equilibrium.
 #'

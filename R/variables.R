@@ -199,120 +199,6 @@ create_variables <- function(parameters) {
     )
   }
 
-  # Severe disease and pre-ertythrocitic (blood) immunity only modelled in P. falciparum
-  if(parameters$parasite == "falciparum"){
-
-    # Boost immunities
-    last_boosted_ib <- individual::DoubleVariable$new(rep(-1, size))
-    last_boosted_iva <- individual::DoubleVariable$new(rep(-1, size))
-
-    # Maternal severe disease immunity
-    ivm <- individual::DoubleVariable$new(
-      initial_immunity(
-        parameters$init_ivm,
-        initial_age,
-        groups,
-        eq,
-        parameters,
-        'IVM'
-      )
-    )
-
-    # Acquired immunity to severe disease
-    iva <- individual::DoubleVariable$new(
-      initial_immunity(
-        parameters$init_iva,
-        initial_age,
-        groups,
-        eq,
-        parameters,
-        'IVA'
-      )
-    )
-
-    # Pre-erythoctic immunity
-    ib  <- individual::DoubleVariable$new(
-      initial_immunity(
-        parameters$init_ib,
-        initial_age,
-        groups,
-        eq,
-        parameters,
-        'IB'
-      )
-    )
-
-  } else if (parameters$parasite == "vivax"){
-    # Maternal immunity to detectable disease only modelled in P. vivax
-    idm <- individual::DoubleVariable$new(
-      initial_immunity(
-        parameters$init_idm,
-        initial_age,
-        groups,
-        eq,
-        parameters,
-        'IDM'
-      )
-    )
-  }
-
-  # Severe disease and pre-ertythrocitic (blood) immunity only modelled in P. falciparum
-  if(parameters$parasite == "falciparum"){
-
-    # Boost immunities
-    last_boosted_ib <- individual::DoubleVariable$new(rep(-1, size))
-    last_boosted_iva <- individual::DoubleVariable$new(rep(-1, size))
-
-    # Maternal severe disease immunity
-    ivm <- individual::DoubleVariable$new(
-      initial_immunity(
-        parameters$init_ivm,
-        initial_age,
-        groups,
-        eq,
-        parameters,
-        'IVM'
-      )
-    )
-
-    # Acquired immunity to severe disease
-    iva <- individual::DoubleVariable$new(
-      initial_immunity(
-        parameters$init_iva,
-        initial_age,
-        groups,
-        eq,
-        parameters,
-        'IVA'
-      )
-    )
-
-    # Pre-erythoctic immunity
-    ib  <- individual::DoubleVariable$new(
-      initial_immunity(
-        parameters$init_ib,
-        initial_age,
-        groups,
-        eq,
-        parameters,
-        'IB'
-      )
-    )
-
-  } else if (parameters$parasite == "vivax"){
-    # Maternal immunity to detectable disease only modelled in P. vivax
-    idm <- individual::DoubleVariable$new(
-      initial_immunity(
-        parameters$init_idm,
-        initial_age,
-        groups,
-        eq,
-        parameters,
-        'IDM'
-      )
-    )
-  }
-
   # Initialise infectiousness of humans -> mosquitoes
   # NOTE: not yet supporting initialisation of infectiousness of Treated individuals
   infectivity_values <- rep(0, get_human_population(parameters, 0))
@@ -330,9 +216,9 @@ create_variables <- function(parameters) {
       initial_age[asymptomatic],
       id$get_values(asymptomatic),
       parameters)
-    } else if (parameters$parasite == "vivax"){ ## P. vivax has a constant asymptomatic infectivity
-      infectivity_values[asymptomatic] <- parameters$ca
-    }
+  } else if (parameters$parasite == "vivax"){ ## P. vivax has a constant asymptomatic infectivity
+    infectivity_values[asymptomatic] <- parameters$ca
+  }
   infectivity_values[subpatent] <- parameters$cu
 
   # Initialise the infectivity variable
@@ -379,7 +265,9 @@ create_variables <- function(parameters) {
                    iva = iva
     )
   } else if(parameters$parasite == "vivax"){
-    variables <- c(variables, idm = idm)
+    variables <- c(
+      variables,
+      idm = idm)
   }
 
   # Add variables for individual mosquitoes
@@ -455,13 +343,13 @@ create_export_variable <- function(metapop_params) {
 # =========
 
 initial_immunity <- function(
-  parameter,
-  age,
-  groups = NULL,
-  eq = NULL,
-  parameters = NULL,
-  eq_name = NULL
-  ) {
+    parameter,
+    age,
+    groups = NULL,
+    eq = NULL,
+    parameters = NULL,
+    eq_name = NULL
+) {
   if (!is.null(eq)) {
     age <- age / 365
     return(vnapply(
@@ -515,17 +403,17 @@ calculate_initial_counts <- function(parameters) {
 
 calculate_eq <- function(het_nodes, parameters) {
   ft <- sum(get_treatment_coverages(parameters, 0))
-	lapply(
-		het_nodes,
-		function(n) {
-			malariaEquilibrium::human_equilibrium_no_het(
-				parameters$init_EIR * calculate_zeta(n, parameters),
-				ft,
-				parameters$eq_params,
+  lapply(
+    het_nodes,
+    function(n) {
+      malariaEquilibrium::human_equilibrium_no_het(
+        parameters$init_EIR * calculate_zeta(n, parameters),
+        ft,
+        parameters$eq_params,
         EQUILIBRIUM_AGES
-			)
-		}
-	)
+      )
+    }
+  )
 }
 
 calculate_zeta <- function(zeta_norm, parameters) {

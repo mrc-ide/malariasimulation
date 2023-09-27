@@ -44,7 +44,7 @@ test_that('Test subpatent duration function works ', {
     du_min, du_max, au50, ku,
     variables$id$get_values(index),
     variables$idm$get_values(index)),
-               expected = rep(du_max,100))
+    expected = rep(du_max,100))
 
   ## Change initial values of ID, and IDM, check they are the same
   variables$id <- individual::DoubleVariable$new(1:100)
@@ -69,8 +69,8 @@ test_that('Test subpatent duration function works ', {
     du_min, du_max, au50, ku,
     variables$id$get_values(index),
     variables$idm$get_values(index)),
-               expected = rep(du_min,100),
-               tolerance = 1E-2)
+    expected = rep(du_min,100),
+    tolerance = 1E-2)
 })
 
 test_that('Test default vivax incidence rendering works', {
@@ -167,6 +167,8 @@ test_that('that vivax patent prevalence rendering works', {
     renderer
   )
 
+  mockery::stub(process, 'probability_of_detection', mockery::mock(.5))
+  mockery::stub(process, 'bernoulli_multi_p', mockery::mock(1))
   process(timestep)
 
   mockery::expect_args(
@@ -196,6 +198,7 @@ test_that('that vivax patent prevalence rendering works', {
 
 
 test_that('Test age structure should not change vivax infectivity', {
+<<<<<<< HEAD
 
   # Set all individuals to asymptomatic
   # And ID immunity to not 0 (ID impacts age-specific asymptomatic infectivity)
@@ -239,15 +242,41 @@ test_that('Test age structure should not change vivax infectivity', {
   expect_true(all(
     c(create_variables(vivax_parameters)$infectivity$get_values(),
       create_variables(vivax_dem_parameters)$infectivity$get_values())==vivax_parameters$ca))
+=======
+>>>>>>> 2fb2c4e (Removed trailing white spaces with corrected indentation.)
 
-  # falciparum asymptomatic infectivity should not equal ca
-  expect_false(any(
-    c(create_variables(parameters)$infectivity$get_values(),
-      create_variables(dem_parameters)$infectivity$get_values())==vivax_parameters$ca))
+  falc_parameters <- get_parameters(
+    overrides = list(
+      human_population = 1,
+      init_id  = 0.5))
 
-  # falciparum asymptomatic infectivity should change with age structure
-  expect_false(any(
-    c(create_variables(parameters)$infectivity$get_values() == create_variables(dem_parameters)$infectivity$get_values())))
+  vivax_parameters <- get_parameters(
+    parasite = "vivax",
+    overrides = list(
+      human_population = 1,
+      init_id  = 0.5))
+
+  state_mock <- mockery::mock('A', cycle = T)
+  mockery::stub(create_variables, 'initial_state', state_mock)
+
+  ages_mock <- mockery::mock(365, cycle = T)
+  mockery::stub(create_variables, 'calculate_initial_ages', ages_mock)
+
+  falc_variables <- create_variables(falc_parameters)
+  vivax_variables <- create_variables(vivax_parameters)
+
+  expect_equal(falc_variables$infectivity$get_values(), 0.06761596)
+  expect_equal(vivax_variables$infectivity$get_values(), 0.1)
+
+  ages_mock <- mockery::mock(365*70, cycle = T)
+  mockery::stub(create_variables, 'calculate_initial_ages', ages_mock)
+
+  falc_variables <- create_variables(falc_parameters)
+  vivax_variables <- create_variables(vivax_parameters)
+
+  expect_equal(falc_variables$infectivity$get_values(), 0.03785879)
+  expect_equal(vivax_variables$infectivity$get_values(), 0.1)
+
 })
 
 test_that('vivax schedule_infections correctly schedules new infections', {

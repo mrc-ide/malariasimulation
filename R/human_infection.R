@@ -119,6 +119,26 @@ simulate_infection <- function(
     )
   }
 
+  if(parameters$parasite == "falciparum"){
+    if (bitten_humans$size() > 0) {
+      boost_immunity(
+        variables$ib,
+        bitten_humans,
+        variables$last_boosted_ib,
+        timestep,
+        parameters$ub
+      )
+    }
+
+    update_severe_disease(
+      timestep,
+      infected_humans,
+      variables,
+      parameters,
+      renderer
+    )
+  }
+
   renderer$render('n_infections', infected_humans$size(), timestep)
 
   schedule_infections(

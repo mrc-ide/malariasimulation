@@ -256,6 +256,63 @@ create_variables <- function(parameters) {
     )
   }
 
+  # Severe disease and pre-ertythrocitic (blood) immunity only modelled in P. falciparum
+  if(parameters$parasite == "falciparum"){
+
+    # Boost immunities
+    last_boosted_ib <- individual::DoubleVariable$new(rep(-1, size))
+    last_boosted_iva <- individual::DoubleVariable$new(rep(-1, size))
+
+    # Maternal severe disease immunity
+    ivm <- individual::DoubleVariable$new(
+      initial_immunity(
+        parameters$init_ivm,
+        initial_age,
+        groups,
+        eq,
+        parameters,
+        'IVM'
+      )
+    )
+
+    # Acquired immunity to severe disease
+    iva <- individual::DoubleVariable$new(
+      initial_immunity(
+        parameters$init_iva,
+        initial_age,
+        groups,
+        eq,
+        parameters,
+        'IVA'
+      )
+    )
+
+    # Pre-erythoctic immunity
+    ib  <- individual::DoubleVariable$new(
+      initial_immunity(
+        parameters$init_ib,
+        initial_age,
+        groups,
+        eq,
+        parameters,
+        'IB'
+      )
+    )
+
+  } else if (parameters$parasite == "vivax"){
+    # Maternal immunity to detectable disease only modelled in P. vivax
+    idm <- individual::DoubleVariable$new(
+      initial_immunity(
+        parameters$init_idm,
+        initial_age,
+        groups,
+        eq,
+        parameters,
+        'IDM'
+      )
+    )
+  }
+
   # Initialise infectiousness of humans -> mosquitoes
   # NOTE: not yet supporting initialisation of infectiousness of Treated individuals
   infectivity_values <- rep(0, get_human_population(parameters, 0))

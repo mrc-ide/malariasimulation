@@ -41,7 +41,7 @@ create_prevelance_renderer <- function(
     }
 
     clinically_detected <- state$get_index_of(c('Tr', 'D'))
-    lm_detected <- clinically_detected$copy()$or(asymptomatic_detected)
+    lm_detected <- clinically_detected$or(asymptomatic_detected)
     pcr_detected <- state$get_index_of(c('Tr', 'D', 'A', 'U'))
 
     for (i in seq_along(parameters$prevalence_rendering_min_ages)) {
@@ -79,7 +79,6 @@ create_prevelance_renderer <- function(
           ),
           timestep
         )
-
       }
     }
   }

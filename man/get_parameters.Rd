@@ -72,7 +72,7 @@ probability of pre-erythrocytic infection/blood immunity:
 \item b - probability of pre-erythrocytic infection (P.v only): default = 0.5
 }
 
-probability of asymptomatic detection/detectbility immunity (P.f only):
+probability of asymptomatic detection/detectability immunity (P.f only):
 \itemize{
 \item fd0 - time-scale at which immunity changes with age; default = 0.007055
 \item ad - scale parameter relating age to immunity; default = 7993.5

@@ -304,8 +304,6 @@ please set TBV parameters with the convenience functions
 }
 
 miscellaneous:
-please set parasite species using the convenience function
-\code{set_parasite}
 \itemize{
 \item mosquito_limit - the maximum number of mosquitoes to allow for in the
 simulation; default = 1.00E+05

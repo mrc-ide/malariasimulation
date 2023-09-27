@@ -194,8 +194,10 @@ create_processes <- function(
   # Rendering
   # =========
 
-  imm_var_names <- c('ica','icm','ib','id','iva','ivm')
-  if(parameters$parasite == "vivax"){
+  imm_var_names <- c('ica','icm','id')
+  if(parameters$parasite == "falciparum"){
+    imm_var_names <- c(imm_var_names, 'iva','ivm','ib')
+  } else if(parameters$parasite == "vivax"){
     imm_var_names <- c(imm_var_names, 'idm')
   }
 

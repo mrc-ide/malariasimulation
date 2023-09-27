@@ -198,52 +198,6 @@ test_that('that vivax patent prevalence rendering works', {
 
 
 test_that('Test age structure should not change vivax infectivity', {
-<<<<<<< HEAD
-
-  # Set all individuals to asymptomatic
-  # And ID immunity to not 0 (ID impacts age-specific asymptomatic infectivity)
-  parameters <- get_parameters(overrides = list(s_proportion = 0,
-                                                d_proportion = 0,
-                                                a_proportion = 1,
-                                                u_proportion = 0,
-                                                t_proportion = 0,
-                                                init_id  = 0.5))
-
-  vivax_parameters <- get_parameters(parasite = "vivax",
-                                     overrides = list(s_proportion = 0,
-                                                      d_proportion = 0,
-                                                      a_proportion = 1,
-                                                      u_proportion = 0,
-                                                      t_proportion = 0,
-                                                      init_id  = 0.5))
-
-  # Generate different age structure
-  year <- 365
-  ages <- round(c(0.083333, 1, 5, 10, 15, 20, 25, 30, 35, 40, 45,
-                  50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 200) * year)
-
-  deathrates <- rep(.1, length(ages)) / 365
-
-  dem_parameters <- set_demography(
-    parameters,
-    agegroups = ages,
-    timesteps = 0,
-    deathrates = matrix(deathrates, nrow = 1)
-  )
-
-  vivax_dem_parameters <- set_demography(
-    vivax_parameters,
-    agegroups = ages,
-    timesteps = 0,
-    deathrates = matrix(deathrates, nrow = 1)
-  )
-
-  # vivax asymptomatic infectivity should equal ca
-  expect_true(all(
-    c(create_variables(vivax_parameters)$infectivity$get_values(),
-      create_variables(vivax_dem_parameters)$infectivity$get_values())==vivax_parameters$ca))
-=======
->>>>>>> 2fb2c4e (Removed trailing white spaces with corrected indentation.)
 
   falc_parameters <- get_parameters(
     overrides = list(

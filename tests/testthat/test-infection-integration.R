@@ -220,9 +220,6 @@ test_that('calculate_clinical_infections correctly samples clinically infected',
   )
 
   immunity_mock <- mockery::mock(c(.2, .3, .4))
-  boost_mock <- mockery::mock()
-  mockery::stub(calculate_clinical_infections, 'boost_immunity', boost_mock)
-
   mockery::stub(calculate_clinical_infections, 'clinical_immunity', immunity_mock)
   bernoulli_mock <- mockery::mock(c(1, 3))
   mockery::stub(calculate_clinical_infections, 'bernoulli_multi_p', bernoulli_mock)

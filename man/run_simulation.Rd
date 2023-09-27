@@ -45,22 +45,28 @@ the whole population)
 \item n: number of humans between an inclusive age range at this timestep. This
 defaults to n_730_3650. Other age ranges can be set with
 prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
-\item n_detect: number of humans with an infection detectable by microscopy between an inclusive age range at this timestep. This
-defaults to n_detect_730_3650. Other age ranges can be set with
+\item n_detect_pcr: number of humans with an infection detectable by pcr between an inclusive age range at this timestep. This
+defaults to n_detect_pcr_730_3650. Other age ranges can be set with
 prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
-\item p_detect: the sum of probabilities of detection by microscopy between an
+\item n_detect_lm: number of humans with an infection detectable by light microscopy between an inclusive age range at this timestep. This
+defaults to n_detect_lm_730_3650. Other age ranges can be set with
+prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
+\item p_detect_lm: the sum of probabilities of detection by light microscopy between an
 inclusive age range at this timestep. This
-defaults to p_detect_730_3650. Other age ranges can be set with
+defaults to p_detect_lm_730_3650. Other age ranges can be set with
 prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
-\item n_severe: number of humans with a severe infection between an inclusive
-age range at this timestep. Age ranges can be set with
-severe_prevalence_rendering_min_ages and severe_prevalence_rendering_max_ages parameters.
 \item n_inc: number of new infections for humans between an inclusive age range at this timestep.
 incidence columns can be set with
 incidence_rendering_min_ages and incidence_rendering_max_ages parameters.
 \item p_inc: sum of probabilities of infection for humans between an inclusive age range at this timestep.
 incidence columns can be set with
 incidence_rendering_min_ages and incidence_rendering_max_ages parameters.
+\item n_inc_patent: number of new patent infections for humans between an inclusive age range at this timestep.
+patent incidence columns can be set with
+patent_incidence_rendering_min_ages and patent_incidence_rendering_max_ages parameters.
+\item p_inc_patent: sub of probabilities of patent infection for humans between an inclusive age range at this timestep.
+patent incidence columns can be set with
+patent_incidence_rendering_min_ages and patent_incidence_rendering_max_ages parameters.
 \item n_inc_clinical: number of new clinical infections for humans between an inclusive age range at this timestep.
 clinical incidence columns can be set with
 clinical_incidence_rendering_min_ages and clinical_incidence_rendering_max_ages parameters.

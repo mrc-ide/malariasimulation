@@ -34,15 +34,23 @@ test_that('that default rendering works', {
   mockery::expect_args(
     renderer$render_mock(),
     2,
-    'n_detect_730_3650',
+    'n_detect_pcr_730_3650',
+    3,
+    timestep
+  )
+  
+  mockery::expect_args(
+    renderer$render_mock(),
+    3,
+    'n_detect_lm_730_3650',
     2,
     timestep
   )
 
   mockery::expect_args(
     renderer$render_mock(),
-    3,
-    'p_detect_730_3650',
+    4,
+    'p_detect_lm_730_3650',
     1.5,
     timestep
   )

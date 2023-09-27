@@ -73,7 +73,7 @@ test_that('Test subpatent duration function works ', {
                tolerance = 1E-2)
 })
 
-test_that('Test default vivax rendering works', {
+test_that('Test default vivax incidence rendering works', {
 
   timestep <- 0
   year <- 365
@@ -192,4 +192,103 @@ test_that('that vivax patent prevalence rendering works', {
     2,
     timestep
   )
+})
+
+
+test_that('Test age structure should not change vivax infectivity', {
+
+  # Set all individuals to asymptomatic
+  # And ID immunity to not 0 (ID impacts age-specific asymptomatic infectivity)
+  parameters <- get_parameters(overrides = list(s_proportion = 0,
+                                                d_proportion = 0,
+                                                a_proportion = 1,
+                                                u_proportion = 0,
+                                                t_proportion = 0,
+                                                init_id  = 0.5))
+
+  vivax_parameters <- get_parameters(parasite = "vivax",
+                                     overrides = list(s_proportion = 0,
+                                                      d_proportion = 0,
+                                                      a_proportion = 1,
+                                                      u_proportion = 0,
+                                                      t_proportion = 0,
+                                                      init_id  = 0.5))
+
+  # Generate different age structure
+  year <- 365
+  ages <- round(c(0.083333, 1, 5, 10, 15, 20, 25, 30, 35, 40, 45,
+                  50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 200) * year)
+
+  deathrates <- rep(.1, length(ages)) / 365
+
+  dem_parameters <- set_demography(
+    parameters,
+    agegroups = ages,
+    timesteps = 0,
+    deathrates = matrix(deathrates, nrow = 1)
+  )
+
+  vivax_dem_parameters <- set_demography(
+    vivax_parameters,
+    agegroups = ages,
+    timesteps = 0,
+    deathrates = matrix(deathrates, nrow = 1)
+  )
+
+  # vivax asymptomatic infectivity should equal ca
+  expect_true(all(
+    c(create_variables(vivax_parameters)$infectivity$get_values(),
+      create_variables(vivax_dem_parameters)$infectivity$get_values())==vivax_parameters$ca))
+
+  # falciparum asymptomatic infectivity should not equal ca
+  expect_false(any(
+    c(create_variables(parameters)$infectivity$get_values(),
+      create_variables(dem_parameters)$infectivity$get_values())==vivax_parameters$ca))
+
+  # falciparum asymptomatic infectivity should change with age structure
+  expect_false(any(
+    c(create_variables(parameters)$infectivity$get_values() == create_variables(dem_parameters)$infectivity$get_values())))
+})
+
+test_that('vivax schedule_infections correctly schedules new infections', {
+  parameters <- get_parameters(list(human_population = 20), parasite = "vivax")
+  variables <- create_variables(parameters)
+
+  infections <- individual::Bitset$new(20)$insert(1:20)
+  patent_infections <- individual::Bitset$new(20)$insert(1:16)
+  clinical_infections <- individual::Bitset$new(20)$insert(5:15)
+  treated <- individual::Bitset$new(20)$insert(7:12)
+
+  infection_mock <- mockery::mock()
+  mockery::stub(schedule_infections, 'update_infection', infection_mock)
+
+  schedule_infections(
+    variables = variables,
+    patent_infections = patent_infections,
+    clinical_infections = clinical_infections,
+    treated = treated,
+    infections = infections,
+    parameters = parameters,
+    timestep = 42
+  )
+
+  actual_infected <- mockery::mock_args(infection_mock)[[1]][[5]]$to_vector()
+  actual_asymp_infected <- mockery::mock_args(infection_mock)[[2]][[5]]$to_vector()
+  actual_subpatent_infected <- mockery::mock_args(infection_mock)[[3]][[5]]$to_vector()
+
+  expect_equal(
+    actual_infected,
+    c(5, 6, 13, 14, 15)
+  )
+
+  expect_equal(
+    actual_asymp_infected,
+    c(1, 2, 3, 4, 16)
+  )
+
+  expect_equal(
+    actual_subpatent_infected,
+    c(17, 18, 19, 20)
+  )
+
 })

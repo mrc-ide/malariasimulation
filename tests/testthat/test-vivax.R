@@ -22,11 +22,11 @@ test_that('Test difference between falciparum and vivax parameter lists', {
   expect_true(all(names(falciparum_parameters)[!names(falciparum_parameters) %in% names(vivax_parameters)] %in%
                     c("du","rvm","rva","rb","b0","b1","ib0","kb","theta0","theta1","kv","fv0","av","gammav","iv0","fd0","ad","gammad","d1","id0","kd","ub","uv","gamma1","pvm","init_ivm","init_ib","init_iva")))
   expect_true(all(names(vivax_parameters[!names(vivax_parameters) %in% names(falciparum_parameters)]) %in%
-                    c("du_max","du_min","ku","au50","b","phi0lm","phi1lm","ic0lm","kclm","d0","ca","init_idm","f","gammal")))
+                    c("dpcr_max","dpcr_min","kpcr","apcr50","init_idm","b","philm_min","philm_max","klm","alm50","ca","f","gammal","init_hyp")))
 })
 
 ## Test subpatent progression functions
-test_that('Test anti-parasite immunity function works ', {
+test_that('Test anti-parasite immunity function', {
   vivax_parameters <- get_parameters(parasite = "vivax",
                                      overrides = list(s_proportion = 0,
                                                       d_proportion = 0,
@@ -35,28 +35,28 @@ test_that('Test anti-parasite immunity function works ', {
                                                       t_proportion = 0))
   variables <- create_variables(vivax_parameters)
   index <- variables$state$get_index_of("U")
-  du_min <- vivax_parameters$du_min
-  du_max <- vivax_parameters$du_max
-  au50 <- vivax_parameters$au50
-  ku <- vivax_parameters$ku
+  dpcr_min <- vivax_parameters$dpcr_min
+  dpcr_max <- vivax_parameters$dpcr_max
+  apcr50 <- vivax_parameters$apcr50
+  kpcr <- vivax_parameters$kpcr
 
   expect_equal(object = anti_parasite_immunity(
-    du_min, du_max, au50, ku,
+    dpcr_min, dpcr_max, apcr50, kpcr,
     variables$id$get_values(index),
     variables$idm$get_values(index)),
-    expected = rep(du_max,100))
+    expected = rep(dpcr_max,100))
 
   ## Change initial values of ID, and IDM, check they are the same
   variables$id <- individual::DoubleVariable$new(1:100)
   ID_durations <- anti_parasite_immunity(
-    du_min, du_max, au50, ku,
+    dpcr_min, dpcr_max, apcr50, kpcr,
     variables$id$get_values(index),
     variables$idm$get_values(index))
 
   variables$id <- individual::DoubleVariable$new(rep(0,100))
   variables$idm <- individual::DoubleVariable$new(1:100)
   IDM_durations <- anti_parasite_immunity(
-    du_min, du_max, au50, ku,
+    dpcr_min, dpcr_max, apcr50, kpcr,
     variables$id$get_values(index),
     variables$idm$get_values(index))
 
@@ -66,10 +66,10 @@ test_that('Test anti-parasite immunity function works ', {
   variables$id <- individual::DoubleVariable$new(rep(1E7,100))
   variables$idm <- individual::DoubleVariable$new(rep(0,100))
   expect_equal(object = anti_parasite_immunity(
-    du_min, du_max, au50, ku,
+    dpcr_min, dpcr_max, apcr50, kpcr,
     variables$id$get_values(index),
     variables$idm$get_values(index)),
-    expected = rep(du_min,100),
+    expected = rep(dpcr_min,100),
     tolerance = 1E-2)
 })
 
@@ -274,4 +274,58 @@ test_that('vivax schedule_infections correctly schedules new infections', {
     c(17, 18, 19, 20)
   )
 
+})
+
+test_that('relapses are recognised', {
+  timestep <- 50
+  parameters <- get_parameters(parasite = "vivax")
+
+  variables <- list(
+    state = individual::CategoricalVariable$new(
+      c('D', 'S', 'A', 'U', 'Tr'),
+      c('D', 'S', 'A', 'U')
+    ),
+    drug = individual::DoubleVariable$new(c(0, 0, 0, 0)),
+    drug_time = individual::DoubleVariable$new(c(-1, -1, -1, -1)),
+    pev_timestep = individual::DoubleVariable$new(c(-1, -1, -1, -1)),
+    pev_profile = individual::IntegerVariable$new(c(-1, -1, -1, -1)),
+    hypnozoites = individual::IntegerVariable$new(c(0, 1, 2, 3))
+  )
+
+  bernoulli_mock <- mockery::mock(3, cycle = TRUE)
+  mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
+  bitten_humans <- individual::Bitset$new(4)$insert(c(1, 2, 3, 4))
+  renderer <- mock_render(1)
+
+  infections <- calculate_infections(
+    variables,
+    bitten_humans,
+    parameters,
+    renderer,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    1,
+    'n_newly_infected',
+    1,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    2,
+    'n_relapses',
+    1,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    3,
+    'n_infections',
+    2,
+    timestep
+  )
 })

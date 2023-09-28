@@ -103,7 +103,7 @@ create_subpatent_progression_process <- function(
     ## Get recovery rates for each subpatent individual
     subpatent_index <- state$get_index_of("U")
     rate <- anti_parasite_immunity(
-      parameters$du_min, parameters$du_max, parameters$au50, parameters$ku,
+      parameters$dpcr_min, parameters$dpcr_max, parameters$apcr50, parameters$kpcr,
       variables$id$get_values(index = subpatent_index),
       variables$idm$get_values(index = subpatent_index))
     ## Get individuals who are going to change

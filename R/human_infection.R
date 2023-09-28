@@ -212,13 +212,12 @@ calculate_infections <- function(
     new_bite_infections <- newly_infected$and(SAU_humans)
 
     # Render new infections caused by bites
-    renderer$render('n_new_bite_infections', bitten_with_infection_only$and(SAU_humans)$size(), timestep)
-
+    renderer$render('n_new_bite_infections', new_bite_infections$size(), timestep)
     incidence_renderer(
       variables$birth,
       renderer,
       new_bite_infections,
-      bitten_with_infection_only$and(SAU_humans),
+      source_humans,
       prob,
       'inc_new_bite_',
       parameters$new_bite_incidence_rendering_min_ages,
@@ -233,26 +232,23 @@ calculate_infections <- function(
     )
 
     ## Work out any individual with a relapse, subset to SAU
-    with_hypnozoites <- variables$hypnozoites$get_index_of(0)$not(TRUE)
+    ## rate changed to probability, each batch treated as a different prob of relapse
+    with_hypnozoites <- variables$hypnozoites$get_index_of(0)$not(inplace = F)
     relapsed <- bitset_at(
       with_hypnozoites,
       bernoulli_multi_p(
-        variables$hypnozoites$get_values(
+        1 - (1 - (1-exp(-parameters$f)))^variables$hypnozoites$get_values(
           with_hypnozoites
-        ) * parameters$f
+        )
       )
     )$and(SAU_humans)
 
     # Render relapses
-    # renderer$render('n_relapses', relapsed$size(), timestep)
-    renderer$render('n_relapses',
-                    non_bitten_with_relapse$and(SAU_humans)$size()+
-                      bitten_with_infection_or_relapse$and(SAU_humans)$size()-
-                      bitten_with_infection_only$and(SAU_humans)$size(), timestep)
+    renderer$render('n_relapses', relapsed$size(), timestep)
     incidence_renderer(
       variables$birth,
       renderer,
-      non_bitten_with_relapse$and(SAU_humans)$or(bitten_with_infection_or_relapse$and(SAU_humans)$and(bitten_with_infection_only$not(inplace = FALSE))),
+      relapsed,
       source_humans,
       prob,
       'inc_relapse_',

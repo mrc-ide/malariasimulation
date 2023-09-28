@@ -219,7 +219,7 @@ set_equilibrium <- function(parameters, init_EIR, eq_params = NULL) {
 
   } else if (parameters$parasite == "vivax"){
 
-    eq <- malariaEquilibriumVivax::human_equilibrium_vivax_full_het(
+    eq <- malariaEquilibriumVivax::human_equilibrium(
       EIR = init_EIR,
       ft = sum(get_treatment_coverages(parameters, 1)),
       p = parameters,
@@ -227,11 +227,9 @@ set_equilibrium <- function(parameters, init_EIR, eq_params = NULL) {
       h = malariaEquilibriumVivax::gq_normal(parameters$n_heterogeneity_groups)
     )
 
-    eq_summary <- malariaEquilibriumVivax::human_equilibrium_vivax_summarise(eq, parameters)
-
     parameters <- c(
       list(
-        init_foim = eq_summary$FOIM,
+        init_foim = eq$FOIM,
         init_EIR = init_EIR
       ),
       parameters

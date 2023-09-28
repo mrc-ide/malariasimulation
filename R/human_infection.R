@@ -189,6 +189,7 @@ calculate_infections <- function(
   newly_infected <- bitset_at(source_humans, bernoulli_multi_p(prob))
 
   if(parameters$parasite == "falciparum"){
+
     # Render new infections caused by bites
     renderer$render('n_infections', newly_infected$size(), timestep)
     incidence_renderer(
@@ -211,12 +212,13 @@ calculate_infections <- function(
     new_bite_infections <- newly_infected$and(SAU_humans)
 
     # Render new infections caused by bites
-    renderer$render('n_new_bite_infections', new_bite_infections$size(), timestep)
+    renderer$render('n_new_bite_infections', bitten_with_infection_only$and(SAU_humans)$size(), timestep)
+
     incidence_renderer(
       variables$birth,
       renderer,
       new_bite_infections,
-      source_humans,
+      bitten_with_infection_only$and(SAU_humans),
       prob,
       'inc_new_bite_',
       parameters$new_bite_incidence_rendering_min_ages,
@@ -242,11 +244,15 @@ calculate_infections <- function(
     )$and(SAU_humans)
 
     # Render relapses
-    renderer$render('n_relapses', relapsed$size(), timestep)
+    # renderer$render('n_relapses', relapsed$size(), timestep)
+    renderer$render('n_relapses',
+                    non_bitten_with_relapse$and(SAU_humans)$size()+
+                      bitten_with_infection_or_relapse$and(SAU_humans)$size()-
+                      bitten_with_infection_only$and(SAU_humans)$size(), timestep)
     incidence_renderer(
       variables$birth,
       renderer,
-      relapsed,
+      non_bitten_with_relapse$and(SAU_humans)$or(bitten_with_infection_or_relapse$and(SAU_humans)$and(bitten_with_infection_only$not(inplace = FALSE))),
       source_humans,
       prob,
       'inc_relapse_',
@@ -292,6 +298,7 @@ calculate_patent_infections <- function(
     renderer,
     timestep
 ) {
+
   id <- variables$id$get_values(infections)
   idm <- variables$idm$get_values(infections)
   philm <- anti_parasite_immunity(
@@ -472,6 +479,7 @@ schedule_infections <- function(
     parameters,
     timestep
 ) {
+
   included <- treated$not(FALSE)
 
   to_infect <- clinical_infections$and(included)
@@ -488,7 +496,7 @@ schedule_infections <- function(
 
   # falciparum infection can result in D or A
   if(parameters$parasite == "falciparum"){
-    to_infect_asym <- clinical_infections$not(FALSE)$and(included)$and(infections)
+    to_infect_asym <- clinical_infections$copy()$not(FALSE)$and(infections)$and(included)
 
     if(to_infect_asym$size() > 0) {
       # falciparum has age- and immunity-dependent asymptomatic infectivity
@@ -501,8 +509,9 @@ schedule_infections <- function(
 
     # vivax infection can result in D, A or U
   } else if (parameters$parasite == "vivax"){
-    to_infect_asym <- clinical_infections$not(FALSE)$and(included)$and(patent_infections)$and(infections)
-    to_infect_subpatent <- patent_infections$not(FALSE)$and(infections)
+
+    to_infect_subpatent <- infections$and(patent_infections$not(inplace = F))$and(included)$and(variables$state$get_index_of(c('S','U')))
+    to_infect_asym <- patent_infections$and(included)$and(clinical_infections$not(inplace = F))
 
     if(to_infect_asym$size() > 0) {
       # vivax has constant asymptomatic infectivity

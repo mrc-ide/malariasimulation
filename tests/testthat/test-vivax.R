@@ -308,7 +308,7 @@ test_that('relapses are recognised', {
   mockery::expect_args(
     renderer$render_mock(),
     1,
-    'n_newly_infected',
+    'n_new_bite_infections',
     1,
     timestep
   )

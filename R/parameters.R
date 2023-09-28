@@ -167,10 +167,14 @@
 #' * severe_incidence_rendering_min_ages - the minimum ages for severe incidence
 #' outputs; default = turned off
 #' * severe_incidence_rendering_max_ages - the corresponding max ages; default = turned off
-#' * severe_prevalence_rendering_min_ages - the minimum ages for severe prevalance outputs; default = numeric(0),
-#' * severe_prevalence_rendering_max_ages - the corresponding max ages; default = numeric(0),
-#' * hypnozoite_rendering_min_ages - the minimum ages for hypnozoite outputs; default = numeric(0),
-#' * hypnozoite_rendering_max_ages - the corresponding max ages; default = numeric(0),
+#' * severe_prevalence_rendering_min_ages - the minimum ages for severe prevalance outputs; default = numeric(0)
+#' * severe_prevalence_rendering_max_ages - the corresponding max ages; default = numeric(0)
+#' * hypnozoite_rendering_min_ages - the minimum ages for hypnozoite outputs (p.v only); default = numeric(0)
+#' * hypnozoite_rendering_max_ages - the corresponding max ages; default = numeric(0)
+#' * new_bite_incidence_rendering_min_ages - the minimum ages for incidence via mosquito bite outputs (not via relapse; p.v only); default = numeric(0)
+#' * new_bite_incidence_rendering_max_ages - the corresponding max ages; default = numeric(0)
+#' * relapse_incidence_rendering_min_ages - the minimum ages for hypnozoite relapse incidence outputs (p.v only); default = numeric(0)
+#' * relapse_incidence_rendering_max_ages - the corresponding max ages; default = numeric(0)
 #'
 #' mosquito life stage transitions:
 #'
@@ -353,6 +357,10 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       severe_prevalence_rendering_max_ages = numeric(0),
       hypnozoite_rendering_min_ages = numeric(0),
       hypnozoite_rendering_max_ages = numeric(0),
+      new_bite_incidence_rendering_min_ages = numeric(0),
+      new_bite_incidence_rendering_max_ages = numeric(0),
+      relapse_incidence_rendering_min_ages = numeric(0),
+      relapse_incidence_rendering_max_ages = numeric(0),
 
       # mosquito life stage transitions
       del =  6.64,

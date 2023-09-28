@@ -329,3 +329,57 @@ test_that('relapses are recognised', {
     timestep
   )
 })
+
+test_that('relapses are recognised', {
+  timestep <- 50
+  parameters <- get_parameters(parasite = "vivax")
+
+  variables <- list(
+    state = individual::CategoricalVariable$new(
+      c('D', 'S', 'A', 'U', 'Tr'),
+      c('D', 'S', 'A', 'U')
+    ),
+    drug = individual::DoubleVariable$new(c(0, 0, 0, 0)),
+    drug_time = individual::DoubleVariable$new(c(-1, -1, -1, -1)),
+    pev_timestep = individual::DoubleVariable$new(c(-1, -1, -1, -1)),
+    pev_profile = individual::IntegerVariable$new(c(-1, -1, -1, -1)),
+    hypnozoites = individual::IntegerVariable$new(c(0, 1, 2, 3))
+  )
+
+  bernoulli_mock <- mockery::mock(3, cycle = TRUE)
+  mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
+  bitten_humans <- individual::Bitset$new(4)$insert(c(1, 2, 3, 4))
+  renderer <- mock_render(1)
+
+  infections <- calculate_infections(
+    variables,
+    bitten_humans,
+    parameters,
+    renderer,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    1,
+    'n_new_bite_infections',
+    1,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    2,
+    'n_relapses',
+    1,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    3,
+    'n_infections',
+    2,
+    timestep
+  )
+})

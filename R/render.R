@@ -230,6 +230,5 @@ create_hypnozoite_age_renderer_process <- function(
         timestep
       )
     }
-
   }
 }

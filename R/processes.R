@@ -198,7 +198,8 @@ create_processes <- function(
 
   imm_var_names <- c('ica','icm','id')
   if(parameters$parasite == "falciparum"){
-    imm_var_names <- c(imm_var_names, 'iva','ivm','ib')
+    imm_var_names <- c(imm_var_names,'ib','iva','ivm')
+
   } else if(parameters$parasite == "vivax"){
     ## Add hypnozoite batches to average renderer vector
     imm_var_names <- c(imm_var_names,'idm',"hypnozoites")
@@ -372,7 +373,7 @@ create_lagged_eir <- function(variables, solvers, parameters) {
 #' @noRd
 create_hypnozoite_decay_process <- function(hypnozoites, gammal, renderer){
   function(timestep){
-    if(hypnozoites$get_size_of(0)>0){
+    if(hypnozoites$get_size_of(!0)>0){
       hyp_bitset <- hypnozoites$get_index_of(0)$not(TRUE)
       n_hypnozoites <- hypnozoites$get_values(index = hyp_bitset)
       hypozoite_decay <- vnapply(

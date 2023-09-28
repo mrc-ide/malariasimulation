@@ -87,7 +87,7 @@
 #' * ic0lm - scale parameter; default = 27.52
 #' * kclm - shape parameter; default = 2.403
 #'
-#' probability of clinical infection/clinical immunity:
+#' probability of clinical infection:
 #'
 #' * phi0 - maximum probability due to no immunity; default = 0.792
 #' * phi1 - maximum reduction due to immunity; default = 0.00074

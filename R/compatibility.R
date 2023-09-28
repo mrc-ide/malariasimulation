@@ -208,7 +208,7 @@ set_equilibrium <- function(parameters, init_EIR, eq_params = NULL) {
     )
 
     parameters <- c(
-      translate_equilibrium(remove_unused_equilibrium(eq_params))
+      translate_equilibrium(remove_unused_equilibrium(eq_params)),
       list(
         init_foim = eq$FOIM,
         init_EIR = init_EIR,

@@ -5,7 +5,7 @@
 \alias{gamb_params}
 \title{Preset parameters for the An. gambiae s.s vector}
 \format{
-An object of class \code{list} of length 7.
+An object of class \code{list} of length 8.
 }
 \usage{
 gamb_params
@@ -21,6 +21,7 @@ foraging_time: .69
 Q0: 0.92
 phi_bednets: 0.85
 phi_indoors: 0.90
+phi_housing: 1
 mum: 0.132
 
 parameters from:

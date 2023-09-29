@@ -179,3 +179,55 @@ get_init_carrying_capacity <- function(parameters){
   names(init_cc) <- parameters$species
   return(init_cc)
 }
+
+#' @title Parameterise a housing improvement strategy
+#'
+#' @description The model will simulate improved housing at `timesteps` to a random
+#' sample of the entire human population. The sample size will be a proportion
+#' of the human population taken from the corresponding `coverages`.
+#' The sample _can_ contain humans who have already benefited from housing.
+#'
+#' If a human in the sample lives in a house that has been improved to reduce
+#' mosquito entry, the efficacy of the
+#' housing improvement will be high - as determined by the parameter rn_house
+#'
+#' The structure for the housing model will be documented in a publication
+#' Sherrard-Smith et al in prep
+#'
+#' @param parameters a list of parameters to modify
+#' @param timesteps the timesteps at which to improve the house
+#' @param coverages the proportion of the population who get a benefit from housing improvements
+#' @param phi_housing a parameter to potentially increase outdoor biting, default 1
+#' @param rn_house matrix of repellence parameters, will increase repelled, decrease indoor bites
+#' With nrows=length(timesteps), ncols=length(species)
+#' @export
+set_housing <- function(
+    parameters,
+    timesteps,
+    coverages,
+    phi_housing,
+    rn_house
+) {
+  stopifnot(all(coverages >= 0) && all(coverages <= 1))
+  if (length(coverages) != length(timesteps)) {
+    stop('coverages and timesteps must must align')
+  }
+  houses <- list(
+    phi_housing,
+    rn_house
+  )
+  for (x in houses) {
+    if (ncol(x) != length(parameters$species)) {
+      stop('rn_house rows need to align with species')
+    }
+    if (nrow(x) != length(timesteps)) {
+      stop('rn_house cols need to align with timesteps')
+    }
+  }
+  parameters$housing <- TRUE
+  parameters$house_timesteps <- timesteps
+  parameters$house_coverages <- coverages
+  parameters$phi_housing <- phi_housing
+  parameters$rn_house <- rn_house
+  parameters
+}

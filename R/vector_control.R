@@ -11,7 +11,7 @@ prob_bitten <- function(
   parameters
   ) {
   n <- parameters$human_population
-  if (!(parameters$bednets || parameters$spraying)) {
+  if (!(parameters$bednets || parameters$spraying || parameters$housing)) {
     return(
       list(
         prob_bitten_survives = rep(1, n),
@@ -72,28 +72,70 @@ prob_bitten <- function(
       parameters$k0
     )
   } else {
-    phi_indoors <- 0
+    # phi_indoors <- 0 ## if housing on too this has to be phi_indoors
     rs <- 0
     rs_comp <- 1
     ss <- 1
   }
+  
+  if (parameters$housing) {
+    house_time <- variables$house_time$get_values()
+    since_house <- timestep - house_time
+    matches <- match(house_time, parameters$house_timesteps)
+    phi_housing <- parameters$phi_housing[[species]]
+    rn_house <- prob_repelled_house(matches, since_house, species, parameters)
+    sn <- 1 - rn
+    unused <- house_time == -1
+  } else {
+    phi_housing <- 1
+    rn_house <- 0
+  }
+  
+  if (!(parameters$housing & parameters$spraying)) {
+    phi_indoors <- 0 ## we want phi_indoors to be applied if housing is on
+  }
 
   list(
     prob_bitten_survives = (
-      1 - phi_indoors +
-      phi_bednets * rs_comp * sn * ss +
-      (phi_indoors - phi_bednets) * rs_comp * ss
+      1 - phi_indoors * phi_housing +
+        (1 - rn_house) * (phi_bednets * phi_housing * rs_comp * sn * ss) +
+        (1 - rn_house) * ((phi_indoors * phi_housing - phi_bednets * phi_housing) * rs_comp * ss)
     ),
     prob_bitten = (
-      1 - phi_indoors +
-      phi_bednets * rs_comp * sn +
-      (phi_indoors - phi_bednets) * rs_comp
+      1 - phi_indoors * phi_housing +
+        (1 - rn_house) * (phi_bednets * phi_housing * rs_comp * sn) +
+        (1 - rn_house) * ((phi_indoors * phi_housing - phi_bednets * phi_housing) * rs_comp)
     ),
     prob_repelled = (
-      phi_bednets * rs_comp * rn +
-      phi_indoors * rs
+      rn_house * phi_indoors * phi_housing + 
+        (1 - rn_house) * phi_bednets * phi_housing * rs_comp * rn + 
+        (1 - rn_house) * phi_indoors * phi_housing * rs
     )
   )
+}
+
+#' @title Simulate housing improvements
+#' @description simulates improved housing so that harder for vectors to get indoors
+#' from `set_housing` and correlation parameters from
+#' `get_correlation_parameters`
+#'
+#' @param variables list of variables in the model
+#' @param parameters the model parameters
+#' @param correlations correlation parameters
+#' @noRd
+simulate_housing <- function(variables, parameters, correlations) {
+  function(timestep) {
+    matches <- timestep == parameters$house_timesteps
+    if (any(matches)) {
+      target <- which(sample_intervention(
+        seq(parameters$human_population),
+        'housing',
+        parameters$house_coverages[matches],
+        correlations
+      ))
+      house_time$queue_update(timestep, target)
+    }
+  }
 }
 
 #' @title Indoor spraying
@@ -106,7 +148,7 @@ prob_bitten <- function(
 #' @param correlations correlation parameters
 #' @noRd
 indoor_spraying <- function(spray_time, parameters, correlations) {
-  function(timestep) {
+      tion(timestep) {
     matches <- timestep == parameters$spraying_timesteps
     if (any(matches)) {
       target <- which(sample_intervention(
@@ -185,6 +227,10 @@ bednet_decay <- function(t, gamma) {
 
 spraying_decay <- function(t, theta, gamma) {
   1 / (1 + exp(-(theta + gamma * t)))
+}
+
+prob_repelled_house <- function(matches, species, parameters) {
+  parameters$rn_house[matches, species]    ## make this continual through time or we could have a decay as nets but very long lasting?
 }
 
 net_usage_renderer <- function(net_time, renderer) {

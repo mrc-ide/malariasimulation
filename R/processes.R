@@ -235,6 +235,13 @@ create_processes <- function(
     )
   }
   
+  if (parameters$housing) {
+    processes <- c(
+      processes,
+      simulate_spraying(variables$house_time, parameters, correlations)
+    )
+  }
+  
   # ======================
   # Progress bar process
   # ======================

@@ -123,7 +123,7 @@ prob_bitten <- function(
 #' @param parameters the model parameters
 #' @param correlations correlation parameters
 #' @noRd
-simulate_housing <- function(variables, parameters, correlations) {
+housing_improvement <- function(variables, parameters, correlations) {
   function(timestep) {
     matches <- timestep == parameters$house_timesteps
     if (any(matches)) {
@@ -148,7 +148,7 @@ simulate_housing <- function(variables, parameters, correlations) {
 #' @param correlations correlation parameters
 #' @noRd
 indoor_spraying <- function(spray_time, parameters, correlations) {
-      tion(timestep) {
+      function(timestep) {
     matches <- timestep == parameters$spraying_timesteps
     if (any(matches)) {
       target <- which(sample_intervention(

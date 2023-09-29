@@ -82,8 +82,10 @@ prob_bitten <- function(
     house_time <- variables$house_time$get_values()
     since_house <- timestep - house_time
     matches <- match(house_time, parameters$house_timesteps)
-    phi_housing <- parameters$phi_housing[[species]]
-    rn_house <- prob_repelled_house(matches, since_house, species, parameters)
+    phi_housing <- parameters$phi_housing[matches, species]
+    rn_house <- parameters$rn_house[matches, species]
+    # phi_housing <- parameters$phi_housing[[species]]
+    # rn_house <- #prob_repelled_house(matches, since_house, species, parameters)
     sn <- 1 - rn
     unused <- house_time == -1
   } else {
@@ -229,9 +231,9 @@ spraying_decay <- function(t, theta, gamma) {
   1 / (1 + exp(-(theta + gamma * t)))
 }
 
-prob_repelled_house <- function(matches, species, parameters) {
-  parameters$rn_house[matches, species]    ## make this continual through time or we could have a decay as nets but very long lasting?
-}
+# prob_repelled_house <- function(matches, species, parameters) {
+#   parameters$rn_house[matches, species]    ## make this continual through time or we could have a decay as nets but very long lasting?
+# }
 
 net_usage_renderer <- function(net_time, renderer) {
   function(t) {

@@ -334,7 +334,6 @@ get_parameters <- function(overrides = list()) {
     phi_indoors = .90,
     # housing improvements
     housing = FALSE,
-    phi_housing = 1,
     # treatment
     drug_efficacy          = numeric(0),
     drug_rel_c             = numeric(0),

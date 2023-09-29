@@ -82,10 +82,10 @@ prob_bitten <- function(
     house_time <- variables$house_time$get_values()
     since_house <- timestep - house_time
     matches <- match(house_time, parameters$house_timesteps)
-    phi_housing <- parameters$phi_housing[matches, species]
-    # rn_house <- parameters$rn_house[matches, species]
-    # phi_housing <- parameters$phi_housing[[species]]
-    rn_house <- prob_repelled_house(matches, since_house, species, parameters)
+    phi_housing <- parameters$phi_housing[[matches]]
+    rn_house <- parameters$rn_house[[matches]]
+    # phi_housing <- parameters$phi_housing[[matches]]
+    # rn_house <- prob_repelled_house(matches, since_house, species, parameters)
     sn <- 1 - rn
     unused <- house_time == -1
   } else {

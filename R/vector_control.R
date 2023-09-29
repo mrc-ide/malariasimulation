@@ -231,8 +231,8 @@ spraying_decay <- function(t, theta, gamma) {
   1 / (1 + exp(-(theta + gamma * t)))
 }
 
-prob_repelled_house <- function(t, matches, species, parameters) {
-  parameters$rn_house[matches, species] * t/t    ## make this continual through time or we could have a decay as nets but very long lasting?
+prob_repelled_house <- function(dt, matches, species, parameters) {
+  parameters$rn_house[matches, species] * bednet_decay(dt, 1000)    ## make this continual through time or we could have a decay as nets but very long lasting?
 }
 
 net_usage_renderer <- function(net_time, renderer) {

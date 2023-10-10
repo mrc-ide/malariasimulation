@@ -37,7 +37,7 @@ test_that('set_antimalarial_resistance() errors if parameter inputs of different
                                                      reinfection_prob = 0.4))
 })
 
-test_that('set_antimalarial_resistance() errors if resistance proportions outside bound of 0-1', {
+test_that('set_antimalarial_resistance() errors if resistance proportions outside of range 0-1', {
   simparams <- get_parameters()
   simparams <- set_drugs(parameters = simparams, drugs = list(SP_AQ_params))
   simparams <- set_clinical_treatment(parameters = simparams,
@@ -53,7 +53,8 @@ test_that('set_antimalarial_resistance() errors if resistance proportions outsid
                                                      early_treatment_failure_prob = 0.6,
                                                      late_clinical_failure_prob = 0.2,
                                                      late_parasitological_prob = 0.3,
-                                                     reinfection_prob = 0.4))
+                                                     reinfection_prob = 0.4), 
+               regexp = "Artemisinin and partner-drug resistance proportions must fall between 0 and 1")
 })
 
 test_that('set_antimalarial_resistance() errors if resistance phenotype probabilities outside bound of 0-1', {
@@ -94,68 +95,53 @@ test_that('set_antimalarial_resistance() errors if drug index > than number of d
                                                      reinfection_prob = 0.4))
 })
 
-test_that('set_antimalarial_resistance() assigns parameters correctly despite drug order', {
+test_that('set_antimalarial_resistance() assigns parameters correctly despite order in which resistance parameters are specified', {
   
-  # Randomly assign the order of the drug assignment in clinical treatment and resistance:
-  clinical_treatment_drugs <- sample.int(n = 3, size = 3, replace = FALSE)
-  antimalarial_resistance_drugs <- sample.int(n = 3, size = 3, replace = FALSE)
+  parameters <- get_parameters()
+  parameters <- set_drugs(parameters = parameters, drugs = list(AL_params, SP_AQ_params, DHA_PQP_params))
+  parameters <- set_clinical_treatment(parameters = parameters, drug = 2, timesteps = 1, coverages = 0.2)
+  parameters <- set_clinical_treatment(parameters = parameters, drug = 1, timesteps = 1, coverages = 0.1)
+  parameters <- set_clinical_treatment(parameters = parameters, drug = 3, timesteps = 1, coverages = 0.4)
+  parameters <- set_antimalarial_resistance(parameters = parameters,
+                                            drug = 2,
+                                            timesteps = 1,
+                                            artemisinin_resistance = 0.5,
+                                            partner_drug_resistance = 0,
+                                            slow_parasite_clearance_prob = 0.41,
+                                            early_treatment_failure_prob = 0.2,
+                                            late_clinical_failure_prob = 0,
+                                            late_parasitological_prob = 0,
+                                            reinfection_prob = 0)
+  parameters <- set_antimalarial_resistance(parameters = parameters,
+                                            drug = 3,
+                                            timesteps = 1,
+                                            artemisinin_resistance = 0,
+                                            partner_drug_resistance = 0.43,
+                                            slow_parasite_clearance_prob = 0,
+                                            early_treatment_failure_prob = 0,
+                                            late_clinical_failure_prob = 0.01,
+                                            late_parasitological_prob = 0.42,
+                                            reinfection_prob = 0.89)
+  parameters <- set_antimalarial_resistance(parameters = parameters,
+                                            drug = 1,
+                                            timesteps = 1,
+                                            artemisinin_resistance = 0.27,
+                                            partner_drug_resistance = 0.61,
+                                            slow_parasite_clearance_prob = 0.23,
+                                            early_treatment_failure_prob = 0.9,
+                                            late_clinical_failure_prob = 0.49,
+                                            late_parasitological_prob = 0.81,
+                                            reinfection_prob = 0.009)
   
-  # Randomly assign drug coverages for clinical treatment:
-  clinical_treatment_coverages <- sample(c(0.1, 0.2, 0.4))
-  
-  # Randomly assign timesteps for clinical treatment and resistance:
-  clinical_treatment_timesteps <- sample.int(n = 100, size = 3, replace = FALSE)
-  antimalarial_resistance_timesteps <- sample.int(n = 100, size = 3, replace = FALSE)
-  
-  # Randomly assign values to antimalarial resistance proportions
-  antimalarial_resistance_artemisinin_proportion <- sample(x = seq(0, 0.33, by = 0.01), size = 3, replace = FALSE)
-  antimalarial_resistance_partner_drug_proportion <- sample(x = seq(0, 0.33, by = 0.01), size = 3, replace = FALSE)
-  
-  # Randomly assign values to antimalarial resistance probabilities:
-  antimalarial_resistance_ETF_probability <- sample(x = seq(0, 0.33, by = 0.01), size = 3, replace = FALSE)
-  antimalarial_resistance_SPC_probability <- sample(x = seq(0, 0.33, by = 0.01), size = 3, replace = FALSE)
-  antimalarial_resistance_LCF_probability <- sample(x = seq(0, 0.33, by = 0.01), size = 3, replace = FALSE)
-  antimalarial_resistance_LPF_probability <- sample(x = seq(0, 0.33, by = 0.01), size = 3, replace = FALSE)
-  antimalarial_resistance_RDP_probability <- sample(x = seq(0, 0.33, by = 0.01), size = 3, replace = FALSE)
-  
-  # Establish some parameters
-  simparams <- get_parameters()
-  
-  # Add the three drug parameter vectors to the parameter list:
-  simparams <- set_drugs(parameters = simparams, drugs = list(AL_params, SP_AQ_params, DHA_PQP_params))
-  
-  # Loop through and assign the parameters for each drug
-  for(i in seq(clinical_treatment_drugs)) {
-    simparams <- set_clinical_treatment(parameters = simparams,
-                                        drug = clinical_treatment_drugs[i],
-                                        timesteps = clinical_treatment_timesteps[i],
-                                        coverages = clinical_treatment_coverages[i])
-  }
-  
-  # Loop through and assign the antimalarial resistance parameters for each drug:
-  for(i in seq(antimalarial_resistance_drugs)) {
-    simparams <- set_antimalarial_resistance(parameters = simparams,
-                                             drug = antimalarial_resistance_drugs[i],
-                                             timesteps = antimalarial_resistance_timesteps[i],
-                                             artemisinin_resistance = antimalarial_resistance_artemisinin_proportion[i],
-                                             partner_drug_resistance = antimalarial_resistance_partner_drug_proportion[i],
-                                             slow_parasite_clearance_prob = antimalarial_resistance_SPC_probability[i],
-                                             early_treatment_failure_prob = antimalarial_resistance_ETF_probability[i],
-                                             late_clinical_failure_prob = antimalarial_resistance_LCF_probability[i],
-                                             late_parasitological_prob = antimalarial_resistance_LPF_probability[i],
-                                             reinfection_prob = antimalarial_resistance_RDP_probability[i])
-  }
-  
-  # Check the antimalarial resistance parameters after assignment using set_antimalarial_resistance():
-  expect_identical(simparams$antimalarial_resistance, TRUE)
-  expect_identical(unlist(simparams$antimalarial_resistance_drug), antimalarial_resistance_drugs)
-  expect_identical(unlist(simparams$antimalarial_resistance_timesteps), antimalarial_resistance_timesteps)
-  expect_identical(unlist(simparams$prop_artemisinin_resistant), antimalarial_resistance_artemisinin_proportion)
-  expect_identical(unlist(simparams$prop_partner_drug_resistant), antimalarial_resistance_partner_drug_proportion)
-  expect_identical(unlist(simparams$slow_parasite_clearance_prob), antimalarial_resistance_SPC_probability)
-  expect_identical(unlist(simparams$early_treatment_failure_prob), antimalarial_resistance_ETF_probability)
-  expect_identical(unlist(simparams$late_clinical_failure_prob), antimalarial_resistance_LCF_probability)
-  expect_identical(unlist(simparams$late_parasitological_failure_prob), antimalarial_resistance_LPF_probability)
-  expect_identical(unlist(simparams$reinfection_during_prophylaxis), antimalarial_resistance_RDP_probability)
+  expect_identical(parameters$antimalarial_resistance, TRUE)
+  expect_identical(unlist(parameters$antimalarial_resistance_drug), c(2, 3, 1))
+  expect_identical(unlist(parameters$antimalarial_resistance_timesteps), rep(1, 3))
+  expect_identical(unlist(parameters$prop_artemisinin_resistant), c(0.5, 0, 0.27))
+  expect_identical(unlist(parameters$prop_partner_drug_resistant), c(0, 0.43, 0.61))
+  expect_identical(unlist(parameters$slow_parasite_clearance_prob), c(0.41, 0, 0.23))
+  expect_identical(unlist(parameters$early_treatment_failure_prob), c(0.2, 0, 0.9))
+  expect_identical(unlist(parameters$late_clinical_failure_prob), c(0, 0.01, 0.49))
+  expect_identical(unlist(parameters$late_parasitological_failure_prob), c(0, 0.42, 0.81))
+  expect_identical(unlist(parameters$reinfection_during_prophylaxis), c(0, 0.89, 0.009))
   
 })

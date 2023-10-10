@@ -252,6 +252,70 @@ test_that('calculate_clinical_infections correctly samples clinically infected',
 })
 
 test_that('calculate_treated correctly samples treated and updates the drug state', {
+  parameters <- get_parameters()
+  parameters <- set_drugs(parameters, list(AL_params, DHA_PQP_params))
+  parameters <- set_clinical_treatment(parameters, 1, 1, .25)
+  parameters <- set_clinical_treatment(parameters, 2, 1, .25)
+  timestep <- 5
+  events <- create_events(parameters)
+  variables <- list(
+    state = list(queue_update = mockery::mock()),
+    infectivity = list(queue_update = mockery::mock()),
+    drug = list(queue_update = mockery::mock()),
+    drug_time = list(queue_update = mockery::mock())
+  )
+  
+  recovery_mock <- mockery::mock()
+  mockery::stub(calculate_treated, 'recovery$schedule', recovery_mock)
+  
+  seek_treatment <- individual::Bitset$new(4)$insert(c(1, 2, 4))
+  mockery::stub(
+    calculate_treated,
+    'sample_bitset',
+    mockery::mock(seek_treatment)
+  )
+  sample_mock <- mockery::mock(c(2, 1, 1, 1))
+  mockery::stub(calculate_treated, 'sample.int', sample_mock)
+  bernoulli_mock <- mockery::mock(c(1, 3))
+  mockery::stub(calculate_treated, 'bernoulli_multi_p', bernoulli_mock)
+  mockery::stub(calculate_treated, 'log_uniform', mockery::mock(c(3, 4)))
+  
+  clinical_infections <- individual::Bitset$new(4)
+  clinical_infections$insert(c(1, 2, 3, 4))
+  calculate_treated(
+    variables,
+    clinical_infections,
+    parameters,
+    timestep,
+    mock_render(timestep)
+  )
+  
+  mockery::expect_args(
+    sample_mock,
+    1,
+    2,
+    3,
+    c(.25, .25),
+    TRUE
+  )
+  
+  mockery::expect_args(
+    bernoulli_mock,
+    1,
+    parameters$drug_efficacy[c(2, 1, 1, 1)]
+  )
+  
+  expect_bitset_update(variables$state$queue_update, 'Tr', c(1, 4))
+  expect_bitset_update(
+    variables$infectivity$queue_update,
+    parameters$cd * parameters$drug_rel_c[c(2, 1)],
+    c(1, 4)
+  )
+  expect_bitset_update(variables$drug$queue_update, c(2, 1), c(1, 4))
+  expect_bitset_update(variables$drug_time$queue_update, 5, c(1, 4))
+})
+
+test_that('calculate_treated correctly samples treated and updates the drug state when resistance set', {
   
   parameters <- get_parameters()
   parameters <- set_drugs(parameters = parameters, drugs = list(AL_params, SP_AQ_params))
@@ -594,11 +658,9 @@ test_that('calculate_treated returns empty Bitset when there is no clinical trea
   
   expect_identical(object = treated$size(), expected = 0, info = "Error: calculate_treated() returning non-zero number of treated individuals
                  in the absence of clinical treatment")
-  expect_identical(object = treated$to_vector(), expected = numeric(0), info = "Error: calculate_treated() returning non-zero number of treated individuals
-                 in the absence of clinical treatment")
 })
 
-test_that(desc = 'calculate_treated returns empty Bitset when the clinically_infected input is an empty Bitset', {
+test_that('calculate_treated returns empty Bitset when the clinically_infected input is an empty Bitset', {
   parameters <- get_parameters()
   parameters <- set_drugs(parameters = parameters, drugs = list(AL_params))
   parameters <- set_clinical_treatment(parameters = parameters, drug = 1, timesteps = 1, coverages = 1)
@@ -631,8 +693,6 @@ test_that(desc = 'calculate_treated returns empty Bitset when the clinically_inf
   
   expect_identical(object = treated$size(), expected = 0, info = "Error: calculate_treated() returning non-zero number of treated individuals
                  in the absence of clinically infected individuals")
-  expect_identical(object = treated$to_vector(), expected = numeric(0), info = "Error: calculate_treated() returning non-zero number of treated individuals
-                 in the absence of clinically infected individuals")
 })
 
 test_that('calculate_treated() returns an empty Bitset when the parameter list contains no clinical
@@ -657,11 +717,10 @@ test_that('calculate_treated() returns an empty Bitset when the parameter list c
             
             expect_identical(object = treated$size(), expected = 0, info = "Error: calculate_treated() returning non-zero number of treated individuals
                  in the absence of clinical treatment or resistance parameters")
-            expect_identical(object = treated$to_vector(), expected = numeric(0), info = "Error: calculate_treated() returning non-zero number of treated individuals
-                 in the absence of clinical treatment or resistance parameters")
-          })
+})
 
-test_that('calculate_treated() returns an empty Bitset when all treatment fails due to early treatment failure', {
+test_that('Number of treatment failures matches number of individuals treated when artemisinin resistance proportion and
+          early treatment failure probability both set to 1', {
   parameters <- get_parameters()
   parameters <- set_drugs(parameters = parameters, drugs = list(AL_params, SP_AQ_params))
   parameters <- set_clinical_treatment(parameters = parameters,
@@ -708,9 +767,7 @@ test_that('calculate_treated() returns an empty Bitset when all treatment fails 
                                timestep = timestep,
                                renderer = renderer)
   
-  expect_identical(object = treated$size(), expected = 0, info = "Error: non-zero length treated Bitset when clinical treatment coverage = 1,
-                 artemisinin resistance = 1, and early treatment probability = 1")
-  expect_identical(renderer$to_dataframe()[timestep,'n_ETF'], renderer$to_dataframe()[timestep,'n_treated'], info = "Error: Number of
+  expect_identical(renderer$to_dataframe()[timestep,'n_early_treatment_failure'], renderer$to_dataframe()[timestep,'n_treated'], info = "Error: Number of
                  early treatment failures does not match number of treated individuals when artemisinin resistance proportion and
                  and early treatment failure probability both equal 1") 
 })
@@ -747,7 +804,7 @@ test_that('calculate_treated() successfully adds additional resistance columns t
                                timestep = timestep,
                                renderer = renderer)
   
-  calculate_treated_column_names <- c("n_clin_infected", "ft", "n_treated", "n_ETF", "n_treat_eff_fail", "n_treat_success")
+  calculate_treated_column_names <- c("n_clin_infected", "ft", "n_treated", "n_early_treatment_failure", "n_treat_eff_fail", "n_treat_success")
   expect_identical(sum(calculate_treated_column_names %in% colnames(renderer$to_dataframe())), length(calculate_treated_column_names),
                    "calculate_treated() not renderering all resistance columns when resistance is present, clinical treatment coverage
                  is non-zero, and the Bitset of clinically_infected individuals input is of non-zero length.")

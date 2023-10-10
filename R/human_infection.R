@@ -326,6 +326,7 @@ calculate_treated <- function(
   
   successfully_treated_index <- bernoulli_multi_p(parameters$drug_efficacy[drugs])
   successfully_treated <- bitset_at(susceptible_to_treatment, successfully_treated_index)
+  successfully_treated_drugs <- drugs[successfully_treated_index]
   n_treat_eff_fail <- susceptible_to_treatment$size() - length(successfully_treated_index)
   renderer$render('n_treat_eff_fail', n_treat_eff_fail, timestep)
   renderer$render('n_treat_success', successfully_treated$size(), timestep)
@@ -334,11 +335,11 @@ calculate_treated <- function(
   if (successfully_treated$size() > 0) {
     variables$state$queue_update("Tr", successfully_treated)
     variables$infectivity$queue_update(
-      parameters$cd * parameters$drug_rel_c[drugs[successfully_treated_index]],
+      parameters$cd * parameters$drug_rel_c[successfully_treated_drugs],
       successfully_treated
     )
     variables$drug$queue_update(
-      drugs[successfully_treated_index],
+      successfully_treated_drugs,
       successfully_treated
     )
     variables$drug_time$queue_update(

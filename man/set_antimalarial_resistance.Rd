@@ -22,7 +22,7 @@ set_antimalarial_resistance(
 
 \item{drug}{the index of the drug which resistance is being set, as set by the set_drugs() function, in the parameter list}
 
-\item{timesteps}{vector of time steps for each update to resistance proportion and/or phenotype probability}
+\item{timesteps}{vector of time steps for each update to resistance proportion and resistance outcome probability}
 
 \item{artemisinin_resistance}{vector of updates to the proportions of infections that are artemisinin resistant at time t}
 

@@ -30,7 +30,7 @@ set_antimalarial_resistance <- function(parameters,
            length(late_clinical_failure_prob), 
            length(late_parasitological_prob), 
            length(reinfection_prob)) != length(timesteps))) {
-    stop("Number of resistance parameter vectors do not match time steps specified for update")
+    stop("Length of one or more resistance parameter vectors does not match time steps specified for update")
   }
   
   # Ensure resistance proportions bounded between 0 and 1:
@@ -59,7 +59,7 @@ set_antimalarial_resistance <- function(parameters,
     stop('Drug index is invalid, please set drugs using set_drugs')
   }
   
-  # Check the drug_index for the we're drug setting parameters for:
+  # Check the drug_index for the drug we're setting parameters for:
   drug_index <- which(parameters$antimalarial_resistance_drug == drug)
   
   # If drug_index not already assigned, assign the drug the next available index:

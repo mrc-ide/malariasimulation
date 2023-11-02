@@ -10,23 +10,14 @@
 #' @param timestep current timestep
 #' @noRd
 simulate_infection <- function(
-  variables,
-  events,
-  bitten_humans,
-  age,
-  parameters,
-  timestep,
-  renderer
-  ) {
-  if (bitten_humans$size() > 0) {
-    boost_immunity(
-      variables$ib,
-      bitten_humans,
-      variables$last_boosted_ib,
-      timestep,
-      parameters$ub
-    )
-  }
+    variables,
+    events,
+    bitten_humans,
+    age,
+    parameters,
+    timestep,
+    renderer
+) {
 
   # Calculate Infected
   infected_humans <- calculate_infections(
@@ -53,8 +44,18 @@ simulate_infection <- function(
       parameters$ud
     )
   }
-  
+
   if(parameters$parasite == "falciparum"){
+
+    if (bitten_humans$size() > 0) {
+      boost_immunity(
+        variables$ib,
+        bitten_humans,
+        variables$last_boosted_ib,
+        timestep,
+        parameters$ub
+      )}
+
     clinical_infections <- calculate_clinical_infections(
       variables,
       infected_humans,
@@ -62,7 +63,19 @@ simulate_infection <- function(
       renderer,
       timestep
     )
+
+    update_severe_disease(
+      timestep,
+      infected_humans,
+      variables,
+      parameters,
+      renderer
+    )
+
+    patent_infections <- NULL
+
   } else if (parameters$parasite == "vivax"){
+
     patent_infections <- calculate_patent_infections(
       variables,
       infected_humans,
@@ -70,7 +83,7 @@ simulate_infection <- function(
       renderer,
       timestep
     )
-    
+
     clinical_infections <- calculate_clinical_infections(
       variables,
       patent_infections,
@@ -79,15 +92,6 @@ simulate_infection <- function(
       timestep
     )
   }
-
-
-  update_severe_disease(
-    timestep,
-    infected_humans,
-    variables,
-    parameters,
-    renderer
-  )
 
   treated <- calculate_treated(
     variables,
@@ -101,6 +105,7 @@ simulate_infection <- function(
 
   schedule_infections(
     variables,
+    patent_infections,
     clinical_infections,
     treated,
     infected_humans,
@@ -119,12 +124,12 @@ simulate_infection <- function(
 #' @param timestep current timestep
 #' @noRd
 calculate_infections <- function(
-  variables,
-  bitten_humans,
-  parameters,
-  renderer,
-  timestep
-  ) {
+    variables,
+    bitten_humans,
+    parameters,
+    renderer,
+    timestep
+) {
   source_humans <- variables$state$get_index_of(
     c('S', 'A', 'U'))$and(bitten_humans)
 
@@ -133,7 +138,7 @@ calculate_infections <- function(
   } else if (parameters$parasite == "vivax"){ ## P. vivax does not model blood immunity
     b <- parameters$b
   }
-  
+
   source_vector <- source_humans$to_vector()
 
   # calculate prophylaxis
@@ -240,12 +245,12 @@ calculate_patent_infections <- function(
 #' @param timestep current timestep
 #' @noRd
 calculate_clinical_infections <- function(
-  variables,
-  infections,
-  parameters,
-  renderer,
-  timestep
-  ) {
+    variables,
+    infections,
+    parameters,
+    renderer,
+    timestep
+) {
   ica <- variables$ica$get_values(infections)
   icm <- variables$icm$get_values(infections)
   phi <- clinical_immunity(ica, icm, parameters)
@@ -274,12 +279,12 @@ calculate_clinical_infections <- function(
 #' @param renderer model outputs
 #' @noRd
 update_severe_disease <- function(
-  timestep,
-  infections,
-  variables,
-  parameters,
-  renderer
-  ) {
+    timestep,
+    infections,
+    variables,
+    parameters,
+    renderer
+) {
   age <- get_age(variables$birth$get_values(infections), timestep)
   iva <- variables$iva$get_values(infections)
   ivm <- variables$ivm$get_values(infections)
@@ -321,12 +326,12 @@ update_severe_disease <- function(
 #' @param renderer simulation renderer
 #' @noRd
 calculate_treated <- function(
-  variables,
-  clinical_infections,
-  parameters,
-  timestep,
-  renderer
-  ) {
+    variables,
+    clinical_infections,
+    parameters,
+    timestep,
+    renderer
+) {
   treatment_coverages <- get_treatment_coverages(parameters, timestep)
   ft <- sum(treatment_coverages)
 
@@ -337,9 +342,9 @@ calculate_treated <- function(
   renderer$render('ft', ft, timestep)
   seek_treatment <- sample_bitset(clinical_infections, ft)
   n_treat <- seek_treatment$size()
-  
+
   renderer$render('n_treated', n_treat, timestep)
-  
+
   drugs <- as.numeric(parameters$clinical_treatment_drugs[
     sample.int(
       length(parameters$clinical_treatment_drugs),
@@ -375,25 +380,24 @@ calculate_treated <- function(
 #' @description
 #' Schedule infections in humans after the incubation period
 #' @param events a list of all of the model events
+#' @param patent_infections bitset of patent-level infected humans (P.v only)
 #' @param clinical_infections bitset of clinically infected humans
 #' @param treated bitset of treated humans
 #' @param infections bitset of infected humans
 #' @param parameters model parameters
 #' @noRd
 schedule_infections <- function(
-  variables,
-  clinical_infections,
-  treated,
-  infections,
-  parameters,
-  timestep
-  ) {
-  included <- treated$not(TRUE)
+    variables,
+    patent_infections = NULL,
+    clinical_infections,
+    treated,
+    infections,
+    parameters,
+    timestep
+) {
+  included <- treated$not(FALSE)
 
   to_infect <- clinical_infections$and(included)
-  to_infect_asym <- clinical_infections$copy()$not(TRUE)$and(infections)$and(
-    included
-  )
 
   if(to_infect$size() > 0) {
     update_infection(
@@ -405,21 +409,41 @@ schedule_infections <- function(
     )
   }
 
-  if(to_infect_asym$size() > 0) {
-    if(parameters$parasite == "falciparum"){ ## P. falciparum has an age-dependent asymptomatic infectivity
+  # falciparum infection can result in D or A
+  if(parameters$parasite == "falciparum"){
+    to_infect_asym <- clinical_infections$not(FALSE)$and(included)$and(infections)
+
+    if(to_infect_asym$size() > 0) {
+      # falciparum has age- and immunity-dependent asymptomatic infectivity
       update_to_asymptomatic_infection(
         variables,
         parameters,
         timestep,
         to_infect_asym
-      )
-    } else if (parameters$parasite == "vivax"){ ## P. vivax has a constant asymptomatic infectivity
+      )}
+
+    # vivax infection can result in D, A or U
+  } else if (parameters$parasite == "vivax"){
+    to_infect_asym <- clinical_infections$not(FALSE)$and(included)$and(patent_infections)$and(infections)
+    to_infect_subpatent <- patent_infections$not(FALSE)$and(infections)
+
+    if(to_infect_asym$size() > 0) {
+      # vivax has constant asymptomatic infectivity
       update_infection(
         variables$state,
         'A',
         variables$infectivity,
         parameters$ca,
         to_infect_asym
+      )}
+
+    if(to_infect_subpatent$size() > 0) {
+      update_infection(
+        variables$state,
+        'U',
+        variables$infectivity,
+        parameters$cu,
+        to_infect_subpatent
       )
     }
   }
@@ -429,12 +453,12 @@ schedule_infections <- function(
 # Utility functions
 # =================
 boost_immunity <- function(
-  immunity_variable,
-  exposed_index,
-  last_boosted_variable,
-  timestep,
-  delay
-  ) {
+    immunity_variable,
+    exposed_index,
+    last_boosted_variable,
+    timestep,
+    delay
+) {
   # record who can be boosted
   exposed_index_vector <- exposed_index$to_vector()
   last_boosted <- last_boosted_variable$get_values(exposed_index)
@@ -457,7 +481,7 @@ boost_immunity <- function(
 # Implemented from Winskill 2017 - Supplementary Information page 4
 clinical_immunity <- function(acquired_immunity, maternal_immunity, parameters) {
   acquired_immunity[acquired_immunity > 0] <- acquired_immunity[acquired_immunity > 0] + 0.5
-  
+
   parameters$phi0 * (
     parameters$phi1 +
       (1 - parameters$phi1) /
@@ -472,14 +496,14 @@ clinical_immunity <- function(acquired_immunity, maternal_immunity, parameters) 
 # Implemented from Winskill 2017 - Supplementary Information page 5
 severe_immunity <- function(age, acquired_immunity, maternal_immunity, parameters) {
   acquired_immunity[acquired_immunity > 0] <- acquired_immunity[acquired_immunity > 0] + 0.5
-  
+
   fv <- 1 - (1 - parameters$fv0) / (
     1 + (age / parameters$av) ** parameters$gammav
   )
   parameters$theta0 * (parameters$theta1 + (1 - parameters$theta1) / (
     1 + fv * (
       (acquired_immunity + maternal_immunity) / parameters$iv0) ** parameters$kv
-    )
+  )
   )
 }
 
@@ -506,7 +530,7 @@ asymptomatic_infectivity <- function(age, immunity, parameters) {
 # Implemented from Winskill 2017 - Supplementary Information page 4
 blood_immunity <- function(ib, parameters) {
   ib[ib > 0] <- ib[ib > 0] + 0.5
-  
+
   parameters$b0 * (
     parameters$b1 +
       (1 - parameters$b1) /

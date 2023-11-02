@@ -27,7 +27,7 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
       died <- individual::Bitset$new(pop)$insert(bernoulli_multi_p(deathrates))
       renderer$render('natural_deaths', died$size(), timestep)
     }
-    reset_target(variables, events, died, 'S', timestep)
+    reset_target(variables, events, died, 'S', timestep, parameters)
     sample_maternal_immunity(variables, died, timestep, parameters)
   }
 }
@@ -66,11 +66,13 @@ sample_maternal_immunity <- function(variables, target, timestep, parameters) {
 
         # set their maternal immunities
         birth_icm <- variables$ica$get_values(mothers) * parameters$pcm
-        birth_ivm <- variables$ica$get_values(mothers) * parameters$pvm
         variables$icm$queue_update(birth_icm, target_group)
-        variables$ivm$queue_update(birth_ivm, target_group)
 
-        if(parameters$parasite == "vivax"){
+        if(parameters$parasite == "falciparum"){
+          birth_ivm <- variables$ica$get_values(mothers) * parameters$pvm
+          variables$ivm$queue_update(birth_ivm, target_group)
+
+        } else if (parameters$parasite == "vivax"){
           birth_idm <- variables$id$get_values(mothers) * parameters$pcm
           variables$idm$queue_update(birth_idm, target_group)
         }
@@ -79,7 +81,7 @@ sample_maternal_immunity <- function(variables, target, timestep, parameters) {
   }
 }
 
-reset_target <- function(variables, events, target, state, timestep) {
+reset_target <- function(variables, events, target, state, timestep, parameters) {
   if (target$size() > 0) {
     # clear events
     to_clear <- c(
@@ -96,14 +98,18 @@ reset_target <- function(variables, events, target, state, timestep) {
     variables$birth$queue_update(timestep, target)
 
     # non-maternal immunity
-    variables$last_boosted_ib$queue_update(-1, target)
     variables$last_boosted_ica$queue_update(-1, target)
-    variables$last_boosted_iva$queue_update(-1, target)
     variables$last_boosted_id$queue_update(-1, target)
-    variables$ib$queue_update(0, target)
     variables$ica$queue_update(0, target)
-    variables$iva$queue_update(0, target)
     variables$id$queue_update(0, target)
+
+    if(parameters$parasite == "falciparum"){
+      variables$last_boosted_ib$queue_update(-1, target)
+      variables$last_boosted_iva$queue_update(-1, target)
+      variables$ib$queue_update(0, target)
+      variables$iva$queue_update(0, target)
+    }
+
     variables$state$queue_update(state, target)
 
     # treatment

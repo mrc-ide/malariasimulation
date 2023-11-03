@@ -97,7 +97,7 @@ test_that('Infection considers pev efficacy', {
   variables$birth <- individual::IntegerVariable$new(
     -c(8, 2.9, 3.2, 18.4) * 365 - 100
   )
-  variables$pev_timestep <- individual::IntegerVariable$new(
+  variables$last_eff_pev_timestep <- individual::IntegerVariable$new(
     c(-1, -1, 50, 50 + 30)
   )
   variables$pev_profile <- individual::IntegerVariable$new(
@@ -299,7 +299,10 @@ test_that('Mass boosters update profile params and reschedule correctly', {
   variables$birth <- individual::IntegerVariable$new(
     -c(2.9, 3.2, 18.4) * 365 + 100
   )
-  variables$pev_timestep <- mock_double(
+  variables$last_pev_timestep <- mock_double(
+    c(50, 50, 50)
+  )
+  variables$last_eff_pev_timestep <- mock_double(
     c(50, 50, 50)
   )
   variables$pev_profile <- mock_integer(
@@ -326,7 +329,13 @@ test_that('Mass boosters update profile params and reschedule correctly', {
   listener(timestep, individual::Bitset$new(3)$insert(c(1, 2, 3)))
 
   expect_bitset_update(
-    variables$pev_timestep$queue_update_mock(),
+    variables$last_pev_timestep$queue_update_mock(),
+    timestep,
+    c(1, 2, 3)
+  )
+
+  expect_bitset_update(
+    variables$last_eff_pev_timestep$queue_update_mock(),
     timestep,
     c(1, 2, 3)
   )
@@ -368,7 +377,10 @@ test_that('Mass booster coverages sample subpopulations correctly', {
   variables$birth <- individual::IntegerVariable$new(
     -c(2.9, 3.2, 18.4) * 365 + 100
   )
-  variables$pev_timestep <- mock_double(
+  variables$last_pev_timestep <- mock_double(
+    c(50, 50, 50)
+  )
+  variables$last_eff_pev_timestep <- mock_double(
     c(50, 50, 50)
   )
   variables$pev_profile <- mock_integer(
@@ -395,7 +407,13 @@ test_that('Mass booster coverages sample subpopulations correctly', {
   mockery::expect_args(sample_mock, 1, target, .9)
 
   expect_bitset_update(
-    variables$pev_timestep$queue_update_mock(),
+    variables$last_pev_timestep$queue_update_mock(),
+    timestep,
+    c(2, 3)
+  )
+
+  expect_bitset_update(
+    variables$last_eff_pev_timestep$queue_update_mock(),
     timestep,
     c(2, 3)
   )
@@ -410,6 +428,68 @@ test_that('Mass booster coverages sample subpopulations correctly', {
     events$mass_pev_boosters[[2]]$schedule,
     c(2, 3),
     5 * 30
+  )
+})
+
+test_that('mass pev targets correct age and respects min_wait', {
+  timestep <- 5*365 
+  parameters <- get_parameters(list(human_population = 5))
+  parameters <- set_mass_pev(
+    parameters,
+    profile = rtss_profile,
+    timesteps = c(4, 5) * 365,
+    coverages = c(0.8, 0.8),
+    min_ages = 0,
+    max_ages = 19 * 365,
+    min_wait = 2*365,
+    booster_timestep = c(1, 6) * 30,
+    booster_coverage = c(.9, .8),
+    booster_profile = list(rtss_booster_profile, rtss_booster_profile)
+  )
+  events <- create_events(parameters)
+  variables <- create_variables(parameters)
+  variables$birth <- individual::IntegerVariable$new(
+    -c(18, 18, 30, 18, 18) * 365 + timestep
+  )
+  variables$last_pev_timestep <- mock_integer(
+    c(50, -1, -1, 4*365, -1)
+  )
+
+  variables$pev_profile <- mock_integer(
+    c(1, -1, -1, 1, -1)
+  )
+
+  correlations <- get_correlation_parameters(parameters)
+  listener <- create_mass_pev_listener(
+    variables,
+    events,
+    parameters,
+    get_correlation_parameters(parameters)
+  )
+
+  sample_mock <- mockery::mock(c(TRUE, TRUE, FALSE))
+  mockery::stub(
+    listener,
+    'sample_intervention',
+    sample_mock
+  )
+
+  listener(timestep)
+
+  mockery::expect_args(
+    sample_mock,
+    1,
+    c(1, 2, 5),
+    'pev',
+    .8,
+    correlations
+  )
+
+  mockery::expect_args(
+    variables$last_pev_timestep$queue_update_mock(),
+    1,
+    timestep,
+    c(1, 2)
   )
 })
 
@@ -430,7 +510,7 @@ test_that('Mass efficacy listener works correctly', {
   )
 
   variables <- create_variables(parameters)
-  variables$pev_timestep <- mock_integer(c(-1, -1, -1))
+  variables$last_eff_pev_timestep <- mock_integer(c(-1, -1, -1))
   variables$pev_profile <- mock_integer(c(-1, -1, -1))
   listener <- create_pev_efficacy_listener(variables, 1)
 
@@ -438,7 +518,7 @@ test_that('Mass efficacy listener works correctly', {
 
   # vaccinated time
   expect_bitset_update(
-    variables$pev_timestep$queue_update_mock(),
+    variables$last_eff_pev_timestep$queue_update_mock(),
     timestep,
     c(1, 2, 3)
   )

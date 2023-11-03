@@ -129,9 +129,10 @@ calculate_infections <- function(
 
   # calculate vaccine efficacy
   vaccine_efficacy <- rep(0, length(source_vector))
-  vaccine_times <- variables$pev_timestep$get_values(source_vector)
-  vaccinated <- vaccine_times > -1
+  vaccine_times <- variables$last_eff_pev_timestep$get_values(source_vector)
   pev_profile <- variables$pev_profile$get_values(source_vector)
+  # get vector of individuals who have received their 3rd dose
+  vaccinated <- vaccine_times > -1
   pev_profile <- pev_profile[vaccinated]
   if (length(vaccinated) > 0) {
     antibodies <- calculate_pev_antibodies(

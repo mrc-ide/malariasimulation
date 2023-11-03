@@ -133,7 +133,7 @@ test_that('calculate_infections works various combinations of drug and vaccinati
     ),
     drug = individual::DoubleVariable$new(c(1, 2, 0, 0)),
     drug_time = individual::DoubleVariable$new(c(20, 30, -1, -1)),
-    pev_timestep = individual::DoubleVariable$new(c(-1, 10, 40, -1)),
+    last_eff_pev_timestep = individual::DoubleVariable$new(c(-1, 10, 40, -1)),
     pev_profile = individual::IntegerVariable$new(c(-1, 1, 2, -1)),
     ib = individual::DoubleVariable$new(c(.2, .3, .5, .9))
   )
@@ -366,7 +366,7 @@ test_that('prophylaxis is considered for medicated humans', {
     ),
     drug = individual::DoubleVariable$new(c(0, 2, 1, 0)),
     drug_time = individual::DoubleVariable$new(c(-1, 49, 40, -1)),
-    pev_timestep = individual::DoubleVariable$new(c(-1, -1, -1, -1)),
+    last_eff_pev_timestep = individual::DoubleVariable$new(c(-1, -1, -1, -1)),
     pev_profile = individual::IntegerVariable$new(c(-1, -1, -1, -1)),
     ib = individual::DoubleVariable$new(c(.2, .3, .5, .9))
   )

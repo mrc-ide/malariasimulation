@@ -86,49 +86,48 @@ test_that('pev epi targets correct age and respects min_wait', {
   variables$birth <- individual::IntegerVariable$new(
     -c(18, 18, 2.9, 18, 18) * 365 + timestep
   )
-  variables$pev_timestep <- mock_integer(
+  variables$last_pev_timestep <- mock_integer(
     c(50, -1, -1, 4*365, -1)
   )
+  variables$pev_profile <- mock_integer(
+    c(1, -1, -1, 1, -1)
+  )
 
-  events$pev_epi_doses <- lapply(events$pev_epi_doses, mock_event)
-
+  correlations <- get_correlation_parameters(parameters)
   process <- create_epi_pev_process(
     variables,
     events,
     parameters,
-    get_correlation_parameters(parameters),
+    correlations,
     parameters$pev_epi_coverages,
     parameters$pev_epi_timesteps
   )
 
+  sample_mock <- mockery::mock(c(TRUE, TRUE, FALSE))
   mockery::stub(
     process,
     'sample_intervention',
-    mockery::mock(c(TRUE, TRUE, FALSE))
+    sample_mock
   )
 
   process(timestep)
 
   mockery::expect_args(
-    events$pev_epi_doses[[1]]$schedule,
+    sample_mock,
     1,
-    c(1, 2),
-    parameters$pev_doses[[1]]
+    c(1, 2, 5),
+    'pev',
+    .8,
+    correlations
   )
 
   mockery::expect_args(
-    events$pev_epi_doses[[2]]$schedule,
+    variables$last_pev_timestep$queue_update_mock(),
     1,
-    c(1, 2),
-    parameters$pev_doses[[2]]
+    timestep,
+    c(1, 2)
   )
 
-  mockery::expect_args(
-    events$pev_epi_doses[[3]]$schedule,
-    1,
-    c(1, 2),
-    parameters$pev_doses[[3]]
-  )
 })
 
 test_that('EPI ignores individuals scheduled for mass vaccination', {

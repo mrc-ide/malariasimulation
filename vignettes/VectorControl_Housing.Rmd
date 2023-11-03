@@ -1,5 +1,5 @@
 ---
-title: "Vector Control: Housing improvements"
+title: "Vector Control: Housing adaptations"
 output: 
   rmarkdown::html_vignette:
 vignette: >
@@ -24,7 +24,7 @@ library(malariasimulation)
 cols <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 ```
 
-Housing improvements are continually occurring in malaria-endemic parts of the world. Improvements could reduce the penetrability of housing to vectors. This will be a longer-lasting protective barrier effect than other 'indoor interventions' like ITNs or spraying. The model provides the flexibility to turn on 'improved' housing using a mechanism that adjusts the mosquito foraging pathway. The female mosquito now has some probability of being repelled by the adjustments to the house prior to any effects of spray or ITNs. The impacts from the three types of interventions are coded to be multiplicative and independent. When housing is 0, there is no impact. The model provides the user with the flexibility to specify parameters that describe the housing campaign (e.g. timing, coverage, and efficacy). It is currently assumed that housing improvements will represent a permanent change. We can illustrate this below:
+Housing adaptations are continually occurring in malaria-endemic parts of the world. Improvements could reduce the penetrability of housing to vectors. This will be a longer-lasting protective barrier effect than other 'indoor interventions' like ITNs or spraying. The model provides the flexibility to turn on 'improved' housing using a mechanism that adjusts the mosquito foraging pathway. The female mosquito now has some probability of being repelled by the adjustments to the house prior to any effects of spray or ITNs. The impacts from the three types of interventions are coded to be multiplicative and independent. When housing is 0, there is no impact. The model provides the user with the flexibility to specify parameters that describe the housing campaign (e.g. timing, coverage, and efficacy). It is currently assumed that housing improvements will represent a permanent change. We can illustrate this below:
 
 We can create a few plotting functions to visualise the output.
 ```{r}
@@ -36,12 +36,19 @@ plot_prev <- function() {
        xaxs = "i", yaxs = "i", ylim = c(0, 1))
   lines(x = output_control$timestep, y = output_control$n_detect_730_3650 / output_control$n_730_3650,
         col = cols[5], lwd = 1)
+  lines(x = output_nets_housing$timestep, y = output_nets_housing$n_detect_730_3650 / output_nets_housing$n_730_3650,
+        col = cols[1], lwd = 1)
   abline(v = bednetstimesteps, col = "black", lty = 2, lwd = 1)
+  abline(v = housingtimesteps, col = "darkred", lty = 2, lwd = 1)
+  
   text(x = bednetstimesteps + 10, y = 0.95, labels = "Bed net int.", adj = 0, cex = 0.8)
+  text(x = housingtimesteps + 10, y = 0.95, labels = "Housing int.", adj = 0, cex = 0.8)
   grid(lty = 2, col = "grey80", lwd = 0.5)
   legend("bottomleft", box.lty = 0, bg = "white",
-         legend = c("Prevalence for housing scenario","Prevalence for control scenario"),
-         col = c(cols[3], cols[5]), lty = c(1,1), lwd = 2, cex = 0.8, y.intersp = 1.3)
+         legend = c("Prevalence for housing scenario",
+                    "Prevalence for nets and housing scenario",
+                    "Prevalence for control scenario"),
+         col = c(cols[3], cols[4],cols[1],cols[5]), lty = c(1,1,1,1), lwd = 2, cex = 0.8, y.intersp = 1.3)
 }
 ```
   
@@ -80,15 +87,17 @@ simparams$species_proportions
 Having established a base set of parameters, we can now create a copy of this parameter list and update it to specify that housing has been altered in some way to reduce access to mosquitoes. In the example below, we simulate that 30% of housing is 'improved' in the 2nd year, and that nets are used by a random 50% of the population every three years. We can change the 'repellence' introduced from households multiple times and differently for each mosquito species potentially.
   
 ```{r, fig.align = 'center', out.width='100%'}
-housingtimesteps <- c(2, 2.5, 3) * year # housing will be improved at year 2 to year 3 in a stepped fashion
-
 housingparams <- set_housing(
   simparams,
   timesteps = housingtimesteps,
-  coverages = c(0.1,0.2,0.4),
-  phi_housing = matrix(c(0.9,0.9,1), nrow = 3, ncol = 1),
-  rn_house = matrix(c(0.2,0.3,0.5), nrow = 3, ncol = 1)
+  coverages = c(0.8,0.8,0.9),
+  phi_housing = c(1,1,1),
+  dh0 = matrix(c(.2, .2), nrow = 3, ncol = 2), 
+  rh = matrix(c(.5, .5), nrow = 3, ncol = 2), 
+  rhm = matrix(c(.3, .3), nrow = 3, ncol = 2), 
+  gammah = rep(0.5 * 365, 3) 
 )
+output <- run_simulation(timesteps = sim_length, parameters = housingparams)
 
 
 bednetstimesteps <- c(1, 4) * year # The bed nets will be distributed at the end of the first and the 4th year. 
@@ -96,15 +105,15 @@ bednetstimesteps <- c(1, 4) * year # The bed nets will be distributed at the end
 bednetparams <- set_bednets(
   housingparams,
   timesteps = bednetstimesteps,
-  coverages = c(.5, .8),  # The first round is distributed to 50% of the population, the second round to 80%.
-  retention = 5 * year, # Nets are kept on average 5 years
-  dn0 = matrix(c(.533, .533), nrow = 2, ncol = 1), # Matrix of death probabilities for each mosquito species over time
-  rn = matrix(c(.56, .56), nrow = 2, ncol = 1), # Matrix of repelling probabilities for each mosquito species over time
-  rnm = matrix(c(.24, .24), nrow = 2, ncol = 1), # Matrix of minimum repelling probabilities for each mosquito species over time
-  gamman = rep(2.64 * 365, 2) # Vector of bed net half-lives for each distribution timestep
+  coverages = c(.5, .8),  
+  retention = 5 * year, 
+  dn0 = matrix(c(.533, .533), nrow = 2, ncol = 1), 
+  rn = matrix(c(.56, .56), nrow = 2, ncol = 1), 
+  rnm = matrix(c(.24, .24), nrow = 2, ncol = 1), 
+  gamman = rep(2.64 * 365, 2) 
 )
 
-output <- run_simulation(timesteps = sim_length, parameters = bednetparams)
+output_nets_housing <- run_simulation(timesteps = sim_length, parameters = bednetparams)
 ```
 
 ### Visualisation

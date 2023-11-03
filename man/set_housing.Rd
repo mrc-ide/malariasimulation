@@ -4,19 +4,34 @@
 \alias{set_housing}
 \title{Parameterise a housing improvement strategy}
 \usage{
-set_housing(parameters, timesteps, coverages, phi_housing, rn_house)
+set_housing(
+  parameters,
+  timesteps,
+  coverages,
+  phi_housing,
+  dh0,
+  rh,
+  rhm,
+  gammah
+)
 }
 \arguments{
 \item{parameters}{a list of parameters to modify}
 
-\item{timesteps}{the timesteps at which to improve the house}
+\item{timesteps}{the timesteps at which to distribute housing adaptations}
 
-\item{coverages}{the proportion of the population who get a benefit from housing improvements}
+\item{coverages}{the proportion of the human population who reside in protected housing}
 
-\item{phi_housing}{a parameter to potentially increase outdoor biting, default 1}
-
-\item{rn_house}{matrix of repellence parameters, will increase repelled, decrease indoor bites
+\item{dh0}{a matrix of death probabilities for each species over time.
 With nrows=length(timesteps), ncols=length(species)}
+
+\item{rh}{a matrix of repelling probabilities for each species over time
+With nrows=length(timesteps), ncols=length(species)}
+
+\item{rhm}{a matrix of minimum repelling probabilities for each species over time
+With nrows=length(timesteps), ncols=length(species)}
+
+\item{gammah}{a vector of house adaptation half-lives for each distribution timestep}
 }
 \description{
 The model will simulate improved housing at \code{timesteps} to a random

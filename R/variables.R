@@ -26,7 +26,7 @@
 #' haven't been any
 #' * net_time - The timestep when a net was last put up (-1 if never)
 #' * spray_time - The timestep when the house was last sprayed (-1 if never)
-#' * house_time - The timestep when the house was last improved (-1 if never)
+#' * house_time - The timestep for adaptation to the house to reduce entry/kill vectors (-1 if never)
 #' * infectivity - The onward infectiousness to mosquitos
 #' * drug - The last prescribed drug
 #' * drug_time - The timestep of the last drug

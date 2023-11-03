@@ -195,39 +195,45 @@ get_init_carrying_capacity <- function(parameters){
 #' Sherrard-Smith et al in prep
 #'
 #' @param parameters a list of parameters to modify
-#' @param timesteps the timesteps at which to improve the house
-#' @param coverages the proportion of the population who get a benefit from housing improvements
-#' @param phi_housing a parameter to potentially increase outdoor biting, default 1
-#' @param rn_house matrix of repellence parameters, will increase repelled, decrease indoor bites
+#' @param timesteps the timesteps at which to distribute housing adaptations
+#' @param coverages the proportion of the human population who reside in protected housing
+#' @param dh0 a matrix of death probabilities for each species over time.
 #' With nrows=length(timesteps), ncols=length(species)
+#' @param rh a matrix of repelling probabilities for each species over time
+#' With nrows=length(timesteps), ncols=length(species)
+#' @param rhm a matrix of minimum repelling probabilities for each species over time
+#' With nrows=length(timesteps), ncols=length(species)
+#' @param gammah a vector of house adaptation half-lives for each distribution timestep
 #' @export
 set_housing <- function(
     parameters,
     timesteps,
     coverages,
     phi_housing,
-    rn_house
+    dh0,
+    rh,
+    rhm,
+    gammah
 ) {
   stopifnot(all(coverages >= 0) && all(coverages <= 1))
-  if (length(coverages) != length(timesteps)) {
-    stop('coverages and timesteps must must align')
+  lengths <- vnapply(list(coverages, gammah), length)
+  if (!all(lengths == length(timesteps))) {
+    stop('timesteps and time-varying parameters must align')
   }
-  houses <- list(
-    phi_housing,
-    rn_house
-  )
-  for (x in houses) {
+  for (x in list(dh0, rh, rhm)) {
     if (ncol(x) != length(parameters$species)) {
-      stop('rn_house rows need to align with species')
+      stop('death and repelling probabilities rows need to align with species')
     }
     if (nrow(x) != length(timesteps)) {
-      stop('rn_house cols need to align with timesteps')
+      stop('death and repelling probabilities columns need to align with timesteps')
     }
   }
   parameters$housing <- TRUE
-  parameters$house_timesteps <- timesteps
-  parameters$house_coverages <- coverages
-  parameters$phi_housing <- phi_housing
-  parameters$rn_house <- rn_house
+  parameters$housing_timesteps <- timesteps
+  parameters$housing_coverages <- coverages
+  parameters$house_dh0 <- dh0
+  parameters$house_rh <- rh
+  parameters$house_rhm <- rhm
+  parameters$house_gammah <- gammah
   parameters
 }

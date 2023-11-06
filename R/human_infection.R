@@ -185,10 +185,10 @@ calculate_infections <- function(
 
   prob <- b * (1 - prophylaxis) * (1 - vaccine_efficacy)
 
-  ## All bitten humans with an infectious bite (incorporating prophylaxis and vaccines)
-  newly_infected <- bitset_at(source_humans, bernoulli_multi_p(prob))
-
   if(parameters$parasite == "falciparum"){
+
+    ## All bitten humans with an infectious bite (incorporating prophylaxis and vaccines)
+    newly_infected <- bitset_at(source_humans, bernoulli_multi_p(prob))
 
     # Render new infections caused by bites
     renderer$render('n_infections', newly_infected$size(), timestep)
@@ -203,20 +203,48 @@ calculate_infections <- function(
       parameters$incidence_rendering_max_ages,
       timestep
     )
-    total_infected <- newly_infected
   }
 
   else if(parameters$parasite == "vivax"){
 
-    SAU_humans <- variables$state$get_index_of(c('S','A','U'))
-    new_bite_infections <- newly_infected$and(SAU_humans)
+    # Convert prob of infected bite to rate
+    rate_bitten <- prob_to_rate(prob)
+
+    # Subset humans with potential relapses
+    with_hypnozoites <- variables$hypnozoites$get_index_of(0)$not(TRUE)
+    with_hypnozoites_vector <- with_hypnozoites$to_vector()
+
+    # Get rates/probs of relapse
+    rate_relapse <- variables$hypnozoites$get_values(with_hypnozoites) * parameters$f
+    prob_relapse <- rate_to_prob(rate_relapse)
+
+    # Humans with potential new infections
+    potential_new_infections_humans <- source_humans$or(with_hypnozoites)
+
+    # Sum rates of bite infection and relapses
+    rate_new_infections_vector <- rep(0, parameters$human_population)
+    rate_new_infections_vector[source_vector] <- rate_bitten
+    rate_new_infections_vector[with_hypnozoites_vector] <- rate_new_infections_vector[with_hypnozoites_vector] + rate_relapse
+    rate_new_infections_vector <- rate_new_infections_vector[rate_new_infections_vector>0]
+    # Convert total rate of new infection to probability
+    prob_new_infections_vector <- rate_to_prob(rate_new_infections_vector)
+
+    # Subset for new infections/bite infections
+    newly_infected <- bitset_at(potential_new_infections_humans, bernoulli_multi_p(prob_new_infections_vector))
+    newly_bite_infected <- bitset_at(potential_new_infections_humans, bernoulli_multi_p(rate_bitten/rate_new_infections_vector[source_vector]))
+
+    # Add new batches for new bite infections
+    variables$hypnozoites$queue_update(
+      variables$hypnozoites$get_values(newly_bite_infected) + 1,
+      newly_bite_infected
+    )
 
     # Render new infections caused by bites
-    renderer$render('n_new_bite_infections', new_bite_infections$size(), timestep)
+    renderer$render('n_new_bite_infections', newly_bite_infected$size(), timestep)
     incidence_renderer(
       variables$birth,
       renderer,
-      new_bite_infections,
+      newly_bite_infected,
       source_humans,
       prob,
       'inc_new_bite_',
@@ -225,57 +253,24 @@ calculate_infections <- function(
       timestep
     )
 
-    ## All bitten humans with an infectious bite (incorporating prophylaxis and vaccines get a new batch of hypnozoites)
-    variables$hypnozoites$queue_update(
-      variables$hypnozoites$get_values(newly_infected) + 1,
-      newly_infected
-    )
-
-    ## Work out any individual with a relapse, subset to SAU
-    ## rate changed to probability, each batch treated as a different prob of relapse
-    with_hypnozoites <- variables$hypnozoites$get_index_of(0)$not(inplace = F)
-    relapsed <- bitset_at(
-      with_hypnozoites,
-      bernoulli_multi_p(
-        1 - (1 - (1-exp(-parameters$f)))^variables$hypnozoites$get_values(
-          with_hypnozoites
-        )
-      )
-    )$and(SAU_humans)
-
-    # Render relapses
-    renderer$render('n_relapses', relapsed$size(), timestep)
+    new_relapse_infection <- newly_infected$and(newly_bite_infected$not(inplace = F))
+    # Render relapse infections
+    renderer$render('n_new_relapse_infections', new_relapse_infection$size(), timestep)
     incidence_renderer(
       variables$birth,
       renderer,
-      relapsed,
-      source_humans,
-      prob,
+      new_relapse_infection,
+      with_hypnozoites,
+      prob_relapse,
       'inc_relapse_',
       parameters$relapse_incidence_rendering_min_ages,
       parameters$relapse_incidence_rendering_max_ages,
       timestep
     )
 
-    # All infections or relapses in individuals without current blood infection
-    total_infected <- new_bite_infections$or(relapsed)
-
-    # Render total new blood stage infections
-    renderer$render('n_infections', total_infected$size(), timestep)
-    incidence_renderer(
-      variables$birth,
-      renderer,
-      total_infected,
-      source_humans,
-      prob,
-      'inc_',
-      parameters$incidence_rendering_min_ages,
-      parameters$incidence_rendering_max_ages,
-      timestep
-    )
   }
 
-  total_infected
+  newly_infected
 }
 
 #' @title Calculate patent infections (vivax only)
@@ -477,7 +472,6 @@ schedule_infections <- function(
 ) {
 
   included <- treated$not(FALSE)
-
   to_infect <- clinical_infections$and(included)
 
   if(to_infect$size() > 0) {

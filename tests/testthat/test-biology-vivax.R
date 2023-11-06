@@ -70,15 +70,19 @@ test_that('FOIM is consistent with equilibrium', {
   expected_foim <- vnapply(
     EIRs,
     function(EIR) {
-      malariaEquilibriumVivax::human_equilibrium_vivax_summarise(
-        malariaEquilibriumVivax::human_equilibrium_vivax_full_het(
-          EIR,
-          0,
-          eq_params,
-          ages,
-          gq_normal(10)
-        ),
-        eq_params)$FOIM
+      # malariaEquilibriumVivax::human_equilibrium(EIR =
+      #     EIR,
+      #     0,
+      #     eq_params,
+      #     ages
+      #   )$FOIM
+      vivax_equilibrium_init_create_combined(age = EQUILIBRIUM_AGES, ft = 0,
+                                             EIR = EIR,
+                                             p = eq_params,
+                                             K_max = 10,
+                                             use_mid_ages = T,
+                                             malariasimulationoutput = T)$FOIM
+
     }
   )
 
@@ -119,13 +123,19 @@ test_that('phi is consistent with equilibrium at high EIR (no het)', {
   ))
   parameters <- set_equilibrium(parameters, EIR)
 
-  eq <-  malariaEquilibriumVivax::human_equilibrium_vivax_full_het(
-    EIR,
-    0,
-    parameters,
-    ages,
-    h = gq_normal(parameters$n_heterogeneity_groups)
-  )$ret[[1]]
+  # eq <-  malariaEquilibriumVivax::human_equilibrium_no_het(
+  #   EIR,
+  #   0,
+  #   parameters,
+  #   ages
+  # )
+
+  eq <- vivax_equilibrium_init_create_combined(age = EQUILIBRIUM_AGES, ft = 0,
+                                         EIR = EIR,
+                                         p = eq_params,
+                                         K_max = 10,
+                                         use_mid_ages = T,
+                                         malariasimulationoutput = T)$ret[[1]]
 
   variables <- create_variables(parameters)
   expect_equal(
@@ -136,7 +146,7 @@ test_that('phi is consistent with equilibrium at high EIR (no het)', {
         parameters
       )
     ),
-    weighted.mean(eq[,'phi'], eq[,'prop']),
+    weighted.mean(eq[,'phi_clin'], eq[,'prop']),
     tolerance=1e-2
   )
 })
@@ -152,16 +162,21 @@ test_that('phi is consistent with equilibrium at high EIR', {
                                list(human_population = population))
   parameters <- set_equilibrium(parameters, EIR)
 
-  eq <-  malariaEquilibriumVivax::human_equilibrium_vivax_summarise(
-    malariaEquilibriumVivax::human_equilibrium_vivax_full_het(
-      EIR,
-      0,
-      parameters,
-      ages,
-      gq_normal(parameters$n_heterogeneity_groups)),
-    parameters)
+  # eq <-  malariaEquilibriumVivax::human_equilibrium(
+  #     EIR,
+  #     0,
+  #     parameters,
+  #     ages)
+
+  eq <- vivax_equilibrium_init_create_combined(age = EQUILIBRIUM_AGES, ft = 0,
+                                               EIR = EIR,
+                                               p = eq_params,
+                                               K_max = 10,
+                                               use_mid_ages = T,
+                                               malariasimulationoutput = T)$ret
 
   variables <- create_variables(parameters)
+  het <- statmod::gauss.quad.prob(parameters$n_heterogeneity_groups, dist = "normal")
   expect_equal(
     mean(
       clinical_immunity(
@@ -170,7 +185,10 @@ test_that('phi is consistent with equilibrium at high EIR', {
         parameters
       )
     ),
-    weighted.mean(eq$states[,'phi'], eq$states[,'prop']),
+    sum(unlist(lapply(1:parameters$n_heterogeneity_groups, function(h){
+      weighted.mean(eq[[h]][,'phi_clin'], eq[[h]][,'prop'])}
+      )) * het$weights),
+    # weighted.mean(eq$states[,'phi_clin'], eq$states[,'prop']),
     tolerance=1e-2
   )
 })

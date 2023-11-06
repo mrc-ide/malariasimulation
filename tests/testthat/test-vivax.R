@@ -271,8 +271,12 @@ test_that('vivax schedule_infections correctly schedules new infections', {
 
   expect_equal(
     actual_subpatent_infected,
-    c(17, 18, 19, 20)
+    c(18, 19, 20)
   )
+
+  ## Individual 17 is asymptomatic so cannot be infected with a subpatent infection
+  expect_true(17 %in% variables$state$get_index_of("A")$to_vector())
+
 })
 
 test_that('relapses are recognised', {

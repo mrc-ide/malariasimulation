@@ -209,36 +209,37 @@ calculate_infections <- function(
 
     # Convert prob of infected bite to rate
     rate_bitten <- prob_to_rate(prob)
-
-    # Subset humans with potential relapses
-    with_hypnozoites <- variables$hypnozoites$get_index_of(0)$not(TRUE)
-    with_hypnozoites_vector <- with_hypnozoites$to_vector()
+    rate_bitten_complete <- c(rep(0, parameters$human_population))
+    rate_bitten_complete[source_humans$to_vector()] <- rate_bitten
 
     # Get rates/probs of relapse
-    rate_relapse <- variables$hypnozoites$get_values(with_hypnozoites) * parameters$f
+    rate_relapse <- variables$hypnozoites$get_values() * parameters$f
     prob_relapse <- rate_to_prob(rate_relapse)
 
+    # Combine and relative
+    rate_infection_complete <- rate_bitten_complete + rate_relapse
+    relative_rate <- c(rate_bitten_complete/rate_infection_complete)[rate_infection_complete!=0]
+
     # Humans with potential new infections
-    potential_new_infections_humans <- source_humans$or(with_hypnozoites)
+    with_hypnozoites <- variables$hypnozoites$get_index_of(0)$not(TRUE)
+    potential_new_infections_humans <- source_humans$copy()$or(with_hypnozoites)
 
     # Sum rates of bite infection and relapses
-    rate_new_infections_vector <- rep(0, parameters$human_population)
-    rate_new_infections_vector[source_vector] <- rate_bitten
-    rate_new_infections_vector[with_hypnozoites_vector] <- rate_new_infections_vector[with_hypnozoites_vector] + rate_relapse
-    rate_new_infections_vector <- rate_new_infections_vector[rate_new_infections_vector>0]
-    # Convert total rate of new infection to probability
-    prob_new_infections_vector <- rate_to_prob(rate_new_infections_vector)
+    prob_new_infections <- rate_to_prob(rate_infection_complete[rate_infection_complete!=0])
 
     # Subset for new infections/bite infections
-    newly_infected <- bitset_at(potential_new_infections_humans, bernoulli_multi_p(prob_new_infections_vector))
+    newly_infected <- bitset_at(potential_new_infections_humans, bernoulli_multi_p(prob_new_infections))
     newly_bite_infected <- bitset_at(
       potential_new_infections_humans,
-      bernoulli_multi_p(rate_bitten/rate_new_infections_vector[source_vector]))$and(newly_infected)
+      bernoulli_multi_p(relative_rate))$and(newly_infected)
+
+    can_increase_batches_above_cap <- variables$hypnozoites$get_index_of(
+      variables$hypnozoites$get_values(newly_bite_infected)<10)
 
     # Add new batches for new bite infections
     variables$hypnozoites$queue_update(
-      variables$hypnozoites$get_values(newly_bite_infected) + 1,
-      newly_bite_infected
+      variables$hypnozoites$get_values(can_increase_batches_above_cap$and(newly_bite_infected)) + 1,
+      can_increase_batches_above_cap$and(newly_bite_infected)
     )
 
     # Subset to SAU
@@ -297,10 +298,12 @@ calculate_patent_infections <- function(
 
   id <- variables$id$get_values(infections)
   idm <- variables$idm$get_values(infections)
+
   philm <- anti_parasite_immunity(
     min = parameters$philm_min, max = parameters$philm_max, a50 = parameters$alm50,
     k = parameters$klm, id = id, idm = idm)
   patent_infections <- bitset_at(infections, bernoulli_multi_p(philm))
+
   incidence_renderer(
     variables$birth,
     renderer,
@@ -335,6 +338,7 @@ calculate_clinical_infections <- function(
   icm <- variables$icm$get_values(infections)
   phi <- clinical_immunity(ica, icm, parameters)
   clinical_infections <- bitset_at(infections, bernoulli_multi_p(phi))
+
   incidence_renderer(
     variables$birth,
     renderer,

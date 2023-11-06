@@ -231,13 +231,20 @@ calculate_infections <- function(
 
     # Subset for new infections/bite infections
     newly_infected <- bitset_at(potential_new_infections_humans, bernoulli_multi_p(prob_new_infections_vector))
-    newly_bite_infected <- bitset_at(potential_new_infections_humans, bernoulli_multi_p(rate_bitten/rate_new_infections_vector[source_vector]))
+    newly_bite_infected <- bitset_at(
+      potential_new_infections_humans,
+      bernoulli_multi_p(rate_bitten/rate_new_infections_vector[source_vector]))$and(newly_infected)
 
     # Add new batches for new bite infections
     variables$hypnozoites$queue_update(
       variables$hypnozoites$get_values(newly_bite_infected) + 1,
       newly_bite_infected
     )
+
+    # Subset to SAU
+    SAU_infections <-variables$state$get_index_of(c('S','A','U'))
+    newly_infected <- newly_infected$and(SAU_infections)
+    newly_bite_infected <- newly_bite_infected$and(SAU_infections)
 
     # Render new infections caused by bites
     renderer$render('n_new_bite_infections', newly_bite_infected$size(), timestep)
@@ -253,8 +260,8 @@ calculate_infections <- function(
       timestep
     )
 
-    new_relapse_infection <- newly_infected$and(newly_bite_infected$not(inplace = F))
     # Render relapse infections
+    new_relapse_infection <- newly_infected$and(newly_bite_infected$not(inplace = F))
     renderer$render('n_new_relapse_infections', new_relapse_infection$size(), timestep)
     incidence_renderer(
       variables$birth,
@@ -267,9 +274,7 @@ calculate_infections <- function(
       parameters$relapse_incidence_rendering_max_ages,
       timestep
     )
-
   }
-
   newly_infected
 }
 

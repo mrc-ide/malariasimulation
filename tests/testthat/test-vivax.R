@@ -273,7 +273,6 @@ test_that('vivax schedule_infections correctly schedules new infections', {
     actual_subpatent_infected,
     c(17, 18, 19, 20)
   )
-
 })
 
 test_that('relapses are recognised', {

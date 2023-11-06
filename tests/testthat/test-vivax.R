@@ -292,7 +292,7 @@ test_that('relapses are recognised', {
     hypnozoites = individual::IntegerVariable$new(c(0, 1, 2, 3))
   )
 
-  bernoulli_mock <- mockery::mock(3, cycle = TRUE)
+  bernoulli_mock <- mockery::mock(c(3,4), 4, cycle = TRUE)
   mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
   bitten_humans <- individual::Bitset$new(4)$insert(c(1, 2, 3, 4))
   renderer <- mock_render(1)
@@ -316,39 +316,33 @@ test_that('relapses are recognised', {
   mockery::expect_args(
     renderer$render_mock(),
     2,
-    'n_relapses',
+    'n_new_relapse_infections',
     1,
     timestep
   )
 
-  mockery::expect_args(
-    renderer$render_mock(),
-    3,
-    'n_infections',
-    2,
-    timestep
-  )
 })
 
-test_that('relapses are recognised', {
+
+test_that('infection division is correct', {
   timestep <- 50
   parameters <- get_parameters(parasite = "vivax")
 
   variables <- list(
     state = individual::CategoricalVariable$new(
       c('D', 'S', 'A', 'U', 'Tr'),
-      c('D', 'S', 'A', 'U')
+      rep("S", 8)
     ),
-    drug = individual::DoubleVariable$new(c(0, 0, 0, 0)),
-    drug_time = individual::DoubleVariable$new(c(-1, -1, -1, -1)),
-    pev_timestep = individual::DoubleVariable$new(c(-1, -1, -1, -1)),
-    pev_profile = individual::IntegerVariable$new(c(-1, -1, -1, -1)),
-    hypnozoites = individual::IntegerVariable$new(c(0, 1, 2, 3))
+    drug = individual::DoubleVariable$new(rep(0, 8)),
+    drug_time = individual::DoubleVariable$new(rep(-1, 8)),
+    pev_timestep = individual::DoubleVariable$new(rep(-1, 8)),
+    pev_profile = individual::IntegerVariable$new(rep(-1, 8)),
+    hypnozoites = individual::IntegerVariable$new(c(rep(0, 4), 1, 1, 50, 50))
   )
 
-  bernoulli_mock <- mockery::mock(3, cycle = TRUE)
+  bernoulli_mock <- mockery::mock(c(3,7,8), 3, cycle = TRUE)
   mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
-  bitten_humans <- individual::Bitset$new(4)$insert(c(1, 2, 3, 4))
+  bitten_humans <- individual::Bitset$new(8)$insert(1:7)
   renderer <- mock_render(1)
 
   infections <- calculate_infections(
@@ -370,16 +364,9 @@ test_that('relapses are recognised', {
   mockery::expect_args(
     renderer$render_mock(),
     2,
-    'n_relapses',
-    1,
-    timestep
-  )
-
-  mockery::expect_args(
-    renderer$render_mock(),
-    3,
-    'n_infections',
+    'n_new_relapse_infections',
     2,
     timestep
   )
+
 })

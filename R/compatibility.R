@@ -229,7 +229,7 @@ set_equilibrium <- function(parameters, init_EIR, eq_params = NULL, age_vector) 
 
 
     # if(parameters$equilibrium == "Nora"){
-    eq2 <-
+    eq <-
       malariaEquilibriumVivax::vivax_equilibrium_init_create_combined(
         age = EQUILIBRIUM_AGES,
         ft = sum(get_treatment_coverages(parameters, 1)),

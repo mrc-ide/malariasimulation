@@ -209,36 +209,36 @@ calculate_infections <- function(
 
     # Convert prob of infected bite to rate
     rate_bitten <- prob_to_rate(prob)
-
-    # Subset humans with potential relapses
-    with_hypnozoites <- variables$hypnozoites$get_index_of(0)$not(TRUE)
-    with_hypnozoites_vector <- with_hypnozoites$to_vector()
+    rate_bitten_complete <- c(rep(0, parameters$human_population))
+    rate_bitten_complete[source_humans$to_vector()] <- rate_bitten
 
     # Get rates/probs of relapse
-    rate_relapse <- variables$hypnozoites$get_values(with_hypnozoites) * parameters$f
+    rate_relapse <- variables$hypnozoites$get_values() * parameters$f
     prob_relapse <- rate_to_prob(rate_relapse)
 
-    # Humans with potential new infections
-    potential_new_infections_humans <- source_humans$or(with_hypnozoites)
+    # Combine and relative rates, convert to prob
+    rate_infection_complete <- rate_bitten_complete + rate_relapse
+    prob_new_infections <- rate_to_prob(rate_infection_complete[rate_infection_complete!=0])
+    relative_rate <- c(rate_bitten_complete/rate_infection_complete)[rate_infection_complete!=0]
 
-    # Sum rates of bite infection and relapses
-    rate_new_infections_vector <- rep(0, parameters$human_population)
-    rate_new_infections_vector[source_vector] <- rate_bitten
-    rate_new_infections_vector[with_hypnozoites_vector] <- rate_new_infections_vector[with_hypnozoites_vector] + rate_relapse
-    rate_new_infections_vector <- rate_new_infections_vector[rate_new_infections_vector>0]
-    # Convert total rate of new infection to probability
-    prob_new_infections_vector <- rate_to_prob(rate_new_infections_vector)
+    # Humans with hypnozoites and potential for new infections
+    with_hypnozoites <- variables$hypnozoites$get_index_of(0)$not(TRUE)
+    potential_new_infections_humans <- source_humans$copy()$or(with_hypnozoites)
 
     # Subset for new infections/bite infections
-    newly_infected <- bitset_at(potential_new_infections_humans, bernoulli_multi_p(prob_new_infections_vector))
+    newly_infected <- bitset_at(potential_new_infections_humans, bernoulli_multi_p(prob_new_infections))
     newly_bite_infected <- bitset_at(
       potential_new_infections_humans,
-      bernoulli_multi_p(rate_bitten/rate_new_infections_vector[source_vector]))$and(newly_infected)
+      bernoulli_multi_p(relative_rate))$and(newly_infected)
+
+    # Cap batchaes at 10
+    can_increase_batches <- variables$hypnozoites$get_index_of(
+      a = 0, b = 9)
 
     # Add new batches for new bite infections
     variables$hypnozoites$queue_update(
-      variables$hypnozoites$get_values(newly_bite_infected) + 1,
-      newly_bite_infected
+      variables$hypnozoites$get_values(can_increase_batches$and(newly_bite_infected)) + 1,
+      can_increase_batches$and(newly_bite_infected)
     )
 
     # Subset to SAU
@@ -261,7 +261,7 @@ calculate_infections <- function(
     )
 
     # Render relapse infections
-    new_relapse_infection <- newly_infected$and(newly_bite_infected$not(inplace = F))
+    new_relapse_infection <- newly_infected$copy()$and(newly_bite_infected$not(inplace = F))
     renderer$render('n_new_relapse_infections', new_relapse_infection$size(), timestep)
     incidence_renderer(
       variables$birth,
@@ -275,6 +275,7 @@ calculate_infections <- function(
       timestep
     )
   }
+
   newly_infected
 }
 
@@ -294,12 +295,15 @@ calculate_patent_infections <- function(
     renderer,
     timestep
 ) {
+
   id <- variables$id$get_values(infections)
   idm <- variables$idm$get_values(infections)
+
   philm <- anti_parasite_immunity(
     min = parameters$philm_min, max = parameters$philm_max, a50 = parameters$alm50,
     k = parameters$klm, id = id, idm = idm)
   patent_infections <- bitset_at(infections, bernoulli_multi_p(philm))
+
   incidence_renderer(
     variables$birth,
     renderer,
@@ -334,6 +338,7 @@ calculate_clinical_infections <- function(
   icm <- variables$icm$get_values(infections)
   phi <- clinical_immunity(ica, icm, parameters)
   clinical_infections <- bitset_at(infections, bernoulli_multi_p(phi))
+
   incidence_renderer(
     variables$birth,
     renderer,
@@ -490,7 +495,7 @@ schedule_infections <- function(
 
   # falciparum infection can result in D or A
   if(parameters$parasite == "falciparum"){
-    to_infect_asym <- clinical_infections$not(FALSE)$and(included)$and(infections)
+    to_infect_asym <- clinical_infections$copy()$not(FALSE)$and(infections)$and(included)
 
     if(to_infect_asym$size() > 0) {
       # falciparum has age- and immunity-dependent asymptomatic infectivity
@@ -503,8 +508,9 @@ schedule_infections <- function(
 
     # vivax infection can result in D, A or U
   } else if (parameters$parasite == "vivax"){
-    to_infect_asym <- clinical_infections$not(FALSE)$and(included)$and(patent_infections)$and(infections)
-    to_infect_subpatent <- patent_infections$not(FALSE)$and(infections)
+
+    to_infect_subpatent <- infections$and(patent_infections$not(inplace = F))$and(included)$and(variables$state$get_index_of(c('S','U')))
+    to_infect_asym <- patent_infections$and(included)$and(clinical_infections$not(inplace = F))
 
     if(to_infect_asym$size() > 0) {
       # vivax has constant asymptomatic infectivity

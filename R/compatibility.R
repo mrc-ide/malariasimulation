@@ -219,22 +219,31 @@ set_equilibrium <- function(parameters, init_EIR, eq_params = NULL, age_vector) 
 
   } else if (parameters$parasite == "vivax"){
 
-    if(parameters$equilibrium == "Nora"){
-      eq <-
-        vivax_equilibrium_init_create(
-          age = EQUILIBRIUM_AGES,
-          ft = sum(get_treatment_coverages(parameters, 1)),
-          EIR = init_EIR,
-          p = parameters,
-          K_max = 10,
-          # MW_age_rates_prop = T,
-          use_mid_ages = T,
-          malariasimulationoutput = T
-          # divide_omega = T
+    # malariaEquilibriumVivax::vivax_equilibrium(
+    # eq <- vivax_equilibrium(
+    #   age = EQUILIBRIUM_AGES,
+    #   ft = sum(get_treatment_coverages(parameters, 1)),
+    #   EIR = init_EIR,
+    #   p = parameters
+    # )
 
-        )} else if(parameters$equilibrium == "Michael"){
+
+    # if(parameters$equilibrium == "Nora"){
+    eq2 <-
+      malariaEquilibriumVivax::vivax_equilibrium_init_create(
+        age = EQUILIBRIUM_AGES,
+        ft = sum(get_treatment_coverages(parameters, 1)),
+        EIR = init_EIR,
+        p = parameters,
+        K_max = 10,
+        # MW_age_rates_prop = T,
+        use_mid_ages = T,
+        malariasimulationoutput = T)
+        # divide_omega = T
+
+      # )} else if(parameters$equilibrium == "Michael"){
           # To fill
-        }
+        # }
 
 ## Nora's equilibrium
     # eq <- equilibrium_init_create(age = age_vector,
@@ -264,7 +273,6 @@ set_equilibrium <- function(parameters, init_EIR, eq_params = NULL, age_vector) 
     #   age = EQUILIBRIUM_AGES,
     #   h = malariaEquilibriumVivax::gq_normal(parameters$n_heterogeneity_groups)
     # )
-
     parameters <- c(
       list(
         init_foim = eq$FOIM,

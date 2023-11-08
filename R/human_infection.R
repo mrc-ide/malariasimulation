@@ -233,20 +233,22 @@ calculate_infections <- function(
       potential_new_infections_humans,
       bernoulli_multi_p(relative_rate))$and(newly_infected)
 
-    can_increase_batches_above_cap <- variables$hypnozoites$get_index_of(
-      variables$hypnozoites$get_values(newly_bite_infected)<10)
+    can_increase_batches <- variables$hypnozoites$get_index_of(
+      a = 0, b = 9)
 
     # Add new batches for new bite infections
     variables$hypnozoites$queue_update(
-      variables$hypnozoites$get_values(can_increase_batches_above_cap$and(newly_bite_infected)) + 1,
-      can_increase_batches_above_cap$and(newly_bite_infected)
+      variables$hypnozoites$get_values(can_increase_batches$and(newly_bite_infected)) + 1,
+      # variables$hypnozoites$get_values(newly_bite_infected) + 1,
+      can_increase_batches$and(newly_bite_infected)
+      # newly_bite_infected
     )
 
     # Subset to SAU
     SAU_infections <-variables$state$get_index_of(c('S','A','U'))
     newly_infected <- newly_infected$and(SAU_infections)
     newly_bite_infected <- newly_bite_infected$and(SAU_infections)
-
+    # browser()
     # Render new infections caused by bites
     renderer$render('n_new_bite_infections', newly_bite_infected$size(), timestep)
     incidence_renderer(
@@ -260,9 +262,9 @@ calculate_infections <- function(
       parameters$new_bite_incidence_rendering_max_ages,
       timestep
     )
-
+    # browser()
     # Render relapse infections
-    new_relapse_infection <- newly_infected$and(newly_bite_infected$not(inplace = F))
+    new_relapse_infection <- newly_infected$copy()$and(newly_bite_infected$not(inplace = F))
     renderer$render('n_new_relapse_infections', new_relapse_infection$size(), timestep)
     incidence_renderer(
       variables$birth,
@@ -276,6 +278,7 @@ calculate_infections <- function(
       timestep
     )
   }
+  # browser()
   newly_infected
 }
 

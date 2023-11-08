@@ -82,14 +82,14 @@ create_variables <- function(parameters) {
           EQUILIBRIUM_AGES
         ))
       } else if (parameters$parasite == "vivax"){
-        # Falciparum equivalent
-        # eq <-	list(malariaEquilibriumVivax::human_equilibrium_no_het(
-        #   parameters$init_EIR,
-        #   sum(get_treatment_coverages(parameters, 0)),
-        #   parameters,
-        #   EQUILIBRIUM_AGES
-        # ))
-        eq <- vivax_equilibrium_init_create(
+        # eq <- vivax_equilibrium(
+        #   age = EQUILIBRIUM_AGES,
+        #   ft = sum(get_treatment_coverages(parameters, 1)),
+        #   EIR = parameters$init_EIR,
+        #   p = parameters
+        # )$states
+
+        eq <- malariaEquilibriumVivax::vivax_equilibrium_init_create_combined(
           age = EQUILIBRIUM_AGES,
           ft = sum(get_treatment_coverages(parameters, 0)),
           EIR = parameters$init_EIR, p = parameters, K_max = 10,
@@ -204,6 +204,7 @@ create_variables <- function(parameters) {
     )
 
     # Hypnozoite - initial immunity function used to initiate hypnozoites
+    # browser()
     hypnozoites <- individual::IntegerVariable$new(
       initial_hypnozoites(
         parameters$init_hyp,
@@ -370,6 +371,7 @@ initial_immunity <- function(
     return(vnapply(
       seq_along(age),
       function(i) {
+        # browser()
         g <- groups[[i]]
         a <- age[[i]]
         eq[[g]][which.max(a < eq[[g]][, 'age']), eq_name]
@@ -406,6 +408,7 @@ initial_hypnozoites <- function(parameter, age, groups, eq){
     return(vnapply(
       seq_along(age),
       function(i) {
+        # browser()
         g <- groups[[i]]
         a <- age[[i]]
         hyp <- rpois(n = 1, lambda = eq[[g]][which.max(a < eq[[g]][, 'age']), "HH"])
@@ -448,19 +451,7 @@ calculate_eq <- function(het_nodes, parameters) {
     )
 
   } else if (parameters$parasite == "vivax"){
-    # falciparum equivalent
-    # Test <- lapply(
-    #   het_nodes,
-    #   function(n) {
-    #     malariaEquilibriumVivax::human_equilibrium_no_het(
-    #       parameters$init_EIR * calculate_zeta(n, parameters),
-    #       ft,
-    #       parameters,
-    #       EQUILIBRIUM_AGES
-    #     )
-    #   }
-    # )
-    eq <- vivax_equilibrium_init_create(
+    eq <- malariaEquilibriumVivax::vivax_equilibrium_init_create_combined(
       age = EQUILIBRIUM_AGES,
       ft = sum(get_treatment_coverages(parameters, 0)),
       EIR = parameters$init_EIR,
@@ -470,6 +461,12 @@ calculate_eq <- function(het_nodes, parameters) {
       malariasimulationoutput = T
       # divide_omega = T
     )$ret
+    # eq <- vivax_equilibrium(
+    #   age = EQUILIBRIUM_AGES,
+    #   ft = sum(get_treatment_coverages(parameters, 1)),
+    #   EIR = parameters$init_EIR,
+    #   p = parameters
+    # )$states
   }
 }
 

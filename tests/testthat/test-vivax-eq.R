@@ -178,3 +178,14 @@ test_that('Initial immunities are consistent with equilibrium', {
 # # ggsave("../Malaria_Vivax_Projects/MalariaVivaxProjects/Analysis/Equilibrium_function_across_EIR.pdf", eq_plot,
 # #        height = 8, width = 15, limitsize = F)
 # #
+
+
+test_that('vivax equilibrium works with multiple species', {
+  skip_on_ci()
+
+  simparams_pv <- get_parameters(parasite="vivax")
+  params_species_pv <- set_species(parameters = simparams_pv,
+                                   species = list(arab_params, fun_params, gamb_params),
+                                   proportions = c(0.1,0.3,0.6))
+  expect_no_error(set_equilibrium(params_species_pv, 6))
+})

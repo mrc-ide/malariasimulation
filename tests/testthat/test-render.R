@@ -30,7 +30,7 @@ test_that('that default rendering works', {
     3,
     timestep
   )
-  
+
   mockery::expect_args(
     renderer$render_mock(),
     2,
@@ -38,7 +38,7 @@ test_that('that default rendering works', {
     3,
     timestep
   )
-  
+
   mockery::expect_args(
     renderer$render_mock(),
     3,
@@ -154,6 +154,85 @@ test_that('that clinical incidence rendering works', {
     6,
     'p_inc_clinical_730_3650',
     .6,
+    timestep
+  )
+})
+
+test_that('that multiple ages are rendered', {
+  timestep <- 0
+
+  parameters <- get_parameters(
+    parasite = "vivax",
+    overrides = list(prevalence_rendering_min_ages = c(2,11) * 365,
+                     prevalence_rendering_max_ages = c(10,50) * 365))
+
+  state <- individual::CategoricalVariable$new(
+    c('U', 'A', 'D', 'S', 'Tr'),
+    c('U', 'A', 'D', 'S', 'U', 'A', 'D')
+  )
+  birth <- individual::IntegerVariable$new(
+    -c(2, 5, 10, 11, 15, 38, 98) * 365
+  )
+  immunity <- individual::DoubleVariable$new(rep(1, 4))
+
+  renderer <- mock_render(1)
+  process <- create_prevelance_renderer(
+    state,
+    birth,
+    immunity,
+    parameters,
+    renderer
+  )
+
+  mockery::stub(process, 'probability_of_detection', mockery::mock(.5))
+  mockery::stub(process, 'bernoulli_multi_p', mockery::mock(1))
+  process(timestep)
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    1,
+    'n_730_3650',
+    3,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    2,
+    'n_detect_pcr_730_3650',
+    3,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    3,
+    'n_detect_lm_730_3650',
+    2,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    4,
+    'n_4015_18250',
+    3,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    5,
+    'n_detect_pcr_4015_18250',
+    2,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    6,
+    'n_detect_lm_4015_18250',
+    1,
     timestep
   )
 })

@@ -306,6 +306,8 @@
 #' @export
 get_parameters <- function(overrides = list(), parasite = "falciparum") {
 
+  if(!parasite %in% c("falciparum","vivax")){stop("parasite must be 'falciparum' or 'vivax'")}
+
   parameters <- c(
     ## Parasite-specific parameters set in parasite_parameters.csv
     # human fixed state transitions

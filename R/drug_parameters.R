@@ -71,7 +71,8 @@ white_ACT_TQ_params <- list("vivax", c(1, 1, 1, 1/60, 1, 60))
 #' @param drugs a list of drug parameters, can be set using presets
 #' @export
 set_drugs <- function(parameters, drugs) {
-  stopifnot(is.list(drugs))
+  stopifnot("is.list(drugs) is not TRUE" = is.list(drugs))
+  stopifnot("is.list(drugs) is not TRUE" = any(unlist(lapply(drugs, is.list))))
   keys <- c(
     'drug_efficacy',
     'drug_rel_c',

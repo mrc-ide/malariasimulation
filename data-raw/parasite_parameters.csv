@@ -85,3 +85,4 @@ vivax,dem,8.4,
 vivax,f,0.024,
 vivax,gammal,0.0026,
 vivax,init_hyp,0,
+vivax,kmax,10

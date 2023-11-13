@@ -2,7 +2,7 @@ vnapply <- function(X, FUN, ...) vapply(X, FUN, ..., numeric(1))
 vlapply <- function(X, FUN, ...) vapply(X, FUN, ..., logical(1))
 vcapply <- function(X, FUN, ...) vapply(X, FUN, ..., character(1))
 
-#' @importFrom stats rbinom 
+#' @importFrom stats rbinom
 bernoulli <- function(size, p) sample.int(size, rbinom(1, size, min(p, 1)))
 
 sample_bitset <- function(b, rate) {
@@ -63,4 +63,12 @@ rtexp <- function(n, m, t) { itexp(runif(n), m, t) }
 #'@noRd
 match_timestep <- function(ts, t) {
   min(sum(ts <= t), length(ts))
+}
+
+prob_to_rate <- function(prob){
+  -log(1 - prob)
+}
+
+rate_to_prob <- function(rate){
+  1- exp(-rate)
 }

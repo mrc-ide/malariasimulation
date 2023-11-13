@@ -41,7 +41,6 @@
 #' * init_icm - the immunity from clinical disease at birth; default = 0
 #' * init_iva - the initial acquired immunity from severe disease (p.f only); default = 0
 #' * init_ivm - the immunity from severe disease at birth (p.f only); default = 0
-
 #'
 #' immunity boost grace periods:
 #'
@@ -88,7 +87,7 @@
 #' * ic0lm - scale parameter; default = 27.52
 #' * kclm - shape parameter; default = 2.403
 #'
-#' probability of clinical infection
+#' probability of clinical infection:
 #'
 #' * phi0 - maximum probability due to no immunity; default = 0.792
 #' * phi1 - maximum reduction due to immunity; default = 0.00074
@@ -149,17 +148,17 @@
 #' * t_proportion - the proportion of `human_population` that begin treated; default = 0
 #'
 #' rendering:
-#' All values are in timesteps and all ranges are inclusive
-#' please set rendered age groups using the convenience function
+#' All values are in timesteps and all ranges are inclusive.
+#' Please set rendered age groups using the convenience function
 #' `set_demography`
 #'
-#' * age_group_rendering_min_ages - the minimum ages for population size outputs; default = numeric(0)
-#' * age_group_rendering_max_ages - the corresponding max ages; default = numeric(0)
+#' * age_group_rendering_min_ages - the minimum ages for population size outputs; default = turned off
+#' * age_group_rendering_max_ages - the corresponding max ages; default = turned off
 #' * prevalence_rendering_min_ages - the minimum ages for clinical prevalence
-#' outputs; default = 730
+#' outputs (pcr and lm detectable infections); default = 730
 #' * prevalence_rendering_max_ages - the corresponding max ages; default = 3650
 #' * incidence_rendering_min_ages - the minimum ages for incidence
-#' outputs (includes asymptomatic microscopy +); default = turned off
+#' outputs (pf: D+Tr+A, pv: D+Tr+A+U); default = turned off
 #' * incidence_rendering_max_ages - the corresponding max ages; default = turned off
 #' * patent_incidence_rendering_min_ages - the minimum ages for patent incidence outputs (LM detectable), (p.v only); default = numeric(0)
 #' * patent_incidence_rendering_max_ages - the corresponding max ages (p.v only); default = 1825
@@ -309,6 +308,8 @@
 #' @export
 get_parameters <- function(overrides = list(), parasite = "falciparum") {
 
+  if(!parasite %in% c("falciparum","vivax")){stop("parasite must be 'falciparum' or 'vivax'")}
+
   parameters <- c(
     ## Parasite-specific parameters set in parasite_parameters.csv
     # human fixed state transitions
@@ -318,7 +319,7 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
     # maternal immunity parameters
     # immunity decay rates
     # probability of pre-erythrocytic infection/blood immunity
-    # probability of asymptomatic detection/detectbility immunity
+    # probability of asymptomatic detection/detectability immunity
     # probability of asymptomatic infection/antiparasite immunity
     # probability of clinical infection/clinical immunity
     # probability of severe infection/severe disease immunity
@@ -364,7 +365,6 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       new_bite_incidence_rendering_max_ages = numeric(0),
       relapse_incidence_rendering_min_ages = numeric(0),
       relapse_incidence_rendering_max_ages = numeric(0),
-
 
       # mosquito life stage transitions
       del =  6.64,

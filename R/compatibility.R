@@ -121,7 +121,7 @@ back_translations = list(
 )
 
 #' @description translate parameter keys from the malariaEquilibrium format
-#' to ones compatible with this IBM 
+#' to ones compatible with this IBM
 #' @param params with keys in the malariaEquilibrium format
 #' @noRd
 translate_equilibrium <- function(params) {
@@ -163,7 +163,7 @@ translate_parameters <- function(params) {
 }
 
 #' @title remove parameter keys from the malariaEquilibrium format that are not used
-#' in this IBM 
+#' in this IBM
 #' @param params with keys in the malariaEquilibrium format
 #' @noRd
 remove_unused_equilibrium <- function(params) {
@@ -189,29 +189,97 @@ remove_unused_equilibrium <- function(params) {
 #' @param eq_params parameters from the malariaEquilibrium package, if null.
 #' The default malariaEquilibrium parameters will be used
 #' @export
-set_equilibrium <- function(parameters, init_EIR, eq_params = NULL) {
-  if (is.null(eq_params)) {
-    eq_params <- translate_parameters(parameters)
-  } else {
+set_equilibrium <- function(parameters, init_EIR, eq_params = NULL, age_vector) {
+  if(parameters$parasite == "falciparum"){
+    if (is.null(eq_params)) {
+      eq_params <- translate_parameters(parameters)
+    } else {
+      parameters <- c(
+        translate_equilibrium(remove_unused_equilibrium(eq_params)),
+        parameters
+      )
+    }
+    eq <- malariaEquilibrium::human_equilibrium(
+      EIR = init_EIR,
+      ft = sum(get_treatment_coverages(parameters, 1)),
+      p = eq_params,
+      age = EQUILIBRIUM_AGES,
+      h = malariaEquilibrium::gq_normal(parameters$n_heterogeneity_groups)
+    )
+
     parameters <- c(
-      translate_equilibrium(remove_unused_equilibrium(eq_params)),
+      list(
+        init_foim = eq$FOIM,
+        init_EIR = init_EIR,
+        eq_params = eq_params
+      ),
+      parameters
+    )
+
+  } else if (parameters$parasite == "vivax"){
+
+    # malariaEquilibriumVivax::vivax_equilibrium(
+    # eq <- vivax_equilibrium(
+    #   age = EQUILIBRIUM_AGES,
+    #   ft = sum(get_treatment_coverages(parameters, 1)),
+    #   EIR = init_EIR,
+    #   p = parameters
+    # )
+
+
+    # if(parameters$equilibrium == "Nora"){
+    eq <-
+      malariaEquilibriumVivax::vivax_equilibrium_init_create_combined(
+        age = EQUILIBRIUM_AGES,
+        ft = sum(get_treatment_coverages(parameters, 1)),
+        EIR = init_EIR,
+        p = parameters,
+        K_max = 10,
+        # MW_age_rates_prop = T,
+        use_mid_ages = T,
+        malariasimulationoutput = T)
+        # divide_omega = T
+
+      # )} else if(parameters$equilibrium == "Michael"){
+          # To fill
+        # }
+
+## Nora's equilibrium
+    # eq <- equilibrium_init_create(age = age_vector,
+    #                               ft = sum(get_treatment_coverages(parameters, 1)),
+    #                               EIR = init_EIR,
+    #                               p = parameters)
+
+    ## Compiled equilibrium
+    # eq <-
+    #   vivax_equilibrium_init_create_combined(
+    #     age = EQUILIBRIUM_AGES,
+    #     ft = 0,
+    #     EIR = init_EIR,
+    #     p = parameters,
+    #     K_max = 10,
+    #     # MW_age_rates_prop = T,
+    #     use_mid_ages = T,
+    #     malariasimulationoutput = T
+    #     # divide_omega = T
+    #   )
+
+    ## Falciparum adapted equilibrium
+    # eq <- malariaEquilibriumVivax::human_equilibrium(
+    #   EIR = init_EIR,
+    #   ft = sum(get_treatment_coverages(parameters, 1)),
+    #   p = parameters,
+    #   age = EQUILIBRIUM_AGES,
+    #   h = malariaEquilibriumVivax::gq_normal(parameters$n_heterogeneity_groups)
+    # )
+    parameters <- c(
+      list(
+        init_foim = eq$FOIM,
+        init_EIR = init_EIR
+      ),
       parameters
     )
   }
-  eq <- malariaEquilibrium::human_equilibrium(
-    EIR = init_EIR,
-    ft = sum(get_treatment_coverages(parameters, 1)),
-    p = eq_params,
-    age = EQUILIBRIUM_AGES,
-    h = malariaEquilibrium::gq_normal(parameters$n_heterogeneity_groups)
-  )
-  parameters <- c(
-    list(
-      init_foim = eq$FOIM,
-      init_EIR = init_EIR,
-      eq_params = eq_params
-    ),
-    parameters
-  )
+
   parameterise_mosquito_equilibrium(parameters, init_EIR)
 }

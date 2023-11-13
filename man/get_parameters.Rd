@@ -91,7 +91,7 @@ probability of lm-detectability/asymptomatic infection (p.v only):
 \item kclm - shape parameter; default = 2.403
 }
 
-probability of clinical infection
+probability of clinical infection/clinical immunity:
 \itemize{
 \item phi0 - maximum probability due to no immunity; default = 0.792
 \item phi1 - maximum reduction due to immunity; default = 0.00074
@@ -161,17 +161,17 @@ subpatents; default = 0.133028023
 }
 
 rendering:
-All values are in timesteps and all ranges are inclusive
-please set rendered age groups using the convenience function
+All values are in timesteps and all ranges are inclusive.
+Please set rendered age groups using the convenience function
 \code{set_demography}
 \itemize{
-\item age_group_rendering_min_ages - the minimum ages for population size outputs; default = numeric(0)
-\item age_group_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item age_group_rendering_min_ages - the minimum ages for population size outputs; default = turned off
+\item age_group_rendering_max_ages - the corresponding max ages; default = turned off
 \item prevalence_rendering_min_ages - the minimum ages for clinical prevalence
-outputs; default = 730
+outputs (pcr and lm detectable infections); default = 730
 \item prevalence_rendering_max_ages - the corresponding max ages; default = 3650
 \item incidence_rendering_min_ages - the minimum ages for incidence
-outputs (includes asymptomatic microscopy +); default = turned off
+outputs (pf: D+Tr+A, pv: D+Tr+A+U); default = turned off
 \item incidence_rendering_max_ages - the corresponding max ages; default = turned off
 \item patent_incidence_rendering_min_ages - the minimum ages for patent incidence outputs (LM detectable), (p.v only); default = numeric(0)
 \item patent_incidence_rendering_max_ages - the corresponding max ages (p.v only); default = 1825

@@ -43,27 +43,27 @@ create_processes <- function(
     # Acquired immunity to detectability
     create_exponential_decay_process(variables$id, parameters$rid)
   )
-  
+
   if(parameters$parasite == "falciparum"){
     processes <- c(
-      processes, 
+      processes,
       # Severe maternal and acquired immunity
       create_exponential_decay_process(variables$ivm, parameters$rvm),
       create_exponential_decay_process(variables$iva, parameters$rva),
       # Blood immunity
       create_exponential_decay_process(variables$ib, parameters$rb)
     )
-    
+
   } else if (parameters$parasite == "vivax"){
     processes <- c(
-      processes, 
+      processes,
       # Maternal immunity to detectability
       create_exponential_decay_process(variables$idm, parameters$rm),
       # Hypnozoite clearance
       create_hypnozoite_decay_process(variables$hypnozoites, parameters$gammal, renderer)
     )
   }
-  
+
   if (parameters$individual_mosquitoes) {
     processes <- c(
       processes,
@@ -76,7 +76,7 @@ create_processes <- function(
       )
     )
   }
-  
+
   # ==============================
   # Biting and mortality processes
   # ==============================
@@ -113,7 +113,7 @@ create_processes <- function(
         parameters$da,
         variables$infectivity,
         parameters$ca
-      )  
+      )
     },
     create_progression_process(
       variables$state,
@@ -147,7 +147,7 @@ create_processes <- function(
       0
     )
   )
-  
+
   # ===============
   # ODE integration
   # ===============
@@ -155,7 +155,7 @@ create_processes <- function(
     processes,
     create_solver_stepping_process(solvers, parameters)
   )
-  
+
   # =========
   # RTS,S EPI
   # =========
@@ -172,7 +172,7 @@ create_processes <- function(
       )
     )
   }
-  
+
   # =========
   # PMC
   # =========
@@ -191,19 +191,19 @@ create_processes <- function(
       )
     )
   }
-  
+
   # =========
   # Rendering
   # =========
-  
+
   imm_var_names <- c('ica','icm','id')
   if(parameters$parasite == "falciparum"){
     imm_var_names <- c(imm_var_names,'ib','iva','ivm')
-    
+
   } else if(parameters$parasite == "vivax"){
     ## Add hypnozoite batches to average renderer vector
     imm_var_names <- c(imm_var_names,'idm',"hypnozoites")
-    
+
     ## Render age-stratified with hypnozoites
     processes <- c(
       processes,
@@ -214,7 +214,7 @@ create_processes <- function(
       )
     )
   }
-  
+
   processes <- c(
     processes,
     individual::categorical_count_renderer_process(
@@ -247,7 +247,7 @@ create_processes <- function(
     ),
     create_compartmental_rendering_process(renderer, solvers, parameters)
   )
-  
+
   if (parameters$individual_mosquitoes) {
     processes <- c(
       processes,
@@ -269,11 +269,11 @@ create_processes <- function(
       )
     )
   }
-  
+
   # ======================
   # Intervention processes
   # ======================
-  
+
   if (parameters$bednets) {
     processes <- c(
       processes,
@@ -286,14 +286,14 @@ create_processes <- function(
       net_usage_renderer(variables$net_time, renderer)
     )
   }
-  
+
   if (parameters$spraying) {
     processes <- c(
       processes,
       indoor_spraying(variables$spray_time, parameters, correlations)
     )
   }
-  
+
   # ======================
   # Progress bar process
   # ======================
@@ -303,7 +303,7 @@ create_processes <- function(
       create_progress_process(timesteps)
     )
   }
-  
+
   processes
 }
 
@@ -327,7 +327,7 @@ create_exponential_decay_process <- function(variable, rate) {
 #' @title Create and initialise lagged_infectivity object
 #'
 #' @param variables model variables for initialisation
-#' @param parameters model parameters 
+#' @param parameters model parameters
 #' @noRd
 create_lagged_infectivity <- function(variables, parameters) {
   age <- get_age(variables$birth$get_values(), 0)
@@ -344,7 +344,7 @@ create_lagged_infectivity <- function(variables, parameters) {
 #'
 #' @param variables model variables for initialisation
 #' @param solvers model differential equation solvers
-#' @param parameters model parameters 
+#' @param parameters model parameters
 #' @noRd
 create_lagged_eir <- function(variables, solvers, parameters) {
   lapply(
@@ -373,8 +373,8 @@ create_lagged_eir <- function(variables, solvers, parameters) {
 #' @noRd
 create_hypnozoite_decay_process <- function(hypnozoites, gammal, renderer){
   function(timestep){
-    if(hypnozoites$get_size_of(0)>0){
-      hyp_bitset <- hypnozoites$get_index_of(0)$not(TRUE)
+    hyp_bitset <- hypnozoites$get_index_of(0)$not()
+    if(hyp_bitset$size()>0){
       n_hypnozoites <- hypnozoites$get_values(index = hyp_bitset)
       hypozoite_decay <- vnapply(
         n_hypnozoites,

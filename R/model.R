@@ -11,7 +11,7 @@
 #'  * infectivity: the infectivity from humans towards mosquitoes
 #'  * FOIM: the force of infection towards mosquitoes (per species)
 #'  * mu: the death rate of adult mosquitoes (per species)
-#'  * EIR: the Entomological Inoculation Rate (per timestep, per species, over 
+#'  * EIR: the Entomological Inoculation Rate (per timestep, per species, over
 #'  the whole population)
 #'  * n_bitten: number of humans bitten by an infectious mosquito
 #'  * n_treated: number of humans treated for clinical or severe malaria at this timestep
@@ -31,17 +31,17 @@
 #'  * n: number of humans between an inclusive age range at this timestep. This
 #' defaults to n_730_3650. Other age ranges can be set with
 #' prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
-#'  * n_detect: number of humans with an infection detectable by microscopy between an inclusive age range at this timestep. This
-#' defaults to n_detect_730_3650. Other age ranges can be set with
+#'  * n_detect_pcr: number of humans with an infection detectable by pcr between an inclusive age range at this timestep. This
+#' defaults to n_detect_pcr_730_3650. Other age ranges can be set with
 #' prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
-#'  * p_detect: the sum of probabilities of detection by microscopy between an
+#'  * n_detect_lm: number of humans with an infection detectable by light microscopy between an inclusive age range at this timestep. This
+#' defaults to n_detect_lm_730_3650. Other age ranges can be set with
+#' prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
+#'  * p_detect_lm: the sum of probabilities of detection by light microscopy between an
 #' inclusive age range at this timestep. This
-#' defaults to p_detect_730_3650. Other age ranges can be set with
+#' defaults to p_detect_lm_730_3650. Other age ranges can be set with
 #' prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
-#'  * n_severe: number of humans with a severe infection between an inclusive
-#' age range at this timestep. Age ranges can be set with
-#' severe_prevalence_rendering_min_ages and severe_prevalence_rendering_max_ages parameters.
-#'  * n_inc: number of new infections (p.v: including relapses) for humans between an inclusive age range at this timestep.
+#'  * n_inc: number of new infections for humans between an inclusive age range at this timestep.
 #' incidence columns can be set with
 #' incidence_rendering_min_ages and incidence_rendering_max_ages parameters.
 #'  * p_inc: sum of probabilities of infection (p.v: including relapses) for humans between an inclusive age range at this timestep.
@@ -59,16 +59,16 @@
 #'  * p_inc_relapse: sum of probabilities of hypnozoite relapses for humans between an inclusive age range at this timestep (p.v. only).
 #' incidence relapse columns can be set with
 #' relapse_incidence_rendering_min_ages and relapse_incidence_rendering_max_ages parameters.
-#'  * n_inc_patent: number of new patent infections for humans between an inclusive age range at this timestep (p.v. only). 
+#'  * n_inc_patent: number of new patent infections for humans between an inclusive age range at this timestep (p.v. only).
 #' patent incidence columns can be set with
 #' patent_incidence_rendering_min_ages and patent_incidence_rendering_max_ages parameters.
-#'  * p_inc_patent: sub of probabilities of patent infection for humans between an inclusive age range at this timestep (p.v. only). 
+#'  * p_inc_patent: sub of probabilities of patent infection for humans between an inclusive age range at this timestep (p.v. only).
 #' patent incidence columns can be set with
 #' patent_incidence_rendering_min_ages and patent_incidence_rendering_max_ages parameters.
-#'  * n_inc_clinical: number of new clinical infections for humans between an inclusive age range at this timestep. 
+#'  * n_inc_clinical: number of new clinical infections for humans between an inclusive age range at this timestep.
 #' clinical incidence columns can be set with
 #' clinical_incidence_rendering_min_ages and clinical_incidence_rendering_max_ages parameters.
-#'  * p_inc_clinical: sub of probabilities of clinical infection for humans between an inclusive age range at this timestep. 
+#'  * p_inc_clinical: sub of probabilities of clinical infection for humans between an inclusive age range at this timestep.
 #' clinical incidence columns can be set with
 #' clinical_incidence_rendering_min_ages and clinical_incidence_rendering_max_ages parameters.
 #'  * n_inc_severe: number of new severe infections for humans between an inclusive age range at this timestep.
@@ -151,7 +151,7 @@ run_simulation <- function(
 #' @param correlations a list of correlation parameters for each population
 #' (default: NULL)
 #' @param mixing matrix of mixing coefficients for infectivity towards
-#' mosquitoes. Rows = origin sites, columns = destinations. Each element must 
+#' mosquitoes. Rows = origin sites, columns = destinations. Each element must
 #' be between 0 and 1 and all rows must sum to 1.
 #' @return a list of dataframe of results
 #' @export
@@ -237,7 +237,7 @@ run_metapop_simulation <- function(
     events = unlist(events),
     timesteps = timesteps
   )
-  
+
   lapply(renderer, function(r) r$to_dataframe())
 }
 

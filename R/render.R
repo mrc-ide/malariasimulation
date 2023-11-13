@@ -3,28 +3,31 @@ in_age_range <- function(birth, timestep, lower, upper) {
 }
 
 #' @title Render prevalence statistics
-#' 
+#'
 #' @description renders prevalence numerators and denominators for individuals
-#' detected by microscopy and with severe malaria
-#' 
+#' detected by lm microscopy and pcr, where those infected asymptomatically by
+#' P. falciparum have reduced probability of infection due to detectability
+#' immunity (reported as an integer sample (n_detect_lm_) and summing over
+#' detection probabilities: p_detect_lm)
+#'
 #' @param state human infection state
 #' @param birth variable for birth of the individual
 #' @param immunity to detection
 #' @param parameters model parameters
 #' @param renderer model renderer
-#' 
+#'
 #' @noRd
 create_prevelance_renderer <- function(
-  state,
-  birth,
-  immunity,
-  parameters,
-  renderer
-  ) {
+    state,
+    birth,
+    immunity,
+    parameters,
+    renderer
+) {
   function(timestep) {
-    
+
     asymptomatic <- state$get_index_of('A')
-    
+
     if(parameters$parasite == "falciparum"){
       prob <- probability_of_detection(
         get_age(birth$get_values(asymptomatic), timestep),
@@ -32,46 +35,59 @@ create_prevelance_renderer <- function(
         parameters
       )
       asymptomatic_detected <- bitset_at(asymptomatic, bernoulli_multi_p(prob))
-      
-    } else if (parameters$parasite == "vivax"){
-      # The vivax model defines asymptomatic infections as being detectable by
-      # light microscopy
-      prob <- rep(1, asymptomatic$size())
-      asymptomatic_detected <- state$get_index_of('A')
+
+    } else {
+      asymptomatic_detected <- asymptomatic
     }
-    
+
     clinically_detected <- state$get_index_of(c('Tr', 'D'))
-    detected <- clinically_detected$copy()$or(asymptomatic_detected)
+    lm_detected <- clinically_detected$copy()$or(asymptomatic_detected)
+    pcr_detected <- state$get_index_of(c('Tr', 'D', 'A', 'U'))
 
     for (i in seq_along(parameters$prevalence_rendering_min_ages)) {
       lower <- parameters$prevalence_rendering_min_ages[[i]]
       upper <- parameters$prevalence_rendering_max_ages[[i]]
       in_age <- in_age_range(birth, timestep, lower, upper)
+
+      # render age
       renderer$render(
         paste0('n_', lower, '_', upper),
         in_age$size(),
         timestep
-      ) 
+      )
+
+      # render pcr detection
       renderer$render(
-        paste0('n_detect_', lower, '_', upper),
-        in_age$copy()$and(detected)$size(),
+        paste0('n_detect_pcr_', lower, '_', upper),
+        pcr_detected$copy()$and(in_age)$size(),
         timestep
       )
+
+      # render lm detection
       renderer$render(
-        paste0('p_detect_', lower, '_', upper),
-        in_age$copy()$and(clinically_detected)$size() + sum(
-          prob[bitset_index(asymptomatic, in_age)]
-        ),
+        paste0('n_detect_lm_', lower, '_', upper),
+        lm_detected$copy()$and(in_age)$size(),
         timestep
       )
+
+      if(parameters$parasite == "falciparum"){
+        # render lm detection (falciparum): summed probability
+        renderer$render(
+          paste0('p_detect_lm_', lower, '_', upper),
+          clinically_detected$copy()$and(in_age)$size() + sum(
+            prob[bitset_index(asymptomatic, in_age)]
+          ),
+          timestep
+        )
+      }
     }
   }
 }
 
 #' @title Render incidence statistics
-#' 
+#'
 #' @description renders incidence (new for this timestep) for indivduals
-#' 
+#'
 #' @param birth variable for birth of the individual
 #' @param renderer object for model outputs
 #' @param target incidence population
@@ -81,19 +97,19 @@ create_prevelance_renderer <- function(
 #' @param lowers age bounds
 #' @param uppers age bounds
 #' @param timestep current target
-#' 
+#'
 #' @noRd
 incidence_renderer <- function(
-  birth,
-  renderer,
-  target,
-  source_pop,
-  prob,
-  prefix,
-  lowers,
-  uppers,
-  timestep
-  ) {
+    birth,
+    renderer,
+    target,
+    source_pop,
+    prob,
+    prefix,
+    lowers,
+    uppers,
+    timestep
+) {
   for (i in seq_along(lowers)) {
     lower <- lowers[[i]]
     upper <- uppers[[i]]
@@ -114,9 +130,9 @@ incidence_renderer <- function(
 }
 
 create_variable_mean_renderer_process <- function(
-  renderer,
-  names,
-  variables
+    renderer,
+    names,
+    variables
 ) {
   function(timestep) {
     for (i in seq_along(variables)) {
@@ -130,12 +146,12 @@ create_variable_mean_renderer_process <- function(
 }
 
 create_vector_count_renderer_individual <- function(
-  mosquito_state,
-  species,
-  state,
-  renderer,
-  parameters
-  ) {
+    mosquito_state,
+    species,
+    state,
+    renderer,
+    parameters
+) {
   function(timestep) {
     adult <- mosquito_state$get_index_of('NonExistent')$not(TRUE)
     for (i in seq_along(parameters$species)) {
@@ -178,7 +194,7 @@ create_age_group_renderer <- function(
         paste0('n_age_', lower, '_', upper),
         in_age$size(),
         timestep
-      ) 
+      )
     }
   }
 }
@@ -212,8 +228,7 @@ create_hypnozoite_age_renderer_process <- function(
         paste0('n_hypnozoites_age_', lower, '_', upper),
         sum(hypnozoites$get_values(index = in_age)!=0),
         timestep
-      ) 
+      )
     }
-    
   }
 }

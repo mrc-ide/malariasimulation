@@ -22,7 +22,7 @@ test_that('Test difference between falciparum and vivax parameter lists', {
   expect_true(all(names(falciparum_parameters)[!names(falciparum_parameters) %in% names(vivax_parameters)] %in%
                     c("du","rvm","rva","rb","b0","b1","ib0","kb","theta0","theta1","kv","fv0","av","gammav","iv0","fd0","ad","gammad","d1","id0","kd","ub","uv","gamma1","pvm","init_ivm","init_ib","init_iva")))
   expect_true(all(names(vivax_parameters[!names(vivax_parameters) %in% names(falciparum_parameters)]) %in%
-                    c("dpcr_max","dpcr_min","kpcr","apcr50","init_idm","b","philm_min","philm_max","klm","alm50","ca","f","gammal","init_hyp")))
+                    c("dpcr_max","dpcr_min","kpcr","apcr50","init_idm","b","philm_min","philm_max","klm","alm50","ca","f","gammal","init_hyp","kmax")))
 })
 
 ## Test subpatent progression functions
@@ -44,7 +44,7 @@ test_that('Test anti-parasite immunity function', {
     dpcr_min, dpcr_max, apcr50, kpcr,
     variables$id$get_values(index),
     variables$idm$get_values(index)),
-               expected = rep(dpcr_max,100))
+    expected = rep(dpcr_max,100))
 
   ## Change initial values of ID, and IDM, check they are the same
   variables$id <- individual::DoubleVariable$new(1:100)
@@ -69,11 +69,11 @@ test_that('Test anti-parasite immunity function', {
     dpcr_min, dpcr_max, apcr50, kpcr,
     variables$id$get_values(index),
     variables$idm$get_values(index)),
-               expected = rep(dpcr_min,100),
-               tolerance = 1E-2)
+    expected = rep(dpcr_min,100),
+    tolerance = 1E-2)
 })
 
-test_that('Test default vivax rendering works', {
+test_that('Test default vivax incidence rendering works', {
 
   timestep <- 0
   year <- 365
@@ -145,18 +145,17 @@ test_that('Test default vivax rendering works', {
   )
 })
 
-test_that('that vivax patent incidence rendering works', {
+test_that('that vivax patent prevalence rendering works', {
 
-  #################
   timestep <- 1
   state <- individual::CategoricalVariable$new(
     c('U', 'A', 'D', 'S', 'Tr'),
-    c('U', 'A', 'D', 'S')
+    c('U', 'A', 'D', 'D', 'D', 'S')
   )
   birth <- individual::IntegerVariable$new(
-    -c(2, 5, 10, 11) * 365
+    -c(3, 4, 5, 1, 11, 6) * 365
   )
-  immunity <- individual::DoubleVariable$new(rep(1, 4))
+  immunity <- individual::DoubleVariable$new(rep(1, 6))
   vivax_parameters <- get_parameters(parasite = "vivax")
   renderer <- mock_render(1)
 
@@ -176,81 +175,61 @@ test_that('that vivax patent incidence rendering works', {
     renderer$render_mock(),
     1,
     'n_730_3650',
-    2,
+    4,
     timestep
   )
 
   mockery::expect_args(
     renderer$render_mock(),
     2,
-    'n_detect_730_3650',
-    1,
+    'n_detect_pcr_730_3650',
+    3,
     timestep
   )
 
   mockery::expect_args(
     renderer$render_mock(),
     3,
-    'p_detect_730_3650',
-    1,
+    'n_detect_lm_730_3650',
+    2,
     timestep
-    )
+  )
 })
 
 
 test_that('Test age structure should not change vivax infectivity', {
+  falc_parameters <- get_parameters(
+    overrides = list(
+      human_population = 1,
+      init_id  = 0.5))
 
-  # Set all individuals to asymptomatic
-  # And ID immunity to not 0 (ID impacts age-specific asymptomatic infectivity)
-  parameters <- get_parameters(overrides = list(s_proportion = 0,
-                                                d_proportion = 0,
-                                                a_proportion = 1,
-                                                u_proportion = 0,
-                                                t_proportion = 0,
-                                                init_id  = 0.5))
+  vivax_parameters <- get_parameters(
+    parasite = "vivax",
+    overrides = list(
+      human_population = 1,
+      init_id  = 0.5))
 
-  vivax_parameters <- get_parameters(parasite = "vivax",
-                                     overrides = list(s_proportion = 0,
-                                                      d_proportion = 0,
-                                                      a_proportion = 1,
-                                                      u_proportion = 0,
-                                                      t_proportion = 0,
-                                                      init_id  = 0.5))
+  state_mock <- mockery::mock('A', cycle = T)
+  mockery::stub(create_variables, 'initial_state', state_mock)
 
-  # Generate different age structure
-  year <- 365
-  ages <- round(c(0.083333, 1, 5, 10, 15, 20, 25, 30, 35, 40, 45,
-                  50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 200) * year)
+  ages_mock <- mockery::mock(365, cycle = T)
+  mockery::stub(create_variables, 'calculate_initial_ages', ages_mock)
 
-  deathrates <- rep(.1, length(ages)) / 365
+  falc_variables <- create_variables(falc_parameters)
+  vivax_variables <- create_variables(vivax_parameters)
 
-  dem_parameters <- set_demography(
-    parameters,
-    agegroups = ages,
-    timesteps = 0,
-    deathrates = matrix(deathrates, nrow = 1)
-  )
+  expect_equal(falc_variables$infectivity$get_values(), 0.06761596)
+  expect_equal(vivax_variables$infectivity$get_values(), 0.1)
 
-  vivax_dem_parameters <- set_demography(
-    vivax_parameters,
-    agegroups = ages,
-    timesteps = 0,
-    deathrates = matrix(deathrates, nrow = 1)
-  )
+  ages_mock <- mockery::mock(365*70, cycle = T)
+  mockery::stub(create_variables, 'calculate_initial_ages', ages_mock)
 
-  # vivax asymptomatic infectivity should equal ca
-  expect_true(all(
-    c(create_variables(vivax_parameters)$infectivity$get_values(),
-      create_variables(vivax_dem_parameters)$infectivity$get_values())==vivax_parameters$ca))
+  falc_variables <- create_variables(falc_parameters)
+  vivax_variables <- create_variables(vivax_parameters)
 
-  # falciparum asymptomatic infectivity should not equal ca
-  expect_false(any(
-    c(create_variables(parameters)$infectivity$get_values(),
-      create_variables(dem_parameters)$infectivity$get_values())==vivax_parameters$ca))
+  expect_equal(falc_variables$infectivity$get_values(), 0.03785879)
+  expect_equal(vivax_variables$infectivity$get_values(), 0.1)
 
-  # falciparum asymptomatic infectivity should change with age structure
-  expect_false(any(
-    c(create_variables(parameters)$infectivity$get_values() == create_variables(dem_parameters)$infectivity$get_values())))
 })
 
 test_that('vivax schedule_infections correctly schedules new infections', {
@@ -291,8 +270,11 @@ test_that('vivax schedule_infections correctly schedules new infections', {
 
   expect_equal(
     actual_subpatent_infected,
-    c(17, 18, 19, 20)
+    c(18, 19, 20)
   )
+
+  ## Individual 17 is asymptomatic so cannot be infected with a subpatent infection
+  expect_true(17 %in% variables$state$get_index_of("A")$to_vector())
 
 })
 
@@ -312,7 +294,7 @@ test_that('relapses are recognised', {
     hypnozoites = individual::IntegerVariable$new(c(0, 1, 2, 3))
   )
 
-  bernoulli_mock <- mockery::mock(3, cycle = TRUE)
+  bernoulli_mock <- mockery::mock(c(3,4), 1, 1, cycle = TRUE)
   mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
   bitten_humans <- individual::Bitset$new(4)$insert(c(1, 2, 3, 4))
   renderer <- mock_render(1)
@@ -336,31 +318,57 @@ test_that('relapses are recognised', {
   mockery::expect_args(
     renderer$render_mock(),
     2,
-    'n_relapses',
+    'n_new_relapse_infections',
+    1,
+    timestep
+  )
+
+})
+
+
+test_that('infection division is correct', {
+  timestep <- 50
+  parameters <- get_parameters(parasite = "vivax", overrides = list(human_population = 10))
+
+  variables <- list(
+    state = individual::CategoricalVariable$new(
+      c('D', 'S', 'A', 'U', 'Tr'),
+      rep("S", 10)
+    ),
+    drug = individual::DoubleVariable$new(rep(0, 10)),
+    drug_time = individual::DoubleVariable$new(rep(-1, 10)),
+    pev_timestep = individual::DoubleVariable$new(rep(-1, 10)),
+    pev_profile = individual::IntegerVariable$new(rep(-1, 10)),
+    hypnozoites = individual::IntegerVariable$new(c(rep(0, 4), 1, 1, 50, 50, 0, 0))
+  )
+
+  bernoulli_mock <- mockery::mock(c(3,7,8), c(1), c(1), cycle = TRUE)
+  mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
+  bitten_humans <- individual::Bitset$new(10)$insert(1:7)
+  renderer <- mock_render(1)
+
+  infections <- calculate_infections(
+    variables,
+    bitten_humans,
+    parameters,
+    renderer,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    1,
+    'n_new_bite_infections',
     1,
     timestep
   )
 
   mockery::expect_args(
     renderer$render_mock(),
-    3,
-    'n_infections',
+    2,
+    'n_new_relapse_infections',
     2,
     timestep
   )
-})
-
-
-test_that('parasite drug parameters correctly assigned ', {
-
-falc_params <- get_parameters(parasite = "falciparum")
-vivax_params <- get_parameters(parasite = "vivax")
-
-set_drugs(falc_params, drugs = list(AL_params))
-set_drugs(vivax_params, drugs = list(AL_params))
-
-set_drugs(falc_params, drugs = list(CQ_PQ_params))
-set_drugs(vivax_params, drugs = list(CQ_PQ_params))
-
 
 })

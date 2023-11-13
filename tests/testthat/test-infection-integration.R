@@ -138,7 +138,7 @@ test_that('calculate_infections works various combinations of drug and vaccinati
     pev_profile = individual::IntegerVariable$new(c(-1, 1, 2, -1)),
     ib = individual::DoubleVariable$new(c(.2, .3, .5, .9))
   )
-        
+
   immunity_mock <- mockery::mock(c(.2, .3, .4))
   weibull_mock <- mockery::mock(.2)
   vaccine_antibodies_mock <- mockery::mock(c(2, 3))
@@ -164,7 +164,7 @@ test_that('calculate_infections works various combinations of drug and vaccinati
 
   infections <- calculate_infections(
     variables,
-    bitten_humans, 
+    bitten_humans,
     parameters,
     mock_render(timestep),
     timestep
@@ -221,9 +221,6 @@ test_that('calculate_clinical_infections correctly samples clinically infected',
   )
 
   immunity_mock <- mockery::mock(c(.2, .3, .4))
-  boost_mock <- mockery::mock()
-  mockery::stub(calculate_clinical_infections, 'boost_immunity', boost_mock)
-
   mockery::stub(calculate_clinical_infections, 'clinical_immunity', immunity_mock)
   bernoulli_mock <- mockery::mock(c(1, 3))
   mockery::stub(calculate_clinical_infections, 'bernoulli_multi_p', bernoulli_mock)
@@ -338,7 +335,7 @@ test_that('schedule_infections correctly schedules new infections', {
     treated,
     infections,
     parameters,
-    42 
+    42
   )
 
   actual_infected <- mockery::mock_args(infection_mock)[[1]][[5]]$to_vector()

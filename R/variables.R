@@ -149,7 +149,7 @@ create_variables <- function(parameters) {
     )
   )
 
-  # Severe disease and pre-ertythrocitic (blood) immunity only modelled in P. falciparum
+  # Severe disease and pre-erythrocytic (blood) immunity only modelled in P. falciparum
   if(parameters$parasite == "falciparum"){
 
     # Boost immunities

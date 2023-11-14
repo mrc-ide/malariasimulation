@@ -125,7 +125,7 @@ test_that('phi is consistent with equilibrium at high EIR (no het)', {
 
   eq <- malariaEquilibriumVivax::vivax_equilibrium_init_create_combined(age = EQUILIBRIUM_AGES, ft = 0,
                                          EIR = EIR,
-                                         p = eq_params,
+                                         p = parameters,
                                          K_max = 10,
                                          use_mid_ages = T,
                                          malariasimulationoutput = T)$ret[[1]]
@@ -163,7 +163,7 @@ test_that('phi is consistent with equilibrium at high EIR', {
 
   eq <- malariaEquilibriumVivax::vivax_equilibrium_init_create_combined(age = EQUILIBRIUM_AGES, ft = 0,
                                                EIR = EIR,
-                                               p = eq_params,
+                                               p = parameters,
                                                K_max = 10,
                                                use_mid_ages = T,
                                                malariasimulationoutput = T)$ret

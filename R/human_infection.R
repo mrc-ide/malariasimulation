@@ -249,7 +249,7 @@ calculate_infections <- function(
         ls_drug_time <- variables$ls_drug_time$get_values(newly_bite_infected_vector[ls_medicated])
         ls_prophylaxis[ls_medicated] <- weibull_survival(
           timestep - ls_drug_time,
-          parameters$drug_hypnozoite_efficacy[ls_drug],
+          parameters$drug_hypnozoite_shape[ls_drug],
           parameters$drug_hypnozoite_prophylaxis_scale[ls_drug]
         )
       }

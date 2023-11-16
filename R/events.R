@@ -133,6 +133,8 @@ attach_event_listeners <- function(
       events$mass_pev_boosters,
       parameters$mass_pev_booster_timestep,
       parameters$mass_pev_booster_coverage,
+      parameters$mass_pev_timed_booster_coverage,
+      parameters$mass_pev_timed_booster_coverage_timestep,
       parameters$mass_pev_profile_indices,
       'mass',
       renderer
@@ -147,6 +149,8 @@ attach_event_listeners <- function(
       events$pev_epi_boosters,
       parameters$pev_epi_booster_timestep,
       parameters$pev_epi_booster_coverage,
+      parameters$pev_epi_timed_booster_coverage,
+      parameters$pev_epi_timed_booster_coverage_timestep,
       parameters$pev_epi_profile_indices,
       'epi',
       renderer

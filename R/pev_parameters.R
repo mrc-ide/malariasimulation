@@ -74,6 +74,8 @@ rtss_booster_profile <- create_pev_profile(
 #' an individual being vaccinated under one scheme and vaccinated under another.
 #' @param booster_timestep the timesteps (following the final dose) at which booster vaccinations are administered
 #' @param booster_coverage the proportion of the vaccinated population relative to the last vaccination (whether a previous booster or the primary series)
+#' @param booster_timed_coverage a time varying proportion of the vaccinated population relative to the last vaccination (whether a previous booster or the primary series), set in time with `booster_coverage_timestep`
+#' @param booster_timed_coverage_timestep a vector of timesteps to change the time varying coverage specified in `booster_timed_coverage`
 #' @param booster_profile list of booster vaccine profiles, of type
 #' PEVProfile, for each timestep in booster_timeteps
 #' @param seasonal_boosters logical, if TRUE the first booster timestep is
@@ -88,6 +90,8 @@ set_pev_epi <- function(
   min_wait,
   booster_timestep,
   booster_coverage,
+  booster_timed_coverage = NULL,
+  booster_timed_coverage_timestep = NULL,
   booster_profile,
   seasonal_boosters = FALSE
   ) {
@@ -114,6 +118,9 @@ set_pev_epi <- function(
   if (!all(c(length(booster_coverage), length(booster_timestep), length(booster_profile)) == length(booster_timestep))) {
     stop('booster_timestep and booster_coverage and booster_profile does not align')
   }
+  if (length(booster_timed_coverage) != length(booster_timed_coverage_timestep)) {
+    stop("booster_coverage_timestep must be the same length as booster_coverage")
+  }
 
   # Index the new vaccine profiles
   profile_list <- c(list(profile), booster_profile)
@@ -127,6 +134,9 @@ set_pev_epi <- function(
   parameters$pev_epi_age <- age
   parameters$pev_epi_booster_timestep <- booster_timestep
   parameters$pev_epi_min_wait <- min_wait
+  parameters$pev_epi_booster_coverage <- booster_coverage
+  parameters$pev_epi_booster_timed_coverage <- booster_timed_coverage
+  parameters$pev_epi_booster_timed_coverage_timestep <- booster_timed_coverage_timestep
   parameters$pev_epi_booster_coverage <- booster_coverage
   parameters$pev_epi_profile_indices <- profile_indices
   parameters$pev_epi_seasonal_boosters <- seasonal_boosters
@@ -149,6 +159,8 @@ set_pev_epi <- function(
 #' @param max_ages for the target population, inclusive (in timesteps)
 #' @param booster_timestep the timesteps (following the initial vaccination) at which booster vaccinations are administered
 #' @param booster_coverage the proportion of the vaccinated population relative to the last vaccination (whether a previous booster or the primary series)
+#' @param booster_timed_coverage a time varying proportion of the vaccinated population relative to the last vaccination (whether a previous booster or the primary series), set in time with `booster_coverage_timestep`
+#' @param booster_timed_coverage_timestep a vector of timesteps to change the time varying coverage specified in `booster_timed_coverage`
 #' @param booster_profile list of booster vaccine profiles, of type
 #' PEVProfile, for each timestep in booster_timeteps
 #' @export
@@ -162,6 +174,8 @@ set_mass_pev <- function(
   min_wait,
   booster_timestep,
   booster_coverage,
+  booster_timed_coverage = NULL,
+  booster_timed_coverage_timestep = NULL,
   booster_profile
   ) {
   stopifnot(all(timesteps >= 1))
@@ -175,6 +189,9 @@ set_mass_pev <- function(
   }
   if (!all(c(length(booster_coverage), length(booster_timestep), length(booster_profile)) == length(booster_timestep))) {
     stop('booster_timestep, booster_coverage and booster_profile does not align')
+  }
+  if (length(booster_timed_coverage) != length(booster_timed_coverage_timestep)) {
+    stop("booster_coverage_timestep must be the same length as booster_coverage")
   }
 
   # Index the new vaccine profiles
@@ -191,6 +208,8 @@ set_mass_pev <- function(
   parameters$mass_pev_min_wait <- min_wait
   parameters$mass_pev_booster_timestep <- booster_timestep
   parameters$mass_pev_booster_coverage <- booster_coverage
+  parameters$mass_pev_booster_timed_coverage <- booster_timed_coverage
+  parameters$mass_pev_booster_timed_coverage_timestep <- booster_timed_coverage_timestep
   parameters$mass_pev_profile_indices <- profile_indices
   parameters
 }

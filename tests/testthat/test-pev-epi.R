@@ -51,6 +51,47 @@ test_that('pev epi strategy parameterisation works', {
   )
 })
 
+test_that('I can add time varying booster coverage to the pev epi strategy', {
+  parameters <- get_parameters()
+  parameters <- set_pev_epi(
+    parameters,
+    profile = rtss_profile,
+    coverages = c(0.1, 0.8),
+    timesteps = c(10, 100),
+    min_wait = 0,
+    age = 5 * 30,
+    booster_timestep = c(18, 36) * 30,
+    booster_coverage = c(.9, .8),
+    booster_timed_coverage = c(.5, .7),
+    booster_timed_coverage_timestep = c(365, 2*365),
+    booster_profile = list(rtss_booster_profile, rtss_booster_profile)
+  )
+  expect_equal(parameters$pev_epi_booster_timestep, c(18, 36) * 30)
+  expect_equal(parameters$pev_epi_booster_coverage, c(.9, .8))
+  expect_equal(parameters$pev_epi_booster_timed_coverage, c(.5, .7))
+  expect_equal(parameters$pev_epi_booster_timed_coverage_timestep, c(365, 2*365))
+  expect_equal(parameters$pev_profiles, list(rtss_profile, rtss_booster_profile, rtss_booster_profile))
+
+  expect_error(
+    parameters <- set_pev_epi(
+      parameters,
+      profile = rtss_profile,
+      coverages = c(0.1, 0.8),
+      timesteps = c(10, 100),
+      min_wait = 0,
+      age = 5 * 30,
+      booster_timestep = c(18, 36) * 30,
+      booster_coverage = c(.9, .8),
+      booster_timed_coverage = c(.5, .7),
+      booster_timed_coverage_timestep = 365,
+      booster_profile = list(rtss_booster_profile, rtss_booster_profile)
+    ),
+    "booster_coverage_timestep must be the same length as booster_coverage",
+    fixed = TRUE
+  )
+})
+
+
 test_that('pev epi fails pre-emptively with unaligned booster parameters', {
   parameters <- get_parameters()
   expect_error(

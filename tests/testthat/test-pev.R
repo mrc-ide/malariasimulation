@@ -54,6 +54,49 @@ test_that('Mass vaccination strategy parameterisation works', {
   )
 })
 
+test_that('I can add time varying booster coverage to the mass pev strategy', {
+  parameters <- get_parameters()
+  parameters <- set_mass_pev(
+    parameters,
+    profile = rtss_profile,
+    timesteps = 10,
+    coverages = 0.8,
+    min_wait = 0,
+    min_ages = 5 * 30,
+    max_ages = 17 * 30,
+    booster_timestep = c(18, 36) * 30,
+    booster_coverage = c(.9, .8),
+    booster_timed_coverage = c(.5, .7),
+    booster_timed_coverage_timestep = c(365, 2*365),
+    booster_profile = list(rtss_booster_profile, rtss_booster_profile)
+  )
+
+  expect_equal(parameters$mass_pev_booster_timestep, c(18, 36) * 30)
+  expect_equal(parameters$mass_pev_booster_timed_coverage, c(.5, .7))
+  expect_equal(parameters$mass_pev_booster_timed_coverage_timestep, c(365, 2*365))
+  expect_equal(parameters$pev_profiles, list(rtss_profile, rtss_booster_profile, rtss_booster_profile))
+
+  expect_error(
+    parameters <- set_mass_pev(
+      parameters,
+      profile = rtss_profile,
+      timesteps = 10,
+      coverages = 0.8,
+      min_wait = 0,
+      min_ages = 5 * 30,
+      max_ages = 17 * 30,
+      booster_timestep = c(18, 36) * 30,
+      booster_coverage = c(.9, .8),
+      booster_timed_coverage = c(.5, .7),
+      booster_timed_coverage_timestep = 365,
+      booster_profile = list(rtss_booster_profile, rtss_booster_profile)
+   ),
+   "booster_coverage_timestep must be the same length as booster_coverage",
+   fixed = TRUE
+ )
+})
+
+
 test_that('Mass vaccination fails pre-emptively for unaligned booster parameters', {
   parameters <- get_parameters()
   expect_error(
@@ -557,6 +600,8 @@ test_that('Mass dose events are not ruined by lazy evaluation', {
     booster_events = events$mass_pev_boosters,
     booster_delays = parameters$mass_pev_booster_timestep,
     booster_coverages = parameters$mass_pev_booster_coverage,
+    booster_timed_coverage = NULL,
+    booster_timed_coverage_timestep = NULL,
     pev_profile_indices = parameters$mass_pev_profile_indices,
     strategy = 'mass',
     renderer = mock_render(1)
@@ -612,4 +657,107 @@ test_that('Efficacies are calculated correctly', {
   )
 })
 
+test_that('pev timed booster coverage works with NULL', {
+  timestep <- 5 * 365
+  parameters <- get_parameters(list(human_population = 5))
+  parameters <- set_pev_epi(
+    parameters,
+    profile = rtss_profile,
+    timesteps = 10,
+    coverages = 0.8,
+    min_wait = 6 * 30,
+    age = 18 * 365,
+    booster_timestep = c(3, 12) * 30,
+    booster_coverage = c(.9, .8),
+    booster_timed_coverage = c(.5, .7),
+    booster_timed_coverage_timestep = c(timestep, timestep + 365),
+    booster_profile = list(rtss_booster_profile, rtss_booster_profile),
+  )
+  events <- create_events(parameters)
 
+  booster_event <- mock_event(events$pev_epi_boosters[[1]])
+
+  listener <- create_pev_booster_listener(
+    variables = create_variables(parameters),
+    coverage = .9,
+    timed_coverage = NULL,
+    timed_coverage_timestep = NULL,
+    booster_number = 1,
+    pev_profile_index = 2,
+    next_booster_event = booster_event,
+    next_booster_delay = 9 * 30,
+    renderer = mock_render(timestep),
+    strategy = 'epi'
+  )
+
+  target <- individual::Bitset$new(5)$insert(seq(5))
+
+  mock_sample_bitset = mockery::mock(individual::Bitset$new(5)$insert(c(1, 2)))
+  mockery::stub(
+    listener,
+    'sample_bitset',
+    mock_sample_bitset
+  )
+
+  listener(timestep, target)
+
+  mockery::expect_args(
+    mock_sample_bitset,
+    1,
+    target,
+    .9
+  )
+})
+
+
+test_that('pev boosters take into account the timed coverage', {
+  timestep <- 5 * 365
+  parameters <- get_parameters(list(human_population = 5))
+  parameters <- set_pev_epi(
+    parameters,
+    profile = rtss_profile,
+    timesteps = 10,
+    coverages = 0.8,
+    min_wait = 6 * 30,
+    age = 18 * 365,
+    booster_timestep = c(3, 12) * 30,
+    booster_coverage = c(.9, .8),
+    booster_timed_coverage = c(.5, .7),
+    booster_timed_coverage_timestep = c(timestep, timestep + 365),
+    booster_profile = list(rtss_booster_profile, rtss_booster_profile),
+  )
+  events <- create_events(parameters)
+
+  booster_event <- mock_event(events$pev_epi_boosters[[1]])
+
+  listener <- create_pev_booster_listener(
+    variables = create_variables(parameters),
+    coverage = .9,
+    timed_coverage = c(.5, .7),
+    timed_coverage_timestep = c(timestep, timestep + 365),
+    booster_number = 1,
+    pev_profile_index = 2,
+    next_booster_event = booster_event,
+    next_booster_delay = 9 * 30,
+    renderer = mock_render(timestep),
+    strategy = 'epi'
+  )
+
+  target <- individual::Bitset$new(5)$insert(seq(5))
+
+  mock_sample_bitset = mockery::mock(individual::Bitset$new(5)$insert(c(1, 2)))
+  mockery::stub(
+    listener,
+    'sample_bitset',
+    mock_sample_bitset
+  )
+
+  listener(timestep, target)
+
+  mockery::expect_args(
+    mock_sample_bitset,
+    1,
+    target,
+    .45
+  )
+})

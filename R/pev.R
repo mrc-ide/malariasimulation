@@ -179,6 +179,8 @@ create_pev_efficacy_listener <- function(variables, pev_profile_index) {
 create_pev_booster_listener <- function(
   variables,
   coverage,
+  timed_coverage = NULL,
+  timed_coverage_timestep = NULL,
   booster_number,
   pev_profile_index,
   next_booster_event,
@@ -192,7 +194,17 @@ create_pev_booster_listener <- function(
   force(next_booster_delay)
   force(coverage)
   function(timestep, target) {
-    target <- sample_bitset(target, coverage)
+    if (is.null(timed_coverage)) {
+      t_coverage <- 1
+    } else {
+      t_coverage <- timed_coverage[
+        match_timestep(timed_coverage_timestep, timestep)
+      ]
+    }
+    target <- sample_bitset(
+      target,
+      coverage * t_coverage
+    )
     variables$last_pev_timestep$queue_update(timestep, target)
     variables$last_eff_pev_timestep$queue_update(timestep, target)
     variables$pev_profile$queue_update(pev_profile_index, target)
@@ -240,6 +252,8 @@ attach_pev_dose_listeners <- function(
   booster_events,
   booster_delays,
   booster_coverages,
+  booster_timed_coverage,
+  booster_timed_coverage_timestep,
   pev_profile_indices,
   strategy,
   renderer
@@ -303,6 +317,8 @@ attach_pev_dose_listeners <- function(
       create_pev_booster_listener(
         variables = variables,
         coverage = booster_coverages[[b]],
+        timed_coverage = booster_timed_coverage,
+        timed_coverage_timestep = booster_timed_coverage_timestep,
         booster_number = b,
         pev_profile_index = pev_profile_indices[[b + 1]],
         next_booster_event = next_booster_event,

@@ -14,6 +14,8 @@ set_mass_pev(
   min_wait,
   booster_timestep,
   booster_coverage,
+  booster_timed_coverage = NULL,
+  booster_timed_coverage_timestep = NULL,
   booster_profile
 )
 }
@@ -37,6 +39,10 @@ time between an individual being vaccinated under one scheme and vaccinated unde
 \item{booster_timestep}{the timesteps (following the initial vaccination) at which booster vaccinations are administered}
 
 \item{booster_coverage}{the proportion of the vaccinated population relative to the last vaccination (whether a previous booster or the primary series)}
+
+\item{booster_timed_coverage}{a time varying proportion of the vaccinated population relative to the last vaccination (whether a previous booster or the primary series), set in time with \code{booster_coverage_timestep}}
+
+\item{booster_timed_coverage_timestep}{a vector of timesteps to change the time varying coverage specified in \code{booster_timed_coverage}}
 
 \item{booster_profile}{list of booster vaccine profiles, of type
 PEVProfile, for each timestep in booster_timeteps}

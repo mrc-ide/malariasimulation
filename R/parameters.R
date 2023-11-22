@@ -123,6 +123,7 @@
 #' * f - relapse rate; default = 0.024
 #' * gammal - clearance rate; default = 0.0026
 #' * init_hyp - initial hypnozoite batch number; default = 0
+#' * kmax - maximum number of hypnozoite batches for use in the equilibrium solution; default = 10
 #'
 #' parasite parameter
 #'

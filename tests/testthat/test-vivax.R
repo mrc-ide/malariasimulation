@@ -22,7 +22,7 @@ test_that('Test difference between falciparum and vivax parameter lists', {
   expect_true(all(names(falciparum_parameters)[!names(falciparum_parameters) %in% names(vivax_parameters)] %in%
                     c("du","rvm","rva","rb","b0","b1","ib0","kb","theta0","theta1","kv","fv0","av","gammav","iv0","fd0","ad","gammad","d1","id0","kd","ub","uv","gamma1","pvm","init_ivm","init_ib","init_iva")))
   expect_true(all(names(vivax_parameters[!names(vivax_parameters) %in% names(falciparum_parameters)]) %in%
-                    c("dpcr_max","dpcr_min","kpcr","apcr50","init_idm","b","philm_min","philm_max","klm","alm50","ca","f","gammal","init_hyp")))
+                    c("dpcr_max","dpcr_min","kpcr","apcr50","init_idm","b","philm_min","philm_max","klm","alm50","ca","f","gammal","init_hyp","kmax")))
 })
 
 ## Test subpatent progression functions

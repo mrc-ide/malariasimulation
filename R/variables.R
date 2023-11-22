@@ -82,22 +82,12 @@ create_variables <- function(parameters) {
           EQUILIBRIUM_AGES
         ))
       } else if (parameters$parasite == "vivax"){
-        # eq <- vivax_equilibrium(
-        #   age = EQUILIBRIUM_AGES,
-        #   ft = sum(get_treatment_coverages(parameters, 1)),
-        #   EIR = parameters$init_EIR,
-        #   p = parameters
-        # )$states
-
-        eq <- malariaEquilibriumVivax::vivax_equilibrium_init_create_combined(
+        eq <- malariaEquilibriumVivax::vivax_equilibrium(
           age = EQUILIBRIUM_AGES,
           ft = sum(get_treatment_coverages(parameters, 0)),
-          EIR = parameters$init_EIR, p = parameters, K_max = 10,
-          # MW_age_rates_prop = T,
-          use_mid_ages = T,
-          malariasimulationoutput = T
-          # divide_omega = T
-        )$ret
+          EIR = parameters$init_EIR,
+          p = translate_vivax_parameters(parameters)
+        )$states
       }
     } else {
       eq <- NULL
@@ -451,22 +441,12 @@ calculate_eq <- function(het_nodes, parameters) {
     )
 
   } else if (parameters$parasite == "vivax"){
-    eq <- malariaEquilibriumVivax::vivax_equilibrium_init_create_combined(
+    eq <- malariaEquilibriumVivax::vivax_equilibrium(
       age = EQUILIBRIUM_AGES,
       ft = sum(get_treatment_coverages(parameters, 0)),
       EIR = parameters$init_EIR,
-      p = parameters, K_max = 10,
-      # MW_age_rates_prop = T,
-      use_mid_ages = T,
-      malariasimulationoutput = T
-      # divide_omega = T
-    )$ret
-    # eq <- vivax_equilibrium(
-    #   age = EQUILIBRIUM_AGES,
-    #   ft = sum(get_treatment_coverages(parameters, 1)),
-    #   EIR = parameters$init_EIR,
-    #   p = parameters
-    # )$states
+      p = translate_vivax_parameters(parameters)
+    )$states
   }
 }
 

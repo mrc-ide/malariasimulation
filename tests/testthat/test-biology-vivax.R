@@ -142,6 +142,33 @@ test_that('phi is consistent with equilibrium at high EIR (no het)', {
     weighted.mean(eq[,'phi_clin'], eq[,'prop']),
     tolerance=1e-2
   )
+
+  # Check phi_patent
+  expect_equal(
+    mean(
+      anti_parasite_immunity(min = parameters$philm_min, max = parameters$philm_max,
+                             a50 = parameters$alm50, k = parameters$klm,
+                             id = variables$id$get_values(),
+                             idm = variables$idm$get_values()
+      )
+    ),
+    weighted.mean(eq[,'phi_patent'], eq[,'prop']),
+    tolerance=1e-2
+  )
+
+  # Check d_PCR
+  expect_equal(
+    mean(
+      anti_parasite_immunity(min = parameters$dpcr_min, max = parameters$dpcr_max,
+                             a50 = parameters$apcr50, k = parameters$kpcr,
+                             id = variables$id$get_values(),
+                             idm = variables$idm$get_values()
+      )
+    ),
+    weighted.mean(eq[,'dPCR'], eq[,'prop']),
+    tolerance=1e-2
+  )
+
 })
 
 test_that('phi is consistent with equilibrium at high EIR', {
@@ -154,12 +181,6 @@ test_that('phi is consistent with equilibrium at high EIR', {
   parameters <- get_parameters(parasite = "vivax",
                                list(human_population = population))
   parameters <- set_equilibrium(parameters, EIR)
-
-  # eq <-  malariaEquilibriumVivax::human_equilibrium(
-  #     EIR,
-  #     0,
-  #     parameters,
-  #     ages)
 
   eq <- malariaEquilibriumVivax::vivax_equilibrium_init_create_combined(age = EQUILIBRIUM_AGES, ft = 0,
                                                EIR = EIR,
@@ -181,9 +202,39 @@ test_that('phi is consistent with equilibrium at high EIR', {
     sum(unlist(lapply(1:parameters$n_heterogeneity_groups, function(h){
       weighted.mean(eq[[h]][,'phi_clin'], eq[[h]][,'prop'])}
       )) * het$weights),
-    # weighted.mean(eq$states[,'phi_clin'], eq$states[,'prop']),
     tolerance=1e-2
   )
+
+  # Check phi_patent
+  expect_equal(
+    mean(
+      anti_parasite_immunity(min = parameters$philm_min, max = parameters$philm_max,
+                             a50 = parameters$alm50, k = parameters$klm,
+        id = variables$id$get_values(),
+        idm = variables$idm$get_values()
+      )
+    ),
+    sum(unlist(lapply(1:parameters$n_heterogeneity_groups, function(h){
+      weighted.mean(eq[[h]][,'phi_patent'], eq[[h]][,'prop'])}
+    )) * het$weights),
+    tolerance=1e-2
+  )
+
+  # Check d_PCR
+  expect_equal(
+    mean(
+      anti_parasite_immunity(min = parameters$dpcr_min, max = parameters$dpcr_max,
+                             a50 = parameters$apcr50, k = parameters$kpcr,
+                             id = variables$id$get_values(),
+                             idm = variables$idm$get_values()
+      )
+    ),
+    sum(unlist(lapply(1:parameters$n_heterogeneity_groups, function(h){
+      weighted.mean(eq[[h]][,'dPCR'], eq[[h]][,'prop'])}
+    )) * het$weights),
+    tolerance=1e-2
+  )
+
 })
 
 test_that('mosquito_limit is set to 0 for 0 EIR', {

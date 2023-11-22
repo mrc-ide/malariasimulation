@@ -218,60 +218,74 @@ set_equilibrium <- function(parameters, init_EIR, eq_params = NULL, age_vector) 
 
   } else if (parameters$parasite == "vivax"){
 
-    # malariaEquilibriumVivax::vivax_equilibrium(
-    # eq <- vivax_equilibrium(
-    #   age = EQUILIBRIUM_AGES,
-    #   ft = sum(get_treatment_coverages(parameters, 1)),
-    #   EIR = init_EIR,
-    #   p = parameters
-    # )
+    if(parameters$vivax_eq == "Combined"){
 
+      eq <-
+        malariaEquilibriumVivax::vivax_equilibrium_init_create_combined(
+          age = EQUILIBRIUM_AGES,
+          ft = sum(get_treatment_coverages(parameters, 1)),
+          EIR = init_EIR,
+          p = parameters,
+          K_max = 10,
+          # MW_age_rates_prop = T,
+          use_mid_ages = T,
+          malariasimulationoutput = T)
 
-    # if(parameters$equilibrium == "Nora"){
-    eq <-
-      malariaEquilibriumVivax::vivax_equilibrium_init_create_combined(
+    } else if(parameters$vivax_eq == "Michael_complete"){
+
+      # eq_michael <- malariaEquilibriumVivax::vivax_equilibrium_michael_complete(
+      eq <- vivax_equilibrium_michael_complete(
         age = EQUILIBRIUM_AGES,
         ft = sum(get_treatment_coverages(parameters, 1)),
         EIR = init_EIR,
-        p = parameters,
-        K_max = 10,
-        # MW_age_rates_prop = T,
-        use_mid_ages = T,
-        malariasimulationoutput = T)
-        # divide_omega = T
+        p = parameters
+      )
 
-      # )} else if(parameters$equilibrium == "Michael"){
-          # To fill
-        # }
+      ## Compare hte outputs:
+      # eq$ret[[1]]$age == eq_michael$states[[1]]$age
+      # ## FOr some reason we're skipping 99.7...?
+      # sum(unlist(lapply(eq$ret, function(x){x$S})))
+      # sum(unlist(lapply(eq_michael$states, function(x){x$S}))) ## This matches at EIR = 1 better
+      #
+      # sum(unlist(lapply(eq$ret, function(x){x$D})))
+      # sum(unlist(lapply(eq_michael$states, function(x){x$D}))) ## This matches at EIR = 1 better
+      #
+      # sum(unlist(lapply(eq$ret, function(x){x$A})))
+      # sum(unlist(lapply(eq_michael$states, function(x){x$A}))) ## This matches at EIR = 1 better
+      #
+      # sum(unlist(lapply(eq$ret, function(x){x$U})))
+      # sum(unlist(lapply(eq_michael$states, function(x){x$U}))) ## This matches at EIR = 1 better
+      #
+      # het_w <- malariaEquilibrium::gq_normal(parameters$n_heterogeneity_groups)$weights
+      #
+      # sum(unlist(lapply(eq$ret, function(x){sum(x$ICA * x$prop)}))*het_w)
+      # sum(unlist(lapply(eq_michael$states, function(x){sum(x$ICA * x$prop)}))*het_w)
+      #
+      # sum(unlist(lapply(eq$ret, function(x){sum(x$ID * x$prop)}))*het_w)
+      # sum(unlist(lapply(eq_michael$states, function(x){sum(x$ID * x$prop)}))*het_w)
+      #
+      # sum(unlist(lapply(eq$ret, function(x){sum(x$ICM * x$prop)}))*het_w)
+      # sum(unlist(lapply(eq_michael$states, function(x){sum(x$ICM * x$prop)}))*het_w)
+      #
+      # sum(unlist(lapply(eq$ret, function(x){sum(x$IDM * x$prop)}))*het_w)
+      # sum(unlist(lapply(eq_michael$states, function(x){sum(x$IDM * x$prop)}))*het_w)
+      #
+      # sum(unlist(lapply(eq$ret, function(x){sum(x$HH * x$prop)}))*het_w)
+      # sum(unlist(lapply(eq_michael$states, function(x){sum(x$HH * x$prop)}))*het_w)
 
-## Nora's equilibrium
-    # eq <- equilibrium_init_create(age = age_vector,
-    #                               ft = sum(get_treatment_coverages(parameters, 1)),
-    #                               EIR = init_EIR,
-    #                               p = parameters)
+      ## Cna I just check that the het by age looks about the same?
+      # plot(eq$ret[[1]]$ID, type = "l")
+      # points(eq_michael$states[[1]]$ID, type = "l")
 
-    ## Compiled equilibrium
-    # eq <-
-    #   vivax_equilibrium_init_create_combined(
-    #     age = EQUILIBRIUM_AGES,
-    #     ft = 0,
-    #     EIR = init_EIR,
-    #     p = parameters,
-    #     K_max = 10,
-    #     # MW_age_rates_prop = T,
-    #     use_mid_ages = T,
-    #     malariasimulationoutput = T
-    #     # divide_omega = T
-    #   )
+      # sum(unlist(lapply(eq_michael$states, function(x){x$ICA}))) ## This matches at EIR = 1 better
 
-    ## Falciparum adapted equilibrium
-    # eq <- malariaEquilibriumVivax::human_equilibrium(
-    #   EIR = init_EIR,
-    #   ft = sum(get_treatment_coverages(parameters, 1)),
-    #   p = parameters,
-    #   age = EQUILIBRIUM_AGES,
-    #   h = malariaEquilibriumVivax::gq_normal(parameters$n_heterogeneity_groups)
-    # )
+
+
+    } #else if(parameters$vivax_eq == "Michael_approx"){
+      #
+    # }
+
+
     parameters <- c(
       list(
         init_foim = eq$FOIM,

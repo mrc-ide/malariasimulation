@@ -218,37 +218,54 @@ calculate_infections <- function(
 
     # Combine and relative
     rate_infection_complete <- rate_bitten_complete + rate_relapse
-    relative_rate <- c(rate_bitten_complete/rate_infection_complete)[rate_infection_complete!=0]
+    relative_rate <- c(rate_bitten_complete/rate_infection_complete)
 
     # Humans with potential new infections
     with_hypnozoites <- variables$hypnozoites$get_index_of(0)$not(TRUE)
     potential_new_infections_humans <- source_humans$copy()$or(with_hypnozoites)
 
     # Sum rates of bite infection and relapses
-    prob_new_infections <- rate_to_prob(rate_infection_complete[rate_infection_complete!=0])
+    prob_new_infections <- rate_to_prob(rate_infection_complete)
 
     # Subset for new infections/bite infections
-    newly_infected <- bitset_at(potential_new_infections_humans, bernoulli_multi_p(prob_new_infections))
+    newly_infected <- bitset_at(potential_new_infections_humans,
+                                bernoulli_multi_p(prob_new_infections[potential_new_infections_humans$to_vector()]))
     newly_bite_infected <- bitset_at(
-      potential_new_infections_humans,
-      bernoulli_multi_p(relative_rate))$and(newly_infected)
+      newly_infected,
+      bernoulli_multi_p(relative_rate[newly_infected$to_vector()]))
 
-    can_increase_batches <- variables$hypnozoites$get_index_of(
-      a = 0, b = 9)
+    ## Drug prophylaxis may limit formation of new hypnozoite batches
+    newly_bite_infected_vector <- newly_bite_infected$to_vector()
+    ls_prophylaxis <- rep(0, length(newly_bite_infected_vector))
+    if(length(parameters$drug_hypnozoite_efficacy)>0){
+      ls_drug <- variables$ls_drug$get_values(newly_bite_infected_vector)
+      ls_medicated <- (ls_drug > 0)
+      if (any(ls_medicated)) {
+        ls_drug <- ls_drug[ls_medicated]
+        ls_drug_time <- variables$ls_drug_time$get_values(newly_bite_infected_vector[ls_medicated])
+        ls_prophylaxis[ls_medicated] <- weibull_survival(
+          timestep - ls_drug_time,
+          parameters$drug_hypnozoite_prophylaxis_shape[ls_drug],
+          parameters$drug_hypnozoite_prophylaxis_scale[ls_drug]
+        )
+      }
+    }
 
-    # Add new batches for new bite infections
-    variables$hypnozoites$queue_update(
-      variables$hypnozoites$get_values(can_increase_batches$and(newly_bite_infected)) + 1,
-      # variables$hypnozoites$get_values(newly_bite_infected) + 1,
-      can_increase_batches$and(newly_bite_infected)
-      # newly_bite_infected
-    )
+    ## All bitten humans with an infectious bite (incorporating prophylaxis) get a new batch of hypnozoites
+    if(newly_bite_infected$size()>0){
+      new_batches_formed <- bitset_at(newly_bite_infected, bernoulli_multi_p(1-ls_prophylaxis))
+      variables$hypnozoites$queue_update(
+        # variables$hypnozoites$get_values(new_batches_formed$and(can_increase_batches)) + 1,
+        variables$hypnozoites$get_values(new_batches_formed) + 1,
+        new_batches_formed$and(newly_bite_infected)
+      )
+    }
 
     # Subset to SAU
     SAU_infections <-variables$state$get_index_of(c('S','A','U'))
     newly_infected <- newly_infected$and(SAU_infections)
     newly_bite_infected <- newly_bite_infected$and(SAU_infections)
-    # browser()
+
     # Render new infections caused by bites
     renderer$render('n_new_bite_infections', newly_bite_infected$size(), timestep)
     incidence_renderer(
@@ -262,7 +279,7 @@ calculate_infections <- function(
       parameters$new_bite_incidence_rendering_max_ages,
       timestep
     )
-    # browser()
+
     # Render relapse infections
     new_relapse_infection <- newly_infected$copy()$and(newly_bite_infected$not(inplace = F))
     renderer$render('n_new_relapse_infections', new_relapse_infection$size(), timestep)
@@ -278,7 +295,7 @@ calculate_infections <- function(
       timestep
     )
   }
-  # browser()
+
   newly_infected
 }
 

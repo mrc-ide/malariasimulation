@@ -295,7 +295,7 @@ test_that('relapses are recognised', {
     hypnozoites = individual::IntegerVariable$new(c(0, 1, 2, 3))
   )
 
-  bernoulli_mock <- mockery::mock(c(3,4), 4, cycle = TRUE)
+  bernoulli_mock <- mockery::mock(c(3,4), 1, 1, cycle = TRUE)
   mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
   bitten_humans <- individual::Bitset$new(4)$insert(c(1, 2, 3, 4))
   renderer <- mock_render(1)
@@ -326,26 +326,25 @@ test_that('relapses are recognised', {
 
 })
 
-
 test_that('infection division is correct', {
   timestep <- 50
-  parameters <- get_parameters(parasite = "vivax")
+  parameters <- get_parameters(parasite = "vivax", overrides = list(human_population = 10))
 
   variables <- list(
     state = individual::CategoricalVariable$new(
       c('D', 'S', 'A', 'U', 'Tr'),
-      rep("S", 8)
+      rep("S", 10)
     ),
-    drug = individual::DoubleVariable$new(rep(0, 8)),
-    drug_time = individual::DoubleVariable$new(rep(-1, 8)),
-    pev_timestep = individual::DoubleVariable$new(rep(-1, 8)),
-    pev_profile = individual::IntegerVariable$new(rep(-1, 8)),
-    hypnozoites = individual::IntegerVariable$new(c(rep(0, 4), 1, 1, 50, 50))
+    drug = individual::DoubleVariable$new(rep(0, 10)),
+    drug_time = individual::DoubleVariable$new(rep(-1, 10)),
+    pev_timestep = individual::DoubleVariable$new(rep(-1, 10)),
+    pev_profile = individual::IntegerVariable$new(rep(-1, 10)),
+    hypnozoites = individual::IntegerVariable$new(c(rep(0, 4), 1, 1, 50, 50, 0, 0))
   )
 
-  bernoulli_mock <- mockery::mock(c(3,7,8), 3, cycle = TRUE)
+  bernoulli_mock <- mockery::mock(c(3,7,8), c(1), c(1), cycle = TRUE)
   mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
-  bitten_humans <- individual::Bitset$new(8)$insert(1:7)
+  bitten_humans <- individual::Bitset$new(10)$insert(1:7)
   renderer <- mock_render(1)
 
   infections <- calculate_infections(

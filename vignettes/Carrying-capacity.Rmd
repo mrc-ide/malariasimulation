@@ -81,17 +81,9 @@ lines(s_seasonal$pfpr ~ s_seasonal$timestep, col = "darkorchid3")
 ## Custom modification of the mosquito carrying capacity
 
 In malariasimulation, we can also modify the carrying capacity over time in a more
-bespoke manner. Firstly it is helpful to start with our baseline (equilibrium)
-carrying capacity. We can access this for our baseline parameters with:
-
-```{r}
-cc <- get_init_carrying_capacity(p)
-cc
-```
-
-We can then use this in combination with `set_carrying_capacity()` to provide
-modified, species-specific carrying capacity values at given timepoints. This
-allows us to model a number of useful things:
+bespoke manner. We can use the `set_carrying_capacity()` helper function to provide
+scalers to modify the species-specific carrying capacity values at given time points.
+This allows us to model a number of useful things:
 
 ### Larval source management
 
@@ -102,10 +94,10 @@ can be used to specify this intervention
 ```{r, fig.width = 7, fig.height = 4, out.width='100%'}
 # Specify the LSM coverage
 lsm_coverage <- 0.8
-# Set LSM by reducing the carrying capacity by (1 - coverage)
+# Set LSM by scaling the carrying capacity by (1 - coverage)
 p_lsm <- p |>
   set_carrying_capacity(
-    carrying_capacity = matrix(cc * (1 - lsm_coverage), ncol = 1),
+    carrying_capacity_scalers = matrix(1 - lsm_coverage, ncol = 1),
     timesteps = 365
   )
 set.seed(123)
@@ -136,13 +128,13 @@ invasion of _Anopheles stephensi_.
 p_stephensi <- p |>
   set_species(list(gamb_params, steph_params), c(0.995, 1 - 0.995)) |>
   set_equilibrium(init_EIR = 5)
-cc_invasive <- get_init_carrying_capacity(p_stephensi)
+
 # Next, at the time point of invasion, we scale up the carrying capacity for
-# the invasive species by a factor that will be dependent on the proporties of
+# the invasive species by a factor that will be dependent on the properties of
 # the invasion.
 p_stephensi <- p_stephensi |>
   set_carrying_capacity(
-    carrying_capacity = matrix(cc_invasive * c(1, 2000), ncol = 2),
+    carrying_capacity_scalers = matrix(c(1, 2000), ncol = 2),
     timesteps = 365
   )
 
@@ -169,7 +161,7 @@ time
 ```{r, fig.width = 7, fig.height = 4, out.width='100%'}
 p_flexible <- p |>
   set_carrying_capacity(
-    carrying_capacity = cc * matrix(c(0.1, 2, 0.1, 0.5, 0.9), ncol = 1),
+    carrying_capacity = matrix(c(0.1, 2, 0.1, 0.5, 0.9), ncol = 1),
     timesteps = seq(100, 500, 100)
   )
 

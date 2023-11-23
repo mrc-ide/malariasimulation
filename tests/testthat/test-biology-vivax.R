@@ -70,19 +70,11 @@ test_that('FOIM is consistent with equilibrium', {
   expected_foim <- vnapply(
     EIRs,
     function(EIR) {
-      # malariaEquilibriumVivax::human_equilibrium(EIR =
-      #     EIR,
-      #     0,
-      #     eq_params,
-      #     ages
-      #   )$FOIM
-      malariaEquilibriumVivax::vivax_equilibrium_init_create_combined(age = EQUILIBRIUM_AGES, ft = 0,
-                                             EIR = EIR,
-                                             p = eq_params,
-                                             K_max = 10,
-                                             use_mid_ages = T,
-                                             malariasimulationoutput = T)$FOIM
-
+      malariaEquilibriumVivax::vivax_equilibrium(
+        age = EQUILIBRIUM_AGES,
+        ft = 0,
+        EIR = EIR,
+        p = eq_params)$FOIM
     }
   )
 
@@ -91,10 +83,7 @@ test_that('FOIM is consistent with equilibrium', {
     function(EIR) {
       parameters <- get_parameters(parasite = "vivax", list(human_population = population))
       parameters <- set_equilibrium(parameters, EIR)
-
       variables <- create_variables(parameters)
-      # vector_models <- parameterise_mosquito_models(parameters, 1)
-      # solvers <- parameterise_solvers(vector_models, parameters)
       a <- human_blood_meal_rate(1, variables, parameters, 0)
       age <- get_age(variables$birth$get_values(), 0)
       psi <- unique_biting_rate(age, parameters)
@@ -123,12 +112,11 @@ test_that('phi is consistent with equilibrium at high EIR (no het)', {
   ))
   parameters <- set_equilibrium(parameters, EIR)
 
-  eq <- malariaEquilibriumVivax::vivax_equilibrium_init_create_combined(age = EQUILIBRIUM_AGES, ft = 0,
-                                         EIR = EIR,
-                                         p = parameters,
-                                         K_max = 10,
-                                         use_mid_ages = T,
-                                         malariasimulationoutput = T)$ret[[1]]
+  eq <- malariaEquilibriumVivax::vivax_equilibrium(
+    age = EQUILIBRIUM_AGES,
+    ft = 0,
+    EIR = EIR,
+    p = translate_vivax_parameters(parameters))$states[[1]]
 
   variables <- create_variables(parameters)
   expect_equal(
@@ -182,12 +170,11 @@ test_that('phi is consistent with equilibrium at high EIR', {
                                list(human_population = population))
   parameters <- set_equilibrium(parameters, EIR)
 
-  eq <- malariaEquilibriumVivax::vivax_equilibrium_init_create_combined(age = EQUILIBRIUM_AGES, ft = 0,
-                                               EIR = EIR,
-                                               p = parameters,
-                                               K_max = 10,
-                                               use_mid_ages = T,
-                                               malariasimulationoutput = T)$ret
+  eq <- malariaEquilibriumVivax::vivax_equilibrium(
+    age = EQUILIBRIUM_AGES,
+    ft = 0,
+    EIR = EIR,
+    p = translate_vivax_parameters(parameters))$states
 
   variables <- create_variables(parameters)
   het <- statmod::gauss.quad.prob(parameters$n_heterogeneity_groups, dist = "normal")

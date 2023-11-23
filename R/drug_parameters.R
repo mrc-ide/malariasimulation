@@ -18,51 +18,60 @@ AL_params <- list("falciparum", c(.95, 0.05094, 11.3, 10.6))
 #' @export
 SP_AQ_params <- list("falciparum", c(0.9, 0.32, 4.3, 38.1))
 
-#' @title Preset parameters for the CQ drug
-#' @description From SI of Nekkab et al., DOI: 10.1371/journal.pmed.1003535 (2021)
+#' @title Preset parameters for the CQ drug for vivax
+#' @description Efficacy from SI of Nekkab et al., DOI: 10.1371/journal.pmed.1003535 (2021),
+#' shape and scale consistent with a longer prophylaxis time: 28 days, decreasing gradually
 #' @details Use a vector of preset parameters for the CQ drug (chloroquine)
-#' @details Default parameters, from L to R, are: parasite: "vivax", drug_efficacy: 0.899, drug_rel_c: 1, drug_prophylaxis_shape: 1, drug_prophylaxis_scale: 1/28
+#' @details Default parameters, from L to R, are: parasite: "vivax", drug_efficacy: 0.899, drug_rel_c: 0.5, drug_prophylaxis_shape: 20, drug_prophylaxis_scale: 5
 #' @export
-CQ_params <- list("vivax", c(0.899, 0.5, 7, 9.01))
+CQ_params_vivax <- list("vivax", c(0.899, 0.5, 5, 20))
 
 #' @title Preset parameters for the CQ-PQ drug
-#' @description From SI of Nekkab et al., DOI: 10.1371/journal.pmed.1003535 (2021)
+#' @description Efficacy from SI of Nekkab et al., DOI: 10.1371/journal.pmed.1003535 (2021),
+#' BS shape and scale consistent with a longer prophylaxis time: 28 days, decreasing gradually,
+#' LS shape are scale consistent with a 7 day PQ treatment, with rapid decay.
 #' @details Use a vector of preset parameters for the CQ-PQ drug (chloroquine and primaquine)
-#' @details Default parameters, from L to R, are: drug_efficacy: 0.948, drug_rel_c: 1, drug_prophylaxis_shape: 1, drug_prophylaxis_scale: 1/28, drug_hypnozoite_efficacy: 0.713, drug_hypnozoite_prophylaxis: 8 days
-#' #' liver stage drug_efficacy: 0.899, liver stage drug_prophylaxis_shape: 1, liver stage drug_prophylaxis_scale: 1/28
+#' @details Default parameters, from L to R, are: drug_efficacy: 0.948, drug_rel_c: 0.5, drug_prophylaxis_shape: 5, drug_prophylaxis_scale: 20,
+#' drug_hypnozoite_efficacy: 0.713, drug_hypnozoite_prophylaxis_shape: 10, drug_hypnozoite_prophylaxis_scale: 5.5
 #' @export
-CQ_PQ_params <- list("vivax", c(0.948, 0.5, 7, 9.01, 0.713, 10, 3.44))
+CQ_PQ_params_vivax <- list("vivax", c(0.948, 0.5, 5, 20, 0.713, 10, 5.5))
 
 #' @title Preset parameters for the CQ-TQ drug
-#' @description From SI of Nekkab et al., DOI: 10.1038/s41467-018-05860-8 (2018)
+#' @description Efficacy from SI of Nekkab et al., DOI: 10.1371/journal.pmed.1003535 (2021),
+#' BS shape and scale consistent with a longer prophylaxis time: 28 days, decreasing gradually,
+#' LS shape are scale consistent with a single TQ treatment, with longer prophylaxis: 45 days.
 #' @details Use a vector of preset parameters for the CQ-TQ drug (chloroquine and tafenoquine)
-#' @details Default parameters, from L to R, are: drug_efficacy: 1.00, drug_rel_c: 1, drug_prophylaxis_shape: 1, drug_prophylaxis_scale: 1/45, drug_hypnozoite_efficacy: 0.713, drug_hypnozoite_prophylaxis: 45 days
-#' liver stage drug_efficacy: 0.899, liver stage drug_prophylaxis_shape: 1, liver stage drug_prophylaxis_scale: 1/28#' @export
-CQ_TQ_params <- list("vivax", c(1, 0.5, 7, 9.01, 0.713, 10, 14.59))
+#' @details Default parameters, from L to R, are: drug_efficacy: 1, drug_rel_c: 0.5, drug_prophylaxis_shape: 5, drug_prophylaxis_scale: 20,
+#' drug_hypnozoite_efficacy: 0.713, drug_hypnozoite_prophylaxis_shape: 5.5, drug_hypnozoite_prophylaxis_scale: 30
+CQ_TQ_params_vivax <- list("vivax", c(1, 0.5, 5, 20, 0.713, 5, 30))
 
 #' @title Preset parameters for the White et a., ACT drug
-#' @description From SI of White et al., DOI: 10.1371/journal.pmed.1003535 (2021)
+#' @description Efficacy from SI of White et al., DOI: 10.1371/journal.pmed.1003535 (2021),
+#' BS shape and scale consistent with AL prophylaxis in falciparum
 #' @details Use a vector of preset parameters for the ACT drug (Artemisinin combination therapy)
-#' @details Default parameters, from L to R, are: drug_efficacy: 1, drug_rel_c: 1, drug_prophylaxis_shape: 1, drug_prophylaxis_scale: 1/14
+#' @details Default parameters, from L to R, are: drug_efficacy: 1, drug_rel_c: 0.5, drug_prophylaxis_shape: 11.3, drug_prophylaxis_scale: 10.6
 #' @export
-white_ACT_params <- list("vivax", c(0.899, 0.5, 1, 1/14))
-# AL_params_vivax <- c(0.899, 1, 1, 1/14, "vivax")
+white_ACT_params_vivax <- list("vivax", c(0.899, 0.5, 11.3, 10.6))
 
 #' @title Preset parameters for the ACT-PQ drug
-#' @description From SI of White et al., DOI: 10.1371/journal.pmed.1003535 (2021)
+#' @description Efficacy from SI of White et al., DOI: 10.1371/journal.pmed.1003535 (2021)
+#' BS shape and scale consistent with AL prophylaxis in falciparum
+#' LS shape are scale consistent with a 14 day PQ treatment, with rapid decay.
 #' @details Use a vector of preset parameters for the ACT-PQ drug (Artemisinin combination therapy and primaquine)
-#' @details Default parameters, from L to R, are: drug_efficacy: 1, drug_rel_c: 1, drug_prophylaxis_shape: 1, drug_prophylaxis_scale: 1/14, drug_hypnozoite_efficacy: 0.7, drug_hypnozoite_prophylaxis: 14 days
-#' liver stage drug_efficacy: 0.899, liver stage drug_prophylaxis_shape: 1, liver stage drug_prophylaxis_scale: 1/28
+#' @details Default parameters, from L to R, are: drug_efficacy: 1, drug_rel_c: 0.5, drug_prophylaxis_shape: 11.3, drug_prophylaxis_scale: 10.6,
+#' drug_hypnozoite_efficacy: 0.7, drug_hypnozoite_prophylaxis_shape: 11.3, drug_hypnozoite_prophylaxis_scale: 10.6
 #' @export
-white_ACT_PQ_params <- list("vivax", c(1, 0.5, 1, 1/14, 0.7, 14))
+white_ACT_PQ_params_vivax <- list("vivax", c(1, 0.5, 11.3, 10.6, 0.7, 11.3, 10.6))
 
 #' @title Preset parameters for the ChlQ drug
-#' @description From git repo DOI: 10.1371/journal.pmed.1003535 (2021)
+#' @description Efficacy from SI of White et al., DOI: 10.1371/journal.pmed.1003535 (2021)
+#' BS shape and scale consistent with AL prophylaxis in falciparum
+#' LS shape are scale consistent with a 14 day PQ treatment, with rapid decay.
 #' @details Use a vector of preset parameters for the ChlQ drug (chloroquine)
-#' @details Default parameters, from L to R, are: drug_efficacy: 1, drug_rel_c: 1, drug_prophylaxis_shape: 1, drug_prophylaxis_scale: 1/60, drug_hypnozoite_efficacy: 1, drug_hypnozoite_prophylaxis: 60 days
-#' #' liver stage drug_efficacy: 0.899, liver stage drug_prophylaxis_shape: 1, liver stage drug_prophylaxis_scale: 1/28
+#' @details Default parameters, from L to R, are: drug_efficacy: 1, drug_rel_c: 0.5, drug_prophylaxis_shape: 11.3, drug_prophylaxis_scale: 10.6,
+#' drug_hypnozoite_efficacy: 1, drug_hypnozoite_prophylaxis_shape: 11.3, drug_hypnozoite_prophylaxis_scale: 10.6
 #' @export
-white_ACT_TQ_params <- list("vivax", c(1, 0.5, 1, 1/60, 1, 60))
+white_ACT_TQ_params_vivax <- list("vivax", c(1, 0.5, 11.3, 10.6, 1, 5, 30))
 
 
 #' @title Parameterise drugs to use in the model

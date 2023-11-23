@@ -230,13 +230,9 @@ calculate_infections <- function(
     # Subset for new infections/bite infections
     newly_infected <- bitset_at(potential_new_infections_humans,
                                 bernoulli_multi_p(prob_new_infections[potential_new_infections_humans$to_vector()]))
-
     newly_bite_infected <- bitset_at(
       newly_infected,
       bernoulli_multi_p(relative_rate[newly_infected$to_vector()]))
-
-    # can_increase_batches <- variables$hypnozoites$get_index_of(
-      # a = 0, b = 9)
 
     ## Drug prophylaxis may limit formation of new hypnozoite batches
     newly_bite_infected_vector <- newly_bite_infected$to_vector()

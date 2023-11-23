@@ -325,7 +325,6 @@ test_that('relapses are recognised', {
 
 })
 
-
 test_that('infection division is correct', {
   timestep <- 50
   parameters <- get_parameters(parasite = "vivax", overrides = list(human_population = 10))

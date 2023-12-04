@@ -194,7 +194,6 @@ create_variables <- function(parameters) {
     )
 
     # Hypnozoite - initial immunity function used to initiate hypnozoites
-    # browser()
     hypnozoites <- individual::IntegerVariable$new(
       initial_hypnozoites(
         parameters$init_hyp,

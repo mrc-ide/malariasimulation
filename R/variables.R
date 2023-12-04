@@ -396,7 +396,6 @@ initial_hypnozoites <- function(parameter, age, groups, eq){
     return(vnapply(
       seq_along(age),
       function(i) {
-        # browser()
         g <- groups[[i]]
         a <- age[[i]]
         hyp <- rpois(n = 1, lambda = eq[[g]][which.max(a < eq[[g]][, 'age']), "HH"])

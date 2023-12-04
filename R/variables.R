@@ -360,7 +360,6 @@ initial_immunity <- function(
     return(vnapply(
       seq_along(age),
       function(i) {
-        # browser()
         g <- groups[[i]]
         a <- age[[i]]
         eq[[g]][which.max(a < eq[[g]][, 'age']), eq_name]

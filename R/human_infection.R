@@ -255,7 +255,6 @@ calculate_infections <- function(
     if(newly_bite_infected$size()>0){
       new_batches_formed <- bitset_at(newly_bite_infected, bernoulli_multi_p(1-ls_prophylaxis))
       variables$hypnozoites$queue_update(
-        # variables$hypnozoites$get_values(new_batches_formed$and(can_increase_batches)) + 1,
         variables$hypnozoites$get_values(new_batches_formed) + 1,
         new_batches_formed$and(newly_bite_infected)
       )

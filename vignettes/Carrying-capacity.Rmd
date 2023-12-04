@@ -81,9 +81,13 @@ lines(s_seasonal$pfpr ~ s_seasonal$timestep, col = "darkorchid3")
 ## Custom modification of the mosquito carrying capacity
 
 In malariasimulation, we can also modify the carrying capacity over time in a more
-bespoke manner. We can use the `set_carrying_capacity()` helper function to provide
-scalers to modify the species-specific carrying capacity values at given time points.
-This allows us to model a number of useful things:
+bespoke manner. We can use the `set_carrying_capacity()` helper function to 
+specify scalars that modify the species-specific carrying capacity through time,
+relative to the baseline carrying capacity, at defined time steps. The baseline
+carrying capacity is generated when calling `set_equilibrium()`, to match the 
+specified EIR and population size.
+
+This functionality allows us to model a number of useful things:
 
 ### Larval source management
 
@@ -116,7 +120,7 @@ abline(v = 365, lty = 2, col = "grey60")
 ### Invasive species
 
 An invasive species may exploit a new niche, increase the carrying
-capacity at the point of invasion. The functions
+capacity at the point of invasion. The function
 `set_carrying_capacity()` gives complete freedom to allow
 changes to the carrying capacity to be made. Here
 we will demonstrate using carrying capacity rescaling to capture the

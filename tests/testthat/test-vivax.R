@@ -281,7 +281,7 @@ test_that('vivax schedule_infections correctly schedules new infections', {
 
 test_that('relapses are recognised', {
   timestep <- 50
-  parameters <- get_parameters(parasite = "vivax")
+  parameters <- get_parameters(parasite = "vivax", overrides = list(human_population = 4))
 
   variables <- list(
     state = individual::CategoricalVariable$new(
@@ -295,7 +295,7 @@ test_that('relapses are recognised', {
     hypnozoites = individual::IntegerVariable$new(c(0, 1, 2, 3))
   )
 
-  bernoulli_mock <- mockery::mock(c(3,4), 1, 1, cycle = TRUE)
+  bernoulli_mock <- mockery::mock(c(3,4), 3, 1, cycle = TRUE)
   mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
   bitten_humans <- individual::Bitset$new(4)$insert(c(1, 2, 3, 4))
   renderer <- mock_render(1)
@@ -342,7 +342,7 @@ test_that('infection division is correct', {
     hypnozoites = individual::IntegerVariable$new(c(rep(0, 4), 1, 1, 50, 50, 0, 0))
   )
 
-  bernoulli_mock <- mockery::mock(c(3,7,8), c(1), c(1), cycle = TRUE)
+  bernoulli_mock <- mockery::mock(c(3,7,8), c(3), c(1), cycle = TRUE)
   mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
   bitten_humans <- individual::Bitset$new(10)$insert(1:7)
   renderer <- mock_render(1)

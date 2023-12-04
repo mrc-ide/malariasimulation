@@ -4,7 +4,13 @@
 \alias{set_equilibrium}
 \title{Set equilibrium}
 \usage{
-set_equilibrium(parameters, init_EIR, eq_params = NULL)
+set_equilibrium(
+  parameters,
+  init_EIR,
+  eq_params = NULL,
+  age_vector,
+  v_eq = "full"
+)
 }
 \arguments{
 \item{parameters}{model parameters to update}

@@ -68,8 +68,8 @@ test_that('I can add time varying booster coverage to the pev epi strategy', {
   )
   expect_equal(parameters$pev_epi_booster_timestep, c(18, 36) * 30)
   expect_equal(parameters$pev_epi_booster_coverage, c(.9, .8))
-  expect_equal(parameters$pev_epi_booster_timed_coverage, c(.5, .7))
-  expect_equal(parameters$pev_epi_booster_timed_coverage_timestep, c(365, 2*365))
+  expect_equal(parameters$pev_epi_timed_booster_coverage, c(.5, .7))
+  expect_equal(parameters$pev_epi_timed_booster_coverage_timestep, c(365, 2*365))
   expect_equal(parameters$pev_profiles, list(rtss_profile, rtss_booster_profile, rtss_booster_profile))
 
   expect_error(

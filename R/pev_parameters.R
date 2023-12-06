@@ -135,8 +135,8 @@ set_pev_epi <- function(
   parameters$pev_epi_booster_timestep <- booster_timestep
   parameters$pev_epi_min_wait <- min_wait
   parameters$pev_epi_booster_coverage <- booster_coverage
-  parameters$pev_epi_booster_timed_coverage <- booster_timed_coverage
-  parameters$pev_epi_booster_timed_coverage_timestep <- booster_timed_coverage_timestep
+  parameters$pev_epi_timed_booster_coverage <- booster_timed_coverage
+  parameters$pev_epi_timed_booster_coverage_timestep <- booster_timed_coverage_timestep
   parameters$pev_epi_booster_coverage <- booster_coverage
   parameters$pev_epi_profile_indices <- profile_indices
   parameters$pev_epi_seasonal_boosters <- seasonal_boosters

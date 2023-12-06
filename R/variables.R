@@ -1,4 +1,5 @@
-#' @title Define model variables #' @description
+#' @title Define model variables 
+#' @description
 #' create_variables creates the human and mosquito variables for
 #' the model. Variables are used to track real data for each individual over
 #' time, they are read and updated by processes

@@ -16,7 +16,7 @@ parameterise_mosquito_models <- function(parameters, timesteps) {
         for(j in 1:length(parameters$carrying_capacity_timesteps)){
           timeseries_push(
             k_timeseries,
-            parameters$carrying_capacity_values[j,i],
+            parameters$carrying_capacity_scalers[j,i] * k0,
             parameters$carrying_capacity_timesteps[j]
           )
         }

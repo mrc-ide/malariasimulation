@@ -407,7 +407,6 @@ initial_hypnozoites <- function(parameter, age, groups, eq){
         g <- groups[[i]]
         a <- age[[i]]
         hyp <- rpois(n = 1, lambda = eq[[g]][which.max(a < eq[[g]][, 'age']), "HH"])
-        # ifelse(hyp >10, 10, hyp)
       }
     ))
   }

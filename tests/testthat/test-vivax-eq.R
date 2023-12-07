@@ -72,7 +72,7 @@ test_that('Initial immunities are consistent with equilibrium', {
                mean(vars$idm$get_values()),
                mean(vars$hypnozoites$get_values())))})
 
-  expect_equal(object = c(expected_states), expected =  c(actual_states), tolerance = 1E-2)
+  expect_equal(object = c(expected_averages), expected =  c(actual_averages), tolerance = 1E-2)
 
 })
 

@@ -58,7 +58,9 @@ create_processes <- function(
     processes <- c(
       processes,
       # Maternal immunity to detectability
-      create_exponential_decay_process(variables$idm, parameters$rm)
+      create_exponential_decay_process(variables$idm, parameters$rm),
+      # Hypnozoite clearance
+      create_hypnozoite_decay_process(variables$hypnozoites, parameters$gammal, renderer)
     )
   }
 
@@ -196,9 +198,21 @@ create_processes <- function(
 
   imm_var_names <- c('ica','icm','id')
   if(parameters$parasite == "falciparum"){
-    imm_var_names <- c(imm_var_names, 'iva','ivm','ib')
+    imm_var_names <- c(imm_var_names,'ib','iva','ivm')
+
   } else if(parameters$parasite == "vivax"){
-    imm_var_names <- c(imm_var_names, 'idm')
+    ## Add hypnozoite batches to average renderer vector
+    imm_var_names <- c(imm_var_names,'idm',"hypnozoites")
+
+    ## Render age-stratified with hypnozoites
+    processes <- c(
+      processes,
+      create_hypnozoite_renderer_process(
+        renderer,
+        variables$hypnozoites,
+        parameters
+      )
+    )
   }
 
   processes <- c(
@@ -221,6 +235,12 @@ create_processes <- function(
       renderer
     ),
     create_age_group_renderer(
+      variables$birth,
+      parameters,
+      renderer
+    ),
+    create_hypnozoite_age_renderer_process(
+      variables$hypnozoites,
       variables$birth,
       parameters,
       renderer
@@ -342,4 +362,29 @@ create_lagged_eir <- function(variables, solvers, parameters) {
       )
     }
   )
+}
+
+#' @title Hypnozoite decay function
+#' @description
+#' calulates the number of decaying hypnozoites in each individual
+#'
+#' @param variable the hypnozoite variable to update
+#' @param rate the hypnozoite decay rate
+#' @noRd
+create_hypnozoite_decay_process <- function(hypnozoites, gammal, renderer){
+  function(timestep){
+    hyp_bitset <- hypnozoites$get_index_of(0)$not()
+    if(hyp_bitset$size()>0){
+      n_hypnozoites <- hypnozoites$get_values(index = hyp_bitset)
+      hypozoite_decay <- vnapply(
+        n_hypnozoites,
+        function(x) rbinom(n = 1, size = x, prob = gammal)
+      )
+      hypnozoites$queue_update(
+        values = n_hypnozoites - hypozoite_decay,
+        index = hyp_bitset
+      )
+      renderer$render('n_decayed', sum(hypozoite_decay), timestep)
+    }
+  }
 }

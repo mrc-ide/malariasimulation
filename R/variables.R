@@ -93,6 +93,7 @@ create_variables <- function(parameters) {
   last_boosted_ica <- individual::DoubleVariable$new(rep(-1, size))
   last_boosted_id <- individual::DoubleVariable$new(rep(-1, size))
 
+  # Maternal immunity to clinical disease
   icm <- individual::DoubleVariable$new(
     initial_immunity(
       parameters$init_icm,
@@ -183,6 +184,16 @@ create_variables <- function(parameters) {
         'IDM'
       )
     )
+
+    # Hypnozoite batch variable
+    hypnozoites <- individual::IntegerVariable$new(
+      initial_hypnozoites(
+        parameters$init_hyp,
+        initial_age,
+        groups,
+        eq
+      )
+    )
   }
 
   # Initialise infectiousness of humans -> mosquitoes
@@ -251,9 +262,9 @@ create_variables <- function(parameters) {
                    iva = iva
     )
   } else if(parameters$parasite == "vivax"){
-    variables <- c(
-      variables,
-      idm = idm)
+    variables <- c(variables,
+                   idm = idm,
+                   hypnozoites = hypnozoites)
   }
 
   # Add variables for individual mosquitoes
@@ -369,6 +380,21 @@ initial_state <- function(parameters, age, groups, eq, states) {
     ))
   }
   rep(ibm_states, times = calculate_initial_counts(parameters))
+}
+
+initial_hypnozoites <- function(parameter, age, groups, eq){
+  if (!is.null(eq)) {
+    age <- age / 365
+    return(vnapply(
+      seq_along(age),
+      function(i) {
+        g <- groups[[i]]
+        a <- age[[i]]
+        rpois(n = 1, lambda = eq[[g]][which.max(a < eq[[g]][, 'age']), "HH"])
+      }
+    ))
+  }
+  rep(parameter, length(age))
 }
 
 calculate_initial_counts <- function(parameters) {

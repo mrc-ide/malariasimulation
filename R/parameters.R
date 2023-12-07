@@ -8,7 +8,10 @@
 #'
 #' Plasmodium vivax specific parameters are explained in
 #' "Mathematical modelling of the impact of expanding levels of malaria control
-#' interventions on Plasmodium vivax." by White, Michael T., et al.
+#' interventions on Plasmodium vivax." by White, Michael T., et al. with parameter
+#' values found in "Accelerating towards P. vivax elimination with a novel
+#' serological test-and-treat strategy: a modelling case study in Brazil" by
+#' Nekkab, Narimane T.,et al. or online repository
 #'
 #' @param overrides a named list of parameter values to use instead of defaults
 #' @param parasite Plasmodium parasite species ("falciparum" or "vivax"); default = "falciparum"
@@ -20,54 +23,55 @@
 #' * dd - the delay for humans to move from state D to A; default = 5
 #' * dt - the delay for humans to move from state Tr to Ph; default = 5
 #' * da - the delay for humans to move from state A to U; default = 195
-#' * du - the delay for humans to move from state U to S (P.f only); default = 110
+#' * du - the delay for humans to move from state U to S (p.f only); default = 110
 #'
-#' duration of subpatent infection: du (P.v only):
+#' duration of pcr detectable infection: du (p.v only):
 #'
-#' * du_max - Maximum duration of subpatent infection: default = 70
-#' * du_min - Minimum duration of subpatent infection: default = 10
-#' * ku - Shape parameter: default = 4.602
-#' * au50 - Scale parameter: default = 9.9
+#' * dpcr_max - Maximum duration of subpatent infection: default = 70
+#' * dpcr_min - Minimum duration of subpatent infection: default = 10
+#' * kpcr - Shape parameter: default = 4.602
+#' * apcr50 - Scale parameter: default = 9.9
 #'
 #' initial immunity values:
 #'
+#' * init_ib  - the initial pre-erythrocitic immunity (p.f only); default = 0
+#' * init_id  - the initial acquired immunity to LM-detectability; default = 0
+#' * init_idm - the immunity from LM-dectectability at birth (p.v only); default = 0
 #' * init_ica - the initial acquired immunity from clinical disease; default = 0
 #' * init_icm - the immunity from clinical disease at birth; default = 0
-#' * init_iva - the initial acquired immunity from severe disease (P.f only); default = 0
-#' * init_ivm - the immunity from severe disease at birth (P.f only); default = 0
-#' * init_ib  - the initial pre-erythrocitic immunity (P.f only); default = 0
-#' * init_id  - the initial acquired immunity to detectability; default = 0
+#' * init_iva - the initial acquired immunity from severe disease (p.f only); default = 0
+#' * init_ivm - the immunity from severe disease at birth (p.f only); default = 0
 #'
 #' immunity boost grace periods:
 #'
-#' * ub - period in which pre-erythrocytic immunity cannot be boosted (P.f only); default = 7.2
+#' * ub - period in which pre-erythrocytic immunity cannot be boosted (p.f only); default = 7.2
 #' * ud - period in which immunity to detectability cannot be boosted; default = 9.44512
 #' * uc - period in which clinical immunity cannot be boosted; default = 6.06
-#' * uv - period in which severe immunity cannot be boosted (P.f only); default = 11.4321
+#' * uv - period in which severe immunity cannot be boosted (p.f only); default = 11.4321
 #'
 #' maternal immunity parameters:
 #'
-#' * pcm - new-born clinical immunity relative to mother's; default = 0.774368
-#' * pvm - new-born severe immunity relative to mother's (P.f only); default = 0.195768
+#' * pcm - new-born clinical immunity (p.v only: or immunity to lm-detectability) relative to mother's; default = 0.774368
+#' * pvm - new-born severe immunity relative to mother's (p.f only); default = 0.195768
 #'
 #' immunity decay rates:
 #'
-#' * rm - decay rate for maternal immunity to clinical disease; default = 67.6952
-#' * rvm - decay rate for maternal immunity to severe disease (P.f only); default = 76.8365
-#' * rb - decay rate for acquired pre-erythrocytic immunity (P.f only); default = 3650
-#' * rid - decay rate for acquired immunity to detectability; default = 3650
+#' * rm - decay rate for maternal immunity to clinical disease (p.v or lm-detectability); default = 67.6952
+#' * rvm - decay rate for maternal immunity to severe disease (p.f only); default = 76.8365
+#' * rb - decay rate for acquired pre-erythrocytic immunity (p.f only); default = 3650
+#' * rid - decay rate for acquired immunity to lm-detectability; default = 3650
 #' * rc - decay rate for acquired immunity to clinical disease; default = 10950
-#' * rva - decay rate for acquired immunity to severe disease (P.f only); default = 10950
+#' * rva - decay rate for acquired immunity to severe disease (p.f only); default = 10950
 #'
 #' probability of pre-erythrocytic infection/blood immunity:
 #'
-#' * b0 - maximum probability due to no immunity (P.f only); default = 0.59
-#' * b1 - maximum reduction due to immunity (P.f only); default = 0.5
-#' * ib0 - scale parameter (P.f only); default = 43.9
-#' * kb - shape parameter (P.f only); default = 2.16
-#' * b - probability of pre-erythrocytic infection (P.v only): default = 0.5
+#' * b0 - maximum probability due to no immunity (p.f only); default = 0.59
+#' * b1 - maximum reduction due to immunity (p.f only); default = 0.5
+#' * ib0 - scale parameter (p.f only); default = 43.9
+#' * kb - shape parameter (p.f only); default = 2.16
+#' * b - probability of pre-erythrocytic infection (p.v only): default = 0.5
 #'
-#' probability of asymptomatic detection/detectability immunity (P.f only):
+#' probability of asymptomatic detection/detectability immunity (p.f only):
 #'
 #' * fd0 - time-scale at which immunity changes with age; default = 0.007055
 #' * ad - scale parameter relating age to immunity; default = 7993.5
@@ -76,7 +80,7 @@
 #' * id0 - scale parameter; default = 1.577533
 #' * kd - shape parameter; default = 0.476614
 #'
-#' probability of asymptomatic infection/antiparasite immunity (P.v only):
+#' probability of lm-detectability/asymptomatic infection (p.v only):
 #'
 #' * phi0lm - maximum probability due to no immunity; default = 0.8918
 #' * phi1lm - maximum reduction due to immunity; default = 0.00482170890334156
@@ -90,7 +94,7 @@
 #' * ic0 - scale parameter; default = 18.02366
 #' * kc - shape parameter; default = 2.36949
 #'
-#' probability of severe infection/severe disease immunity (P.f only):
+#' probability of severe infection (p.f only):
 #'
 #' * theta0 - maximum probability due to no immunity; default = 0.0749886
 #' * theta1 - maximum reduction due to immunity; default = 0.0001191
@@ -103,8 +107,8 @@
 #' infectivity towards mosquitoes:
 #'
 #' * cd - infectivity of clinically diseased humans towards mosquitoes; default = 0.068
-#' * ca - infectivity of asymptomatically diseased humans towards mosquitoes (P.v only); default = 0.1
-#' * gamma1 - parameter for infectivity of asymptomatic humans (P.f only); default = 1.82425
+#' * ca - infectivity of asymptomatically diseased humans towards mosquitoes (p.v only); default = 0.1
+#' * gamma1 - parameter for infectivity of asymptomatic humans (p.f only); default = 1.82425
 #' * cu - infectivity of sub-patent infection; default = 0.0062
 #' * ct - infectivity of treated infection; default = 0.021896
 #'
@@ -114,10 +118,11 @@
 #' * delay_gam - Lag from parasites to infectious gametocytes; default = 12.5
 #' * dem - Extrinsic incubation period in mosquito population model; default = 10
 #'
-#' hypnozoite parameters (P.v only):
+#' hypnozoite parameters (p.v only):
 #'
 #' * f - relapse rate; default = 0.024
 #' * gammal - clearance rate; default = 0.0026
+#' * init_hyp - initial hypnozoite batch number; default = 0
 #'
 #' parasite parameter
 #'
@@ -155,13 +160,21 @@
 #' * incidence_rendering_min_ages - the minimum ages for incidence
 #' outputs (pf: D+Tr+A, pv: D+Tr+A+U); default = turned off
 #' * incidence_rendering_max_ages - the corresponding max ages; default = turned off
-#' * patent_incidence_rendering_min_ages - the minimum ages for patent incidence outputs (lm detectable), (P.v only); default = turned off
-#' * patent_incidence_rendering_max_ages - the corresponding max ages (P.v only); default = turned off
-#' * clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = turned off
-#' * clinical_incidence_rendering_max_ages - the corresponding max ages; default = turned off
+#' * patent_incidence_rendering_min_ages - the minimum ages for patent incidence outputs (LM detectable), (p.v only); default = numeric(0)
+#' * patent_incidence_rendering_max_ages - the corresponding max ages (p.v only); default = 1825
+#' * clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = 0
+#' * clinical_incidence_rendering_max_ages - the corresponding max ages; default = 1825
 #' * severe_incidence_rendering_min_ages - the minimum ages for severe incidence
 #' outputs; default = turned off
 #' * severe_incidence_rendering_max_ages - the corresponding max ages; default = turned off
+#' * severe_prevalence_rendering_min_ages - the minimum ages for severe prevalance outputs; default = numeric(0)
+#' * severe_prevalence_rendering_max_ages - the corresponding max ages; default = numeric(0)
+#' * hypnozoite_rendering_min_ages - the minimum ages for hypnozoite outputs (p.v only); default = numeric(0)
+#' * hypnozoite_rendering_max_ages - the corresponding max ages; default = numeric(0)
+#' * new_bite_incidence_rendering_min_ages - the minimum ages for incidence via mosquito bite outputs (not via relapse; p.v only); default = numeric(0)
+#' * new_bite_incidence_rendering_max_ages - the corresponding max ages; default = numeric(0)
+#' * relapse_incidence_rendering_min_ages - the minimum ages for hypnozoite relapse incidence outputs (p.v only); default = numeric(0)
+#' * relapse_incidence_rendering_max_ages - the corresponding max ages; default = numeric(0)
 #'
 #' mosquito life stage transitions:
 #'
@@ -342,6 +355,12 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       severe_incidence_rendering_max_ages = numeric(0),
       severe_prevalence_rendering_min_ages = numeric(0),
       severe_prevalence_rendering_max_ages = numeric(0),
+      hypnozoite_rendering_min_ages = numeric(0),
+      hypnozoite_rendering_max_ages = numeric(0),
+      new_bite_incidence_rendering_min_ages = numeric(0),
+      new_bite_incidence_rendering_max_ages = numeric(0),
+      relapse_incidence_rendering_min_ages = numeric(0),
+      relapse_incidence_rendering_max_ages = numeric(0),
 
       # mosquito life stage transitions
       del =  6.64,
@@ -441,7 +460,7 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       a_tol = 1e-4,
       ode_max_steps = 1e6,
       progress_bar = FALSE
-      ))
+    ))
 
   # Override parameters with any client specified ones
   if (!is.list(overrides)) {

@@ -18,61 +18,62 @@ human fixed state transitions:
 \item dd - the delay for humans to move from state D to A; default = 5
 \item dt - the delay for humans to move from state Tr to Ph; default = 5
 \item da - the delay for humans to move from state A to U; default = 195
-\item du - the delay for humans to move from state U to S (P.f only); default = 110
+\item du - the delay for humans to move from state U to S (p.f only); default = 110
 }
 
-duration of subpatent infection: du (P.v only):
+duration of pcr detectable infection: du (p.v only):
 \itemize{
-\item du_max - Maximum duration of subpatent infection: default = 70
-\item du_min - Minimum duration of subpatent infection: default = 10
-\item ku - Shape parameter: default = 4.602
-\item au50 - Scale parameter: default = 9.9
+\item dpcr_max - Maximum duration of subpatent infection: default = 70
+\item dpcr_min - Minimum duration of subpatent infection: default = 10
+\item kpcr - Shape parameter: default = 4.602
+\item apcr50 - Scale parameter: default = 9.9
 }
 
 initial immunity values:
 \itemize{
+\item init_ib  - the initial pre-erythrocitic immunity (p.f only); default = 0
+\item init_id  - the initial acquired immunity to LM-detectability; default = 0
+\item init_idm - the immunity from LM-dectectability at birth (p.v only); default = 0
 \item init_ica - the initial acquired immunity from clinical disease; default = 0
 \item init_icm - the immunity from clinical disease at birth; default = 0
-\item init_iva - the initial acquired immunity from severe disease (P.f only); default = 0
-\item init_ivm - the immunity from severe disease at birth (P.f only); default = 0
-\item init_ib  - the initial pre-erythrocitic immunity (P.f only); default = 0
-\item init_id  - the initial acquired immunity to detectability; default = 0
+\item init_iva - the initial acquired immunity from severe disease (p.f only); default = 0
+\item init_ivm - the immunity from severe disease at birth (p.f only); default = 0
 }
 
 immunity boost grace periods:
 \itemize{
-\item ub - period in which pre-erythrocytic immunity cannot be boosted (P.f only); default = 7.2
+\item ub - period in which pre-erythrocytic immunity cannot be boosted (p.f only); default = 7.2
 \item ud - period in which immunity to detectability cannot be boosted; default = 9.44512
 \item uc - period in which clinical immunity cannot be boosted; default = 6.06
-\item uv - period in which severe immunity cannot be boosted (P.f only); default = 11.4321
+\item uv - period in which severe immunity cannot be boosted (p.f only); default = 11.4321
 }
 
 maternal immunity parameters:
 \itemize{
-\item pcm - new-born clinical immunity relative to mother's; default = 0.774368
-\item pvm - new-born severe immunity relative to mother's (P.f only); default = 0.195768
+\item pcm - new-born clinical immunity (p.v only: or immunity to lm-detectability) relative to mother's; default = 0.774368
+\item pvm - new-born severe immunity relative to mother's (p.f only); default = 0.195768
 }
 
 immunity decay rates:
 \itemize{
-\item rm - decay rate for maternal immunity to clinical disease; default = 67.6952
-\item rvm - decay rate for maternal immunity to severe disease (P.f only); default = 76.8365
-\item rb - decay rate for acquired pre-erythrocytic immunity (P.f only); default = 3650
-\item rid - decay rate for acquired immunity to detectability; default = 3650
+\item rm - decay rate for maternal immunity to clinical disease (p.v or lm-detectability); default = 67.6952
+\item rvm - decay rate for maternal immunity to severe disease (p.f only); default = 76.8365
+\item rb - decay rate for acquired pre-erythrocytic immunity (p.f only); default = 3650
+\item rid - decay rate for acquired immunity to lm-detectability; default = 3650
 \item rc - decay rate for acquired immunity to clinical disease; default = 10950
-\item rva - decay rate for acquired immunity to severe disease (P.f only); default = 10950
+\item rva - decay rate for acquired immunity to severe disease (p.f only); default = 10950
 }
 
 probability of pre-erythrocytic infection/blood immunity:
 \itemize{
-\item b0 - maximum probability due to no immunity (P.f only); default = 0.59
-\item b1 - maximum reduction due to immunity (P.f only); default = 0.5
-\item ib0 - scale parameter (P.f only); default = 43.9
-\item kb - shape parameter (P.f only); default = 2.16
-\item b - probability of pre-erythrocytic infection (P.v only): default = 0.5
+\item b0 - maximum probability due to no immunity (p.f only); default = 0.59
+\item b1 - maximum reduction due to immunity (p.f only); default = 0.5
+\item ib0 - scale parameter (p.f only); default = 43.9
+\item kb - shape parameter (p.f only); default = 2.16
+\item b - probability of pre-erythrocytic infection (p.v only): default = 0.5
 }
 
-probability of asymptomatic detection/detectability immunity (P.f only):
+probability of asymptomatic detection/detectability immunity (p.f only):
 \itemize{
 \item fd0 - time-scale at which immunity changes with age; default = 0.007055
 \item ad - scale parameter relating age to immunity; default = 7993.5
@@ -82,7 +83,7 @@ probability of asymptomatic detection/detectability immunity (P.f only):
 \item kd - shape parameter; default = 0.476614
 }
 
-probability of asymptomatic infection/antiparasite immunity (P.v only):
+probability of lm-detectability/asymptomatic infection (p.v only):
 \itemize{
 \item phi0lm - maximum probability due to no immunity; default = 0.8918
 \item phi1lm - maximum reduction due to immunity; default = 0.00482170890334156
@@ -98,7 +99,7 @@ probability of clinical infection/clinical immunity:
 \item kc - shape parameter; default = 2.36949
 }
 
-probability of severe infection/severe disease immunity (P.f only):
+probability of severe infection (p.f only):
 \itemize{
 \item theta0 - maximum probability due to no immunity; default = 0.0749886
 \item theta1 - maximum reduction due to immunity; default = 0.0001191
@@ -112,8 +113,8 @@ probability of severe infection/severe disease immunity (P.f only):
 infectivity towards mosquitoes:
 \itemize{
 \item cd - infectivity of clinically diseased humans towards mosquitoes; default = 0.068
-\item ca - infectivity of asymptomatically diseased humans towards mosquitoes (P.v only); default = 0.1
-\item gamma1 - parameter for infectivity of asymptomatic humans (P.f only); default = 1.82425
+\item ca - infectivity of asymptomatically diseased humans towards mosquitoes (p.v only); default = 0.1
+\item gamma1 - parameter for infectivity of asymptomatic humans (p.f only); default = 1.82425
 \item cu - infectivity of sub-patent infection; default = 0.0062
 \item ct - infectivity of treated infection; default = 0.021896
 }
@@ -125,10 +126,11 @@ parasite incubation periods:
 \item dem - Extrinsic incubation period in mosquito population model; default = 10
 }
 
-hypnozoite parameters (P.v only):
+hypnozoite parameters (p.v only):
 \itemize{
 \item f - relapse rate; default = 0.024
 \item gammal - clearance rate; default = 0.0026
+\item init_hyp - initial hypnozoite batch number; default = 0
 }
 
 parasite parameter
@@ -171,13 +173,21 @@ outputs (pcr and lm detectable infections); default = 730
 \item incidence_rendering_min_ages - the minimum ages for incidence
 outputs (pf: D+Tr+A, pv: D+Tr+A+U); default = turned off
 \item incidence_rendering_max_ages - the corresponding max ages; default = turned off
-\item patent_incidence_rendering_min_ages - the minimum ages for patent incidence outputs (lm detectable), (P.v only); default = turned off
-\item patent_incidence_rendering_max_ages - the corresponding max ages (P.v only); default = turned off
-\item clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = turned off
-\item clinical_incidence_rendering_max_ages - the corresponding max ages; default = turned off
+\item patent_incidence_rendering_min_ages - the minimum ages for patent incidence outputs (LM detectable), (p.v only); default = numeric(0)
+\item patent_incidence_rendering_max_ages - the corresponding max ages (p.v only); default = 1825
+\item clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = 0
+\item clinical_incidence_rendering_max_ages - the corresponding max ages; default = 1825
 \item severe_incidence_rendering_min_ages - the minimum ages for severe incidence
 outputs; default = turned off
 \item severe_incidence_rendering_max_ages - the corresponding max ages; default = turned off
+\item severe_prevalence_rendering_min_ages - the minimum ages for severe prevalance outputs; default = numeric(0)
+\item severe_prevalence_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item hypnozoite_rendering_min_ages - the minimum ages for hypnozoite outputs (p.v only); default = numeric(0)
+\item hypnozoite_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item new_bite_incidence_rendering_min_ages - the minimum ages for incidence via mosquito bite outputs (not via relapse; p.v only); default = numeric(0)
+\item new_bite_incidence_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item relapse_incidence_rendering_min_ages - the minimum ages for hypnozoite relapse incidence outputs (p.v only); default = numeric(0)
+\item relapse_incidence_rendering_max_ages - the corresponding max ages; default = numeric(0)
 }
 
 mosquito life stage transitions:
@@ -326,5 +336,8 @@ and mortality: A modelling study."
 
 Plasmodium vivax specific parameters are explained in
 "Mathematical modelling of the impact of expanding levels of malaria control
-interventions on Plasmodium vivax." by White, Michael T., et al.
+interventions on Plasmodium vivax." by White, Michael T., et al. with parameter
+values found in "Accelerating towards P. vivax elimination with a novel
+serological test-and-treat strategy: a modelling case study in Brazil" by
+Nekkab, Narimane T.,et al. or online repository
 }

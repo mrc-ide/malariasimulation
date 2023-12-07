@@ -52,7 +52,7 @@ test_that('simulate_infection integrates different types of infection and schedu
     variables$ib,
     bitten,
     variables$last_boosted_ib,
-    5,
+    timestep,
     parameters$ub
   )
 
@@ -138,7 +138,7 @@ test_that('calculate_infections works various combinations of drug and vaccinati
     pev_profile = individual::IntegerVariable$new(c(-1, 1, 2, -1)),
     ib = individual::DoubleVariable$new(c(.2, .3, .5, .9))
   )
-        
+
   immunity_mock <- mockery::mock(c(.2, .3, .4))
   weibull_mock <- mockery::mock(.2)
   vaccine_antibodies_mock <- mockery::mock(c(2, 3))
@@ -164,7 +164,7 @@ test_that('calculate_infections works various combinations of drug and vaccinati
 
   infections <- calculate_infections(
     variables,
-    bitten_humans, 
+    bitten_humans,
     parameters,
     mock_render(timestep),
     timestep
@@ -335,7 +335,7 @@ test_that('schedule_infections correctly schedules new infections', {
     treated,
     infections,
     parameters,
-    42 
+    42
   )
 
   actual_infected <- mockery::mock_args(infection_mock)[[1]][[5]]$to_vector()
@@ -370,13 +370,13 @@ test_that('prophylaxis is considered for medicated humans', {
     ib = individual::DoubleVariable$new(c(.2, .3, .5, .9))
   )
 
-  bitten <- individual::Bitset$new(4)$insert(seq(4))
-  m <- mockery::mock(seq(3))
+  bitten_humans <- individual::Bitset$new(4)$insert(seq(4))
+  m <- mockery::mock(c(1,1,2,3), cycle = T)
   mockery::stub(calculate_infections, 'bernoulli_multi_p', m)
 
   calculate_infections(
     variables,
-    bitten,
+    bitten_humans,
     parameters,
     mock_render(timestep),
     timestep

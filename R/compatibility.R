@@ -290,7 +290,7 @@ set_equilibrium <- function(parameters, init_EIR, eq_params = NULL, age_vector, 
     )
 
   } else if (parameters$parasite == "vivax"){
-if (!(eq_params is NULL)) {
+if (!(is.null(eq_params))) {
   stop("Importing MalariaEquilibriumVivax parameters is not supported")
 }
     if(!v_eq %in% c("full","simplified")){stop("vivax equilibrium must be 'full' or 'simplified'")}

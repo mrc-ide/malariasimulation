@@ -19,7 +19,8 @@ set_equilibrium(
 population)}
 
 \item{eq_params}{parameters from the malariaEquilibrium package, if null.
-The default malariaEquilibrium parameters will be used}
+The default malariaEquilibrium parameters will be used. eq_params is only functional with P. falciparum.
+#' @param v_eq vivax equilibrium version: default is "full", but may also be "simplified".}
 }
 \description{
 This will update the IBM parameters to match the

@@ -136,7 +136,7 @@ calculate_infections <- function(
     b <- blood_immunity(variables$ib$get_values(source_humans), parameters)
 
   } else if (parameters$parasite == "vivax"){
-    ## Source_humans must include hypnozoite individuals to be impacte by prophylaxis/vaccination
+    ## Source_humans must include individuals with hypnozoites which may be impacted by prophylaxis/vaccination
     source_humans <- bitten_humans$copy()$or(variables$hypnozoites$get_index_of(0)$not(TRUE))
     source_vector <- source_humans$to_vector()
     bitten_vector <- bitten_humans$to_vector()
@@ -210,11 +210,12 @@ calculate_infections <- function(
   else if(parameters$parasite == "vivax"){
 
     ## Calculated rate of infection for all bitten or with hypnozoites
-    rate_infection_bitten <- rep(0, source_humans$size())
-    rate_infection_bitten[bitten_vector %in% source_vector] <- prob_to_rate(b)
+    rate_infection_bitten <- rep(0, parameters$human_population)
+    rate_infection_bitten[bitten_vector] <- prob_to_rate(b)
+    rate_infection_bitten <- rate_infection_bitten[source_vector]
     rate_infection_complete <- rate_infection_bitten + variables$hypnozoites$get_values(source_humans)
     ## Get relative rates to get probability bitten over relapse
-    relative_rate <- c(rate_infection_bitten/rate_infection_complete)
+    relative_rate <- rate_infection_bitten/rate_infection_complete
     prob <- rate_to_prob(rate_infection_complete) * (1 - prophylaxis) * (1 - vaccine_efficacy)
 
     # Subset for new infections/bite infections
@@ -227,7 +228,6 @@ calculate_infections <- function(
       bernoulli_multi_p(relative_rate))$and(newly_infected)
 
     ## Drug prophylaxis may limit formation of new hypnozoite batches
-    # newly_bite_infected_vector <- newly_bite_infected$to_vector()
     ls_prophylaxis <- rep(0, newly_bite_infected$size())
     if(length(parameters$drug_hypnozoite_efficacy)>0){
       ls_drug <- variables$ls_drug$get_values(newly_bite_infected)

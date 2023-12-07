@@ -14,7 +14,7 @@ test_that('Initial states are consistent with equilibrium', {
         age = EQUILIBRIUM_AGES,
         ft = 0,
         EIR = EIR,
-        p = eq_params)$states
+        p = translate_vivax_parameters(eq_params))$states
 
       return(colSums(do.call(rbind, lapply(eq, function(x){colSums(x[,c("S","D","A","U","T")])}))))
     })
@@ -54,7 +54,7 @@ test_that('Initial immunities are consistent with equilibrium', {
         age = EQUILIBRIUM_AGES,
         ft = 0,
         EIR = EIR,
-        p = eq_params)$states
+        p = translate_vivax_parameters(eq_params))$states
       return(colSums(do.call(rbind, lapply(1:length(het$nodes), function(x){colSums(eq[[x]][,c("ICA","ICM","ID","IDM","HH")]*eq[[x]][,"prop"]*het$weights[x])}))))
     })
 

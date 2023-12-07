@@ -131,25 +131,27 @@ calculate_infections <- function(
 
   if(parameters$parasite == "falciparum"){
     source_humans <- variables$state$get_index_of(c('S','A','U'))$and(bitten_humans)
-    source_vector <- source_humans$to_vector()
+
     ## P. falciparum models blood immunity
     b <- blood_immunity(variables$ib$get_values(source_humans), parameters)
 
   } else if (parameters$parasite == "vivax"){
-    ## All infections must be checked for hypnozoite batch increases
-    source_humans <- bitten_humans
+    ## Source_humans must include individuals with hypnozoites which may be impacted by prophylaxis/vaccination
+    source_humans <- bitten_humans$copy()$or(variables$hypnozoites$get_index_of(0)$not(TRUE))
     source_vector <- source_humans$to_vector()
+    bitten_vector <- bitten_humans$to_vector()
+
     ## P. vivax does not model blood immunity
     b <- parameters$b
   }
 
   # calculate prophylaxis
-  prophylaxis <- rep(0, length(source_vector))
-  drug <- variables$drug$get_values(source_vector)
+  prophylaxis <- rep(0, source_humans$size())
+  drug <- variables$drug$get_values(source_humans)
   medicated <- (drug > 0)
   if (any(medicated)) {
     drug <- drug[medicated]
-    drug_time <- variables$drug_time$get_values(source_vector[medicated])
+    drug_time <- variables$drug_time$get_values(source_humans)[medicated]
     prophylaxis[medicated] <- weibull_survival(
       timestep - drug_time,
       parameters$drug_prophylaxis_shape[drug],
@@ -158,10 +160,10 @@ calculate_infections <- function(
   }
 
   # calculate vaccine efficacy
-  vaccine_efficacy <- rep(0, length(source_vector))
-  vaccine_times <- variables$pev_timestep$get_values(source_vector)
+  vaccine_efficacy <- rep(0, source_humans$size())
+  vaccine_times <- variables$pev_timestep$get_values(source_humans)
   vaccinated <- vaccine_times > -1
-  pev_profile <- variables$pev_profile$get_values(source_vector)
+  pev_profile <- variables$pev_profile$get_values(source_humans)
   pev_profile <- pev_profile[vaccinated]
   if (length(vaccinated) > 0) {
     antibodies <- calculate_pev_antibodies(
@@ -183,9 +185,9 @@ calculate_infections <- function(
     )
   }
 
-  prob <- b * (1 - prophylaxis) * (1 - vaccine_efficacy)
-
   if(parameters$parasite == "falciparum"){
+
+    prob <- b * (1 - prophylaxis) * (1 - vaccine_efficacy)
 
     ## All bitten humans with an infectious bite (incorporating prophylaxis and vaccines)
     newly_infected <- bitset_at(source_humans, bernoulli_multi_p(prob))
@@ -207,42 +209,32 @@ calculate_infections <- function(
 
   else if(parameters$parasite == "vivax"){
 
-    # Convert prob of infected bite to rate
-    rate_bitten <- prob_to_rate(prob)
-    rate_bitten_complete <- c(rep(0, parameters$human_population))
-    rate_bitten_complete[source_humans$to_vector()] <- rate_bitten
-
-    # Get rates/probs of relapse
-    rate_relapse <- variables$hypnozoites$get_values() * parameters$f
-    prob_relapse <- rate_to_prob(rate_relapse)
-
-    # Combine and relative
-    rate_infection_complete <- rate_bitten_complete + rate_relapse
-    relative_rate <- c(rate_bitten_complete/rate_infection_complete)
-
-    # Humans with potential new infections
-    with_hypnozoites <- variables$hypnozoites$get_index_of(0)$not(TRUE)
-    potential_new_infections_humans <- source_humans$copy()$or(with_hypnozoites)
-
-    # Sum rates of bite infection and relapses
-    prob_new_infections <- rate_to_prob(rate_infection_complete)
+    ## Calculated rate of infection for all bitten or with hypnozoites
+    rate_infection_bitten <- rep(0, parameters$human_population)
+    rate_infection_bitten[bitten_vector] <- prob_to_rate(b)
+    rate_infection_bitten <- rate_infection_bitten[source_vector]
+    rate_infection_complete <- rate_infection_bitten + variables$hypnozoites$get_values(source_humans)
+    ## Get relative rates to get probability bitten over relapse
+    relative_rate <- rate_infection_bitten/rate_infection_complete
+    prob <- rate_to_prob(rate_infection_complete) * (1 - prophylaxis) * (1 - vaccine_efficacy)
 
     # Subset for new infections/bite infections
-    newly_infected <- bitset_at(potential_new_infections_humans,
-                                bernoulli_multi_p(prob_new_infections[potential_new_infections_humans$to_vector()]))
+    newly_infected <- bitset_at(
+      source_humans,
+      bernoulli_multi_p(prob))
+
     newly_bite_infected <- bitset_at(
-      newly_infected,
-      bernoulli_multi_p(relative_rate[newly_infected$to_vector()]))
+      source_humans,
+      bernoulli_multi_p(relative_rate))$and(newly_infected)
 
     ## Drug prophylaxis may limit formation of new hypnozoite batches
-    newly_bite_infected_vector <- newly_bite_infected$to_vector()
-    ls_prophylaxis <- rep(0, length(newly_bite_infected_vector))
+    ls_prophylaxis <- rep(0, newly_bite_infected$size())
     if(length(parameters$drug_hypnozoite_efficacy)>0){
-      ls_drug <- variables$ls_drug$get_values(newly_bite_infected_vector)
+      ls_drug <- variables$ls_drug$get_values(newly_bite_infected)
       ls_medicated <- (ls_drug > 0)
       if (any(ls_medicated)) {
         ls_drug <- ls_drug[ls_medicated]
-        ls_drug_time <- variables$ls_drug_time$get_values(newly_bite_infected_vector[ls_medicated])
+        ls_drug_time <- variables$ls_drug_time$get_values(newly_bite_infected)[ls_medicated]
         ls_prophylaxis[ls_medicated] <- weibull_survival(
           timestep - ls_drug_time,
           parameters$drug_hypnozoite_prophylaxis_shape[ls_drug],
@@ -255,7 +247,6 @@ calculate_infections <- function(
     if(newly_bite_infected$size()>0){
       new_batches_formed <- bitset_at(newly_bite_infected, bernoulli_multi_p(1-ls_prophylaxis))
       variables$hypnozoites$queue_update(
-        # variables$hypnozoites$get_values(new_batches_formed$and(can_increase_batches)) + 1,
         variables$hypnozoites$get_values(new_batches_formed) + 1,
         new_batches_formed$and(newly_bite_infected)
       )

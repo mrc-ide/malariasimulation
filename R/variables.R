@@ -195,7 +195,7 @@ create_variables <- function(parameters) {
       )
     )
 
-    # Hypnozoite batch variable
+    # Initiate initial hypnozoite batches
     hypnozoites <- individual::IntegerVariable$new(
       initial_hypnozoites(
         parameters$init_hyp,
@@ -368,7 +368,6 @@ initial_immunity <- function(
     return(vnapply(
       seq_along(age),
       function(i) {
-        # browser()
         g <- groups[[i]]
         a <- age[[i]]
         eq[[g]][which.max(a < eq[[g]][, 'age']), eq_name]

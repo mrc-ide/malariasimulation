@@ -1,20 +1,20 @@
 #' @title Preset parameters for the DHA-PQP drug
 #' @description From SI of Commun. 5:5606 doi: 10.1038/ncomms6606 (2014)
 #' @details Use a vector of preset parameters for the DHA-PQP drug (dihydroartemisinin-piperaquine)
-#' @details Default parameters, from L to R, are: parasite: "falciparum", drug_efficacy: 0.95, drug_rel_c: 0.09434, drug_prophylaxis_shape: 4.4, drug_prophylaxis_scale: 28.1
+#' @details Default parameters, from L to R, are: drug_efficacy: 0.95, drug_rel_c: 0.09434, drug_prophylaxis_shape: 4.4, drug_prophylaxis_scale: 28.1
 #' @export
 DHA_PQP_params <- list("falciparum", c(.95, 0.09434, 4.4, 28.1))
 
 #' @title Preset parameters for the AL drug
 #' @description From SI of Commun. 5:5606 doi: 10.1038/ncomms6606 (2014)
 #' @details Use a vector of preset parameters for the AL drug (artemether-lumefantrine)
-#' @details Default parameters, from L to R, are: parasite: "falciparum", drug_efficacy: 0.95, drug_rel_c: 0.05094, drug_prophylaxis_shape: 11.3, drug_prophylaxis_scale: 10.6
+#' @details Default parameters, from L to R, are: drug_efficacy: 0.95, drug_rel_c: 0.05094, drug_prophylaxis_shape: 11.3, drug_prophylaxis_scale: 10.6
 #' @export
 AL_params <- list("falciparum", c(.95, 0.05094, 11.3, 10.6))
 
 #' @title Preset parameters for the SP-AQ drug
 #' @details Use a vector of preset parameters for the SP-AQ drug (sulphadoxine-pyrimethamine and amodiaquine)
-#' @details Default parameters, from L to R, are: parasite: "falciparum", drug_efficacy: 0.9, drug_rel_c: 0.32, drug_prophylaxis_shape: 4.3, drug_prophylaxis_scale: 38.1
+#' @details Default parameters, from L to R, are: drug_efficacy: 0.9, drug_rel_c: 0.32, drug_prophylaxis_shape: 4.3, drug_prophylaxis_scale: 38.1
 #' @export
 SP_AQ_params <- list("falciparum", c(0.9, 0.32, 4.3, 38.1))
 
@@ -22,7 +22,7 @@ SP_AQ_params <- list("falciparum", c(0.9, 0.32, 4.3, 38.1))
 #' @description Efficacy from SI of Nekkab et al., DOI: 10.1371/journal.pmed.1003535 (2021),
 #' shape and scale consistent with a longer prophylaxis time: 28 days, decreasing gradually
 #' @details Use a vector of preset parameters for the CQ drug (chloroquine)
-#' @details Default parameters, from L to R, are: parasite: "vivax", drug_efficacy: 0.899, drug_rel_c: 0.5, drug_prophylaxis_shape: 20, drug_prophylaxis_scale: 5
+#' @details Default parameters, from L to R, are: drug_efficacy: 0.899, drug_rel_c: 0.5, drug_prophylaxis_shape: 20, drug_prophylaxis_scale: 5
 #' @export
 CQ_params_vivax <- list("vivax", c(0.899, 0.5, 5, 20))
 

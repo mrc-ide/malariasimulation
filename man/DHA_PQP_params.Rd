@@ -5,7 +5,7 @@
 \alias{DHA_PQP_params}
 \title{Preset parameters for the DHA-PQP drug}
 \format{
-An object of class \code{numeric} of length 4.
+An object of class \code{list} of length 2.
 }
 \usage{
 DHA_PQP_params

@@ -260,7 +260,8 @@ remove_unused_equilibrium <- function(params) {
 #' @param init_EIR the desired initial EIR (infectious bites per person per day over the entire human
 #' population)
 #' @param eq_params parameters from the malariaEquilibrium package, if null.
-#' The default malariaEquilibrium parameters will be used
+#' The default malariaEquilibrium parameters will be used. eq_params is only functional with P. falciparum.
+#' #' @param v_eq vivax equilibrium version: default is "full", but may also be "simplified".
 #' @export
 set_equilibrium <- function(parameters, init_EIR, eq_params = NULL, age_vector, v_eq = "full") {
   if(parameters$parasite == "falciparum"){
@@ -290,7 +291,9 @@ set_equilibrium <- function(parameters, init_EIR, eq_params = NULL, age_vector, 
     )
 
   } else if (parameters$parasite == "vivax"){
-
+if (!(is.null(eq_params))) {
+  stop("Importing MalariaEquilibriumVivax parameters is not supported")
+}
     if(!v_eq %in% c("full","simplified")){stop("vivax equilibrium must be 'full' or 'simplified'")}
 
     eq <- malariaEquilibriumVivax::vivax_equilibrium(

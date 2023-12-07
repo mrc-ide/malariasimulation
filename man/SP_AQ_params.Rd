@@ -5,7 +5,7 @@
 \alias{SP_AQ_params}
 \title{Preset parameters for the SP-AQ drug}
 \format{
-An object of class \code{numeric} of length 4.
+An object of class \code{list} of length 2.
 }
 \usage{
 SP_AQ_params

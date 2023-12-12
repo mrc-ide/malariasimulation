@@ -213,7 +213,7 @@ calculate_infections <- function(
     rate_infection_bitten <- rep(0, parameters$human_population)
     rate_infection_bitten[bitten_vector] <- prob_to_rate(b)
     rate_infection_bitten <- rate_infection_bitten[source_vector]
-    rate_infection_complete <- rate_infection_bitten + variables$hypnozoites$get_values(source_humans)
+    rate_infection_complete <- rate_infection_bitten + variables$hypnozoites$get_values(source_humans) * parameters$f
     ## Get relative rates to get probability bitten over relapse
     relative_rate <- rate_infection_bitten/rate_infection_complete
     prob <- rate_to_prob(rate_infection_complete) * (1 - prophylaxis) * (1 - vaccine_efficacy)

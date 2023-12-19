@@ -23,6 +23,10 @@ set_epi_outputs <- function(parameters,
                             hypnozoite_prevalence = NULL
 ){
 
+  if(parameters$parasite == "falciparum" & !is.null(patent_incidence)){message("Patent incidence will not be output for P. falciparum")}
+  if(parameters$parasite == "falciparum" & !is.null(hypnozoite_prevalence)){message("Hypnozoite prevalence will not be output for P. falciparum")}
+  if(parameters$parasite == "vivax" & !is.null(hypnozoite_prevalence)){message("Severe incidence will not be output for P. vivax")}
+
   parent_formals <- names(formals())
   parent_formals <- parent_formals[which(parent_formals != "parameters")]
   outputs <- parent_formals[!unlist(lapply(parent_formals, function(x){is.null(get(x))}))]

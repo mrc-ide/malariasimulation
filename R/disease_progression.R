@@ -106,8 +106,10 @@ create_subpatent_progression_process <- function(
       parameters$dpcr_min, parameters$dpcr_max, parameters$apcr50, parameters$kpcr,
       variables$id$get_values(index = subpatent_index),
       variables$idm$get_values(index = subpatent_index))
+
     ## Get individuals who are going to change
     to_move <- subpatent_index$sample(1/rate)
+
     # update individuals and infectivity
     update_infection(
       state,

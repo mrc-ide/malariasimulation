@@ -87,7 +87,7 @@
 #' * ic0lm - scale parameter; default = 27.52
 #' * kclm - shape parameter; default = 2.403
 #'
-#' probability of clinical infection/clinical immunity:
+#' probability of clinical infection:
 #'
 #' * phi0 - maximum probability due to no immunity; default = 0.792
 #' * phi1 - maximum reduction due to immunity; default = 0.00074
@@ -123,6 +123,7 @@
 #' * f - relapse rate; default = 0.024
 #' * gammal - clearance rate; default = 0.0026
 #' * init_hyp - initial hypnozoite batch number; default = 0
+#' * kmax - maximum number of hypnozoite batches for use in the equilibrium solution; default = 10
 #'
 #' parasite parameter
 #'
@@ -305,6 +306,8 @@
 #'
 #' @export
 get_parameters <- function(overrides = list(), parasite = "falciparum") {
+
+  if(!parasite %in% c("falciparum","vivax")){stop("parasite must be 'falciparum' or 'vivax'")}
 
   parameters <- c(
     ## Parasite-specific parameters set in parasite_parameters.csv

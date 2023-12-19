@@ -73,14 +73,22 @@ create_variables <- function(parameters) {
       to_char_vector(groups)
     )
     if (!is.null(parameters$init_EIR)) {
-      eq <-	list(
-        malariaEquilibrium::human_equilibrium_no_het(
+
+      if(parameters$parasite == "falciparum"){
+        eq <-	list(malariaEquilibrium::human_equilibrium_no_het(
           parameters$init_EIR,
           sum(get_treatment_coverages(parameters, 0)),
           parameters$eq_params,
           EQUILIBRIUM_AGES
-        )
-      )
+        ))
+      } else if (parameters$parasite == "vivax"){
+        eq <- malariaEquilibriumVivax::vivax_equilibrium(
+          age = EQUILIBRIUM_AGES,
+          ft = sum(get_treatment_coverages(parameters, 0)),
+          EIR = parameters$init_EIR,
+          p = translate_vivax_parameters(parameters)
+        )$states
+      }
     } else {
       eq <- NULL
     }
@@ -185,7 +193,7 @@ create_variables <- function(parameters) {
       )
     )
 
-    # Hypnozoite batch variable
+    # Initiate initial hypnozoite batches
     hypnozoites <- individual::IntegerVariable$new(
       initial_hypnozoites(
         parameters$init_hyp,
@@ -390,7 +398,8 @@ initial_hypnozoites <- function(parameter, age, groups, eq){
       function(i) {
         g <- groups[[i]]
         a <- age[[i]]
-        rpois(n = 1, lambda = eq[[g]][which.max(a < eq[[g]][, 'age']), "HH"])
+        hyp <- rpois(n = 1, lambda = eq[[g]][which.max(a < eq[[g]][, 'age']), "HH"])
+        ifelse(hyp >10, 10, hyp)
       }
     ))
   }
@@ -415,17 +424,27 @@ calculate_initial_counts <- function(parameters) {
 
 calculate_eq <- function(het_nodes, parameters) {
   ft <- sum(get_treatment_coverages(parameters, 0))
-  lapply(
-    het_nodes,
-    function(n) {
-      malariaEquilibrium::human_equilibrium_no_het(
-        parameters$init_EIR * calculate_zeta(n, parameters),
-        ft,
-        parameters$eq_params,
-        EQUILIBRIUM_AGES
-      )
-    }
-  )
+  if(parameters$parasite == "falciparum"){
+    lapply(
+      het_nodes,
+      function(n) {
+        malariaEquilibrium::human_equilibrium_no_het(
+          parameters$init_EIR * calculate_zeta(n, parameters),
+          ft,
+          parameters$eq_params,
+          EQUILIBRIUM_AGES
+        )
+      }
+    )
+
+  } else if (parameters$parasite == "vivax"){
+    eq <- malariaEquilibriumVivax::vivax_equilibrium(
+      age = EQUILIBRIUM_AGES,
+      ft = sum(get_treatment_coverages(parameters, 0)),
+      EIR = parameters$init_EIR,
+      p = translate_vivax_parameters(parameters)
+    )$states
+  }
 }
 
 calculate_zeta <- function(zeta_norm, parameters) {

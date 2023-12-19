@@ -91,7 +91,7 @@ probability of lm-detectability/asymptomatic infection (p.v only):
 \item kclm - shape parameter; default = 2.403
 }
 
-probability of clinical infection/clinical immunity:
+probability of clinical infection:
 \itemize{
 \item phi0 - maximum probability due to no immunity; default = 0.792
 \item phi1 - maximum reduction due to immunity; default = 0.00074
@@ -131,6 +131,7 @@ hypnozoite parameters (p.v only):
 \item f - relapse rate; default = 0.024
 \item gammal - clearance rate; default = 0.0026
 \item init_hyp - initial hypnozoite batch number; default = 0
+\item kmax - maximum number of hypnozoite batches for use in the equilibrium solution; default = 10
 }
 
 parasite parameter

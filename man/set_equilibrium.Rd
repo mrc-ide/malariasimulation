@@ -4,7 +4,13 @@
 \alias{set_equilibrium}
 \title{Set equilibrium}
 \usage{
-set_equilibrium(parameters, init_EIR, eq_params = NULL)
+set_equilibrium(
+  parameters,
+  init_EIR,
+  eq_params = NULL,
+  age_vector,
+  v_eq = "full"
+)
 }
 \arguments{
 \item{parameters}{model parameters to update}
@@ -13,7 +19,8 @@ set_equilibrium(parameters, init_EIR, eq_params = NULL)
 population)}
 
 \item{eq_params}{parameters from the malariaEquilibrium package, if null.
-The default malariaEquilibrium parameters will be used}
+The default malariaEquilibrium parameters will be used. eq_params is only functional with P. falciparum.
+#' @param v_eq vivax equilibrium version: default is "full", but may also be "simplified".}
 }
 \description{
 This will update the IBM parameters to match the

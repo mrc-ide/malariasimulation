@@ -59,14 +59,14 @@ create_prevelance_renderer <- function(
       # render pcr detection
       renderer$render(
         paste0('n_detect_pcr_', lower, '_', upper),
-        pcr_detected$and(in_age)$size(),
+        pcr_detected$copy()$and(in_age)$size(),
         timestep
       )
 
       # render lm detection
       renderer$render(
         paste0('n_detect_lm_', lower, '_', upper),
-        lm_detected$and(in_age)$size(),
+        lm_detected$copy()$and(in_age)$size(),
         timestep
       )
 
@@ -74,7 +74,7 @@ create_prevelance_renderer <- function(
         # render lm detection (falciparum): summed probability
         renderer$render(
           paste0('p_detect_lm_', lower, '_', upper),
-          clinically_detected$and(in_age)$size() + sum(
+          clinically_detected$copy()$and(in_age)$size() + sum(
             prob[bitset_index(asymptomatic, in_age)]
           ),
           timestep

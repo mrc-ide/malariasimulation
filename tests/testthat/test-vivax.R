@@ -22,7 +22,7 @@ test_that('Test difference between falciparum and vivax parameter lists', {
   expect_true(all(names(falciparum_parameters)[!names(falciparum_parameters) %in% names(vivax_parameters)] %in%
                     c("du","rvm","rva","rb","b0","b1","ib0","kb","theta0","theta1","kv","fv0","av","gammav","iv0","fd0","ad","gammad","d1","id0","kd","ub","uv","gamma1","pvm","init_ivm","init_ib","init_iva")))
   expect_true(all(names(vivax_parameters[!names(vivax_parameters) %in% names(falciparum_parameters)]) %in%
-                    c("dpcr_max","dpcr_min","kpcr","apcr50","init_idm","b","philm_min","philm_max","klm","alm50","ca","f","gammal","init_hyp")))
+                    c("dpcr_max","dpcr_min","kpcr","apcr50","init_idm","b","philm_min","philm_max","klm","alm50","ca","f","gammal","init_hyp","kmax")))
 })
 
 ## Test subpatent progression functions
@@ -271,13 +271,17 @@ test_that('vivax schedule_infections correctly schedules new infections', {
 
   expect_equal(
     actual_subpatent_infected,
-    c(17, 18, 19, 20)
+    c(18, 19, 20)
   )
+
+  ## Individual 17 is asymptomatic so cannot be infected with a subpatent infection
+  expect_true(17 %in% variables$state$get_index_of("A")$to_vector())
+
 })
 
 test_that('relapses are recognised', {
   timestep <- 50
-  parameters <- get_parameters(parasite = "vivax")
+  parameters <- get_parameters(parasite = "vivax", overrides = list(human_population = 4))
 
   variables <- list(
     state = individual::CategoricalVariable$new(
@@ -291,7 +295,7 @@ test_that('relapses are recognised', {
     hypnozoites = individual::IntegerVariable$new(c(0, 1, 2, 3))
   )
 
-  bernoulli_mock <- mockery::mock(c(3,4), 4, cycle = TRUE)
+  bernoulli_mock <- mockery::mock(c(3,4), 3, 1, cycle = TRUE)
   mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
   bitten_humans <- individual::Bitset$new(4)$insert(c(1, 2, 3, 4))
   renderer <- mock_render(1)
@@ -322,26 +326,25 @@ test_that('relapses are recognised', {
 
 })
 
-
 test_that('infection division is correct', {
   timestep <- 50
-  parameters <- get_parameters(parasite = "vivax")
+  parameters <- get_parameters(parasite = "vivax", overrides = list(human_population = 10))
 
   variables <- list(
     state = individual::CategoricalVariable$new(
       c('D', 'S', 'A', 'U', 'Tr'),
-      rep("S", 8)
+      rep("S", 10)
     ),
-    drug = individual::DoubleVariable$new(rep(0, 8)),
-    drug_time = individual::DoubleVariable$new(rep(-1, 8)),
-    pev_timestep = individual::DoubleVariable$new(rep(-1, 8)),
-    pev_profile = individual::IntegerVariable$new(rep(-1, 8)),
-    hypnozoites = individual::IntegerVariable$new(c(rep(0, 4), 1, 1, 50, 50))
+    drug = individual::DoubleVariable$new(rep(0, 10)),
+    drug_time = individual::DoubleVariable$new(rep(-1, 10)),
+    pev_timestep = individual::DoubleVariable$new(rep(-1, 10)),
+    pev_profile = individual::IntegerVariable$new(rep(-1, 10)),
+    hypnozoites = individual::IntegerVariable$new(c(rep(0, 4), 1, 1, 50, 50, 0, 0))
   )
 
-  bernoulli_mock <- mockery::mock(c(3,7,8), 3, cycle = TRUE)
+  bernoulli_mock <- mockery::mock(c(3,7,8), c(3), c(1), cycle = TRUE)
   mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
-  bitten_humans <- individual::Bitset$new(8)$insert(1:7)
+  bitten_humans <- individual::Bitset$new(10)$insert(1:7)
   renderer <- mock_render(1)
 
   infections <- calculate_infections(

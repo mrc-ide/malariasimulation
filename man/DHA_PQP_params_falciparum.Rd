@@ -5,7 +5,7 @@
 \alias{DHA_PQP_params_falciparum}
 \title{Preset parameters for the DHA-PQP drug acting on P. falciparum}
 \format{
-An object of class \code{list} of length 4.
+An object of class \code{numeric} of length 4.
 }
 \usage{
 DHA_PQP_params_falciparum

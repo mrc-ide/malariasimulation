@@ -3,9 +3,9 @@
 \docType{data}
 \name{CQ_params_vivax}
 \alias{CQ_params_vivax}
-\title{Preset parameters for the CQ drug for vivax}
+\title{Preset parameters for the CQ drug acting on P. vivax}
 \format{
-An object of class \code{list} of length 2.
+An object of class \code{list} of length 4.
 }
 \usage{
 CQ_params_vivax
@@ -15,7 +15,7 @@ Efficacy from SI of Nekkab et al., DOI: 10.1371/journal.pmed.1003535 (2021),
 shape and scale consistent with a longer prophylaxis time: 28 days, decreasing gradually
 }
 \details{
-Use a vector of preset parameters for the CQ drug (chloroquine)
+Use a vector of preset parameters for the CQ drug (chloroquine) acting on P. vivax
 
 Default parameters, from L to R, are: drug_efficacy: 0.899, drug_rel_c: 0.5, drug_prophylaxis_shape: 20, drug_prophylaxis_scale: 5
 }

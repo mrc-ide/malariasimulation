@@ -3,9 +3,9 @@
 \docType{data}
 \name{CQ_PQ_params_vivax}
 \alias{CQ_PQ_params_vivax}
-\title{Preset parameters for the CQ-PQ drug}
+\title{Preset parameters for the CQ-PQ drug acting on P. vivax}
 \format{
-An object of class \code{list} of length 2.
+An object of class \code{list} of length 7.
 }
 \usage{
 CQ_PQ_params_vivax
@@ -16,7 +16,7 @@ BS shape and scale consistent with a longer prophylaxis time: 28 days, decreasin
 LS shape are scale consistent with a 7 day PQ treatment, with rapid decay.
 }
 \details{
-Use a vector of preset parameters for the CQ-PQ drug (chloroquine and primaquine)
+Use a vector of preset parameters for the CQ-PQ drug (chloroquine and primaquine) acting on P. vivax
 
 Default parameters, from L to R, are: drug_efficacy: 0.948, drug_rel_c: 0.5, drug_prophylaxis_shape: 5, drug_prophylaxis_scale: 20,
 drug_hypnozoite_efficacy: 0.713, drug_hypnozoite_prophylaxis_shape: 10, drug_hypnozoite_prophylaxis_scale: 5.5

@@ -270,8 +270,9 @@ please set drug and treatment parameters with the convenience functions
 model prophylaxis for each drug; default = turned off
 \item drug_prophylaxis_scale - a vector of scale parameters for weibull curves to
 model prophylaxis for each drug; default = turned off
-\item drug_hypnozoite_efficacy - a vector of efficacies targetting hypnozoites; default = turned off
-\item drug_hypnozoite_prophylaxis - a vector of prophylaxis against hypnozoite batch formation (days)
+\item drug_hypnozoite_efficacy - a vector of efficacies targeting hypnozoites; default = turned off
+\item drug_hypnozoite_prophylaxis_shape - a vector of prophylaxis shape parameters against hypnozoite batch formation (days); default = turned off
+\item drug_hypnozoite_prophylaxis_scale - a vector of prophylaxis scale parameters against hypnozoite batch formation (days); default = turned off
 \item clinical_treatment_drugs - a list of drugs that are available for
 clinically diseased (these values refer to the index in drug_* parameters); default = NULL
 \item clinical_treatment_timesteps - a list of vectors giving timesteps at which the

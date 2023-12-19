@@ -259,30 +259,19 @@ calculate_infections <- function(
 
     # Render new infections caused by bites
     renderer$render('n_new_bite_infections', newly_bite_infected$size(), timestep)
-    incidence_renderer(
-      variables$birth,
-      renderer,
-      newly_bite_infected,
-      source_humans,
-      prob,
-      'inc_new_bite_',
-      parameters$new_bite_incidence_rendering_min_ages,
-      parameters$new_bite_incidence_rendering_max_ages,
-      timestep
-    )
-
     # Render relapse infections
     new_relapse_infection <- newly_infected$copy()$and(newly_bite_infected$not(inplace = F))
     renderer$render('n_new_relapse_infections', new_relapse_infection$size(), timestep)
+    # Render all infections by age
     incidence_renderer(
       variables$birth,
       renderer,
-      new_relapse_infection,
-      with_hypnozoites,
-      prob_relapse,
-      'inc_relapse_',
-      parameters$relapse_incidence_rendering_min_ages,
-      parameters$relapse_incidence_rendering_max_ages,
+      newly_infected,
+      source_humans,
+      prob,
+      'inc_',
+      parameters$incidence_rendering_min_ages,
+      parameters$incidence_rendering_max_ages,
       timestep
     )
   }

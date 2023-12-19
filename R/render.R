@@ -220,12 +220,13 @@ create_hypnozoite_age_renderer_process <- function(
     renderer
 ) {
   function(timestep) {
-    for (i in seq_along(parameters$hypnozoite_rendering_min_ages)) {
-      lower <- parameters$hypnozoite_rendering_min_ages[[i]]
-      upper <- parameters$hypnozoite_rendering_max_ages[[i]]
+    for (i in seq_along(parameters$hypnozoite_prevalence_rendering_min_ages)) {
+      lower <- parameters$hypnozoite_prevalence_rendering_min_ages[[i]]
+      upper <- parameters$hypnozoite_prevalence_rendering_max_ages[[i]]
       in_age <- in_age_range(birth, timestep, lower, upper)
+      renderer$render(paste0('n_', lower, '_', upper), in_age$size(), timestep)
       renderer$render(
-        paste0('n_hypnozoites_age_', lower, '_', upper),
+        paste0('n_hypnozoites_', lower, '_', upper),
         sum(hypnozoites$get_values(index = in_age)!=0),
         timestep
       )

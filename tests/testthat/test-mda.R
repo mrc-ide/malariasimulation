@@ -9,7 +9,7 @@ test_that('MDA inputs align', {
       min_ages = c(5* 365, 5 * 365),
       max_ages = c(10 * 365, 10 * 365)
     ), "coverages and timesteps do no align")
-  
+
   expect_error(
     parameters <- set_mda(
       parameters,
@@ -19,7 +19,7 @@ test_that('MDA inputs align', {
       min_ages = 5 * 365,
       max_ages = c(10 * 365, 10 * 365)
     ), "minimum ages and timesteps do no align")
-  
+
   expect_error(
     parameters <- set_mda(
       parameters,
@@ -29,7 +29,7 @@ test_that('MDA inputs align', {
       min_ages = c(5* 365, 5 * 365),
       max_ages = 10 * 365
     ), "maximum ages and timesteps do no align")
-  
+
   expect_error(
     parameters <- set_mda(
       parameters,
@@ -40,7 +40,7 @@ test_that('MDA inputs align', {
       max_ages = c(10 * 365, 10 * 365)
     ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
     fixed = TRUE)
-  
+
   expect_error(
     parameters <- set_mda(
       parameters,
@@ -51,14 +51,14 @@ test_that('MDA inputs align', {
       max_ages = c(10 * 365, 10 * 365)
     ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
     fixed = TRUE)
- 
+
 })
 
 test_that('MDA moves the diseased and non-diseased population correctly', {
   timestep <- 50
   renderer <- individual::Render$new(timestep)
   parameters <- get_parameters(list(human_population = 4))
-  parameters <- set_drugs(parameters, list(SP_AQ_params))
+  parameters <- set_drugs(parameters, list(SP_AQ_params_falciparum))
   parameters <- set_mda(
     parameters,
     drug = 1,
@@ -68,7 +68,7 @@ test_that('MDA moves the diseased and non-diseased population correctly', {
     max_ages = c(10 * 365, 100 * 365)
   )
   events <- create_events(parameters)
-  
+
   variables <- list(
     state = mock_category(
       c('D', 'S', 'A', 'U', 'Tr'),
@@ -80,9 +80,9 @@ test_that('MDA moves the diseased and non-diseased population correctly', {
     drug_time = mock_double(c(1, 2, 3, 4)),
     drug = mock_double(c(1, 2, 1, 2))
   )
-  
+
   events$mda_administer <- mock_event(events$mda_administer)
-  
+
   listener <- create_mda_listeners(
     variables,
     events$mda_administer,
@@ -96,7 +96,7 @@ test_that('MDA moves the diseased and non-diseased population correctly', {
     parameters,
     renderer
   )
-  
+
   mockery::stub(listener, 'bernoulli', mockery::mock(c(TRUE, TRUE)))
   mock_correlation <- mockery::mock(c(TRUE, TRUE))
   mockery::stub(listener, 'sample_intervention', mock_correlation)
@@ -106,7 +106,7 @@ test_that('MDA moves the diseased and non-diseased population correctly', {
     'calculate_asymptomatic_detectable',
     mockery::mock(individual::Bitset$new(4)$insert(3))
   )
-  
+
   expect_equal(
     mockery::mock_args(mock_correlation)[[1]][[1]],
     c(3, 4)
@@ -116,32 +116,32 @@ test_that('MDA moves the diseased and non-diseased population correctly', {
     'Tr',
     3
   )
-  
+
   expect_bitset_update(
     variables$state$queue_update_mock(),
     'S',
     4,
     call = 2
   )
-  
+
   expect_bitset_update(
     variables$infectivity$queue_update_mock(),
-    c(.3, .4) * SP_AQ_params[[2]],
+    c(.3, .4) * SP_AQ_params_falciparum[[2]],
     c(3, 4)
   )
-  
+
   expect_bitset_update(
     variables$drug$queue_update_mock(),
     1,
     c(3, 4)
   )
-  
+
   expect_bitset_update(
     variables$drug_time$queue_update_mock(),
     50,
     c(3, 4)
   )
-  
+
   mockery::expect_args(
     events$mda_administer$schedule,
     1,
@@ -153,7 +153,7 @@ test_that('MDA moves the diseased and non-diseased population correctly - second
   timestep <- 150
   renderer <- individual::Render$new(timestep)
   parameters <- get_parameters(list(human_population = 4))
-  parameters <- set_drugs(parameters, list(SP_AQ_params))
+  parameters <- set_drugs(parameters, list(SP_AQ_params_falciparum))
   parameters <- set_mda(
     parameters,
     drug = 1,
@@ -163,7 +163,7 @@ test_that('MDA moves the diseased and non-diseased population correctly - second
     max_ages = c(10 * 365, 100 * 365)
   )
   events <- create_events(parameters)
-  
+
   variables <- list(
     state = mock_category(
       c('D', 'S', 'A', 'U', 'Tr'),
@@ -175,9 +175,9 @@ test_that('MDA moves the diseased and non-diseased population correctly - second
     drug_time = mock_double(c(1, 2, 3, 4)),
     drug = mock_double(c(1, 2, 1, 2))
   )
-  
+
   events$mda_administer <- mock_event(events$mda_administer)
-  
+
   listener <- create_mda_listeners(
     variables,
     events$mda_administer,
@@ -191,7 +191,7 @@ test_that('MDA moves the diseased and non-diseased population correctly - second
     parameters,
     renderer
   )
-  
+
   mockery::stub(listener, 'bernoulli', mockery::mock(c(TRUE, TRUE, TRUE, TRUE)))
   mock_correlation <- mockery::mock(c(TRUE, TRUE, TRUE, TRUE))
   mockery::stub(listener, 'sample_intervention', mock_correlation)
@@ -201,7 +201,7 @@ test_that('MDA moves the diseased and non-diseased population correctly - second
     mockery::mock(individual::Bitset$new(4)$insert(3))
   )
   listener(timestep)
-  
+
   expect_equal(
     mockery::mock_args(mock_correlation)[[1]][[1]],
     c(1, 2, 3, 4)
@@ -211,26 +211,26 @@ test_that('MDA moves the diseased and non-diseased population correctly - second
     'Tr',
     c(1, 3)
   )
-  
+
   expect_bitset_update(
     variables$state$queue_update_mock(),
     'S',
     c(2, 4),
     call = 2
   )
-  
+
   expect_bitset_update(
     variables$infectivity$queue_update_mock(),
-    c(.1, .2, .3, .4) * SP_AQ_params[[2]],
+    c(.1, .2, .3, .4) * SP_AQ_params_falciparum[[2]],
     c(1, 2, 3, 4)
   )
-  
+
   expect_bitset_update(
     variables$drug$queue_update_mock(),
     1,
     c(1, 2, 3, 4)
   )
-  
+
   expect_bitset_update(
     variables$drug_time$queue_update_mock(),
     150,
@@ -242,7 +242,7 @@ test_that('MDA ignores non-detectable asymptomatics', {
   timestep <- 150
   renderer <- individual::Render$new(timestep)
   parameters <- get_parameters(list(human_population = 4))
-  parameters <- set_drugs(parameters, list(SP_AQ_params))
+  parameters <- set_drugs(parameters, list(SP_AQ_params_falciparum))
   parameters <- set_mda(
     parameters,
     drug = 1,
@@ -252,7 +252,7 @@ test_that('MDA ignores non-detectable asymptomatics', {
     max_ages = c(10 * 365, 100 * 365)
   )
   events <- create_events(parameters)
-  
+
   variables <- list(
     state = mock_category(
       c('D', 'S', 'A', 'U', 'Tr'),
@@ -264,9 +264,9 @@ test_that('MDA ignores non-detectable asymptomatics', {
     drug_time = mock_double(c(1, 2, 3, 4)),
     drug = mock_double(c(1, 2, 1, 2))
   )
-  
+
   events$mda_administer <- mock_event(events$mda_administer)
-  
+
   listener <- create_mda_listeners(
     variables,
     events$mda_administer,
@@ -280,7 +280,7 @@ test_that('MDA ignores non-detectable asymptomatics', {
     parameters,
     renderer
   )
-  
+
   mockery::stub(listener, 'bernoulli', mockery::mock(c(TRUE, TRUE, TRUE, TRUE)))
   mock_correlation <- mockery::mock(c(TRUE, TRUE, TRUE, TRUE))
   mockery::stub(listener, 'sample_intervention', mock_correlation)
@@ -290,32 +290,32 @@ test_that('MDA ignores non-detectable asymptomatics', {
     mockery::mock(individual::Bitset$new(4))
   )
   listener(timestep)
-  
+
   expect_bitset_update(
     variables$state$queue_update_mock(),
     'Tr',
     c(1)
   )
-  
+
   expect_bitset_update(
     variables$state$queue_update_mock(),
     'S',
     c(2, 3, 4),
     call = 2
   )
-  
+
   expect_bitset_update(
     variables$infectivity$queue_update_mock(),
-    c(.1, .2, .3, .4) * SP_AQ_params[[2]],
+    c(.1, .2, .3, .4) * SP_AQ_params_falciparum[[2]],
     c(1, 2, 3, 4)
   )
-  
+
   expect_bitset_update(
     variables$drug$queue_update_mock(),
     1,
     c(1, 2, 3, 4)
   )
-  
+
   expect_bitset_update(
     variables$drug_time$queue_update_mock(),
     150,

@@ -198,7 +198,6 @@ test_that('that vivax patent prevalence rendering works', {
 
 
 test_that('Test age structure should not change vivax infectivity', {
-
   falc_parameters <- get_parameters(
     overrides = list(
       human_population = 1,

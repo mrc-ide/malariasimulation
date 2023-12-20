@@ -112,7 +112,7 @@ test_that('simulate_infection integrates different types of infection and schedu
 test_that('calculate_infections works various combinations of drug and vaccination', {
   timestep <- 50
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters, list(AL_params, DHA_PQP_params))
+  parameters <- set_drugs(parameters, list(AL_params_falciparum, DHA_PQP_params_falciparum))
   parameters <- set_clinical_treatment(parameters, 2, 1, .5)
   parameters <- set_mass_pev(
     parameters,
@@ -252,7 +252,7 @@ test_that('calculate_clinical_infections correctly samples clinically infected',
 
 test_that('calculate_treated correctly samples treated and updates the drug state', {
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters, list(AL_params, DHA_PQP_params))
+  parameters <- set_drugs(parameters, list(AL_params_falciparum, DHA_PQP_params_falciparum))
   parameters <- set_clinical_treatment(parameters, 1, 1, .25)
   parameters <- set_clinical_treatment(parameters, 2, 1, .25)
   timestep <- 5
@@ -354,7 +354,7 @@ test_that('schedule_infections correctly schedules new infections', {
 
 test_that('prophylaxis is considered for medicated humans', {
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters, list(AL_params, DHA_PQP_params))
+  parameters <- set_drugs(parameters, list(AL_params_falciparum, DHA_PQP_params_falciparum))
   events <- create_events(parameters)
   timestep <- 50
 

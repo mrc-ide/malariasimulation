@@ -29,6 +29,8 @@
 #' * infectivity - The onward infectiousness to mosquitos
 #' * drug - The last prescribed drug
 #' * drug_time - The timestep of the last drug
+#' * ls_drug - The last prescribed liver stage drug
+#' * ls_drug_time - The timestep of the last liver stage drug
 #'
 #' Mosquito variables are:
 #' * mosquito_state - the state of the mosquito, a category Sm|Pm|Im|NonExistent
@@ -137,7 +139,7 @@ create_variables <- function(parameters) {
     )
   )
 
-  # Severe disease and pre-ertythrocitic (blood) immunity only modelled in P. falciparum
+  # Severe disease and pre-erythrocytic (blood) immunity only modelled in P. falciparum
   if(parameters$parasite == "falciparum"){
 
     # Boost immunities
@@ -270,9 +272,15 @@ create_variables <- function(parameters) {
                    iva = iva
     )
   } else if(parameters$parasite == "vivax"){
+
+    ls_drug <- individual::IntegerVariable$new(rep(0, size))
+    ls_drug_time <- individual::IntegerVariable$new(rep(-1, size))
+
     variables <- c(variables,
                    idm = idm,
-                   hypnozoites = hypnozoites)
+                   hypnozoites = hypnozoites,
+                   ls_drug = ls_drug,
+                   ls_drug_time = ls_drug_time)
   }
 
   # Add variables for individual mosquitoes
@@ -399,7 +407,6 @@ initial_hypnozoites <- function(parameter, age, groups, eq){
         g <- groups[[i]]
         a <- age[[i]]
         hyp <- rpois(n = 1, lambda = eq[[g]][which.max(a < eq[[g]][, 'age']), "HH"])
-        ifelse(hyp >10, 10, hyp)
       }
     ))
   }
@@ -445,6 +452,7 @@ calculate_eq <- function(het_nodes, parameters) {
       p = translate_vivax_parameters(parameters)
     )$states
   }
+
 }
 
 calculate_zeta <- function(zeta_norm, parameters) {

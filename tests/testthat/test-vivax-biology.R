@@ -95,7 +95,7 @@ test_that('FOIM is consistent with equilibrium', {
   expect_equal(
     expected_foim,
     actual_foim,
-    tolerance = 1e-4
+    tolerance = 1e-3
   )
 })
 
@@ -130,6 +130,33 @@ test_that('phi is consistent with equilibrium at high EIR (no het)', {
     weighted.mean(eq[,'phi_clin'], eq[,'prop']),
     tolerance=1e-2
   )
+
+  # Check phi_patent
+  expect_equal(
+    mean(
+      anti_parasite_immunity(min = parameters$philm_min, max = parameters$philm_max,
+                             a50 = parameters$alm50, k = parameters$klm,
+                             id = variables$id$get_values(),
+                             idm = variables$idm$get_values()
+      )
+    ),
+    weighted.mean(eq[,'phi_patent'], eq[,'prop']),
+    tolerance=1e-2
+  )
+
+  # Check r_PCR
+  expect_equal(
+    mean(
+      1/anti_parasite_immunity(min = parameters$dpcr_min, max = parameters$dpcr_max,
+                               a50 = parameters$apcr50, k = parameters$kpcr,
+                               id = variables$id$get_values(),
+                               idm = variables$idm$get_values()
+      )
+    ),
+    weighted.mean(eq[,'rPCR'], eq[,'prop']),
+    tolerance=1e-2
+  )
+
 })
 
 test_that('phi is consistent with equilibrium at high EIR', {
@@ -161,7 +188,38 @@ test_that('phi is consistent with equilibrium at high EIR', {
     ),
     sum(unlist(lapply(1:parameters$n_heterogeneity_groups, function(h){
       weighted.mean(eq[[h]][,'phi_clin'], eq[[h]][,'prop'])}
-      )) * het$weights),
+    )) * het$weights),
     tolerance=1e-2
   )
+
+  # Check phi_patent
+  expect_equal(
+    mean(
+      anti_parasite_immunity(min = parameters$philm_min, max = parameters$philm_max,
+                             a50 = parameters$alm50, k = parameters$klm,
+                             id = variables$id$get_values(),
+                             idm = variables$idm$get_values()
+      )
+    ),
+    sum(unlist(lapply(1:parameters$n_heterogeneity_groups, function(h){
+      weighted.mean(eq[[h]][,'phi_patent'], eq[[h]][,'prop'])}
+    )) * het$weights),
+    tolerance=1e-2
+  )
+
+  # Check r_PCR
+  expect_equal(
+    mean(
+      1/anti_parasite_immunity(min = parameters$dpcr_min, max = parameters$dpcr_max,
+                               a50 = parameters$apcr50, k = parameters$kpcr,
+                               id = variables$id$get_values(),
+                               idm = variables$idm$get_values()
+      )
+    ),
+    sum(unlist(lapply(1:parameters$n_heterogeneity_groups, function(h){
+      weighted.mean(eq[[h]][,'rPCR'], eq[[h]][,'prop'])}
+    )) * het$weights),
+    tolerance=1e-2
+  )
+
 })

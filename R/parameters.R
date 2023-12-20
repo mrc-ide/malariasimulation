@@ -249,6 +249,9 @@
 #' model prophylaxis for each drug; default = turned off
 #' * drug_prophylaxis_scale - a vector of scale parameters for weibull curves to
 #' model prophylaxis for each drug; default = turned off
+#' * drug_hypnozoite_efficacy - a vector of efficacies targeting hypnozoites; default = turned off
+#' * drug_hypnozoite_prophylaxis_shape - a vector of shape parameters for weibull curves to model prophylaxis against hypnozoite batch formation (days)
+#' * drug_hypnozoite_prophylaxis_scale - a vector of scale parameters for weibull curves to model prophylaxis against hypnozoite batch formation (days)
 #' * clinical_treatment_drugs - a list of drugs that are available for
 #' clinically diseased (these values refer to the index in drug_* parameters); default = NULL
 #' * clinical_treatment_timesteps - a list of vectors giving timesteps at which the
@@ -412,6 +415,9 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       drug_rel_c             = numeric(0),
       drug_prophylaxis_shape = numeric(0),
       drug_prophylaxis_scale = numeric(0),
+      drug_hypnozoite_efficacy = numeric(0),
+      drug_hypnozoite_prophylaxis_shape = numeric(0),
+      drug_hypnozoite_prophylaxis_scale = numeric(0),
       clinical_treatment_drugs     = list(),
       clinical_treatment_timesteps = list(),
       clinical_treatment_coverages = list(),

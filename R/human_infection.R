@@ -213,7 +213,7 @@ calculate_infections <- function(
     rate_infection_bitten <- rep(0, parameters$human_population)
     rate_infection_bitten[bitten_vector] <- prob_to_rate(b)
     rate_infection_bitten <- rate_infection_bitten[source_vector]
-    rate_infection_complete <- rate_infection_bitten + variables$hypnozoites$get_values(source_humans)
+    rate_infection_complete <- rate_infection_bitten + variables$hypnozoites$get_values(source_humans) * parameters$f
     ## Get relative rates to get probability bitten over relapse
     relative_rate <- rate_infection_bitten/rate_infection_complete
     prob <- rate_to_prob(rate_infection_complete) * (1 - prophylaxis) * (1 - vaccine_efficacy)
@@ -288,6 +288,7 @@ calculate_infections <- function(
   }
 
   newly_infected
+
 }
 
 #' @title Calculate patent infections (vivax only)
@@ -449,6 +450,28 @@ calculate_treated <- function(
     )
   ])
 
+  # Update liver stage drug effects
+  if(length(parameters$drug_hypnozoite_efficacy)>0){
+
+    ## Only ls stage drugs have hypnozoite efficacy, so liver stage drug variable will be consistent in prophylaxis
+    hyp_successful <- bernoulli_multi_p(parameters$drug_hypnozoite_efficacy[drugs])
+    hyp_treated_index <- bitset_at(seek_treatment, hyp_successful)
+
+    if (hyp_treated_index$size() > 0) {
+      # Successfully treated hypnozoite batches are removed
+      variables$hypnozoites$queue_update(0, hyp_treated_index)
+      variables$ls_drug$queue_update(
+        drugs[hyp_successful],
+        hyp_treated_index
+      )
+      variables$ls_drug_time$queue_update(
+        timestep,
+        hyp_treated_index
+      )
+    }
+  }
+
+  # Update blood stage drug effects
   successful <- bernoulli_multi_p(parameters$drug_efficacy[drugs])
   treated_index <- bitset_at(seek_treatment, successful)
 

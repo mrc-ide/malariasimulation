@@ -19,7 +19,6 @@ test_that('Initial states are consistent with equilibrium', {
       return(colSums(do.call(rbind, lapply(eq, function(x){colSums(x[,c("S","D","A","U","T")])}))))
     })
 
-
   actual_states <- sapply(
     EIRs,
     function(EIR) {
@@ -33,8 +32,7 @@ test_that('Initial states are consistent with equilibrium', {
                vars$state$get_size_of("Tr")))
     })/population
 
-  expected_states
-  actual_states
+  expect_equal(object = c(expected_states), expected =  c(actual_states), tolerance = 1E-2)
 
 })
 
@@ -74,8 +72,7 @@ test_that('Initial immunities are consistent with equilibrium', {
                mean(vars$idm$get_values()),
                mean(vars$hypnozoites$get_values())))})
 
-  expected_averages
-  actual_averages
+  expect_equal(object = c(expected_averages), expected =  c(actual_averages), tolerance = 1E-2)
 
 })
 

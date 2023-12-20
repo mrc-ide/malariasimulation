@@ -17,9 +17,9 @@ set_epi_outputs <- function(parameters,
                             age_group = NULL,
                             incidence = NULL,
                             patent_incidence = NULL,
-                            clinical_incidence = c(0, 1825),
+                            clinical_incidence = NULL,
                             severe_incidence = NULL,
-                            prevalence = c(730, 3650),
+                            prevalence = NULL,
                             hypnozoite_prevalence = NULL
 ){
 

@@ -5,7 +5,7 @@
 \alias{CQ_TQ_params_vivax}
 \title{Preset parameters for the CQ-TQ drug acting on P. vivax}
 \format{
-An object of class \code{list} of length 7.
+An object of class \code{numeric} of length 7.
 }
 \usage{
 CQ_TQ_params_vivax

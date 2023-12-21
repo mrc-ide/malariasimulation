@@ -155,9 +155,6 @@
 #'
 #' * age_group_rendering_min_ages - the minimum ages for population size outputs; default = turned off
 #' * age_group_rendering_max_ages - the corresponding max ages; default = turned off
-#' * prevalence_rendering_min_ages - the minimum ages for clinical prevalence
-#' outputs (pcr and lm detectable infections); default = 730
-#' * prevalence_rendering_max_ages - the corresponding max ages; default = 3650
 #' * incidence_rendering_min_ages - the minimum ages for incidence
 #' outputs (pf: D+Tr+A, pv: D+Tr+A+U); default = turned off
 #' * incidence_rendering_max_ages - the corresponding max ages; default = turned off
@@ -166,16 +163,13 @@
 #' * clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = 0
 #' * clinical_incidence_rendering_max_ages - the corresponding max ages; default = 1825
 #' * severe_incidence_rendering_min_ages - the minimum ages for severe incidence
-#' outputs; default = turned off
+#' outputs (p.f only); default = turned off
 #' * severe_incidence_rendering_max_ages - the corresponding max ages; default = turned off
-#' * severe_prevalence_rendering_min_ages - the minimum ages for severe prevalance outputs; default = numeric(0)
-#' * severe_prevalence_rendering_max_ages - the corresponding max ages; default = numeric(0)
-#' * hypnozoite_rendering_min_ages - the minimum ages for hypnozoite outputs (p.v only); default = numeric(0)
-#' * hypnozoite_rendering_max_ages - the corresponding max ages; default = numeric(0)
-#' * new_bite_incidence_rendering_min_ages - the minimum ages for incidence via mosquito bite outputs (not via relapse; p.v only); default = numeric(0)
-#' * new_bite_incidence_rendering_max_ages - the corresponding max ages; default = numeric(0)
-#' * relapse_incidence_rendering_min_ages - the minimum ages for hypnozoite relapse incidence outputs (p.v only); default = numeric(0)
-#' * relapse_incidence_rendering_max_ages - the corresponding max ages; default = numeric(0)
+#' * prevalence_rendering_min_ages - the minimum ages for clinical prevalence
+#' outputs (pcr and lm detectable infections); default = 730
+#' * prevalence_rendering_max_ages - the corresponding max ages; default = 3650
+#' * hypnozoite_prevalence_rendering_min_ages - the minimum ages for hypnozoite prevalence outputs (p.v only); default = numeric(0)
+#' * hypnozoite_prevalence_rendering_max_ages - the corresponding max ages; default = numeric(0)
 #'
 #' mosquito life stage transitions:
 #'
@@ -250,8 +244,8 @@
 #' * drug_prophylaxis_scale - a vector of scale parameters for weibull curves to
 #' model prophylaxis for each drug; default = turned off
 #' * drug_hypnozoite_efficacy - a vector of efficacies targeting hypnozoites; default = turned off
-#' * drug_hypnozoite_prophylaxis_shape - a vector of shape parameters for weibull curves to model prophylaxis against hypnozoite batch formation (days)
-#' * drug_hypnozoite_prophylaxis_scale - a vector of scale parameters for weibull curves to model prophylaxis against hypnozoite batch formation (days)
+#' * drug_hypnozoite_prophylaxis_shape - a vector of shape parameters for weibull curves to model prophylaxis against hypnozoite batch formation (days); default = turned off
+#' * drug_hypnozoite_prophylaxis_scale - a vector of scale parameters for weibull curves to model prophylaxis against hypnozoite batch formation (days); default = turned off
 #' * clinical_treatment_drugs - a list of drugs that are available for
 #' clinically diseased (these values refer to the index in drug_* parameters); default = NULL
 #' * clinical_treatment_timesteps - a list of vectors giving timesteps at which the
@@ -349,8 +343,6 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       # rendering
       age_group_rendering_min_ages = numeric(0),
       age_group_rendering_max_ages = numeric(0),
-      prevalence_rendering_min_ages = 2 * 365,
-      prevalence_rendering_max_ages = 10 * 365,
       incidence_rendering_min_ages = numeric(0),
       incidence_rendering_max_ages = numeric(0),
       patent_incidence_rendering_min_ages = numeric(0),
@@ -359,14 +351,10 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       clinical_incidence_rendering_max_ages = numeric(0),
       severe_incidence_rendering_min_ages = numeric(0),
       severe_incidence_rendering_max_ages = numeric(0),
-      severe_prevalence_rendering_min_ages = numeric(0),
-      severe_prevalence_rendering_max_ages = numeric(0),
-      hypnozoite_rendering_min_ages = numeric(0),
-      hypnozoite_rendering_max_ages = numeric(0),
-      new_bite_incidence_rendering_min_ages = numeric(0),
-      new_bite_incidence_rendering_max_ages = numeric(0),
-      relapse_incidence_rendering_min_ages = numeric(0),
-      relapse_incidence_rendering_max_ages = numeric(0),
+      prevalence_rendering_min_ages = 2 * 365,
+      prevalence_rendering_max_ages = 10 * 365,
+      hypnozoite_prevalence_rendering_min_ages = numeric(0),
+      hypnozoite_prevalence_rendering_max_ages = numeric(0),
 
       # mosquito life stage transitions
       del =  6.64,

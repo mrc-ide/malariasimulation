@@ -168,9 +168,6 @@ Please set rendered age groups using the convenience function
 \itemize{
 \item age_group_rendering_min_ages - the minimum ages for population size outputs; default = turned off
 \item age_group_rendering_max_ages - the corresponding max ages; default = turned off
-\item prevalence_rendering_min_ages - the minimum ages for clinical prevalence
-outputs (pcr and lm detectable infections); default = 730
-\item prevalence_rendering_max_ages - the corresponding max ages; default = 3650
 \item incidence_rendering_min_ages - the minimum ages for incidence
 outputs (pf: D+Tr+A, pv: D+Tr+A+U); default = turned off
 \item incidence_rendering_max_ages - the corresponding max ages; default = turned off
@@ -179,16 +176,13 @@ outputs (pf: D+Tr+A, pv: D+Tr+A+U); default = turned off
 \item clinical_incidence_rendering_min_ages - the minimum ages for clinical incidence outputs (symptomatic); default = 0
 \item clinical_incidence_rendering_max_ages - the corresponding max ages; default = 1825
 \item severe_incidence_rendering_min_ages - the minimum ages for severe incidence
-outputs; default = turned off
+outputs (p.f only); default = turned off
 \item severe_incidence_rendering_max_ages - the corresponding max ages; default = turned off
-\item severe_prevalence_rendering_min_ages - the minimum ages for severe prevalance outputs; default = numeric(0)
-\item severe_prevalence_rendering_max_ages - the corresponding max ages; default = numeric(0)
-\item hypnozoite_rendering_min_ages - the minimum ages for hypnozoite outputs (p.v only); default = numeric(0)
-\item hypnozoite_rendering_max_ages - the corresponding max ages; default = numeric(0)
-\item new_bite_incidence_rendering_min_ages - the minimum ages for incidence via mosquito bite outputs (not via relapse; p.v only); default = numeric(0)
-\item new_bite_incidence_rendering_max_ages - the corresponding max ages; default = numeric(0)
-\item relapse_incidence_rendering_min_ages - the minimum ages for hypnozoite relapse incidence outputs (p.v only); default = numeric(0)
-\item relapse_incidence_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item prevalence_rendering_min_ages - the minimum ages for clinical prevalence
+outputs (pcr and lm detectable infections); default = 730
+\item prevalence_rendering_max_ages - the corresponding max ages; default = 3650
+\item hypnozoite_prevalence_rendering_min_ages - the minimum ages for hypnozoite prevalence outputs (p.v only); default = numeric(0)
+\item hypnozoite_prevalence_rendering_max_ages - the corresponding max ages; default = numeric(0)
 }
 
 mosquito life stage transitions:

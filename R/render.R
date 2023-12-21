@@ -19,7 +19,8 @@ create_prevelance_renderer <- function(
   birth,
   immunity,
   parameters,
-  renderer
+  renderer,
+  grid_renderer = NULL
   ) {
   function(timestep) {
     asymptomatic <- state$get_index_of('A')
@@ -29,9 +30,20 @@ create_prevelance_renderer <- function(
       parameters
     )
     asymptomatic_detected <- bitset_at(asymptomatic, bernoulli_multi_p(prob))
-
     clinically_detected <- state$get_index_of(c('Tr', 'D'))
     detected <- clinically_detected$copy()$or(asymptomatic_detected)
+    if (parameters$render_grid) {
+      grid_renderer$render(
+        'n',
+        grid_count(birth, NULL, timestep),
+        timestep
+      )
+      grid_renderer$render(
+        'n_detect',
+        grid_count(birth, detected, timestep),
+        timestep
+      )
+    }
 
     for (i in seq_along(parameters$prevalence_rendering_min_ages)) {
       lower <- parameters$prevalence_rendering_min_ages[[i]]

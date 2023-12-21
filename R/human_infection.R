@@ -16,7 +16,8 @@ simulate_infection <- function(
   age,
   parameters,
   timestep,
-  renderer
+  renderer,
+  grid_renderer=NULL
   ) {
   if (bitten_humans$size() > 0) {
     boost_immunity(
@@ -34,7 +35,8 @@ simulate_infection <- function(
     bitten_humans,
     parameters,
     renderer,
-    timestep
+    timestep,
+    grid_renderer = grid_renderer
   )
 
   if (infected_humans$size() > 0) {
@@ -59,7 +61,8 @@ simulate_infection <- function(
     infected_humans,
     parameters,
     renderer,
-    timestep
+    timestep,
+    grid_renderer = grid_renderer
   )
 
   update_severe_disease(
@@ -104,7 +107,8 @@ calculate_infections <- function(
   bitten_humans,
   parameters,
   renderer,
-  timestep
+  timestep,
+  grid_renderer = NULL
   ) {
   source_humans <- variables$state$get_index_of(
     c('S', 'A', 'U'))$and(bitten_humans)
@@ -169,6 +173,16 @@ calculate_infections <- function(
     timestep
   )
 
+  if (parameters$render_grid) {
+    incidence_grid_renderer(
+      variables$birth,
+      grid_renderer,
+      infected,
+      'inc',
+      timestep
+    )
+  }
+
   infected
 }
 
@@ -186,7 +200,8 @@ calculate_clinical_infections <- function(
   infections,
   parameters,
   renderer,
-  timestep
+  timestep,
+  grid_renderer = NULL
   ) {
   ica <- variables$ica$get_values(infections)
   icm <- variables$icm$get_values(infections)
@@ -203,6 +218,15 @@ calculate_clinical_infections <- function(
     parameters$clinical_incidence_rendering_max_ages,
     timestep
   )
+  if (parameters$render_grid) {
+    incidence_grid_renderer(
+      variables$birth,
+      grid_renderer,
+      clinical_infections,
+      'inc_clinical',
+      timestep
+    )
+  }
   clinical_infections
 }
 

@@ -15,6 +15,7 @@
 #' values (default: 1)
 #' @param mixing_index an index for this population's position in the
 #' lagged_infectivity list (default: 1)
+#' @param grid_renderer object for managing grid based outputs
 #' @noRd
 create_biting_process <- function(
     renderer,
@@ -26,7 +27,8 @@ create_biting_process <- function(
     lagged_infectivity,
     lagged_eir,
     mixing = 1,
-    mixing_index = 1
+    mixing_index = 1,
+    grid_renderer = NULL
 ) {
   function(timestep) {
     # Calculate combined EIR
@@ -54,7 +56,8 @@ create_biting_process <- function(
       age,
       parameters,
       timestep,
-      renderer
+      renderer,
+      grid_renderer = grid_renderer
     )
   }
 }

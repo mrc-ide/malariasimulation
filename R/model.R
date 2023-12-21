@@ -96,6 +96,14 @@ run_simulation <- function(
   events <- create_events(parameters)
   initialise_events(events, variables, parameters)
   renderer <- individual::Render$new(timesteps)
+  if (parameters$render_grid) {
+    grid_renderer <- GridRender$new(
+      timesteps = timesteps,
+      width = 101
+    )
+  } else {
+    grid_renderer <- NULL
+  }
   attach_event_listeners(
     events,
     variables,
@@ -116,12 +124,19 @@ run_simulation <- function(
       correlations,
       list(create_lagged_eir(variables, solvers, parameters)),
       list(create_lagged_infectivity(variables, parameters)),
-      timesteps
+      timesteps,
+      grid_renderer = grid_renderer
     ),
     variables = variables,
     events = unlist(events),
     timesteps = timesteps
   )
+  if (parameters$render_grid) {
+    return(list(
+      dataframe = renderer$to_dataframe(),
+      grid = grid_renderer$get_values()
+    ))
+  }
   renderer$to_dataframe()
 }
 

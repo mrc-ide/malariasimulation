@@ -19,6 +19,7 @@
 #' values (default: 1)
 #' @param mixing_index an index for this population's position in the
 #' lagged transmission lists (default: 1)
+#' @param grid_renderer object for managing grid based outputs
 #' @noRd
 create_processes <- function(
     renderer,
@@ -32,7 +33,8 @@ create_processes <- function(
     lagged_infectivity,
     timesteps, 
     mixing = 1,
-    mixing_index = 1
+    mixing_index = 1,
+    grid_renderer = NULL
 ) {
   # ========
   # Immunity
@@ -80,7 +82,8 @@ create_processes <- function(
       lagged_infectivity,
       lagged_eir,
       mixing,
-      mixing_index
+      mixing_index,
+      grid_renderer=grid_renderer
     ),
     create_mortality_process(variables, events, renderer, parameters),
     create_asymptomatic_progression_process(
@@ -179,7 +182,8 @@ create_processes <- function(
       variables$birth,
       variables$id,
       parameters,
-      renderer
+      renderer,
+      grid_renderer
     ),
     create_age_group_renderer(
       variables$birth,
@@ -188,7 +192,7 @@ create_processes <- function(
     ),
     create_compartmental_rendering_process(renderer, solvers, parameters)
   )
-  
+
   if (parameters$individual_mosquitoes) {
     processes <- c(
       processes,

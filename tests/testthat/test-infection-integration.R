@@ -121,8 +121,8 @@ test_that('calculate_infections works various combinations of drug and vaccinati
     min_ages = 0,
     max_ages = 100 * 365,
     min_wait = 0,
-    booster_timestep = 365,
-    booster_coverage = 1,
+    booster_spacing = 365,
+    booster_coverage = matrix(1),
     booster_profile = list(rtss_booster_profile)
   )
 

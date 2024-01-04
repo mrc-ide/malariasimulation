@@ -62,7 +62,7 @@ rtss_booster_profile <- create_pev_profile(
 #' age. Efficacy will take effect after the last dose
 #'
 #' @param parameters a list of parameters to modify
-#' @param profile primary vaccine profile of type PEVProfile
+#' @param profile a list of details for the vaccine profile, create with `create_pev_profile`
 #' @param coverages a vector of coverages for the primary doses
 #' @param timesteps a vector of timesteps associated with coverages
 #' @param age the age when an individual will receive the first dose of the
@@ -72,14 +72,11 @@ rtss_booster_profile <- create_pev_profile(
 #' between an individual receiving the final dose and the first booster. When using
 #' both set_mass_pev and set_pev_epi, this represents the minimum time between
 #' an individual being vaccinated under one scheme and vaccinated under another.
-#' @param booster_timestep the timesteps (following the final dose) at which booster vaccinations are administered
-#' @param booster_coverage the proportion of the vaccinated population relative to the last vaccination (whether a previous booster or the primary series)
-#' @param booster_timed_coverage a time varying proportion of the vaccinated population relative to the last vaccination (whether a previous booster or the primary series), set in time with `booster_coverage_timestep`
-#' @param booster_timed_coverage_timestep a vector of timesteps to change the time varying coverage specified in `booster_timed_coverage`
-#' @param booster_profile list of booster vaccine profiles, of type
-#' PEVProfile, for each timestep in booster_timeteps
+#' @param booster_spacing the timesteps (following the final primary dose) at which booster vaccinations are administered
+#' @param booster_coverage a matrix of coverages (timesteps x boosters) specifying the proportion the previously vaccinated population to continue receiving booster doses. The rows of the matrix must be the same size as `timesteps`. The columns of the matrix must be the same size as `booster_spacing`.
+#' @param booster_profile list of lists representing each booster profile, the outer list must be the same length as `booster_spacing`. Create vaccine profiles with `create_pev_profile`
 #' @param seasonal_boosters logical, if TRUE the first booster timestep is
-#' relative to the start of the year, otherwise they are relative to the last dose
+#' relative to the start of the year, otherwise they are relative to the last primary dose
 #' @export
 set_pev_epi <- function(
   parameters,
@@ -88,14 +85,13 @@ set_pev_epi <- function(
   timesteps,
   age,
   min_wait,
-  booster_timestep,
+  booster_spacing,
   booster_coverage,
-  booster_timed_coverage = NULL,
-  booster_timed_coverage_timestep = NULL,
   booster_profile,
   seasonal_boosters = FALSE
   ) {
   stopifnot(all(coverages >= 0) && all(coverages <= 1))
+  stopifnot(is.matrix(booster_coverage))
 
   # Check that the primary timing parameters make sense
   if(length(coverages) != length(timesteps)){
@@ -107,19 +103,22 @@ set_pev_epi <- function(
   stopifnot(age >= 0)
   stopifnot(is.logical(seasonal_boosters))
   if (seasonal_boosters) {
-    if(booster_timestep[[1]] < 0) {
-      booster_timestep <- booster_timestep + 365
+    if(booster_spacing[[1]] < 0) {
+      booster_spacing <- booster_spacing + 365
     }
   }
 
   # Check that the booster timing parameters make sense
-  stopifnot((length(booster_timestep) == 0) || all(booster_timestep > 0))
+  stopifnot((length(booster_spacing) == 0) || all(booster_spacing > 0))
   stopifnot((length(booster_coverage)) == 0 || all(booster_coverage >= 0 & booster_coverage <= 1))
-  if (!all(c(length(booster_coverage), length(booster_timestep), length(booster_profile)) == length(booster_timestep))) {
-    stop('booster_timestep and booster_coverage and booster_profile does not align')
+  if (!all(c(ncol(booster_coverage), length(booster_profile)) == length(booster_spacing))) {
+    stop('booster_spacing, booster_coverage and booster_profile do not align')
   }
-  if (length(booster_timed_coverage) != length(booster_timed_coverage_timestep)) {
-    stop("booster_coverage_timestep must be the same length as booster_coverage")
+  # Check that booster_coverage and timesteps align
+  if (length(booster_coverage) > 0) {
+    if (nrow(booster_coverage) != length(timesteps)) {
+      stop('booster_coverage and timesteps do not align')
+    }
   }
 
   # Index the new vaccine profiles
@@ -132,11 +131,8 @@ set_pev_epi <- function(
   parameters$pev_epi_coverages <- coverages
   parameters$pev_epi_timesteps <- timesteps
   parameters$pev_epi_age <- age
-  parameters$pev_epi_booster_timestep <- booster_timestep
+  parameters$pev_epi_booster_spacing <- booster_spacing
   parameters$pev_epi_min_wait <- min_wait
-  parameters$pev_epi_booster_coverage <- booster_coverage
-  parameters$pev_epi_timed_booster_coverage <- booster_timed_coverage
-  parameters$pev_epi_timed_booster_coverage_timestep <- booster_timed_coverage_timestep
   parameters$pev_epi_booster_coverage <- booster_coverage
   parameters$pev_epi_profile_indices <- profile_indices
   parameters$pev_epi_seasonal_boosters <- seasonal_boosters
@@ -149,7 +145,7 @@ set_pev_epi <- function(
 #' Efficacy will take effect after the last dose
 #'
 #' @param parameters a list of parameters to modify
-#' @param profile primary vaccine profile of type PEVProfile
+#' @param profile a list of details for the vaccine profile, create with `create_pev_profile`
 #' @param timesteps a vector of timesteps for each round of vaccinations
 #' @param coverages the coverage for each round of vaccinations
 #' @param min_wait the minimum acceptable time since the last vaccination (in timesteps);
@@ -157,12 +153,9 @@ set_pev_epi <- function(
 #' time between an individual being vaccinated under one scheme and vaccinated under another.
 #' @param min_ages for the target population, inclusive (in timesteps)
 #' @param max_ages for the target population, inclusive (in timesteps)
-#' @param booster_timestep the timesteps (following the initial vaccination) at which booster vaccinations are administered
-#' @param booster_coverage the proportion of the vaccinated population relative to the last vaccination (whether a previous booster or the primary series)
-#' @param booster_timed_coverage a time varying proportion of the vaccinated population relative to the last vaccination (whether a previous booster or the primary series), set in time with `booster_coverage_timestep`
-#' @param booster_timed_coverage_timestep a vector of timesteps to change the time varying coverage specified in `booster_timed_coverage`
-#' @param booster_profile list of booster vaccine profiles, of type
-#' PEVProfile, for each timestep in booster_timeteps
+#' @param booster_spacing the timesteps (following the final primary dose) at which booster vaccinations are administered
+#' @param booster_coverage a matrix of coverages (timesteps x boosters) specifying the proportion the previously vaccinated population to continue receiving booster doses. The rows of the matrix must be the same size as `timesteps`. The columns of the matrix must be the same size as `booster_spacing`.
+#' @param booster_profile list of lists representing each booster profile, the outer list must be the same length as `booster_spacing`. Create vaccine profiles with `create_pev_profile`
 #' @export
 set_mass_pev <- function(
   parameters,
@@ -172,26 +165,28 @@ set_mass_pev <- function(
   min_ages,
   max_ages,
   min_wait,
-  booster_timestep,
+  booster_spacing,
   booster_coverage,
-  booster_timed_coverage = NULL,
-  booster_timed_coverage_timestep = NULL,
   booster_profile
   ) {
   stopifnot(all(timesteps >= 1))
   stopifnot(min_wait >= 0)
   stopifnot(all(coverages >= 0) && all(coverages <= 1))
   stopifnot(all(min_ages >= 0 & max_ages >= 0))
-  stopifnot(all(booster_timestep > 0))
+  stopifnot(all(booster_spacing > 0))
   stopifnot(all(booster_coverage >= 0 & booster_coverage <= 1))
   if (length(min_ages) != length(max_ages)) {
     stop('min and max ages do not align')
   }
-  if (!all(c(length(booster_coverage), length(booster_timestep), length(booster_profile)) == length(booster_timestep))) {
-    stop('booster_timestep, booster_coverage and booster_profile does not align')
+  stopifnot((length(booster_coverage)) == 0 || all(booster_coverage >= 0 & booster_coverage <= 1))
+  if (!all(c(ncol(booster_coverage), length(booster_profile)) == length(booster_spacing))) {
+    stop('booster_spacing, booster_coverage and booster_profile do not align')
   }
-  if (length(booster_timed_coverage) != length(booster_timed_coverage_timestep)) {
-    stop("booster_coverage_timestep must be the same length as booster_coverage")
+  # Check that booster_coverage and timesteps align
+  if (length(booster_coverage) > 0) {
+    if (nrow(booster_coverage) != length(timesteps)) {
+      stop('booster_coverage and timesteps do not align')
+    }
   }
 
   # Index the new vaccine profiles
@@ -206,10 +201,8 @@ set_mass_pev <- function(
   parameters$mass_pev_min_ages <- min_ages
   parameters$mass_pev_max_ages <- max_ages
   parameters$mass_pev_min_wait <- min_wait
-  parameters$mass_pev_booster_timestep <- booster_timestep
+  parameters$mass_pev_booster_spacing <- booster_spacing
   parameters$mass_pev_booster_coverage <- booster_coverage
-  parameters$mass_pev_booster_timed_coverage <- booster_timed_coverage
-  parameters$mass_pev_booster_timed_coverage_timestep <- booster_timed_coverage_timestep
   parameters$mass_pev_profile_indices <- profile_indices
   parameters
 }

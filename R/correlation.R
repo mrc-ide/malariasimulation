@@ -139,7 +139,7 @@ CorrelationParameters <- R6::R6Class(
 #'   min_wait = 0,
 #'   min_ages = 100,
 #'   max_ages = 1000,
-#'   booster_timestep = numeric(0),
+#'   booster_spacing = numeric(0),
 #'   booster_coverage = numeric(0),
 #'   booster_profile = NULL
 #' )

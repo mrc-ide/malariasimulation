@@ -74,6 +74,26 @@ test_that('set_mass_pev checks booster coverage matrix shape', {
   )
 })
 
+test_that('set_mass_pev checks booster_spacing is increasing', {
+  parameters <- get_parameters()
+  expect_error(
+    parameters <- set_mass_pev(
+      parameters,
+      profile = rtss_profile,
+      coverages = c(0.1),
+      timesteps = c(10),
+      min_wait = 0,
+      min_ages = 5 * 30,
+      max_ages = 17 * 30,
+      booster_spacing = c(5, 5) * 30,
+      booster_coverage = matrix(c(.9, .8), nrow=2, ncol=1),
+      booster_profile = list(rtss_booster_profile, rtss_booster_profile)
+    ),
+    'booster_spacing must be monotonically increasing',
+    fixed = TRUE
+  )
+})
+
 test_that('Mass vaccination fails pre-emptively for unaligned booster parameters', {
   parameters <- get_parameters()
   expect_error(

@@ -70,6 +70,26 @@ test_that('set_pev_epi checks booster coverage matrix shape', {
   )
 })
 
+test_that('set_pev_epi checks that booster_spacing are increasing', {
+  parameters <- get_parameters()
+  expect_error(
+    parameters <- set_pev_epi(
+      parameters,
+      profile = rtss_profile,
+      coverages = c(0.1, 0.8),
+      timesteps = c(10, 100),
+      min_wait = 0,
+      age = 5 * 30,
+      booster_spacing = c(5, 5) * 30,
+      booster_coverage = matrix(c(.9, .8), nrow=2, ncol=1),
+      booster_profile = list(rtss_booster_profile, rtss_booster_profile)
+    ),
+    'booster_spacing must be monotonically increasing',
+    fixed = TRUE
+  )
+})
+
+
 test_that('pev epi targets correct age and respects min_wait', {
   timestep <- 5*365 
   parameters <- get_parameters(list(human_population = 5))

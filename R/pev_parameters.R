@@ -98,6 +98,13 @@ set_pev_epi <- function(
     stop("coverages and timesteps must align")
   }
 
+  # Check that booster_spacing are monotonically increasing
+  if (length(booster_spacing) > 1) {
+    if (!all(diff(booster_spacing) > 0)) {
+      stop('booster_spacing must be monotonically increasing')
+    }
+  }
+
   # Check that seasonal booster parameters make sense
   stopifnot(min_wait >= 0)
   stopifnot(age >= 0)
@@ -178,6 +185,14 @@ set_mass_pev <- function(
   if (length(min_ages) != length(max_ages)) {
     stop('min and max ages do not align')
   }
+
+  # Check that booster_spacing are monotonically increasing
+  if (length(booster_spacing) > 1) {
+    if (!all(diff(booster_spacing) > 0)) {
+      stop('booster_spacing must be monotonically increasing')
+    }
+  }
+
   stopifnot((length(booster_coverage)) == 0 || all(booster_coverage >= 0 & booster_coverage <= 1))
   if (!all(c(ncol(booster_coverage), length(booster_profile)) == length(booster_spacing))) {
     stop('booster_spacing, booster_coverage and booster_profile do not align')

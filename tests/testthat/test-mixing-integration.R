@@ -70,7 +70,8 @@ test_that('mixing_fn can return isolated transmission for multiple species', {
     lagged_eir,
     lagged_infectivity,
     mixing_tt = 1,
-    mixing = list(diag(nrow=2)),
+    export_mixing = list(diag(nrow=2)),
+    import_mixing = list(diag(nrow=2)),
     p_captured_tt = 1,
     p_captured = list(1 - diag(nrow=2)), # full coverage
     p_success = 1
@@ -87,6 +88,54 @@ test_that('mixing_fn can return isolated transmission for multiple species', {
     )
   )
 })
+
+test_that('mixing_fn can return asymmetric transmission', {
+  population <- 4
+  timestep <- 5
+  renderer <- individual::Render$new(5)
+  parameters <- get_parameters(
+    list(human_population = population)
+  )
+  events <- create_events(parameters)
+  variables <- create_variables(parameters)
+  lagged_infectivity <- list(
+    LaggedValue$new(12.5, .1), # location 1
+    LaggedValue$new(12.5, .2) # location 2
+  )
+
+  lagged_eir <- list(
+    list(LaggedValue$new(12, 10)), # location 1
+    list(LaggedValue$new(12, 20)) # location 2
+  )
+
+  mock_rdt <- mockery::mock(.5, cycle = TRUE) # 50%
+
+  mixing_fn <- create_transmission_mixer(
+    list(variables, variables),
+    list(parameters, parameters),
+    lagged_eir,
+    lagged_infectivity,
+    mixing_tt = 1,
+    export_mixing = list(diag(nrow=2)),
+    import_mixing = list(matrix(.5, nrow=2, ncol=2)),
+    p_captured_tt = 1,
+    p_captured = list(matrix(0, nrow=2, ncol=2)), # no coverage
+    p_success = 1
+  )
+
+  mockery::stub(mixing_fn, 'rdt_detectable', mock_rdt)
+
+  transmission <- mixing_fn(timestep)
+  expect_equal(
+    transmission,
+    list(
+      eir = matrix(c(15, 15), nrow=2, ncol=1),
+      inf = c(.1, .2)
+    )
+  )
+})
+
+
 
 
 test_that('mixing_fn can halve the mixed transmission for 50% rdt detection', {
@@ -110,7 +159,8 @@ test_that('mixing_fn can halve the mixed transmission for 50% rdt detection', {
     lagged_eir,
     lagged_infectivity,
     mixing_tt = 1,
-    mixing = list(matrix(rep(.5, 4), nrow=2, ncol=2)),
+    export_mixing = list(matrix(rep(.5, 4), nrow=2, ncol=2)),
+    import_mixing = list(matrix(rep(.5, 4), nrow=2, ncol=2)),
     p_captured_tt = 1,
     p_captured = list(1 - diag(nrow=2)), # full coverage
     p_success = 1
@@ -163,7 +213,8 @@ test_that('mixing_fn can completely remove mixed transmission', {
     lagged_eir,
     lagged_infectivity,
     mixing_tt = 1,
-    mixing = list(matrix(rep(.5, 4), nrow=2, ncol=2)),
+    export_mixing = list(matrix(rep(.5, 4), nrow=2, ncol=2)),
+    import_mixing = list(matrix(rep(.5, 4), nrow=2, ncol=2)),
     p_captured_tt = 1,
     p_captured = list(1 - diag(nrow=2)), # full coverage
     p_success = 1

@@ -4,7 +4,8 @@ create_transmission_mixer <- function(
   lagged_eir,
   lagged_infectivity,
   mixing_tt,
-  mixing,
+  export_mixing,
+  import_mixing,
   p_captured_tt,
   p_captured,
   p_success
@@ -17,7 +18,9 @@ create_transmission_mixer <- function(
         rdt_detectable(variables[[i]], parameters[[i]], timestep)
       }
     )
-    p_mix <- mixing[[match_timestep(mixing_tt, timestep)]]
+    mix_t <- match_timestep(mixing_tt, timestep)
+    p_mix_export <- export_mixing[[mix_t]]
+    p_mix_import <- import_mixing[[mix_t]]
     p_captured_t <- p_captured[[match_timestep(p_captured_tt, timestep)]]
     n_species <- length(parameters[[1]]$species)
     species_eir <- t(vapply(
@@ -44,13 +47,13 @@ create_transmission_mixer <- function(
     eir <- vapply(
       seq(n_species),
       function(i) {
-        mixed_eir <- t(species_eir[,i] * p_mix)
+        mixed_eir <- t(species_eir[,i] * p_mix_import)
         rowSums(mixed_eir * test_and_treat_coeff)
       },
       numeric(n_pops)
     )
 
-    inf <- rowSums(inf * p_mix * test_and_treat_coeff)
+    inf <- rowSums(inf * p_mix_export * test_and_treat_coeff)
 
     list(eir = eir, inf = inf)
   }

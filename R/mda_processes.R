@@ -79,6 +79,22 @@ create_mda_listeners <- function(
       variables$drug_time$queue_update(timestep, to_move)
     }
 
+    # Update liver stage drug effects
+    if(length(parameters$drug_hypnozoite_efficacy)>0){
+
+      successful_hyp_treatments <- bernoulli(
+        length(target),
+        parameters$drug_hypnozoite_efficacy[[drug]]
+      )
+
+      to_clear <- individual::Bitset$new(parameters$human_population)
+      to_clear$insert(target[successful_hyp_treatments])
+
+      variables$hypnozoites$queue_update(0, to_clear)
+      variables$ls_drug$queue_update(drug, to_clear)
+      variables$ls_drug_time$queue_update(timestep, to_clear)
+    }
+
     # Schedule next round
     if (time_index < length(timesteps)) {
       administer_event$schedule(timesteps[[time_index + 1]] - timestep)

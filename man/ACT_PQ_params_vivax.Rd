@@ -3,9 +3,9 @@
 \docType{data}
 \name{ACT_PQ_params_vivax}
 \alias{ACT_PQ_params_vivax}
-\title{Preset parameters for the ACT-PQ drug acting on P. vivax}
+\title{Preset parameters for an ACT-PQ drug acting on P. vivax}
 \format{
-An object of class \code{list} of length 7.
+An object of class \code{numeric} of length 7.
 }
 \usage{
 ACT_PQ_params_vivax
@@ -16,7 +16,7 @@ BS shape and scale consistent with AL prophylaxis in falciparum
 LS shape are scale consistent with a 14 day PQ treatment, with rapid decay.
 }
 \details{
-Use a vector of preset parameters for the ACT-PQ drug (Artemisinin combination therapy and primaquine) acting on P. vivax
+Use a vector of preset parameters for the ACT-PQ drug (Artemisinin combination therapy and Primaquine) acting on P. vivax
 
 Default parameters, from L to R, are: drug_efficacy: 1, drug_rel_c: 0.5, drug_prophylaxis_shape: 11.3, drug_prophylaxis_scale: 10.6,
 drug_hypnozoite_efficacy: 0.7, drug_hypnozoite_prophylaxis_shape: 11.3, drug_hypnozoite_prophylaxis_scale: 10.6

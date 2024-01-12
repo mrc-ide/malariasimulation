@@ -2,14 +2,14 @@ test_that('Test age parameter function works', {
   parameters_f <- get_parameters()
   parameters_v <- get_parameters(parasite = "vivax")
   age_limits <- c(0,1,2,3)*365
-  parameters_f <- set_age_outputs(parameters_f,
+  parameters_f <- set_epi_outputs(parameters_f,
                                   age_group = age_limits,
                                   incidence = age_limits+1,
                                   clinical_incidence = age_limits+2,
                                   severe_incidence = age_limits+3,
                                   prevalence = age_limits+4
   )
-  parameters_v <- set_age_outputs(parameters_v,
+  parameters_v <- set_epi_outputs(parameters_v,
                   age_group = age_limits,
                   incidence = age_limits+1,
                   patent_incidence = age_limits+2,

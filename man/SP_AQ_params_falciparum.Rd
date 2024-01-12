@@ -5,7 +5,7 @@
 \alias{SP_AQ_params_falciparum}
 \title{Preset parameters for the SP-AQ drug acting on P. falciparum}
 \format{
-An object of class \code{list} of length 4.
+An object of class \code{numeric} of length 4.
 }
 \usage{
 SP_AQ_params_falciparum

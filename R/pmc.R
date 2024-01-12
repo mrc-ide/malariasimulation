@@ -38,14 +38,15 @@ create_pmc_process <- function(
     in_age <- which(age %in% parameters$pmc_ages)
     target <- in_age[sample_intervention(in_age, 'pmc', coverage, correlations)]
 
-    renderer$render('n_pmc_treated', length(target), timestep)
+    target_bit <- individual::Bitset$new(parameters$human_population)
+    target_bit$insert(target)
 
-    successful_treatments <- bernoulli(
-      length(target),
+    renderer$render('n_pmc_treated', target_bit$size(), timestep)
+
+    to_move <- sample_bitset(
+      target_bit,
       parameters$drug_efficacy[[drug]]
     )
-    to_move <- individual::Bitset$new(parameters$human_population)
-    to_move$insert(target[successful_treatments])
 
     if (to_move$size() > 0) {
       # Move Diseased
@@ -74,15 +75,12 @@ create_pmc_process <- function(
     }
 
     # Update liver stage drug effects
-    if(length(parameters$drug_hypnozoite_efficacy)>0){
+    if(!is.na(parameters$drug_hypnozoite_efficacy[drug])){
 
-      successful_hyp_treatments <- bernoulli(
-        length(target),
+      to_clear <- sample_bitset(
+        target_bit,
         parameters$drug_hypnozoite_efficacy[[drug]]
       )
-
-      to_clear <- individual::Bitset$new(parameters$human_population)
-      to_clear$insert(target[successful_hyp_treatments])
 
       variables$hypnozoites$queue_update(0, to_clear)
       variables$ls_drug$queue_update(drug, to_clear)

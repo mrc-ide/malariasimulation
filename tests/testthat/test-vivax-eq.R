@@ -49,7 +49,7 @@ test_that('Initial immunities are consistent with equilibrium', {
   expected_averages <- sapply(
     EIRs,
     function(EIR) {
-      het <- malariaEquilibriumVivax::gq_normal(eq_params$n_heterogeneity_groups)
+      het <- malariaEquilibrium::gq_normal(eq_params$n_heterogeneity_groups)
       eq <- malariaEquilibriumVivax::vivax_equilibrium(
         age = EQUILIBRIUM_AGES,
         ft = 0,

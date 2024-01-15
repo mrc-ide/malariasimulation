@@ -129,3 +129,14 @@ void Random::prop_sample_bucket(
         ++result;
     }
 }
+
+std::string Random::save_state() {
+    std::ostringstream stream;
+    stream << *rng;
+    return stream.str();
+}
+
+void Random::restore_state(std::string state) {
+    std::istringstream stream(state);
+    stream >> *rng;
+}

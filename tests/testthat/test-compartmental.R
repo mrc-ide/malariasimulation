@@ -11,9 +11,14 @@ test_that('ODE stays at equilibrium with a constant total_M', {
   counts <- c()
   
   for (t in seq(timesteps)) {
-    counts <- rbind(counts, c(t, solver_get_states(solvers[[1]])))
-    aquatic_mosquito_model_update(models[[1]], total_M, f, parameters$mum)
-    solver_step(solvers[[1]])
+    counts <- rbind(counts, c(t, solvers[[1]]$get_states()))
+    aquatic_mosquito_model_update(
+      models[[1]]$.model,
+      total_M,
+      f,
+      parameters$mum
+    )
+    solvers[[1]]$step()
   }
   
   expected <- c()
@@ -41,16 +46,16 @@ test_that('Adult ODE stays at equilibrium with a constant foim and mu', {
   counts <- c()
   
   for (t in seq(timesteps)) {
-    states <- solver_get_states(solvers[[1]])
+    states <- solvers[[1]]$get_states()
     counts <- rbind(counts, c(t, states))
     adult_mosquito_model_update(
-      models[[1]],
+      models[[1]]$.model,
       parameters$mum,
       parameters$init_foim,
       states[ADULT_ODE_INDICES['Sm']],
       f
     )
-    solver_step(solvers[[1]])
+    solvers[[1]]$step()
   }
 
   expected <- c()
@@ -82,9 +87,14 @@ test_that('ODE stays at equilibrium with low total_M', {
   counts <- c()
   
   for (t in seq(timesteps)) {
-    counts <- rbind(counts, c(t, solver_get_states(solvers[[1]])))
-    aquatic_mosquito_model_update(models[[1]], total_M, f, parameters$mum)
-    solver_step(solvers[[1]])
+    counts <- rbind(counts, c(t, solvers[[1]]$get_states()))
+    aquatic_mosquito_model_update(
+      models[[1]]$.model,
+      total_M,
+      f,
+      parameters$mum
+    )
+    solvers[[1]]$step()
   }
   
   expected <- c()
@@ -121,14 +131,19 @@ test_that('Changing total_M stabilises', {
   counts <- c()
   
   for (t in seq(timesteps)) {
-    counts <- rbind(counts, c(t, solver_get_states(solvers[[1]])))
+    counts <- rbind(counts, c(t, solvers[[1]]$get_states()))
     if (t < change) {
       total_M <- total_M_0
     } else {
       total_M <- total_M_1
     }
-    aquatic_mosquito_model_update(models[[1]], total_M, f, parameters$mum)
-    solver_step(solvers[[1]])
+    aquatic_mosquito_model_update(
+      models[[1]]$.model,
+      total_M,
+      f,
+      parameters$mum
+    )
+    solvers[[1]]$step()
   }
   
   initial_eq <- initial_mosquito_counts(

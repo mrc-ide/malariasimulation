@@ -115,6 +115,19 @@ CorrelationParameters <- R6::R6Class(
         dimnames(private$.mvnorm)[[2]] <- private$interventions
       }
       private$.mvnorm
+    },
+
+    save_state = function() {
+      # mvnorm is sampled at random lazily on its first use. We need to save it
+      # in order to restore the same value when resuming the simulation,
+      # otherwise we would be drawing a new, probably different, value.
+      # The rest of the object is derived deterministically from the parameters
+      # and does not need saving.
+      list(mvnorm=private$.mvnorm)
+    },
+
+    restore_state = function(state) {
+      private$.mvnorm <- state$mvnorm
     }
   )
 )

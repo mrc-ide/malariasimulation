@@ -66,7 +66,7 @@ sample_maternal_immunity <- function(variables, target, timestep, parameters) {
 
         # set their maternal immunities
         birth_icm <- variables$ica$get_values(mothers) * parameters$pcm
-        birth_ivm <- variables$ica$get_values(mothers) * parameters$pvm
+        birth_ivm <- variables$iva$get_values(mothers) * parameters$pvm
         variables$icm$queue_update(birth_icm, target_group)
         variables$ivm$queue_update(birth_ivm, target_group)
       }

@@ -61,7 +61,7 @@ ACT_params_vivax <- c(0.899, 0.5, 11.3, 10.6)
 #' @details Default parameters, from L to R, are: drug_efficacy: 1, drug_rel_c: 0.5, drug_prophylaxis_shape: 11.3, drug_prophylaxis_scale: 10.6,
 #' drug_hypnozoite_efficacy: 0.7, drug_hypnozoite_prophylaxis_shape: 11.3, drug_hypnozoite_prophylaxis_scale: 10.6
 #' @export
-ACT_PQ_params_vivax <- c(1, 0.5, 11.3, 10.6, 0.7, 11.3, 10.6)
+ACT_PQ_params_vivax <- c(1, 0.5, 11.3, 10.6, 0.7, 10, 5.5)
 
 #' @title Preset parameters for an ACT-TQ drug acting on P. vivax
 #' @description Efficacy from SI of White et al., DOI: 10.1371/journal.pmed.1003535 (2021)

@@ -18,7 +18,7 @@ create_events <- function(parameters) {
       function(.) individual::TargetedEvent$new(parameters$human_population)
     )
     mass_pev_boosters <- lapply(
-      seq_along(parameters$mass_pev_booster_timestep),
+      seq_along(parameters$mass_pev_booster_spacing),
       function(.) individual::TargetedEvent$new(parameters$human_population)
     )
     events$mass_pev <- individual::Event$new()
@@ -33,7 +33,7 @@ create_events <- function(parameters) {
       function(.) individual::TargetedEvent$new(parameters$human_population)
     )
     pev_epi_boosters <- lapply(
-      seq_along(parameters$pev_epi_booster_timestep),
+      seq_along(parameters$pev_epi_booster_spacing),
       function(.) individual::TargetedEvent$new(parameters$human_population)
     )
     events$pev_epi_doses <- pev_epi_doses
@@ -129,9 +129,10 @@ attach_event_listeners <- function(
     attach_pev_dose_listeners(
       variables,
       parameters,
+      parameters$mass_pev_timesteps,
       events$mass_pev_doses,
       events$mass_pev_boosters,
-      parameters$mass_pev_booster_timestep,
+      parameters$mass_pev_booster_spacing,
       parameters$mass_pev_booster_coverage,
       parameters$mass_pev_profile_indices,
       'mass',
@@ -143,9 +144,10 @@ attach_event_listeners <- function(
     attach_pev_dose_listeners(
       variables,
       parameters,
+      parameters$pev_epi_timesteps,
       events$pev_epi_doses,
       events$pev_epi_boosters,
-      parameters$pev_epi_booster_timestep,
+      parameters$pev_epi_booster_spacing,
       parameters$pev_epi_booster_coverage,
       parameters$pev_epi_profile_indices,
       'epi',

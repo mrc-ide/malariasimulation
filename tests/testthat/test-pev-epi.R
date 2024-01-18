@@ -7,8 +7,8 @@ test_that('pev epi strategy parameterisation works', {
     timesteps = c(10, 100),
     min_wait = 0,
     age = 5 * 30,
-    booster_timestep = c(18, 36) * 30,
-    booster_coverage = c(.9, .8),
+    booster_spacing = c(18, 36) * 30,
+    booster_coverage = matrix(c(.9, .8, .9, .8), nrow=2, ncol=2),
     booster_profile = list(rtss_booster_profile, rtss_booster_profile)
   )
   expect_equal(parameters$pev, TRUE)
@@ -16,7 +16,7 @@ test_that('pev epi strategy parameterisation works', {
   expect_equal(parameters$pev_epi_timesteps, c(10, 100))
   expect_equal(parameters$pev_epi_age, 5 * 30)
   expect_equal(parameters$pev_epi_min_wait, 0)
-  expect_equal(parameters$pev_epi_booster_timestep, c(18, 36) * 30)
+  expect_equal(parameters$pev_epi_booster_spacing, c(18, 36) * 30)
   expect_equal(parameters$pev_profiles, list(rtss_profile, rtss_booster_profile, rtss_booster_profile))
   expect_equal(parameters$pev_epi_profile_indices, seq(3))
 
@@ -28,8 +28,8 @@ test_that('pev epi strategy parameterisation works', {
       timesteps = 10,
       min_wait = 0,
       age = 5 * 30,
-      booster_timestep = c(18, 36) * 30,
-      booster_coverage = c(.9, .8),
+      booster_spacing = c(18, 36) * 30,
+      booster_coverage = matrix(c(.9, .8, .9, .8), nrow=2, ncol=2),
       booster_profile = list(rtss_booster_profile, rtss_booster_profile)
     ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
     fixed = TRUE
@@ -43,29 +43,52 @@ test_that('pev epi strategy parameterisation works', {
       timesteps = 10,
       min_wait = 0,
       age = 5 * 30,
-      booster_timestep = c(18, 36) * 30,
-      booster_coverage = c(.9, .8),
+      booster_spacing = c(18, 36) * 30,
+      booster_coverage = matrix(c(.9, .8, .9, .8), nrow=2, ncol=2),
       booster_profile = list(rtss_booster_profile, rtss_booster_profile)
     ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
     fixed = TRUE
   )
 })
 
-test_that('pev epi fails pre-emptively with unaligned booster parameters', {
+test_that('set_pev_epi checks booster coverage matrix shape', {
   parameters <- get_parameters()
   expect_error(
-    set_pev_epi(
+    parameters <- set_pev_epi(
+      parameters,
       profile = rtss_profile,
       coverages = c(0.1, 0.8),
       timesteps = c(10, 100),
       min_wait = 0,
       age = 5 * 30,
-      booster_timestep = c(18, 36) * 30,
-      booster_coverage = .9,
+      booster_spacing = c(18, 36) * 30,
+      booster_coverage = matrix(c(.9, .8), nrow=2, ncol=1),
       booster_profile = list(rtss_booster_profile, rtss_booster_profile)
-    )
+    ),
+    'booster_spacing, booster_coverage and booster_profile do not align',
+    fixed = TRUE
   )
 })
+
+test_that('set_pev_epi checks that booster_spacing are increasing', {
+  parameters <- get_parameters()
+  expect_error(
+    parameters <- set_pev_epi(
+      parameters,
+      profile = rtss_profile,
+      coverages = c(0.1, 0.8),
+      timesteps = c(10, 100),
+      min_wait = 0,
+      age = 5 * 30,
+      booster_spacing = c(5, 5) * 30,
+      booster_coverage = matrix(c(.9, .8), nrow=2, ncol=1),
+      booster_profile = list(rtss_booster_profile, rtss_booster_profile)
+    ),
+    'booster_spacing must be monotonically increasing',
+    fixed = TRUE
+  )
+})
+
 
 test_that('pev epi targets correct age and respects min_wait', {
   timestep <- 5*365 
@@ -77,8 +100,8 @@ test_that('pev epi targets correct age and respects min_wait', {
     coverages = 0.8,
     min_wait = 2*365,
     age = 18 * 365,
-    booster_timestep = c(18, 36) * 30,
-    booster_coverage = c(.9, .8),
+    booster_spacing = c(18, 36) * 30,
+    booster_coverage = matrix(c(.9, .8), nrow=1, ncol=2),
     booster_profile = list(rtss_booster_profile, rtss_booster_profile)
   )
   events <- create_events(parameters)
@@ -141,8 +164,8 @@ test_that('EPI ignores individuals scheduled for mass vaccination', {
     min_wait = 0,
     min_ages = c(1, 2, 3, 18) * 365,
     max_ages = (c(1, 2, 3, 18) + 1) * 365 - 1,
-    booster_timestep = c(18, 36) * 30,
-    booster_coverage = c(.9, .8),
+    booster_spacing = c(18, 36) * 30,
+    booster_coverage = matrix(c(.9, .8, .9, .8), nrow=2, ncol=2),
     booster_profile = list(rtss_booster_profile, rtss_booster_profile)
   )
   parameters <- set_pev_epi(
@@ -152,8 +175,8 @@ test_that('EPI ignores individuals scheduled for mass vaccination', {
     coverages = 0.8,
     min_wait = 0,
     age = 18 * 365,
-    booster_timestep = c(18, 36) * 30,
-    booster_coverage = c(.9, .8),
+    booster_spacing = c(18, 36) * 30,
+    booster_coverage = matrix(c(.9, .8), nrow=1, ncol=2),
     booster_profile = list(rtss_booster_profile, rtss_booster_profile)
   )
   events <- create_events(parameters)
@@ -210,8 +233,8 @@ test_that('pev EPI respects min_wait when scheduling seasonal boosters', {
     coverages = 0.8,
     min_wait = 6 * 30,
     age = 18 * 365,
-    booster_timestep = c(3, 12) * 30,
-    booster_coverage = c(.9, .8),
+    booster_spacing = c(3, 12) * 30,
+    booster_coverage = matrix(c(.9, .8), nrow=1, ncol=2),
     booster_profile = list(rtss_booster_profile, rtss_booster_profile),
     seasonal_boosters = TRUE
   )
@@ -246,8 +269,8 @@ test_that('pev EPI schedules for the following year with seasonal boosters', {
     coverages = 0.8,
     min_wait = 6 * 30,
     age = 18 * 365,
-    booster_timestep = c(3, 12) * 30,
-    booster_coverage = c(.9, .8),
+    booster_spacing = c(3, 12) * 30,
+    booster_coverage = matrix(c(.9, .8), nrow=1, ncol=2),
     booster_profile = list(rtss_booster_profile, rtss_booster_profile),
     seasonal_boosters = TRUE
   )

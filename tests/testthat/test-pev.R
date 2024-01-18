@@ -8,8 +8,8 @@ test_that('Mass vaccination strategy parameterisation works', {
     min_wait = 0,
     min_ages = 5 * 30,
     max_ages = 17 * 30,
-    booster_timestep = c(18, 36) * 30,
-    booster_coverage = c(.9, .8),
+    booster_spacing = c(18, 36) * 30,
+    booster_coverage = matrix(c(.9, .8), nrow=1, ncol=2),
     booster_profile = list(rtss_booster_profile, rtss_booster_profile)
   )
   expect_equal(parameters$pev, TRUE)
@@ -17,7 +17,7 @@ test_that('Mass vaccination strategy parameterisation works', {
   expect_equal(parameters$mass_pev_coverages, .8)
   expect_equal(parameters$mass_pev_min_ages, 5 * 30)
   expect_equal(parameters$mass_pev_max_ages, 17 * 30)
-  expect_equal(parameters$mass_pev_booster_timestep, c(18, 36) * 30)
+  expect_equal(parameters$mass_pev_booster_spacing, c(18, 36) * 30)
   expect_equal(parameters$pev_profiles, list(rtss_profile, rtss_booster_profile, rtss_booster_profile))
   expect_equal(parameters$mass_pev_profile_indices, seq(3))
 
@@ -30,8 +30,8 @@ test_that('Mass vaccination strategy parameterisation works', {
       min_wait = 0,
       min_ages = 5 * 30,
       max_ages = 17 * 30,
-      booster_timestep = c(18, 36) * 30,
-      booster_coverage = c(.9, .8),
+      booster_spacing = c(18, 36) * 30,
+      booster_coverage = matrix(c(.9, .8), nrow=1, ncol=2),
       booster_profile = list(rtss_booster_profile, rtss_booster_profile)
     ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
     fixed = TRUE
@@ -46,10 +46,50 @@ test_that('Mass vaccination strategy parameterisation works', {
       min_wait = 0,
       min_ages = 5 * 30,
       max_ages = 17 * 30,
-      booster_timestep = c(18, 36) * 30,
-      booster_coverage = c(.9, .8),
+      booster_spacing = c(18, 36) * 30,
+      booster_coverage = matrix(c(.9, .8), nrow=1, ncol=2),
       booster_profile = list(rtss_booster_profile, rtss_booster_profile)
     ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
+    fixed = TRUE
+  )
+})
+
+test_that('set_mass_pev checks booster coverage matrix shape', {
+  parameters <- get_parameters()
+  expect_error(
+    parameters <- set_mass_pev(
+      parameters,
+      profile = rtss_profile,
+      coverages = c(0.1),
+      timesteps = c(10),
+      min_wait = 0,
+      min_ages = 5 * 30,
+      max_ages = 17 * 30,
+      booster_spacing = c(18, 36) * 30,
+      booster_coverage = matrix(c(.9, .8), nrow=2, ncol=1),
+      booster_profile = list(rtss_booster_profile, rtss_booster_profile)
+    ),
+    'booster_spacing, booster_coverage and booster_profile do not align',
+    fixed = TRUE
+  )
+})
+
+test_that('set_mass_pev checks booster_spacing is increasing', {
+  parameters <- get_parameters()
+  expect_error(
+    parameters <- set_mass_pev(
+      parameters,
+      profile = rtss_profile,
+      coverages = c(0.1),
+      timesteps = c(10),
+      min_wait = 0,
+      min_ages = 5 * 30,
+      max_ages = 17 * 30,
+      booster_spacing = c(5, 5) * 30,
+      booster_coverage = matrix(c(.9, .8), nrow=2, ncol=1),
+      booster_profile = list(rtss_booster_profile, rtss_booster_profile)
+    ),
+    'booster_spacing must be monotonically increasing',
     fixed = TRUE
   )
 })
@@ -65,8 +105,8 @@ test_that('Mass vaccination fails pre-emptively for unaligned booster parameters
       min_wait = 0,
       min_ages = 5 * 30,
       max_ages = 17 * 30,
-      booster_timestep = c(18, 36) * 30,
-      booster_coverage = c(.9),
+      booster_spacing = c(18, 36) * 30,
+      booster_coverage = matrix(.9, nrow=1, ncol=1),
       booster_profile = list(rtss_booster_profile, rtss_booster_profile)
     )
   )
@@ -83,8 +123,8 @@ test_that('Infection considers pev efficacy', {
     min_wait = 0,
     min_ages = 5 * 30,
     max_ages = 17 * 30,
-    booster_timestep = c(18, 36) * 30,
-    booster_coverage = c(.9, .8),
+    booster_spacing = c(18, 36) * 30,
+    booster_coverage = matrix(c(.9, .8), nrow=1, ncol=2),
     booster_profile = list(rtss_booster_profile, rtss_booster_profile)
   )
   events <- create_events(parameters)
@@ -150,8 +190,8 @@ test_that('Mass vaccinations update vaccination time', {
     min_wait = 0,
     min_ages = c(1, 2, 3, 18) * 365,
     max_ages = (c(1, 2, 3, 18) + 1) * 365 - 1,
-    booster_timestep = c(18, 36) * 30,
-    booster_coverage = c(.9, .8),
+    booster_spacing = c(18, 36) * 30,
+    booster_coverage = matrix(c(.9, .8, .9, .8), nrow=2, ncol=2),
     booster_profile = list(rtss_booster_profile, rtss_booster_profile)
   )
   events <- create_events(parameters)
@@ -220,8 +260,8 @@ test_that('Mass vaccinations ignore EPI individuals', {
     min_wait = 0,
     min_ages = c(1, 2, 3, 18) * 365,
     max_ages = (c(1, 2, 3, 18) + 1) * 365 - 1,
-    booster_timestep = c(18, 36) * 30,
-    booster_coverage = c(.9, .8),
+    booster_spacing = c(18, 36) * 30,
+    booster_coverage = matrix(c(.9, .8, .9, .8), nrow=2, ncol=2),
     booster_profile = list(rtss_booster_profile, rtss_booster_profile)
   )
   parameters <- set_pev_epi(
@@ -231,8 +271,8 @@ test_that('Mass vaccinations ignore EPI individuals', {
     coverages = 0.8,
     min_wait = 2*365,
     age = 18 * 365,
-    booster_timestep = c(18, 36) * 30,
-    booster_coverage = c(.9, .8),
+    booster_spacing = c(18, 36) * 30,
+    booster_coverage = matrix(c(.9, .8), nrow=1, ncol=2),
     booster_profile = list(rtss_booster_profile, rtss_booster_profile)
   )
   events <- create_events(parameters)
@@ -287,8 +327,8 @@ test_that('Mass boosters update profile params and reschedule correctly', {
     min_wait = 0,
     min_ages = c(1, 2, 3, 18) * 365,
     max_ages = (c(1, 2, 3, 18) + 1) * 365 - 1,
-    booster_timestep = c(1, 6) * 30,
-    booster_coverage = c(1, 1),
+    booster_spacing = c(1, 6) * 30,
+    booster_coverage = matrix(1, nrow=2, ncol=2),
     booster_profile = list(rtss_booster_profile, rtss_booster_profile)
   )
   events <- create_events(parameters)
@@ -312,7 +352,8 @@ test_that('Mass boosters update profile params and reschedule correctly', {
 
   listener <- create_pev_booster_listener(
     variables = variables,
-    coverage = 1,
+    coverage = parameters$mass_pev_booster_coverage,
+    parameters$mass_pev_timesteps,
     booster_number = 1,
     pev_profile_index = 2,
     next_booster_event = events$mass_pev_boosters[[2]],
@@ -363,8 +404,8 @@ test_that('Mass booster coverages sample subpopulations correctly', {
     min_ages = c(1, 2, 3, 18) * 365,
     max_ages = (c(1, 2, 3, 18) + 1) * 365 - 1,
     min_wait = 0,
-    booster_timestep = c(1, 6) * 30,
-    booster_coverage = c(.9, .8),
+    booster_spacing = c(1, 6) * 30,
+    booster_coverage = matrix(c(.9, .8), nrow=1, ncol=2),
     booster_profile = list(rtss_booster_profile, rtss_booster_profile)
   )
 
@@ -389,7 +430,8 @@ test_that('Mass booster coverages sample subpopulations correctly', {
 
   listener <- create_pev_booster_listener(
     variables = variables,
-    coverage = .9,
+    coverage = parameters$mass_pev_booster_coverage,
+    pev_distribution_timesteps = parameters$mass_pev_timesteps,
     booster_number = 1,
     pev_profile_index = 2,
     next_booster_event = events$mass_pev_boosters[[2]],
@@ -442,8 +484,8 @@ test_that('mass pev targets correct age and respects min_wait', {
     min_ages = 0,
     max_ages = 19 * 365,
     min_wait = 2*365,
-    booster_timestep = c(1, 6) * 30,
-    booster_coverage = c(.9, .8),
+    booster_spacing = c(1, 6) * 30,
+    booster_coverage = matrix(c(.9, .8, .9, .8), nrow=2, ncol=2),
     booster_profile = list(rtss_booster_profile, rtss_booster_profile)
   )
   events <- create_events(parameters)
@@ -504,8 +546,8 @@ test_that('Mass efficacy listener works correctly', {
     min_ages = c(1, 2, 3, 18) * 365,
     max_ages = (c(1, 2, 3, 18) + 1) * 365 - 1,
     min_wait = 0,
-    booster_timestep = c(1, 6) * 30,
-    booster_coverage = c(.9, .8),
+    booster_spacing = c(1, 6) * 30,
+    booster_coverage = matrix(c(.9, .8), nrow=1, ncol=2),
     booster_profile = list(rtss_booster_profile, rtss_booster_profile)
   )
 
@@ -542,8 +584,8 @@ test_that('Mass dose events are not ruined by lazy evaluation', {
     min_ages = c(1, 2, 3, 18) * 365,
     max_ages = (c(1, 2, 3, 18) + 1) * 365 - 1,
     min_wait = 0,
-    booster_timestep = c(1, 6, 12) * 30,
-    booster_coverage = c(.9, .8, .7),
+    booster_spacing = c(1, 6, 12) * 30,
+    booster_coverage = matrix(c(.9, .8, .7), nrow=1, ncol=3),
     booster_profile = list(rtss_booster_profile, rtss_booster_profile, rtss_booster_profile)
   )
 
@@ -553,9 +595,10 @@ test_that('Mass dose events are not ruined by lazy evaluation', {
   attach_pev_dose_listeners(
     variables = variables,
     parameters = parameters,
+    pev_distribution_timesteps = parameters$mass_pev_timesteps,
     dose_events = events$mass_pev_doses,
     booster_events = events$mass_pev_boosters,
-    booster_delays = parameters$mass_pev_booster_timestep,
+    booster_delays = parameters$mass_pev_booster_spacing,
     booster_coverages = parameters$mass_pev_booster_coverage,
     pev_profile_indices = parameters$mass_pev_profile_indices,
     strategy = 'mass',
@@ -577,8 +620,8 @@ test_that('Mass dose events are not ruined by lazy evaluation', {
   expect_equal(
     as.list(environment(
       events$mass_pev_boosters[[1]]$.listeners[[1]]
-    ))$coverage,
-    .9
+    ))$booster_number,
+    1
   )
 })
 
@@ -612,4 +655,101 @@ test_that('Efficacies are calculated correctly', {
   )
 })
 
+test_that('pev timed booster coverage can select the first coverage for the first booster', {
+  timestep <- 5 * 365
+  parameters <- get_parameters(list(human_population = 5))
+  parameters <- set_pev_epi(
+    parameters,
+    profile = rtss_profile,
+    timesteps = 10,
+    coverages = 0.8,
+    min_wait = 6 * 30,
+    age = 18 * 365,
+    booster_spacing = c(3, 12) * 30,
+    booster_coverage = matrix(c(.9, .8), nrow=1, ncol=2),
+    booster_profile = list(rtss_booster_profile, rtss_booster_profile),
+  )
+  events <- create_events(parameters)
 
+  booster_event <- mock_event(events$pev_epi_boosters[[1]])
+
+  listener <- create_pev_booster_listener(
+    variables = create_variables(parameters),
+    coverage = parameters$pev_epi_booster_coverage,
+    pev_distribution_timesteps = parameters$pev_epi_timesteps,
+    booster_number = 1,
+    pev_profile_index = 2,
+    next_booster_event = booster_event,
+    next_booster_delay = 9 * 30,
+    renderer = mock_render(timestep),
+    strategy = 'epi'
+  )
+
+  target <- individual::Bitset$new(5)$insert(seq(5))
+
+  mock_sample_bitset = mockery::mock(individual::Bitset$new(5)$insert(c(1, 2)))
+  mockery::stub(
+    listener,
+    'sample_bitset',
+    mock_sample_bitset
+  )
+
+  listener(timestep, target)
+
+  mockery::expect_args(
+    mock_sample_bitset,
+    1,
+    target,
+    .9
+  )
+})
+
+
+test_that('pev boosters can select the second coverage for the first booster', {
+  timestep <- 5 * 365
+  parameters <- get_parameters(list(human_population = 5))
+  parameters <- set_pev_epi(
+    parameters,
+    profile = rtss_profile,
+    timesteps = c(10, 30),
+    coverages = c(0.8, 0.4),
+    min_wait = 6 * 30,
+    age = 18 * 365,
+    booster_spacing = c(3, 12) * 30,
+    booster_coverage = matrix(c(.9, .45, .8, .8), nrow=2, ncol=2),
+    booster_profile = list(rtss_booster_profile, rtss_booster_profile),
+  )
+  events <- create_events(parameters)
+
+  booster_event <- mock_event(events$pev_epi_boosters[[1]])
+
+  listener <- create_pev_booster_listener(
+    variables = create_variables(parameters),
+    coverage = parameters$pev_epi_booster_coverage,
+    pev_distribution_timesteps = parameters$pev_epi_timesteps,
+    booster_number = 1,
+    pev_profile_index = 2,
+    next_booster_event = booster_event,
+    next_booster_delay = 9 * 30,
+    renderer = mock_render(timestep),
+    strategy = 'epi'
+  )
+
+  target <- individual::Bitset$new(5)$insert(seq(5))
+
+  mock_sample_bitset = mockery::mock(individual::Bitset$new(5)$insert(c(1, 2)))
+  mockery::stub(
+    listener,
+    'sample_bitset',
+    mock_sample_bitset
+  )
+
+  listener(timestep, target)
+
+  mockery::expect_args(
+    mock_sample_bitset,
+    1,
+    target,
+    .45
+  )
+})

@@ -207,6 +207,7 @@
 #' * severe_incidence_rendering_min_ages - the minimum ages for severe incidence
 #' outputs; default = turned off
 #' * severe_incidence_rendering_max_ages - the corresponding max ages; default = turned off
+#' * render_grid - whether to render prevalence and incidence values for a grid of year wide age groups between 0 and 100; default = turned off
 #'
 #' miscellaneous:
 #'
@@ -394,6 +395,7 @@ get_parameters <- function(overrides = list()) {
     severe_incidence_rendering_max_ages = numeric(0),
     age_group_rendering_min_ages = numeric(0),
     age_group_rendering_max_ages = numeric(0),
+    render_grid = FALSE,
     # misc
     custom_demography = FALSE,
     human_population = 100,

@@ -243,7 +243,7 @@
 #' * prevalence_rendering_min_ages - the minimum ages for clinical prevalence
 #' outputs; default = 730
 #' * prevalence_rendering_max_ages - the corresponding max ages; default = 3650
-#' * render_grid - whether to render prevalence and incidence values for a grid of year wide age groups between 0 and 100; default = turned off
+#' * render_grid - which statistics to render values for in a grid of year wide age groups between 0 and 100; e.g. 'p_detect_' ; default = turned off
 #'
 #' miscellaneous:
 #'
@@ -446,7 +446,7 @@ get_parameters <- function(overrides = list()) {
     severe_incidence_rendering_max_ages = numeric(0),
     age_group_rendering_min_ages = numeric(0),
     age_group_rendering_max_ages = numeric(0),
-    render_grid = FALSE,
+    render_grid = NULL,
     # misc
     mosquito_limit   = 100 * 1000,
     individual_mosquitoes = FALSE,

@@ -64,6 +64,23 @@ create_prevelance_renderer <- function(
         timestep
       )
     }
+
+    if (parameters$render_grid) {
+      grid_renderer(
+        birth,
+        renderer,
+        NULL,
+        'n',
+        timestep
+      )
+      grid_renderer(
+        birth,
+        renderer,
+        detected,
+        'n_detect',
+        timestep
+      )
+    }
   }
 }
 
@@ -91,7 +108,8 @@ incidence_renderer <- function(
   prefix,
   lowers,
   uppers,
-  timestep
+  timestep,
+  render_grid = FALSE
   ) {
   for (i in seq_along(lowers)) {
     lower <- lowers[[i]]
@@ -107,6 +125,16 @@ incidence_renderer <- function(
     renderer$render(
       paste0('p_', prefix, lower, '_', upper),
       sum(prob[bitset_index(source_pop, in_age)]),
+      timestep
+    )
+  }
+
+  if (render_grid) {
+    grid_renderer(
+      birth,
+      renderer,
+      target,
+      'n_inc',
       timestep
     )
   }
@@ -180,4 +208,47 @@ create_age_group_renderer <- function(
       ) 
     }
   }
+}
+
+#' @title Render a grid of statistics
+#'
+#' @description renders incidence (new for this timestep) for year wide age bands between 0 and 100
+#'
+#' @param birth variable for birth of the individual
+#' @param renderer object for model outputs
+#' @param target incidence population
+#' @param prefix for model outputs
+#' @param timestep current target
+#'
+#' @noRd
+grid_renderer <- function(
+  birth,
+  renderer,
+  target,
+  prefix,
+  timestep
+  ) {
+  counts <- grid_count(birth, target, timestep)
+  for (i in seq_along(counts)) {
+    renderer$render(
+      paste0('grid_', prefix, '_', i),
+      counts[[i]],
+      timestep
+    )
+  }
+}
+
+grid_count <- function(birth, selected, timestep) {
+  if (is.null(selected)) {
+    selected_births <- birth$get_values()
+  } else {
+    selected_births <- birth$get_values(selected)
+  }
+  age <- floor(get_age(selected_births, timestep) / 365)
+  age[age < 0] <- NA
+  age[age > 100] <- NA
+  non_zero <- table(age)
+  counts <- rep(0, 101)
+  counts[as.numeric(names(non_zero)) + 1] <- non_zero
+  counts
 }

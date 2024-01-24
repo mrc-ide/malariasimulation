@@ -23,6 +23,25 @@ test_that('grid_count counts internally correctly', {
   expect_equal(grid_count(birth, selected, timestep), expected)
 })
 
+test_that('grid_count does weighted counts correctly', {
+  timestep <- 5 * 365
+  birth <- individual::IntegerVariable$new(timestep - c(1, 1, 3, 4) * 365 - 1)
+  expected <- rep(0, 101)
+  weights <- c(.1, .2, .3, .4)
+  expected[c(1, 3, 4) + 1] <- c(.3, .3, .4)
+  expect_equal(grid_count(birth, NULL, timestep, weights), expected)
+})
+
+test_that('grid_count works for empty case', {
+  timestep <- 5 * 365
+  birth <- individual::IntegerVariable$new(timestep - c(1, 1, 3, 4) * 365 - 1)
+  expected <- rep(0, 101)
+  weights <- numeric(0)
+  selected <- individual::Bitset$new(4)
+  expect_equal(grid_count(birth, selected, timestep, weights), rep(0, 101))
+})
+
+
 test_that('grid_count counts at the boundaries correctly', {
   timestep <- 5 * 365
   birth <- individual::IntegerVariable$new(timestep - c(1, 2, 3, 4) * 365)

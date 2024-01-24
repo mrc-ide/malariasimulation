@@ -261,7 +261,7 @@ grid_renderer <- function(
   counts <- grid_count(birth, target, timestep, weights)
   for (i in seq_along(counts)) {
     renderer$render(
-      paste0('grid_', prefix, i),
+      paste0('grid_', prefix, i - 1),
       counts[[i]],
       timestep
     )

@@ -230,8 +230,11 @@ calculate_infections <- function(
     ## Drug prophylaxis may limit formation of new hypnozoite batches
     ls_prophylaxis <- rep(0, newly_bite_infected$size())
     if(length(parameters$drug_hypnozoite_efficacy)>0){
+
       ls_drug <- variables$ls_drug$get_values(newly_bite_infected)
       ls_medicated <- (ls_drug > 0)
+      ls_medicated[ls_drug > 0] <- !is.na(parameters$drug_hypnozoite_efficacy[ls_drug])
+
       if (any(ls_medicated)) {
         ls_drug <- ls_drug[ls_medicated]
         ls_drug_time <- variables$ls_drug_time$get_values(newly_bite_infected)[ls_medicated]
@@ -442,7 +445,7 @@ calculate_treated <- function(
   # Update liver stage drug effects
   if(length(parameters$drug_hypnozoite_efficacy)>0){
 
-    ## Only ls stage drugs have hypnozoite efficacy, so liver stage drug variable will be consistent in prophylaxis
+    ## When ls stage drug efficacy is NA, this does not results in a success
     hyp_successful <- bernoulli_multi_p(parameters$drug_hypnozoite_efficacy[drugs])
     hyp_treated_index <- bitset_at(seek_treatment, hyp_successful)
 

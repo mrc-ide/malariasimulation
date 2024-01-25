@@ -34,14 +34,15 @@ create_mda_listeners <- function(
     in_age <- which((age > min_ages[[time_index]]) & (age < max_ages[[time_index]]))
     target <- in_age[sample_intervention(in_age, int_name, coverage, correlations)]
 
-    renderer$render(paste0('n_', int_name, '_treated'), length(target), timestep)
+    target_bit <- individual::Bitset$new(parameters$human_population)
+    target_bit$insert(target)
 
-    successful_treatments <- bernoulli(
-      length(target),
+    renderer$render(paste0('n_', int_name, '_treated'), target_bit$size(), timestep)
+
+    to_move <- sample_bitset(
+      target_bit,
       parameters$drug_efficacy[[drug]]
     )
-    to_move <- individual::Bitset$new(parameters$human_population)
-    to_move$insert(target[successful_treatments])
 
     if (to_move$size() > 0) {
       # Move detectable
@@ -77,6 +78,19 @@ create_mda_listeners <- function(
       # Update drug
       variables$drug$queue_update(drug, to_move)
       variables$drug_time$queue_update(timestep, to_move)
+    }
+
+    # Update liver stage drug effects
+    if(!is.na(parameters$drug_hypnozoite_efficacy[drug])){
+
+      to_clear <- sample_bitset(
+        target_bit,
+        parameters$drug_hypnozoite_efficacy[[drug]]
+      )
+
+      variables$hypnozoites$queue_update(0, to_clear)
+      variables$ls_drug$queue_update(drug, to_clear)
+      variables$ls_drug_time$queue_update(timestep, to_clear)
     }
 
     # Schedule next round

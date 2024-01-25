@@ -162,7 +162,7 @@ test_that('that multiple ages are rendered', {
   timestep <- 0
 
   parameters <- get_parameters(parasite = "vivax")
-  parameters <- set_age_outputs(parameters,
+  parameters <- set_epi_outputs(parameters,
                                 prevalence = c(2,10,50)*365)
 
   state <- individual::CategoricalVariable$new(

@@ -53,21 +53,21 @@ CQ_TQ_params_vivax <- c(1, 0.5, 5, 20, 0.713, 5, 30)
 #' @export
 ACT_params_vivax <- c(0.899, 0.5, 11.3, 10.6)
 
-#' @title Preset parameters for the ACT-PQ drug acting on P. vivax
+#' @title Preset parameters for an ACT-PQ drug acting on P. vivax
 #' @description Efficacy from SI of White et al., DOI: 10.1371/journal.pmed.1003535 (2021)
 #' BS shape and scale consistent with AL prophylaxis in falciparum
 #' LS shape are scale consistent with a 14 day PQ treatment, with rapid decay.
-#' @details Use a vector of preset parameters for the ACT-PQ drug (Artemisinin combination therapy and primaquine) acting on P. vivax
+#' @details Use a vector of preset parameters for the ACT-PQ drug (Artemisinin combination therapy and Primaquine) acting on P. vivax
 #' @details Default parameters, from L to R, are: drug_efficacy: 1, drug_rel_c: 0.5, drug_prophylaxis_shape: 11.3, drug_prophylaxis_scale: 10.6,
 #' drug_hypnozoite_efficacy: 0.7, drug_hypnozoite_prophylaxis_shape: 11.3, drug_hypnozoite_prophylaxis_scale: 10.6
 #' @export
-ACT_PQ_params_vivax <- c(1, 0.5, 11.3, 10.6, 0.7, 11.3, 10.6)
+ACT_PQ_params_vivax <- c(1, 0.5, 11.3, 10.6, 0.7, 10, 5.5)
 
-#' @title Preset parameters for the ChlQ drug acting on P. vivax
+#' @title Preset parameters for an ACT-TQ drug acting on P. vivax
 #' @description Efficacy from SI of White et al., DOI: 10.1371/journal.pmed.1003535 (2021)
 #' BS shape and scale consistent with AL prophylaxis in falciparum
 #' LS shape are scale consistent with a 14 day PQ treatment, with rapid decay.
-#' @details Use a vector of preset parameters for the ChlQ drug (chloroquine) acting on P. vivax
+#' @details Use a vector of preset parameters for an ACT-TQ drug (Artemisinin combination therapy and Tafenoquine) acting on P. vivax
 #' @details Default parameters, from L to R, are: drug_efficacy: 1, drug_rel_c: 0.5, drug_prophylaxis_shape: 11.3, drug_prophylaxis_scale: 10.6,
 #' drug_hypnozoite_efficacy: 1, drug_hypnozoite_prophylaxis_shape: 11.3, drug_hypnozoite_prophylaxis_scale: 10.6
 #' @export
@@ -94,7 +94,7 @@ set_drugs <- function(parameters, drugs) {
 
   for (drug in seq_along(drugs)) {
     for (i in seq_along(drugs[[drug]])) {
-      parameters[[keys[[i]]]] <- c(parameters[[keys[[i]]]], drugs[[drug]][[i]])
+      parameters[[keys[[i]]]][drug] <- drugs[[drug]][[i]]
     }
   }
   parameters

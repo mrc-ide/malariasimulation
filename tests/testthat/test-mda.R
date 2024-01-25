@@ -126,7 +126,7 @@ test_that('MDA moves the diseased and non-diseased population correctly', {
 
   expect_bitset_update(
     variables$infectivity$queue_update_mock(),
-    c(.3, .4) * SP_AQ_params_falciparum[[2]],
+    c(.3, .4) * SP_AQ_params_falciparum[2],
     c(3, 4)
   )
 
@@ -221,7 +221,7 @@ test_that('MDA moves the diseased and non-diseased population correctly - second
 
   expect_bitset_update(
     variables$infectivity$queue_update_mock(),
-    c(.1, .2, .3, .4) * SP_AQ_params_falciparum[[2]],
+    c(.1, .2, .3, .4) * SP_AQ_params_falciparum[2],
     c(1, 2, 3, 4)
   )
 
@@ -306,7 +306,7 @@ test_that('MDA ignores non-detectable asymptomatics', {
 
   expect_bitset_update(
     variables$infectivity$queue_update_mock(),
-    c(.1, .2, .3, .4) * SP_AQ_params_falciparum[[2]],
+    c(.1, .2, .3, .4) * SP_AQ_params_falciparum[2],
     c(1, 2, 3, 4)
   )
 

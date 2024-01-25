@@ -87,3 +87,4 @@ test_that('set_drugs errors if a list is not provided', {
     fixed = TRUE
   )
 })
+

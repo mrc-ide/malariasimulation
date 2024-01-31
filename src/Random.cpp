@@ -61,7 +61,7 @@ void Random::prop_sample_bucket(
     // all probabilities are the same
     if (heavy == n) {
         for (auto i = 0; i < size; ++i) {
-            *result = (*rng)(n);
+            *result = (*rng)((uint64_t)n);
             ++result;
         }
         return;
@@ -122,7 +122,7 @@ void Random::prop_sample_bucket(
 
     // sample
     for (auto i = 0; i < size; ++i) {
-        size_t bucket = (*rng)(n);
+        size_t bucket = (*rng)((uint64_t)n);
         double acceptance = dqrng::uniform01((*rng)());
         *result = (acceptance < dividing_probs[bucket]) ? bucket :
             alternative_index[bucket];

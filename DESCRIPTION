@@ -69,7 +69,7 @@ LazyData: true
 Remotes:
   mrc-ide/malariaEquilibrium,
   mrc-ide/individual,
-  r-universe/daqana
+  daqana/dqrng
 Imports:
     individual (>= 0.1.7),
     malariaEquilibrium (>= 1.0.1),

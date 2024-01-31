@@ -113,5 +113,5 @@ void timeseries_restore_state(Rcpp::XPtr<Timeseries> timeseries, Rcpp::List stat
     for (size_t i = 0; i < timesteps.size(); i++) {
         values_map.insert({timesteps[i], values[i]});
     }
-    timeseries->set_values(values_map);
+    timeseries->set_values(std::move(values_map));
 }

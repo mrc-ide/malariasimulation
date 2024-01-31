@@ -69,7 +69,7 @@ const std::map<double, double>& Timeseries::values() {
 }
 
 void Timeseries::set_values(std::map<double, double> values) {
-    _values = values;
+    _values = std::move(values);
 }
 
 //[[Rcpp::export]]

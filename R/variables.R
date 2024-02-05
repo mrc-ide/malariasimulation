@@ -29,6 +29,9 @@
 #' * infectivity - The onward infectiousness to mosquitos
 #' * drug - The last prescribed drug
 #' * drug_time - The timestep of the last drug
+#' 
+#' Antimalarial resistance variables are:
+#' * dt - the delay for humans to move from state Tr to state S ()
 #'
 #' Mosquito variables are: 
 #' * mosquito_state - the state of the mosquito, a category Sm|Pm|Im|NonExistent
@@ -221,6 +224,17 @@ create_variables <- function(parameters) {
     net_time = net_time,
     spray_time = spray_time
   )
+  
+  # TODO: Remove line forcing dt_spc values into variables:
+  # Add variables for antimalarial resistance state residency times (dt)
+  if(parameters$antimalarial_resistance == TRUE) {
+    dt <- individual::DoubleVariable$new(rep(parameters$dt, size))
+    #dt <- individual::DoubleVariable$new(sample(x = c(5, 10), size = size, replace = T, prob = c(0.2, 0.8)))
+    variables <- c(
+      variables,
+      dt = dt
+    )
+  }
 
   # Add variables for individual mosquitoes
   if (parameters$individual_mosquitoes) {

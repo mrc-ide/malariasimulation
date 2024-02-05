@@ -262,25 +262,41 @@ update_severe_disease <- function(
 #' @param renderer simulation renderer
 #' @noRd
 calculate_treated <- function(
-  variables,
-  clinical_infections,
-  parameters,
-  timestep,
-  renderer
-  ) {
+    variables,
+    clinical_infections,
+    parameters,
+    timestep,
+    renderer
+) {
+  
+  # Render the number of individuals clinically infected in the current timestep
+  renderer$render('n_clin_infected', clinical_infections$size(), timestep)
+  
+  # If the number of clinical infections is 0, return an empty Bitset of treated individuals:
+  if(clinical_infections$size() == 0) {
+    return(individual::Bitset$new(parameters$human_population))
+  }
+  
+  # Get the treatment coverages and sum them to get total coverage in the current time step:
   treatment_coverages <- get_treatment_coverages(parameters, timestep)
   ft <- sum(treatment_coverages)
-
+  
+  # If coverage is no-existent, return a blank Bitset of treated individuals:
   if (ft == 0) {
     return(individual::Bitset$new(parameters$human_population))
   }
-
+  
+  # Render the total coverage in the current time step:
   renderer$render('ft', ft, timestep)
+  
+  # Get the clinically infected individuals who receive treatment and the number of them:
   seek_treatment <- sample_bitset(clinical_infections, ft)
   n_treat <- seek_treatment$size()
   
+  # Render the number of people receiving treatment:
   renderer$render('n_treated', n_treat, timestep)
   
+  # Assign each individual a drug:
   drugs <- as.numeric(parameters$clinical_treatment_drugs[
     sample.int(
       length(parameters$clinical_treatment_drugs),
@@ -289,10 +305,58 @@ calculate_treated <- function(
       replace = TRUE
     )
   ])
-
-  successful <- bernoulli_multi_p(parameters$drug_efficacy[drugs])
-  treated_index <- bitset_at(seek_treatment, successful)
-
+  
+  # If antimalarial resistance is simulated:
+  if(parameters$antimalarial_resistance == TRUE) {
+    
+    # Render the number of people with susceptible infection residence times at the start of the time step:
+    renderer$render('dt_susceptible', sum(variables$dt$get_values() == parameters$dt), timestep)
+    # Render the number of people with slow parasite clearance residence times at the start of the time step:
+    renderer$render('dt_spc', sum(variables$dt$get_values() == parameters$dt_slow_parasite_clearance), timestep)
+    
+    # Get each individuals resistance parameters:
+    resistance_parameters <- get_antimalarial_resistance_parameters(
+      parameters = parameters,
+      drugs = drugs,
+      timestep = timestep
+    )
+    
+    # Calculate each individuals probability of experiencing slow parasite clearance:
+    slow_parasite_clearance_prob <- resistance_parameters$artemisinin_resistance_proportion * resistance_parameters$slow_parasite_clearance_probability  
+    
+    # Determine which individuals get slow parasite clearance:
+    slow_parasite_clearance_indices <- bernoulli_multi_p(slow_parasite_clearance_prob)
+    
+    # Get Bitset of individuals who will experience slow parasite clearance:
+    slow_parasite_clearance_individuals <- bitset_at(seek_treatment, slow_parasite_clearance_indices)
+    
+    # Create a Bitset of the non-SPC, still seeking treatment people:
+    susceptible_to_treatment <- seek_treatment$copy()$set_difference(slow_parasite_clearance_individuals)
+    
+    # Get indices of individuals who are successfully treated:
+    successful <- bernoulli_multi_p(parameters$drug_efficacy[drugs])
+    
+    # Get the indices of the successfully treated individuals:
+    treated_index <- bitset_at(seek_treatment, successful)
+    
+    # Render the number of people who experience slow parasite clearance:
+    renderer$render('n_slow_parasite_clearance', slow_parasite_clearance_individuals$size(), timestep)
+    
+    # Render the number of people who do not experience slow parasite clearance:
+    renderer$render('n_susceptible_SPC', susceptible_to_treatment$size(), timestep)
+    
+  } else {
+    
+    # In absence of resistance, calculate the number of successfully treated people as normal:
+    successful <- bernoulli_multi_p(parameters$drug_efficacy[drugs])
+    # Retrieve the indices of the successfully treated individuals:
+    treated_index <- bitset_at(seek_treatment, successful)
+    
+  }
+  
+  # Render the number of successfully treated individuals in the current time step:
+  renderer$render('n_successfully_treated', treated_index$size(), timestep)
+  
   # Update those who have been treated
   if (treated_index$size() > 0) {
     variables$state$queue_update('Tr', treated_index)
@@ -308,6 +372,16 @@ calculate_treated <- function(
       timestep,
       treated_index
     )
+    if(parameters$antimalarial_resistance) {
+      variables$dt$queue_update(
+        parameters$dt,
+        susceptible_to_treatment
+      )
+      variables$dt$queue_update(
+        resistance_parameters$dt_slow_parasite_clearance[slow_parasite_clearance_indices],
+        slow_parasite_clearance_individuals
+      )
+    }
   }
   treated_index
 }

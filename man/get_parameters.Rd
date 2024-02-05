@@ -214,6 +214,23 @@ please set TBV parameters with the convenience functions in
 \item tbv_gamma2 - transmission reduction parameter; default = 0.06
 }
 
+Antimalarial resistance parameters:
+please set antimalarial resistance parameters with the convenience functions in
+\code{antimalarial_resistance.R:set_antimalarial_resistance}
+\itemize{
+\item antimalarial_resistance - boolean for if antimalarial resistance is enabled; default = FALSE
+\item antimalarial_resistance_drug - vector of drugs for which resistance can be parameterised; default = NULL
+\item antimalarial_resistance_timesteps - vector of time steps on which resistance updates occur; default = NULL
+\item prop_artemisinin_resistant - vector of proportions of infections resistant to the artemisinin component of a given drug; default = NULL
+\item prop_partner_drug_resistant - vector of proportions of infections resistant to the parter drug component of a given drug; default = NULL
+\item slow_parasite_clearance_prob - vector of probabilities of slow parasite clearance for a given drug; default = NULL
+\item early_treatment_failure_prob - vector of probabilities of early treatment failure for a given drug; default = NULL
+\item late_clinical_failure_prob - vector of probabilities of late clinical failure for a given drug; default = NULL
+\item late_parasitological_failure_prob - vector of probabilities of late parasitological failure for a given drug; default = NULL
+\item reinfection_during_prophylaxis - vector of probabilities of reinfection during prophylaxis for a given drug; default = NULL
+\item dt_slow_parasite_clearance - the delay for humans experiencing slow parasite clearance to move from state Tr to S; default = NULL
+}
+
 rendering:
 All values are in timesteps and all ranges are inclusive
 \itemize{

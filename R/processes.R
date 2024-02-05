@@ -102,16 +102,37 @@ create_processes <- function(
       parameters$du,
       variables$infectivity,
       0
-    ),
+    )
+  )
+  
+  #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
+  # =======================
+  # Antimalarial Resistance
+  # =======================
+  
+  # Assign the dt input to a separate object with the default single parameter value:
+  dt_input <- parameters$dt
+  
+  # If antimalarial resistance is switched on, assign dt variable values to the 
+  if(parameters$antimalarial_resistance == TRUE) {
+    dt_input <- variables$dt
+  }
+  
+  # Create the progression process for Tr --> S 
+  # TODO: change parameters$dt to dt_input
+  processes <- c(
+    processes,
     create_progression_process(
       variables$state,
       'Tr',
       'S',
-      parameters$dt,
+      dt_input,
       variables$infectivity,
       0
     )
   )
+  
+  #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
   
   # ===============
   # ODE integration
@@ -245,6 +266,7 @@ create_processes <- function(
   
   processes
 }
+
 
 # =================
 # Utility functions

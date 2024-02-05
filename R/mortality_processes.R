@@ -112,6 +112,11 @@ reset_target <- function(variables, events, target, state, timestep) {
 
     # onwards infectiousness
     variables$infectivity$queue_update(0, target)
+    
+    # treated compartment residence time:
+    if(!is.null(variables$dt)) {
+      variables$dt$queue_update(5, target)
+    }
 
     # zeta and zeta group and vector controls survive rebirth
   }

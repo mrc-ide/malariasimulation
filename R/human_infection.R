@@ -270,8 +270,6 @@ calculate_treated <- function(
     renderer
 ) {
   
-  renderer$render('n_clin_infected', clinical_infections$size(), timestep)
-  
   if(clinical_infections$size() == 0) {
     return(individual::Bitset$new(parameters$human_population))
   }
@@ -297,27 +295,18 @@ calculate_treated <- function(
     )
   ])
   
-  if(parameters$antimalarial_resistance == TRUE) {
-    antimalarial_resistance_drug_index <- as.numeric(parameters$antimalarial_resistance_drug)[drugs]
-    artemisinin_resistance_proportion <- vector()
-    early_treatment_failure_probability <- vector()
-    drug_indices <- list(); drug_index <- vector()
-    
-    for(i in seq_along(parameters$antimalarial_resistance_drug)) {
-      drug_indices[[i]] <- which(drugs == i)
-      drug_index[i] <- which(parameters$antimalarial_resistance_drug == i)
-      matched_t <- match_timestep(ts = parameters$antimalarial_resistance_timesteps[[drug_index[i]]], t = timestep)
-      artemisinin_resistance_proportion[drug_indices[[i]]] <- parameters$prop_artemisinin_resistant[[drug_index[i]]][matched_t]
-      early_treatment_failure_probability[drug_indices[[i]]] <- parameters$early_treatment_failure_prob[[drug_index[i]]][matched_t]
-    }
-    
-    unsuccessful_treatment_probability <- artemisinin_resistance_proportion * early_treatment_failure_probability
+  if(parameters$antimalarial_resistance) {
+    resistance_parameters <- get_antimalarial_resistance_parameters(
+      parameters = parameters,
+      drugs = drugs, 
+      timestep = timestep
+    )
+    unsuccessful_treatment_probability <- resistance_parameters$artemisinin_resistance_proportion * resistance_parameters$early_treatment_failure_probability
     susceptible_to_treatment_index <- bernoulli_multi_p(p = 1 - unsuccessful_treatment_probability)
-    drugs <- drugs[susceptible_to_treatment_index]
     susceptible_to_treatment <- bitset_at(seek_treatment, susceptible_to_treatment_index)
+    drugs <- drugs[susceptible_to_treatment_index]
     n_early_treatment_failure <- n_treat - susceptible_to_treatment$size()
     renderer$render('n_early_treatment_failure', n_early_treatment_failure, timestep)
-    
   } else {
     susceptible_to_treatment <- seek_treatment
     n_early_treatment_failure <- n_treat - susceptible_to_treatment$size()

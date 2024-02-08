@@ -14,7 +14,8 @@ set_antimalarial_resistance(
   early_treatment_failure_prob,
   late_clinical_failure_prob,
   late_parasitological_prob,
-  reinfection_prob
+  reinfection_prob,
+  slow_parasite_clearance_time
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ set_antimalarial_resistance(
 \item{late_parasitological_prob}{vector of updates to the proportion of partner-drug-resistant infections that result in late parasitological failure}
 
 \item{reinfection_prob}{vector of updates to the proportion of partner-drug-resistant infections that result in reinfection during prophylaxis}
+
+\item{slow_parasite_clearance_time}{single value representing the mean time individual's experiencing slow parasite clearance reside in the treated state}
 }
 \description{
 Parameterise antimalarial resistance

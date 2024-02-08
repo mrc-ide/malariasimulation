@@ -34,7 +34,7 @@ One of the major threats to the continued success of efforts to reduce the burde
 Resistance to the artemisinin component of an ACT can result either in slow parasite clearance (SPC), in which treatment with an ACT takes longer than 3 days to fully clear patients with resistant parasites, or early treatment failure (ETF), in which the ACT fails to clear the infection and the individual develops a clinical infection. Resistance to the partner drug, where the partner drug fails to clear the parasite after the artemisinin derivative is depleted, results in infections recrudescing to either clinical (D) or asymptomatic infections (A). Resistance to the partner drug can also result in individuals developing a novel, resistant infection following treatment, as the prophylaxis provided by the ACT fails to protect the individual against reinfection by a resistant strain. In the following vignette, we illustrate how to parameterise and run `malariasimulation` simulations with resistance to ACTs deployed as a clinical treatment
 
 ## Using set_antimalarial_resistance() to parameterise resistance
-Simulations capturing the effects of resistance to clinical treatment using antimalarial drugs are parameterised using the `set_antimalarial_resistance()` function. This function appends user-defined resistance parameters to a `malariasimulation` parameter list and accepts ten inputs. The first is a list of `malariasimulation` parameters to append the resistance parameters to, and the second the index of the `drug` for which resistance is being parameterised, as set using the `set_drugs()` function. The `set_antimalarial_resistance()` function requires the `timesteps`, `artemisinin_resistance`, `partner_drug_resistance`, `slow_parasite_clearance_prob`, `early_treatment_failure_prob`, `late_clinical_failure_prob`, `late_parasitological_failure_prob`, and `reinfection_prob` inputs to be of equal length so that, for each time step in which an update occurs, a value is available for each parameter.
+Simulations capturing the effects of resistance to clinical treatment using antimalarial drugs are parameterised using the `set_antimalarial_resistance()` function. This function appends user-defined resistance parameters to a `malariasimulation` parameter list and accepts ten inputs. The first is a list of `malariasimulation` parameters to append the resistance parameters to, and the second the index of the `drug` for which resistance is being parameterised, as set using the `set_drugs()` function. The `set_antimalarial_resistance()` function requires the `timesteps`, `artemisinin_resistance`, `partner_drug_resistance`, `slow_parasite_clearance_prob`, `early_treatment_failure_prob`, `late_clinical_failure_prob`, `late_parasitological_failure_prob`, and `reinfection_prob` inputs to be of equal length so that, for each time step in which an update occurs, a value is available for each parameter. Finally, the `slow_parasite_clearance_time` parameter represents the mean residence time, in days, for artemisinin-resistant individuals experiencing slow parasite clearance (SPC) in the Treated compartment, and must be input as a single, positive value. 
 
 ## Simulating static resistance
 To illustrate how to parameterise resistance to an ACT using the `set_antimalarial_resistance()` function, we'll set-up and run three simulations. The first simulates malaria transmission in the absence of interventions or resistance. The second simulates a simple regime of clinical treatment in which 80% of clinical cases are treated with artemether lumefantrine (AL), beginning after one year, in the absence of antimalarial resistance. The third simulates the same clinical treatment programme but with resistance to the artemisinin component of AL emerging after two years. For illustrative purposes, we assume that the proportion of infections resistant to the artemisinin component of AL increases from 0% to 80%, and that these infections have a 90% chance of resulting in early treatment failure.
@@ -84,7 +84,8 @@ simparams_resistance <- set_antimalarial_resistance(parameters = simparams_clin_
                                                     early_treatment_failure_prob = c(0, 0.9),
                                                     late_clinical_failure_prob = rep(0, 2),
                                                     late_parasitological_prob = rep(0, 2),
-                                                    reinfection_prob = rep(0, 2))
+                                                    reinfection_prob = rep(0, 2), 
+                                                    slow_parasite_clearance_time = 10)
 
 ```
 
@@ -204,7 +205,8 @@ simparams <- set_antimalarial_resistance(parameters = simparams,
                                          early_treatment_failure_prob = early_treatment_failure_updates,
                                          late_clinical_failure_prob = rep(0, length(resistance_update_timesteps)),
                                          late_parasitological_prob = rep(0, length(resistance_update_timesteps)),
-                                         reinfection_prob = rep(0, length(resistance_update_timesteps)))
+                                         reinfection_prob = rep(0, length(resistance_update_timesteps)), 
+                                         slow_parasite_clearance_time = 10)
 
 # Calibrate the parameters to an initial EIR:
 simparams <- set_equilibrium(parameters = simparams, init_EIR = initial_eir)

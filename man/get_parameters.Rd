@@ -228,6 +228,7 @@ please set antimalarial resistance parameters with the convenience functions in
 \item late_clinical_failure_prob - vector of probabilities of late clinical failure for a given drug; default = NULL
 \item late_parasitological_failure_prob - vector of probabilities of late parasitological failure for a given drug; default = NULL
 \item reinfection_during_prophylaxis - vector of probabilities of reinfection during prophylaxis for a given drug; default = NULL
+\item dt_slow_parasite_clearance - the delay for humans experiencing slow parasite clearance to move from state Tr to S; default = NULL
 }
 
 rendering:

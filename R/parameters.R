@@ -207,6 +207,7 @@
 #' * late_clinical_failure_prob - vector of probabilities of late clinical failure for a given drug; default = NULL
 #' * late_parasitological_failure_prob - vector of probabilities of late parasitological failure for a given drug; default = NULL
 #' * reinfection_during_prophylaxis - vector of probabilities of reinfection during prophylaxis for a given drug; default = NULL
+#' * dt_slow_parasite_clearance - the delay for humans experiencing slow parasite clearance to move from state Tr to S; default = NULL
 #'
 #' rendering:
 #' All values are in timesteps and all ranges are inclusive

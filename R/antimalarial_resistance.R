@@ -100,13 +100,14 @@ get_antimalarial_resistance_parameters <- function(parameters, drugs, timestep) 
     stop("Error: Antimalarial resistance has not been parameterised; antimalarial_resistance = FALSE")
   }
   
-  artemisinin_resistance_proportion <- numeric(length = length(drugs))
-  partner_drug_resistance_proportion <- numeric(length = length(drugs))
-  slow_parasite_clearance_probability <- numeric(length = length(drugs))
-  early_treatment_failure_probability <- numeric(length = length(drugs))
-  late_clinical_failure_probability <- numeric(length = length(drugs))
-  late_parasitological_failure_probability <- numeric(length = length(drugs))
-  reinfection_during_prophylaxis_probability <- numeric(length = length(drugs))
+  blank_vector <- numeric(length = length(drugs))
+  artemisinin_resistance_proportion <- blank_vector
+  partner_drug_resistance_proportion <- blank_vector
+  slow_parasite_clearance_probability <- blank_vector
+  early_treatment_failure_probability <- blank_vector
+  late_clinical_failure_probability <- blank_vector
+  late_parasitological_failure_probability <- blank_vector
+  reinfection_during_prophylaxis_probability <- blank_vector
   dt_slow_parasite_clearance <- rep(parameters$dt, length = length(drugs))
   
   for(i in seq_along(parameters$antimalarial_resistance_drug)) {
@@ -132,17 +133,6 @@ get_antimalarial_resistance_parameters <- function(parameters, drugs, timestep) 
   resistance_parameters$late_parasitological_failure_probability <- late_parasitological_failure_probability
   resistance_parameters$reinfection_during_prophylaxis_probability <- reinfection_during_prophylaxis_probability
   resistance_parameters$dt_slow_parasite_clearance <- dt_slow_parasite_clearance
-  
-  if(any(c(length(resistance_parameters$artemisinin_resistance_proportion),
-           length(resistance_parameters$partner_drug_resistance_proportion), 
-           length(resistance_parameters$slow_parasite_clearance_probability), 
-           length(resistance_parameters$early_treatment_failure_probability), 
-           length(resistance_parameters$late_clinical_failure_probability), 
-           length(resistance_parameters$late_parasitological_failure_probability), 
-           length(resistance_parameters$reinfection_during_prophylaxis_probability),
-           length(resistance_parameters$dt_slow_parasite_clearance)) != length(drugs))) {
-    stop("Length of one or more resistance parameter vectors does not match length of drugs vector")
-  }
   
   return(resistance_parameters)
   

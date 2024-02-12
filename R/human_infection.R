@@ -305,18 +305,17 @@ calculate_treated <- function(
     susceptible_to_treatment_index <- bernoulli_multi_p(p = 1 - unsuccessful_treatment_probability)
     susceptible_to_treatment <- bitset_at(seek_treatment, susceptible_to_treatment_index)
     drugs <- drugs[susceptible_to_treatment_index]
-    n_early_treatment_failure <- n_treat - susceptible_to_treatment$size()
-    renderer$render('n_early_treatment_failure', n_early_treatment_failure, timestep)
   } else {
     susceptible_to_treatment <- seek_treatment
-    n_early_treatment_failure <- n_treat - susceptible_to_treatment$size()
-    renderer$render('n_early_treatment_failure', n_early_treatment_failure, timestep)
+    
   }
   
+  n_early_treatment_failure <- n_treat - susceptible_to_treatment$size()
   successfully_treated_index <- bernoulli_multi_p(parameters$drug_efficacy[drugs])
   successfully_treated <- bitset_at(susceptible_to_treatment, successfully_treated_index)
   successfully_treated_drugs <- drugs[successfully_treated_index]
   n_treat_eff_fail <- susceptible_to_treatment$size() - length(successfully_treated_index)
+  renderer$render('n_early_treatment_failure', n_early_treatment_failure, timestep)
   renderer$render('n_treat_eff_fail', n_treat_eff_fail, timestep)
   renderer$render('n_treat_success', successfully_treated$size(), timestep)
   

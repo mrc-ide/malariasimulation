@@ -18,10 +18,7 @@ knitr::opts_chunk$set(
 ```{r setup}
 
 # Load the requisite packages:
-#library(malariasimulation)
-
-# Use devtools to load the updated malariasimulation:
-devtools::load_all("C:/Users/trb216/OneDrive - Imperial College London/Desktop/malariasimulation/malariasimulation.Rproj")
+library(malariasimulation)
 
 # Set colour palette:
 cols <- c("#E69F00", "#56B4E9", "#009E73", "#CC79A7","#F0E442", "#0072B2", "#D55E00")

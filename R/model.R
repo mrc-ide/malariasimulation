@@ -100,13 +100,15 @@ run_simulation <- function(
 #' @param parameters a named list of parameters to use
 #' @param correlations correlation parameters
 #' @param initial_state the state from which the simulation is resumed
+#' @param restore_random_state if TRUE, restore the random number generator's state from the checkpoint.
 #' @return a list with two entries, one for the dataframe of results and one for the final
 #' simulation state.
 run_resumable_simulation <- function(
     timesteps,
     parameters = NULL,
     correlations = NULL,
-    initial_state = NULL
+    initial_state = NULL,
+    restore_random_state = FALSE
 ) {
   random_seed(ceiling(runif(1) * .Machine$integer.max))
   if (is.null(parameters)) {
@@ -133,7 +135,7 @@ run_resumable_simulation <- function(
   lagged_infectivity <- create_lagged_infectivity(variables, parameters)
 
   stateful_objects <- unlist(list(
-    RandomState$new(),
+    RandomState$new(restore_random_state),
     correlations,
     vector_models,
     solvers,
@@ -160,7 +162,8 @@ run_resumable_simulation <- function(
     variables = variables,
     events = unlist(events),
     timesteps = timesteps,
-    state = initial_state$individual
+    state = initial_state$individual,
+    restore_random_state = restore_random_state
   )
 
   final_state <- list(

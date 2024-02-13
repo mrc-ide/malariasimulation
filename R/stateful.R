@@ -28,12 +28,20 @@ restore_state <- function(state, objects) {
 #' @noRd
 RandomState <- R6::R6Class(
   'RandomState',
+  private = list(
+    restore_random_state = NULL
+  ),
   public = list(
+    initialize = function(restore_random_state) {
+      private$restore_random_state <- restore_random_state
+    },
     save_state = function() {
       random_save_state()
     },
     restore_state = function(state) {
-      random_restore_state(state)
+      if (private$restore_random_state) {
+        random_restore_state(state)
+      }
     }
   )
 )

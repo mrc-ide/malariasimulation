@@ -6,7 +6,11 @@ test_that('Simulation can be resumed', {
 
   set.seed(1)
   first_phase <- run_resumable_simulation(initial_timesteps, parameters)
-  second_phase <- run_resumable_simulation(total_timesteps, parameters, initial_state=first_phase$state)
+  second_phase <- run_resumable_simulation(
+    total_timesteps,
+    parameters,
+    initial_state=first_phase$state,
+    restore_random_state=TRUE)
 
   set.seed(1)
   uninterrupted_run <- run_simulation(total_timesteps, parameters=parameters)

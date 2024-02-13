@@ -203,13 +203,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // solver_set_states
-void solver_set_states(Rcpp::XPtr<Solver> solver, std::vector<double> state);
-RcppExport SEXP _malariasimulation_solver_set_states(SEXP solverSEXP, SEXP stateSEXP) {
+void solver_set_states(Rcpp::XPtr<Solver> solver, double t, std::vector<double> state);
+RcppExport SEXP _malariasimulation_solver_set_states(SEXP solverSEXP, SEXP tSEXP, SEXP stateSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::XPtr<Solver> >::type solver(solverSEXP);
+    Rcpp::traits::input_parameter< double >::type t(tSEXP);
     Rcpp::traits::input_parameter< std::vector<double> >::type state(stateSEXP);
-    solver_set_states(solver, state);
+    solver_set_states(solver, t, state);
     return R_NilValue;
 END_RCPP
 }
@@ -363,7 +364,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_malariasimulation_rainfall", (DL_FUNC) &_malariasimulation_rainfall, 5},
     {"_malariasimulation_exponential_process_cpp", (DL_FUNC) &_malariasimulation_exponential_process_cpp, 2},
     {"_malariasimulation_solver_get_states", (DL_FUNC) &_malariasimulation_solver_get_states, 1},
-    {"_malariasimulation_solver_set_states", (DL_FUNC) &_malariasimulation_solver_set_states, 2},
+    {"_malariasimulation_solver_set_states", (DL_FUNC) &_malariasimulation_solver_set_states, 3},
     {"_malariasimulation_solver_step", (DL_FUNC) &_malariasimulation_solver_step, 1},
     {"_malariasimulation_create_timeseries", (DL_FUNC) &_malariasimulation_create_timeseries, 2},
     {"_malariasimulation_timeseries_at", (DL_FUNC) &_malariasimulation_timeseries_at, 3},

@@ -53,8 +53,8 @@ solver_get_states <- function(solver) {
     .Call(`_malariasimulation_solver_get_states`, solver)
 }
 
-solver_set_states <- function(solver, state) {
-    invisible(.Call(`_malariasimulation_solver_set_states`, solver, state))
+solver_set_states <- function(solver, t, state) {
+    invisible(.Call(`_malariasimulation_solver_set_states`, solver, t, state))
 }
 
 solver_step <- function(solver) {

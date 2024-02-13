@@ -75,11 +75,6 @@ create_tbv_listener <- function(variables, events, parameters, correlations, ren
         to_vaccinate
       )
     }
-    if (time_index < length(parameters$tbv_timesteps)) {
-      events$tbv_vaccination$schedule(
-        parameters$tbv_timesteps[[time_index + 1]] - timestep
-      )
-    }
   }
 }
 

@@ -132,7 +132,7 @@ CorrelationParameters <- R6::R6Class(
     #' initialized with the same rhos.
     #' @param state a previously saved correlation state, as returned by the
     #'   save_state method.
-    restore_state = function(state) {
+    restore_state = function(t, state) {
       private$.mvnorm <- state$mvnorm
     }
   )

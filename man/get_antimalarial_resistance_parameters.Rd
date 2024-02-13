@@ -9,9 +9,9 @@ get_antimalarial_resistance_parameters(parameters, drugs, timestep)
 \arguments{
 \item{parameters}{the model parameters}
 
-\item{timestep}{the current time step}
+\item{drugs}{vector of integers representing the drugs administered to each individual receiving treatment}
 
-\item{drug}{vector of integers representing the drugs administered to each individual receiving treatment}
+\item{timestep}{the current time step}
 }
 \description{
 Retrieve the resistance parameters associated with the drug each individual receiving clinical

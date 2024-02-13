@@ -92,7 +92,7 @@ set_antimalarial_resistance <- function(parameters,
 #' treatment has been administered in the current time step.
 #' 
 #' @param parameters the model parameters
-#' @param drug vector of integers representing the drugs administered to each individual receiving treatment
+#' @param drugs vector of integers representing the drugs administered to each individual receiving treatment
 #' @param timestep the current time step
 get_antimalarial_resistance_parameters <- function(parameters, drugs, timestep) {
   

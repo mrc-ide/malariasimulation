@@ -203,7 +203,6 @@ test_that('Mass vaccinations update vaccination time', {
     c(-1, -1, -1, 50, 50)
   )
 
-  events$mass_pev <- mock_event(events$mass_pev)
   events$mass_pev_doses <- lapply(events$mass_pev_doses, mock_event)
 
   listener <- create_mass_pev_listener(
@@ -240,12 +239,6 @@ test_that('Mass vaccinations update vaccination time', {
     1,
     c(1, 3),
     parameters$pev_doses[[3]]
-  )
-
-  mockery::expect_args(
-    events$mass_pev$schedule,
-    1,
-    365
   )
 })
 

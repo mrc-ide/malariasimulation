@@ -155,8 +155,8 @@ Solver <- R6::R6Class(
     save_state = function() {
       solver_get_states(private$.solver)
     },
-    restore_state = function(state) {
-      solver_set_states(private$.solver, state)
+    restore_state = function(t, state) {
+      solver_set_states(private$.solver, t, state)
     }
   )
 )
@@ -173,7 +173,7 @@ AquaticMosquitoModel <- R6::R6Class(
     # state of the ODE is stored separately). We still provide these methods to
     # conform to the expected interface.
     save_state = function() { NULL },
-    restore_state = function(state) { }
+    restore_state = function(t, state) { }
   )
 )
 
@@ -187,7 +187,7 @@ AdultMosquitoModel <- R6::R6Class(
     save_state = function() {
       adult_mosquito_model_save_state(self$.model)
     },
-    restore_state = function(state) {
+    restore_state = function(t, state) {
       adult_mosquito_model_restore_state(self$.model, state)
     }
   )

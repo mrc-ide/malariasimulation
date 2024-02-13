@@ -121,15 +121,20 @@ Save the correlation state.
 \if{latex}{\out{\hypertarget{method-CorrelationParameters-restore_state}{}}}
 \subsection{Method \code{restore_state()}}{
 Restore the correlation state.
+
 Only the randomly drawn weights are restored. The object needs to be
 initialized with the same rhos.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CorrelationParameters$restore_state(state)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CorrelationParameters$restore_state(timestep, state)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
+\item{\code{timestep}}{the timestep at which simulation is resumed. This
+parameter's value is ignored, it only exists to conform to a uniform
+interface.}
+
 \item{\code{state}}{a previously saved correlation state, as returned by the
 save_state method.}
 }

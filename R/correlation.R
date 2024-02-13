@@ -125,11 +125,16 @@ CorrelationParameters <- R6::R6Class(
     },
 
     #' @description Restore the correlation state.
+    #'
     #' Only the randomly drawn weights are restored. The object needs to be
     #' initialized with the same rhos.
+    #'
+    #' @param timestep the timestep at which simulation is resumed. This
+    #' parameter's value is ignored, it only exists to conform to a uniform
+    #' interface.
     #' @param state a previously saved correlation state, as returned by the
-    #'   save_state method.
-    restore_state = function(state) {
+    #' save_state method.
+    restore_state = function(timestep, state) {
       private$.mvnorm <- state$mvnorm
     }
   )

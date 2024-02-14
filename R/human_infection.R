@@ -263,23 +263,27 @@ update_severe_disease <- function(
 #' @param renderer simulation renderer
 #' @noRd
 calculate_treated <- function(
-  variables,
-  clinical_infections,
-  parameters,
-  timestep,
-  renderer
-  ) {
+    variables,
+    clinical_infections,
+    parameters,
+    timestep,
+    renderer
+) {
+  
+  if(clinical_infections$size() == 0) {
+    return(individual::Bitset$new(parameters$human_population))
+  }
+  
   treatment_coverages <- get_treatment_coverages(parameters, timestep)
   ft <- sum(treatment_coverages)
-
+  
   if (ft == 0) {
     return(individual::Bitset$new(parameters$human_population))
   }
-
+  
   renderer$render('ft', ft, timestep)
   seek_treatment <- sample_bitset(clinical_infections, ft)
   n_treat <- seek_treatment$size()
-  
   renderer$render('n_treated', n_treat, timestep)
   
   drugs <- as.numeric(parameters$clinical_treatment_drugs[
@@ -290,28 +294,50 @@ calculate_treated <- function(
       replace = TRUE
     )
   ])
-
-  successful <- bernoulli_multi_p(parameters$drug_efficacy[drugs])
-  treated_index <- bitset_at(seek_treatment, successful)
-
-  # Update those who have been treated
-  if (treated_index$size() > 0) {
-    variables$state$queue_update('Tr', treated_index)
+  
+  if(parameters$antimalarial_resistance) {
+    resistance_parameters <- get_antimalarial_resistance_parameters(
+      parameters = parameters,
+      drugs = drugs, 
+      timestep = timestep
+    )
+    unsuccessful_treatment_probability <- resistance_parameters$artemisinin_resistance_proportion * resistance_parameters$early_treatment_failure_probability
+    susceptible_to_treatment_index <- bernoulli_multi_p(p = 1 - unsuccessful_treatment_probability)
+    susceptible_to_treatment <- bitset_at(seek_treatment, susceptible_to_treatment_index)
+    drugs <- drugs[susceptible_to_treatment_index]
+  } else {
+    susceptible_to_treatment <- seek_treatment
+    
+  }
+  
+  n_early_treatment_failure <- n_treat - susceptible_to_treatment$size()
+  successfully_treated_index <- bernoulli_multi_p(parameters$drug_efficacy[drugs])
+  successfully_treated <- bitset_at(susceptible_to_treatment, successfully_treated_index)
+  successfully_treated_drugs <- drugs[successfully_treated_index]
+  n_treat_eff_fail <- susceptible_to_treatment$size() - length(successfully_treated_index)
+  renderer$render('n_early_treatment_failure', n_early_treatment_failure, timestep)
+  renderer$render('n_treat_eff_fail', n_treat_eff_fail, timestep)
+  renderer$render('n_treat_success', successfully_treated$size(), timestep)
+  
+  # Update variables of those who have been successfully treated:
+  if (successfully_treated$size() > 0) {
+    variables$state$queue_update("Tr", successfully_treated)
     variables$infectivity$queue_update(
-      parameters$cd * parameters$drug_rel_c[drugs[successful]],
-      treated_index
+      parameters$cd * parameters$drug_rel_c[successfully_treated_drugs],
+      successfully_treated
     )
     variables$drug$queue_update(
-      drugs[successful],
-      treated_index
+      successfully_treated_drugs,
+      successfully_treated
     )
     variables$drug_time$queue_update(
       timestep,
-      treated_index
+      successfully_treated
     )
   }
-  treated_index
+  successfully_treated
 }
+
 
 #' @title Schedule infections
 #' @description

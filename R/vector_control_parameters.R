@@ -180,3 +180,61 @@ get_init_carrying_capacity <- function(parameters){
   names(init_cc) <- parameters$species
   return(init_cc)
 }
+
+#' @title Parameterise a housing improvement strategy
+#'
+#' @description The model will simulate improved housing at `timesteps` to a random
+#' sample of the entire human population. The sample size will be a proportion
+#' of the human population taken from the corresponding `coverages`.
+#' The sample _can_ contain humans who have already benefited from housing.
+#'
+#' If a human in the sample lives in a house that has been improved to reduce
+#' mosquito entry, the efficacy of the
+#' housing improvement will be high - as determined by the parameter rn_house
+#'
+#' The structure for the housing model will be documented in a publication
+#' Sherrard-Smith et al in prep
+#'
+#' @param parameters a list of parameters to modify
+#' @param timesteps the timesteps at which to distribute housing adaptations
+#' @param coverages the proportion of the human population who reside in protected housing
+#' @param dh0 a matrix of death probabilities for each species over time.
+#' With nrows=length(timesteps), ncols=length(species)
+#' @param rh a matrix of repelling probabilities for each species over time
+#' With nrows=length(timesteps), ncols=length(species)
+#' @param rhm a matrix of minimum repelling probabilities for each species over time
+#' With nrows=length(timesteps), ncols=length(species)
+#' @param gammah a vector of house adaptation half-lives for each distribution timestep
+#' @export
+set_housing <- function(
+    parameters,
+    timesteps,
+    coverages,
+    phi_housing,
+    dh0,
+    rh,
+    rhm,
+    gammah
+) {
+  stopifnot(all(coverages >= 0) && all(coverages <= 1))
+  lengths <- vnapply(list(coverages, gammah), length)
+  if (!all(lengths == length(timesteps))) {
+    stop('timesteps and time-varying parameters must align')
+  }
+  for (x in list(dh0, rh, rhm)) {
+    if (ncol(x) != length(parameters$species)) {
+      stop('death and repelling probabilities rows need to align with species')
+    }
+    if (nrow(x) != length(timesteps)) {
+      stop('death and repelling probabilities columns need to align with timesteps')
+    }
+  }
+  parameters$housing <- TRUE
+  parameters$housing_timesteps <- timesteps
+  parameters$housing_coverages <- coverages
+  parameters$house_dh0 <- dh0
+  parameters$house_rh <- rh
+  parameters$house_rhm <- rhm
+  parameters$house_gammah <- gammah
+  parameters
+}

@@ -5,7 +5,8 @@ INTS <- c(
   'smc',
   'tbv',
   'bednets',
-  'spraying'
+  'spraying',
+  'housing'
 )
 
 #' Class: Correlation parameters

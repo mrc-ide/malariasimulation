@@ -5,7 +5,7 @@
 \alias{steph_params}
 \title{Preset parameters for the An. stephensi vector}
 \format{
-An object of class \code{list} of length 7.
+An object of class \code{list} of length 8.
 }
 \usage{
 steph_params
@@ -21,6 +21,7 @@ foraging_time: .69
 Q0: 0.21
 phi_bednets: 0.57
 phi_indoors: 0.37
+phi_housing: 1
 mum: 0.112
 
 parameters reference:

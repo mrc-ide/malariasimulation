@@ -235,6 +235,18 @@ create_processes <- function(
     )
   }
   
+  if (parameters$housing) {
+    processes <- c(
+      processes,
+      housing_improvement(
+        variables,
+        parameters,
+        correlations
+      ),
+      house_usage_renderer(variables$house_time, renderer)
+    )
+  }
+  
   # ======================
   # Progress bar process
   # ======================

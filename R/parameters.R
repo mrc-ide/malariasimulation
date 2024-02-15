@@ -201,13 +201,13 @@
 #' * antimalarial_resistance_drug - vector of drugs for which resistance can be parameterised; default = NULL
 #' * antimalarial_resistance_timesteps - vector of time steps on which resistance updates occur; default = NULL
 #' * prop_artemisinin_resistant - vector of proportions of infections resistant to the artemisinin component of a given drug; default = NULL
-#' * prop_partner_drug_resistant - vector of proportions of infections resistant to the parter drug component of a given drug; default = NULL
-#' * slow_parasite_clearance_prob - vector of probabilities of slow parasite clearance for a given drug; default = NULL
+#' * prop_partner_drug_resistant - vector of proportions of infections resistant to the parter drug component of a given drug; default = NULL (currently unimplemented)
+#' * slow_parasite_clearance_prob - vector of probabilities of slow parasite clearance for a given drug; default = NULL (currently unimplemented)
 #' * early_treatment_failure_prob - vector of probabilities of early treatment failure for a given drug; default = NULL
-#' * late_clinical_failure_prob - vector of probabilities of late clinical failure for a given drug; default = NULL
-#' * late_parasitological_failure_prob - vector of probabilities of late parasitological failure for a given drug; default = NULL
-#' * reinfection_during_prophylaxis - vector of probabilities of reinfection during prophylaxis for a given drug; default = NULL
-#' * dt_slow_parasite_clearance - the delay for humans experiencing slow parasite clearance to move from state Tr to S; default = NULL
+#' * late_clinical_failure_prob - vector of probabilities of late clinical failure for a given drug; default = NULL (currently unimplemented)
+#' * late_parasitological_failure_prob - vector of probabilities of late parasitological failure for a given drug; default = NULL (currently unimplemented)
+#' * reinfection_during_prophylaxis - vector of probabilities of reinfection during prophylaxis for a given drug; default = NULL (currently unimplemented)
+#' * dt_slow_parasite_clearance - the delay for humans experiencing slow parasite clearance to move from state Tr to S; default = NULL (currently unimplemented)
 #'
 #' rendering:
 #' All values are in timesteps and all ranges are inclusive

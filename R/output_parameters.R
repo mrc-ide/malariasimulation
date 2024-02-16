@@ -10,7 +10,15 @@
 #' @param clinical_incidence age breaks for clinical incidence outputs (symptomatic); default = c(0, 1825)
 #' @param severe_incidence age breaks for severe incidence outputs (p.f only); default = NULL
 #' @param prevalence age breaks for clinical prevalence outputs (pcr and lm detectable infections); default = c(730, 3650)
-#' @param hypnozoite_prevalence age breaks for hypnozoite prevalence outputs (p.v only); default = NULL
+#' @param n_hypnozoites age breaks for hypnozoite prevalence outputs (p.v only); default = NULL
+#' @param ica age breaks for acquired clinical immunity outputs; default = NULL
+#' @param icm age breaks for maternal clinical immunity outputs; default = NULL
+#' @param iva age breaks for acquired severe immunity outputs (p.f only); default = NULL
+#' @param ivm age breaks for maternal severe immunity outputs (p.f only); default = NULL
+#' @param id age breaks for immunity to detectability (p.f) or acquired antiparasite immunity outputs (p.v only); default = NULL
+#' @param idm age breaks for maternal antiparasite immunity outputs (p.v only); default = NULL
+#' @param ib age breaks for blood immunity outputs (p.f only); default = NULL
+#' @param hypnozoites age breaks for hypnozoite prevalence outputs (p.v only); default = NULL
 #' @export
 #'
 set_epi_outputs <- function(parameters,
@@ -20,18 +28,33 @@ set_epi_outputs <- function(parameters,
                             clinical_incidence = NULL,
                             severe_incidence = NULL,
                             prevalence = NULL,
-                            hypnozoite_prevalence = NULL
+                            n_hypnozoites = NULL,
+                            ica = NULL,
+                            icm = NULL,
+                            iva = NULL,
+                            ivm = NULL,
+                            id = NULL,
+                            idm = NULL,
+                            ib = NULL,
+                            hypnozoites = NULL
+
 ){
 
   if(parameters$parasite == "falciparum" & !is.null(patent_incidence)){message("Patent incidence will not be output for P. falciparum")}
-  if(parameters$parasite == "falciparum" & !is.null(hypnozoite_prevalence)){message("Hypnozoite prevalence will not be output for P. falciparum")}
-  if(parameters$parasite == "vivax" & !is.null(hypnozoite_prevalence)){message("Severe incidence will not be output for P. vivax")}
+  if(parameters$parasite == "falciparum" & !is.null(n_hypnozoites)){message("Number with hypnozoites will not be output for P. falciparum")}
+  if(parameters$parasite == "falciparum" & !is.null(idm)){message("IDM will not be output for P. falciparum")}
+  if(parameters$parasite == "falciparum" & !is.null(hypnozoites)){message("Hypnozoite prevalence will not be output for P. falciparum")}
+  if(parameters$parasite == "vivax" & !is.null(severe_incidence)){message("Severe incidence will not be output for P. vivax")}
+  if(parameters$parasite == "vivax" & !is.null(iva)){message("IV will not be output for P. vivax")}
+  if(parameters$parasite == "vivax" & !is.null(ivm)){message("IVM will not be output for P. vivax")}
+  if(parameters$parasite == "vivax" & !is.null(ib)){message("IB will not be output for P. vivax")}
 
   parent_formals <- names(formals())
   parent_formals <- parent_formals[which(parent_formals != "parameters")]
   outputs <- parent_formals[!unlist(lapply(parent_formals, function(x){is.null(get(x))}))]
 
   for (output in outputs) {
+    if(any(get(output) != sort(get(output)))){stop(paste0(output," inputs must increase"))}
     parameters[[paste0(output, "_rendering_min_ages")]] <- get(output)[-length(get(output))]
     parameters[[paste0(output, "_rendering_max_ages")]] <- get(output)[-1]-1
   }

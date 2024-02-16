@@ -211,6 +211,12 @@ create_processes <- function(
         renderer,
         variables$hypnozoites,
         parameters
+      ),
+      create_hypnozoite_age_renderer_process(
+        variables$hypnozoites,
+        variables$birth,
+        parameters,
+        renderer
       )
     )
   }
@@ -239,8 +245,9 @@ create_processes <- function(
       parameters,
       renderer
     ),
-    create_hypnozoite_age_renderer_process(
-      variables$hypnozoites,
+    create_age_variable_mean_renderer_process(
+      imm_var_names[paste0(imm_var_names,"_rendering_min_ages") %in% names(parameters)],
+      variables[imm_var_names[paste0(imm_var_names,"_rendering_min_ages") %in% names(parameters)]],
       variables$birth,
       parameters,
       renderer

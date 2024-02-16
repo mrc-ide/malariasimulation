@@ -11,11 +11,13 @@
 #' @param severe_incidence age breaks for severe incidence outputs (p.f only); default = NULL
 #' @param prevalence age breaks for clinical prevalence outputs (pcr and lm detectable infections); default = c(730, 3650)
 #' @param n_hypnozoites age breaks for hypnozoite prevalence outputs (p.v only); default = NULL
-#' @param ica age breaks for hypnozoite prevalence outputs (p.v only); default = NULL
-#' @param icm age breaks for hypnozoite prevalence outputs (p.v only); default = NULL
-#' @param id age breaks for hypnozoite prevalence outputs (p.v only); default = NULL
-#' @param idm age breaks for hypnozoite prevalence outputs (p.v only); default = NULL
-#' @param ib age breaks for hypnozoite prevalence outputs (p.v only); default = NULL
+#' @param ica age breaks for acquired clinical immunity outputs; default = NULL
+#' @param icm age breaks for maternal clinical immunity outputs; default = NULL
+#' @param iva age breaks for acquired severe immunity outputs (p.f only); default = NULL
+#' @param ivm age breaks for maternal severe immunity outputs (p.f only); default = NULL
+#' @param id age breaks for immunity to detectability (p.f) or acquired antiparasite immunity outputs (p.v only); default = NULL
+#' @param idm age breaks for maternal antiparasite immunity outputs (p.v only); default = NULL
+#' @param ib age breaks for blood immunity outputs (p.f only); default = NULL
 #' @param hypnozoites age breaks for hypnozoite prevalence outputs (p.v only); default = NULL
 #' @export
 #'

@@ -181,8 +181,24 @@ outputs (p.f only); default = turned off
 \item prevalence_rendering_min_ages - the minimum ages for clinical prevalence
 outputs (pcr and lm detectable infections); default = 730
 \item prevalence_rendering_max_ages - the corresponding max ages; default = 3650
-\item hypnozoite_prevalence_rendering_min_ages - the minimum ages for hypnozoite prevalence outputs (p.v only); default = numeric(0)
-\item hypnozoite_prevalence_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item n_hypnozoites_rendering_min_ages - the minimum ages for number with hypnozoites outputs (p.v only); default = numeric(0)
+\item n_hypnozoites_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item ica_rendering_min_ages - the minimum ages for acquired clinical immunity outputs; default = numeric(0)
+\item ica_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item icm_rendering_min_ages - the minimum ages for maternal clinical immunity outputs; default = numeric(0)
+\item icm_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item iva_rendering_min_ages - the minimum ages for acquired severe immunity outputs (p.f only); default = numeric(0)
+\item iva_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item ivm_rendering_min_ages - the minimum ages for maternal severe immunity outputs (p.f only); default = numeric(0)
+\item ivm_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item id_rendering_min_ages - the minimum ages for detectability immunity (p.f) or acquired antiparasite immunity (p.v only) acquired severe immunity outputs (p.v only); default = numeric(0)
+\item id_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item idm_rendering_min_ages - the minimum ages for maternal antiparasite immunity outputs (p.v only); default = numeric(0)
+\item idm_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item ib_rendering_min_ages - the minimum ages for blood immunity outputs (p.f only); default = numeric(0)
+\item ib_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item hypnozoites_rendering_min_ages - the minimum ages average hypnozoites outputs (p.v only); default = numeric(0)
+\item hypnozoites_rendering_max_ages - the corresponding max ages; default = numeric(0)
 }
 
 mosquito life stage transitions:

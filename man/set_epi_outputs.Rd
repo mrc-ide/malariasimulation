@@ -40,15 +40,19 @@ set_epi_outputs(
 
 \item{n_hypnozoites}{age breaks for hypnozoite prevalence outputs (p.v only); default = NULL}
 
-\item{ica}{age breaks for hypnozoite prevalence outputs (p.v only); default = NULL}
+\item{ica}{age breaks for acquired clinical immunity outputs; default = NULL}
 
-\item{icm}{age breaks for hypnozoite prevalence outputs (p.v only); default = NULL}
+\item{icm}{age breaks for maternal clinical immunity outputs; default = NULL}
 
-\item{id}{age breaks for hypnozoite prevalence outputs (p.v only); default = NULL}
+\item{iva}{age breaks for acquired severe immunity outputs (p.f only); default = NULL}
 
-\item{idm}{age breaks for hypnozoite prevalence outputs (p.v only); default = NULL}
+\item{ivm}{age breaks for maternal severe immunity outputs (p.f only); default = NULL}
 
-\item{ib}{age breaks for hypnozoite prevalence outputs (p.v only); default = NULL}
+\item{id}{age breaks for immunity to detectability (p.f) or acquired antiparasite immunity outputs (p.v only); default = NULL}
+
+\item{idm}{age breaks for maternal antiparasite immunity outputs (p.v only); default = NULL}
+
+\item{ib}{age breaks for blood immunity outputs (p.f only); default = NULL}
 
 \item{hypnozoites}{age breaks for hypnozoite prevalence outputs (p.v only); default = NULL}
 }

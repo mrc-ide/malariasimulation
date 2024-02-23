@@ -181,6 +181,14 @@ create_processes <- function(
       parameters,
       renderer
     ),
+    #+++++++++++++++++++++++++++++++++++++++++++++++++#
+    create_true_prevelance_renderer(
+      variables$state,
+      variables$birth,
+      parameters,
+      renderer
+    ),
+    #+++++++++++++++++++++++++++++++++++++++++++++++++#
     create_age_group_renderer(
       variables$birth,
       parameters,

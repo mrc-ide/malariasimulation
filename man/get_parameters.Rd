@@ -237,6 +237,8 @@ All values are in timesteps and all ranges are inclusive
 \item prevalence_rendering_min_ages - the minimum ages for clinical prevalence
 outputs; default = 730
 \item prevalence_rendering_max_ages - the corresponding max ages; default = 3650
+\item true_prevalence_rendering_min_ages - the minimum ages for true prevalence outputs; default = turned off
+\item true_prevalence_rendering_max_ages - the corresponding max ages; default = turned off
 \item incidence_rendering_min_ages - the minimum ages for incidence
 outputs (includes asymptomatic microscopy +); default = turned off
 \item incidence_rendering_max_ages - the corresponding max ages; default = turned off

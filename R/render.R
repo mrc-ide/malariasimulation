@@ -172,3 +172,55 @@ create_age_group_renderer <- function(
     }
   }
 }
+
+#--------------------------------------------------------------------------------------------------#
+
+#' @title Render true prevalence statistics
+#' 
+#' @description renders true prevalence numerators and denominators for indivduals
+#' with malaria
+#' 
+#' @param state human infection state
+#' @param birth variable for birth of the individual
+#' @param immunity to detection
+#' @param parameters model parameters
+#' @param renderer model renderer
+#' 
+#' @noRd
+create_true_prevelance_renderer <- function(
+    state,
+    birth,
+    parameters,
+    renderer
+) {
+  function(timestep) {
+    
+    # Retrieve the indices of all infected individuals:
+    infected <- state$get_index_of(c('A', 'D', 'Tr', 'U'))
+    
+    # For each age group specified for true prevalence rendering:
+    for (i in seq_along(parameters$true_prevalence_rendering_min_ages)) {
+      
+      # Get the upper and lower age group limits for the i-th age group
+      lower <- parameters$true_prevalence_rendering_min_ages[[i]]
+      upper <- parameters$true_prevalence_rendering_max_ages[[i]]
+      
+      # Retrieve the indices of individuals within this age class:
+      in_age <- in_age_range(birth, timestep, lower, upper)
+      
+      # Render the number of individuals in this age class: 
+      renderer$render(
+        paste0('n_', lower, '_', upper),
+        in_age$size(),
+        timestep
+      )
+      
+      # Render the number of individuals both in the age group and with malaria infections:
+      renderer$render(
+        paste0('n_true_', lower, '_', upper),
+        in_age$copy()$and(infected)$size(),
+        timestep
+      )
+    }
+  }
+}

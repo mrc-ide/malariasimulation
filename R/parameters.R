@@ -215,6 +215,8 @@
 #' * prevalence_rendering_min_ages - the minimum ages for clinical prevalence
 #' outputs; default = 730
 #' * prevalence_rendering_max_ages - the corresponding max ages; default = 3650
+#' * true_prevalence_rendering_min_ages - the minimum ages for true prevalence outputs; default = turned off
+#' * true_prevalence_rendering_max_ages - the corresponding max ages; default = turned off
 #' * incidence_rendering_min_ages - the minimum ages for incidence
 #' outputs (includes asymptomatic microscopy +); default = turned off
 #' * incidence_rendering_max_ages - the corresponding max ages; default = turned off
@@ -411,6 +413,8 @@ get_parameters <- function(overrides = list()) {
     # rendering
     prevalence_rendering_min_ages = 2 * 365,
     prevalence_rendering_max_ages = 10 * 365,
+    true_prevalence_rendering_min_ages = numeric(0),
+    true_prevalence_rendering_max_ages = numeric(0),
     incidence_rendering_min_ages = numeric(0),
     incidence_rendering_max_ages = numeric(0),
     clinical_incidence_rendering_min_ages = numeric(0),

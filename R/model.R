@@ -88,6 +88,28 @@ run_simulation <- function(
     parameters = NULL,
     correlations = NULL
 ) {
+  run_resumable_simulation(timesteps, parameters, correlations)$data
+}
+
+#' @title Run the simulation in a resumable way
+#'
+#' @description this function accepts an initial simulation state as an argument, and returns the
+#' final state after running all of its timesteps. This allows one run to be resumed, possibly
+#' having changed some of the parameters.
+#' @param timesteps the timestep at which to stop the simulation
+#' @param parameters a named list of parameters to use
+#' @param correlations correlation parameters
+#' @param initial_state the state from which the simulation is resumed
+#' @param restore_random_state if TRUE, restore the random number generator's state from the checkpoint.
+#' @return a list with two entries, one for the dataframe of results and one for the final
+#' simulation state.
+run_resumable_simulation <- function(
+    timesteps,
+    parameters = NULL,
+    correlations = NULL,
+    initial_state = NULL,
+    restore_random_state = FALSE
+) {
   random_seed(ceiling(runif(1) * .Machine$integer.max))
   if (is.null(parameters)) {
     parameters <- get_parameters()
@@ -108,7 +130,23 @@ run_simulation <- function(
   )
   vector_models <- parameterise_mosquito_models(parameters, timesteps)
   solvers <- parameterise_solvers(vector_models, parameters)
-  individual::simulation_loop(
+
+  lagged_eir <- create_lagged_eir(variables, solvers, parameters)
+  lagged_infectivity <- create_lagged_infectivity(variables, parameters)
+
+  stateful_objects <- unlist(list(
+    RandomState$new(restore_random_state),
+    correlations,
+    vector_models,
+    solvers,
+    lagged_eir,
+    lagged_infectivity))
+
+  if (!is.null(initial_state)) {
+    restore_state(initial_state$malariasimulation, stateful_objects)
+  }
+
+  individual_state <- individual::simulation_loop(
     processes = create_processes(
       renderer,
       variables,
@@ -117,15 +155,31 @@ run_simulation <- function(
       vector_models,
       solvers,
       correlations,
-      list(create_lagged_eir(variables, solvers, parameters)),
-      list(create_lagged_infectivity(variables, parameters)),
+      list(lagged_eir),
+      list(lagged_infectivity),
       timesteps
     ),
     variables = variables,
     events = unlist(events),
-    timesteps = timesteps
+    timesteps = timesteps,
+    state = initial_state$individual,
+    restore_random_state = restore_random_state
   )
-  renderer$to_dataframe()
+
+  final_state <- list(
+    timesteps=timesteps,
+    individual=individual_state,
+    malariasimulation=save_state(stateful_objects)
+  )
+
+  data <- renderer$to_dataframe()
+  if (!is.null(initial_state)) {
+    # Drop the timesteps we didn't simulate from the data.
+    # It would just be full of NA.
+    data <- data[-(1:initial_state$timesteps),]
+  }
+
+  list(data=data, state=final_state)
 }
 
 #' @title Run a metapopulation model

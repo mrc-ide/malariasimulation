@@ -117,6 +117,7 @@ CorrelationParameters <- R6::R6Class(
       private$.mvnorm
     },
 
+    #' @description Save the correlation state.
     save_state = function() {
       # mvnorm is sampled at random lazily on its first use. We need to save it
       # in order to restore the same value when resuming the simulation,
@@ -126,6 +127,11 @@ CorrelationParameters <- R6::R6Class(
       list(mvnorm=private$.mvnorm)
     },
 
+    #' @description Restore the correlation state.
+    #' Only the randomly drawn weights are restored. The object needs to be
+    #' initialized with the same rhos.
+    #' @param state a previously saved correlation state, as returned by the
+    #'   save_state method.
     restore_state = function(state) {
       private$.mvnorm <- state$mvnorm
     }

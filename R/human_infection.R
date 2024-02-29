@@ -166,7 +166,8 @@ calculate_infections <- function(
     'inc_',
     parameters$incidence_rendering_min_ages,
     parameters$incidence_rendering_max_ages,
-    timestep
+    timestep,
+    parameters$render_grid
   )
 
   infected
@@ -201,7 +202,8 @@ calculate_clinical_infections <- function(
     'inc_clinical_',
     parameters$clinical_incidence_rendering_min_ages,
     parameters$clinical_incidence_rendering_max_ages,
-    timestep
+    timestep,
+    parameters$render_grid
   )
   clinical_infections
 }
@@ -242,7 +244,8 @@ update_severe_disease <- function(
     'inc_severe_',
     parameters$severe_incidence_rendering_min_ages,
     parameters$severe_incidence_rendering_max_ages,
-    timestep
+    timestep,
+    parameters$render_grid
   )
   boost_immunity(
     variables$iva,

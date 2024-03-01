@@ -75,7 +75,6 @@ sample_maternal_immunity <- function(variables, target, timestep, parameters) {
         } else if (parameters$parasite == "vivax"){
           birth_idm <- variables$id$get_values(mothers) * parameters$pcm
           variables$idm$queue_update(birth_idm, target_group)
-          variables$hypnozoites$queue_update(0, target_group)
         }
       }
     }
@@ -109,6 +108,9 @@ reset_target <- function(variables, events, target, state, timestep, parameters)
       variables$last_boosted_iva$queue_update(-1, target)
       variables$ib$queue_update(0, target)
       variables$iva$queue_update(0, target)
+
+    } else if (parameters$parasite == "vivax"){
+      variables$hypnozoites$queue_update(0, target_group)
     }
 
     variables$state$queue_update(state, target)

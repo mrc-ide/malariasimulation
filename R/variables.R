@@ -97,7 +97,28 @@ create_variables <- function(parameters) {
   }
 
   states <- c('S', 'D', 'A', 'U', 'Tr')
-  initial_states <- initial_state(parameters, initial_age, groups, eq, states)
+
+  if(parameters$parasite == "falciparum"){
+    initial_states <- initial_state(parameters, initial_age, groups, eq, states, hypnozoites)
+    hypnozoite_v <- NULL
+  }
+
+  if(parameters$parasite == "vivax"){
+    hypnozoite_v <- initial_hypnozoites(
+      parameters$init_hyp,
+      initial_age,
+      groups,
+      eq,
+      parameters$kmax
+    )
+
+    # Human states
+    initial_states <- initial_state(parameters, initial_age, groups, eq, states, hypnozoite_v)
+
+    ## Initial hypnozoites
+    hypnozoites <- individual::IntegerVariable$new(hypnozoite_v)
+  }
+
   state <- individual::CategoricalVariable$new(states, initial_states)
   birth <- individual::IntegerVariable$new(-initial_age)
   last_boosted_ica <- individual::DoubleVariable$new(rep(-1, size))
@@ -111,7 +132,8 @@ create_variables <- function(parameters) {
       groups,
       eq,
       parameters,
-      'ICM'
+      'ICM',
+      hypnozoite_v
     )
   )
 
@@ -123,7 +145,8 @@ create_variables <- function(parameters) {
       groups,
       eq,
       parameters,
-      'ICA'
+      'ICA',
+      hypnozoite_v
     )
   )
 
@@ -135,7 +158,8 @@ create_variables <- function(parameters) {
       groups,
       eq,
       parameters,
-      'ID'
+      'ID',
+      hypnozoite_v
     )
   )
 
@@ -191,17 +215,8 @@ create_variables <- function(parameters) {
         groups,
         eq,
         parameters,
-        'IDM'
-      )
-    )
-
-    # Initiate initial hypnozoite batches
-    hypnozoites <- individual::IntegerVariable$new(
-      initial_hypnozoites(
-        parameters$init_hyp,
-        initial_age,
-        groups,
-        eq
+        'IDM',
+        hypnozoite_v
       )
     )
   }
@@ -361,7 +376,8 @@ initial_immunity <- function(
     groups = NULL,
     eq = NULL,
     parameters = NULL,
-    eq_name = NULL
+    eq_name = NULL,
+    hyp = NULL
 ) {
   if (!is.null(eq)) {
     age <- age / 365
@@ -370,14 +386,19 @@ initial_immunity <- function(
       function(i) {
         g <- groups[[i]]
         a <- age[[i]]
-        eq[[g]][which.max(a < eq[[g]][, 'age']), eq_name]
+        if(parameters$parasite == "falciparum"){
+          eq[[g]][which.max(a < eq[[g]][, 'age']), eq_name]
+        } else if (parameters$parasite == "vivax"){
+          h <- hyp[[i]]
+          eq[[eq_name]][which.max(a < eq$Age[-1]), g, h+1]
+        }
       }
     ))
   }
   rep(parameter, length(age))
 }
 
-initial_state <- function(parameters, age, groups, eq, states) {
+initial_state <- function(parameters, age, groups, eq, states, hyp = NULL) {
   ibm_states <- states
   if (!is.null(eq)) {
     eq_states <- c('S', 'D', 'A', 'U', 'T')
@@ -387,18 +408,29 @@ initial_state <- function(parameters, age, groups, eq, states) {
       function(i) {
         g <- groups[[i]]
         a <- age[[i]]
-        sample(
-          ibm_states,
-          size = 1,
-          prob = eq[[g]][which.max(a < eq[[g]][, 'age']), eq_states]
-        )
+
+        if(parameters$parasite == "falciparum"){
+          sample(
+            ibm_states,
+            size = 1,
+            prob = eq[[g]][which.max(a < eq[[g]][, 'age']), eq_states]
+          )
+
+        } else if (parameters$parasite == "vivax"){
+          h <- hyp[[i]]
+          sample(
+            ibm_states,
+            size = 1,
+            prob = sapply(eq_states, function(state){eq[[state]][which.max(a < eq$Age[-1]),g,h+1]})
+          )
+        }
       }
     ))
   }
   rep(ibm_states, times = calculate_initial_counts(parameters))
 }
 
-initial_hypnozoites <- function(parameter, age, groups, eq){
+initial_hypnozoites <- function(parameter, age, groups, eq, kmax){
   if (!is.null(eq)) {
     age <- age / 365
     return(vnapply(
@@ -406,7 +438,7 @@ initial_hypnozoites <- function(parameter, age, groups, eq){
       function(i) {
         g <- groups[[i]]
         a <- age[[i]]
-        hyp <- rpois(n = 1, lambda = eq[[g]][which.max(a < eq[[g]][, 'age']), "HH"])
+        hyp <- sample(x = 0:kmax, size = 1, replace = T, prob = eq$HH[which.max(a < eq$Age[-1]),g,])
       }
     ))
   }

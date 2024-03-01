@@ -16,7 +16,7 @@ test_that('Initial states are consistent with equilibrium', {
         EIR = EIR,
         p = translate_vivax_parameters(eq_params))$states
 
-      return(colSums(do.call(rbind, lapply(eq, function(x){colSums(x[,c("S","D","A","U","T")])}))))
+      return(sapply(c("S","D","A","U","T"), function(state){sum(eq[[state]])}))
     })
 
   actual_states <- sapply(
@@ -55,7 +55,9 @@ test_that('Initial immunities are consistent with equilibrium', {
         ft = 0,
         EIR = EIR,
         p = translate_vivax_parameters(eq_params))$states
-      return(colSums(do.call(rbind, lapply(1:length(het$nodes), function(x){colSums(eq[[x]][,c("ICA","ICM","ID","IDM","HH")]*eq[[x]][,"prop"]*het$weights[x])}))))
+      return(c(sapply(c("ICA","ICM","ID","IDM"), function(x){sum(eq$HH * eq[[x]])})),
+             sum(colSums(eq$HH, dims = 2) * c(1:dim(eq$HH)[3]-1))
+      )
     })
 
 

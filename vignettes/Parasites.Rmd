@@ -1,0 +1,473 @@
+---
+title: "Parasites"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Parasites}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This vignette describes the differences between the P. falciparum and P. vivax modes of the model. We will describe the shared components and then emphasise where the two models differ.
+
+(I could alternatively do a basic falciparum page first, then have a complementary page to show vivax differences. I'm trying to work out how to link this with, for example, drugs. Would I have a vivax section on the drugs page? Or would I have a drugs section on a vivax page?)
+
+
+# 1. Parameters
+
+parameters.R `get_parameters()`
+
+The file containing the default parasite-specific parameters is found in "malariasimulation/data-raw/parasite_parameters.csv". These include human disease-state duration and infectivity to mosquito parameters, parasite-specific immunity parameters and parameters associated with their impacts, parasite-specific mosquito parameters and hypnozoite-related parameters for P. vivax only.
+
+These parameters are sourced from xxxx for P. falciparum and from Michael White's model fit to data from Papua New Guinea, found in THIS SOURCE.
+
+There was an original fitting (Jamie's fit), then a second fit: 2015/16. Pete and Bob tried to do a third fit, but were interrupted by C-19. Might not get done with the time frame.
+Some set from other data sources.
+
+Could include a parameter comparison table???
+
+
+
+# 2. Simulation/Model
+
+## 2.1 Variables
+
+### 2.1.1 Human Ages
+
+variables.R `calculate_initial_ages()`
+
+By default, human age is randomly drawn from an exponential distribution, rounded to the nearest integer, that uses the average age (default = 7663 days) parameter as its rate.
+
+$$ \text{age} \sim \exp(\frac{1}{\text{average age}})     $$
+
+A custom demography can be set using the `set_demography` function (see VIGNETTE for details).
+
+### 2.1.2 Biting Heterogeneity
+
+variables.R `create_variables()`, `calculate_zeta()`
+
+The modelled biting heterogeneity attempts to capture differences in within the modelled region (e.g., due to urban/rural geographical differences, proximity to water sources etc.). Biting heterogeneity is enabled by default, but can be disabled manually using `enable_heterogeneity = FALSE` in the `overrides` argument in `get_parameters()`.
+
+First, a number of heterogeneity groups are created based on the `n_heterogeneity_groups` parameter (default = 5) using normally distributed guassian quadrature (see `statmod::guass.quad.prob`). Actual biting heterogeneity values ($\zeta$) are calculated using `calculate_zeta()`
+
+$$ log(\zeta) \sim \mathcal{N}(-\frac{\sigma}{2}, \sigma^2) $$
+
+where the default $\sigma^2 = 1.67$, resulting in log-normally distributed biting heterogeneity. Individuals are then randomly assigned a heterogeneity group and $\zeta$ value based on the quadrature weights.
+
+If biting heterogeneity is disabled, \zeta and `zeta_group` variables are set to 1 for each individual.
+
+If an initial EIR has been set using `set_equilibrium`, these \zeta values and groups are then used to initiate the equilibrium used in the model (see VIGNETTES).
+
+
+### 2.1.3 Hypnozoite batches (P. vivax only)
+
+variables.R `initial_hypnozoites()`
+
+Without an equilibrium (see VIGNETTE for details), the initial hypnozoite batch number is set to 0 for each individual. If an equilibrium is present, the hypnozoite batch number is randomly sampled from 0 to `kmax` using the equilibrium probability distribution for that individual's age and heterogeneity group.
+
+
+### 2.1.4 Human States
+
+variables.R `initial_state()`, `calculate_initial_counts()`
+
+Unless an equilibrium state is calculated using `set_equilibrium()` (see VIGNETTE for details), the initial humans states (Susceptible, Diseased, Asymptomatic, sUbpatent and Treated) are assigned based on the `s_proportion` (default =\~ 0.42), `d_proportion` (0.007), `a_proportion` (0.44), `u_proportion` (0.133) and `t_proportion` (0) parameters which can be set manually (and must sum to 1). Proportions are multiplied by the human population size and rounded to integers. Assignments are systematically made in the state order listed above such that in a population of 100, the first 42 individuals would be susceptible and the next one individual would be clinically diseased under the default parameter set.
+
+Human states are otherwise sampled using the equilibrium probability distribution using the individual's previously determined age and heterogeneity group. 
+
+#### 2.1.4.v P. vivax human states
+
+The P. vivax model uses different human states from the P. falciparum model. While P. falciparum models an asymptomatic human state, which may or may not be detectable by microscopy due to modelled immunity to detectability (see xxxx and yyyy: prevalence section?)), the P. vivax model instead explicitly models "light-microscopy (LM) detectable" infections. Furthermore, instead of subpatent infections, we model "PCR-detectable" infections.
+
+Initial human states for the P. vivax model are sampled using the equilibrium probability distribution using the individual's previously determined age, heterogeneity group and hypnozoite batch number.
+
+
+### 2.1.5 Immunity Variables
+
+variables.R `initial_immunity()`
+
+Unless an equilibrium has been calculated, the initial immunities are set to 0 as default (but can be set manually using the parameter list). If an equilibrium has been calculated, each immunity is set according to the calculated immunity for the age and heterogeneity group (and hypnozoite batch number for P. vivax) of the individual. The model also captures time of immunity boosts due to infection (initially set to -1).
+
+The P. falciparum and P. vivax models include different kinds of immunities. Only one kind is shared between the two parasites. These are specified below.
+
+1.  Clinical Immunity (acquired: $I_{CA}$ and maternal: $I_{CM}$) impacts the probability that an infection will become clinical disease (see xxxx: human infection).
+
+
+
+#### 2.1.5.f P. falciparum specific immunity variables
+
+2(f). Severe Immunity (acquired: $I_{VA}$ and maternal: $I_{VM}$) impacts the probability a clinical infection becomes severe (see xxx: human infection/severe).
+
+3(f). Immunity to detectability (acquired only: $I_D$) impacts whether an asymptomatic infection can be detectable by light microscopy (see xxx) and affects the infectivity of an asymptomatic individual towards mosquitos.
+
+4(f). Blood-stage immunity (acquired only: $I_B$) impacts the probability an infectious bite results in an infection (see xxx: biting section?).
+
+
+#### 2.1.5.v P. vivax-specific immunity variables
+
+2(v). Anti-parasite immunity (acquired: $I_D$ and maternal: $I_{DM}$) impacts (i) the probability an infection becomes patent (detectable by light-microscopy) and (ii) the duration an individual will remain in the sub-patent (PCR-detectable) compartment before recovering. These are labelled similarly to, but should not be confused with immunity to detectability.
+
+
+
+### 2.1.6 Human infectivity
+
+Infectivity of humans toward mosquitos are based on the human states and, in some cases, immunity.
+
+#### 2.1.6.f Human infectivity (P. falciparum)
+
+variables.R
+human_infection.R `asymptomatic_infectivity()`, `probability_of_detection()`
+
+For the P. falciparum model, the infectivity of clinically diseased is set to 0.068, subpatent infection to 0.0062 and treated infections to 0.021896 (although this final value may be adjusted using the xxx parameter according to the drug treatment (as found in VIGNETTE xxxx)).
+
+The infectivity of asymptomatic infections is age-specific and affected by levels of immunity to detectability and is determined as follows.
+
+First, we use an age-dependent function that modifies detectability ($f_D$), where ($a$) is the age of the individual (in days), $f_{D_0}$ represents the time scale of changes (default = 0.007055), while $\gamma_D$ and $a_D$ are shape and scale parameters (4.8183 and 7993.5).
+
+$$ f_D = 1 - \frac{1-f_{D_0}}{1 + \frac{a}{a_D}^{\gamma_D}} $$
+
+Next, this is used to calculate the probability of detectability by microscopy ($q$), also using the minimum probability of detectability that can exist in the model ($d_1$ = 0.160527), the level of immunity of the individual ($I_D$), and additional shape ($K_D$ = 0.476614) and scale ($I_{D_0}$ = 1.577533) parameters.
+
+$$ q = d_1 + \frac{1-d_1}{1+f_D\frac{I_D}{I_{D_0}}^{K_D}} $$
+
+Finally, $c_A$ is calculated by taking the probability of detectability to the power of an asymptomatic infectivity parameter ($\gamma_1$) and applying it to the difference between the infectivity of clinically disease and subpatently infected individuals as follows.
+
+$$ c_A = c_U + (c_D - c_U) q^{\gamma_1} $$
+
+#### 2.1.6.v Human infectivity (P. vivax)
+
+In the P. vivax model, the infectivity of clinically diseased is set to 0.8, LM-detectable (A) infections to 0.1, PCR-detectable infections (U) to 0.035 and treated infections to 0.4 (which may also be adjusted using the xxx parameter according to the drug treatment (as found in VIGNETTE xxxx)).
+
+
+#### 2.1.7 Mosquitos???? Like FOIM? Initial number of mosquitos?
+
+
+
+
+## 2.2 Processes
+
+processes.R
+
+
+### 2.2.1: Human mortality and birth (!!!!)
+
+mortality_processes.R `create_mortality_process`, `sample_maternal_immunity`, `reset_target`
+
+We do not explicitly model the low death rate caused by malaria, but this can be calculated based on a proportion of clinical or severe diseased cases. All mortality is therefore "natural". Without a custom demography, we assume that individuals die at the inverse rate of the life-span of an individual ($\frac{1}{\text{average age}}$) and individuals are drawn from a Bernoulli distribution to select those who die.
+
+$$  \sim \text{Bern} (\frac{1}{\text{average age}})     $$
+If a custom demography is given, death rates are calculated for each age group given.
+
+Selected individuals are reset and "reborn" as new individuals, which involves setting the human state to Susceptible (with corresponding infectivity), the age to the current timestep and refreshing all acquired immunity and intervention variables (and hypnozoite batch number for P. vivax). Heterogeneity of the individual is not reset.
+
+Maternal immunity values are then calculated from randomly sampled individuals capable of pregnancy (age = 20), and multiplied by a scaling parameter: $pcm$ for clinical immunity (or antiparasite immunity for P. vivax) or $pvm$ for severe immunity.
+
+
+
+### 2.2.2: Mosquito model: emergence and development
+
+mosquito_biology.R `create_mosquito_emergence_process()`
+
+Mosquito populations are generated from the deterministic part of the model, unless individual mosquitos are modelled explicitly with xxxxxxxx.
+
+Emergence is based on 
+xxxx
+xxxxx
+xxxx
+
+Generates $S_M$ mosquitos.
+
+$$\text{rate} = 0.5 \frac{1}{dpl}$$
+
+
+### 2.2.3: Mosquito biting process
+
+biting_process.R `create_biting_process` `simulate_bites`
+
+This process begins by calculating the unique biting rate for an individual, based on the individual's age ($a$) and the age-dependent biting parameters ($a_0$ and $\rho$):
+
+(a a bit more description as to why we are modelling this in an age-dependent way...?)
+
+$$\psi(a) = 1 - \rho e^{\frac{-a}{a_0}}$$
+See `unique_biting_rate()`
+
+And then the ??? normalised relative biting rate for each human ($\pi$), which factors in the individual biting heterogeneity ($\zeta$):
+
+$$ \pi = \frac{\zeta \psi(a)}{\sum \zeta \psi(a)} $$
+See `human_pi()`
+
+
+We then calculate the mosquito biting rate on humans ($\alpha$), which may take into account the impact of mosquito interventions (See VIGNETTES). In the absence of these interventions, we have the probability of a successful bite: $W = 1$, the probability a mosquito is repelled: $Z = 0$, and the blood meal rate ($f$) for each mosquito species, which reduces many of the more complicated equations to:
+
+$$ \alpha = f Q_0 $$
+where $Q_0$ is the proportion of blood meals mosquitos take on humans.
+
+The EIR is then the product of these:
+
+$$ \text{EIR} = \pi a $$
+
+
+EIR is then lagged by the human latent period of infection $d_E = 12$, summed and multiplied by the average biting rate to generate the expected number of bites.
+
+$$ \text{Bites} =  \text{EIR} \psi $$
+
+The model then calculates new bites using a poisson distribution and assigns these bites to humans with probability weighted by EIR.
+
+$$ \sim \Pois() $$
+
+
+### 2.2.4: Mosquito infection
+biting_process.R
+
+Changes in infectivity towards mosquitos are lagged by delay gam
+
+We calculate the force of infection for mosquitos (FOIM or $\lambda_M$)
+
+$$ \text{FOIM} = \alpha \sum \text{infectivity} $$
+
+### 2.2.5: Mosquito deaths
+biting_process.R
+
+mum <- parameters$mum[[species]]
+  p1_0 <- exp(-mum * parameters$foraging_time[[species]])
+  gonotrophic_cycle <- get_gonotrophic_cycle(species, parameters)
+  p2 <- exp(-mum * gonotrophic_cycle)
+  p1 <- p1_0 * W / (1 - Z * p1_0)
+  -f * log(p1 * p2)
+
+
+which are then fed back into the mosquito deterministic model for the next timestep.
+
+
+
+### 2.2.4: Human infection (!!!!)
+`simulate_infections`
+
+calculate the probability of infection given an infectious bite ($b$).
+
+For falciparum:
+
+WHY IS THIS PART DONE??? 
+ib[ib > 0] <- ib[ib > 0] + 0.5
+
+$$ b = b_0 (b_1 + \frac{1 - b_1}{1 + \frac{I_B}{I_{B_0}}^{k_b}})$$
+
+ 
+
+Those that can be infected (S, A)
+
+Prob then used to subset S and A
+
+New infections
+
+
+For vivax:
+
+$b$ is a constant
+
+Those that can be infected (S, A, u)
+
+
+Opportunity for prophylaxis due to drugs (see VIGNETTE) and vaccination (see VIGNETTE).
+
+We then get newly infected individuals using a bernoulli distribution with probability p for each individual that is capable of infection (SA for falciparum, SAU for vivax).
+
+
+Vivax is a bit more complicated:
+
+For vivax, we must model new bite infections for all individuals to establish which individuals may receive a new batch of hypnozoite. There is also an issue of competing hazards that must be reconciled (i.e., is a new infection due to a bite or a relapse).
+
+We first calculate the total probability of infection by converting the probability of a new bite infection for those that have been bitten to a rate and adding that to the probability of a relapse based on the number of hypnozoite batches an individual has. We then convert this overall rate of infection back to a probability and use this to sample the whole population to establish all new infections. We also calculate the probability that a new infection is caused by a new bite by dividing the rate of infection via bites by the total rate of infection, and use this to establish which new infections are attributed to bites (while the remaining infections are attributed to hypnozoite relapses).
+
+All individuals of any human state that receive a new infection via a new bite increase their number of hypnozoite batches by 1, although this can be mitigated through prophylaxis when liver-stage drugs are used (See VIGNETTE).
+
+All new infections (from bites and relapses) are then subset to humans states S, A and U for further processing.
+
+
+### 2.2.4.1: Patent infections (P. vivax)
+
+In the P. vivax model, a new infection can be clinical, LM-detectable or PCR-detectable. To separate clinical and LM-detectable infections from PCR-detectable infections, we calculate the probability a new infection is patent (detectable by LM):
+
+$$
+  \phi_{\text{LM}} = \phi_{\text{LM}_{\text{min}}} + \frac{(\phi_{\text{LM}_{\text{max}}} - \phi_{\text{LM}_{\text{min}}})}{
+    1 + (\frac{(I_D + I_{DM})} {a_{\text{LM}_{50}})} ^ {k_{\text{LM}}}}
+  
+$$
+
+SHOULD I BE ADDING 0.5 to THESE? IF NOT WHY NOT?
+
+I could do a plot that shows how this changes as the total ID increases.
+
+Patent infections are then passed through to the clinical infection calculations below.
+
+
+### 2.2.4.1: Clinical infections (!!!!)
+
+Probability a new infection (or for P. vivax, a patent infection) becomes clinical
+
+Again, what exactly is this doing? 
+acquired_immunity[acquired_immunity > 0] <- acquired_immunity[acquired_immunity > 0] + 0.5
+
+$$ \phi =  
+  \phi_0 ( \phi_1 + \frac{1 - \phi_1}{1 + (\frac{I{CA} + I{CM}}{I_{C_0}}) ^ {k_c}} )
+$$
+
+  
+### 2.2.4.1: Treated infections (!!!!)
+
+See VIGNETTES for treated infections - it requires drugs, so I'm happy to miss this section out here.
+
+### 2.2.4.1: scheduling infections (!!!!)
+
+New human state assignments are then in alignment with new infections. Becuase this model allows superinfection, a present infection may be replaced only with an infection of greater severity (a asymptomatic or LM detectable infection can only be superinfected with clinical disease, while a PCR detectable infection can by replaced by a LM detectable of clinical infection), otherwise the infection remains of the state intensity, with corresponding infectivities assigned.
+
+
+### 2.2.4.1: Severe infections (!!!!)
+
+### 2.2.4.1: boost immunity (!!!!)
+
+
+Based on the number of bitten humans, we simulate infections.
+
+### 2.2.4.v: Human infection (!!!!)
+
+# Relapses
+
+### 2.2.5: Disease Progression
+
+# Disease Progression
+
+### 2.2.5.v: Disease Progression
+
+# Sub patent progression (based on immunity for P. vivax)
+
+### 2.2.6.v: Hypnozoite decay
+
+# Hypnozoite decay
+
+# 3. Rendering
+
+## 3.1 Rendering
+
+# Prevalence renderer: n detect PCR/LM (P falc has a calculation for LM)
+
+## 3.1 Rendering.v
+
+# Hypnozoite renderer
+
+# Prevalence renderer: n detect PCR/LM (P falc has a calculation for LM)
+
+# 4. Intervention impacts
+
+## 4.1 Treatment
+
+# Drug / MDA / PMC: Prophylaxis
+
+## 4.1.1 MDA
+
+## 4.1.1 SMC
+
+## 4.2 Nets
+
+## 4.3 ETC
+
+# 5. Equilibrium solution
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+In the absence of interventions, the probability a mosquito is repelled is 0, the probability it bites successfully is 1 and the probability that it survives after biting is also 1 (see VIGNETTE for the impact of interventions).
+
+We then calculate the probabilities a mosquito bites successful ($W$) or is repelled ($Z$), where $Q_0$ is the the proportion of blood meals the mosquito species takes on humans and as mentioned, in the absence of mosquito interventions, {$p_\text{bitten}} = 1$:
+
+$$ W = (1 - Q_0) + Q_0 \sum \pi  p_{\text{bitten}}) $$
+
+The calculation for $Z$ (the average probability a mosquito is repelled) is given for completeness, but in the absence of interventions $p_{\text{repelled}}=0$, and therefore $Z = 0$.
+
+$$ Z = Q_0 * \sum(\pi p_{\text{repelled}}) $$
+
+The blood meal rates ($f$) for each species take into account foraging time based on repulsion via interventions and egg laying (the gonotrophic cycle) thus:
+
+$$ f = \frac{1}{\text{interrupted foraging time} + \text{gonotrophic cycle}} $$
+where
+$$ \text{interrupted foraging time} = \frac{\text{foraging time}}{1 - Z} $$
+
+and
+$$ \text{gonotrophic cycle} = \frac{1}{\text{blood meal rate}} - \text{foraging time} $$
+
+$$ a = f(1 - \frac{1 - Q_0}{W}) $$
+
+We can finally calculate the EIR over all mosquito species
+
+$$ \lambda = a  \frac{\pi p_{\text{bitten}}}{\sum{\pi p_{\text{bitten survives}}}}  $$
+and get the number of infectious mosquitos ($I_M$)
+
+
+So I could just get rid of most of this, leaving it with the bare bones... I feel like that would be useful, then you can just look at the code you need if you're using an intervention.
+
+In the model the EIR is lagged to account for the human latent period of infection (12 days).
+
+EIR * mean(psi)
+$$ $$
+
+
+The entomological inoculation rate (EIR) is then calculated for each mosquito species.
+
+Average probability a mosquito is successful
+
+Average probability a mosquito is repelled
+
+f <- blood meal rate <- Q <- 1 - (1 - parameters$Q0[[v]]) / W
+  Q * f
+
+a <- .human_blood_meal_rate
+
+a * .pi * p_bitten$prob_bitten / sum(.pi * p_bitten$prob_bitten_survives)
+Get infectivity and $\zeta$
+
+
+
+
+
+
+
+
+
+`calculate_eir`
+
+`effective_biting_rates`
+
+`calculate_infectious`
+
+`calculate_infectious_individual`
+
+`calculate_infectious_compartmental`
+
+`intervention_coefficient`
+
+`human_pi`
+
+`blood_meal_rate`
+
+`human_blood_meal_rate`
+
+`.human_blood_meal_rate`
+
+`unique_biting_rate`
+
+`calculate_foim`

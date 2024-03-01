@@ -223,34 +223,34 @@ create_age_group_renderer <- function(
   }
 }
 
-create_hypnozoite_renderer_process <- function(
+create_n_with_hypnozoites_renderer_process <- function(
     renderer,
     hypnozoites,
     parameters
 ) {
   function(timestep) {
     renderer$render(
-      paste0("n_hypnozoites"),
+      paste0("n_with_hypnozoites"),
       hypnozoites$size() - hypnozoites$get_size_of(0),
       timestep
     )
   }
 }
 
-create_hypnozoite_age_renderer_process <- function(
+create_n_with_hypnozoites_age_renderer_process <- function(
     hypnozoites,
     birth,
     parameters,
     renderer
 ) {
   function(timestep) {
-    for (i in seq_along(parameters$hypnozoite_prevalence_rendering_min_ages)) {
-      lower <- parameters$hypnozoite_prevalence_rendering_min_ages[[i]]
-      upper <- parameters$hypnozoite_prevalence_rendering_max_ages[[i]]
+    for (i in seq_along(parameters$n_with_hypnozoites_rendering_min_ages)) {
+      lower <- parameters$n_with_hypnozoites_rendering_min_ages[[i]]
+      upper <- parameters$n_with_hypnozoites_rendering_max_ages[[i]]
       in_age <- in_age_range(birth, timestep, lower, upper)
       renderer$render(paste0('n_', lower, '_', upper), in_age$size(), timestep)
       renderer$render(
-        paste0('n_hypnozoites_', lower, '_', upper),
+        paste0('n_with_hypnozoites_', lower, '_', upper),
         sum(hypnozoites$get_values(index = in_age)!=0),
         timestep
       )

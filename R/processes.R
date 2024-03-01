@@ -207,12 +207,12 @@ create_processes <- function(
     ## Render age-stratified with hypnozoites
     processes <- c(
       processes,
-      create_hypnozoite_renderer_process(
+      create_n_with_hypnozoites_renderer_process(
         renderer,
         variables$hypnozoites,
         parameters
       ),
-      create_hypnozoite_age_renderer_process(
+      create_n_with_hypnozoites_renderer_process(
         variables$hypnozoites,
         variables$birth,
         parameters,

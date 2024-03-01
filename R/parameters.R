@@ -168,8 +168,8 @@
 #' * prevalence_rendering_min_ages - the minimum ages for clinical prevalence
 #' outputs (pcr and lm detectable infections); default = 730
 #' * prevalence_rendering_max_ages - the corresponding max ages; default = 3650
-#' * n_hypnozoites_rendering_min_ages - the minimum ages for number with hypnozoites outputs (p.v only); default = numeric(0)
-#' * n_hypnozoites_rendering_max_ages - the corresponding max ages; default = numeric(0)
+#' * n_with_hypnozoites_rendering_min_ages - the minimum ages for number with hypnozoites outputs (p.v only); default = numeric(0)
+#' * n_with_hypnozoites_rendering_max_ages - the corresponding max ages; default = numeric(0)
 
 #' * ica_rendering_min_ages - the minimum ages for acquired clinical immunity outputs; default = numeric(0)
 #' * ica_rendering_max_ages - the corresponding max ages; default = numeric(0)

@@ -168,8 +168,25 @@
 #' * prevalence_rendering_min_ages - the minimum ages for clinical prevalence
 #' outputs (pcr and lm detectable infections); default = 730
 #' * prevalence_rendering_max_ages - the corresponding max ages; default = 3650
-#' * hypnozoite_prevalence_rendering_min_ages - the minimum ages for hypnozoite prevalence outputs (p.v only); default = numeric(0)
-#' * hypnozoite_prevalence_rendering_max_ages - the corresponding max ages; default = numeric(0)
+#' * n_hypnozoites_rendering_min_ages - the minimum ages for number with hypnozoites outputs (p.v only); default = numeric(0)
+#' * n_hypnozoites_rendering_max_ages - the corresponding max ages; default = numeric(0)
+
+#' * ica_rendering_min_ages - the minimum ages for acquired clinical immunity outputs; default = numeric(0)
+#' * ica_rendering_max_ages - the corresponding max ages; default = numeric(0)
+#' * icm_rendering_min_ages - the minimum ages for maternal clinical immunity outputs; default = numeric(0)
+#' * icm_rendering_max_ages - the corresponding max ages; default = numeric(0)
+#' * iva_rendering_min_ages - the minimum ages for acquired severe immunity outputs (p.f only); default = numeric(0)
+#' * iva_rendering_max_ages - the corresponding max ages; default = numeric(0)
+#' * ivm_rendering_min_ages - the minimum ages for maternal severe immunity outputs (p.f only); default = numeric(0)
+#' * ivm_rendering_max_ages - the corresponding max ages; default = numeric(0)
+#' * id_rendering_min_ages - the minimum ages for detectability immunity (p.f) or acquired antiparasite immunity (p.v only) acquired severe immunity outputs (p.v only); default = numeric(0)
+#' * id_rendering_max_ages - the corresponding max ages; default = numeric(0)
+#' * idm_rendering_min_ages - the minimum ages for maternal antiparasite immunity outputs (p.v only); default = numeric(0)
+#' * idm_rendering_max_ages - the corresponding max ages; default = numeric(0)
+#' * ib_rendering_min_ages - the minimum ages for blood immunity outputs (p.f only); default = numeric(0)
+#' * ib_rendering_max_ages - the corresponding max ages; default = numeric(0)
+#' * hypnozoites_rendering_min_ages - the minimum ages average hypnozoites outputs (p.v only); default = numeric(0)
+#' * hypnozoites_rendering_max_ages - the corresponding max ages; default = numeric(0)
 #'
 #' mosquito life stage transitions:
 #'

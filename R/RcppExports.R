@@ -45,6 +45,10 @@ rainfall <- function(t, g0, g, h, floor) {
     .Call(`_malariasimulation_rainfall`, t, g0, g, h, floor)
 }
 
+exponential_process_cpp <- function(variable, rate) {
+    .Call(`_malariasimulation_exponential_process_cpp`, variable, rate)
+}
+
 solver_get_states <- function(solver) {
     .Call(`_malariasimulation_solver_get_states`, solver)
 }

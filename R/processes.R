@@ -261,8 +261,9 @@ create_processes <- function(
 #' @param rate the exponential rate
 #' @noRd
 create_exponential_decay_process <- function(variable, rate) {
+  stopifnot(inherits(variable, "DoubleVariable"))
   decay_rate <- exp(-1/rate)
-  function(timestep) variable$queue_update(variable$get_values() * decay_rate)
+  exponential_process_cpp(variable$.variable, decay_rate)
 }
 
 #' @title Create and initialise lagged_infectivity object

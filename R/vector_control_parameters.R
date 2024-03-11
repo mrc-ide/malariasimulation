@@ -29,6 +29,23 @@
 #' With nrows=length(timesteps), ncols=length(species)
 #' @param gamman a vector of bednet half-lives for each distribution timestep
 #' @export
+set_endectocide <- function(
+    parameters,
+    timesteps,
+    coverages
+) {
+  if (length(timesteps) != length(coverages)) {
+    stop('timesteps and coverages must align')
+  }
+  parameters$endec <- TRUE
+  parameters$endec_timesteps <- timesteps
+  parameters$endec_coverages <- coverages	
+  parameters
+}
+
+
+
+
 set_bednets <- function(
     parameters,
     timesteps,

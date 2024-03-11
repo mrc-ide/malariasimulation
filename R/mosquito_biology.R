@@ -149,6 +149,7 @@ peak_season_offset <- function(parameters) {
 #' @noRd
 death_rate <- function(f, W, Z, species, parameters) {
   mum <- parameters$mum[[species]]
+  mum <- endec_adjusted_mortality(mum, parameters, species, timestep)
   p1_0 <- exp(-mum * parameters$foraging_time[[species]])
   gonotrophic_cycle <- get_gonotrophic_cycle(species, parameters)
   p2 <- exp(-mum * gonotrophic_cycle)

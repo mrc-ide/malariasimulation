@@ -236,7 +236,6 @@ get_parameters <- function(overrides = list()) {
     mup   = .249,
     mum   = .132,
     mu_endec = c(0.26, 0.26, 0.26), #this is the mu_h. Need to check if varies with ivm_cov and Q0
-    feeds_per_day = c(0.333, 0.333, 0.333),
     sigma_squared   = 1.67,
     n_heterogeneity_groups = 5,
     # immunity decay rates
@@ -324,7 +323,6 @@ get_parameters <- function(overrides = list()) {
     species_proportions = 1,
     blood_meal_rates    = 1/3,
     Q0                  = .92,
-    human_meal_rate = 0.92*(1/3),
     foraging_time       = .69,
     #endectocides
     endec = FALSE,

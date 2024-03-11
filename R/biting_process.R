@@ -207,6 +207,22 @@ simulate_bites <- function(
 # Utility functions
 # =================
 
+endec_adjusted_mortality<-function(mu, parameters, species, timestep){
+  if (parameters$atsb){
+    matches <- timestep == parameters$endec_timesteps
+    if (any(matches)) {
+      mu_endec<-(parameters$mum[[species]] + parameters$mu_endec[[species]])*parameters$Q0[[species]]*parameters$endec_coverages[matches] #slightly different to atsb
+      return(mu_endec)
+      #mu_atsb<-parameters$mu_atsb[[species]]*parameters$atsb_coverages[matches]
+      #return(mu+mu_atsb)
+      
+    }
+    else {return(parameters$mum[[species]])}
+  }  else {return(parameters$mum[[species]])}
+}
+
+
+
 calculate_eir <- function(species, solvers, variables, parameters, timestep) {
   a <- human_blood_meal_rate(species, variables, parameters, timestep)
   infectious <- calculate_infectious(species, solvers, variables, parameters)

@@ -324,6 +324,8 @@ get_parameters <- function(overrides = list()) {
     blood_meal_rates    = 1/3,
     Q0                  = .92,
     foraging_time       = .69,
+    #endectocides
+    endec = FALSE,
     # bed nets
     bednets = FALSE,
     phi_bednets = .85,

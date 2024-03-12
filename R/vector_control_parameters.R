@@ -38,7 +38,7 @@ set_endectocide <- function(
     stop('timesteps and coverages must align')
   }
   endec_min_age <- 5
-  endec_max_age <- 200
+  endec_max_age <- 90
   parameters$endec <- TRUE
   parameters$endec_timesteps <- timesteps
   parameters$endec_coverages <- coverages*(exp(-endec_min_age/21) - exp(-endec_max_age/21)) #may need to change this with Anna's work

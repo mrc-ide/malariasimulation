@@ -72,7 +72,7 @@ Remotes:
 Additional_repositories:
   https://mrc-ide.r-universe.dev
 Imports:
-    individual (>= 0.1.13),
+    individual (>= 0.1.15),
     malariaEquilibrium (>= 1.0.1),
     Rcpp,
     statmod,

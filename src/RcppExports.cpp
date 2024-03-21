@@ -179,6 +179,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// exponential_process_cpp
+Rcpp::XPtr<process_t> exponential_process_cpp(Rcpp::XPtr<DoubleVariable> variable, const double rate);
+RcppExport SEXP _malariasimulation_exponential_process_cpp(SEXP variableSEXP, SEXP rateSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<DoubleVariable> >::type variable(variableSEXP);
+    Rcpp::traits::input_parameter< const double >::type rate(rateSEXP);
+    rcpp_result_gen = Rcpp::wrap(exponential_process_cpp(variable, rate));
+    return rcpp_result_gen;
+END_RCPP
+}
 // solver_get_states
 std::vector<double> solver_get_states(Rcpp::XPtr<Solver> solver);
 RcppExport SEXP _malariasimulation_solver_get_states(SEXP solverSEXP) {
@@ -349,6 +361,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_malariasimulation_carrying_capacity", (DL_FUNC) &_malariasimulation_carrying_capacity, 8},
     {"_malariasimulation_eggs_laid", (DL_FUNC) &_malariasimulation_eggs_laid, 3},
     {"_malariasimulation_rainfall", (DL_FUNC) &_malariasimulation_rainfall, 5},
+    {"_malariasimulation_exponential_process_cpp", (DL_FUNC) &_malariasimulation_exponential_process_cpp, 2},
     {"_malariasimulation_solver_get_states", (DL_FUNC) &_malariasimulation_solver_get_states, 1},
     {"_malariasimulation_solver_set_states", (DL_FUNC) &_malariasimulation_solver_set_states, 2},
     {"_malariasimulation_solver_step", (DL_FUNC) &_malariasimulation_solver_step, 1},

@@ -143,7 +143,10 @@ run_resumable_simulation <- function(
     lagged_infectivity))
 
   if (!is.null(initial_state)) {
-    restore_state(initial_state$malariasimulation, stateful_objects)
+    individual::restore_object_state(
+      initial_state$timesteps,
+      stateful_objects,
+      initial_state$malariasimulation)
   }
 
   individual_state <- individual::simulation_loop(
@@ -160,16 +163,16 @@ run_resumable_simulation <- function(
       timesteps
     ),
     variables = variables,
-    events = unlist(events),
+    events = events,
     timesteps = timesteps,
     state = initial_state$individual,
     restore_random_state = restore_random_state
   )
 
   final_state <- list(
-    timesteps=timesteps,
-    individual=individual_state,
-    malariasimulation=save_state(stateful_objects)
+    timesteps = timesteps,
+    individual = individual_state,
+    malariasimulation = individual::save_object_state(stateful_objects)
   )
 
   data <- renderer$to_dataframe()

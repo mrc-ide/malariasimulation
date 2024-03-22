@@ -1,11 +1,11 @@
 create_events <- function(parameters) {
   events <- list(
     # MDA events
-    mda_administer = individual::Event$new(),
-    smc_administer = individual::Event$new(),
+    mda_administer = individual::Event$new(restore=FALSE),
+    smc_administer = individual::Event$new(restore=FALSE),
 
     # TBV event
-    tbv_vaccination = individual::Event$new(),
+    tbv_vaccination = individual::Event$new(restore=FALSE),
 
     # Bednet events
     throw_away_net = individual::TargetedEvent$new(parameters$human_population)
@@ -21,7 +21,7 @@ create_events <- function(parameters) {
       seq_along(parameters$mass_pev_booster_spacing),
       function(.) individual::TargetedEvent$new(parameters$human_population)
     )
-    events$mass_pev <- individual::Event$new()
+    events$mass_pev <- individual::Event$new(restore=FALSE)
     events$mass_pev_doses <- mass_pev_doses
     events$mass_pev_boosters <- mass_pev_boosters
   }
@@ -63,16 +63,16 @@ initialise_events <- function(events, variables, parameters) {
 
   # Initialise scheduled interventions
   if (!is.null(parameters$mass_pev_timesteps)) {
-    events$mass_pev$schedule(parameters$mass_pev_timesteps[[1]] - 1)
+    events$mass_pev$schedule(parameters$mass_pev_timesteps - 1)
   }
   if (parameters$mda) {
-    events$mda_administer$schedule(parameters$mda_timesteps[[1]] - 1)
+    events$mda_administer$schedule(parameters$mda_timesteps - 1)
   }
   if (parameters$smc) {
-    events$smc_administer$schedule(parameters$smc_timesteps[[1]] - 1)
+    events$smc_administer$schedule(parameters$smc_timesteps - 1)
   }
   if (parameters$tbv) {
-    events$tbv_vaccination$schedule(parameters$tbv_timesteps[[1]] - 1)
+    events$tbv_vaccination$schedule(parameters$tbv_timesteps - 1)
   }
 }
 
@@ -158,7 +158,6 @@ attach_event_listeners <- function(
   if (parameters$mda == 1) {
     events$mda_administer$add_listener(create_mda_listeners(
       variables,
-      events$mda_administer,
       parameters$mda_drug,
       parameters$mda_timesteps,
       parameters$mda_coverages,
@@ -174,7 +173,6 @@ attach_event_listeners <- function(
   if (parameters$smc == 1) {
     events$smc_administer$add_listener(create_mda_listeners(
       variables,
-      events$smc_administer,
       parameters$smc_drug,
       parameters$smc_timesteps,
       parameters$smc_coverages,

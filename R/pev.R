@@ -130,11 +130,6 @@ create_mass_pev_listener <- function(
       parameters,
       events$mass_pev_doses
     )
-    if (time_index < length(parameters$mass_pev_timesteps)) {
-      events$mass_pev$schedule(
-        parameters$mass_pev_timesteps[[time_index + 1]] - timestep
-      )
-    }
   }
 }
 

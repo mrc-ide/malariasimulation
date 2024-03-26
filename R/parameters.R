@@ -404,6 +404,7 @@ get_parameters <- function(overrides = list()) {
     late_clinical_failure_prob = NULL,
     late_parasitological_failure_prob = NULL,
     reinfection_during_prophylaxis = NULL,
+    dt_slow_parasite_clearance = NULL,
     # flexible carrying capacity
     carrying_capacity = FALSE,
     carrying_capacity_timesteps = NULL,

@@ -26,6 +26,13 @@ set_antimalarial_resistance <- function(parameters,
                                         reinfection_prob,
                                         slow_parasite_clearance_time) {
   
+  if(any(partner_drug_resistance > 0,
+         late_clinical_failure_prob > 0,
+         late_parasitological_prob > 0,
+         reinfection_prob > 0)) {
+    stop("Parameters set for unimplemented feature - late clinical failure, late parasitological failure, or reinfection during prophylaxis")
+  }
+  
   if(any(c(length(artemisinin_resistance),
            length(partner_drug_resistance), 
            length(slow_parasite_clearance_prob), 

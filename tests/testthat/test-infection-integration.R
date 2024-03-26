@@ -315,6 +315,7 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   expect_bitset_update(variables$drug_time$queue_update, 5, c(1, 4))
 })
 
+##' FIXING
 test_that('calculate_treated correctly samples treated and updates the drug state when resistance set', {
   
   parameters <- get_parameters()
@@ -411,6 +412,7 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   
 })
 
+##' FIX
 test_that('calculate_treated correctly samples treated and updates the drug state when resistance not set for all drugs', {
   
   # Establish the parameters
@@ -857,6 +859,7 @@ test_that('calculate_treated() returns an empty Bitset when the parameter list c
                  in the absence of clinical treatment or resistance parameters")
 })
 
+##' FIX
 test_that('Number of treatment failures matches number of individuals treated when artemisinin resistance proportion and
           early treatment failure probability both set to 1', {
   parameters <- get_parameters()
@@ -912,6 +915,7 @@ test_that('Number of treatment failures matches number of individuals treated wh
                  and early treatment failure probability both equal 1") 
 })
 
+##' FIX
 test_that('calculate_treated() successfully adds additional resistance columns to the renderer', {
   parameters <- get_parameters()
   parameters <- set_drugs(parameters = parameters, drugs = list(AL_params))

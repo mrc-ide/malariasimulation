@@ -74,7 +74,7 @@ sample_maternal_immunity <- function(variables, target, timestep, parameters) {
   }
 }
 
-reset_target <- function(variables, events, target, state, timestep) {
+reset_target <- function(variables, events, target, state, parameters, timestep) {
   if (target$size() > 0) {
     # clear events
     to_clear <- c(
@@ -113,6 +113,11 @@ reset_target <- function(variables, events, target, state, timestep) {
 
     # onwards infectiousness
     variables$infectivity$queue_update(0, target)
+    
+    # treated compartment residence time:
+    if(!is.null(variables$dt)) {
+      variables$dt$queue_update(parameters$dt, target)
+    }
 
     # zeta and zeta group and vector controls survive rebirth
   }

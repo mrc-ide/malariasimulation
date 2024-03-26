@@ -104,12 +104,32 @@ create_processes <- function(
       parameters$du,
       variables$infectivity,
       0
-    ),
+    )
+  )
+  
+  # =======================
+  # Antimalarial Resistance
+  # =======================
+  # Add an a new process which governs the transition from Tr to S when
+  # antimalarial resistance is simulated. The rate of transition switches
+  # from a parameter to a variable when antimalarial resistance == TRUE.
+  
+  # Assign the dt input to a separate object with the default single parameter value:
+  dt_input <- parameters$dt
+  
+  # If antimalarial resistance is switched on, assign dt variable values to the 
+  if(parameters$antimalarial_resistance == TRUE) {
+    dt_input <- variables$dt
+  }
+  
+  # Create the progression process for Tr --> S specifying dt_input as the rate:
+  processes <- c(
+    processes,
     create_progression_process(
       variables$state,
       'Tr',
       'S',
-      parameters$dt,
+      dt_input,
       variables$infectivity,
       0
     )

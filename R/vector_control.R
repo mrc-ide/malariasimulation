@@ -103,17 +103,17 @@ prob_bitten <- function(
   list(
     prob_bitten_survives = (
       1 - phi_indoors * phi_housing + ##
-        (1 - rh) * (phi_bednets * phi_housing * rs_comp * sn * ss * sh^2) +  ## * sh if some mortality from housing
-        (1 - rh) * ((phi_indoors * phi_housing - phi_bednets * phi_housing) * rs_comp * ss * sh^2) ## * sh if some mortality from housing
+        (phi_bednets * phi_housing * rs_comp * sn * ss * sh^2) +  ## * sh if some mortality from housing
+        ((phi_indoors * phi_housing - phi_bednets * phi_housing) * rs_comp * ss * sh^2) ## * sh if some mortality from housing
     ),
     prob_bitten = (
       1 - phi_indoors * phi_housing +
-        (1 - rh) * (phi_bednets * phi_housing * rs_comp * sn * sh) + ## * sh if some mortality from housing
-        (1 - rh) * ((phi_indoors * phi_housing - phi_bednets * phi_housing) * rs_comp * sh) ## * sh if some mortality from housing
+        (phi_bednets * phi_housing * rs_comp * sn * sh) + ## * sh if some mortality from housing
+        ((phi_indoors * phi_housing - phi_bednets * phi_housing) * rs_comp * sh) ## * sh if some mortality from housing
     ),
     prob_repelled = (
-      phi_bednets * phi_housing * rs_comp * sh * rn + 
-        phi_indoors * phi_housing * rs * sh * spray_on + 
+      phi_bednets * phi_housing * rs_comp * sh * rn * sh + 
+        phi_indoors * phi_housing * rs * sh * sh * spray_on + 
         phi_indoors * phi_housing * rh
     )
   )

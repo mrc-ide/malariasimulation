@@ -11,7 +11,7 @@ prob_bitten <- function(
   parameters
   ) {
   n <- parameters$human_population
-  if (!(parameters$bednets || parameters$spraying)) {
+  if (!(parameters$bednets || parameters$spraying || parameters$housing)) {
     return(
       list(
         prob_bitten_survives = rep(1, n),
@@ -65,6 +65,7 @@ prob_bitten <- function(
       js_prime,
       parameters$k0
     )
+    spray_on = 1
     rs_comp <- 1 - rs
     ss <- rep(1, n)
     ss[protected_index] <- prob_survives_spraying(
@@ -72,28 +73,74 @@ prob_bitten <- function(
       parameters$k0
     )
   } else {
-    phi_indoors <- 0
+    spray_on = 0
     rs <- 0
     rs_comp <- 1
     ss <- 1
   }
+  
+  if (parameters$housing) {
+    phi_housing <- parameters$phi_housing[[species]]  ## if a change in behaviour is caused by the housing changes, we can increase outdoor biting proportion
+    phi_indoors <- parameters$phi_indoors[[species]]
+    house_time <- variables$house_time$get_values()
+    since_housing <- timestep - house_time
+    matches <- match(house_time, parameters$housing_timesteps)
+    rh <- prob_repelled_house(matches, since_housing, species, parameters) ## if housing prevents entry to house, we increase proportion needing to repeat foraging
+    sh <- prob_survives_house(rh, matches, since_housing, species, parameters)
+    unused <- house_time == -1
+    sh[unused] <- 1
+    rh[unused] <- 0
+  } else {
+    phi_housing <- 1
+    rh <- 0
+    sh <- 1
+  }
 
+  if ((!parameters$housing & !parameters$spraying)) {
+    phi_indoors <- 0 ## we want phi_indoors to be applied if housing is on
+  }
+  
   list(
     prob_bitten_survives = (
-      1 - phi_indoors +
-      phi_bednets * rs_comp * sn * ss +
-      (phi_indoors - phi_bednets) * rs_comp * ss
+      1 - phi_indoors * phi_housing + ##
+        (phi_bednets * phi_housing * rs_comp * sn * ss * sh^2) +  ## * sh if some mortality from housing
+        ((phi_indoors * phi_housing - phi_bednets * phi_housing) * rs_comp * ss * sh^2) ## * sh if some mortality from housing
     ),
     prob_bitten = (
-      1 - phi_indoors +
-      phi_bednets * rs_comp * sn +
-      (phi_indoors - phi_bednets) * rs_comp
+      1 - phi_indoors * phi_housing +
+        (phi_bednets * phi_housing * rs_comp * sn * sh) + ## * sh if some mortality from housing
+        ((phi_indoors * phi_housing - phi_bednets * phi_housing) * rs_comp * sh) ## * sh if some mortality from housing
     ),
     prob_repelled = (
-      phi_bednets * rs_comp * rn +
-      phi_indoors * rs
+      phi_bednets * phi_housing * rs_comp * sh * rn * sh + 
+        phi_indoors * phi_housing * rs * sh * sh * spray_on + 
+        phi_indoors * phi_housing * rh
     )
   )
+}
+
+#' @title Simulate housing improvements
+#' @description simulates improved housing so that harder for vectors to get indoors
+#' from `set_housing` and correlation parameters from
+#' `get_correlation_parameters`
+#'
+#' @param variables list of variables in the model
+#' @param parameters the model parameters
+#' @param correlations correlation parameters
+#' @noRd
+housing_improvement <- function(variables, parameters, correlations) {
+  function(timestep) {
+    matches <- timestep == parameters$housing_timesteps
+    if (any(matches)) {
+      target <- which(sample_intervention(
+        seq(parameters$human_population),
+        'housing',
+        parameters$housing_coverages[matches],
+        correlations
+      ))
+      variables$house_time$queue_update(timestep, target)
+    }
+  }
 }
 
 #' @title Indoor spraying
@@ -106,7 +153,7 @@ prob_bitten <- function(
 #' @param correlations correlation parameters
 #' @noRd
 indoor_spraying <- function(spray_time, parameters, correlations) {
-  function(timestep) {
+      function(timestep) {
     matches <- timestep == parameters$spraying_timesteps
     if (any(matches)) {
       target <- which(sample_intervention(
@@ -187,11 +234,37 @@ spraying_decay <- function(t, theta, gamma) {
   1 / (1 + exp(-(theta + gamma * t)))
 }
 
+house_decay <- function(t, gamma) {
+  exp(-t / gamma)
+}
+
+prob_repelled_house <- function(matches, dt, species, parameters) {
+  rhm <- parameters$house_rhm[matches, species]
+  gammah <- parameters$house_gammah[matches]
+  (parameters$house_rh[matches, species] - rhm) * house_decay(dt, gammah) + rhm
+}
+
+prob_survives_house <- function(rh, matches, dt, species, parameters) {
+  dh0 <- parameters$house_dh0[matches, species]
+  dh <- dh0 * house_decay(dt, parameters$house_gammah[matches])
+  1 - rh - dh
+}
+
 net_usage_renderer <- function(net_time, renderer) {
   function(t) {
     renderer$render(
       'n_use_net',
       net_time$get_index_of(-1)$not(TRUE)$size(),
+      t
+    )
+  }
+}
+
+house_usage_renderer <- function(house_time, renderer) {
+  function(t) {
+    renderer$render(
+      'n_use_house_adaptation',
+      house_time$get_index_of(-1)$not(TRUE)$size(),
       t
     )
   }

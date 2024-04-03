@@ -306,7 +306,6 @@ calculate_treated <- function(
   #+++ ANTIMALARIAL RESISTANCE +++#
   #+++++++++++++++++++++++++++++++#
   if(parameters$antimalarial_resistance) {
-    
     resistance_parameters <- get_antimalarial_resistance_parameters(
       parameters = parameters,
       drugs = drugs, 

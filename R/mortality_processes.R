@@ -27,7 +27,7 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
       died <- individual::Bitset$new(pop)$insert(bernoulli_multi_p(deathrates))
       renderer$render('natural_deaths', died$size(), timestep)
     }
-    reset_target(variables, events, died, 'S', timestep)
+    reset_target(variables, events, died, 'S', parameters, timestep)
     sample_maternal_immunity(variables, died, timestep, parameters)
   }
 }

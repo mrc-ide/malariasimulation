@@ -12,9 +12,9 @@ test_that('set_antimalarial_resistance() toggles resistance on', {
                               partner_drug_resistance = 0,
                               slow_parasite_clearance_prob = 0.5,
                               early_treatment_failure_prob = 0.6,
-                              late_clinical_failure_prob = 0.2,
-                              late_parasitological_prob = 0.3,
-                              reinfection_prob = 0.4, 
+                              late_clinical_failure_prob = 0,
+                              late_parasitological_prob = 0,
+                              reinfection_prob = 0, 
                               slow_parasite_clearance_time = 10) -> simparams
   expect_identical(object = simparams$antimalarial_resistance, expected = TRUE)
 })
@@ -53,9 +53,9 @@ test_that('set_antimalarial_resistance() errors if resistance proportions outsid
                                                      partner_drug_resistance = 0,
                                                      slow_parasite_clearance_prob = 0.5,
                                                      early_treatment_failure_prob = 0.6,
-                                                     late_clinical_failure_prob = 0.2,
-                                                     late_parasitological_prob = 0.3,
-                                                     reinfection_prob = 0.4,
+                                                     late_clinical_failure_prob = 0,
+                                                     late_parasitological_prob = 0,
+                                                     reinfection_prob = 0,
                                                      slow_parasite_clearance_time = 10), 
                regexp = "Artemisinin and partner-drug resistance proportions must fall between 0 and 1")
 })
@@ -121,35 +121,35 @@ test_that('set_antimalarial_resistance() assigns parameters correctly despite or
                                             drug = 3,
                                             timesteps = 1,
                                             artemisinin_resistance = 0,
-                                            partner_drug_resistance = 0.43,
+                                            partner_drug_resistance = 0,
                                             slow_parasite_clearance_prob = 0,
                                             early_treatment_failure_prob = 0,
-                                            late_clinical_failure_prob = 0.01,
-                                            late_parasitological_prob = 0.42,
-                                            reinfection_prob = 0.89, 
+                                            late_clinical_failure_prob = 0,
+                                            late_parasitological_prob = 0,
+                                            reinfection_prob = 0, 
                                             slow_parasite_clearance_time = 10)
   parameters <- set_antimalarial_resistance(parameters = parameters,
                                             drug = 1,
                                             timesteps = 1,
                                             artemisinin_resistance = 0.27,
-                                            partner_drug_resistance = 0.61,
+                                            partner_drug_resistance = 0,
                                             slow_parasite_clearance_prob = 0.23,
                                             early_treatment_failure_prob = 0.9,
-                                            late_clinical_failure_prob = 0.49,
-                                            late_parasitological_prob = 0.81,
-                                            reinfection_prob = 0.009, 
+                                            late_clinical_failure_prob = 0,
+                                            late_parasitological_prob = 0,
+                                            reinfection_prob = 0, 
                                             slow_parasite_clearance_time = 20)
   
   expect_identical(parameters$antimalarial_resistance, TRUE)
   expect_identical(unlist(parameters$antimalarial_resistance_drug), c(2, 3, 1))
   expect_identical(unlist(parameters$antimalarial_resistance_timesteps), rep(1, 3))
   expect_identical(unlist(parameters$prop_artemisinin_resistant), c(0.5, 0, 0.27))
-  expect_identical(unlist(parameters$prop_partner_drug_resistant), c(0, 0.43, 0.61))
+  expect_identical(unlist(parameters$prop_partner_drug_resistant), c(0, 0, 0))
   expect_identical(unlist(parameters$slow_parasite_clearance_prob), c(0.41, 0, 0.23))
   expect_identical(unlist(parameters$early_treatment_failure_prob), c(0.2, 0, 0.9))
-  expect_identical(unlist(parameters$late_clinical_failure_prob), c(0, 0.01, 0.49))
-  expect_identical(unlist(parameters$late_parasitological_failure_prob), c(0, 0.42, 0.81))
-  expect_identical(unlist(parameters$reinfection_during_prophylaxis), c(0, 0.89, 0.009))
+  expect_identical(unlist(parameters$late_clinical_failure_prob), c(0, 0, 0))
+  expect_identical(unlist(parameters$late_parasitological_failure_prob), c(0, 0, 0))
+  expect_identical(unlist(parameters$reinfection_during_prophylaxis), c(0, 0, 0))
   expect_identical(unlist(parameters$dt_slow_parasite_clearance), c(5, 10, 20))
   
 })
@@ -168,12 +168,12 @@ test_that(desc = "set_antimalarial_resistance errors if length slow_parasite_cle
                                               drug = 1,
                                               timesteps = c(0, 10),
                                               artemisinin_resistance = c(0.4, 0.8),
-                                              partner_drug_resistance = c(0.23, 0.43),
+                                              partner_drug_resistance = c(0, 0),
                                               slow_parasite_clearance_prob = c(0.2, 0.4),
                                               early_treatment_failure_prob = c(0, 0.45),
-                                              late_clinical_failure_prob = c(0.01, 0.01),
-                                              late_parasitological_prob = c(0.05, 0.06),
-                                              reinfection_prob = c(0.86, 0.86), 
+                                              late_clinical_failure_prob = c(0, 0),
+                                              late_parasitological_prob = c(0, 0),
+                                              reinfection_prob = c(0, 0), 
                                               slow_parasite_clearance_time = c(10 ,11)),
     "Error: length of slow_parasite_clearance_time not equal to 1")
 })
@@ -192,12 +192,12 @@ test_that(desc = "set_antimalarial_resistance errors if slow_parasite_clearance_
                                               drug = 1,
                                               timesteps = c(0, 10),
                                               artemisinin_resistance = c(0.4, 0.8),
-                                              partner_drug_resistance = c(0.23, 0.43),
+                                              partner_drug_resistance = c(0, 0),
                                               slow_parasite_clearance_prob = c(0.2, 0.4),
                                               early_treatment_failure_prob = c(0, 0.45),
-                                              late_clinical_failure_prob = c(0.01, 0.01),
-                                              late_parasitological_prob = c(0.05, 0.06),
-                                              reinfection_prob = c(0.86, 0.86), 
+                                              late_clinical_failure_prob = c(0, 0),
+                                              late_parasitological_prob = c(0, 0),
+                                              reinfection_prob = c(0, 0), 
                                               slow_parasite_clearance_time = c(0)),
     "Error: slow_parasite_clearance_time is non-positive")
 })
@@ -213,32 +213,32 @@ test_that('get_antimalarial_resistance_parameters() correctly retrieves paramete
       set_antimalarial_resistance(drug = 2,
                                   timesteps = c(0, 20),
                                   artemisinin_resistance = c(0.02, 0.2),
-                                  partner_drug_resistance = c(0.02, 0.2),
+                                  partner_drug_resistance = c(0, 0),
                                   slow_parasite_clearance_prob = c(0.02, 0.2),
                                   early_treatment_failure_prob = c(0.02, 0.2),
-                                  late_clinical_failure_prob = c(0.02, 0.2),
-                                  late_parasitological_prob = c(0.02, 0.2),
-                                  reinfection_prob = c(0.02, 0.2), 
+                                  late_clinical_failure_prob = c(0, 0),
+                                  late_parasitological_prob = c(0, 0),
+                                  reinfection_prob = c(0, 0), 
                                   slow_parasite_clearance_time = 20) %>%
       set_antimalarial_resistance(drug = 1,
                                   timesteps = c(0, 10),
                                   artemisinin_resistance = c(0.01, 0.1),
-                                  partner_drug_resistance = c(0.01, 0.1),
+                                  partner_drug_resistance = c(0, 0),
                                   slow_parasite_clearance_prob = c(0.01, 0.1),
                                   early_treatment_failure_prob = c(0.01, 0.1),
-                                  late_clinical_failure_prob = c(0.01, 0.1),
-                                  late_parasitological_prob = c(0.01, 0.1),
-                                  reinfection_prob = c(0.01, 0.1),
+                                  late_clinical_failure_prob = c(0, 0),
+                                  late_parasitological_prob = c(0, 0),
+                                  reinfection_prob = c(0, 0),
                                   slow_parasite_clearance_time = 10) %>%
       set_antimalarial_resistance(drug = 3,
                                   timesteps = c(0, 30),
                                   artemisinin_resistance = c(0.03, 0.3),
-                                  partner_drug_resistance = c(0.03, 0.3),
+                                  partner_drug_resistance = c(0, 0),
                                   slow_parasite_clearance_prob = c(0.03, 0.3),
                                   early_treatment_failure_prob = c(0.03, 0.3),
-                                  late_clinical_failure_prob = c(0.03, 0.3),
-                                  late_parasitological_prob = c(0.03, 0.3),
-                                  reinfection_prob = c(0.03, 0.3),
+                                  late_clinical_failure_prob = c(0, 0),
+                                  late_parasitological_prob = c(0, 0),
+                                  reinfection_prob = c(0, 0),
                                   slow_parasite_clearance_time = 30) -> parameters
     
     drugs <- c(1, 3, 2, 1, 2, 3, 3, 3, 2, 1, 3, 1, 2, 3, 2)
@@ -250,12 +250,12 @@ test_that('get_antimalarial_resistance_parameters() correctly retrieves paramete
     
     expected_resistance_parameters <- list()
     expected_resistance_parameters$artemisinin_resistance_proportion <- c(0.1, 0.03, 0.2, 0.1, 0.2, 0.03, 0.03, 0.03, 0.2, 0.1, 0.03, 0.1, 0.2, 0.03, 0.2)
-    expected_resistance_parameters$partner_drug_resistance_proportion <- c(0.1, 0.03, 0.2, 0.1, 0.2, 0.03, 0.03, 0.03, 0.2, 0.1, 0.03, 0.1, 0.2, 0.03, 0.2)
+    expected_resistance_parameters$partner_drug_resistance_proportion <- rep(0, 15)
     expected_resistance_parameters$slow_parasite_clearance_probability <- c(0.1, 0.03, 0.2, 0.1, 0.2, 0.03, 0.03, 0.03, 0.2, 0.1, 0.03, 0.1, 0.2, 0.03, 0.2)
     expected_resistance_parameters$early_treatment_failure_probability <- c(0.1, 0.03, 0.2, 0.1, 0.2, 0.03, 0.03, 0.03, 0.2, 0.1, 0.03, 0.1, 0.2, 0.03, 0.2)
-    expected_resistance_parameters$late_clinical_failure_probability <- c(0.1, 0.03, 0.2, 0.1, 0.2, 0.03, 0.03, 0.03, 0.2, 0.1, 0.03, 0.1, 0.2, 0.03, 0.2)
-    expected_resistance_parameters$late_parasitological_failure_probability <- c(0.1, 0.03, 0.2, 0.1, 0.2, 0.03, 0.03, 0.03, 0.2, 0.1, 0.03, 0.1, 0.2, 0.03, 0.2)
-    expected_resistance_parameters$reinfection_during_prophylaxis_probability <- c(0.1, 0.03, 0.2, 0.1, 0.2, 0.03, 0.03, 0.03, 0.2, 0.1, 0.03, 0.1, 0.2, 0.03, 0.2)
+    expected_resistance_parameters$late_clinical_failure_probability <- rep(0, 15)
+    expected_resistance_parameters$late_parasitological_failure_probability <- rep(0, 15)
+    expected_resistance_parameters$reinfection_during_prophylaxis_probability <- rep(0, 15)
     expected_resistance_parameters$dt_slow_parasite_clearance <- c(10, 30, 20, 10, 20, 30, 30, 30, 20, 10, 30, 10, 20, 30, 20)
     
     expect_identical(resistance_parameters, expected = expected_resistance_parameters)
@@ -273,12 +273,12 @@ test_that('get_antimalarial_resistance_parameters() correctly retrieves paramete
       set_antimalarial_resistance(drug = 2,
                                   timesteps = c(0, 20),
                                   artemisinin_resistance = c(0.02, 0.2),
-                                  partner_drug_resistance = c(0.02, 0.2),
+                                  partner_drug_resistance = c(0, 0),
                                   slow_parasite_clearance_prob = c(0.02, 0.2),
                                   early_treatment_failure_prob = c(0.02, 0.2),
-                                  late_clinical_failure_prob = c(0.02, 0.2),
-                                  late_parasitological_prob = c(0.02, 0.2),
-                                  reinfection_prob = c(0.02, 0.2), 
+                                  late_clinical_failure_prob = c(0, 0),
+                                  late_parasitological_prob = c(0, 0),
+                                  reinfection_prob = c(0, 0), 
                                   slow_parasite_clearance_time = 20) -> parameters
     
     drugs <- c(1, 3, 2, 1, 2, 3, 3, 3, 2, 1, 3, 1, 2, 3, 2)
@@ -290,12 +290,12 @@ test_that('get_antimalarial_resistance_parameters() correctly retrieves paramete
     
     expected_resistance_parameters <- list()
     expected_resistance_parameters$artemisinin_resistance_proportion <- c(0, 0, 0.2, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0.2)
-    expected_resistance_parameters$partner_drug_resistance_proportion <- c(0, 0, 0.2, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0.2)
+    expected_resistance_parameters$partner_drug_resistance_proportion <- rep(0, 15)
     expected_resistance_parameters$slow_parasite_clearance_probability <- c(0, 0, 0.2, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0.2)
     expected_resistance_parameters$early_treatment_failure_probability <- c(0, 0, 0.2, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0.2)
-    expected_resistance_parameters$late_clinical_failure_probability <- c(0, 0, 0.2, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0.2)
-    expected_resistance_parameters$late_parasitological_failure_probability <- c(0, 0, 0.2, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0.2)
-    expected_resistance_parameters$reinfection_during_prophylaxis_probability <- c(0, 0, 0.2, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0.2)
+    expected_resistance_parameters$late_clinical_failure_probability <- rep(0, 15)
+    expected_resistance_parameters$late_parasitological_failure_probability <- rep(0, 15)
+    expected_resistance_parameters$reinfection_during_prophylaxis_probability <- rep(0, 15)
     expected_resistance_parameters$dt_slow_parasite_clearance <- c(5, 5, 20, 5, 20, 5, 5, 5, 20, 5, 5, 5, 20, 5, 20)
     
     expect_identical(resistance_parameters, expected = expected_resistance_parameters)

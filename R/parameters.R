@@ -200,13 +200,13 @@
 #' * antimalarial_resistance - boolean for if antimalarial resistance is enabled; default = FALSE
 #' * antimalarial_resistance_drug - vector of drugs for which resistance can be parameterised; default = NULL
 #' * antimalarial_resistance_timesteps - vector of time steps on which resistance updates occur; default = NULL
-#' * prop_artemisinin_resistant - vector of proportions of infections resistant to the artemisinin component of a given drug; default = NULL
-#' * prop_partner_drug_resistant - vector of proportions of infections resistant to the parter drug component of a given drug; default = NULL
-#' * slow_parasite_clearance_prob - vector of probabilities of slow parasite clearance for a given drug; default = NULL
-#' * early_treatment_failure_prob - vector of probabilities of early treatment failure for a given drug; default = NULL
-#' * late_clinical_failure_prob - vector of probabilities of late clinical failure for a given drug; default = NULL
-#' * late_parasitological_failure_prob - vector of probabilities of late parasitological failure for a given drug; default = NULL
-#' * reinfection_during_prophylaxis - vector of probabilities of reinfection during prophylaxis for a given drug; default = NULL
+#' * artemisinin_resistant_proportion - vector of proportions of infections resistant to the artemisinin component of a given drug; default = NULL
+#' * partner_drug_resistance_proportion - vector of proportions of infections resistant to the parter drug component of a given drug; default = NULL
+#' * slow_parasite_clearance_probability - vector of probabilities of slow parasite clearance for a given drug; default = NULL
+#' * early_treatment_failure_probability - vector of probabilities of early treatment failure for a given drug; default = NULL
+#' * late_clinical_failure_probability - vector of probabilities of late clinical failure for a given drug; default = NULL
+#' * late_parasitological_failure_probability - vector of probabilities of late parasitological failure for a given drug; default = NULL
+#' * reinfection_during_prophylaxis_probability - vector of probabilities of reinfection during prophylaxis for a given drug; default = NULL
 #' * dt_slow_parasite_clearance - the delay for humans experiencing slow parasite clearance to move from state Tr to S; default = NULL
 #'
 #' rendering:
@@ -397,13 +397,13 @@ get_parameters <- function(overrides = list()) {
     antimalarial_resistance = FALSE,
     antimalarial_resistance_drug = NULL,
     antimalarial_resistance_timesteps = NULL,
-    prop_artemisinin_resistant = NULL,
-    prop_partner_drug_resistant = NULL,
-    slow_parasite_clearance_prob = NULL,
-    early_treatment_failure_prob = NULL,
-    late_clinical_failure_prob = NULL,
-    late_parasitological_failure_prob = NULL,
-    reinfection_during_prophylaxis = NULL,
+    artemisinin_resistance_proportion = NULL,
+    partner_drug_resistance_proportion = NULL,
+    slow_parasite_clearance_probability = NULL,
+    early_treatment_failure_probability = NULL,
+    late_clinical_failure_probability = NULL,
+    late_parasitological_failure_probability = NULL,
+    reinfection_during_prophylaxis_probability = NULL,
     dt_slow_parasite_clearance = NULL,
     # flexible carrying capacity
     carrying_capacity = FALSE,

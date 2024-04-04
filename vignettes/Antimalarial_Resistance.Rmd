@@ -14,7 +14,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-
 ```{r setup}
 
 # Load the requisite packages:
@@ -258,6 +257,158 @@ text(x = resistance_update_timesteps[2:5] + 30, y = 0.6, labels = paste0("Art. R
 ```
 
 Looking at the figure, we can see that the *Pf*PR~2-10~ decreases over the two years following the onset of clinical treatment in the absence of artemisinin resistance. However, as resistance is introduced and increases through time, the *Pf*PR~2-10~ increases towards the pre-intervention seasonal peak as SP-AQ becomes increasingly ineffective in the treatment of clinical cases of malaria.  
+
+## Simulating antimalarial resistance with multiple resistance outcomes
+
+As we've discussed, resistance to an ACT can manifest in multiple ways. For instance, resistance to the artemisinin component of an ACT can result in either early treatment failure or slow parasite clearance.
+
+Using `malariasimulation`, we can simulate the effects of multiple potential outcomes of resistance on malaria transmission dynamics. To illustrate, we'll parameterise and run a series of simulations in is i) no clinical treatment, ii) no resistance, iii) resistance with early treatment failure, iv) resistance with slow parasite clearance, and v) resistance with early treatment failure and slow parasite clearance.
+
+### Parameterisation
+```{r}
+
+# Determine the number of timesteps to run for:
+timesteps <- 365 * 6
+
+# Set up a list to store the simulation parameter lists in:
+simulation_parameters <- list()
+
+# Establish a list of the base parameters with no clinical treatment or antimalarial resistance:
+get_parameters(overrides = list(human_population = 1000)) -> simulation_parameters$base
+
+# Establish a parameter list with clinical treatment starting after one year:
+simulation_parameters$base |>
+  set_drugs(drugs = list(AL_params)) |>
+  set_clinical_treatment(drug = 1, timesteps = (365 * 1) + 1, coverages = c(0.8)) |>
+  set_equilibrium(init_EIR = 16) -> simulation_parameters$treatment
+
+# Set the equilibrium for the base parameters:
+simulation_parameters$base |>
+  set_equilibrium(init_EIR = 16) -> simulation_parameters$base
+
+# Establish a parameter list with clinical treatment and early treatment failure
+simulation_parameters$treatment |>
+  set_antimalarial_resistance(drug = 1,
+                              timesteps = c(0, (365 * 3) + 1),
+                              artemisinin_resistance = c(0, 0.8), 
+                              partner_drug_resistance = c(0, 0), 
+                              slow_parasite_clearance_prob = c(0, 0), 
+                              early_treatment_failure_prob = c(0, 0.8), 
+                              late_clinical_failure_prob = c(0, 0), 
+                              late_parasitological_prob = c(0, 0), 
+                              reinfection_prob = c(0, 0), 
+                              slow_parasite_clearance_time = 10) -> simulation_parameters$etf
+
+# Establish a parameter list with clinical treatment and slow parasite clearance
+simulation_parameters$treatment |>
+  set_antimalarial_resistance(drug = 1,
+                              timesteps = c(0, (365 * 3) + 1),
+                              artemisinin_resistance = c(0, 0.8), 
+                              partner_drug_resistance = c(0, 0), 
+                              slow_parasite_clearance_prob = c(0, 0.8), 
+                              early_treatment_failure_prob = c(0, 0), 
+                              late_clinical_failure_prob = c(0, 0), 
+                              late_parasitological_prob = c(0, 0), 
+                              reinfection_prob = c(0, 0), 
+                              slow_parasite_clearance_time = 10) -> simulation_parameters$spc
+
+# Establish a parameter list with clinical treatment, early treatment failure and slow parasite clearance:
+simulation_parameters$treatment |>
+  set_antimalarial_resistance(drug = 1,
+                              timesteps = c(0, (365 * 3) + 1),
+                              artemisinin_resistance = c(0, 0.8), 
+                              partner_drug_resistance = c(0, 0), 
+                              slow_parasite_clearance_prob = c(0, 0.8), 
+                              early_treatment_failure_prob = c(0, 0.8), 
+                              late_clinical_failure_prob = c(0, 0), 
+                              late_parasitological_prob = c(0, 0), 
+                              reinfection_prob = c(0, 0), 
+                              slow_parasite_clearance_time = 10) -> simulation_parameters$etf_spc
+
+```
+
+### Simulation
+We can now use our lists of `malariasimulation` parameters to run the simulations.
+
+```{r}
+
+# Open a list to store the simulation outputs in:
+simulation_outputs <- list()
+
+# Run the simulations
+for(i in seq(length(simulation_parameters))) {
+  
+  # Run the i-th simulation
+  simulation_temp <- run_simulation(timesteps = timesteps, 
+                                    parameters = simulation_parameters[[i]])
+  
+  # Append the simulation identifier:
+  simulation_temp$identifier <- names(simulation_parameters)[i]
+  
+  # Append the ith simulation outputs to the combined simulation dataframe:
+  simulation_outputs[[names(simulation_parameters)[i]]] <- simulation_temp
+  
+  # Print the number of columns in the i-th simulation outputs dataframe:                            
+  print(ncol(simulation_temp))
+}
+
+```
+
+### Data Wranging
+
+
+
+### Visualisation
+
+We can compare the effects of independent resistance outcomes with combined resistance outcomes visually.
+
+```{R}
+
+# Open a new plotting window and add a grid:
+plot.new(); par(mar = c(4, 4, 1, 1), new = TRUE)
+
+# Plot malaria prevalence in 2-10 years through time:
+plot(x = simulation_outputs$base$timestep,
+     y = simulation_outputs$base$n_detect_730_3650/simulation_outputs$base$n_730_3650,
+     xlab = "Time (days)",
+     ylab = expression(paste(italic(Pf),"PR"[2-10])), cex = 0.8,
+     ylim = c(0, 1), type = "l", lwd = 2, xaxs = "i", yaxs = "i",
+     col = cols[3])
+
+# Add the dynamics for no-intervention simulation
+lines(x = simulation_outputs$treatment$timestep,
+      y = simulation_outputs$treatment$n_detect_730_3650/simulation_outputs$treatment$n_730_3650,
+      col = cols[4])
+
+lines(x = simulation_outputs$etf$timestep,
+      y = simulation_outputs$etf$n_detect_730_3650/simulation_outputs$etf$n_730_3650,
+      col = cols[5])
+
+lines(x = simulation_outputs$spc$timestep,
+      y = simulation_outputs$spc$n_detect_730_3650/simulation_outputs$spc$n_730_3650,
+      col = cols[6])
+
+lines(x = simulation_outputs$etf_spc$timestep,
+      y = simulation_outputs$etf_spc$n_detect_730_3650/simulation_outputs$etf_spc$n_730_3650,
+      col = cols[7])
+
+# Add vlines to indicate when SP-AQ were administered:
+abline(v = 365 + 1, lty = "dashed", lwd = 1)
+text(x = (365 * 1) - 40, y = 0.6, labels = "Treatment Introduced", adj = 0, cex = 0.8, srt = 90)
+
+abline(v = (365 * 3) + 1, lty = "dashed", lwd = 1)
+text(x = (365 * 3) - 40, y = 0.6, labels = "Resistance Introduced", adj = 0, cex = 0.8, srt = 90)
+
+# Add gridlines:
+grid(lty = 2, col = "grey80", nx = NULL, ny = NULL, lwd = 0.5); box()
+
+# Add a legend:
+legend(x = 3000, y = 0.99, legend = c("Baseline", "Treatment", "ETF-only", "SPC-only", "ETF and SPC"),
+       col= c(cols[3:7]), box.col = "white",
+       lwd = 1, lty = c(1, 1), cex = 0.8)
+
+
+```
 
 ## References
 Slater, H.C., Griffin, J.T., Ghani, A.C. and Okell, L.C., 2016. Assessing the potential impact of artemisinin and partner drug resistance in sub-Saharan Africa. Malaria journal, 15(1), pp.1-11.

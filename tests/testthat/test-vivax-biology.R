@@ -1,7 +1,7 @@
 test_that('total_M and EIR functions are consistent with equilibrium EIR', {
   skip_on_ci()
   expected_EIR <- c(1, 5, 10, 100)
-  population <- 100000
+  population <- 1000
   parameters <- get_parameters(parasite = "vivax",
                                list(
                                  human_population = population,
@@ -16,22 +16,19 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR', {
     vector_models <- parameterise_mosquito_models(parameters, 1)
     solvers <- parameterise_solvers(vector_models, parameters)
     estimated_eir <- calculate_eir(1, solvers, variables, parameters, 0)
-    age <- get_age(variables$birth$get_values(), 0)
-    psi <- unique_biting_rate(age, parameters)
-    omega <- mean(psi)
-    mean(estimated_eir) / omega / population * 365
+    mean(estimated_eir) / population * 365
   })
 
   expect_equal(
     actual_EIR,
     expected_EIR,
-    tolerance = 1e-2
+    tolerance = 1e-4
   )
 })
 
 test_that('total_M and EIR functions are consistent with equilibrium EIR (with het)', {
   skip_on_ci()
-  population <- 100000
+  population <- 1000
 
   expected_EIR <- c(1, 5, 10, 100)
 
@@ -45,28 +42,28 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR (with h
     vector_models <- parameterise_mosquito_models(parameters, 1)
     solvers <- parameterise_solvers(vector_models, parameters)
     estimated_eir <- calculate_eir(1, solvers, variables, parameters, 0)
-    age <- get_age(variables$birth$get_values(), 0)
-    psi <- unique_biting_rate(age, parameters)
-    omega <- mean(psi)
-    mean(estimated_eir) / omega / population * 365
+    # age <- get_age(variables$birth$get_values(), 0)
+    # psi <- unique_biting_rate(age, parameters)
+    # omega <- mean(psi)
+    mean(estimated_eir) / population * 365
   })
 
   expect_equal(
     actual_EIR,
     expected_EIR,
-    tolerance = 1e-2
+    tolerance = 1e-4
   )
 })
 
 test_that('FOIM is consistent with equilibrium', {
   skip_on_ci()
-  population <- 100000
+  population <- 10000
 
   EIRs <- c(1, 5, 10, 100)
 
   eq_params <- get_parameters(parasite = "vivax")
 
-  ages <- 0:999 / 10
+  ages <- 0:800 / 10
   expected_foim <- vnapply(
     EIRs,
     function(EIR) {
@@ -104,7 +101,7 @@ test_that('phi is consistent with equilibrium at high EIR (no het)', {
   population <- 1e5
 
   EIR <- 100
-  ages <- 0:999 / 10
+  ages <- 0:800 / 10
 
   parameters <- get_parameters(parasite = "vivax", list(
     human_population = population,
@@ -116,7 +113,7 @@ test_that('phi is consistent with equilibrium at high EIR (no het)', {
     age = EQUILIBRIUM_AGES,
     ft = 0,
     EIR = EIR,
-    p = translate_vivax_parameters(parameters))$states[[1]]
+    p = translate_vivax_parameters(parameters))$states
 
   variables <- create_variables(parameters)
   expect_equal(
@@ -127,7 +124,7 @@ test_that('phi is consistent with equilibrium at high EIR (no het)', {
         parameters
       )
     ),
-    weighted.mean(eq[,'phi_clin'], eq[,'prop']),
+    sum(c(eq$phi_clin * eq$HH)),
     tolerance=1e-2
   )
 
@@ -140,7 +137,7 @@ test_that('phi is consistent with equilibrium at high EIR (no het)', {
                              idm = variables$idm$get_values()
       )
     ),
-    weighted.mean(eq[,'phi_patent'], eq[,'prop']),
+    sum(c(eq$phi_patent * eq$HH)),
     tolerance=1e-2
   )
 
@@ -153,7 +150,7 @@ test_that('phi is consistent with equilibrium at high EIR (no het)', {
                                idm = variables$idm$get_values()
       )
     ),
-    weighted.mean(eq[,'rPCR'], eq[,'prop']),
+    sum(c(eq$r_PCR * eq$HH)),
     tolerance=1e-2
   )
 
@@ -186,9 +183,7 @@ test_that('phi is consistent with equilibrium at high EIR', {
         parameters
       )
     ),
-    sum(unlist(lapply(1:parameters$n_heterogeneity_groups, function(h){
-      weighted.mean(eq[[h]][,'phi_clin'], eq[[h]][,'prop'])}
-    )) * het$weights),
+    sum(c(eq$phi_clin * eq$HH)),
     tolerance=1e-2
   )
 
@@ -201,9 +196,7 @@ test_that('phi is consistent with equilibrium at high EIR', {
                              idm = variables$idm$get_values()
       )
     ),
-    sum(unlist(lapply(1:parameters$n_heterogeneity_groups, function(h){
-      weighted.mean(eq[[h]][,'phi_patent'], eq[[h]][,'prop'])}
-    )) * het$weights),
+    sum(c(eq$phi_patent * eq$HH)),
     tolerance=1e-2
   )
 
@@ -216,9 +209,7 @@ test_that('phi is consistent with equilibrium at high EIR', {
                                idm = variables$idm$get_values()
       )
     ),
-    sum(unlist(lapply(1:parameters$n_heterogeneity_groups, function(h){
-      weighted.mean(eq[[h]][,'rPCR'], eq[[h]][,'prop'])}
-    )) * het$weights),
+    sum(c(eq$r_PCR * eq$HH)),
     tolerance=1e-2
   )
 

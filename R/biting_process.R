@@ -50,11 +50,12 @@ create_biting_process <- function(
     simulate_infection(
       variables,
       events,
-      bitten_humans,
+      bitten_humans$bitten_humans,
       age,
       parameters,
       timestep,
-      renderer
+      renderer,
+      bitten_humans$n_bites_each
     )
   }
 }
@@ -76,6 +77,7 @@ simulate_bites <- function(
 ) {
 
   bitten_humans <- individual::Bitset$new(parameters$human_population)
+  n_bites_each <- NULL
 
   human_infectivity <- variables$infectivity$get_values()
   if (parameters$tbv) {
@@ -142,14 +144,25 @@ simulate_bites <- function(
 
     renderer$render(paste0('EIR_', species_name), species_eir, timestep)
     EIR <- EIR + species_eir
-    expected_bites <- species_eir * mean(psi)
+
+    if(parameters$parasite == "falciparum"){
+      # falciparum model factors eir by psi
+      expected_bites <- species_eir * mean(psi)
+    } else if (parameters$parasite == "vivax"){
+      # vivax model standardises biting rate to eir
+      expected_bites <- species_eir
+    }
 
     if (expected_bites > 0) {
       n_bites <- rpois(1, expected_bites)
       if (n_bites > 0) {
-        bitten_humans$insert(
-          fast_weighted_sample(n_bites, lambda)
-        )
+        bitten <- fast_weighted_sample(n_bites, lambda)
+        bitten_humans$insert(bitten)
+        if(parameters$parasite == "vivax"){
+          # vivax must pass number of bites individuals receives
+          # to reconcile competing relpase hazards
+          n_bites_each <- table(bitten)
+        }
       }
     }
 
@@ -203,7 +216,12 @@ simulate_bites <- function(
   }
 
   renderer$render('n_bitten', bitten_humans$size(), timestep)
-  bitten_humans
+
+  if(parameters$parasite == "falciparum"){
+    list(bitten_humans = bitten_humans)
+  } else if (parameters$parasite == "vivax"){
+    list(bitten_humans = bitten_humans, n_bites_each = n_bites_each)
+  }
 }
 
 
@@ -216,7 +234,13 @@ calculate_eir <- function(species, solvers, variables, parameters, timestep) {
   infectious <- calculate_infectious(species, solvers, variables, parameters)
   age <- get_age(variables$birth$get_values(), timestep)
   psi <- unique_biting_rate(age, parameters)
-  infectious * a * mean(psi)
+  if(parameters$parasite == "falciparum"){
+    # falciparum model factors eir by biting rate
+    infectious * a * mean(psi)
+  } else if (parameters$parasite == "vivax"){
+    # vivax model standardises biting to eir
+    infectious * a
+  }
 }
 
 effective_biting_rates <- function(a, .pi, p_bitten) {

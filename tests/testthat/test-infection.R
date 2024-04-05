@@ -24,7 +24,8 @@ test_that('clinical immunity returns correct values', {
     phi0  = .0749886,
     phi1  = .0001191,
     ic0     = 18.02366,
-    kc      = 2.36949
+    kc      = 2.36949,
+    parasite = "falciparum"
   )
   expect_equal(
     clinical_immunity(acquired_immunity, maternal_immunity, parameters),

@@ -41,7 +41,7 @@ set_epi_outputs <- function(parameters,
 ){
 
   if(parameters$parasite == "falciparum" & !is.null(patent_incidence)){message("Patent incidence will not be output for P. falciparum")}
-  if(parameters$parasite == "falciparum" & !is.null(n_hypnozoites)){message("Number with hypnozoites will not be output for P. falciparum")}
+  if(parameters$parasite == "falciparum" & !is.null(n_with_hypnozoites)){message("Number with hypnozoites will not be output for P. falciparum")}
   if(parameters$parasite == "falciparum" & !is.null(idm)){message("IDM will not be output for P. falciparum")}
   if(parameters$parasite == "falciparum" & !is.null(hypnozoites)){message("Hypnozoite prevalence will not be output for P. falciparum")}
   if(parameters$parasite == "vivax" & !is.null(severe_incidence)){message("Severe incidence will not be output for P. vivax")}

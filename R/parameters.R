@@ -500,6 +500,10 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
     stop("Starting proportions do not sum to 1")
   }
 
+  if(isFALSE(parameters$enable_heterogeneity)){
+    parameters$n_heterogeneity_groups = 1
+  }
+
   parameters
 }
 

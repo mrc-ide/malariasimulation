@@ -211,6 +211,9 @@ test_that('Test age structure should not change vivax infectivity', {
 
   state_mock <- mockery::mock('A', cycle = T)
   mockery::stub(create_variables, 'initial_state', state_mock)
+  state_vivax_mock <- mockery::mock(list(human_states = 'A',
+                                         hypnozoites_v = 0), cycle = T)
+  mockery::stub(create_variables, 'initial_state_vivax', state_vivax_mock)
 
   ages_mock <- mockery::mock(365, cycle = T)
   mockery::stub(create_variables, 'calculate_initial_ages', ages_mock)
@@ -236,10 +239,18 @@ test_that('vivax schedule_infections correctly schedules new infections', {
   parameters <- get_parameters(list(human_population = 20), parasite = "vivax")
   variables <- create_variables(parameters)
 
+  variables$state <- individual::CategoricalVariable$new(
+    c('U', 'A', 'D', 'S', 'Tr'),
+    rep(c('S','U','A','D','Tr'), times = 4)
+  )
+
   infections <- individual::Bitset$new(20)$insert(1:20)
-  patent_infections <- individual::Bitset$new(20)$insert(1:16)
-  clinical_infections <- individual::Bitset$new(20)$insert(5:15)
-  treated <- individual::Bitset$new(20)$insert(7:12)
+  patent_infections <- individual::Bitset$new(20)$insert(6:20)
+  clinical_infections <- individual::Bitset$new(20)$insert(11:20)
+  treated <- individual::Bitset$new(20)$insert(16:20)
+  # Only S can be a subpatent infection (1)
+  # Only S and U can be a patent infection (6, 7)
+  # S, U and A can be clinical infections (11, 12, 13), but the model re-infects everyone
 
   infection_mock <- mockery::mock()
   mockery::stub(schedule_infections, 'update_infection', infection_mock)
@@ -260,21 +271,18 @@ test_that('vivax schedule_infections correctly schedules new infections', {
 
   expect_equal(
     actual_infected,
-    c(5, 6, 13, 14, 15)
+    c(11:15)
   )
 
   expect_equal(
     actual_asymp_infected,
-    c(1, 2, 3, 4, 16)
+    c(6, 7)
   )
 
   expect_equal(
     actual_subpatent_infected,
-    c(18, 19, 20)
+    c(1)
   )
-
-  ## Individual 17 is asymptomatic so cannot be infected with a subpatent infection
-  expect_true(17 %in% variables$state$get_index_of("A")$to_vector())
 
 })
 

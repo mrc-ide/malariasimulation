@@ -16,7 +16,8 @@ simulate_infection <- function(
     age,
     parameters,
     timestep,
-    renderer
+    renderer,
+    n_bites_each = NULL
 ) {
 
   # Calculate Infected
@@ -25,7 +26,8 @@ simulate_infection <- function(
     bitten_humans,
     parameters,
     renderer,
-    timestep
+    timestep,
+    n_bites_each
   )
 
   if (infected_humans$size() > 0) {
@@ -126,8 +128,11 @@ calculate_infections <- function(
     bitten_humans,
     parameters,
     renderer,
-    timestep
+    timestep,
+    n_bites_each = NULL
 ) {
+
+  if(bitten_humans$size() == 0){return(bitten_humans)}
 
   if(parameters$parasite == "falciparum"){
     source_humans <- variables$state$get_index_of(c('S','A','U'))$and(bitten_humans)
@@ -186,7 +191,6 @@ calculate_infections <- function(
   }
 
   if(parameters$parasite == "falciparum"){
-
     prob <- b * (1 - prophylaxis) * (1 - vaccine_efficacy)
 
     ## All bitten humans with an infectious bite (incorporating prophylaxis and vaccines)
@@ -205,13 +209,10 @@ calculate_infections <- function(
       parameters$incidence_rendering_max_ages,
       timestep
     )
-  }
-
-  else if(parameters$parasite == "vivax"){
+  } else if(parameters$parasite == "vivax"){
 
     ## Calculated rate of infection for all bitten or with hypnozoites
-    rate_infection_bitten <- rep(0, parameters$human_population)
-    rate_infection_bitten[bitten_vector] <- prob_to_rate(b)
+    rate_infection_bitten <- n_bites_each * prob_to_rate(b)
     rate_infection_bitten <- rate_infection_bitten[source_vector]
     rate_infection_complete <- rate_infection_bitten + variables$hypnozoites$get_values(source_humans) * parameters$f
     ## Get relative rates to get probability bitten over relapse
@@ -249,8 +250,14 @@ calculate_infections <- function(
     ## All bitten humans with an infectious bite (incorporating prophylaxis) get a new batch of hypnozoites
     if(newly_bite_infected$size()>0){
       new_batches_formed <- bitset_at(newly_bite_infected, bernoulli_multi_p(1-ls_prophylaxis))
+
+      # Cap batches
+      new_batch_number <- ifelse(variables$hypnozoites$get_values(new_batches_formed) == parameters$kmax,
+                                 variables$hypnozoites$get_values(new_batches_formed),
+                                 variables$hypnozoites$get_values(new_batches_formed) + 1)
+
       variables$hypnozoites$queue_update(
-        variables$hypnozoites$get_values(new_batches_formed) + 1,
+        new_batch_number,
         new_batches_formed$and(newly_bite_infected)
       )
     }
@@ -338,6 +345,7 @@ calculate_clinical_infections <- function(
     renderer,
     timestep
 ) {
+
   ica <- variables$ica$get_values(infections)
   icm <- variables$icm$get_values(infections)
   phi <- clinical_immunity(ica, icm, parameters)
@@ -534,9 +542,8 @@ schedule_infections <- function(
 
     # vivax infection can result in D, A or U
   } else if (parameters$parasite == "vivax"){
-
-    to_infect_subpatent <- infections$and(patent_infections$not(inplace = F))$and(included)$and(variables$state$get_index_of(c('S','U')))
-    to_infect_asym <- patent_infections$and(included)$and(clinical_infections$not(inplace = F))
+    to_infect_subpatent <-  variables$state$get_index_of(c('S'))$and(included)$and(infections)$and(patent_infections$not(inplace = F))
+    to_infect_asym <-       variables$state$get_index_of(c('S',"U"))$and(included)$and(patent_infections)$and(clinical_infections$not(inplace = F))
 
     if(to_infect_asym$size() > 0) {
       # vivax has constant asymptomatic infectivity
@@ -591,7 +598,10 @@ boost_immunity <- function(
 
 # Implemented from Winskill 2017 - Supplementary Information page 4
 clinical_immunity <- function(acquired_immunity, maternal_immunity, parameters) {
-  acquired_immunity[acquired_immunity > 0] <- acquired_immunity[acquired_immunity > 0] + 0.5
+  if(parameters$parasite == "falciparum"){
+    # This step only appears in the falciparum model
+    acquired_immunity[acquired_immunity > 0] <- acquired_immunity[acquired_immunity > 0] + 0.5
+  }
 
   parameters$phi0 * (
     parameters$phi1 +

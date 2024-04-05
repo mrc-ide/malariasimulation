@@ -1,11 +1,10 @@
 test_that('Initial states are consistent with equilibrium', {
   skip_on_ci()
-  population <- 100000
+  population <- 10000
 
   EIRs <- c(1, 5, 10, 100, 0.1*365)
 
-  eq_params <- get_parameters(parasite = "vivax", overrides = list(human_population = population,
-                                                                   sigma_squared = 1.292285))
+  eq_params <- get_parameters(parasite = "vivax", overrides = list(human_population = population))
 
   expected_states <- sapply(
     EIRs,
@@ -15,7 +14,6 @@ test_that('Initial states are consistent with equilibrium', {
         ft = 0,
         EIR = EIR,
         p = translate_vivax_parameters(eq_params))$states
-
       return(sapply(c("S","D","A","U","T"), function(state){sum(eq[[state]])}))
     })
 
@@ -38,12 +36,11 @@ test_that('Initial states are consistent with equilibrium', {
 
 test_that('Initial immunities are consistent with equilibrium', {
   skip_on_ci()
-  population <- 100000
+  population <- 10000
 
   EIRs <- c(1, 5, 10, 100, 0.1*365)
 
-  eq_params <- get_parameters(parasite = "vivax", overrides = list(human_population = population,
-                                                                   sigma_squared = 1.292285))
+  eq_params <- get_parameters(parasite = "vivax", overrides = list(human_population = population))
   eq_params <- set_species(parameters = eq_params, species = list(kol_params), proportions = 1)
 
   expected_averages <- sapply(
@@ -55,9 +52,9 @@ test_that('Initial immunities are consistent with equilibrium', {
         ft = 0,
         EIR = EIR,
         p = translate_vivax_parameters(eq_params))$states
-      return(c(sapply(c("ICA","ICM","ID","IDM"), function(x){sum(eq$HH * eq[[x]])})),
-             sum(colSums(eq$HH, dims = 2) * c(1:dim(eq$HH)[3]-1))
-      )
+
+      return(c(sapply(c("ICA","ICM","ID","IDM"), function(x){sum(eq$HH * eq[[x]])}),
+               sum(colSums(eq$HH, dims = 2) * c(1:dim(eq$HH)[3]-1))))
     })
 
 

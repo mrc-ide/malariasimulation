@@ -12,10 +12,17 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
   function(timestep) {
 
     pop <- get_human_population(parameters, timestep)
+
     if (!parameters$custom_demography) {
-      died <- individual::Bitset$new(pop)$insert(
-        bernoulli(pop, 1 / parameters$average_age)
-      )
+      if(parameters$parasite == "falciparum"){
+        died <- individual::Bitset$new(pop)$insert(
+          bernoulli(pop, 1 / parameters$average_age)
+
+        )} else if(parameters$parasite == "vivax"){
+          age_cap <- variables$birth$get_index_of(-80*365)
+          died <- individual::Bitset$new(pop)$insert(
+            bernoulli(pop, 1 / parameters$average_age))$or(age_cap)
+        }
       renderer$render('natural_deaths', died$size(), timestep)
     } else {
       age <- get_age(variables$birth$get_values(), timestep)
@@ -110,7 +117,7 @@ reset_target <- function(variables, events, target, state, timestep, parameters)
       variables$iva$queue_update(0, target)
 
     } else if (parameters$parasite == "vivax"){
-      variables$hypnozoites$queue_update(0, target_group)
+      variables$hypnozoites$queue_update(0, target)
     }
 
     variables$state$queue_update(state, target)

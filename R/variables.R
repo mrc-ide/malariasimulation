@@ -99,24 +99,26 @@ create_variables <- function(parameters) {
   states <- c('S', 'D', 'A', 'U', 'Tr')
 
   if(parameters$parasite == "falciparum"){
-    initial_states <- initial_state(parameters, initial_age, groups, eq, states, hypnozoites)
+    initial_states <- initial_state(parameters, initial_age, groups, eq, states)
     hypnozoite_v <- NULL
   }
 
   if(parameters$parasite == "vivax"){
-    hypnozoite_v <- initial_hypnozoites(
-      parameters$init_hyp,
+
+    output <- initial_state_vivax(
+      parameters,
       initial_age,
       groups,
       eq,
-      parameters$kmax
+      states
     )
 
     # Human states
-    initial_states <- initial_state(parameters, initial_age, groups, eq, states, hypnozoite_v)
+    initial_states <- output$human_states
+    hypnozoite_v <- output$hypnozoites_v
 
     ## Initial hypnozoites
-    hypnozoites <- individual::IntegerVariable$new(hypnozoite_v)
+    hypnozoites <- individual::IntegerVariable$new(output$hypnozoites_v)
   }
 
   state <- individual::CategoricalVariable$new(states, initial_states)
@@ -409,40 +411,43 @@ initial_state <- function(parameters, age, groups, eq, states, hyp = NULL) {
         g <- groups[[i]]
         a <- age[[i]]
 
-        if(parameters$parasite == "falciparum"){
-          sample(
-            ibm_states,
-            size = 1,
-            prob = eq[[g]][which.max(a < eq[[g]][, 'age']), eq_states]
-          )
-
-        } else if (parameters$parasite == "vivax"){
-          h <- hyp[[i]]
-          sample(
-            ibm_states,
-            size = 1,
-            prob = sapply(eq_states, function(state){eq[[state]][which.max(a < eq$Age[-1]),g,h+1]})
-          )
-        }
+        sample(
+          ibm_states,
+          size = 1,
+          prob = eq[[g]][which.max(a < eq[[g]][, 'age']), eq_states]
+        )
       }
     ))
   }
   rep(ibm_states, times = calculate_initial_counts(parameters))
 }
 
-initial_hypnozoites <- function(parameter, age, groups, eq, kmax){
+initial_state_vivax <- function(parameters, age, groups, eq, states) {
+  # vivax human states and hypnozoites must be calculated over a combined prob dist
+  ibm_states <- states
   if (!is.null(eq)) {
+    eq_states <- c('S', 'D', 'A', 'U', 'T')
     age <- age / 365
-    return(vnapply(
+    human_states_pop <- sapply(
       seq_along(age),
       function(i) {
         g <- groups[[i]]
         a <- age[[i]]
-        hyp <- sample(x = 0:kmax, size = 1, replace = T, prob = eq$HH[which.max(a < eq$Age[-1]),g,])
+        human_states <- c(expand.grid("hyp" = 0:parameters$kmax, "human_state" = eq_states))
+        probs <- c(sapply(eq_states, function(state){eq[[state]][which.max(a < c(eq$Age[-c(1, length(eq$Age))], Inf)),g,]}))
+        smp <- sample(x = 1:length(probs),
+                      size = 1,
+                      replace = T,
+                      prob = probs)
+
+        return(c(human_states$human_state[smp],human_states$hyp[smp]))
       }
-    ))
+    )
+    return(list(human_states = states[human_states_pop[1,]],
+                hypnozoites_v = human_states_pop[2,]))
   }
-  rep(parameter, length(age))
+  return(list(human_states = rep(ibm_states, times = calculate_initial_counts(parameters)),
+              hypnozoites_v = rep(parameters$init_hyp, times = parameters$human_population)))
 }
 
 calculate_initial_counts <- function(parameters) {
@@ -497,10 +502,20 @@ calculate_initial_ages <- function(parameters) {
   n_pop <- get_human_population(parameters, 0)
   # check if we've set up a custom demography
   if (!parameters$custom_demography) {
-    return(round(rexp(
-      n_pop,
-      rate = 1 / parameters$average_age
-    )))
+    if(parameters$parasite == "falciparum"){
+      ages <- rexp(
+        n_pop,
+        rate = 1 / parameters$average_age
+      )
+    } else if(parameters$parasite == "vivax"){
+      # vivax ages are drawn from a truncated dist
+      ages <- ReIns::rtexp(
+        n_pop,
+        rate = 1 / parameters$average_age,
+        endpoint = 80*365
+      )
+    }
+    return(round(ages))
   }
 
   deathrates <- parameters$deathrates[1, , drop = FALSE]

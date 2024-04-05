@@ -212,7 +212,7 @@ create_processes <- function(
         variables$hypnozoites,
         parameters
       ),
-      create_n_with_hypnozoites_renderer_process(
+      create_n_with_hypnozoites_age_renderer_process(
         variables$hypnozoites,
         variables$birth,
         parameters,
@@ -380,18 +380,11 @@ create_lagged_eir <- function(variables, solvers, parameters) {
 #' @noRd
 create_hypnozoite_decay_process <- function(hypnozoites, gammal, renderer){
   function(timestep){
-    hyp_bitset <- hypnozoites$get_index_of(0)$not()
-    if(hyp_bitset$size() > 0){
-      n_hypnozoites <- hypnozoites$get_values(hyp_bitset)
-      hypozoite_decay <- vnapply(
-        n_hypnozoites,
-        function(x) rbinom(n = 1, size = x, prob = gammal)
-      )
+    to_decay <- bernoulli_multi_p(p = rate_to_prob(hypnozoites$get_values() * gammal))
       hypnozoites$queue_update(
-        n_hypnozoites - hypozoite_decay,
-        hyp_bitset
+        hypnozoites$get_values(to_decay) - 1,
+        to_decay
       )
-      renderer$render('n_decayed', sum(hypozoite_decay), timestep)
-    }
+      renderer$render('n_decayed', length(to_decay), timestep)
   }
 }

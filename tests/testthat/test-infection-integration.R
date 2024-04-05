@@ -63,7 +63,8 @@ test_that('simulate_infection integrates different types of infection and schedu
     bitten,
     parameters,
     renderer,
-    timestep
+    timestep,
+    n_bites_each = NULL
   )
 
   mockery::expect_args(

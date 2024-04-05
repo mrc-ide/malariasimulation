@@ -183,6 +183,27 @@ calculate_infections <- function(
       beta[pev_profile],
       alpha[pev_profile]
     )
+    
+    ## Vivax pre-erythrocytic vaccine ##
+    vaccine_efficacy_infection <- rep(0, source_humans$size())
+    vaccine_efficacy_relapse <- rep(0, source_humans$size())
+    
+    calculate_vivax_efficacy <- function(t, v0, vhl) {
+      v0 * exp(-log(2)/vhl * t)
+    }
+    
+    vaccine_efficacy_infection[vaccinated] <- calculate_vivax_efficacy(
+      timestep - vaccine_times[vaccinated], 
+      0.6, 
+      3*365
+    )
+    
+    vaccine_efficacy_relapse[vaccinated] <- calculate_vivax_efficacy(
+      timestep - vaccine_times[vaccinated], 
+      0.9, 
+      3*365
+    )
+    ##
   }
 
   if(parameters$parasite == "falciparum"){
@@ -213,10 +234,11 @@ calculate_infections <- function(
     rate_infection_bitten <- rep(0, parameters$human_population)
     rate_infection_bitten[bitten_vector] <- prob_to_rate(b)
     rate_infection_bitten <- rate_infection_bitten[source_vector]
-    rate_infection_complete <- rate_infection_bitten + variables$hypnozoites$get_values(source_humans) * parameters$f
+    rate_infection_complete <- rate_to_prob(rate_infection_bitten) * (1-vaccine_efficacy_infection) + 
+     rate_to_prob(variables$hypnozoites$get_values(source_humans) * parameters$f) * (1-vaccine_efficacy_relapse) 
     ## Get relative rates to get probability bitten over relapse
-    relative_rate <- rate_infection_bitten/rate_infection_complete
-    prob <- rate_to_prob(rate_infection_complete) * (1 - prophylaxis) * (1 - vaccine_efficacy)
+    relative_rate <- rate_infection_bitten/prob_to_rate(rate_infection_complete)
+    prob <- rate_infection_complete * (1 - prophylaxis) #* (1 - vaccine_efficacy) # remove so we don't apply other vaccines
 
     # Subset for new infections/bite infections
     newly_infected <- bitset_at(

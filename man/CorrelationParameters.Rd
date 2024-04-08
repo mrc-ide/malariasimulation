@@ -19,6 +19,8 @@ Describes an event in the simulation
 \item \href{#method-CorrelationParameters-inter_intervention_rho}{\code{CorrelationParameters$inter_intervention_rho()}}
 \item \href{#method-CorrelationParameters-sigma}{\code{CorrelationParameters$sigma()}}
 \item \href{#method-CorrelationParameters-mvnorm}{\code{CorrelationParameters$mvnorm()}}
+\item \href{#method-CorrelationParameters-save_state}{\code{CorrelationParameters$save_state()}}
+\item \href{#method-CorrelationParameters-restore_state}{\code{CorrelationParameters$restore_state()}}
 \item \href{#method-CorrelationParameters-clone}{\code{CorrelationParameters$clone()}}
 }
 }
@@ -101,6 +103,36 @@ multivariate norm draws for these parameters
 \if{html}{\out{<div class="r">}}\preformatted{CorrelationParameters$mvnorm()}\if{html}{\out{</div>}}
 }
 
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CorrelationParameters-save_state"></a>}}
+\if{latex}{\out{\hypertarget{method-CorrelationParameters-save_state}{}}}
+\subsection{Method \code{save_state()}}{
+Save the correlation state.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CorrelationParameters$save_state()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-CorrelationParameters-restore_state"></a>}}
+\if{latex}{\out{\hypertarget{method-CorrelationParameters-restore_state}{}}}
+\subsection{Method \code{restore_state()}}{
+Restore the correlation state.
+Only the randomly drawn weights are restored. The object needs to be
+initialized with the same rhos.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{CorrelationParameters$restore_state(state)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{state}}{a previously saved correlation state, as returned by the
+save_state method.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CorrelationParameters-clone"></a>}}

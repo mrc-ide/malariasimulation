@@ -55,8 +55,8 @@ set_antimalarial_resistance <- function(parameters,
          reinfection_during_prophylaxis_probability < 0 | reinfection_during_prophylaxis_probability > 1)) {
     stop("Resistance outcome probabilities must fall between 0 and 1")
   }
-
-    if(length(slow_parasite_clearance_time) != 1) {
+  
+  if(length(slow_parasite_clearance_time) != 1) {
     stop("Error: length of slow_parasite_clearance_time not equal to 1")
   }
   

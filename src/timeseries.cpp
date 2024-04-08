@@ -15,18 +15,18 @@ Timeseries::Timeseries(size_t max_size, double default_value)
     : max_size(max_size), has_default(true), default_value(default_value) {}
 
 void Timeseries::push(double value, double time) {
-    values.insert({time, value});
+    _values.insert({time, value});
     if (max_size != -1) {
-        while(values.size() > max_size) {
-            values.erase(values.begin());
+        while(_values.size() > max_size) {
+            _values.erase(_values.begin());
         }
     }
 }
 
 double Timeseries::at(double time, bool linear) const {
-    auto it = values.lower_bound(time);
-    if (it == values.end()) {
-        if (values.size() > 0 && !linear) {
+    auto it = _values.lower_bound(time);
+    if (it == _values.end()) {
+        if (_values.size() > 0 && !linear) {
           it--;
           return it->second;
         }
@@ -45,7 +45,7 @@ double Timeseries::at(double time, bool linear) const {
     auto after_element = *it;
     while(it->first > time) {
         // Check if we're at the start of the timeseries
-        if (it == values.begin()) {
+        if (it == _values.begin()) {
             if (has_default) {
                 return default_value;
             }
@@ -64,6 +64,14 @@ double Timeseries::at(double time, bool linear) const {
     return it->second;
 }
 
+const std::map<double, double>& Timeseries::values() {
+    return _values;
+}
+
+void Timeseries::set_values(std::map<double, double> values) {
+    _values = std::move(values);
+}
+
 //[[Rcpp::export]]
 Rcpp::XPtr<Timeseries> create_timeseries(size_t size, double default_value) {
     return Rcpp::XPtr<Timeseries>(new Timeseries(size, default_value), true);
@@ -77,4 +85,33 @@ double timeseries_at(Rcpp::XPtr<Timeseries> timeseries, double timestep, bool li
 //[[Rcpp::export]]
 void timeseries_push(Rcpp::XPtr<Timeseries> timeseries, double value, double timestep) {
     return timeseries->push(value, timestep);
+}
+
+//[[Rcpp::export]]
+Rcpp::List timeseries_save_state(Rcpp::XPtr<Timeseries> timeseries) {
+    std::vector<double> timesteps;
+    std::vector<double> values;
+    for (const auto& entry: timeseries->values()) {
+        timesteps.push_back(entry.first);
+        values.push_back(entry.second);
+    }
+    return Rcpp::DataFrame::create(
+        Rcpp::Named("timestep") = timesteps,
+        Rcpp::Named("value") = values
+    );
+}
+
+//[[Rcpp::export]]
+void timeseries_restore_state(Rcpp::XPtr<Timeseries> timeseries, Rcpp::List state) {
+    std::vector<double> timesteps = state["timestep"];
+    std::vector<double> values = state["value"];
+    if (timesteps.size() != values.size()) {
+        Rcpp::stop("Bad size");
+    }
+
+    std::map<double, double> values_map;
+    for (size_t i = 0; i < timesteps.size(); i++) {
+        values_map.insert({timesteps[i], values[i]});
+    }
+    timeseries->set_values(std::move(values_map));
 }

@@ -131,14 +131,16 @@ run_simulation <- function(
 #' @param correlations a list of correlation parameters for each population
 #' (default: NULL)
 #' @param mixing_tt a vector of time steps for each mixing matrix
-#' @param mixing a list of matrices of mixing coefficients for infectivity.
+#' @param export_mixing a list of matrices of coefficients for exportation of infectivity.
 #' Rows = origin sites, columns = destinations. Each matrix element
 #' describes the mixing pattern from destination to origin. Each matrix element must
 #' be between 0 and 1. Each matrix is activated at the corresponding timestep in mixing_tt
+#' @param import_mixing a list of matrices of coefficients for importation of
+#' infectivity.
 #' @param p_captured_tt a vector of time steps for each p_captured matrix
 #' @param p_captured a list of matrices representing the probability that
 #' travel between sites is intervened by a test and treat border check.
-#' Dimensions are the same as for `mixing`
+#' Dimensions are the same as for `export_mixing`
 #' @param p_success the probability that an individual who has tested positive
 #' (through an RDT) successfully clears their infection through treatment
 #' @return a list of dataframe of model outputs as in run_simulation
@@ -148,32 +150,39 @@ run_metapop_simulation <- function(
   parameters,
   correlations = NULL,
   mixing_tt,
-  mixing,
+  export_mixing,
+  import_mixing,
   p_captured_tt,
   p_captured,
   p_success
   ) {
   random_seed(ceiling(runif(1) * .Machine$integer.max))
-  if (!is.list(mixing)) {
-    stop('mixing must be a list of mixing matrices')
-  }
 
-  if (length(mixing_tt) != length(mixing)) {
-    stop('mixing_tt must be the same length as mixing')
-  }
+  for (mixing in list(export_mixing, import_mixing)) {
+    if (!is.list(mixing)) {
+      stop('mixing arguments must be a list of mixing matrices')
+    }
 
-  for (i in seq_along(mixing)) {
-    if (nrow(mixing[[i]]) != ncol(mixing[[i]])) {
-      stop(sprintf('mixing matrix %d must be square', i))
+    if (length(mixing_tt) != length(mixing)) {
+      stop('mixing_tt must be the same length as mixing matrices')
     }
-    if (nrow(mixing[[i]]) != length(parameters)) {
-      stop(sprintf("mixing matrix %d's rows must match length of parameters", i))
+
+    for (i in seq_along(mixing)) {
+      if (nrow(mixing[[i]]) != ncol(mixing[[i]])) {
+        stop(sprintf('mixing matrix %d must be square', i))
+      }
+      if (nrow(mixing[[i]]) != length(parameters)) {
+        stop(sprintf("mixing matrix %d's rows must match length of parameters", i))
+      }
+      if (!all(vlapply(seq_along(parameters), function(x) approx_sum(mixing[[i]][x,], 1)))) {
+        warning(sprintf("all of mixing matrix %d's rows must sum to 1", i))
+      }
+      if (!all(vlapply(seq_along(parameters), function(x) approx_sum(mixing[[i]][,x], 1)))) {
+        warning(sprintf('mixing matrix %d is asymmetrical', i))
+      }
     }
-    if (!all(vlapply(seq_along(parameters), function(x) approx_sum(mixing[[i]][x,], 1)))) {
-      warning(sprintf("all of mixing matrix %d's rows must sum to 1", i))
-    }
-    if (!all(vlapply(seq_along(parameters), function(x) approx_sum(mixing[[i]][,x], 1)))) {
-      warning(sprintf('mixing matrix %d is asymmetrical', i))
+    if (length(mixing_tt) != length(mixing)) {
+      stop('mixing_tt must be the same size as mixing')
     }
   }
 
@@ -189,13 +198,10 @@ run_metapop_simulation <- function(
   if (!is.numeric(mixing_tt)) {
     stop('mixing_tt must be numeric')
   }
-  if (length(mixing_tt) != length(mixing)) {
-    stop('mixing_tt must be the same size as mixing')
-  }
+
   if (length(p_captured_tt) != length(p_captured)) {
     stop('p_captured_tt must be the same length as p_captured')
   }
-
 
   if (is.null(correlations)) {
     correlations <- lapply(parameters, get_correlation_parameters)
@@ -244,7 +250,8 @@ run_metapop_simulation <- function(
       lagged_eir,
       lagged_infectivity,
       mixing_tt,
-      mixing,
+      export_mixing,
+      import_mixing,
       p_captured_tt,
       p_captured,
       p_success

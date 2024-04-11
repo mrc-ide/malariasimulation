@@ -24,11 +24,11 @@ CorrelationParameters <- R6::R6Class(
   public = list(
 
     #' @description initialise correlation parameters
-    #' @param parameters model parameters
-    initialize = function(parameters) {
-      # Find a list of enabled interventions
-      enabled <- vlapply(INTS, function(name) parameters[[name]])
-      private$interventions <- INTS[enabled]
+    #' @param population popularion size
+    #' @param interventions character vector with the name of enabled interventions
+    initialize = function(population, interventions) {
+      private$population <- population
+      private$interventions <- interventions
 
       # Initialise a rho matrix for our interventions
       n_ints <- private$n_ints()
@@ -38,9 +38,6 @@ CorrelationParameters <- R6::R6Class(
         ncol = n_ints,
         dimnames = list(private$interventions, private$interventions)
       )
-
-      # Store population for mvnorm draws
-      private$population <- parameters$human_population
     },
 
     #' @description Add rho between rounds
@@ -115,6 +112,25 @@ CorrelationParameters <- R6::R6Class(
         dimnames(private$.mvnorm)[[2]] <- private$interventions
       }
       private$.mvnorm
+    },
+
+    #' @description Save the correlation state.
+    save_state = function() {
+      # mvnorm is sampled at random lazily on its first use. We need to save it
+      # in order to restore the same value when resuming the simulation,
+      # otherwise we would be drawing a new, probably different, value.
+      # The rest of the object is derived deterministically from the parameters
+      # and does not need saving.
+      list(mvnorm=private$.mvnorm)
+    },
+
+    #' @description Restore the correlation state.
+    #' Only the randomly drawn weights are restored. The object needs to be
+    #' initialized with the same rhos.
+    #' @param state a previously saved correlation state, as returned by the
+    #'   save_state method.
+    restore_state = function(state) {
+      private$.mvnorm <- state$mvnorm
     }
   )
 )
@@ -164,7 +180,10 @@ CorrelationParameters <- R6::R6Class(
 #' 
 #' # You can now pass the correlation parameters to the run_simulation function
 get_correlation_parameters <- function(parameters) {
-  CorrelationParameters$new(parameters)
+  # Find a list of enabled interventions
+  enabled <- vlapply(INTS, function(name) parameters[[name]])
+
+  CorrelationParameters$new(parameters$human_population, INTS[enabled])
 }
 
 #' @title Sample a population to intervene in given the correlation parameters

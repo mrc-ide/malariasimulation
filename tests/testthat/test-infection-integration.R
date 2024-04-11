@@ -873,82 +873,82 @@ test_that('calculate_treated returns empty Bitset when the clinically_infected i
 
 test_that('calculate_treated() returns an empty Bitset when the parameter list contains no clinical
           treatment or resistance parameters', {
-            parameters <- get_parameters()
-            clinical_infections <- individual::Bitset$new(20)$insert(1:20)
-            timestep <- 5
-            events <- create_events(parameters)
-            variables <- list(
-              state = list(queue_update = mockery::mock()),
-              infectivity = list(queue_update = mockery::mock()),
-              drug = list(queue_update = mockery::mock()),
-              drug_time = list(queue_update = mockery::mock())
-            )
-            renderer <- individual::Render$new(timesteps = 10)
-            
-            treated <- calculate_treated(variables = variables,
-                                         clinical_infections = clinical_infections,
-                                         parameters = parameters,
-                                         timestep = timestep,
-                                         renderer = renderer)
-            
-            expect_identical(object = treated$size(), expected = 0, info = "Error: calculate_treated() returning non-zero number of treated individuals
+  parameters <- get_parameters()
+  clinical_infections <- individual::Bitset$new(20)$insert(1:20)
+  timestep <- 5
+  events <- create_events(parameters)
+  variables <- list(
+    state = list(queue_update = mockery::mock()),
+    infectivity = list(queue_update = mockery::mock()),
+    drug = list(queue_update = mockery::mock()),
+    drug_time = list(queue_update = mockery::mock())
+  )
+  renderer <- individual::Render$new(timesteps = 10)
+  
+  treated <- calculate_treated(variables = variables,
+                               clinical_infections = clinical_infections,
+                               parameters = parameters,
+                               timestep = timestep,
+                               renderer = renderer)
+  
+  expect_identical(object = treated$size(), expected = 0, info = "Error: calculate_treated() returning non-zero number of treated individuals
                  in the absence of clinical treatment or resistance parameters")
-          })
+})
 
-test_that('Number of treatment failures matches number of individuals treated when artemisinin resistance proportion and
-          early treatment failure probability both set to 1', {
-            parameters <- get_parameters()
-            parameters <- set_drugs(parameters = parameters, drugs = list(AL_params, SP_AQ_params))
-            parameters <- set_clinical_treatment(parameters = parameters,
-                                                 drug = 1,
-                                                 timesteps = 1,
-                                                 coverages = round(runif(1, 0, 1/2),
-                                                                   digits = 2))
-            parameters <- set_clinical_treatment(parameters = parameters,
-                                                 drug = 2,
-                                                 timesteps = 1,
-                                                 coverages = round(runif(1, 0, 1/2),
-                                                                   digits = 2))
-            parameters <- set_antimalarial_resistance(parameters = parameters,
-                                                      drug = 1,
-                                                      timesteps = 1,
-                                                      artemisinin_resistance_proportion = 1,
-                                                      partner_drug_resistance_proportion = 0,
-                                                      slow_parasite_clearance_probability = 0,
-                                                      early_treatment_failure_probability = 1,
-                                                      late_clinical_failure_probability = 0,
-                                                      late_parasitological_failure_probability = 0,
-                                                      reinfection_during_prophylaxis_probability = 0, 
-                                                      slow_parasite_clearance_time = 10)
-            parameters <- set_antimalarial_resistance(parameters = parameters,
-                                                      drug = 2,
-                                                      timesteps = 1,
-                                                      artemisinin_resistance_proportion = 1,
-                                                      partner_drug_resistance_proportion = 0,
-                                                      slow_parasite_clearance_probability = 0,
-                                                      early_treatment_failure_probability = 1,
-                                                      late_clinical_failure_probability = 0,
-                                                      late_parasitological_failure_probability = 0,
-                                                      reinfection_during_prophylaxis_probability = 0, 
-                                                      slow_parasite_clearance_time = 20)
-            
-            clinical_infections <- individual::Bitset$new(100)
-            clinical_infections$insert(sample.int(n = 100, size = round(runif(n = 1, min = 10, max = 100)), replace = FALSE))
-            timestep <- 5
-            events <- create_events(parameters)
-            variables <- create_variables(parameters = parameters)
-            renderer <- individual::Render$new(timesteps = 10)
-            
-            treated <- calculate_treated(variables = variables,
-                                         clinical_infections = clinical_infections,
-                                         parameters = parameters,
-                                         timestep = timestep,
-                                         renderer = renderer)
-            
-            expect_identical(renderer$to_dataframe()[timestep,'n_early_treatment_failure'], renderer$to_dataframe()[timestep,'n_treated'] - renderer$to_dataframe()[timestep,'n_drug_efficacy_failures'], info = "Error: Number of
+test_that('Number of treatment failures matches number of individuals treated when artemisinin resistance
+          proportion and early treatment failure probability both set to 1', {
+  parameters <- get_parameters()
+  parameters <- set_drugs(parameters = parameters, drugs = list(AL_params, SP_AQ_params))
+  parameters <- set_clinical_treatment(parameters = parameters,
+                                       drug = 1,
+                                       timesteps = 1,
+                                       coverages = round(runif(1, 0, 1/2),
+                                                         digits = 2))
+  parameters <- set_clinical_treatment(parameters = parameters,
+                                       drug = 2,
+                                       timesteps = 1,
+                                       coverages = round(runif(1, 0, 1/2),
+                                                         digits = 2))
+  parameters <- set_antimalarial_resistance(parameters = parameters,
+                                            drug = 1,
+                                            timesteps = 1,
+                                            artemisinin_resistance_proportion = 1,
+                                            partner_drug_resistance_proportion = 0,
+                                            slow_parasite_clearance_probability = 0,
+                                            early_treatment_failure_probability = 1,
+                                            late_clinical_failure_probability = 0,
+                                            late_parasitological_failure_probability = 0,
+                                            reinfection_during_prophylaxis_probability = 0, 
+                                            slow_parasite_clearance_time = 10)
+  parameters <- set_antimalarial_resistance(parameters = parameters,
+                                            drug = 2,
+                                            timesteps = 1,
+                                            artemisinin_resistance_proportion = 1,
+                                            partner_drug_resistance_proportion = 0,
+                                            slow_parasite_clearance_probability = 0,
+                                            early_treatment_failure_probability = 1,
+                                            late_clinical_failure_probability = 0,
+                                            late_parasitological_failure_probability = 0,
+                                            reinfection_during_prophylaxis_probability = 0, 
+                                            slow_parasite_clearance_time = 20)
+  
+  clinical_infections <- individual::Bitset$new(100)
+  clinical_infections$insert(sample.int(n = 100, size = round(runif(n = 1, min = 10, max = 100)), replace = FALSE))
+  timestep <- 5
+  events <- create_events(parameters)
+  variables <- create_variables(parameters = parameters)
+  renderer <- individual::Render$new(timesteps = 10)
+  
+  treated <- calculate_treated(variables = variables,
+                               clinical_infections = clinical_infections,
+                               parameters = parameters,
+                               timestep = timestep,
+                               renderer = renderer)
+  
+  expect_identical(renderer$to_dataframe()[timestep,'n_early_treatment_failure'], renderer$to_dataframe()[timestep,'n_treated'] - renderer$to_dataframe()[timestep,'n_drug_efficacy_failures'], info = "Error: Number of
                  early treatment failures does not match number of treated individuals (minus drug efficacy failures) when artemisinin resistance proportion and
                  and early treatment failure probability both equal 1") 
-          })
+})
 
 test_that('calculate_treated() successfully adds additional resistance columns to the renderer', {
   parameters <- get_parameters()

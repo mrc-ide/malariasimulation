@@ -354,10 +354,6 @@ for(i in seq(length(simulation_parameters))) {
 
 ```
 
-### Data Wranging
-
-
-
 ### Visualisation
 
 We can compare the effects of independent resistance outcomes with combined resistance outcomes visually. In the following plot, we compare the *Pf*PR~2-10~ between a baseline without any clinical treatment or antimalarial resistance, a clinical-treatment only run, a clinical treatment with early treatment failure run, a clinical treatment with slow parasite clearance run, and a clinical treatment with both early treatment failure and slow parasite clearance run.

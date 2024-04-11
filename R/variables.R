@@ -231,7 +231,7 @@ create_variables <- function(parameters) {
   )
   
   # Add variables for antimalarial resistance state residency times (dt)
-  if(parameters$antimalarial_resistance == TRUE) {
+  if(parameters$antimalarial_resistance) {
     dt <- individual::DoubleVariable$new(rep(parameters$dt, size))
     variables <- c(
       variables,

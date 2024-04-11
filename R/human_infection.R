@@ -320,7 +320,7 @@ calculate_treated <- function(
     n_early_treatment_failure <- effectively_treated$size() - successfully_treated$size()
     renderer$render('n_early_treatment_failure', n_early_treatment_failure, timestep)
     drugs <- drugs[successfully_treated_indices]
-    resistance_parameters$dt_slow_parasite_clearance <- resistance_parameters$dt_slow_parasite_clearance[successfully_treated_indices]
+    dt_slow_parasite_clearance <- resistance_parameters$dt_slow_parasite_clearance[successfully_treated_indices]
     
     #+++ SLOW PARASITE CLEARANCE +++#
     #+++++++++++++++++++++++++++++++#
@@ -331,7 +331,7 @@ calculate_treated <- function(
     renderer$render('n_slow_parasite_clearance', slow_parasite_clearance_individuals$size(), timestep)
     non_slow_parasite_clearance_individuals <- successfully_treated$copy()$set_difference(slow_parasite_clearance_individuals)
     renderer$render('n_successfully_treated', successfully_treated$size(), timestep)
-    resistance_parameters$dt_slow_parasite_clearance <- resistance_parameters$dt_slow_parasite_clearance[slow_parasite_clearance_indices]
+    dt_slow_parasite_clearance <- dt_slow_parasite_clearance[slow_parasite_clearance_indices]
     
   } else {
     
@@ -360,7 +360,7 @@ calculate_treated <- function(
         non_slow_parasite_clearance_individuals
       )
       variables$dt$queue_update(
-        resistance_parameters$dt_slow_parasite_clearance,
+        dt_slow_parasite_clearance,
         slow_parasite_clearance_individuals
       )
     }

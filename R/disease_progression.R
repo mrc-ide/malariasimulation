@@ -33,7 +33,7 @@ create_progression_process <- function(
     
     # If the length of rate is greater than 1 (when it's a variable):
     if (length(rate) > 1) {
-      rate <- rate$get_values(index$to_vector())
+      rate <- rate$get_values(index)
     }
     
     # Sample the individuals to be moved into a new Bitset using the transition rate(s):

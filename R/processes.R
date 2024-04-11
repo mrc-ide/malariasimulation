@@ -118,7 +118,7 @@ create_processes <- function(
   dt_input <- parameters$dt
   
   # If antimalarial resistance is switched on, assign dt variable values to the 
-  if(parameters$antimalarial_resistance == TRUE) {
+  if(parameters$antimalarial_resistance) {
     dt_input <- variables$dt
   }
   

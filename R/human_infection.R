@@ -204,14 +204,6 @@ calculate_infections <- function(
         vhl_infection <- vnapply(parameters$pev_profiles, function(p) p$vhl_infection)
         v0_relapse <- vnapply(parameters$pev_profiles, function(p) p$v0_relapse)
         vhl_relapse <- vnapply(parameters$pev_profiles, function(p) p$vhl_relapse)
-
-        vaccine_efficacy[vaccinated] <- calculate_pev_efficacy(
-          antibodies,
-          vmax[pev_profile],
-          beta[pev_profile],
-          alpha[pev_profile]
-        )
-        
         
         vaccine_efficacy_infection[vaccinated] <- calculate_vivax_efficacy(
           timestep - vaccine_times[vaccinated], 

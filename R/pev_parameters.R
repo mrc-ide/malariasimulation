@@ -194,6 +194,7 @@ set_mass_pev <- function(
   parameters$mass_pev_booster_timestep <- booster_timestep
   parameters$mass_pev_booster_coverage <- booster_coverage
   parameters$mass_pev_profile_indices <- profile_indices
+  parameters$profile_name <- profile
   parameters
 }
 

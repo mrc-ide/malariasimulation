@@ -167,7 +167,7 @@ calculate_infections <- function(
   pev_profile <- pev_profile[vaccinated]
   if (length(vaccinated) > 0) {
     
-    if (profile != "vivax_pev_profile") {
+    if (parameters$profile_name != "vivax_pev_profile") {
       
     antibodies <- calculate_pev_antibodies(
       timestep - vaccine_times[vaccinated],

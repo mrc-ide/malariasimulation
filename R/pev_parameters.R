@@ -67,6 +67,17 @@ vivax_pev_profile <- list(
   vhl_relapse = 3*365
 )
 
+#' @title P. vivax pre-erythrocytic booster vaccine profile
+#' @description Parameters for a booster dose of a pre-erythrocytic vivax vaccine for use with the
+#' set_mass_pev and set_pev_epi functions
+#' @export
+vivax_pev_booster_profile <- list(
+  v0_infection = 0.6, 
+  vhl_infection = 3*365,
+  v0_relapse = 0.9,
+  vhl_relapse = 3*365
+)
+
 
 #' @title Parameterise a pre-erythrocytic vaccine with an EPI strategy
 #'

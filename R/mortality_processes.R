@@ -121,6 +121,9 @@ reset_target <- function(variables, events, target, state, timestep, parameters)
     variables$pev_timestep$queue_update(-1, target)
     variables$pev_profile$queue_update(-1, target)
     variables$tbv_vaccinated$queue_update(-1, target)
+    # Population is replaced in the model so when an individual dies we
+    # need to remove information on when they were vaccinated (pev_timestep)
+    # and with which vaccine (pev_profile)
 
     # onwards infectiousness
     variables$infectivity$queue_update(0, target)

@@ -166,6 +166,9 @@ calculate_infections <- function(
   pev_profile <- variables$pev_profile$get_values(source_humans)
   pev_profile <- pev_profile[vaccinated]
   if (length(vaccinated) > 0) {
+    
+    if (profile != "vivax_pev_profile") {
+      
     antibodies <- calculate_pev_antibodies(
       timestep - vaccine_times[vaccinated],
       exp(sample_pev_param(pev_profile, parameters$pev_profiles, 'cs')),
@@ -183,6 +186,8 @@ calculate_infections <- function(
       beta[pev_profile],
       alpha[pev_profile]
     )
+    
+    }
     
     ## Vivax pre-erythrocytic vaccine ##
     vaccine_efficacy_infection <- rep(0, source_humans$size())

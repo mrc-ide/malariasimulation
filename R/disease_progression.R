@@ -32,7 +32,7 @@ create_progression_process <- function(
     index <- state$get_index_of(from_state)
     
     # If the length of rate is greater than 1 (when it's a variable):
-    if (length(rate) > 1) {
+    if (inherits(rate, "DoubleVariable")) {
       rate <- rate$get_values(index)
     }
     

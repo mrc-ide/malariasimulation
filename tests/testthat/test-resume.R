@@ -1,6 +1,6 @@
 #' Test simulation saving and restoring for a given parameter set.
 #'
-#' This function runs the simulation twice. A first, continous and uninterrupted
+#' This function runs the simulation twice. A first, continuous and uninterrupted
 #' run of the simulation is used as a reference. The second run is split into
 #' two phases. Between the two phases, the simulation state is saved and
 #' restored. Optionally, the initial warmup phase can use a different set of

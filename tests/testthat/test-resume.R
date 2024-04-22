@@ -66,12 +66,11 @@ test_that('PEV intervention can be added when resuming', {
       booster_coverage = NULL,
       booster_profile = NULL)
   }
-
   base <- get_parameters(overrides=list(pev_doses=c(0, 45, 90)))
+
   data <- test_resume(
     warmup_parameters = base,
     parameters = base %>% set_default_mass_pev(100))
-
   expect_equal(data[data$n_pev_mass_dose_1 > 0, "timestep"], 100)
   expect_equal(data[data$n_pev_mass_dose_2 > 0, "timestep"], 145)
   expect_equal(data[data$n_pev_mass_dose_3 > 0, "timestep"], 190)
@@ -83,42 +82,55 @@ test_that('PEV intervention can be added when resuming', {
 
   # The first dose, at time step 25, happens during the warmup and is not
   # returned by test_resume, hence why we don't see it in the data. Follow-up
-  # doses do show up, event though they we scheduled during warmup.
+  # doses do show up, even though they we scheduled during warmup.
   expect_equal(data[data$n_pev_mass_dose_1 > 0, "timestep"], c(100))
   expect_equal(data[data$n_pev_mass_dose_2 > 0, "timestep"], c(70, 145))
   expect_equal(data[data$n_pev_mass_dose_3 > 0, "timestep"], c(115, 190))
 })
 
 test_that("TBV intervention can be added when resuming", {
+  set_default_tbv <- function(parameters, timesteps) {
+    set_tbv(
+      parameters,
+      timesteps=timesteps,
+      coverage=rep(1, length(timesteps)),
+      ages=5:60)
+  }
+
   base <- get_parameters()
+
   data <- test_resume(
     warmup_parameters = base,
-    parameters = base %>% set_tbv(timesteps=100, coverage=1, ages=5:60))
+    parameters = base %>% set_default_tbv(100))
   expect_equal(data[!is.na(data$n_vaccinated_tbv), "timestep"], 100)
 
-  test_resume(
-    warmup_parameters = base %>% set_tbv(
-      timesteps=25,
-      coverage=1,
-      ages=5:60),
-    parameters = base %>% set_tbv(
-      timesteps=c(25, 100),
-      coverage=rep(1, 2),
-      ages=rep(5:60, 2)))
+  data <- test_resume(
+    warmup_parameters = base %>% set_default_tbv(25),
+    parameters = base %>% set_default_tbv(c(25, 100)))
+  expect_equal(data[!is.na(data$n_vaccinated_tbv), "timestep"], 100)
 })
 
 test_that("MDA intervention can be added when resuming", {
+  set_default_mda <- function(parameters, timesteps) {
+    parameters %>% set_drugs(list(SP_AQ_params)) %>% set_mda(
+      drug = 1,
+      timesteps = timesteps,
+      coverages = rep(0.8, length(timesteps)),
+      min_ages = rep(0, length(timesteps)),
+      max_ages = rep(60*365, length(timesteps)))
+  }
+
   base <- get_parameters()
+
   data <- test_resume(
     warmup_parameters = base,
-    parameters = base %>% set_drugs(list(SP_AQ_params)) %>% set_mda(
-      drug = 1,
-      timesteps = c(100, 150),
-      coverages = rep(0.8, 2),
-      min_ages = rep(0, 2),
-      max_ages = c(60*365, 2)))
+    parameters = base %>% set_default_mda(100))
+  expect_equal(data[data$n_mda_treated > 0, "timestep"], 100)
 
-  expect_equal(data[data$n_mda_treated > 0, "timestep"], c(100))
+  data <- test_resume(
+    warmup_parameters = base %>% set_default_mda(25),
+    parameters = base %>% set_default_mda(c(25, 100)))
+  expect_equal(data[data$n_mda_treated > 0, "timestep"], 100)
 })
 
 test_that("Bednets intervention can be added when resuming", {
@@ -137,11 +149,13 @@ test_that("Bednets intervention can be added when resuming", {
 
   base <- get_parameters()
 
-  test_resume(
+  data <- test_resume(
     warmup_parameters = base,
     parameters = base %>% set_default_bednets(100))
+  expect_equal(data[diff(data$n_use_net) > 0, "timestep"], 100)
 
-  test_resume(
+  data <- test_resume(
     warmup_parameters = base %>% set_default_bednets(25),
     parameters = base %>% set_default_bednets(c(25, 100)))
+  expect_equal(data[diff(data$n_use_net) > 0, "timestep"], 100)
 })

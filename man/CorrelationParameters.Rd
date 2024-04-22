@@ -30,13 +30,15 @@ Describes an event in the simulation
 \subsection{Method \code{new()}}{
 initialise correlation parameters
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CorrelationParameters$new(parameters)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CorrelationParameters$new(population, interventions)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{parameters}}{model parameters}
+\item{\code{population}}{popularion size}
+
+\item{\code{interventions}}{character vector with the name of enabled interventions}
 }
 \if{html}{\out{</div>}}
 }

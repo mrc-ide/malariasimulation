@@ -24,7 +24,7 @@ set_pev_epi(
 
 \item{coverages}{a vector of coverages for the primary doses}
 
-\item{timesteps}{a vector of timesteps associated with coverages}
+\item{timesteps}{a vector of timesteps for each change in coverage}
 
 \item{age}{the age when an individual will receive the first dose of the
 vaccine (in timesteps)}

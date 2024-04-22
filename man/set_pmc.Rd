@@ -11,10 +11,10 @@ set_pmc(parameters, drug, timesteps, coverages, ages)
 
 \item{drug}{the index of the drug to administer}
 
-\item{timesteps}{a vector of timesteps for each round of PMC}
+\item{timesteps}{a vector of timesteps for each change in coverage}
 
-\item{coverages}{a vector of the proportion of the target population who receive each
-round}
+\item{coverages}{a vector of proportions of the target population to receive
+the intervention}
 
 \item{ages}{a vector of ages at which PMC is administered (in timesteps)}
 }

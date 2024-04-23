@@ -172,7 +172,8 @@ calculate_infections <- function(
     
     # For antibody-dependent profiles:
     
-    if (length(parameters$pev_profiles[[1]]) == 7) {
+    #if (length(parameters$pev_profiles[[1]]) == 7) {
+    if (parameters$pev_profile_name == "rtss_profile") {
       
     antibodies <- calculate_pev_antibodies(
       timestep - vaccine_times[vaccinated],
@@ -193,7 +194,7 @@ calculate_infections <- function(
     )
     
     # For vivax PEV profile:
-    } else if (length(parameters$pev_profiles[[1]]) == 4) {
+    } else if (parameters$pev_profile_name == "vivax_pev_profile") {  # length(parameters$pev_profiles[[1]]) == 4
       
         ## Vivax pre-erythrocytic vaccine ##
         calculate_vivax_efficacy <- function(t, v0, vhl) {
@@ -341,14 +342,26 @@ calculate_patent_infections <- function(
 ) {
   
   ## Added: vivax blood-stage vaccine ##
-  #vaccine_efficacy_patent <- rep(0, source_humans$size())
-  #vaccine_times_patent <- variables$pev_timestep$get_values(source_humans) # for now integrate this in PEV framework
-  #vaccinated_patent <- vaccine_times_patent > -1
-  #pev_profile_patent <- variables$pev_profile_patent$get_values(source_humans)
-  #pev_profile <- pev_profile[vaccinated]
+  vaccine_efficacy_patent  <- rep(0, source_humans$size())
   
-  #if (length(vaccinated) > 0) { }   # need to add some way here to distinguish from PEV
-  ##
+  if (length(vaccinated) > 0 & parameters$pev_profile_name == "vivax_blood_stage_profile") { 
+
+    # Repeat function from above, move elsewhere
+    calculate_vivax_efficacy <- function(t, v0, vhl) {
+      v0 * exp(-log(2)/vhl * t)
+    }
+    
+    v0_patent <- vnapply(parameters$pev_profiles, function(p) p$v0_patent)
+    vhl_patent <- vnapply(parameters$pev_profiles, function(p) p$vhl_patent)
+    
+    vaccine_efficacy_patent[vaccinated] <- calculate_vivax_efficacy(
+      timestep - vaccine_times[vaccinated], 
+      v0_patent[pev_profile], 
+      vhl_patent[pev_profile] 
+    )
+    
+    }   # need to add some way here to distinguish from PEV
+  ###
 
   id <- variables$id$get_values(infections)
   idm <- variables$idm$get_values(infections)
@@ -356,6 +369,9 @@ calculate_patent_infections <- function(
   philm <- anti_parasite_immunity(
     min = parameters$philm_min, max = parameters$philm_max, a50 = parameters$alm50,
     k = parameters$klm, id = id, idm = idm)
+  
+  philm <- philm * (1-vaccine_efficacy_patent)  ## ADDED
+  
   patent_infections <- bitset_at(infections, bernoulli_multi_p(philm))
 
   incidence_renderer(

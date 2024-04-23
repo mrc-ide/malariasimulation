@@ -78,6 +78,24 @@ vivax_pev_booster_profile <- list(
   vhl_relapse = 3*365
 )
 
+#' @title P. vivax blood-stage vaccine profile
+#' @description Parameters for a primary dose of a blood-stage vivax vaccine for use with the
+#' set_mass_pev and set_pev_epi functions
+#' @export
+vivax_blood_stage_profile <- list(
+  v0_patent = 0.6, 
+  vhl_patent = 3*365
+)
+
+#' @title P. vivax blood-stage  booster vaccine profile
+#' @description Parameters for a booster dose of a blood-stage  vivax vaccine for use with the
+#' set_mass_pev and set_pev_epi functions
+#' @export
+vivax_blood_stage_profile <- list(
+  v0_patent = 0.6, 
+  vhl_patent = 3*365
+)
+
 
 #' @title Parameterise a pre-erythrocytic vaccine with an EPI strategy
 #'

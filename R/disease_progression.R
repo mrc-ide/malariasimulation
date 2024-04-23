@@ -22,12 +22,12 @@ create_progression_process <- function(
   state,
   from_state,
   to_state,
-  rate,
+  prob,
   infectivity,
   new_infectivity
   ) {
   function(timestep) {
-    to_move <- state$get_index_of(from_state)$sample(rate)
+    to_move <- state$get_index_of(from_state)$sample(prob)
     update_infection(
       state,
       to_state,
@@ -40,12 +40,12 @@ create_progression_process <- function(
 
 create_asymptomatic_progression_process <- function(
   state,
-  rate,
+  prob,
   variables,
   parameters
   ) {
   function(timestep) {
-    to_move <- state$get_index_of('D')$sample(rate)
+    to_move <- state$get_index_of('D')$sample(prob)
     update_to_asymptomatic_infection(
       variables,
       parameters,

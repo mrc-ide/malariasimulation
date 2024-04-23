@@ -339,6 +339,16 @@ calculate_patent_infections <- function(
     renderer,
     timestep
 ) {
+  
+  ## Added: vivax blood-stage vaccine ##
+  #vaccine_efficacy_patent <- rep(0, source_humans$size())
+  #vaccine_times_patent <- variables$pev_timestep$get_values(source_humans) # for now integrate this in PEV framework
+  #vaccinated_patent <- vaccine_times_patent > -1
+  #pev_profile_patent <- variables$pev_profile_patent$get_values(source_humans)
+  #pev_profile <- pev_profile[vaccinated]
+  
+  #if (length(vaccinated) > 0) { }   # need to add some way here to distinguish from PEV
+  ##
 
   id <- variables$id$get_values(infections)
   idm <- variables$idm$get_values(infections)

@@ -343,6 +343,8 @@ calculate_patent_infections <- function(
   
   ## Added: vivax blood-stage vaccine ##
   vaccine_efficacy_patent  <- rep(0, infections$size())    # not sure if infections is correct source to use? infected_humans is the input
+  vaccine_times <- variables$pev_timestep$get_values(infections)
+  vaccinated <- vaccine_times > -1
   
   if (length(vaccinated) > 0 & parameters$pev_profile_name == "vivax_blood_stage_profile") { 
 

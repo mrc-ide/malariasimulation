@@ -412,6 +412,7 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       # rts,s
       pev = FALSE,
       pev_doses = c(0, 1.5 * 30, 3 * 30),
+      pev_profile_name = FALSE,            # added for vivax vaccines
       # MDA
       mda = FALSE,
       mda_drug = 0,

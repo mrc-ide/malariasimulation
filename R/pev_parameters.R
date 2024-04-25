@@ -83,7 +83,7 @@ vivax_pev_booster_profile <- list(
 #' set_mass_pev and set_pev_epi functions
 #' @export
 vivax_blood_stage_profile <- list(
-  v0_patent = 0.6, 
+  v0_patent = 0.9, 
   vhl_patent = 3*365
 )
 

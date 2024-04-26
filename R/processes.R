@@ -85,7 +85,7 @@ create_processes <- function(
     create_mortality_process(variables, events, renderer, parameters),
     create_asymptomatic_progression_process(
       variables$state,
-      1/parameters$dd,
+      1 - exp(-1/parameters$dd),
       variables,
       parameters
     ),
@@ -93,7 +93,7 @@ create_processes <- function(
       variables$state,
       'A',
       'U',
-      1/parameters$da,
+      1 - exp(-1/parameters$da),
       variables$infectivity,
       parameters$cu
     ),
@@ -101,7 +101,7 @@ create_processes <- function(
       variables$state,
       'U',
       'S',
-      1/parameters$du,
+      1 - exp(-1/parameters$du),
       variables$infectivity,
       0
     ),
@@ -109,7 +109,7 @@ create_processes <- function(
       variables$state,
       'Tr',
       'S',
-      1/parameters$dt,
+      1 - exp(-1/parameters$dt),
       variables$infectivity,
       0
     )

@@ -8,13 +8,13 @@ set_antimalarial_resistance(
   parameters,
   drug,
   timesteps,
-  artemisinin_resistance,
-  partner_drug_resistance,
-  slow_parasite_clearance_prob,
-  early_treatment_failure_prob,
-  late_clinical_failure_prob,
-  late_parasitological_prob,
-  reinfection_prob,
+  artemisinin_resistance_proportion,
+  partner_drug_resistance_proportion,
+  slow_parasite_clearance_probability,
+  early_treatment_failure_probability,
+  late_clinical_failure_probability,
+  late_parasitological_failure_probability,
+  reinfection_during_prophylaxis_probability,
   slow_parasite_clearance_time
 )
 }
@@ -25,19 +25,19 @@ set_antimalarial_resistance(
 
 \item{timesteps}{vector of time steps for each update to resistance proportion and resistance outcome probability}
 
-\item{artemisinin_resistance}{vector of updates to the proportions of infections that are artemisinin resistant at time t}
+\item{artemisinin_resistance_proportion}{vector of updates to the proportions of infections that are artemisinin resistant at time t}
 
-\item{partner_drug_resistance}{vector of updates to the proportions of infections that are partner-drug resistant at time t}
+\item{partner_drug_resistance_proportion}{vector of updates to the proportions of infections that are partner-drug resistant at time t}
 
-\item{slow_parasite_clearance_prob}{vector of updates to the proportion of artemisinin-resistant infections that result in early treatment failure}
+\item{slow_parasite_clearance_probability}{vector of updates to the proportion of artemisinin-resistant infections that result in early treatment failure}
 
-\item{early_treatment_failure_prob}{vector of updates to the proportion of artemisinin-resistant infections that result in slow parasite clearance}
+\item{early_treatment_failure_probability}{vector of updates to the proportion of artemisinin-resistant infections that result in slow parasite clearance}
 
-\item{late_clinical_failure_prob}{vector of updates to the proportion of partner-drug-resistant infections that result in late clinical failure}
+\item{late_clinical_failure_probability}{vector of updates to the proportion of partner-drug-resistant infections that result in late clinical failure}
 
-\item{late_parasitological_prob}{vector of updates to the proportion of partner-drug-resistant infections that result in late parasitological failure}
+\item{late_parasitological_failure_probability}{vector of updates to the proportion of partner-drug-resistant infections that result in late parasitological failure}
 
-\item{reinfection_prob}{vector of updates to the proportion of partner-drug-resistant infections that result in reinfection during prophylaxis}
+\item{reinfection_during_prophylaxis_probability}{vector of updates to the proportion of partner-drug-resistant infections that result in reinfection during prophylaxis}
 
 \item{slow_parasite_clearance_time}{single value representing the mean time individual's experiencing slow parasite clearance reside in the treated state}
 }

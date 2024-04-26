@@ -90,8 +90,9 @@ subpatent
 susceptible
 \item net_usage: the number people protected by a bed net
 \item mosquito_deaths: number of adult female mosquitoes who die this timestep
-\item n_early_treatment_failure: number of clinically treated individuals who experienced early treatment failure in this timestep
-\item n_treat_eff_fail: number of clinically treated individuals who's treatment failed due to drug efficacy
-\item n_treat_success: number of successfully treated individuals in this timestep
+\item n_drug_efficacy_failures: number of clinically treated individuals whose treatment failed due to drug efficacy
+\item n_early_treatment_failure: number of clinically treated individuals who experienced early treatment failure
+\item n_successfully_treated: number of clinically treated individuals who are treated successfully (includes individuals who experience slow parasite clearance)
+\item n_slow_parasite_clearance: number of clinically treated individuals who experienced slow parasite clearance
 }
 }

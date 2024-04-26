@@ -11,7 +11,7 @@
 #' fixed state transitions:
 #'
 #' * dd - the delay for humans to move from state D to A; default = 5
-#' * dt - the delay for humans to move from state Tr to Ph; default = 5
+#' * dt - the delay for humans to move from state Tr to S; default = 5
 #' * da - the delay for humans to move from state A to U; default = 195
 #' * du - the delay for humans to move from state U to S; default = 110
 #' * del - the delay for mosquitoes to move from state E to L; default = 6.64

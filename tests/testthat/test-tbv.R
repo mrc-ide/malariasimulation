@@ -1,3 +1,14 @@
+test_that('TBV checks arguments', {
+  parameters <- get_parameters()
+  expect_error(
+    parameters <- set_tbv(
+      parameters,
+      timesteps = c(50, 150),
+      coverages = 1,
+      ages = 5:60
+    ), "coverages and timesteps do no align")
+})
+
 test_that('TBV strategy parameterisation works', {
   parameters <- get_parameters()
   parameters <- set_tbv(

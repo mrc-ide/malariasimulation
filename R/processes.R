@@ -14,6 +14,7 @@
 #' population and species in the simulation
 #' @param lagged_infectivity a list of LaggedValue objects for FOIM for each population
 #' in the simulation
+#' @param timesteps Number of timesteps
 #' @param mixing a vector of mixing coefficients for the lagged transmission
 #' values (default: 1)
 #' @param mixing_index an index for this population's position in the
@@ -29,6 +30,7 @@ create_processes <- function(
     correlations,
     lagged_eir,
     lagged_infectivity,
+    timesteps, 
     mixing = 1,
     mixing_index = 1
 ) {
@@ -101,12 +103,32 @@ create_processes <- function(
       parameters$du,
       variables$infectivity,
       0
-    ),
+    )
+  )
+  
+  # =======================
+  # Antimalarial Resistance
+  # =======================
+  # Add an a new process which governs the transition from Tr to S when
+  # antimalarial resistance is simulated. The rate of transition switches
+  # from a parameter to a variable when antimalarial resistance == TRUE.
+  
+  # Assign the dt input to a separate object with the default single parameter value:
+  dt_input <- parameters$dt
+  
+  # If antimalarial resistance is switched on, assign dt variable values to the 
+  if(parameters$antimalarial_resistance) {
+    dt_input <- variables$dt
+  }
+  
+  # Create the progression process for Tr --> S specifying dt_input as the rate:
+  processes <- c(
+    processes,
     create_progression_process(
       variables$state,
       'Tr',
       'S',
-      parameters$dt,
+      dt_input,
       variables$infectivity,
       0
     )
@@ -263,8 +285,9 @@ create_processes <- function(
 #' @param rate the exponential rate
 #' @noRd
 create_exponential_decay_process <- function(variable, rate) {
+  stopifnot(inherits(variable, "DoubleVariable"))
   decay_rate <- exp(-1/rate)
-  function(timestep) variable$queue_update(variable$get_values() * decay_rate)
+  exponential_process_cpp(variable$.variable, decay_rate)
 }
 
 #' @title Create and initialise lagged_infectivity object

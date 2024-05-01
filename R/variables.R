@@ -1,4 +1,4 @@
-#' @title Define model variables
+#' @title Define model variables 
 #' @description
 #' create_variables creates the human and mosquito variables for
 #' the model. Variables are used to track real data for each individual over
@@ -18,10 +18,13 @@
 #' * ID - Acquired immunity to detectability
 #' * zeta - Heterogeneity of human individuals
 #' * zeta_group - Discretised heterogeneity of human individuals
-#' * pev_timestep - The timestep of the last pev vaccination (-1 if there
-#' haven't been any)
-#' * pev_profile - The index of the profile of the last administered pev vaccine 
-#' (-1 if there haven't been any)
+#' * last_pev_timestep - The timestep of the last pev vaccination (-1 if there
+#' * last_eff_pev_timestep - The timestep of the last efficacious pev
+#' vaccination, including final primary dose and booster doses (-1 if there have not been any)
+#' * pev_profile - The index of the efficacy profile of any pev vaccinations.
+#' Not set until the final primary dose.
+#' This is only set on the final primary dose and subsequent booster doses
+#' (-1 otherwise)
 #' * tbv_vaccinated - The timstep of the last tbv vaccination (-1 if there
 #' haven't been any
 #' * net_time - The timestep when a net was last put up (-1 if never)
@@ -29,6 +32,9 @@
 #' * infectivity - The onward infectiousness to mosquitos
 #' * drug - The last prescribed drug
 #' * drug_time - The timestep of the last drug
+#'
+#' Antimalarial resistance variables are:
+#' * dt - the delay for humans to move from state Tr to state S
 #'
 #' Mosquito variables are: 
 #' * mosquito_state - the state of the mosquito, a category Sm|Pm|Im|NonExistent
@@ -87,7 +93,7 @@ create_variables <- function(parameters) {
   }
 
   states <- c('S', 'D', 'A', 'U', 'Tr')
-  initial_states <- initial_state(parameters, initial_age, groups, eq)
+  initial_states <- initial_state(parameters, initial_age, groups, eq, states)
   state <- individual::CategoricalVariable$new(states, initial_states)
   birth <- individual::IntegerVariable$new(-initial_age)
   last_boosted_ib <- individual::DoubleVariable$new(rep(-1, size))
@@ -188,7 +194,8 @@ create_variables <- function(parameters) {
   drug <- individual::IntegerVariable$new(rep(0, size))
   drug_time <- individual::IntegerVariable$new(rep(-1, size))
 
-  pev_timestep <- individual::IntegerVariable$new(rep(-1, size))
+  last_pev_timestep <- individual::IntegerVariable$new(rep(-1, size))
+  last_eff_pev_timestep <- individual::IntegerVariable$new(rep(-1, size))
   pev_profile <- individual::IntegerVariable$new(rep(-1, size))
 
   tbv_vaccinated <- individual::DoubleVariable$new(rep(-1, size))
@@ -215,12 +222,22 @@ create_variables <- function(parameters) {
     infectivity = infectivity,
     drug = drug,
     drug_time = drug_time,
-    pev_timestep = pev_timestep,
+    last_pev_timestep = last_pev_timestep,
+    last_eff_pev_timestep = last_eff_pev_timestep,
     pev_profile = pev_profile,
     tbv_vaccinated = tbv_vaccinated,
     net_time = net_time,
     spray_time = spray_time
   )
+  
+  # Add variables for antimalarial resistance state residency times (dt)
+  if(parameters$antimalarial_resistance) {
+    dt <- individual::DoubleVariable$new(rep(parameters$dt, size))
+    variables <- c(
+      variables,
+      dt = dt
+    )
+  }
 
   # Add variables for individual mosquitoes
   if (parameters$individual_mosquitoes) {
@@ -316,10 +333,10 @@ initial_immunity <- function(
   rep(parameter, length(age))
 }
 
-initial_state <- function(parameters, age, groups, eq) {
-  ibm_states <- c('S', 'A', 'D', 'U', 'Tr')
+initial_state <- function(parameters, age, groups, eq, states) {
+  ibm_states <- states
   if (!is.null(eq)) {
-    eq_states <- c('S', 'A', 'D', 'U', 'T')
+    eq_states <- c('S', 'D', 'A', 'U', 'T')
     age <- age / 365
     return(vcapply(
       seq_along(age),

@@ -18,8 +18,7 @@ round}
 
 \item{min_ages}{a vector of minimum ages of the target population for each round exclusive (in timesteps)}
 
-\item{max_ages}{a vector of maximum ages of the target population for each round exclusive (in timesteps)
-drug}
+\item{max_ages}{a vector of maximum ages of the target population for each round exclusive (in timesteps)}
 }
 \description{
 Parameterise a Mass Drug Administration

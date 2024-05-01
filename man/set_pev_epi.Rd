@@ -11,7 +11,7 @@ set_pev_epi(
   timesteps,
   age,
   min_wait,
-  booster_timestep,
+  booster_spacing,
   booster_coverage,
   booster_profile,
   seasonal_boosters = FALSE
@@ -20,11 +20,11 @@ set_pev_epi(
 \arguments{
 \item{parameters}{a list of parameters to modify}
 
-\item{profile}{primary vaccine profile of type PEVProfile}
+\item{profile}{a list of details for the vaccine profile, create with \code{create_pev_profile}}
 
 \item{coverages}{a vector of coverages for the primary doses}
 
-\item{timesteps}{a vector of timesteps associated with coverages}
+\item{timesteps}{a vector of timesteps for each change in coverage}
 
 \item{age}{the age when an individual will receive the first dose of the
 vaccine (in timesteps)}
@@ -35,16 +35,14 @@ between an individual receiving the final dose and the first booster. When using
 both set_mass_pev and set_pev_epi, this represents the minimum time between
 an individual being vaccinated under one scheme and vaccinated under another.}
 
-\item{booster_timestep}{the timesteps (following the final dose) at which booster vaccinations are administered}
+\item{booster_spacing}{the timesteps (following the final primary dose) at which booster vaccinations are administered}
 
-\item{booster_coverage}{the proportion of the vaccinated population who will
-receive each booster vaccine}
+\item{booster_coverage}{a matrix of coverages (timesteps x boosters) specifying the proportion the previously vaccinated population to continue receiving booster doses. The rows of the matrix must be the same size as \code{timesteps}. The columns of the matrix must be the same size as \code{booster_spacing}.}
 
-\item{booster_profile}{list of booster vaccine profiles, of type
-PEVProfile, for each timestep in booster_timeteps}
+\item{booster_profile}{list of lists representing each booster profile, the outer list must be the same length as \code{booster_spacing}. Create vaccine profiles with \code{create_pev_profile}}
 
 \item{seasonal_boosters}{logical, if TRUE the first booster timestep is
-relative to the start of the year, otherwise they are relative to the last dose}
+relative to the start of the year, otherwise they are relative to the last primary dose}
 }
 \description{
 distribute vaccine when an individual becomes a certain

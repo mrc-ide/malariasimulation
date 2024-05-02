@@ -48,7 +48,7 @@ create_processes <- function(
     create_exponential_decay_process(variables$iva, parameters$rva),
     create_exponential_decay_process(variables$id, parameters$rid)
   )
-  
+
   if (parameters$individual_mosquitoes) {
     processes <- c(
       processes,
@@ -61,7 +61,7 @@ create_processes <- function(
       )
     )
   }
-  
+
   # ==============================
   # Biting and mortality processes
   # ==============================
@@ -82,7 +82,6 @@ create_processes <- function(
       mixing,
       mixing_index
     ),
-    create_mortality_process(variables, events, renderer, parameters),
     create_asymptomatic_progression_process(
       variables$state,
       parameters$dd,
@@ -134,7 +133,7 @@ create_processes <- function(
       0
     )
   )
-  
+
   # ===============
   # ODE integration
   # ===============
@@ -142,7 +141,7 @@ create_processes <- function(
     processes,
     create_solver_stepping_process(solvers, parameters)
   )
-  
+
   # =========
   # RTS,S EPI
   # =========
@@ -159,7 +158,7 @@ create_processes <- function(
       )
     )
   }
-  
+
   # =========
   # PMC
   # =========
@@ -178,7 +177,7 @@ create_processes <- function(
       )
     )
   }
-  
+
   # =========
   # Rendering
   # =========
@@ -208,7 +207,7 @@ create_processes <- function(
     ),
     create_compartmental_rendering_process(renderer, solvers, parameters)
   )
-  
+
   if (parameters$individual_mosquitoes) {
     processes <- c(
       processes,
@@ -230,11 +229,11 @@ create_processes <- function(
       )
     )
   }
-  
+
   # ======================
   # Intervention processes
   # ======================
-  
+
   if (parameters$bednets) {
     processes <- c(
       processes,
@@ -247,14 +246,14 @@ create_processes <- function(
       net_usage_renderer(variables$net_time, renderer)
     )
   }
-  
+
   if (parameters$spraying) {
     processes <- c(
       processes,
       indoor_spraying(variables$spray_time, parameters, correlations)
     )
   }
-  
+
   # ======================
   # Progress bar process
   # ======================
@@ -264,7 +263,12 @@ create_processes <- function(
       create_progress_process(timesteps)
     )
   }
-  
+
+  # Mortality step
+  processes <- c(
+    processes,
+    create_mortality_process(variables, events, renderer, parameters))
+
   processes
 }
 
@@ -289,7 +293,7 @@ create_exponential_decay_process <- function(variable, rate) {
 #' @title Create and initialise lagged_infectivity object
 #'
 #' @param variables model variables for initialisation
-#' @param parameters model parameters 
+#' @param parameters model parameters
 #' @noRd
 create_lagged_infectivity <- function(variables, parameters) {
   age <- get_age(variables$birth$get_values(), 0)
@@ -306,7 +310,7 @@ create_lagged_infectivity <- function(variables, parameters) {
 #'
 #' @param variables model variables for initialisation
 #' @param solvers model differential equation solvers
-#' @param parameters model parameters 
+#' @param parameters model parameters
 #' @noRd
 create_lagged_eir <- function(variables, solvers, parameters) {
   lapply(

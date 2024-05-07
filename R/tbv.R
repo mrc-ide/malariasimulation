@@ -16,7 +16,11 @@ account_for_tbv <- function(
   time_vaccinated <- variables$tbv_vaccinated$get_values()
   vaccinated <- which(time_vaccinated != -1)
   affected_states <- c('U', 'A', 'D', 'Tr')
+  
+  if(parameters$parasite == "falciparum") { 
+  
   mx <- parameters[c('tbv_mu', 'tbv_ma', 'tbv_md', 'tbv_mt')]
+  
   for (i in seq_along(affected_states)) {
     in_state <- variables$state$get_index_of(affected_states[[i]])$to_vector()
     vaccinated_in_state <- intersect(vaccinated, in_state)
@@ -40,7 +44,32 @@ account_for_tbv <- function(
     )
     infectivity[vaccinated_in_state] <- infectivity[vaccinated_in_state] * (
       1 - tba
-    )
+    ) 
+    
+  } else if(parameters$parasite == "vivax") {
+  
+    calculate_vivax_tbv_efficacy <- function(t, v0, vhl) {
+      v0 * exp(-log(2)/vhl * t)
+    }
+    
+    for (i in seq_along(affected_states)) {
+    
+      in_state <- variables$state$get_index_of(affected_states[[i]])$to_vector()
+      vaccinated_in_state <- intersect(vaccinated, in_state) 
+      
+      vaccine_efficacy_tbv[vaccinated_in_state] <- calculate_vivax_efficacy(
+        timestep - time_vaccinated[vaccinated_in_state],
+        0.9, 
+        3*365
+      )
+      
+      infectivity[vaccinated_in_state] <- infectivity[vaccinated_in_state] * (
+        1 - vaccine_efficacy_tbv[vaccinated_in_state]
+      )
+      
+    }
+    }
+  
   }
   infectivity
 }

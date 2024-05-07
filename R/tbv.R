@@ -58,16 +58,25 @@ account_for_tbv <- function(
       in_state <- variables$state$get_index_of(affected_states[[i]])$to_vector()
       vaccinated_in_state <- intersect(vaccinated, in_state) 
       
-      vaccine_efficacy_tbv[vaccinated_in_state] <- calculate_vivax_tbv_efficacy(
+      # vaccine_efficacy_tbv[vaccinated_in_state] <- calculate_vivax_tbv_efficacy(
+      #   timestep - time_vaccinated[vaccinated_in_state],
+      #   0.9, 
+      #   3*365
+      # )
+      # 
+      # infectivity[vaccinated_in_state] <- infectivity[vaccinated_in_state] * (
+      #   1 - vaccine_efficacy_tbv[vaccinated_in_state]
+      # )
+      
+      vaccine_efficacy_tbv <- calculate_vivax_tbv_efficacy(
         timestep - time_vaccinated[vaccinated_in_state],
         0.9, 
         3*365
       )
       
       infectivity[vaccinated_in_state] <- infectivity[vaccinated_in_state] * (
-        1 - vaccine_efficacy_tbv[vaccinated_in_state]
+        1 - vaccine_efficacy_tbv
       )
-      
     }
     
   }

@@ -28,6 +28,4 @@ test_that('Test age parameter function works', {
              age_limits[-4]+rep(c(0,rep(c(1:3), each = 3), rep(4, 4), 5:10), each = 3),"_",age_limits[-1]-1+rep(c(0,rep(c(1:3), each = 3), rep(4, 4), 5:10), each = 3)
       ) %in%
         names(sim)))
-  
 })
-

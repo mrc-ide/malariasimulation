@@ -23,7 +23,10 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR', {
   })
 
   expect_equal(
-    actual_EIR,
+    actual_EIR * 0.766,
+    # 0.766 is the population average psi under an exponential pop distribution
+    # There's possibly a better way of calculating this, depending on what exactly
+    # we're testing here, e.g., we could remove lines 19-21 and omega from line 22
     expected_EIR,
     tolerance = 1e-2
   )
@@ -51,7 +54,10 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR (with h
   })
 
   expect_equal(
-    actual_EIR,
+    actual_EIR * 0.766,
+    # 0.766 is the population average psi under an exponential pop distribution
+    # There's possibly a better way of calculating this, depending on what exactly
+    # we're testing here, e.g., we could remove lines 49-51 and omega from line 52
     expected_EIR,
     tolerance = 1e-2
   )

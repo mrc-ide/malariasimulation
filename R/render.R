@@ -17,7 +17,7 @@ in_age_range <- function(birth, timestep, lower, upper) {
 #' @param renderer model renderer
 #' 
 #' @noRd
-create_prevelance_renderer <- function(
+create_prevalence_renderer <- function(
   state,
   birth,
   immunity,
@@ -124,6 +124,30 @@ create_variable_mean_renderer_process <- function(
         mean(variables[[i]]$get_values()),
         timestep
       )
+    }
+  }
+}
+
+create_age_variable_mean_renderer_process <- function(
+    names,
+    variables,
+    birth,
+    parameters,
+    renderer
+) {
+  function(timestep) {
+    for (i in seq_along(variables)) {
+      for (j in seq_along(parameters[[paste0(names[[i]],"_rendering_min_ages")]])) {
+        lower <- parameters[[paste0(names[[i]],"_rendering_min_ages")]][[j]]
+        upper <- parameters[[paste0(names[[i]],"_rendering_max_ages")]][[j]]
+        in_age <- in_age_range(birth, timestep, lower, upper)
+        renderer$render(paste0('n_', lower, '_', upper), in_age$size(), timestep)
+        renderer$render(
+          paste0(names[[i]], '_mean_', lower, '_', upper),
+          mean(variables[[i]]$get_values(index = in_age)),
+          timestep
+        )
+      }
     }
   }
 }

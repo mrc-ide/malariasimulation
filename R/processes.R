@@ -267,7 +267,21 @@ create_processes <- function(
   # Mortality step
   processes <- c(
     processes,
-    create_mortality_process(variables, events, renderer, parameters))
+    create_mortality_process(variables, events, renderer, parameters)
+  )
+
+  # Combined interventions
+  processes <- c(
+    processes,
+    create_combined_intervention_rendering_process(
+      'pev',
+      variables$last_pev_timestep,
+      'bednets',
+      variables$net_time,
+      365,
+      renderer
+    )
+  )
 
   processes
 }

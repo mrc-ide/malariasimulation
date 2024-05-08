@@ -82,8 +82,10 @@ create_mass_pev_listener <- function(
   variables,
   events,
   parameters,
-  correlations
+  correlations,
+  renderer
   ) {
+  renderer$set_default('n_new_vaccinations', 0)
   function(timestep) {
     in_age_group <- individual::Bitset$new(parameters$human_population)
     for (i in seq_along(parameters$mass_pev_min_ages)) {
@@ -119,6 +121,14 @@ create_mass_pev_listener <- function(
         correlations
       )
     ]
+
+    n_new_vaccinations <- variables$last_pev_timestep$get_index_of(
+      set=-1
+    )$not()$and(
+      individual::Bitset$new(parameters$human_population)$insert(target)
+    )$size()
+
+    renderer$render('n_new_vaccinations', n_new_vaccinations, timestep)
 
     # Update the latest vaccination time
     variables$last_pev_timestep$queue_update(timestep, target)

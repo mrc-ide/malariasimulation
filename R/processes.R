@@ -115,7 +115,7 @@ create_processes <- function(
   
   # If antimalarial resistance is switched on, assign dt variable values to the 
   if(parameters$antimalarial_resistance) {
-    dt_input <- variables$dt
+    dt_input <- variables$dt$get_values()
   }
   
   # Create the progression process for Tr --> S specifying dt_input as the rate:

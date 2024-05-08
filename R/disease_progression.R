@@ -31,10 +31,9 @@ create_progression_process <- function(
     # Retrieve the indices of all individuals in the to_move state:
     index <- state$get_index_of(from_state)
     
-    # If prob is a individual::DoubleVariable, retrieve the values corresponding to individuals
-    # who's disease state may be updated: 
-    if (inherits(prob, "DoubleVariable")) {
-      prob <- prob$get_values(index)
+    # If function receives a vector transition probabilities rather than a single value:
+    if (length(prob) > 1) {
+      prob <- prob[index$to_vector()]
     }
     
     # Sample the individuals to be moved into a new Bitset using the transition probabilities:

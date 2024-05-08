@@ -64,7 +64,7 @@ rtss_booster_profile <- create_pev_profile(
 #' @param parameters a list of parameters to modify
 #' @param profile a list of details for the vaccine profile, create with `create_pev_profile`
 #' @param coverages a vector of coverages for the primary doses
-#' @param timesteps a vector of timesteps associated with coverages
+#' @param timesteps a vector of timesteps for each change in coverage
 #' @param age the age when an individual will receive the first dose of the
 #' vaccine (in timesteps)
 #' @param min_wait the minimum acceptable time since the last vaccination (in
@@ -219,26 +219,5 @@ set_mass_pev <- function(
   parameters$mass_pev_booster_spacing <- booster_spacing
   parameters$mass_pev_booster_coverage <- booster_coverage
   parameters$mass_pev_profile_indices <- profile_indices
-  parameters
-}
-
-#' @title Parameterise an TBV strategy
-#' @param parameters a list of parameters to modify
-#' @param timesteps a vector of timesteps for each round of vaccinations
-#' @param coverages the coverage for each round of vaccinations
-#' @param ages for each round (in years)
-#' vaccine
-#' @export
-set_tbv <- function(
-  parameters,
-  timesteps,
-  coverages,
-  ages
-  ) {
-  stopifnot(all(coverages >= 0) && all(coverages <= 1))
-  parameters$tbv <- TRUE
-  parameters$tbv_timesteps <- timesteps
-  parameters$tbv_coverages <- coverages
-  parameters$tbv_ages <- ages
   parameters
 }

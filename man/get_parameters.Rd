@@ -13,7 +13,7 @@ The parameters are defined below.
 fixed state transitions:
 \itemize{
 \item dd - the delay for humans to move from state D to A; default = 5
-\item dt - the delay for humans to move from state Tr to Ph; default = 5
+\item dt - the delay for humans to move from state Tr to S; default = 5
 \item da - the delay for humans to move from state A to U; default = 195
 \item du - the delay for humans to move from state U to S; default = 110
 \item del - the delay for mosquitoes to move from state E to L; default = 6.64
@@ -221,14 +221,14 @@ please set antimalarial resistance parameters with the convenience functions in
 \item antimalarial_resistance - boolean for if antimalarial resistance is enabled; default = FALSE
 \item antimalarial_resistance_drug - vector of drugs for which resistance can be parameterised; default = NULL
 \item antimalarial_resistance_timesteps - vector of time steps on which resistance updates occur; default = NULL
-\item prop_artemisinin_resistant - vector of proportions of infections resistant to the artemisinin component of a given drug; default = NULL
-\item prop_partner_drug_resistant - vector of proportions of infections resistant to the parter drug component of a given drug; default = NULL (currently unimplemented)
-\item slow_parasite_clearance_prob - vector of probabilities of slow parasite clearance for a given drug; default = NULL (currently unimplemented)
-\item early_treatment_failure_prob - vector of probabilities of early treatment failure for a given drug; default = NULL
-\item late_clinical_failure_prob - vector of probabilities of late clinical failure for a given drug; default = NULL (currently unimplemented)
-\item late_parasitological_failure_prob - vector of probabilities of late parasitological failure for a given drug; default = NULL (currently unimplemented)
-\item reinfection_during_prophylaxis - vector of probabilities of reinfection during prophylaxis for a given drug; default = NULL (currently unimplemented)
-\item dt_slow_parasite_clearance - the delay for humans experiencing slow parasite clearance to move from state Tr to S; default = NULL (currently unimplemented)
+\item artemisinin_resistant_proportion - vector of proportions of infections resistant to the artemisinin component of a given drug; default = NULL
+\item partner_drug_resistance_proportion - vector of proportions of infections resistant to the parter drug component of a given drug; default = NULL
+\item slow_parasite_clearance_probability - vector of probabilities of slow parasite clearance for a given drug; default = NULL
+\item early_treatment_failure_probability - vector of probabilities of early treatment failure for a given drug; default = NULL
+\item late_clinical_failure_probability - vector of probabilities of late clinical failure for a given drug; default = NULL
+\item late_parasitological_failure_probability - vector of probabilities of late parasitological failure for a given drug; default = NULL
+\item reinfection_during_prophylaxis_probability - vector of probabilities of reinfection during prophylaxis for a given drug; default = NULL
+\item dt_slow_parasite_clearance - the delay for humans experiencing slow parasite clearance to move from state Tr to S; default = NULL
 }
 
 rendering:

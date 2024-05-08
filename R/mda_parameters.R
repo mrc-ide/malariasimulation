@@ -6,7 +6,6 @@
 #' round
 #' @param min_ages a vector of minimum ages of the target population for each round exclusive (in timesteps)
 #' @param max_ages a vector of maximum ages of the target population for each round exclusive (in timesteps)
-#' drug
 #' @export
 set_mda <- function(
   parameters,
@@ -77,9 +76,9 @@ set_smc <- function(
 #' @title Parameterise a perennial malaria chemoprevention (PMC, formerly IPIi)
 #' @param parameters a list of parameters to modify
 #' @param drug the index of the drug to administer
-#' @param timesteps a vector of timesteps for each round of PMC
-#' @param coverages a vector of the proportion of the target population who receive each
-#' round
+#' @param timesteps a vector of timesteps for each change in coverage
+#' @param coverages a vector of proportions of the target population to receive
+#' the intervention
 #' @param ages a vector of ages at which PMC is administered (in timesteps)
 #' @export
 set_pmc <- function(

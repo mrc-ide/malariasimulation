@@ -19,15 +19,28 @@ update_infection <- function(
 }
 
 create_progression_process <- function(
-  state,
-  from_state,
-  to_state,
-  prob,
-  infectivity,
-  new_infectivity
-  ) {
+    state,
+    from_state,
+    to_state,
+    prob,
+    infectivity,
+    new_infectivity
+) {
   function(timestep) {
-    to_move <- state$get_index_of(from_state)$sample(prob)
+    
+    # Retrieve the indices of all individuals in the to_move state:
+    index <- state$get_index_of(from_state)
+    
+    # If prob is a individual::DoubleVariable, retrieve the values corresponding to individuals
+    # who's disease state may be updated: 
+    if (inherits(prob, "DoubleVariable")) {
+      prob <- prob$get_values(index)
+    }
+    
+    # Sample the individuals to be moved into a new Bitset using the transition probabilities:
+    to_move <- index$sample(prob)
+    
+    # Update the infection status of those individuals who are moving:
     update_infection(
       state,
       to_state,

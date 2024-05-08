@@ -2,14 +2,37 @@
 % Please edit documentation in R/correlation.R
 \name{CorrelationParameters}
 \alias{CorrelationParameters}
-\title{Class: Correlation parameters
-Describes an event in the simulation}
+\title{Class: Correlation parameters}
 \description{
 Class: Correlation parameters
-Describes an event in the simulation
 
 Class: Correlation parameters
-Describes an event in the simulation
+}
+\details{
+This class implements functionality that allows interventions to be
+correlated, positively or negatively. By default, interventions are applied
+independently and an individual's probability of receiving two interventions
+(either two separate interventions or two rounds of the same one) is the
+product of the probability of receiving each one.
+
+By setting a positive correlation between two interventions, we can make it
+so that the individuals that receive intervention A are more likely to
+receive intervention B. Conversely, a negative correlation will make it such
+that individuals that receive intervention A are less likely to also receive
+intervention B.
+
+Broadly speaking, the implementation works by assigning at startup a weight
+to each individual and intervention pair, reflecting how likely an individual
+is to receive that intervention. Those weights are derived stochastically
+from the configured correlation parameters.
+
+For a detailed breakdown of the calculations, see Protocol S2 of
+Griffin et al. (2010).
+Derive the mvnorm from the configured correlations.
+
+If a \code{restored_mvnorm} is specified, its columns (corresponding to
+restored interventions) will be re-used as is. Missing columns (for new
+interventions) are derived in accordance with the restored data.
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -30,13 +53,15 @@ Describes an event in the simulation
 \subsection{Method \code{new()}}{
 initialise correlation parameters
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CorrelationParameters$new(parameters)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CorrelationParameters$new(population, interventions)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{parameters}}{model parameters}
+\item{\code{population}}{popularion size}
+
+\item{\code{interventions}}{character vector with the name of enabled interventions}
 }
 \if{html}{\out{</div>}}
 }
@@ -119,15 +144,20 @@ Save the correlation state.
 \if{latex}{\out{\hypertarget{method-CorrelationParameters-restore_state}{}}}
 \subsection{Method \code{restore_state()}}{
 Restore the correlation state.
+
 Only the randomly drawn weights are restored. The object needs to be
 initialized with the same rhos.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CorrelationParameters$restore_state(state)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CorrelationParameters$restore_state(timestep, state)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
+\item{\code{timestep}}{the timestep at which simulation is resumed. This
+parameter's value is ignored, it only exists to conform to a uniform
+interface.}
+
 \item{\code{state}}{a previously saved correlation state, as returned by the
 save_state method.}
 }

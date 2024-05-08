@@ -74,9 +74,10 @@
 #' susceptible
 #'  * net_usage: the number people protected by a bed net
 #'  * mosquito_deaths: number of adult female mosquitoes who die this timestep
-#'  * n_early_treatment_failure: number of clinically treated individuals who experienced early treatment failure in this timestep
-#'  * n_treat_eff_fail: number of clinically treated individuals who's treatment failed due to drug efficacy
-#'  * n_treat_success: number of successfully treated individuals in this timestep
+#'  * n_drug_efficacy_failures: number of clinically treated individuals whose treatment failed due to drug efficacy
+#'  * n_early_treatment_failure: number of clinically treated individuals who experienced early treatment failure
+#'  * n_successfully_treated: number of clinically treated individuals who are treated successfully (includes individuals who experience slow parasite clearance)
+#'  * n_slow_parasite_clearance: number of clinically treated individuals who experienced slow parasite clearance
 #'
 #' @param timesteps the number of timesteps to run the simulation for (in days)
 #' @param parameters a named list of parameters to use
@@ -134,16 +135,19 @@ run_resumable_simulation <- function(
   lagged_eir <- create_lagged_eir(variables, solvers, parameters)
   lagged_infectivity <- create_lagged_infectivity(variables, parameters)
 
-  stateful_objects <- unlist(list(
+  stateful_objects <- list(
     RandomState$new(restore_random_state),
     correlations,
     vector_models,
     solvers,
     lagged_eir,
-    lagged_infectivity))
+    lagged_infectivity)
 
   if (!is.null(initial_state)) {
-    restore_state(initial_state$malariasimulation, stateful_objects)
+    individual::restore_object_state(
+      initial_state$timesteps,
+      stateful_objects,
+      initial_state$malariasimulation)
   }
 
   individual_state <- individual::simulation_loop(
@@ -160,16 +164,16 @@ run_resumable_simulation <- function(
       timesteps
     ),
     variables = variables,
-    events = unlist(events),
+    events = events,
     timesteps = timesteps,
     state = initial_state$individual,
     restore_random_state = restore_random_state
   )
 
   final_state <- list(
-    timesteps=timesteps,
-    individual=individual_state,
-    malariasimulation=save_state(stateful_objects)
+    timesteps = timesteps,
+    individual = individual_state,
+    malariasimulation = individual::save_object_state(stateful_objects)
   )
 
   data <- renderer$to_dataframe()

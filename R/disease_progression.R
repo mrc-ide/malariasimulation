@@ -1,3 +1,92 @@
+#' @title Calculate recovery rates
+#' @description Calculates recovery rates for each individual in the population
+#' for storage in competing hazards object and future resolution
+#'
+#' @param variables the available human variables
+#' @param parameters model parameters
+#' @param recovery_outcome competing hazards object for recovery rates
+#' @noRd
+calculate_recovery_rates <- function(variables, parameters, dt_input, recovery_outcome){
+  recovery_rates <- numeric(length = parameters$human_population)
+  recovery_rates[variables$state$get_index_of("D")$to_vector()] <- 1/parameters$dd
+  recovery_rates[variables$state$get_index_of("A")$to_vector()] <- 1/parameters$da
+  recovery_rates[variables$state$get_index_of("Tr")$to_vector()] <- 1/dt_input
+
+  if(parameters$parasite == "falciparum"){
+    recovery_rates[variables$state$get_index_of("U")$to_vector()] <- 1/parameters$du
+  } else if (parameters$parasite == "vivax"){
+    recovery_rates[variables$state$get_index_of("U")$to_vector()] <-
+      1/anti_parasite_immunity(
+      parameters$dpcr_min, parameters$dpcr_max, parameters$apcr50, parameters$kpcr,
+      variables$id$get_values(index = variables$state$get_index_of("U")),
+      variables$idm$get_values(index = variables$state$get_index_of("U")))
+  }
+  recovery_outcome$set_rates(recovery_rates)
+}
+
+#' @title Disease progression outcomes (recovery)
+#' @description Following resolution of competing hazards, update state and
+#' infectivity of sampled individuals
+#'
+#' @param timestep the current timestep
+#' @param target the sampled recovering individuals
+#' @param variables the available human variables
+#' @param parameters model parameters
+#' @param renderer competing hazards object for recovery rates
+#' @noRd
+recovery_process_resolved_hazard <- function(
+    timestep,
+    target,
+    variables,
+    parameters,
+    renderer
+){
+
+  if(parameters$parasite == "falciparum"){
+    ## P. falciparum has an age-dependent asymptomatic infectivity
+    update_to_asymptomatic_infection(
+      variables,
+      parameters,
+      timestep,
+      variables$state$get_index_of("D")$and(target)
+    )
+  } else if (parameters$parasite == "vivax"){
+    ## P. vivax has a constant asymptomatic infectivity
+    update_infection(
+      variables$state,
+      "A",
+      variables$infectivity,
+      parameters$ca,
+      variables$state$get_index_of("D")$and(target)
+    )
+  }
+
+  update_infection(
+    variables$state,
+    "U",
+    variables$infectivity,
+    parameters$cu,
+    variables$state$get_index_of("A")$and(target)
+  )
+
+  update_infection(
+    variables$state,
+    "S",
+    variables$infectivity,
+    0,
+    variables$state$get_index_of("U")$and(target)
+  )
+
+  update_infection(
+    variables$state,
+    "S",
+    variables$infectivity,
+    0,
+    variables$state$get_index_of("Tr")$and(target)
+  )
+
+}
+
 #' @title Update the state of an individual as infection events occur
 #' @description Randomly moves individuals towards the later stages of disease
 #' and updates their infectivity
@@ -8,51 +97,14 @@
 #' @param new_infectivity the new infectivity of the progressed individuals
 #' @noRd
 update_infection <- function(
-  state,
-  to_state,
-  infectivity,
-  new_infectivity,
-  to_move
-  ) {
+    state,
+    to_state,
+    infectivity,
+    new_infectivity,
+    to_move
+) {
   state$queue_update(to_state, to_move)
   infectivity$queue_update(new_infectivity, to_move)
-}
-
-create_progression_process <- function(
-  state,
-  from_state,
-  to_state,
-  rate,
-  infectivity,
-  new_infectivity
-  ) {
-  function(timestep) {
-    to_move <- state$get_index_of(from_state)$sample(1/rate)
-    update_infection(
-      state,
-      to_state,
-      infectivity,
-      new_infectivity,
-      to_move
-    )
-  }
-}
-
-create_asymptomatic_progression_process <- function(
-  state,
-  rate,
-  variables,
-  parameters
-  ) {
-  function(timestep) {
-    to_move <- state$get_index_of('D')$sample(1/rate)
-    update_to_asymptomatic_infection(
-      variables,
-      parameters,
-      timestep,
-      to_move
-    )
-  }
 }
 
 #' @title Modelling the progression to asymptomatic disease
@@ -63,11 +115,11 @@ create_asymptomatic_progression_process <- function(
 #' @param parameters model parameters
 #' @noRd
 update_to_asymptomatic_infection <- function(
-  variables,
-  parameters,
-  timestep,
-  to_move
-  ) {
+    variables,
+    parameters,
+    timestep,
+    to_move
+) {
   if (to_move$size() > 0) {
     variables$state$queue_update('A', to_move)
     new_infectivity <- asymptomatic_infectivity(
@@ -80,42 +132,6 @@ update_to_asymptomatic_infection <- function(
     )
     variables$infectivity$queue_update(
       new_infectivity,
-      to_move
-    )
-  }
-}
-
-#' @title Sub-patent progression for vivax model
-#' @description
-#' randomly selects individuals to clear sub-patent infections based on impact of
-#' individual immunity to detectability
-#'
-#' @param state the human state variable
-#' @param variables the available human variables
-#' @param parameters model parameters
-#' @noRd
-create_subpatent_progression_process <- function(
-  state,
-  variables,
-  parameters
-  ){
-  function(timestep) {
-    ## Get recovery rates for each subpatent individual
-    subpatent_index <- state$get_index_of("U")
-    rate <- anti_parasite_immunity(
-      parameters$dpcr_min, parameters$dpcr_max, parameters$apcr50, parameters$kpcr,
-      variables$id$get_values(index = subpatent_index),
-      variables$idm$get_values(index = subpatent_index))
-
-    ## Get individuals who are going to change
-    to_move <- subpatent_index$sample(1/rate)
-
-    # update individuals and infectivity
-    update_infection(
-      state,
-      to_state = "S",
-      infectivity = variables$infectivity,
-      new_infectivity = 0,
       to_move
     )
   }

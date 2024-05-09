@@ -34,7 +34,7 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
       died <- individual::Bitset$new(pop)$insert(bernoulli_multi_p(deathrates))
       renderer$render('natural_deaths', died$size(), timestep)
     }
-    reset_target(variables, events, died, 'S', timestep, parameters)
+    reset_target(variables, events, died, 'S', parameters, timestep)
     sample_maternal_immunity(variables, died, timestep, parameters)
   }
 }
@@ -88,7 +88,7 @@ sample_maternal_immunity <- function(variables, target, timestep, parameters) {
   }
 }
 
-reset_target <- function(variables, events, target, state, timestep, parameters) {
+reset_target <- function(variables, events, target, state, parameters, timestep) {
   if (target$size() > 0) {
     # clear events
     to_clear <- c(
@@ -127,12 +127,18 @@ reset_target <- function(variables, events, target, state, timestep, parameters)
     variables$drug_time$queue_update(-1, target)
 
     # vaccination
-    variables$pev_timestep$queue_update(-1, target)
+    variables$last_pev_timestep$queue_update(-1, target)
+    variables$last_eff_pev_timestep$queue_update(-1, target)
     variables$pev_profile$queue_update(-1, target)
     variables$tbv_vaccinated$queue_update(-1, target)
 
     # onwards infectiousness
     variables$infectivity$queue_update(0, target)
+
+    # treated compartment residence time:
+    if(!is.null(variables$dt)) {
+      variables$dt$queue_update(parameters$dt, target)
+    }
 
     # zeta and zeta group and vector controls survive rebirth
   }

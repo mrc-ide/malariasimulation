@@ -1,6 +1,5 @@
 #' @title Create listeners for MDA events
 #' @param variables the variables available in the model
-#' @param administer_event the event schedule for drug administration
 #' @param drug the drug to administer
 #' @param timesteps timesteps for each round
 #' @param coverages the coverage for each round
@@ -14,7 +13,6 @@
 #' @noRd
 create_mda_listeners <- function(
   variables,
-  administer_event,
   drug,
   timesteps,
   coverages,

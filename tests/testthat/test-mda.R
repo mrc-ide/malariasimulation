@@ -85,7 +85,6 @@ test_that('MDA moves the diseased and non-diseased population correctly', {
 
   listener <- create_mda_listeners(
     variables,
-    events$mda_administer,
     parameters$mda_drug,
     parameters$mda_timesteps,
     parameters$mda_coverages,
@@ -147,6 +146,7 @@ test_that('MDA moves the diseased and non-diseased population correctly', {
     1,
     100
   )
+
 })
 
 test_that('MDA moves the diseased and non-diseased population correctly - second round, varying age range', {
@@ -180,7 +180,6 @@ test_that('MDA moves the diseased and non-diseased population correctly - second
 
   listener <- create_mda_listeners(
     variables,
-    events$mda_administer,
     parameters$mda_drug,
     parameters$mda_timesteps,
     parameters$mda_coverages,
@@ -269,7 +268,6 @@ test_that('MDA ignores non-detectable asymptomatics', {
 
   listener <- create_mda_listeners(
     variables,
-    events$mda_administer,
     parameters$mda_drug,
     parameters$mda_timesteps,
     parameters$mda_coverages,

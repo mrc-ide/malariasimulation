@@ -16,7 +16,7 @@ The parameters are defined below.
 human fixed state transitions:
 \itemize{
 \item dd - the delay for humans to move from state D to A; default = 5
-\item dt - the delay for humans to move from state Tr to Ph; default = 5
+\item dt - the delay for humans to move from state Tr to S; default = 5
 \item da - the delay for humans to move from state A to U; default = 195
 \item du - the delay for humans to move from state U to S (p.f only); default = 110
 }
@@ -181,8 +181,8 @@ outputs (p.f only); default = turned off
 \item prevalence_rendering_min_ages - the minimum ages for clinical prevalence
 outputs (pcr and lm detectable infections); default = 730
 \item prevalence_rendering_max_ages - the corresponding max ages; default = 3650
-\item n_hypnozoites_rendering_min_ages - the minimum ages for number with hypnozoites outputs (p.v only); default = numeric(0)
-\item n_hypnozoites_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item n_with_hypnozoites_rendering_min_ages - the minimum ages for number with hypnozoites outputs (p.v only); default = numeric(0)
+\item n_with_hypnozoites_rendering_max_ages - the corresponding max ages; default = numeric(0)
 \item ica_rendering_min_ages - the minimum ages for acquired clinical immunity outputs; default = numeric(0)
 \item ica_rendering_max_ages - the corresponding max ages; default = numeric(0)
 \item icm_rendering_min_ages - the minimum ages for maternal clinical immunity outputs; default = numeric(0)
@@ -253,9 +253,9 @@ please set species parameters using the convenience function
 \item beta - the average number of eggs laid per female mosquito per day; default = 21.2
 \item total_M - the initial number of adult mosquitos in the simulation; default = 1000
 \item init_foim - the FOIM used to calculate the equilibrium state for mosquitoes; default = 0
-\item species - names of the species in the simulation; default = "All"
+\item species - names of the species in the simulation; default = "gamb"
 \item species_proportions - the relative proportions of each species; default = 1
-\item blood_meal_rates - the blood meal rates for each species; default = 0.3333333333
+\item blood_meal_rates - the blood meal rates for each species; default = 1/3
 \item Q0 - proportion of blood meals taken on humans; default = 0.92
 \item foraging_time - time spent taking blood meals; default = 0.69
 }
@@ -325,6 +325,23 @@ please set TBV parameters with the convenience functions
 \item tbv_timesteps; default = NULL
 \item tbv_coverages; default = NULL
 \item tbv_ages; default = NULL
+}
+
+Antimalarial resistance parameters:
+please set antimalarial resistance parameters with the convenience functions in
+\code{antimalarial_resistance.R:set_antimalarial_resistance}
+\itemize{
+\item antimalarial_resistance - boolean for if antimalarial resistance is enabled; default = FALSE
+\item antimalarial_resistance_drug - vector of drugs for which resistance can be parameterised; default = NULL
+\item antimalarial_resistance_timesteps - vector of time steps on which resistance updates occur; default = NULL
+\item artemisinin_resistant_proportion - vector of proportions of infections resistant to the artemisinin component of a given drug; default = NULL
+\item partner_drug_resistance_proportion - vector of proportions of infections resistant to the parter drug component of a given drug; default = NULL
+\item slow_parasite_clearance_probability - vector of probabilities of slow parasite clearance for a given drug; default = NULL
+\item early_treatment_failure_probability - vector of probabilities of early treatment failure for a given drug; default = NULL
+\item late_clinical_failure_probability - vector of probabilities of late clinical failure for a given drug; default = NULL
+\item late_parasitological_failure_probability - vector of probabilities of late parasitological failure for a given drug; default = NULL
+\item reinfection_during_prophylaxis_probability - vector of probabilities of reinfection during prophylaxis for a given drug; default = NULL
+\item dt_slow_parasite_clearance - the delay for humans experiencing slow parasite clearance to move from state Tr to S; default = NULL
 }
 
 miscellaneous:

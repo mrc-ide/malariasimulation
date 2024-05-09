@@ -14,15 +14,11 @@ test_that('biting_process integrates mosquito effects and human infection', {
   models <- parameterise_mosquito_models(parameters, timestep)
   solvers <- parameterise_solvers(models, parameters)
 
-  biting_process <- create_biting_process(
-    renderer,
-    solvers,
-    models,
-    variables,
-    events,
-    parameters,
-    lagged_foim,
-    lagged_eir
+  infection_outcome <- CompetingOutcome$new(
+    targeted_process = function(timestep, target){
+      infection_process_resolved_hazard(timestep, target, variables, renderer, parameters)
+    },
+    size = parameters$human_population
   )
 
   bitten <- list(bitten_humans = individual::Bitset$new(parameters$human_population),
@@ -33,7 +29,21 @@ test_that('biting_process integrates mosquito effects and human infection', {
 
   mockery::stub(biting_process, 'simulate_bites', bites_mock)
   mockery::stub(biting_process, 'simulate_infection', infection_mock)
-  biting_process(timestep)
+
+  biting_process(
+    renderer,
+    solvers,
+    models,
+    variables,
+    events,
+    parameters,
+    lagged_foim,
+    lagged_eir,
+    mixing = 1,
+    mixing_index = 1,
+    infection_outcome,
+    timestep
+  )
 
   mockery::expect_args(
     bites_mock,
@@ -62,6 +72,7 @@ test_that('biting_process integrates mosquito effects and human infection', {
     parameters,
     timestep,
     renderer,
+    infection_outcome,
     bitten$n_bitten_each
   )
 })
@@ -87,8 +98,8 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
     c(rep('Im', 10), rep('Sm', 15), rep('NonExistent', 75))
   )
   variables$species <- individual::CategoricalVariable$new(
-    c('All'),
-    rep('All', 100)
+    c('gamb'),
+    rep('gamb', 100)
   )
 
   lambda_mock <- mockery::mock(c(.5, .5, .5, .5))
@@ -134,7 +145,7 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
   expect_equal(effects_args[[1]][[8]], parameters)
   expect_equal(effects_args[[1]][[9]], timestep)
 
-  mockery::expect_args(eqs_update, 1, models[[1]], 25, f, parameters$mum)
+  mockery::expect_args(eqs_update, 1, models[[1]]$.model, 25, f, parameters$mum)
   mockery::expect_args(
     pois_mock,
     1,

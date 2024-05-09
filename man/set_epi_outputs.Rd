@@ -12,7 +12,7 @@ set_epi_outputs(
   clinical_incidence = NULL,
   severe_incidence = NULL,
   prevalence = NULL,
-  n_hypnozoites = NULL,
+  n_with_hypnozoites = NULL,
   ica = NULL,
   icm = NULL,
   iva = NULL,
@@ -38,8 +38,6 @@ set_epi_outputs(
 
 \item{prevalence}{age breaks for clinical prevalence outputs (pcr and lm detectable infections); default = c(730, 3650)}
 
-\item{n_hypnozoites}{age breaks for hypnozoite prevalence outputs (p.v only); default = NULL}
-
 \item{ica}{age breaks for acquired clinical immunity outputs; default = NULL}
 
 \item{icm}{age breaks for maternal clinical immunity outputs; default = NULL}
@@ -55,6 +53,8 @@ set_epi_outputs(
 \item{ib}{age breaks for blood immunity outputs (p.f only); default = NULL}
 
 \item{hypnozoites}{age breaks for hypnozoite prevalence outputs (p.v only); default = NULL}
+
+\item{n_hypnozoites}{age breaks for hypnozoite prevalence outputs (p.v only); default = NULL}
 }
 \description{
 Parameterise age grouped output rendering

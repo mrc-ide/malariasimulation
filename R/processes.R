@@ -14,6 +14,7 @@
 #' population and species in the simulation
 #' @param lagged_infectivity a list of LaggedValue objects for FOIM for each population
 #' in the simulation
+#' @param timesteps Number of timesteps
 #' @param mixing a vector of mixing coefficients for the lagged transmission
 #' values (default: 1)
 #' @param mixing_index an index for this population's position in the
@@ -29,6 +30,7 @@ create_processes <- function(
     correlations,
     lagged_eir,
     lagged_infectivity,
+    timesteps,
     mixing = 1,
     mixing_index = 1
 ) {
@@ -77,15 +79,39 @@ create_processes <- function(
     )
   }
 
+  # =====================================================
+  # Competing Hazard Outcomes (Infections and Recoveries)
+  # =====================================================
+
+  infection_outcome <- CompetingOutcome$new(
+    targeted_process = function(timestep, target){
+      infection_process_resolved_hazard(timestep, target, infection_outcome$source_humans,
+                                        variables, renderer, parameters,
+                                        prob = rate_to_prob(infection_outcome$rates),
+                                        relative_rate = infection_outcome$relative_rates)
+    },
+    size = parameters$human_population
+  )
+
+  recovery_outcome <- CompetingOutcome$new(
+    targeted_process = function(timestep, target){
+      recovery_process_resolved_hazard(timestep, target, variables, parameters, renderer)
+    },
+    size = parameters$human_population
+  )
+
+  create_infection_recovery_hazard_process <- CompetingHazard$new(outcomes = list(infection_outcome, recovery_outcome))
+
   # ==============================
   # Biting and mortality processes
   # ==============================
-  # schedule infections for humans and set last_boosted_*
+  # simulate infections for humans and set last_boosted_*
   # move mosquitoes into incubating state
   # kill mosquitoes caught in vector control
-  processes <- c(
-    processes,
-    create_biting_process(
+
+
+  create_infection_rates_process <- function(timestep){
+    biting_process(
       renderer,
       solvers,
       models,
@@ -95,58 +121,35 @@ create_processes <- function(
       lagged_infectivity,
       lagged_eir,
       mixing,
-      mixing_index
-    ),
-    create_mortality_process(variables, events, renderer, parameters),
-    if(parameters$parasite == "falciparum"){ ## P. falciparum has an age-dependent asymptomatic infectivity
-      create_asymptomatic_progression_process(
-        variables$state,
-        parameters$dd,
-        variables,
-        parameters
-      )
-    } else if (parameters$parasite == "vivax"){ ## P. vivax has a constant asymptomatic infectivity
-      create_progression_process(
-        variables$state,
-        'D',
-        'A',
-        parameters$da,
-        variables$infectivity,
-        parameters$ca
-      )
-    },
-    create_progression_process(
-      variables$state,
-      'A',
-      'U',
-      parameters$da,
-      variables$infectivity,
-      parameters$cu
-    ),
-    if(parameters$parasite == "falciparum"){
-      create_progression_process(
-        variables$state,
-        'U',
-        'S',
-        parameters$du,
-        variables$infectivity,
-        0)
-    } else if (parameters$parasite == "vivax"){
-      create_subpatent_progression_process(
-        variables$state,
-        variables,
-        parameters
-      )
-    },
-    create_progression_process(
-      variables$state,
-      'Tr',
-      'S',
-      parameters$dt,
-      variables$infectivity,
-      0
+      mixing_index,
+      infection_outcome,
+      timestep)
+  }
+
+  # ===================
+  # Disease Progression
+  # ===================
+
+  dt_input <- parameters$dt
+  # if antimalarial resistance is switched on, assign dt variable values (for slow parasite clearance)
+  if(parameters$antimalarial_resistance) {
+    dt_input <- variables$dt
+  }
+
+  create_recovery_rates_process <- function(timestep){
+    calculate_recovery_rates(
+      variables,
+      parameters,
+      dt_input,
+      recovery_outcome
     )
-  )
+  }
+
+  processes <- c(processes,
+                 create_infection_rates_process,
+                 create_recovery_rates_process,
+                 create_infection_recovery_hazard_process$resolve)
+
 
   # ===============
   # ODE integration
@@ -311,6 +314,15 @@ create_processes <- function(
     )
   }
 
+  # ======================
+  # Mortality step
+  # ======================
+  # Mortality is not resolved as a competing hazard
+
+  processes <- c(
+    processes,
+    create_mortality_process(variables, events, renderer, parameters))
+
   processes
 }
 
@@ -327,8 +339,9 @@ create_processes <- function(
 #' @param rate the exponential rate
 #' @noRd
 create_exponential_decay_process <- function(variable, rate) {
+  stopifnot(inherits(variable, "DoubleVariable"))
   decay_rate <- exp(-1/rate)
-  function(timestep) variable$queue_update(variable$get_values() * decay_rate)
+  exponential_process_cpp(variable$.variable, decay_rate)
 }
 
 #' @title Create and initialise lagged_infectivity object
@@ -381,10 +394,10 @@ create_lagged_eir <- function(variables, solvers, parameters) {
 create_hypnozoite_decay_process <- function(hypnozoites, gammal, renderer){
   function(timestep){
     to_decay <- bernoulli_multi_p(p = rate_to_prob(hypnozoites$get_values() * gammal))
-      hypnozoites$queue_update(
-        hypnozoites$get_values(to_decay) - 1,
-        to_decay
-      )
-      renderer$render('n_decayed', length(to_decay), timestep)
+    hypnozoites$queue_update(
+      hypnozoites$get_values(to_decay) - 1,
+      to_decay
+    )
+    renderer$render('n_decayed', length(to_decay), timestep)
   }
 }

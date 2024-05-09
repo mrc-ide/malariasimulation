@@ -15,8 +15,10 @@
 #' values (default: 1)
 #' @param mixing_index an index for this population's position in the
 #' lagged_infectivity list (default: 1)
+#' @param infection_outcome competing hazards object for infection rates
+#' @param timestep the current timestep
 #' @noRd
-create_biting_process <- function(
+biting_process <- function(
     renderer,
     solvers,
     models,
@@ -26,38 +28,38 @@ create_biting_process <- function(
     lagged_infectivity,
     lagged_eir,
     mixing = 1,
-    mixing_index = 1
+    mixing_index = 1,
+    infection_outcome,
+    timestep
 ) {
-  function(timestep) {
-    # Calculate combined EIR
-    age <- get_age(variables$birth$get_values(), timestep)
 
-    bitten_humans <- simulate_bites(
-      renderer,
-      solvers,
-      models,
-      variables,
-      events,
-      age,
-      parameters,
-      timestep,
-      lagged_infectivity,
-      lagged_eir,
-      mixing,
-      mixing_index
-    )
+  age <- get_age(variables$birth$get_values(), timestep)
 
-    simulate_infection(
-      variables,
-      events,
-      bitten_humans$bitten_humans,
-      age,
-      parameters,
-      timestep,
-      renderer,
-      bitten_humans$n_bites_each
-    )
-  }
+  bitten_humans <- simulate_bites(
+    renderer,
+    solvers,
+    models,
+    variables,
+    events,
+    age,
+    parameters,
+    timestep,
+    lagged_infectivity,
+    lagged_eir,
+    mixing,
+    mixing_index,
+    infection_outcome
+  )
+  simulate_infection(
+    variables,
+    events,
+    bitten_humans,
+    age,
+    parameters,
+    timestep,
+    renderer,
+    infection_outcome
+  )
 }
 
 #' @importFrom stats rpois
@@ -73,7 +75,8 @@ simulate_bites <- function(
     lagged_infectivity,
     lagged_eir,
     mixing = 1,
-    mixing_index = 1
+    mixing_index = 1,
+    infection_outcome
 ) {
 
   bitten_humans <- individual::Bitset$new(parameters$human_population)
@@ -106,7 +109,7 @@ simulate_bites <- function(
 
   for (s_i in seq_along(parameters$species)) {
     species_name <- parameters$species[[s_i]]
-    solver_states <- solver_get_states(solvers[[s_i]])
+    solver_states <- solvers[[s_i]]$get_states()
     p_bitten <- prob_bitten(timestep, variables, s_i, parameters)
     Q0 <- parameters$Q0[[s_i]]
     W <- average_p_successful(p_bitten$prob_bitten_survives, .pi, Q0)
@@ -142,6 +145,10 @@ simulate_bites <- function(
       ) * mixing
     )
 
+    ## This is where the rates of biting are calculated.
+    ## Which means that it's here where we would
+    ## multiply these with the infection rate to get overall rates
+
     renderer$render(paste0('EIR_', species_name), species_eir, timestep)
     EIR <- EIR + species_eir
 
@@ -154,6 +161,13 @@ simulate_bites <- function(
     }
 
     if (expected_bites > 0) {
+
+      # Rates of biting:
+      biting_infection_relapse_rate <- expected_bites * lambda/sum(lambda) * 0.5 + variables$hypnozoites$get_values() * parameters$f
+      infection_outcome$set_rates(biting_infection_relapse_rate)
+
+      ## This needs to be multiplied by the rate of infection
+
       n_bites <- rpois(1, expected_bites)
       if (n_bites > 0) {
         bitten <- fast_weighted_sample(n_bites, lambda)
@@ -184,7 +198,7 @@ simulate_bites <- function(
     if (parameters$individual_mosquitoes) {
       # update the ODE with stats for ovoposition calculations
       aquatic_mosquito_model_update(
-        models[[s_i]],
+        models[[s_i]]$.model,
         species_index$size(),
         f,
         mu
@@ -206,7 +220,7 @@ simulate_bites <- function(
       )
     } else {
       adult_mosquito_model_update(
-        models[[s_i]],
+        models[[s_i]]$.model,
         mu,
         foim,
         solver_states[[ADULT_ODE_INDICES['Sm']]],
@@ -214,7 +228,7 @@ simulate_bites <- function(
       )
     }
   }
-
+  
   renderer$render('n_bitten', bitten_humans$size(), timestep)
 
   if(parameters$parasite == "falciparum"){
@@ -263,7 +277,7 @@ calculate_infectious <- function(species, solvers, variables, parameters) {
       )
     )
   }
-  calculate_infectious_compartmental(solver_get_states(solvers[[species]]))
+  calculate_infectious_compartmental(solvers[[species]]$get_states())
 }
 
 calculate_infectious_individual <- function(

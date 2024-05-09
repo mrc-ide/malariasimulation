@@ -21,7 +21,7 @@
 #' human fixed state transitions:
 #'
 #' * dd - the delay for humans to move from state D to A; default = 5
-#' * dt - the delay for humans to move from state Tr to Ph; default = 5
+#' * dt - the delay for humans to move from state Tr to S; default = 5
 #' * da - the delay for humans to move from state A to U; default = 195
 #' * du - the delay for humans to move from state U to S (p.f only); default = 110
 #'
@@ -235,9 +235,9 @@
 #' * beta - the average number of eggs laid per female mosquito per day; default = 21.2
 #' * total_M - the initial number of adult mosquitos in the simulation; default = 1000
 #' * init_foim - the FOIM used to calculate the equilibrium state for mosquitoes; default = 0
-#' * species - names of the species in the simulation; default = "All"
+#' * species - names of the species in the simulation; default = "gamb"
 #' * species_proportions - the relative proportions of each species; default = 1
-#' * blood_meal_rates - the blood meal rates for each species; default = 0.3333333333
+#' * blood_meal_rates - the blood meal rates for each species; default = 1/3
 #' * Q0 - proportion of blood meals taken on humans; default = 0.92
 #' * foraging_time - time spent taking blood meals; default = 0.69
 #'
@@ -303,6 +303,22 @@
 #' * tbv_timesteps; default = NULL
 #' * tbv_coverages; default = NULL
 #' * tbv_ages; default = NULL
+#'
+#' Antimalarial resistance parameters:
+#' please set antimalarial resistance parameters with the convenience functions in
+#' `antimalarial_resistance.R:set_antimalarial_resistance`
+#'
+#' * antimalarial_resistance - boolean for if antimalarial resistance is enabled; default = FALSE
+#' * antimalarial_resistance_drug - vector of drugs for which resistance can be parameterised; default = NULL
+#' * antimalarial_resistance_timesteps - vector of time steps on which resistance updates occur; default = NULL
+#' * artemisinin_resistant_proportion - vector of proportions of infections resistant to the artemisinin component of a given drug; default = NULL
+#' * partner_drug_resistance_proportion - vector of proportions of infections resistant to the parter drug component of a given drug; default = NULL
+#' * slow_parasite_clearance_probability - vector of probabilities of slow parasite clearance for a given drug; default = NULL
+#' * early_treatment_failure_probability - vector of probabilities of early treatment failure for a given drug; default = NULL
+#' * late_clinical_failure_probability - vector of probabilities of late clinical failure for a given drug; default = NULL
+#' * late_parasitological_failure_probability - vector of probabilities of late parasitological failure for a given drug; default = NULL
+#' * reinfection_during_prophylaxis_probability - vector of probabilities of reinfection during prophylaxis for a given drug; default = NULL
+#' * dt_slow_parasite_clearance - the delay for humans experiencing slow parasite clearance to move from state Tr to S; default = NULL
 #'
 #'
 #' miscellaneous:
@@ -448,6 +464,18 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       pmc_timesteps = NULL,
       pmc_coverages = NULL,
       pcs_ages = -1,
+      # antimalarial resistance
+      antimalarial_resistance = FALSE,
+      antimalarial_resistance_drug = NULL,
+      antimalarial_resistance_timesteps = NULL,
+      artemisinin_resistance_proportion = NULL,
+      partner_drug_resistance_proportion = NULL,
+      slow_parasite_clearance_probability = NULL,
+      early_treatment_failure_probability = NULL,
+      late_clinical_failure_probability = NULL,
+      late_parasitological_failure_probability = NULL,
+      reinfection_during_prophylaxis_probability = NULL,
+      dt_slow_parasite_clearance = NULL,
       # tbv
       tbv = FALSE,
       tbv_mt = 35,

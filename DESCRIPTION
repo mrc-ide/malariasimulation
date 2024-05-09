@@ -1,6 +1,6 @@
 Package: malariasimulation
 Title: An individual based model for malaria
-Version: 1.6.0
+Version: 1.6.1
 Authors@R: c(
   person(
     given = "Giovanni",
@@ -33,6 +33,30 @@ Authors@R: c(
     email = 'r.fitzjohn@imperial.ac.uk'
   ),
   person(
+    given = "Richard",
+    family = "Sheppard",
+    role = c('aut'),
+    email = 'r.sheppard11@imperial.ac.uk'
+  ),
+  person(
+    given = "Tom",
+    family = "Brewer",
+    role = c('aut'),
+    email = 'thomas.brewer16@imperial.ac.uk'
+  ),
+  person(
+    given = "Kelly",
+    family = "McCain",
+    role = c('aut'),
+    email = 'k.mccain22@imperial.ac.uk'
+  ),
+  person(
+    given = "Lydia",
+    family = "Haile",
+    role = c('aut'),
+    email = 'l.haile@imperial.ac.uk'
+  ),
+  person(
     given = "Imperial College of Science, Technology and Medicine",
     family = "",
     role = c('cph'),
@@ -46,14 +70,16 @@ Remotes:
   mrc-ide/malariaEquilibrium,
   mrc-ide/malariaEquilibriumVivax,
   mrc-ide/individual
+Additional_repositories:
+  https://mrc-ide.r-universe.dev
 Imports:
-    individual (>= 0.1.7),
+    individual (>= 0.1.16),
     malariaEquilibrium (>= 1.0.1),
     malariaEquilibriumVivax,
     Rcpp,
     statmod,
     MASS,
-    dqrng,
+    dqrng (>= 0.3.2.2),
     sitmo,
     BH,
     R6,
@@ -69,7 +95,7 @@ Suggests:
   ggplot2,
   covr,
   mgcv 
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Roxygen: list(markdown = TRUE)
 LinkingTo:
   Rcpp,

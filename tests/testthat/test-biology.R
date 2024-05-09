@@ -98,7 +98,7 @@ test_that('FOIM is consistent with equilibrium', {
   expect_equal(
     expected_foim,
     actual_foim,
-    tolerance = 1e-4
+    tolerance = 1e-3
   )
 })
 
@@ -178,6 +178,7 @@ test_that('mosquito_limit is set to 0 for 0 EIR', {
 
 test_that('mosquito_limit is set to a sensible level', {
   EIRs <- 5
+  timestep <- 10
 
   seasonalities <- list(
     list(
@@ -251,3 +252,4 @@ test_that('mosquito_effects correctly samples mortalities and infections without
     0
   )
 })
+

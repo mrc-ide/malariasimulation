@@ -321,6 +321,8 @@ initial_immunity <- function(
   ) {
   if (!is.null(eq)) {
     age <- age / 365
+    # older ages must be assigned within the equilibrium age bounds
+    age[age>=max(eq[[1]][, 'age'])] <- max(eq[[1]][, 'age'])-0.01
     return(vnapply(
       seq_along(age),
       function(i) {
@@ -338,6 +340,8 @@ initial_state <- function(parameters, age, groups, eq, states) {
   if (!is.null(eq)) {
     eq_states <- c('S', 'D', 'A', 'U', 'T')
     age <- age / 365
+    # older ages must be assigned within the equilibrium age bounds
+    age[age>=max(eq[[1]][, 'age'])] <- max(eq[[1]][, 'age'])-0.01
     return(vcapply(
       seq_along(age),
       function(i) {

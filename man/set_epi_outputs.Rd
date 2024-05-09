@@ -31,6 +31,18 @@ set_epi_outputs(
 \item{severe_incidence}{age breaks for severe incidence outputs; default = NULL}
 
 \item{prevalence}{age breaks for clinical prevalence outputs (pcr and lm detectable infections); default = c(730, 3650)}
+
+\item{ica}{age breaks for average acquired clinical immunity; default = NULL}
+
+\item{icm}{age breaks for average maternal clinical immunity; default = NULL}
+
+\item{iva}{age breaks for average acquired severe immunity; default = NULL}
+
+\item{ivm}{age breaks for average maternal severe immunity; default = NULL}
+
+\item{id}{age breaks for average immunity to detectability; default = NULL}
+
+\item{ib}{age breaks for average blood immunity; default = NULL}
 }
 \description{
 Parameterise age grouped output rendering

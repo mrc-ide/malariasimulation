@@ -124,7 +124,7 @@
 #' vector biology:
 #' species specific values are vectors
 #' please set species parameters using the convenience function
-#' `set_species`
+#' \code{\link{set_species}}
 #' 
 #' * beta - the average number of eggs laid per female mosquito per day; default = 21.2
 #' * total_M - the initial number of adult mosquitos in the simulation; default = 1000
@@ -137,7 +137,7 @@
 #'
 #' seasonality and carrying capacity parameters:
 #' please set flexible carrying capacity using the convenience function
-#' `set_carrying_capacity`
+#' \code{\link{set_carrying_capacity}}
 #' 
 #' * model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall; default = FALSE
 #' * g0 - rainfall fourier parameter; default = 2
@@ -158,7 +158,7 @@
 #' 
 #' treatment parameters:
 #' please set treatment parameters with the convenience functions
-#' `set_drugs` and `set_clinical_treatment`
+#' \code{\link{set_drugs}} and \code{\link{set_clinical_treatment}}
 #'
 #' * drug_efficacy - a vector of efficacies for available drugs; default = turned off
 #' * drug_rel_c - a vector of relative onward infectiousness values for drugs; default = turned off
@@ -172,11 +172,11 @@
 #'
 #' MDA, SMC and PMC parameters:
 #' please set these parameters with the convenience functions
-#' `set_mda`, `set_smc` and `set_pmc`,
-#' with `peak_season_offset`
+#' \code{\link{set_mda}}, \code{\link{set_smc}} and \code{\link{set_pmc}},
+#' with \code{\link{peak_season_offset}}
 #'
 #' bednet, irs and mosquito feeding cycle parameters:
-#' please set vector control strategies using `set_betnets` and `set_spraying`
+#' please set vector control strategies using \code{\link{set_betnets}} and \code{\link{set_spraying}}
 #'
 #' * bednets - boolean for if bednets are enabled; default = FALSE
 #' * phi_bednets - proportion of bites taken in bed; default = 0.85
@@ -186,9 +186,8 @@
 #'
 #'
 #' PEV parameters:
-#' please set vaccine strategies with the convenience functions in
-#' `pev_parameters.R::set_pev_epi`
-#' `pev_parameters.R::set_mass_pev`
+#' please set vaccine strategies with the convenience functions
+#' \code{\link{set_pev_epi}} and \code{\link{set_mass_pev}}
 #'
 #' * pev_doses - the dosing schedule before the vaccine takes effect; default =
 #' c(0, 1.5 * 30, 3 * 30)
@@ -196,7 +195,7 @@
 #'
 #' TBV parameters:
 #' please set TBV parameters with the convenience functions in
-#' `vaccine_parameters.R::set_tbv`
+#' \code{\link{set_tbv}}
 #'
 #' * tbv_mt - effect on treated infectiousness; default = 35
 #' * tbv_md - effect on diseased infectiousness; default = 46.7
@@ -213,7 +212,7 @@
 #' 
 #' Antimalarial resistance parameters:
 #' please set antimalarial resistance parameters with the convenience functions in
-#' `antimalarial_resistance.R:set_antimalarial_resistance`
+#' \code{\link{set_antimalarial_resistance}}
 #' 
 #' * antimalarial_resistance - boolean for if antimalarial resistance is enabled; default = FALSE
 #' * antimalarial_resistance_drug - vector of drugs for which resistance can be parameterised; default = NULL
@@ -230,7 +229,7 @@
 #' rendering:
 #' All values are in timesteps and all ranges are inclusive.
 #' Please set rendered age groups using the convenience function
-#' `set_epi_outputs`
+#' \code{\link{set_epi_outputs}}
 #' 
 #' * age_group_rendering_min_ages - the minimum ages for population size outputs; default = turned off
 #' * age_group_rendering_max_ages - the corresponding max ages; default = turned off

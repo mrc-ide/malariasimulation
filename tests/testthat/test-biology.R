@@ -16,17 +16,11 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR', {
     vector_models <- parameterise_mosquito_models(parameters, 1)
     solvers <- parameterise_solvers(vector_models, parameters)
     estimated_eir <- calculate_eir(1, solvers, variables, parameters, 0)
-    age <- get_age(variables$birth$get_values(), 0)
-    psi <- unique_biting_rate(age, parameters)
-    omega <- mean(psi)
-    mean(estimated_eir) / omega / population * 365
+    mean(estimated_eir) / population * 365
   })
 
   expect_equal(
-    actual_EIR * 0.766,
-    # 0.766 is the population average psi under an exponential pop distribution
-    # There's possibly a better way of calculating this, depending on what exactly
-    # we're testing here, e.g., we could remove lines 19-21 and omega from line 22
+    actual_EIR,
     expected_EIR,
     tolerance = 1e-2
   )
@@ -47,17 +41,11 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR (with h
     vector_models <- parameterise_mosquito_models(parameters, 1)
     solvers <- parameterise_solvers(vector_models, parameters)
     estimated_eir <- calculate_eir(1, solvers, variables, parameters, 0)
-    age <- get_age(variables$birth$get_values(), 0)
-    psi <- unique_biting_rate(age, parameters)
-    omega <- mean(psi)
-    mean(estimated_eir) / omega / population * 365
+    mean(estimated_eir) / population * 365
   })
 
   expect_equal(
-    actual_EIR * 0.766,
-    # 0.766 is the population average psi under an exponential pop distribution
-    # There's possibly a better way of calculating this, depending on what exactly
-    # we're testing here, e.g., we could remove lines 49-51 and omega from line 52
+    actual_EIR,
     expected_EIR,
     tolerance = 1e-2
   )

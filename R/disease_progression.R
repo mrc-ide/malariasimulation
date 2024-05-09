@@ -1,3 +1,79 @@
+#' @title Calculate recovery rates
+#' @description Calculates recovery rates for each individual in the population
+#' for storage in competing hazards object and future resolution
+#'
+#' @param variables the available human variables
+#' @param parameters model parameters
+#' @param recovery_outcome competing hazards object for recovery rates
+#' @noRd
+calculate_recovery_rates <- function(variables, parameters, recovery_outcome, dt_input){
+
+  # Get correct input for dt depending on spc
+  if(isFALSE(parameters$antimalarial_resistance) & length(dt_input) == 1 & is.numeric(dt_input)){
+    dt_v <- dt_input
+  } else if (isTRUE(parameters$antimalarial_resistance)) {
+    dt_v <- dt_input$and(variables$state$get_index_of("Tr")$to_vector())$to_vector()
+  }
+  
+  recovery_rates <- numeric(length = parameters$human_population)
+  recovery_rates[variables$state$get_index_of("D")$to_vector()] <- 1/parameters$dd
+  recovery_rates[variables$state$get_index_of("A")$to_vector()] <- 1/parameters$da
+  recovery_rates[variables$state$get_index_of("U")$to_vector()] <- 1/parameters$du
+  recovery_rates[variables$state$get_index_of("Tr")$to_vector()] <- 1/dt_v
+  recovery_outcome$set_rates(recovery_rates)
+}
+
+#' @title Disease progression outcomes (recovery)
+#' @description Following resolution of competing hazards, update state and
+#' infectivity of sampled individuals
+#'
+#' @param timestep the current timestep
+#' @param target the sampled recovering individuals
+#' @param variables the available human variables
+#' @param parameters model parameters
+#' @param renderer competing hazards object for recovery rates
+#' @noRd
+recovery_process_resolved_hazard <- function(
+    timestep,
+    target,
+    variables,
+    parameters,
+    renderer
+){
+  
+  update_to_asymptomatic_infection(
+    variables,
+    parameters,
+    timestep,
+    variables$state$get_index_of("D")$and(target)
+  )
+  
+  update_infection(
+    variables$state,
+    "U",
+    variables$infectivity,
+    parameters$cu,
+    variables$state$get_index_of("A")$and(target)
+  )
+  
+  update_infection(
+    variables$state,
+    "S",
+    variables$infectivity,
+    0,
+    variables$state$get_index_of("U")$and(target)
+  )
+  
+  update_infection(
+    variables$state,
+    "S",
+    variables$infectivity,
+    0,
+    variables$state$get_index_of("Tr")$and(target)
+  )
+  
+}
+
 #' @title Update the state of an individual as infection events occur
 #' @description Randomly moves individuals towards the later stages of disease
 #' and updates their infectivity
@@ -16,55 +92,6 @@ update_infection <- function(
   ) {
   state$queue_update(to_state, to_move)
   infectivity$queue_update(new_infectivity, to_move)
-}
-
-create_progression_process <- function(
-    state,
-    from_state,
-    to_state,
-    rate,
-    infectivity,
-    new_infectivity
-) {
-  function(timestep) {
-    
-    # Retrieve the indices of all individuals in the to_move state:
-    index <- state$get_index_of(from_state)
-    
-    # If the length of rate is greater than 1 (when it's a variable):
-    if (inherits(rate, "DoubleVariable")) {
-      rate <- rate$get_values(index)
-    }
-    
-    # Sample the individuals to be moved into a new Bitset using the transition rate(s):
-    to_move <- index$sample(1/rate)
-    
-    # Update the infection status of those individuals who are moving:
-    update_infection(
-      state,
-      to_state,
-      infectivity,
-      new_infectivity,
-      to_move
-    )
-  }
-}
-
-create_asymptomatic_progression_process <- function(
-  state,
-  rate,
-  variables,
-  parameters
-  ) {
-  function(timestep) {
-    to_move <- state$get_index_of('D')$sample(1/rate)
-    update_to_asymptomatic_infection(
-      variables,
-      parameters,
-      timestep,
-      to_move
-    )
-  }
 }
 
 #' @title Modelling the progression to asymptomatic disease

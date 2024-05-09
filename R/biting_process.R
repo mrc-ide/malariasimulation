@@ -15,8 +15,10 @@
 #' values (default: 1)
 #' @param mixing_index an index for this population's position in the
 #' lagged_infectivity list (default: 1)
+#' @param infection_outcome competing hazards object for infection rates
+#' @param timestep the current timestep
 #' @noRd
-create_biting_process <- function(
+biting_process <- function(
     renderer,
     solvers,
     models,
@@ -26,37 +28,38 @@ create_biting_process <- function(
     lagged_infectivity,
     lagged_eir,
     mixing = 1,
-    mixing_index = 1
+    mixing_index = 1,
+    infection_outcome,
+    timestep
 ) {
-  function(timestep) {
-    # Calculate combined EIR
-    age <- get_age(variables$birth$get_values(), timestep)
-    
-    bitten_humans <- simulate_bites(
-      renderer,
-      solvers,
-      models,
-      variables,
-      events,
-      age,
-      parameters,
-      timestep,
-      lagged_infectivity,
-      lagged_eir,
-      mixing,
-      mixing_index
-    )
-    
-    simulate_infection(
-      variables,
-      events,
-      bitten_humans,
-      age,
-      parameters,
-      timestep,
-      renderer
-    )
-  }
+
+  age <- get_age(variables$birth$get_values(), timestep)
+  
+  bitten_humans <- simulate_bites(
+    renderer,
+    solvers,
+    models,
+    variables,
+    events,
+    age,
+    parameters,
+    timestep,
+    lagged_infectivity,
+    lagged_eir,
+    mixing,
+    mixing_index
+  )
+  
+  simulate_infection(
+    variables,
+    events,
+    bitten_humans,
+    age,
+    parameters,
+    timestep,
+    renderer,
+    infection_outcome
+  )
 }
 
 #' @importFrom stats rpois
@@ -74,6 +77,7 @@ simulate_bites <- function(
     mixing = 1,
     mixing_index = 1
 ) {
+  
   bitten_humans <- individual::Bitset$new(parameters$human_population)
   
   human_infectivity <- variables$infectivity$get_values()
@@ -244,7 +248,6 @@ calculate_infectious_individual <- function(
     species_index,
     parameters
 ) {
-  
   infectious_index$copy()$and(species_index)$size()
 }
 

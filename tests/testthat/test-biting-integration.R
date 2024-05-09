@@ -14,16 +14,12 @@ test_that('biting_process integrates mosquito effects and human infection', {
   models <- parameterise_mosquito_models(parameters, timestep)
   solvers <- parameterise_solvers(models, parameters)
 
-  biting_process <- create_biting_process(
-    renderer,
-    solvers,
-    models,
-    variables,
-    events,
-    parameters,
-    lagged_foim,
-    lagged_eir
-  )
+  infection_outcome <- CompetingOutcome$new(
+    targeted_process = function(timestep, target){
+      infection_process_resolved_hazard(timestep, target, variables, renderer, parameters)
+    },
+    size = parameters$human_population
+    )
 
   bitten <- individual::Bitset$new(parameters$human_population)
   bites_mock <- mockery::mock(bitten)
@@ -31,8 +27,22 @@ test_that('biting_process integrates mosquito effects and human infection', {
 
   mockery::stub(biting_process, 'simulate_bites', bites_mock)
   mockery::stub(biting_process, 'simulate_infection', infection_mock)
-  biting_process(timestep)
-
+  
+  
+  biting_process(
+    renderer,
+    solvers,
+    models,
+    variables,
+    events,
+    parameters,
+    lagged_foim,
+    lagged_eir,
+    mixing = 1,
+    mixing_index = 1,
+    infection_outcome,
+    timestep
+  )
   mockery::expect_args(
     bites_mock,
     1,
@@ -59,7 +69,8 @@ test_that('biting_process integrates mosquito effects and human infection', {
     age,
     parameters,
     timestep,
-    renderer
+    renderer,
+    infection_outcome
   )
 })
 

@@ -242,7 +242,7 @@
 #' * foraging_time - time spent taking blood meals; default = 0.69
 #'
 #' feeding cycle:
-#' please set vector control strategies using `set_betnets` and `set_spraying`
+#' please set vector control strategies using `set_bednets` and `set_spraying`
 #'
 #' * bednets - boolean for if bednets are enabled; default = FALSE
 #' * phi_bednets - proportion of bites taken in bed; default = 0.85

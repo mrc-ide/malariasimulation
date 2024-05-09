@@ -1,13 +1,15 @@
 #' @title Simulate malaria infection in humans
 #' @description
-#' Updates human states and variables to represent asymptomatic/clinical/severe
-#' and treated malaria; and resulting boosts in immunity
+#' This function ends with the assignment of rates of infection to the competing
+#' hazard resolution object.  Boosts immunity given infectious bites.
 #' @param variables a list of all of the model variables
 #' @param events a list of all of the model events
 #' @param bitten_humans a bitset of bitten humans
 #' @param age of each human (timesteps)
 #' @param parameters of the model
 #' @param timestep current timestep
+#' @param renderer the model renderer object
+#' @param infection_outcome competing hazards object for infection rates
 #' @noRd
 simulate_infection <- function(
   variables,
@@ -16,7 +18,8 @@ simulate_infection <- function(
   age,
   parameters,
   timestep,
-  renderer
+  renderer,
+  infection_outcome
   ) {
   if (bitten_humans$size() > 0) {
     boost_immunity(
@@ -29,70 +32,18 @@ simulate_infection <- function(
   }
 
   # Calculate Infected
-  infected_humans <- calculate_infections(
+  calculate_infections(
     variables,
     bitten_humans,
     parameters,
     renderer,
-    timestep
-  )
-
-  if (infected_humans$size() > 0) {
-    boost_immunity(
-      variables$ica,
-      infected_humans,
-      variables$last_boosted_ica,
-      timestep,
-      parameters$uc
-    )
-    boost_immunity(
-      variables$id,
-      infected_humans,
-      variables$last_boosted_id,
-      timestep,
-      parameters$ud
-    )
-  }
-
-  clinical_infections <- calculate_clinical_infections(
-    variables,
-    infected_humans,
-    parameters,
-    renderer,
-    timestep
-  )
-
-  update_severe_disease(
     timestep,
-    infected_humans,
-    variables,
-    parameters,
-    renderer
-  )
-
-  treated <- calculate_treated(
-    variables,
-    clinical_infections,
-    parameters,
-    timestep,
-    renderer
-  )
-
-  renderer$render('n_infections', infected_humans$size(), timestep)
-
-  schedule_infections(
-    variables,
-    clinical_infections,
-    treated,
-    infected_humans,
-    parameters,
-    timestep
+    infection_outcome
   )
 }
 
 #' @title Calculate overall infections for bitten humans
-#' @description
-#' Sample infected humans given prophylaxis and vaccination
+#' @description Infection rates are stored in the infection outcome competing hazards object
 #' @param variables a list of all of the model variables
 #' @param bitten_humans bitset of bitten humans
 #' @param parameters model parameters
@@ -100,12 +51,13 @@ simulate_infection <- function(
 #' @param timestep current timestep
 #' @noRd
 calculate_infections <- function(
-  variables,
-  bitten_humans,
-  parameters,
-  renderer,
-  timestep
-  ) {
+    variables,
+    bitten_humans,
+    parameters,
+    renderer,
+    timestep,
+    infection_outcome
+) {
   source_humans <- variables$state$get_index_of(
     c('S', 'A', 'U'))$and(bitten_humans)
 
@@ -155,21 +107,97 @@ calculate_infections <- function(
   }
 
   prob <- b * (1 - prophylaxis) * (1 - vaccine_efficacy)
-  infected <- bitset_at(source_humans, bernoulli_multi_p(prob))
 
+  ## Capture infection rates to resolve in competing hazards
+  infection_rates <- numeric(length = parameters$human_population)
+  infection_rates[source_vector] <- prob_to_rate(prob)
+  infection_outcome$set_rates(infection_rates)
+}
+
+#' @title Assigns infections to appropriate human states
+#' @description
+#' Updates human states and variables to represent asymptomatic/clinical/severe
+#' and treated malaria; and resulting boosts in immunity
+#' @param timestep current timestep
+#' @param infected_humans bitset of infected humans
+#' @param variables a list of all of the model variables
+#' @param renderer model render object
+#' @param parameters model parameters
+#' @param prob vector of population probabilities of infection
+#' @noRd
+infection_process_resolved_hazard <- function(
+    timestep,
+    infected_humans,
+    variables,
+    renderer,
+    parameters,
+    prob){
+  
+  source_humans <- variables$state$get_index_of(values = c("S","A","U"))
+  
   incidence_renderer(
     variables$birth,
     renderer,
-    infected,
+    infected_humans,
     source_humans,
-    prob,
+    prob[source_humans$to_vector()],
     'inc_',
     parameters$incidence_rendering_min_ages,
     parameters$incidence_rendering_max_ages,
     timestep
   )
-
-  infected
+  
+  if (infected_humans$size() > 0) {
+    boost_immunity(
+      variables$ica,
+      infected_humans,
+      variables$last_boosted_ica,
+      timestep,
+      parameters$uc
+    )
+    boost_immunity(
+      variables$id,
+      infected_humans,
+      variables$last_boosted_id,
+      timestep,
+      parameters$ud
+    )
+  }
+  
+  clinical_infections <- calculate_clinical_infections(
+    variables,
+    infected_humans,
+    parameters,
+    renderer,
+    timestep
+  )
+  
+  update_severe_disease(
+    timestep,
+    infected_humans,
+    variables,
+    parameters,
+    renderer
+  )
+  
+  treated <- calculate_treated(
+    variables,
+    clinical_infections,
+    parameters,
+    timestep,
+    renderer
+  )
+  
+  renderer$render('n_infections', infected_humans$size(), timestep)
+  
+  schedule_infections(
+    variables,
+    clinical_infections,
+    treated,
+    infected_humans,
+    parameters,
+    timestep
+  )
 }
 
 #' @title Calculate clinical infections

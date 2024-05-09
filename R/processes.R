@@ -68,7 +68,8 @@ create_processes <- function(
   
   infection_outcome <- CompetingOutcome$new(
     targeted_process = function(timestep, target){
-      infection_process_resolved_hazard(timestep, target, variables, renderer, parameters, prob = rate_to_prob(infection_outcome$rates))
+      infection_process_resolved_hazard(timestep, target, infection_outcome$source_humans,
+                                        variables, renderer, parameters, prob = rate_to_prob(infection_outcome$rates))
     },
     size = parameters$human_population
   )

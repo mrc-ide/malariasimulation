@@ -196,3 +196,13 @@ net_usage_renderer <- function(net_time, renderer) {
     )
   }
 }
+
+spray_renderer <- function(spray_time, renderer) {
+  function(t) {
+    renderer$render(
+      'n_spray_retain',
+      spray_time$get_index_of(-1)$not(TRUE)$size(),
+      t
+    )
+  }
+}

@@ -18,15 +18,11 @@ CompetingOutcome <- R6::R6Class(
     set_rates = function(rates){
       self$rates <- rates
     },
-    stash_source_humans = function(source_humans){
-      self$source_humans <- source_humans
-    },
     execute = function(t, target){
       private$targeted_process(t, target)
       self$rates <- rep(0, length(self$rates))
     },
-    rates = NULL,
-    source_humans = NULL
+    rates = NULL
   )
 )
 

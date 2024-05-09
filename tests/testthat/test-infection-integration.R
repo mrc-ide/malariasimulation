@@ -85,7 +85,6 @@ test_that('simulate_infection integrates different types of infection and schedu
   )
   prob <- rep(0.5,population)
   
-  source_humans <- individual::Bitset$new(population)$insert(c(1, 2, 3, 5))
   infected <- individual::Bitset$new(population)$insert(c(1, 3, 5))
   clinical <- individual::Bitset$new(population)$insert(c(1, 3))
   clinical_infection_mock <- mockery::mock(clinical)
@@ -107,7 +106,6 @@ test_that('simulate_infection integrates different types of infection and schedu
   infection_process_resolved_hazard(
     timestep,
     infected,
-    source_humans,
     variables,
     renderer,
     parameters,

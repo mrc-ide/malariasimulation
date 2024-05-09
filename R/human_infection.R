@@ -133,6 +133,7 @@ calculate_infections <- function(
 #' and treated malaria; and resulting boosts in immunity
 #' @param timestep current timestep
 #' @param infected_humans bitset of infected humans
+#' @param source_humans bitset of humans with infection potential
 #' @param variables a list of all of the model variables
 #' @param renderer model render object
 #' @param parameters model parameters
@@ -141,6 +142,7 @@ calculate_infections <- function(
 infection_process_resolved_hazard <- function(
     timestep,
     infected_humans,
+    source_humans,
     variables,
     renderer,
     parameters,

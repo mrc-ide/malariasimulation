@@ -9,6 +9,12 @@
 #' @param clinical_incidence age breaks for clinical incidence outputs (symptomatic); default = c(0, 1825)
 #' @param severe_incidence age breaks for severe incidence outputs; default = NULL
 #' @param prevalence age breaks for clinical prevalence outputs (pcr and lm detectable infections); default = c(730, 3650)
+#' @param ica age breaks for average acquired clinical immunity; default = NULL
+#' @param icm age breaks for average maternal clinical immunity; default = NULL
+#' @param iva age breaks for average acquired severe immunity; default = NULL
+#' @param ivm age breaks for average maternal severe immunity; default = NULL
+#' @param id age breaks for average immunity to detectability; default = NULL
+#' @param ib age breaks for average blood immunity; default = NULL
 #' @export
 #'
 set_epi_outputs <- function(parameters,

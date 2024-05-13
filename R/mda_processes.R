@@ -33,7 +33,7 @@ create_mda_listeners <- function(
     target <- in_age[sample_intervention(in_age, int_name, coverage, correlations)]
 
     renderer$render(paste0('n_', int_name, '_treated'), length(target), timestep)
-    
+
     successful_treatments <- bernoulli(
       length(target),
       parameters$drug_efficacy[[drug]]
@@ -75,6 +75,7 @@ create_mda_listeners <- function(
       # Update drug
       variables$drug$queue_update(drug, to_move)
       variables$drug_time$queue_update(timestep, to_move)
+      variables[[paste0(int_name, '_time')]]$queue_update(timestep, to_move)
     }
   }
 }

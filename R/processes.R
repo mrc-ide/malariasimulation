@@ -272,83 +272,96 @@ create_processes <- function(
   )
 
   # Combined interventions
-  # pev - bednets
-  processes <- c(
-    processes,
-    create_combined_intervention_rendering_process(
-      'pev',
-      variables$last_pev_timestep,
-      'bednets',
-      variables$net_time,
-      365,
-      renderer
+  # PEV & bednets
+  if (parameters$pev & parameters$bednets) {
+    processes <- c(
+      processes,
+      create_combined_intervention_rendering_process(
+        'pev',
+        variables$last_eff_pev_timestep,
+        'bednets',
+        variables$net_time,
+        365,
+        renderer
+      )
     )
-  )
+  }
 
-  # smc - bednets
-  processes <- c(
-    processes,
-    create_combined_intervention_rendering_process(
-      'smc',
-      variables$drug_time,
-      'bednets',
-      variables$net_time,
-      365,
-      renderer
+  # SMC & bednets
+  if (parameters$smc & parameters$bednets) {
+    processes <- c(
+      processes,
+      create_combined_intervention_rendering_process(
+        'smc',
+        variables$smc_time,
+        'bednets',
+        variables$net_time,
+        365,
+        renderer
+      )
     )
-  )
+  }
 
-  # pev - smc
-  processes <- c(
-    processes,
-    create_combined_intervention_rendering_process(
-      'pev',
-      variables$last_pev_timestep,
-      'smc',
-      variables$drug_time,
-      365,
-      renderer
+  # PEV & SMC
+  if (parameters$pev & parameters$smc) {
+    processes <- c(
+      processes,
+      create_combined_intervention_rendering_process(
+        'pev',
+        variables$last_eff_pev_timestep,
+        'smc',
+        variables$smc_time,
+        365,
+        renderer
+      )
     )
-  )
+  }
 
-  # irs - bednet
-  processes <- c(
-    processes,
-    create_combined_intervention_rendering_process(
-      'spraying',
-      variables$spray_time,
-      'bednets',
-      variables$net_time,
-      365,
-      renderer
+  # Spraying & bednets
+  if (parameters$spraying & parameters$bednets) {
+    processes <- c(
+      processes,
+      create_combined_intervention_rendering_process(
+        'spraying',
+        variables$spray_time,
+        'bednets',
+        variables$net_time,
+        365,
+        renderer
+      )
     )
-  )
+  }
 
-  # irs - smc
-  processes <- c(
-    processes,
-    create_combined_intervention_rendering_process(
-      'spraying',
-      variables$spray_time,
-      'smc',
-      variables$drug_time,
-      365,
-      renderer
+  # Spraying & SMC
+  if (parameters$spraying & parameters$smc) {
+    processes <- c(
+      processes,
+      create_combined_intervention_rendering_process(
+        'spraying',
+        variables$spray_time,
+        'smc',
+        variables$smc_time,
+        365,
+        renderer
+      )
     )
-  )
+  }
 
-  # irs - pev
-  processes <- c(
-    processes,
-    create_combined_intervention_rendering_process(
-      'spraying',
-      variables$spray_time,
-      'pev',
-      variables$last_pev_timestep,
-      365,
-      renderer
+  # Spraying & PEV
+  if (parameters$spraying & parameters$pev) {
+    processes <- c(
+      processes,
+      create_combined_intervention_rendering_process(
+        'spraying',
+        variables$spray_time,
+        'pev',
+        variables$last_eff_pev_timestep,
+        365,
+        renderer
+      )
     )
-  )
+  }
+
 
   processes
 }

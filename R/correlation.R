@@ -191,10 +191,10 @@ CorrelationParameters <- R6::R6Class(
 #' @param parameters model parameters
 #' @export
 #' @examples
-#' 
+#'
 #' # get the default model parameters
 #' parameters <- get_parameters()
-#' 
+#'
 #' # Set some vaccination strategy
 #' parameters <- set_mass_pev(
 #'   parameters,
@@ -208,7 +208,7 @@ CorrelationParameters <- R6::R6Class(
 #'   booster_coverage = numeric(0),
 #'   booster_profile = NULL
 #' )
-#' 
+#'
 #' # Set some smc strategy
 #' parameters <- set_drugs(parameters, list(SP_AQ_params))
 #' parameters <- set_smc(
@@ -219,14 +219,14 @@ CorrelationParameters <- R6::R6Class(
 #'   min_age = 100,
 #'   max_age = 1000
 #' )
-#' 
+#'
 #' # Correlate the vaccination and smc targets
 #' correlations <- get_correlation_parameters(parameters)
 #' correlations$inter_intervention_rho('pev', 'smc', 1)
-#' 
+#'
 #' # Correlate the rounds of smc
 #' correlations$inter_round_rho('smc', 1)
-#' 
+#'
 #' # You can now pass the correlation parameters to the run_simulation function
 get_correlation_parameters <- function(parameters) {
   # Find a list of enabled interventions

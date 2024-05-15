@@ -250,8 +250,12 @@ create_processes <- function(
   if (parameters$spraying) {
     processes <- c(
       processes,
-      indoor_spraying(variables$spray_time, parameters, correlations),
-      spray_renderer(variables$spray_time, renderer)
+      indoor_spraying(
+        variables$spray_time,
+        renderer,
+        parameters,
+        correlations
+        )
     )
   }
 
@@ -271,7 +275,9 @@ create_processes <- function(
     create_mortality_process(variables, events, renderer, parameters)
   )
 
+  # ======================
   # Combined interventions
+  # ======================
   # PEV & bednets
   if (parameters$pev & parameters$bednets) {
     processes <- c(

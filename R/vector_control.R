@@ -102,10 +102,13 @@ prob_bitten <- function(
 #' `get_correlation_parameters`
 #'
 #' @param spray_time the variable for the time of spraying
+#' @param renderer items to render
 #' @param parameters the model parameters
 #' @param correlations correlation parameters
 #' @noRd
-indoor_spraying <- function(spray_time, parameters, correlations) {
+indoor_spraying <- function(spray_time, renderer, parameters, correlations) {
+  renderer$set_default("n_spray", 0)
+  renderer$set_default("spray_last_year", 0)
   function(timestep) {
     matches <- timestep == parameters$spraying_timesteps
     if (any(matches)) {
@@ -116,9 +119,12 @@ indoor_spraying <- function(spray_time, parameters, correlations) {
         correlations
       ))
       spray_time$queue_update(timestep, target)
+      renderer$render("n_spray", length(target), timestep)
     }
+    renderer$render("spray_last_year", used_intervention(spray_time, timestep, 365)$size(), timestep)
   }
 }
+
 
 #' @title Distribute nets
 #' @description distributes nets to individuals according to the strategy
@@ -192,16 +198,6 @@ net_usage_renderer <- function(net_time, renderer) {
     renderer$render(
       'n_use_net',
       net_time$get_index_of(-1)$not(TRUE)$size(),
-      t
-    )
-  }
-}
-
-spray_renderer <- function(spray_time, renderer) {
-  function(t) {
-    renderer$render(
-      'n_spray_retain',
-      spray_time$get_index_of(-1)$not(TRUE)$size(),
       t
     )
   }

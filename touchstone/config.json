@@ -1,0 +1,6 @@
+{
+    "os": "ubuntu-22.04",
+    "r": "4.3.2",
+    "rspm": "https://packagemanager.posit.co/cran/__linux__/jammy/2024-05-15"
+    
+}

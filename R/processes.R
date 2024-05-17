@@ -143,7 +143,7 @@ create_processes <- function(
   )
 
   # =========
-  # RTS,S EPI
+  # PEV EPI
   # =========
   if (!is.null(parameters$pev_epi_coverage)) {
     processes <- c(
@@ -239,6 +239,7 @@ create_processes <- function(
       processes,
       distribute_nets(
         variables,
+        renderer,
         events$throw_away_net,
         parameters,
         correlations

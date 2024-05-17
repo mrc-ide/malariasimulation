@@ -25,7 +25,7 @@ create_epi_pev_process <- function(
     if(coverage == 0){
       return()
     }
-    
+
     to_vaccinate <- variables$birth$get_index_of(
       set = timestep - parameters$pev_epi_age
     )
@@ -77,6 +77,7 @@ create_epi_pev_process <- function(
 #' @param events a list of events in the model
 #' @param parameters the model parameters
 #' @param correlations correlation parameters
+#' @param renderer the model renderer object
 #' @noRd
 create_mass_pev_listener <- function(
   variables,
@@ -86,6 +87,7 @@ create_mass_pev_listener <- function(
   renderer
   ) {
   renderer$set_default('n_new_vaccinations', 0)
+  renderer$set_default('n_pev_last_year', 0)
   function(timestep) {
     in_age_group <- individual::Bitset$new(parameters$human_population)
     for (i in seq_along(parameters$mass_pev_min_ages)) {
@@ -111,7 +113,7 @@ create_mass_pev_listener <- function(
     } else {
       target <- target$to_vector()
     }
-    
+
     time_index = which(parameters$mass_pev_timesteps == timestep)
     target <- target[
       sample_intervention(
@@ -129,6 +131,7 @@ create_mass_pev_listener <- function(
     )$size()
 
     renderer$render('n_new_vaccinations', n_new_vaccinations, timestep)
+    renderer$render('n_pev_last_year', used_intervention(variables$last_pev_timestep, timestep, 365)$size(), timestep)
 
     # Update the latest vaccination time
     variables$last_pev_timestep$queue_update(timestep, target)

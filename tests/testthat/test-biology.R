@@ -16,10 +16,7 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR', {
     vector_models <- parameterise_mosquito_models(parameters, 1)
     solvers <- parameterise_solvers(vector_models, parameters)
     estimated_eir <- calculate_eir(1, solvers, variables, parameters, 0)
-    age <- get_age(variables$birth$get_values(), 0)
-    psi <- unique_biting_rate(age, parameters)
-    omega <- mean(psi)
-    mean(estimated_eir) / omega / population * 365
+    mean(estimated_eir) / population * 365
   })
 
   expect_equal(
@@ -44,10 +41,7 @@ test_that('total_M and EIR functions are consistent with equilibrium EIR (with h
     vector_models <- parameterise_mosquito_models(parameters, 1)
     solvers <- parameterise_solvers(vector_models, parameters)
     estimated_eir <- calculate_eir(1, solvers, variables, parameters, 0)
-    age <- get_age(variables$birth$get_values(), 0)
-    psi <- unique_biting_rate(age, parameters)
-    omega <- mean(psi)
-    mean(estimated_eir) / omega / population * 365
+    mean(estimated_eir) / population * 365
   })
 
   expect_equal(

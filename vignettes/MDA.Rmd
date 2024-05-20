@@ -143,7 +143,7 @@ plot.new(); par(mar = c(4, 4, 1, 1), new = TRUE)
 
 # Plot malaria prevalence in 2-10 years through time:
 plot(x = mda_output$timestep,
-     y = mda_output$n_detect_730_3650/mda_output$n_730_3650,
+     y = mda_output$n_detect_lm_730_3650/mda_output$n_730_3650,
      xlab = "Time (days)",
      ylab = expression(paste(italic(Pf),"PR"[2-10])), cex = 0.8,
      ylim = c(0, 1), type = "l", lwd = 2, xaxs = "i", yaxs = "i",
@@ -151,7 +151,7 @@ plot(x = mda_output$timestep,
 
 # Add the dynamics for no-intervention simulation
 lines(x = noint_output$timestep,
-     y = noint_output$n_detect_730_3650/noint_output$n_730_3650,
+     y = noint_output$n_detect_lm_730_3650/noint_output$n_730_3650,
      col = cols[4])
 
 # Add vlines to indicate when SP-AQ were administered:
@@ -282,7 +282,7 @@ legend("topleft",
 plot.new(); par(new = TRUE, mar = c(4, 4, 1, 1))
 
 # Plot malaria prevalence in 2-10 years through time:
-plot(x = smc_output$timestep, y = smc_output$n_detect_730_3650/smc_output$n_730_3650,
+plot(x = smc_output$timestep, y = smc_output$n_detect_lm_730_3650/smc_output$n_730_3650,
      xlab = "Time (days)", 
      ylab = expression(paste(italic(Pf),"PR"[2-10])), cex = 0.8,
      ylim = c(0, 1), type = "l", lwd = 2, xaxs = "i", yaxs = "i",
@@ -290,7 +290,7 @@ plot(x = smc_output$timestep, y = smc_output$n_detect_730_3650/smc_output$n_730_
 
 # Add the dynamics for no-intervention simulation
 lines(x = noint_output$timestep,
-     y = noint_output$n_detect_730_3650/noint_output$n_730_3650,
+     y = noint_output$n_detect_lm_730_3650/noint_output$n_730_3650,
      col = cols[4])
 
 # Add lines to indicate SMC events:

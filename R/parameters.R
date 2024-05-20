@@ -229,7 +229,6 @@
 #' rendering:
 #' All values are in timesteps and all ranges are inclusive.
 #' Please set rendered age groups using the convenience function
-#' \code{\link{set_epi_outputs}}
 #' 
 #' * age_group_rendering_min_ages - the minimum ages for population size outputs; default = turned off
 #' * age_group_rendering_max_ages - the corresponding max ages; default = turned off

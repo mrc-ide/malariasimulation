@@ -196,7 +196,7 @@ please set these parameters with the convenience functions
 with \code{\link{peak_season_offset}}
 
 bednet, irs and mosquito feeding cycle parameters:
-please set vector control strategies using \code{\link{set_betnets}} and \code{\link{set_spraying}}
+please set vector control strategies using \code{\link{set_bednets}} and \code{\link{set_spraying}}
 \itemize{
 \item bednets - boolean for if bednets are enabled; default = FALSE
 \item phi_bednets - proportion of bites taken in bed; default = 0.85
@@ -252,7 +252,6 @@ please set antimalarial resistance parameters with the convenience functions in
 rendering:
 All values are in timesteps and all ranges are inclusive.
 Please set rendered age groups using the convenience function
-\code{\link{set_epi_outputs}}
 \itemize{
 \item age_group_rendering_min_ages - the minimum ages for population size outputs; default = turned off
 \item age_group_rendering_max_ages - the corresponding max ages; default = turned off

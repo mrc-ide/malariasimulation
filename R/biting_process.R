@@ -161,13 +161,6 @@ simulate_bites <- function(
     }
 
     if (expected_bites > 0) {
-
-      # Rates of biting:
-      biting_infection_relapse_rate <- expected_bites * lambda/sum(lambda) * 0.5 + variables$hypnozoites$get_values() * parameters$f
-      infection_outcome$set_rates(biting_infection_relapse_rate)
-
-      ## This needs to be multiplied by the rate of infection
-
       n_bites <- rpois(1, expected_bites)
       if (n_bites > 0) {
         bitten <- fast_weighted_sample(n_bites, lambda)

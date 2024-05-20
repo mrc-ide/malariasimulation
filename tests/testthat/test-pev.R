@@ -159,11 +159,11 @@ test_that('Infection considers pev efficacy', {
 
   # remove randomness from infection sampling
   bernoulli_mock <- mockery::mock(c(1, 2))
-  mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
+  mockery::stub(calculate_infection_rates, 'bernoulli_multi_p', bernoulli_mock)
 
   # remove randomness from pev parameters
   mockery::stub(
-    calculate_infections,
+    calculate_infection_rates,
     'sample_pev_param',
     function(index, profiles, name) {
       vnapply(index, function(i) profiles[[i]][[name]][[1]]) # return mu
@@ -171,9 +171,9 @@ test_that('Infection considers pev efficacy', {
     depth = 4
   )
 
-  infection_rates <- calculate_infections(
+  infection_rates <- calculate_infection_rates(
     variables = variables,
-    bitten_humans = individual::Bitset$new(4)$insert(seq(4)),
+    bitten_humans = list(bitten_humans = individual::Bitset$new(4)$insert(seq(4))),
     parameters = parameters,
     renderer = mock_render(timestep),
     timestep = timestep,
@@ -181,7 +181,7 @@ test_that('Infection considers pev efficacy', {
   )
 
   expect_equal(
-    rate_to_prob(infection_rates[infection_rates!=0]),
+    rate_to_prob(infection_outcome$rates[infection_outcome$rates!=0]),
     c(0.590, 0.590, 0.215, 0.244),
     tolerance=1e-3
   )

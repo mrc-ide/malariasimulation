@@ -15,8 +15,8 @@ test_that('simulate_infection integrates different types of infection and schedu
     id = individual::DoubleVariable$new(immunity),
     state = list(get_index_of = mockery::mock(asymptomatics))
   )
-
-  bitten <- individual::Bitset$new(population)$insert(c(1, 3, 5, 7))
+  
+  bitten <- list(bitten_humans = individual::Bitset$new(population)$insert(c(1, 3, 5, 7)))
   boost_immunity_mock <- mockery::mock()
   infected <- individual::Bitset$new(population)$insert(c(1, 3, 5))
   infection_mock <- mockery::mock(infected)
@@ -29,7 +29,7 @@ test_that('simulate_infection integrates different types of infection and schedu
   )
 
   mockery::stub(simulate_infection, 'boost_immunity', boost_immunity_mock)
-  mockery::stub(simulate_infection, 'calculate_infections', infection_mock)
+  mockery::stub(simulate_infection, 'calculate_infection_rates', infection_mock)
 
   simulate_infection(
     variables,
@@ -44,9 +44,9 @@ test_that('simulate_infection integrates different types of infection and schedu
 
   mockery::expect_args(
     boost_immunity_mock,
-    3,
+    1,
     variables$ib,
-    bitten,
+    bitten$bitten_humans,
     variables$last_boosted_ib,
     timestep,
     parameters$ub
@@ -60,8 +60,7 @@ test_that('simulate_infection integrates different types of infection and schedu
     parameters,
     renderer,
     timestep,
-    infection_outcome,
-    n_bites_each = NULL
+    infection_outcome
   )
 })
 
@@ -86,6 +85,7 @@ test_that('simulate_infection integrates different types of infection and schedu
   )
   prob <- rep(0.5,population)
 
+  source_humans <- individual::Bitset$new(population)$insert(c(1, 2, 3, 5))
   infected <- individual::Bitset$new(population)$insert(c(1, 3, 5))
   clinical <- individual::Bitset$new(population)$insert(c(1, 3))
   clinical_infection_mock <- mockery::mock(clinical)
@@ -107,6 +107,7 @@ test_that('simulate_infection integrates different types of infection and schedu
   infection_process_resolved_hazard(
     timestep,
     infected,
+    source_humans,
     variables,
     renderer,
     parameters,
@@ -119,7 +120,7 @@ test_that('simulate_infection integrates different types of infection and schedu
     variables$ica,
     infected,
     variables$last_boosted_ica,
-    5,
+    timestep,
     parameters$uc
   )
 
@@ -201,15 +202,15 @@ test_that('calculate_infections works various combinations of drug and vaccinati
   vaccine_antibodies_mock <- mockery::mock(c(2, 3))
   vaccine_efficacy_mock <- mockery::mock(c(.2, .3))
   bernoulli_mock <- mockery::mock(2)
-  mockery::stub(calculate_infections, 'blood_immunity', immunity_mock)
-  mockery::stub(calculate_infections, 'weibull_survival', weibull_mock)
-  mockery::stub(calculate_infections, 'calculate_pev_antibodies', vaccine_antibodies_mock)
-  mockery::stub(calculate_infections, 'calculate_pev_efficacy', vaccine_efficacy_mock)
-  mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
+  mockery::stub(calculate_infection_rates, 'blood_immunity', immunity_mock)
+  mockery::stub(calculate_infection_rates, 'weibull_survival', weibull_mock)
+  mockery::stub(calculate_infection_rates, 'calculate_pev_antibodies', vaccine_antibodies_mock)
+  mockery::stub(calculate_infection_rates, 'calculate_pev_efficacy', vaccine_efficacy_mock)
+  mockery::stub(calculate_infection_rates, 'bernoulli_multi_p', bernoulli_mock)
 
   # remove randomness from vaccine parameters
   mockery::stub(
-    calculate_infections,
+    calculate_infection_rates,
     'sample_pev_param',
     function(index, profiles, name) {
       vnapply(index, function(i) profiles[[i]][[name]][[1]]) # return mu
@@ -217,7 +218,7 @@ test_that('calculate_infections works various combinations of drug and vaccinati
     depth = 4
   )
 
-  bitten_humans <- individual::Bitset$new(4)$insert(c(1, 2, 3, 4))
+  bitten_humans <- list(bitten_humans = individual::Bitset$new(4)$insert(c(1, 2, 3, 4)))
 
   infection_outcome <- CompetingOutcome$new(
     targeted_process = function(timestep, target){
@@ -226,7 +227,7 @@ test_that('calculate_infections works various combinations of drug and vaccinati
     size = parameters$human_population
   )
 
-  infections <- calculate_infections(
+  infections <- calculate_infection_rates(
     variables,
     bitten_humans,
     parameters,
@@ -235,7 +236,7 @@ test_that('calculate_infections works various combinations of drug and vaccinati
     infection_outcome = infection_outcome
   )
 
-  expect_equal(sum(infections!=0), 3)
+  expect_equal(infections$size(), 3)
 
   mockery::expect_args(immunity_mock, 1, c(.3, .5, .9), parameters)
   mockery::expect_args(
@@ -696,9 +697,9 @@ test_that('prophylaxis is considered for medicated humans', {
     ib = individual::DoubleVariable$new(c(.2, .3, .5, .9))
   )
 
-  bitten_humans <- individual::Bitset$new(4)$insert(seq(4))
+  bitten_humans <- list(bitten_humans = individual::Bitset$new(4)$insert(seq(4)))
   m <- mockery::mock(c(1,1,2,3), cycle = T)
-  mockery::stub(calculate_infections, 'bernoulli_multi_p', m)
+  mockery::stub(calculate_infection_rates, 'bernoulli_multi_p', m)
 
   infection_outcome <- CompetingOutcome$new(
     targeted_process = function(timestep, target){
@@ -707,7 +708,7 @@ test_that('prophylaxis is considered for medicated humans', {
     size = parameters$human_population
   )
 
-  infection_rates <- calculate_infections(
+  infection_rates <- calculate_infection_rates(
     variables,
     bitten_humans,
     parameters,
@@ -717,7 +718,7 @@ test_that('prophylaxis is considered for medicated humans', {
   )
 
   expect_equal(
-    rate_to_prob(infection_rates[infection_rates!=0]),
+    rate_to_prob(infection_outcome$rates[infection_outcome$rates!=0]),
     c(2.491951e-07, 2.384032e-01, 5.899334e-01),
     tolerance = 1e-3
   )

@@ -418,8 +418,7 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       beta     = 21.2,
       total_M  = 1000,
       init_foim= 0,
-      # order of species: An gambiae s.s, An arabiensis, An funestus
-      species             = 'All',
+      species             = 'gamb',
       species_proportions = 1,
       blood_meal_rates    = 1/3,
       Q0                  = .92,

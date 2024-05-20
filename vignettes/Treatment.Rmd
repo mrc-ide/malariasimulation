@@ -124,20 +124,20 @@ output <- run_simulation(sim_length, treatment_params)
 
 ### Visualisation
 
-Following simulation of malaria transmission under this treatment regimen, we can now visualise the effect of the regimen on the number of detectable cases through time using the `n_detect_730_3650`.
+Following simulation of malaria transmission under this treatment regimen, we can now visualise the effect of the regimen on the number of detectable cases through time using the `n_detect_lm_730_3650`.
 
 ```{r, fig.align = 'center', out.width='100%'}
 # Plot results
-plot(x = output$timestep, y = output$n_detect_730_3650, type = "l",
+plot(x = output$timestep, y = output$n_detect_lm_730_3650, type = "l",
      xlab = "Days", ylab = "Detectable cases", col = cols[1],
-     ylim = c(min(output$n_detect_730_3650)-1, max(output$n_detect_730_3650)+7),
+     ylim = c(min(output$n_detect_lm_730_3650)-1, max(output$n_detect_lm_730_3650)+7),
      xaxs = "i", yaxs = "i")
 
 # Show treatment times
 abline(v = 300, lty = 2)
-text(x = 310, y = max(output$n_detect_730_3650), labels = "Treatment\nbegins", adj = 0, cex = 0.8)
+text(x = 310, y = max(output$n_detect_lm_730_3650), labels = "Treatment\nbegins", adj = 0, cex = 0.8)
 abline(v = 600, lty = 2)
-text(x = 610, y = max(output$n_detect_730_3650), labels = "Treatment\nends", adj = 0, cex = 0.8)
+text(x = 610, y = max(output$n_detect_lm_730_3650), labels = "Treatment\nends", adj = 0, cex = 0.8)
 
 # Add grid lines
 grid(lty = 2, col = "grey80", nx = 11, ny = 10, lwd = 0.5)

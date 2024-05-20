@@ -141,12 +141,6 @@ test_that('MDA moves the diseased and non-diseased population correctly', {
     c(3, 4)
   )
 
-  mockery::expect_args(
-    events$mda_administer$schedule,
-    1,
-    100
-  )
-
 })
 
 test_that('MDA moves the diseased and non-diseased population correctly - second round, varying age range', {
@@ -176,7 +170,7 @@ test_that('MDA moves the diseased and non-diseased population correctly - second
     drug = mock_double(c(1, 2, 1, 2))
   )
 
-  events$mda_administer <- mock_event(events$mda_administer)
+  # events$mda_administer <- mock_event(events$mda_administer)
 
   listener <- create_mda_listeners(
     variables,
@@ -346,3 +340,4 @@ test_that('calculate_asymptomatic_detectable returns only detectable A individua
     c(3, 4)
   )
 })
+

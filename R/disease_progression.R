@@ -10,16 +10,22 @@ calculate_recovery_rates <- function(variables, parameters, dt_input, recovery_o
   recovery_rates <- numeric(length = parameters$human_population)
   recovery_rates[variables$state$get_index_of("D")$to_vector()] <- 1/parameters$dd
   recovery_rates[variables$state$get_index_of("A")$to_vector()] <- 1/parameters$da
-  recovery_rates[variables$state$get_index_of("Tr")$to_vector()] <- 1/dt_input
-
+  
+  if(parameters$antimalarial_resistance){
+    recovery_rates[variables$state$get_index_of("Tr")$to_vector()] <- 
+      dt_input$get_values(index = variables$state$get_index_of("Tr"))} else {
+        recovery_rates[variables$state$get_index_of("Tr")$to_vector()] <- dt_input}
+  
+  
+  
   if(parameters$parasite == "falciparum"){
     recovery_rates[variables$state$get_index_of("U")$to_vector()] <- 1/parameters$du
   } else if (parameters$parasite == "vivax"){
     recovery_rates[variables$state$get_index_of("U")$to_vector()] <-
       1/anti_parasite_immunity(
-      parameters$dpcr_min, parameters$dpcr_max, parameters$apcr50, parameters$kpcr,
-      variables$id$get_values(index = variables$state$get_index_of("U")),
-      variables$idm$get_values(index = variables$state$get_index_of("U")))
+        parameters$dpcr_min, parameters$dpcr_max, parameters$apcr50, parameters$kpcr,
+        variables$id$get_values(index = variables$state$get_index_of("U")),
+        variables$idm$get_values(index = variables$state$get_index_of("U")))
   }
   recovery_outcome$set_rates(recovery_rates)
 }

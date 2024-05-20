@@ -74,16 +74,14 @@ calculate_infection_rates <- function(
   } else if (parameters$parasite == "vivax"){
     ## Source_humans must include individuals with hypnozoites which may be impacted by prophylaxis/vaccination
     source_humans <- bitten_humans$bitten_humans$copy()$or(variables$hypnozoites$get_index_of(0)$not(TRUE))
-    source_vector <- source_humans$to_vector()
     bitten_vector <- bitten_humans$bitten_humans$to_vector()
-    
     ## P. vivax does not model blood immunity
     ## But it must take into account multiple bites per person
-    ## Also, b is sort of treated as a rate here, not a probability?
-    b <- parameters$b * bitten_humans$n_bites_each
+    b <- 1-(1-parameters$b)^bitten_humans$n_bites_each
   }
   
   # calculate prophylaxis
+  source_vector <- source_humans$to_vector()
   prophylaxis <- rep(0, length(source_vector))
   drug <- variables$drug$get_values(source_vector)
   medicated <- (drug > 0)
@@ -96,7 +94,6 @@ calculate_infection_rates <- function(
       parameters$drug_prophylaxis_scale[drug]
     )
   }
-  
   # calculate vaccine efficacy
   vaccine_efficacy <- rep(0, length(source_vector))
   vaccine_times <- variables$last_eff_pev_timestep$get_values(source_vector)
@@ -134,7 +131,7 @@ calculate_infection_rates <- function(
     
     ## Calculated rate of infection for all bitten or with hypnozoites
     infection_rates <- relapse_rates <- variables$hypnozoites$get_values() * parameters$f
-    infection_rates[bitten_vector] <- infection_rates[bitten_vector] + b
+    infection_rates[bitten_vector] <- infection_rates[bitten_vector] + prob_to_rate(b)
     relative_rate <- relapse_rates/infection_rates
     relative_rate[is.nan(relative_rate)] <- 0
     
@@ -149,7 +146,6 @@ calculate_infection_rates <- function(
   ## Capture infection rates to resolve in competing hazards
   infection_outcome$set_rates(infection_rates)
   infection_outcome$stash_source_humans(source_humans)
-  
 }
 
 
@@ -174,7 +170,7 @@ infection_process_resolved_hazard <- function(
     parameters,
     prob,
     relative_rate = NULL){
-
+  
   renderer$render('n_infections', infected_humans$size(), timestep)
   incidence_renderer(
     variables$birth,
@@ -284,7 +280,6 @@ infection_process_resolved_hazard <- function(
         new_hypnozoite_batch_formed$and(bite_infections)
       )
     }
-    
     
     ## Only S and U infections need to be split using the patent infection function
     patent_infections <- calculate_patent_infections(
@@ -642,7 +637,7 @@ schedule_infections <- function(
     
     to_infect_subpatent <-  variables$state$get_index_of(c('S'))$and(included)$and(infections)$and(patent_infections$not(inplace = F))
     to_infect_asym <-       variables$state$get_index_of(c('S',"U"))$and(included)$and(patent_infections)$and(clinical_infections$not(inplace = F))
-
+    
     if(to_infect_asym$size() > 0) {
       # vivax has constant asymptomatic infectivity
       update_infection(
@@ -681,7 +676,7 @@ boost_immunity <- function(
   to_boost <- (timestep - last_boosted) >= delay | (last_boosted == -1)
   exposed_to_boost <- exposed_index_vector[to_boost]
   if (sum(to_boost) > 0) {
-    # boost the variable
+    # boost the immunity variable
     immunity_variable$queue_update(
       immunity_variable$get_values(exposed_to_boost) + 1,
       exposed_to_boost

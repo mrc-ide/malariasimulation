@@ -26,6 +26,12 @@ test_that('biting_process integrates mosquito effects and human infection', {
   bites_mock <- mockery::mock(bitten)
   infection_mock <- mockery::mock()
 
+  infection_outcome <- CompetingOutcome$new(
+    targeted_process = function(timestep, target){
+      infection_process_resolved_hazard(timestep, target, variables, renderer, parameters)
+    },
+    size = parameters$human_population
+  )
 
   mockery::stub(biting_process, 'simulate_bites', bites_mock)
   mockery::stub(biting_process, 'simulate_infection', infection_mock)
@@ -59,21 +65,21 @@ test_that('biting_process integrates mosquito effects and human infection', {
     lagged_foim,
     lagged_eir,
     1,
-    1
+    1,
+    infection_outcome
   )
-
+  
   mockery::expect_args(
     infection_mock,
     1,
     variables,
     events,
-    bitten$bitten_humans,
+    bitten,
     age,
     parameters,
     timestep,
     renderer,
-    infection_outcome,
-    bitten$n_bitten_each
+    infection_outcome
   )
 })
 
@@ -117,6 +123,13 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
   solvers <- parameterise_solvers(models, parameters)
   lagged_foim <- list(LaggedValue$new(12.5, .001))
   lagged_eir <- list(list(LaggedValue$new(12, 10)))
+  infection_outcome <- CompetingOutcome$new(
+    targeted_process = function(timestep, target){
+      infection_process_resolved_hazard(timestep, target, variables, renderer, parameters)
+    },
+    size = parameters$human_population
+  )
+  
   bitten <- simulate_bites(
     renderer,
     solvers,
@@ -127,7 +140,10 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
     parameters,
     timestep,
     lagged_foim,
-    lagged_eir
+    lagged_eir,
+    mixing = 1,
+    mixing_index = 1,
+    infection_outcome = infection_outcome
   )
 
   expect_equal(bitten$bitten_humans$to_vector(), c(2, 3))

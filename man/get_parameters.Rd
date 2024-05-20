@@ -261,7 +261,7 @@ please set species parameters using the convenience function
 }
 
 feeding cycle:
-please set vector control strategies using \code{set_betnets} and \code{set_spraying}
+please set vector control strategies using \code{set_bednets} and \code{set_spraying}
 \itemize{
 \item bednets - boolean for if bednets are enabled; default = FALSE
 \item phi_bednets - proportion of bites taken in bed; default = 0.85

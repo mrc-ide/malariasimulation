@@ -10,7 +10,7 @@
 #' @noRd
 create_mortality_process <- function(variables, events, renderer, parameters) {
   function(timestep) {
-
+    
     pop <- get_human_population(parameters, timestep)
 
     if (!parameters$custom_demography) {

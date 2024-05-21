@@ -321,8 +321,6 @@ initial_immunity <- function(
   ) {
   if (!is.null(eq)) {
     age <- age / 365
-    # older ages must be assigned within the equilibrium age bounds
-    age[age>=max(eq[[1]][, 'age'])] <- max(eq[[1]][, 'age'])-0.01
     return(vnapply(
       seq_along(age),
       function(i) {
@@ -340,8 +338,6 @@ initial_state <- function(parameters, age, groups, eq, states) {
   if (!is.null(eq)) {
     eq_states <- c('S', 'D', 'A', 'U', 'T')
     age <- age / 365
-    # older ages must be assigned within the equilibrium age bounds
-    age[age>=max(eq[[1]][, 'age'])] <- max(eq[[1]][, 'age'])-0.01
     return(vcapply(
       seq_along(age),
       function(i) {
@@ -399,9 +395,10 @@ calculate_initial_ages <- function(parameters) {
   n_pop <- get_human_population(parameters, 0)
   # check if we've set up a custom demography
   if (!parameters$custom_demography) {
-    return(round(rexp(
+    return(round(rtexp(
       n_pop,
-      rate = 1 / parameters$average_age
+      1 / parameters$average_age,
+      max(EQUILIBRIUM_AGES)*365
     )))
   }
 

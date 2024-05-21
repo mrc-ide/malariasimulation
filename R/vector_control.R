@@ -105,7 +105,8 @@ prob_bitten <- function(
 #' @param parameters the model parameters
 #' @param correlations correlation parameters
 #' @noRd
-indoor_spraying <- function(spray_time, parameters, correlations) {
+indoor_spraying <- function(spray_time, render, parameters, correlations) {
+  renderer$set_default('n_spray', 0)
   function(timestep) {
     matches <- timestep == parameters$spraying_timesteps
     if (any(matches)) {
@@ -116,6 +117,7 @@ indoor_spraying <- function(spray_time, parameters, correlations) {
         correlations
       ))
       spray_time$queue_update(timestep, target)
+      renderer$render('n_spray', length(target), timestep)
     }
   }
 }

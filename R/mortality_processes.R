@@ -116,7 +116,7 @@ reset_target <- function(variables, events, target, state, parameters, timestep)
 
     # onwards infectiousness
     variables$infectivity$queue_update(0, target)
-
+    
     # treated compartment residence time:
     if(!is.null(variables$dt)) {
       variables$dt$queue_update(parameters$dt, target)

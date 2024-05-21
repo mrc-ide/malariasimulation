@@ -102,6 +102,7 @@ prob_bitten <- function(
 #' `get_correlation_parameters`
 #'
 #' @param spray_time the variable for the time of spraying
+#' @param renderer model rendering object
 #' @param parameters the model parameters
 #' @param correlations correlation parameters
 #' @noRd

@@ -102,10 +102,13 @@ prob_bitten <- function(
 #' `get_correlation_parameters`
 #'
 #' @param spray_time the variable for the time of spraying
+#' @param renderer the model renderer object
 #' @param parameters the model parameters
 #' @param correlations correlation parameters
 #' @noRd
-indoor_spraying <- function(spray_time, parameters, correlations) {
+indoor_spraying <- function(spray_time, renderer, parameters, correlations) {
+  renderer$set_default('n_spray', 0)
+  renderer$set_default('n_spray_last_year', 0)
   function(timestep) {
     matches <- timestep == parameters$spraying_timesteps
     if (any(matches)) {
@@ -116,9 +119,12 @@ indoor_spraying <- function(spray_time, parameters, correlations) {
         correlations
       ))
       spray_time$queue_update(timestep, target)
+      renderer$render('n_spray', length(target), timestep)
     }
+    renderer$render('n_spray_last_year', used_intervention(spray_time, timestep, 365)$size(), timestep)
   }
 }
+
 
 #' @title Distribute nets
 #' @description distributes nets to individuals according to the strategy
@@ -126,11 +132,14 @@ indoor_spraying <- function(spray_time, parameters, correlations) {
 #' `get_correlation_parameters`
 #'
 #' @param variables list of variables in the model
+#' @param renderer the model renderer object
 #' @param throw_away_net an event to trigger when the net will be removed
 #' @param parameters the model parameters
 #' @param correlations correlation parameters
 #' @noRd
-distribute_nets <- function(variables, throw_away_net, parameters, correlations) {
+distribute_nets <- function(variables, renderer, throw_away_net, parameters, correlations) {
+  renderer$set_default('n_net', 0)
+  renderer$set_default('n_net_last_year', 0)
   function(timestep) {
     matches <- timestep == parameters$bednet_timesteps
     if (any(matches)) {
@@ -146,7 +155,9 @@ distribute_nets <- function(variables, throw_away_net, parameters, correlations)
         target,
         log_uniform(length(target), parameters$bednet_retention)
       )
+      renderer$render('n_net', length(target), timestep)
     }
+    renderer$render('n_net_last_year', used_intervention(variables$net_time, timestep, 365)$size(), timestep)
   }
 }
 

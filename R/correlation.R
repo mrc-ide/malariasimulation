@@ -191,10 +191,10 @@ CorrelationParameters <- R6::R6Class(
 #' @param parameters model parameters
 #' @export
 #' @examples
-#' 
+#'
 #' # get the default model parameters
 #' parameters <- get_parameters()
-#' 
+#'
 #' # Set some vaccination strategy
 #' parameters <- set_mass_pev(
 #'   parameters,
@@ -208,7 +208,7 @@ CorrelationParameters <- R6::R6Class(
 #'   booster_coverage = numeric(0),
 #'   booster_profile = NULL
 #' )
-#' 
+#'
 #' # Set some smc strategy
 #' parameters <- set_drugs(parameters, list(SP_AQ_params))
 #' parameters <- set_smc(
@@ -219,14 +219,14 @@ CorrelationParameters <- R6::R6Class(
 #'   min_age = 100,
 #'   max_age = 1000
 #' )
-#' 
+#'
 #' # Correlate the vaccination and smc targets
 #' correlations <- get_correlation_parameters(parameters)
 #' correlations$inter_intervention_rho('pev', 'smc', 1)
-#' 
+#'
 #' # Correlate the rounds of smc
 #' correlations$inter_round_rho('smc', 1)
-#' 
+#'
 #' # You can now pass the correlation parameters to the run_simulation function
 get_correlation_parameters <- function(parameters) {
   # Find a list of enabled interventions
@@ -329,5 +329,33 @@ rcondmvnorm <- function(n, mean, sigma, given, dependent.ind, given.ind) {
 
     samples <- mvrnorm(n, rep(0, length(dependent.ind)), cond_sigma)
     samples + cond_mu
+  }
+}
+
+used_intervention <- function(variable, timestep, window) {
+  variable$get_index_of(set=-1)$not()$and(
+    variable$get_index_of(a=timestep - window, b=timestep)
+  )
+}
+
+create_combined_intervention_rendering_process <- function(
+  int_1,
+  variable_1,
+  int_2,
+  variable_2,
+  window,
+  renderer
+) {
+  name <- paste0('n_combined_', int_1, '_', int_2)
+  renderer$set_default(name, 0)
+  function (timestep) {
+    n <- used_intervention(variable_1, timestep, window)$and(
+      used_intervention(variable_2, timestep, window)
+    )$size()
+    renderer$render(
+      name,
+      n,
+      timestep
+    )
   }
 }

@@ -30,7 +30,7 @@ create_processes <- function(
     correlations,
     lagged_eir,
     lagged_infectivity,
-    timesteps, 
+    timesteps,
     mixing = 1,
     mixing_index = 1
 ) {
@@ -105,22 +105,22 @@ create_processes <- function(
       0
     )
   )
-  
+
   # =======================
   # Antimalarial Resistance
   # =======================
   # Add an a new process which governs the transition from Tr to S when
   # antimalarial resistance is simulated. The rate of transition switches
   # from a parameter to a variable when antimalarial resistance == TRUE.
-  
+
   # Assign the dt input to a separate object with the default single parameter value:
   dt_input <- parameters$dt
-  
-  # If antimalarial resistance is switched on, assign dt variable values to the 
+
+  # If antimalarial resistance is switched on, assign dt variable values to the
   if(parameters$antimalarial_resistance) {
     dt_input <- variables$dt
   }
-  
+
   # Create the progression process for Tr --> S specifying dt_input as the rate:
   processes <- c(
     processes,
@@ -143,7 +143,7 @@ create_processes <- function(
   )
 
   # =========
-  # RTS,S EPI
+  # PEV EPI
   # =========
   if (!is.null(parameters$pev_epi_coverage)) {
     processes <- c(
@@ -239,6 +239,7 @@ create_processes <- function(
       processes,
       distribute_nets(
         variables,
+        renderer,
         events$throw_away_net,
         parameters,
         correlations
@@ -250,7 +251,12 @@ create_processes <- function(
   if (parameters$spraying) {
     processes <- c(
       processes,
-      indoor_spraying(variables$spray_time, parameters, correlations)
+      indoor_spraying(
+        variables$spray_time,
+        renderer,
+        parameters,
+        correlations
+        )
     )
   }
 
@@ -267,7 +273,102 @@ create_processes <- function(
   # Mortality step
   processes <- c(
     processes,
-    create_mortality_process(variables, events, renderer, parameters))
+    create_mortality_process(variables, events, renderer, parameters)
+  )
+
+  # ======================
+  # Combined interventions
+  # ======================
+  # PEV & bednets
+  if (parameters$pev & parameters$bednets) {
+    processes <- c(
+      processes,
+      create_combined_intervention_rendering_process(
+        'pev',
+        variables$last_eff_pev_timestep,
+        'bednets',
+        variables$net_time,
+        365,
+        renderer
+      )
+    )
+  }
+
+  # SMC & bednets
+  if (parameters$smc & parameters$bednets) {
+    processes <- c(
+      processes,
+      create_combined_intervention_rendering_process(
+        'smc',
+        variables$smc_time,
+        'bednets',
+        variables$net_time,
+        365,
+        renderer
+      )
+    )
+  }
+
+  # PEV & SMC
+  if (parameters$pev & parameters$smc) {
+    processes <- c(
+      processes,
+      create_combined_intervention_rendering_process(
+        'pev',
+        variables$last_eff_pev_timestep,
+        'smc',
+        variables$smc_time,
+        365,
+        renderer
+      )
+    )
+  }
+
+  # Spraying & bednets
+  if (parameters$spraying & parameters$bednets) {
+    processes <- c(
+      processes,
+      create_combined_intervention_rendering_process(
+        'spraying',
+        variables$spray_time,
+        'bednets',
+        variables$net_time,
+        365,
+        renderer
+      )
+    )
+  }
+
+  # Spraying & SMC
+  if (parameters$spraying & parameters$smc) {
+    processes <- c(
+      processes,
+      create_combined_intervention_rendering_process(
+        'spraying',
+        variables$spray_time,
+        'smc',
+        variables$smc_time,
+        365,
+        renderer
+      )
+    )
+  }
+
+  # Spraying & PEV
+  if (parameters$spraying & parameters$pev) {
+    processes <- c(
+      processes,
+      create_combined_intervention_rendering_process(
+        'spraying',
+        variables$spray_time,
+        'pev',
+        variables$last_eff_pev_timestep,
+        365,
+        renderer
+      )
+    )
+  }
+
 
   processes
 }

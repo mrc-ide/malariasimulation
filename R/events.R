@@ -123,7 +123,8 @@ attach_event_listeners <- function(
         variables,
         events,
         parameters,
-        correlations
+        correlations,
+        renderer
       )
     )
     attach_pev_dose_listeners(

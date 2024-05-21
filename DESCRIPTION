@@ -69,15 +69,13 @@ LazyData: true
 Remotes:
   mrc-ide/malariaEquilibrium,
   mrc-ide/individual
-Additional_repositories:
-  https://mrc-ide.r-universe.dev
 Imports:
     individual (>= 0.1.16),
     malariaEquilibrium (>= 1.0.1),
     Rcpp,
     statmod,
     MASS,
-    dqrng (>= 0.3.2.2),
+    dqrng (>= 0.4),
     sitmo,
     BH,
     R6,

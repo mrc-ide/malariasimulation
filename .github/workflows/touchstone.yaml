@@ -86,14 +86,6 @@ jobs:
     steps:
       - uses: lorenzwalthert/touchstone/actions/receive@main
 
-      # https://github.com/lorenzwalthert/touchstone/pull/138
-      - name: Upload raw results
-        uses: actions/upload-artifact@v2
-        with:
-          name: data
-          path: touchstone/records/
-          overwrite: true
-
   comment:
     needs: ['prepare', 'build']
 

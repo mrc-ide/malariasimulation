@@ -210,7 +210,9 @@ simulate_bites <- function(
 calculate_eir <- function(species, solvers, variables, parameters, timestep) {
   a <- human_blood_meal_rate(species, variables, parameters, timestep)
   infectious <- calculate_infectious(species, solvers, variables, parameters)
-  infectious * a
+  age <- get_age(variables$birth$get_values(), timestep)
+  psi <- unique_biting_rate(age, parameters)
+  infectious * a * mean(psi)
 }
 
 effective_biting_rates <- function(a, .pi, p_bitten) {

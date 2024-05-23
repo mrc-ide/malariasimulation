@@ -77,9 +77,9 @@ jobs:
     permissions:
       contents: read
 
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     env:
-      RSPM: "https://packagemanager.posit.co/cran/__linux__/noble/2024-05-15"
+      RSPM: "https://packagemanager.posit.co/cran/__linux__/jammy/2024-05-15"
       R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 

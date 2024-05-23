@@ -7,14 +7,14 @@
 #' @param recovery_outcome competing hazards object for recovery rates
 #' @noRd
 calculate_recovery_rates <- function(variables, parameters, recovery_outcome, dt_input){
-
+  
   # Get correct input for dt depending on spc
   if(isFALSE(parameters$antimalarial_resistance) & length(dt_input) == 1 & is.numeric(dt_input)){
     dt_v <- dt_input
   } else if (isTRUE(parameters$antimalarial_resistance)) {
-    dt_v <- dt_input$and(variables$state$get_index_of("Tr")$to_vector())$to_vector()
+    dt_v <- dt_input$get_values(variables$state$get_index_of("Tr"))
   }
-  
+
   recovery_rates <- numeric(length = parameters$human_population)
   recovery_rates[variables$state$get_index_of("D")$to_vector()] <- 1/parameters$dd
   recovery_rates[variables$state$get_index_of("A")$to_vector()] <- 1/parameters$da

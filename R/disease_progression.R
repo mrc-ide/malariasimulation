@@ -8,7 +8,7 @@
 #' @noRd
 calculate_recovery_rates <- function(variables, parameters, recovery_outcome, dt_input){
   
-  # Get correct input for dt depending on spc
+  # Get correct input for dt depending on antimalarial resistance
   if(isFALSE(parameters$antimalarial_resistance) & length(dt_input) == 1 & is.numeric(dt_input)){
     dt_v <- dt_input
   } else if (isTRUE(parameters$antimalarial_resistance)) {

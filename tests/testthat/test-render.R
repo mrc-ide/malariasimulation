@@ -162,7 +162,7 @@ test_that('that age rendering works', {
   mockery::expect_args(
     renderer$render_mock(),
     1,
-    'n_0_729',
+    'n_age_0_729',
     2,
     timestep
   )
@@ -170,7 +170,7 @@ test_that('that age rendering works', {
   mockery::expect_args(
     renderer$render_mock(),
     2,
-    'n_365_1824',
+    'n_age_365_1824',
     4,
     timestep
   )
@@ -178,7 +178,7 @@ test_that('that age rendering works', {
   mockery::expect_args(
     renderer$render_mock(),
     3,
-    'n_1095_3649',
+    'n_age_1095_3649',
     7,
     timestep
   )
@@ -186,7 +186,7 @@ test_that('that age rendering works', {
   mockery::expect_args(
     renderer$render_mock(),
     4,
-    'n_1825_2919',
+    'n_age_1825_2919',
     3,
     timestep
   )
@@ -194,7 +194,7 @@ test_that('that age rendering works', {
   mockery::expect_args(
     renderer$render_mock(),
     5,
-    'n_1825_7299',
+    'n_age_1825_7299',
     15,
     timestep
   )
@@ -202,7 +202,7 @@ test_that('that age rendering works', {
   mockery::expect_args(
     renderer$render_mock(),
     6,
-    'n_3650_36499',
+    'n_age_3650_36499',
     90,
     timestep
   )

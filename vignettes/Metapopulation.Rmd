@@ -107,7 +107,7 @@ output3$mix <- 'perfectly-mixed'
 output <- rbind(output1, output2, output3)
 
 # get mean PfPR 2-10 by year
-output$prev2to10 = output$p_detect_730_3650 / output$n_730_3650
+output$prev2to10 = output$p_detect_730_3650 / output$n_age_730_3650
 output$year = ceiling(output$timestep / 365)
 output$mix = factor(output$mix, levels = c('isolated', 'semi-mixed', 'perfectly-mixed'))
 output <- aggregate(prev2to10 ~ mix + EIR + year, data = output, FUN = mean)

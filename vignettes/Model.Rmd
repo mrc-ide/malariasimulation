@@ -153,7 +153,7 @@ The `run_simulation()` function then simulates malaria transmission dynamics and
 -   `id_mean`: mean immunity from detected using microscopy
 -   `iva_mean`: mean acquired immunity to severe infection
 -   `ivm_mean`: mean maternal immunity to severe infection
--   `n_730_3650`: population size of an age group of interest (where the default is set to 730-3650 days old, or 2-10 years, but which may be adjusted (see [Demography](https://mrc-ide.github.io/malariasimulation/articles/Demography.html) vignette for more details)
+-   `n_age_730_3650`: population size of an age group of interest (where the default is set to 730-3650 days old, or 2-10 years, but which may be adjusted (see [Demography](https://mrc-ide.github.io/malariasimulation/articles/Demography.html) vignette for more details)
 -   `n_detect_730_3650`: number with possible detection through microscopy of a given age group
 -   `p_detect_730_3650`: the sum of probabilities of detection through microscopy of a given age group
 -   `E_gamb_count`, `L_gamb_count`, `P_gamb_count`, `Sm_gamb_count`, `Pm_gamb_count`, `Im_gamb_count`: species-specific mosquito population sizes in each state (default set to *An. gambiae*)
@@ -173,7 +173,7 @@ Where **treatments** are specified, `n_treated` will report the number that have
 
 ### Output visualisation
 
-These outputs can then be visualised, such as the population changes in states. Another key output is the prevalence of detectable infections between the ages of 2-10 (*Pf*PR~2-10~), which can be obtained by dividing `n_detect_730_3650` by `n_730_3650`.
+These outputs can then be visualised, such as the population changes in states. Another key output is the prevalence of detectable infections between the ages of 2-10 (*Pf*PR~2-10~), which can be obtained by dividing `n_detect_730_3650` by `n_age_730_3650`.
 
 ```{r, fig.align = 'center', out.width='100%', fig.asp=0.55, }
 # Define vector of column names to plot
@@ -202,7 +202,7 @@ par(mfrow = c(1,2))
 states_plot(test_sim)
 
 # Calculate Pf PR 2-10
-test_sim$PfPR2_10 <- test_sim$n_detect_730_3650/test_sim$n_730_3650
+test_sim$PfPR2_10 <- test_sim$n_detect_730_3650/test_sim$n_age_730_3650
 
 # Plot Pf PR 2-10
 plot(x = test_sim$timestep, y = test_sim$PfPR2_10, type = "l",
@@ -226,7 +226,7 @@ par(mfrow = c(1,2))
 states_plot(test_sim_eq)
 
 # Calculate Pf PR 2-10
-test_sim_eq$PfPR2_10 <- test_sim_eq$n_detect_730_3650/test_sim_eq$n_730_3650
+test_sim_eq$PfPR2_10 <- test_sim_eq$n_detect_730_3650/test_sim_eq$n_age_730_3650
 
 # Plot Pf PR 2-10
 plot(x = test_sim_eq$timestep, y = test_sim_eq$PfPR2_10, type = "l",

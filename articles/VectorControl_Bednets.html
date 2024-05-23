@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vector Control: Bed nets • malariasimulation</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
@@ -192,8 +192,9 @@ Species</a> vignette.</p>
 gambiae</em>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">simparams</span><span class="op">$</span><span class="va">species</span></span>
-<span><span class="co">#&gt; [1] "gamb"</span></span>
-<span><span class="va">simparams</span><span class="op">$</span><span class="va">species_proportions</span></span>
+<span><span class="co">#&gt; [1] "gamb"</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">simparams</span><span class="op">$</span><span class="va">species_proportions</span></span>
 <span><span class="co">#&gt; [1] 1</span></span></code></pre></div>
 </div>
 </div>
@@ -216,7 +217,7 @@ nets are distributed, the matrices for <code>dn0</code>,
 various resistance levels can be found in Table S1.3 in the
 Supplementary Appendix 2 of <a href="https://doi.org/10.1016/S2542-5196(21)00296-5" class="external-link">Sherrard-Smith, et
 al., 2022</a>.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bednetstimesteps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span><span class="op">)</span> <span class="op">*</span> <span class="va">year</span> <span class="co"># The bed nets will be distributed at the end of the first and the 4th year. </span></span>
 <span></span>
 <span><span class="va">bednetparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/set_bednets.html">set_bednets</a></span><span class="op">(</span></span>
@@ -235,7 +236,7 @@ al., 2022</a>.</p>
 <div class="section level3">
 <h3 id="visualisation">Visualisation<a class="anchor" aria-label="anchor" href="#visualisation"></a>
 </h3>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot prevalence</span></span>
 <span><span class="fu">plot_prev</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="VectorControl_Bednets_files/figure-html/unnamed-chunk-6-1.png" width="100%" style="display: block; margin: auto;"></p>
@@ -266,7 +267,7 @@ a variable <code>n_use_net</code> that shows the number of people using
 bed nets at any given timestep. We can visualise the proportion of the
 population using bed nets over time to understand how bed net usage
 changes.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">output</span><span class="op">$</span><span class="va">prop_use_net</span> <span class="op">&lt;-</span> <span class="va">output</span><span class="op">$</span><span class="va">n_use_net</span> <span class="op">/</span> <span class="va">human_population</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">output</span><span class="op">$</span><span class="va">timestep</span>, y <span class="op">=</span> <span class="va">output</span><span class="op">$</span><span class="va">prop_use_net</span>, type <span class="op">=</span> <span class="st">"l"</span>, </span>
@@ -313,7 +314,7 @@ estimate population bed net usage from an input distribution.</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
 </div>
 
       </footer>

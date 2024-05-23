@@ -1,5 +1,5 @@
-pandoc: 2.19.2
-pkgdown: 2.0.7
+pandoc: 3.1.11
+pkgdown: 2.0.9
 pkgdown_sha: ~
 articles:
   Carrying-capacity: Carrying-capacity.html
@@ -15,5 +15,5 @@ articles:
   Variation: Variation.html
   VectorControl_Bednets: VectorControl_Bednets.html
   VectorControl_IRS: VectorControl_IRS.html
-last_built: 2023-07-03T16:09Z
+last_built: 2024-05-23T10:17Z
 

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Model Introduction • malariasimulation</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
@@ -383,25 +383,25 @@ mosquitoes (default set to <em>An. gambiae</em>)</li>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">test_sim</span>, n <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   timestep infectivity EIR_gamb   FOIM_gamb mu_gamb n_bitten n_infections</span></span>
-<span><span class="co">#&gt; 1        1    0.031406        0 0.008329191   0.132        0            0</span></span>
-<span><span class="co">#&gt; 2        2    0.031344        0 0.008329191   0.132        0            0</span></span>
-<span><span class="co">#&gt; 3        3    0.031344        0 0.008329191   0.132        0            0</span></span>
+<span><span class="co">#&gt; 1        1    0.031406        0 0.006284865   0.132        0            0</span></span>
+<span><span class="co">#&gt; 2        2    0.031406        0 0.006284865   0.132        0            0</span></span>
+<span><span class="co">#&gt; 3        3    0.030788        0 0.006284865   0.132        0            0</span></span>
 <span><span class="co">#&gt;   natural_deaths S_count A_count D_count U_count Tr_count ica_mean icm_mean</span></span>
 <span><span class="co">#&gt; 1              0      42      44       1      13        0        0        0</span></span>
-<span><span class="co">#&gt; 2              0      43      44       1      12        0        0        0</span></span>
-<span><span class="co">#&gt; 3              0      43      44       1      12        0        0        0</span></span>
+<span><span class="co">#&gt; 2              0      42      44       1      13        0        0        0</span></span>
+<span><span class="co">#&gt; 3              0      42      43       1      14        0        0        0</span></span>
 <span><span class="co">#&gt;   ib_mean id_mean iva_mean ivm_mean n_730_3650 n_detect_730_3650</span></span>
-<span><span class="co">#&gt; 1       0       0        0        0         24                12</span></span>
-<span><span class="co">#&gt; 2       0       0        0        0         24                12</span></span>
-<span><span class="co">#&gt; 3       0       0        0        0         24                12</span></span>
+<span><span class="co">#&gt; 1       0       0        0        0         37                19</span></span>
+<span><span class="co">#&gt; 2       0       0        0        0         36                19</span></span>
+<span><span class="co">#&gt; 3       0       0        0        0         36                19</span></span>
 <span><span class="co">#&gt;   p_detect_730_3650 E_gamb_count L_gamb_count P_gamb_count Sm_gamb_count</span></span>
-<span><span class="co">#&gt; 1                12     39150.44     1139.318      169.752      992.2288</span></span>
-<span><span class="co">#&gt; 2                12     39150.44     1139.318      169.752      985.4751</span></span>
-<span><span class="co">#&gt; 3                12     39150.44     1139.318      169.752      979.6056</span></span>
+<span><span class="co">#&gt; 1                19     39147.67     1139.318     169.7520      994.1303</span></span>
+<span><span class="co">#&gt; 2                19     39142.56     1139.333     169.7485      989.0188</span></span>
+<span><span class="co">#&gt; 3                19     39133.52     1139.286     169.7476      984.5653</span></span>
 <span><span class="co">#&gt;   Pm_gamb_count Im_gamb_count total_M_gamb</span></span>
-<span><span class="co">#&gt; 1       7.77118             0         1000</span></span>
-<span><span class="co">#&gt; 2      14.52490             0         1000</span></span>
-<span><span class="co">#&gt; 3      20.39436             0         1000</span></span></code></pre></div>
+<span><span class="co">#&gt; 1      5.869671             0     1000.000</span></span>
+<span><span class="co">#&gt; 2     10.981277             0     1000.000</span></span>
+<span><span class="co">#&gt; 3     15.432717             0      999.998</span></span></code></pre></div>
 <p>Additional output details can be found in the
 <code><a href="../reference/run_simulation.html">run_simulation()</a></code> documentation.</p>
 </div>
@@ -710,7 +710,7 @@ variation</li>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
 </div>
 
       </footer>

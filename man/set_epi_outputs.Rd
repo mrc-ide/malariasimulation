@@ -48,7 +48,7 @@ set_epi_outputs(
 Parameterise age grouped output rendering
 }
 \details{
-this function produces discrete and contiguous age groups, inclusive of the lower
-age limit and exclusive of the upper age limit: e.g., list(c(0, 10, 100), c(200, 250) will produce
-three age groups: 0-9, 10-99 and 200-249 in days.
+this function produces contiguous age groups, inclusive of the lower
+age limit and exclusive of the upper age limit: e.g., c(0, 10, 100) will produce
+two age groups: 0-9 and 10-99 in days.
 }

@@ -843,6 +843,7 @@ test_that('update_severe_disease renders with no infections', {
   
   render_function <- mockery::mock()
   mockery::stub(update_severe_disease, 'incidence_renderer', render_function)
+  mockery::stub(update_severe_disease, 'incidence_probability_renderer', render_function)
   empty <- individual::Bitset$new(population)
   
   update_severe_disease(
@@ -852,13 +853,24 @@ test_that('update_severe_disease renders with no infections', {
     parameters,
     renderer
   )
-  
+
   mockery::expect_args(
     render_function,
     1,
     variables$birth,
     renderer,
     empty,
+    'inc_severe_',
+    0,
+    5 * 365,
+    timestep
+  )
+  
+  mockery::expect_args(
+    render_function,
+    2,
+    variables$birth,
+    renderer,
     empty,
     double(0),
     'inc_severe_',

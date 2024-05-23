@@ -12,15 +12,15 @@
 #' @param infection_outcome competing hazards object for infection rates
 #' @noRd
 simulate_infection <- function(
-  variables,
-  events,
-  bitten_humans,
-  age,
-  parameters,
-  timestep,
-  renderer,
-  infection_outcome
-  ) {
+    variables,
+    events,
+    bitten_humans,
+    age,
+    parameters,
+    timestep,
+    renderer,
+    infection_outcome
+) {
   if (bitten_humans$size() > 0) {
     boost_immunity(
       variables$ib,
@@ -109,7 +109,19 @@ calculate_infections <- function(
 
   prob <- b * (1 - prophylaxis) * (1 - vaccine_efficacy)
 
-  ## Capture infection rates to resolve in competing hazards
+  ## probability of incidence must be rendered at each timestep
+  incidence_probability_renderer(
+    variables$birth,
+    renderer,
+    source_pop,
+    prob,
+    "inc_",
+    parameters$incidence_min_ages,
+    parameters$incidence_max_ages,
+    timestep
+  )
+  
+  ## capture infection rates to resolve in competing hazards
   infection_rates <- numeric(length = parameters$human_population)
   infection_rates[source_vector] <- prob_to_rate(prob)
   infection_outcome$set_rates(infection_rates)
@@ -140,8 +152,6 @@ infection_process_resolved_hazard <- function(
     variables$birth,
     renderer,
     infected_humans,
-    source_humans,
-    prob[source_humans$to_vector()],
     'inc_',
     parameters$incidence_rendering_min_ages,
     parameters$incidence_rendering_max_ages,
@@ -211,12 +221,12 @@ infection_process_resolved_hazard <- function(
 #' @param timestep current timestep
 #' @noRd
 calculate_clinical_infections <- function(
-  variables,
-  infections,
-  parameters,
-  renderer,
-  timestep
-  ) {
+    variables,
+    infections,
+    parameters,
+    renderer,
+    timestep
+) {
   ica <- variables$ica$get_values(infections)
   icm <- variables$icm$get_values(infections)
   phi <- clinical_immunity(ica, icm, parameters)
@@ -225,6 +235,14 @@ calculate_clinical_infections <- function(
     variables$birth,
     renderer,
     clinical_infections,
+    'inc_clinical_',
+    parameters$clinical_incidence_rendering_min_ages,
+    parameters$clinical_incidence_rendering_max_ages,
+    timestep
+  )
+  incidence_probability_renderer(
+    variables$birth,
+    renderer,
     infections,
     phi,
     'inc_clinical_',
@@ -245,12 +263,12 @@ calculate_clinical_infections <- function(
 #' @param renderer model outputs
 #' @noRd
 update_severe_disease <- function(
-  timestep,
-  infections,
-  variables,
-  parameters,
-  renderer
-  ) {
+    timestep,
+    infections,
+    variables,
+    parameters,
+    renderer
+) {
   age <- get_age(variables$birth$get_values(infections), timestep)
   iva <- variables$iva$get_values(infections)
   ivm <- variables$ivm$get_values(infections)
@@ -266,6 +284,14 @@ update_severe_disease <- function(
     variables$birth,
     renderer,
     severe_infections,
+    'inc_severe_',
+    parameters$severe_incidence_rendering_min_ages,
+    parameters$severe_incidence_rendering_max_ages,
+    timestep
+  )
+  incidence_probability_renderer(
+    variables$birth,
+    renderer,
     infections,
     theta,
     'inc_severe_',
@@ -409,13 +435,13 @@ calculate_treated <- function(
 #' @param parameters model parameters
 #' @noRd
 schedule_infections <- function(
-  variables,
-  clinical_infections,
-  treated,
-  infections,
-  parameters,
-  timestep
-  ) {
+    variables,
+    clinical_infections,
+    treated,
+    infections,
+    parameters,
+    timestep
+) {
   included <- treated$not(TRUE)
 
   to_infect <- clinical_infections$and(included)
@@ -447,12 +473,12 @@ schedule_infections <- function(
 # Utility functions
 # =================
 boost_immunity <- function(
-  immunity_variable,
-  exposed_index,
-  last_boosted_variable,
-  timestep,
-  delay
-  ) {
+    immunity_variable,
+    exposed_index,
+    last_boosted_variable,
+    timestep,
+    delay
+) {
   # record who can be boosted
   exposed_index_vector <- exposed_index$to_vector()
   last_boosted <- last_boosted_variable$get_values(exposed_index)
@@ -497,7 +523,7 @@ severe_immunity <- function(age, acquired_immunity, maternal_immunity, parameter
   parameters$theta0 * (parameters$theta1 + (1 - parameters$theta1) / (
     1 + fv * (
       (acquired_immunity + maternal_immunity) / parameters$iv0) ** parameters$kv
-    )
+  )
   )
 }
 

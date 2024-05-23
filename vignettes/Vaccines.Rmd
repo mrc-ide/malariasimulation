@@ -388,7 +388,7 @@ plot_prev()
 ```{r, fig.align = 'center', out.width='100%', message=FALSE}
 # Plot doses
 output$month <- ceiling(output$timestep / month)
-doses <- output[, c(2:6, 38)]
+doses <- output[, c(grep(pattern = "pev", names(output), value = T), "month")]
 doses <- aggregate(cbind(doses[1:5]),
                     by = list(doses$month), 
                     FUN = sum)

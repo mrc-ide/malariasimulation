@@ -122,6 +122,7 @@ run_resumable_simulation <- function(
   events <- create_events(parameters)
   initialise_events(events, variables, parameters)
   renderer <- individual::Render$new(timesteps)
+  populate_incidence_rendering_columns(renderer, parameters)
   attach_event_listeners(
     events,
     variables,

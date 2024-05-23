@@ -122,14 +122,24 @@ jobs:
 
         with:
           script: |
-            let description = process.env.RESULT == "success" ? 'Benchmarking succeeded!'
-                                                              : 'Benchmarking failed!';
+            let description;
+            switch (process.env.RESULT) {
+              case "success":
+                description = 'Benchmarking succeeded!';
+                break;
+              case "cancelled":
+                description = 'Benchmarking was cancelled.';
+                break;
+              default:
+                description = 'Benchmarking failed!';
+                break;
+            }
 
             github.rest.repos.createCommitStatus({
               owner: context.repo.owner,
               repo: context.repo.repo,
               sha: process.env.HEAD_SHA,
-              state: process.env.RESULT,
+              state: process.env.RESULT == "success" ? "success" : "failure",
               target_url: process.env.WORKFLOW_URL,
               description: description,
               context: 'touchstone'

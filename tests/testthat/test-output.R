@@ -23,10 +23,11 @@ test_that('Test age parameter function works', {
                    "n", "n_inc", "p_inc",
                    "n","n_inc_clinical","p_inc_clinical",
                    "n","n_inc_severe","p_inc_severe",
-                   "n","n_detect","p_detect",
+                   "n","n_detect_lm","p_detect_lm","n_detect_pcr",
                    "ica_mean", "icm_mean","id_mean","ib_mean","iva_mean","ivm_mean"), each = 3),"_",
-             age_limits[-4]+rep(c(0,rep(c(1:4), each = 3),5:10), each = 3),"_",age_limits[-1]-1+rep(c(0,rep(c(1:4), each = 3),5:10), each = 3)
+             age_limits[-4]+rep(c(0,rep(c(1:3), each = 3), rep(4, 4), 5:10), each = 3),"_",age_limits[-1]-1+rep(c(0,rep(c(1:3), each = 3), rep(4, 4), 5:10), each = 3)
       ) %in%
         names(sim)))
   
 })
+

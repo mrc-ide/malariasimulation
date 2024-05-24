@@ -107,7 +107,6 @@ p_lsm <- p |>
 set.seed(123)
 s_lsm <- run_simulation(timesteps = timesteps, parameters = p_lsm)
 s_lsm$pfpr <- s_lsm$n_detect_lm_730_3650 / s_lsm$n_age_730_3650
-s_lsm$pfpr <- s_lsm$n_detect_lm_730_3650 / s_lsm$n_730_3650
 
 par(mfrow = c(1, 2))
 plot(s$EIR_gamb ~ s$timestep, t = "l", ylim = c(0, 150), xlab = "Time", ylab = "EIR")

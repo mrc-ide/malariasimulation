@@ -41,7 +41,7 @@ test_that('that default rendering works', {
 
   mockery::expect_args(
     renderer$render_mock(),
-    4,
+    3,
     'n_detect_pcr_730_3650',
     3,
     timestep
@@ -75,7 +75,7 @@ test_that('that default rendering works when no one is in the age range', {
   mockery::expect_args(
     renderer$render_mock(),
     1,
-    'n_detect_730_3650',
+    'n_detect_lm_730_3650',
     0,
     timestep
   )

@@ -77,12 +77,12 @@ plot_prev <- function(type = "not seasonal"){
   output$time_year <- output$timestep / year
   comparison$time_year <- comparison$timestep / year
 
-  plot(x = output$time_year, y = output$n_detect_730_3650/output$n_age_730_3650, 
+  plot(x = output$time_year, y = output$n_detect_lm_730_3650/output$n_age_730_3650, 
        type = "l", col = cols[3], ylim=c(0,1), lwd = 3,
        xlab = "Time (years)", ylab = expression(paste(italic(Pf),"PR"[2-10])),
        xaxs = "i", yaxs = "i")
   grid(lty = 2, col = "grey80", lwd = 0.5)
-  lines(x = comparison$time_year, y = comparison$n_detect_730_3650/comparison$n_age_730_3650,
+  lines(x = comparison$time_year, y = comparison$n_detect_lm_730_3650/comparison$n_age_730_3650,
         col = cols[6], lwd = 3)
   abline(v = vaccinetime, col = "black", lty = 2, lwd = 2.5)
   text(x = vaccinetime + 0.05, y = 0.9, labels = "Start of\nvaccination", adj = 0, cex = 0.8)
@@ -388,7 +388,7 @@ plot_prev()
 ```{r, fig.align = 'center', out.width='100%', message=FALSE}
 # Plot doses
 output$month <- ceiling(output$timestep / month)
-doses <- output[, c(grep(pattern = "pev", names(output), value = T), "month")]
+doses <- output[, c(grep(pattern = "n_pev", x = names(output), value = T), "month")]
 doses <- aggregate(cbind(doses[1:5]),
                     by = list(doses$month), 
                     FUN = sum)

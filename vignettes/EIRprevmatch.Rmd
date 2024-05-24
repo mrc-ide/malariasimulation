@@ -117,7 +117,7 @@ simparams <- set_clinical_treatment(parameters = simparams,
 
 Having established a set of `malariasimulation` parameters, we are now ready to run simulations. In the following code chunk, we'll run the `run_simulation()` function across a range of initial EIR values to generate sufficient points to fit a curve matching *Pf*PR~2-10~ to the initial EIR. For each initial EIR, we first use the `set_equilibrium()` to update the model parameter list with the human and vector population parameter values required to achieve the specified EIR at equilibrium. This updated parameter list is then used to run the simulation.
 
-The `run_simulation()` outputs an EIR per time step, per species, across the entire human population. We first convert these to get the number of infectious bites experienced, on average, by each individual across the final year across all vector species. Next, the average *Pf*PR~2-10~ across the final year of the simulation is calculated by dividing the total number of individuals aged 2-10 by the number (`n_age_730_3650`) of detectable cases of malaria in individuals aged 2-10 (`n_detect_730_3650`) on each day and calculating the mean of these values. Finally, initial EIR, output EIR, and *Pf*PR~2-10~ are stored in a data frame.
+The `run_simulation()` outputs an EIR per time step, per species, across the entire human population. We first convert these to get the number of infectious bites experienced, on average, by each individual across the final year across all vector species. Next, the average *Pf*PR~2-10~ across the final year of the simulation is calculated by dividing the total number of individuals aged 2-10 by the number (`n_age_730_3650`) of detectable cases of malaria in individuals aged 2-10 (`n_detect_lm_730_3650`) on each day and calculating the mean of these values. Finally, initial EIR, output EIR, and *Pf*PR~2-10~ are stored in a data frame.
 
 ```{r}
 # Establish a vector of initial EIR values to simulate over and generate matching
@@ -158,7 +158,7 @@ malSim_prev <- lapply(
     mean(
       output[
         output$timestep %in% seq(4 * 365, 5 * 365),
-        'n_detect_730_3650'
+        'n_detect_lm_730_3650'
       ] / output[
         output$timestep %in% seq(4 * 365, 5 * 365),
         'n_age_730_3650'
@@ -276,7 +276,7 @@ library(cali)
 summary_mean_pfpr_2_10 <- function (x) {
  
  # Calculate the PfPR2-10:
- prev_2_10 <- mean(x$n_detect_730_3650/x$n_age_730_3650)
+ prev_2_10 <- mean(x$n_detect_lm_730_3650/x$n_age_730_3650)
  
  # Return the calculated PfPR2-10:
  return(prev_2_10)
@@ -325,8 +325,8 @@ malsim_sim <- run_simulation(timesteps = (simparams_malsim$timesteps),
                              parameters = simparams_malsim)
 
 # Extract the PfPR2-10 values for the cali and malsim simulation outputs:
-cali_pfpr2_10 <- cali_sim$n_detect_730_3650 / cali_sim$n_age_730_3650
-malsim_pfpr2_10 <- malsim_sim$n_detect_730_3650 / malsim_sim$n_age_730_3650
+cali_pfpr2_10 <- cali_sim$n_detect_lm_730_3650 / cali_sim$n_age_730_3650
+malsim_pfpr2_10 <- malsim_sim$n_detect_lm_730_3650 / malsim_sim$n_age_730_3650
 
 # Store the PfPR2-10 in each time step for the two methods:
 df <- data.frame(timestep = seq(1, length(cali_pfpr2_10)),

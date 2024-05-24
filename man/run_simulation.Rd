@@ -52,9 +52,6 @@ prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
 inclusive age range at this timestep. This
 defaults to p_detect_730_3650. Other age ranges can be set with
 prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
-\item n_severe: number of humans with a severe infection between an inclusive
-age range at this timestep. Age ranges can be set with
-severe_prevalence_rendering_min_ages and severe_prevalence_rendering_max_ages parameters.
 \item n_inc: number of new infections for humans between an inclusive age range at this timestep.
 incidence columns can be set with
 incidence_rendering_min_ages and incidence_rendering_max_ages parameters.

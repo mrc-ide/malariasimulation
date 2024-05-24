@@ -395,9 +395,10 @@ calculate_initial_ages <- function(parameters) {
   n_pop <- get_human_population(parameters, 0)
   # check if we've set up a custom demography
   if (!parameters$custom_demography) {
-    return(round(rexp(
+    return(round(rtexp(
       n_pop,
-      rate = 1 / parameters$average_age
+      1 / parameters$average_age,
+      max(EQUILIBRIUM_AGES)*365
     )))
   }
 

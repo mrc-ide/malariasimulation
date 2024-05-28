@@ -218,7 +218,6 @@ test_that('indoor_spraying process sets spray_time correctly', {
   mockery::expect_args(target_mock, 1, seq(4), 'spraying', .9, correlations)
   mockery::expect_args(
     spray_time$queue_update_mock(),
-    renderer$render,
     1,
     50,
     c(3, 4)

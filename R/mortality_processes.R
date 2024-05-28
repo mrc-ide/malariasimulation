@@ -111,9 +111,6 @@ reset_target <- function(variables, events, target, state, parameters, timestep)
     variables$pev_profile$queue_update(-1, target)
     variables$tbv_vaccinated$queue_update(-1, target)
 
-    # spraying
-    variables$spray_time$queue_update(-1, target)
-
     # onwards infectiousness
     variables$infectivity$queue_update(0, target)
     

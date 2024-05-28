@@ -201,9 +201,11 @@ test_that('indoor_spraying process sets spray_time correctly', {
     ms_gamma = matrix(c(-0.009, -0.009), nrow=2, ncol=1)
   )
   spray_time <- mock_double(rep(0, 4))
+  renderer <- individual::Render$new(timestep)
   correlations <- get_correlation_parameters(parameters)
   process <- indoor_spraying(
     spray_time,
+    renderer,
     parameters,
     correlations
   )

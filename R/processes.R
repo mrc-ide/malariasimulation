@@ -143,7 +143,7 @@ create_processes <- function(
   )
 
   # =========
-  # RTS,S EPI
+  # PEV EPI
   # =========
   if (!is.null(parameters$pev_epi_coverage)) {
     processes <- c(
@@ -250,7 +250,7 @@ create_processes <- function(
   if (parameters$spraying) {
     processes <- c(
       processes,
-      indoor_spraying(variables$spray_time, parameters, correlations)
+      indoor_spraying(variables$spray_time, renderer, parameters, correlations)
     )
   }
 

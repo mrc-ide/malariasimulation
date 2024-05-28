@@ -201,7 +201,7 @@ test_that('indoor_spraying process sets spray_time correctly', {
     ms_gamma = matrix(c(-0.009, -0.009), nrow=2, ncol=1)
   )
   spray_time <- mock_double(rep(0, 4))
-  renderer <- list(render = mockery::mock())
+  renderer <- individual::Render$new(timestep)
   correlations <- get_correlation_parameters(parameters)
   process <- indoor_spraying(
     spray_time,
@@ -218,7 +218,6 @@ test_that('indoor_spraying process sets spray_time correctly', {
   mockery::expect_args(target_mock, 1, seq(4), 'spraying', .9, correlations)
   mockery::expect_args(
     spray_time$queue_update_mock(),
-    renderer$render,
     1,
     50,
     c(3, 4)

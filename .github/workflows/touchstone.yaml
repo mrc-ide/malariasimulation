@@ -16,6 +16,9 @@ permissions:
 env:
   WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
+  # This generally gives more consistent benchmarking results.
+  R_GC_MEM_GROW: 3
+
 jobs:
   prepare:
     # The other jobs all depend on this one succeeding. They'll implicitly get

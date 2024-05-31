@@ -410,13 +410,13 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   mockery::expect_args(
     bernoulli_mock,
     2,
-    1 - (unlist(parameters$artemisinin_resistance_proportion[c(2, 1, 1, 1, 2, 2, 2, 1, 2)]) * unlist(parameters$early_treatment_failure_probability[c(2, 1, 1, 1, 2, 2, 2, 1, 2)]))
+    1 - (unlist(parameters$artemisinin_resistance_prop[c(2, 1, 1, 1, 2, 2, 2, 1, 2)]) * unlist(parameters$early_treatment_failure_prob[c(2, 1, 1, 1, 2, 2, 2, 1, 2)]))
   )
   
   mockery::expect_args(
     bernoulli_mock,
     3,
-    unlist(parameters$artemisinin_resistance_proportion[c(2, 1, 1, 1, 2, 2, 2)]) * unlist(parameters$slow_parasite_clearance_probability[c(2, 1, 1, 1, 2, 2, 2)])
+    unlist(parameters$artemisinin_resistance_prop[c(2, 1, 1, 1, 2, 2, 2)]) * unlist(parameters$slow_parasite_clearance_prob[c(2, 1, 1, 1, 2, 2, 2)])
   )
   
   expect_bitset_update(variables$state$queue_update, 'Tr', c(1, 2, 3, 4, 5, 6, 7))

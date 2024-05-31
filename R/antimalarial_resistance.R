@@ -80,12 +80,12 @@ set_antimalarial_resistance <- function(parameters,
   
   parameters$antimalarial_resistance_drug[[drug_index]] <- drug
   parameters$antimalarial_resistance_timesteps[[drug_index]] <- timesteps
-  parameters$artemisinin_resistance_proportion[[drug_index]] <- artemisinin_resistance_proportion
-  parameters$partner_drug_resistance_proportion[[drug_index]] <- partner_drug_resistance_proportion
-  parameters$slow_parasite_clearance_probability[[drug_index]] <- slow_parasite_clearance_probability
-  parameters$early_treatment_failure_probability[[drug_index]] <- early_treatment_failure_probability
-  parameters$late_clinical_failure_probability[[drug_index]] <- late_clinical_failure_probability
-  parameters$late_parasitological_failure_probability[[drug_index]] <- late_parasitological_failure_probability
+  parameters$artemisinin_resistance_prop[[drug_index]] <- artemisinin_resistance_proportion
+  parameters$partner_drug_resistance_prop[[drug_index]] <- partner_drug_resistance_proportion
+  parameters$slow_parasite_clearance_prob[[drug_index]] <- slow_parasite_clearance_probability
+  parameters$early_treatment_failure_prob[[drug_index]] <- early_treatment_failure_probability
+  parameters$late_clinical_failure_prob[[drug_index]] <- late_clinical_failure_probability
+  parameters$late_parasitological_failure_prob[[drug_index]] <- late_parasitological_failure_probability
   parameters$reinfection_during_prophylaxis_probability[[drug_index]] <- reinfection_during_prophylaxis_probability
   parameters$dt_slow_parasite_clearance[[drug_index]] <- slow_parasite_clearance_time
   
@@ -108,37 +108,37 @@ get_antimalarial_resistance_parameters <- function(parameters, drugs, timestep) 
   }
   
   blank_vector <- numeric(length = length(drugs))
-  artemisinin_resistance_proportion <- blank_vector
-  partner_drug_resistance_proportion <- blank_vector
-  slow_parasite_clearance_probability <- blank_vector
-  early_treatment_failure_probability <- blank_vector
-  late_clinical_failure_probability <- blank_vector
-  late_parasitological_failure_probability <- blank_vector
-  reinfection_during_prophylaxis_probability <- blank_vector
+  artemisinin_resistance_prop <- blank_vector
+  partner_drug_resistance_prop <- blank_vector
+  slow_parasite_clearance_prob <- blank_vector
+  early_treatment_failure_prob <- blank_vector
+  late_clinical_failure_prob <- blank_vector
+  late_parasitological_failure_prob <- blank_vector
+  reinfection_during_prophylaxis_prob <- blank_vector
   dt_slow_parasite_clearance <- rep(parameters$dt, length = length(drugs))
   
   for(i in seq_along(parameters$antimalarial_resistance_drug)) {
     drug <- parameters$antimalarial_resistance_drug[[i]]
     treated_with_drug <- which(drugs == drug)
     resistance_timestep <- match_timestep(ts = parameters$antimalarial_resistance_timesteps[[i]], t = timestep)
-    artemisinin_resistance_proportion[treated_with_drug] <- parameters$artemisinin_resistance_proportion[[i]][resistance_timestep]
-    partner_drug_resistance_proportion[treated_with_drug] <- parameters$partner_drug_resistance_proportion[[i]][resistance_timestep]
-    slow_parasite_clearance_probability[treated_with_drug] <- parameters$slow_parasite_clearance_probability[[i]][resistance_timestep]
-    early_treatment_failure_probability[treated_with_drug] <- parameters$early_treatment_failure_probability[[i]][resistance_timestep]
-    late_clinical_failure_probability[treated_with_drug] <- parameters$late_clinical_failure_probability[[i]][resistance_timestep]
-    late_parasitological_failure_probability[treated_with_drug] <- parameters$late_parasitological_failure_probability[[i]][resistance_timestep]
-    reinfection_during_prophylaxis_probability[treated_with_drug] <- parameters$reinfection_during_prophylaxis_probability[[i]][resistance_timestep]
+    artemisinin_resistance_prop[treated_with_drug] <- parameters$artemisinin_resistance_prop[[i]][resistance_timestep]
+    partner_drug_resistance_prop[treated_with_drug] <- parameters$partner_drug_resistance_prop[[i]][resistance_timestep]
+    slow_parasite_clearance_prob[treated_with_drug] <- parameters$slow_parasite_clearance_prob[[i]][resistance_timestep]
+    early_treatment_failure_prob[treated_with_drug] <- parameters$early_treatment_failure_prob[[i]][resistance_timestep]
+    late_clinical_failure_prob[treated_with_drug] <- parameters$late_clinical_failure_prob[[i]][resistance_timestep]
+    late_parasitological_failure_prob[treated_with_drug] <- parameters$late_parasitological_failure_prob[[i]][resistance_timestep]
+    reinfection_during_prophylaxis_prob[treated_with_drug] <- parameters$reinfection_during_prophylaxis_prob[[i]][resistance_timestep]
     dt_slow_parasite_clearance[treated_with_drug] <- parameters$dt_slow_parasite_clearance[[i]]
   }
   
   resistance_parameters <- list()
-  resistance_parameters$artemisinin_resistance_proportion <- artemisinin_resistance_proportion
-  resistance_parameters$partner_drug_resistance_proportion <- partner_drug_resistance_proportion
-  resistance_parameters$slow_parasite_clearance_probability <- slow_parasite_clearance_probability
-  resistance_parameters$early_treatment_failure_probability <- early_treatment_failure_probability
-  resistance_parameters$late_clinical_failure_probability <- late_clinical_failure_probability
-  resistance_parameters$late_parasitological_failure_probability <- late_parasitological_failure_probability
-  resistance_parameters$reinfection_during_prophylaxis_probability <- reinfection_during_prophylaxis_probability
+  resistance_parameters$artemisinin_resistance_prop <- artemisinin_resistance_prop
+  resistance_parameters$partner_drug_resistance_prop <- partner_drug_resistance_prop
+  resistance_parameters$slow_parasite_clearance_prob <- slow_parasite_clearance_prob
+  resistance_parameters$early_treatment_failure_prob <- early_treatment_failure_prob
+  resistance_parameters$late_clinical_failure_prob <- late_clinical_failure_prob
+  resistance_parameters$late_parasitological_failure_prob <- late_parasitological_failure_prob
+  resistance_parameters$reinfection_during_prophylaxis_prob <- reinfection_during_prophylaxis_prob
   resistance_parameters$dt_slow_parasite_clearance <- dt_slow_parasite_clearance
   
   return(resistance_parameters)

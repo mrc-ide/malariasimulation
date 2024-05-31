@@ -314,19 +314,24 @@ calculate_treated <- function(
     
     #+++ EARLY TREATMENT FAILURE +++#
     #+++++++++++++++++++++++++++++++#
-    early_treatment_failure_probability <- resistance_parameters$artemisinin_resistance_proportion * resistance_parameters$early_treatment_failure_probability
-    successfully_treated_indices <- bernoulli_multi_p(p = 1 - early_treatment_failure_probability)
+    early_treatment_failure_prob <- resistance_parameters$artemisinin_resistance_prop * resistance_parameters$early_treatment_failure_prob
+    successfully_treated_indices <- bernoulli_multi_p(p = 1 - early_treatment_failure_prob)
     successfully_treated <- bitset_at(effectively_treated, successfully_treated_indices)
     n_early_treatment_failure <- effectively_treated$size() - successfully_treated$size()
     renderer$render('n_early_treatment_failure', n_early_treatment_failure, timestep)
     drugs <- drugs[successfully_treated_indices]
     dt_slow_parasite_clearance <- resistance_parameters$dt_slow_parasite_clearance[successfully_treated_indices]
     
+    
+    #+++ LATE PARASITOLOGICAL FAILURE +++#
+    #++++++++++++++++++++++++++++++++++++#
+    
+    
     #+++ SLOW PARASITE CLEARANCE +++#
     #+++++++++++++++++++++++++++++++#
-    slow_parasite_clearance_probability <- resistance_parameters$artemisinin_resistance_proportion[successfully_treated_indices] *
-      resistance_parameters$slow_parasite_clearance_probability[successfully_treated_indices]
-    slow_parasite_clearance_indices <- bernoulli_multi_p(p = slow_parasite_clearance_probability)
+    slow_parasite_clearance_prob <- resistance_parameters$artemisinin_resistance_prop[successfully_treated_indices] *
+      resistance_parameters$slow_parasite_clearance_prob[successfully_treated_indices]
+    slow_parasite_clearance_indices <- bernoulli_multi_p(p = slow_parasite_clearance_prob)
     slow_parasite_clearance_individuals <- bitset_at(successfully_treated, slow_parasite_clearance_indices)
     renderer$render('n_slow_parasite_clearance', slow_parasite_clearance_individuals$size(), timestep)
     non_slow_parasite_clearance_individuals <- successfully_treated$copy()$set_difference(slow_parasite_clearance_individuals)

@@ -22,7 +22,7 @@ create_progression_process <- function(
     state,
     from_state,
     to_state,
-    rate,
+    prob,
     infectivity,
     new_infectivity
 ) {
@@ -31,13 +31,13 @@ create_progression_process <- function(
     # Retrieve the indices of all individuals in the to_move state:
     index <- state$get_index_of(from_state)
     
-    # If the length of rate is greater than 1 (when it's a variable):
-    if (inherits(rate, "DoubleVariable")) {
-      rate <- rate$get_values(index)
+    # If function receives a vector transition probabilities rather than a single value:
+    if (length(prob) > 1) {
+      prob <- prob[index$to_vector()]
     }
     
-    # Sample the individuals to be moved into a new Bitset using the transition rate(s):
-    to_move <- index$sample(1/rate)
+    # Sample the individuals to be moved into a new Bitset using the transition probabilities:
+    to_move <- index$sample(prob)
     
     # Update the infection status of those individuals who are moving:
     update_infection(
@@ -52,12 +52,12 @@ create_progression_process <- function(
 
 create_asymptomatic_progression_process <- function(
   state,
-  rate,
+  prob,
   variables,
   parameters
   ) {
   function(timestep) {
-    to_move <- state$get_index_of('D')$sample(1/rate)
+    to_move <- state$get_index_of('D')$sample(prob)
     update_to_asymptomatic_infection(
       variables,
       parameters,

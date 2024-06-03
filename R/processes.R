@@ -84,7 +84,7 @@ create_processes <- function(
     ),
     create_asymptomatic_progression_process(
       variables$state,
-      parameters$dd,
+      1 - exp(-1/parameters$dd),
       variables,
       parameters
     ),
@@ -92,7 +92,7 @@ create_processes <- function(
       variables$state,
       'A',
       'U',
-      parameters$da,
+      1 - exp(-1/parameters$da),
       variables$infectivity,
       parameters$cu
     ),
@@ -100,7 +100,7 @@ create_processes <- function(
       variables$state,
       'U',
       'S',
-      parameters$du,
+      1 - exp(-1/parameters$du),
       variables$infectivity,
       0
     )
@@ -109,16 +109,13 @@ create_processes <- function(
   # =======================
   # Antimalarial Resistance
   # =======================
-  # Add an a new process which governs the transition from Tr to S when
-  # antimalarial resistance is simulated. The rate of transition switches
-  # from a parameter to a variable when antimalarial resistance == TRUE.
   
   # Assign the dt input to a separate object with the default single parameter value:
   dt_input <- parameters$dt
   
   # If antimalarial resistance is switched on, assign dt variable values to the 
   if(parameters$antimalarial_resistance) {
-    dt_input <- variables$dt
+    dt_input <- variables$dt$get_values()
   }
   
   # Create the progression process for Tr --> S specifying dt_input as the rate:
@@ -128,7 +125,7 @@ create_processes <- function(
       variables$state,
       'Tr',
       'S',
-      dt_input,
+      1 - exp(-1/dt_input),
       variables$infectivity,
       0
     )

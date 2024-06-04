@@ -320,22 +320,37 @@ calculate_treated <- function(
     n_early_treatment_failure <- effectively_treated$size() - successfully_treated$size()
     renderer$render('n_early_treatment_failure', n_early_treatment_failure, timestep)
     drugs <- drugs[successfully_treated_indices]
-    dt_slow_parasite_clearance <- resistance_parameters$dt_slow_parasite_clearance[successfully_treated_indices]
     
+    # Subset out the resistance parameter indices for individuals that experienced early treatment failure:
+    artemisinin_resistance_prop <- resistance_parameters$artemisinin_resistance_prop[successfully_treated_indices]
+    partner_drug_resistance_prop <- resistance_parameters$partner_drug_resistance_prop[successfully_treated_indices]
+    late_parasitological_failure_prob <- resistance_parameters$late_parasitological_failure_prob[successfully_treated_indices]
+    slow_parasite_clearance_prob <- resistance_parameters$slow_parasite_clearance_prob[successfully_treated_indices]
+    dt_slow_parasite_clearance <- resistance_parameters$dt_slow_parasite_clearance[successfully_treated_indices]
     
     #+++ LATE PARASITOLOGICAL FAILURE +++#
     #++++++++++++++++++++++++++++++++++++#
+    successfully_treated_indices_2 <- bernoulli_multi_p(p = 1 - (partner_drug_resistance_prop * late_parasitological_failure_prob))
+    successfully_treated_2 <- bitset_at(successfully_treated, successfully_treated_indices_2)
+    late_parasitological_failure_individuals <- successfully_treated$copy()$set_difference(successfully_treated_2)
+    n_late_parasitological_failure <- successfully_treated$size() - successfully_treated_2$size()
+    renderer$render('n_late_parasitological_failure', n_late_parasitological_failure, timestep)
+    drugs <- drugs[successfully_treated_indices_2]
     
+    # Subset out the resistance parameter indices for individuals that experienced late parasitological failure:
+    artemisinin_resistance_prop <- resistance_parameters$artemisinin_resistance_prop[successfully_treated_indices_2]
+    slow_parasite_clearance_prob <- resistance_parameters$slow_parasite_clearance_prob[successfully_treated_indices_2]
+    dt_slow_parasite_clearance <- resistance_parameters$dt_slow_parasite_clearance[successfully_treated_indices_2]
     
     #+++ SLOW PARASITE CLEARANCE +++#
     #+++++++++++++++++++++++++++++++#
-    slow_parasite_clearance_prob <- resistance_parameters$artemisinin_resistance_prop[successfully_treated_indices] *
-      resistance_parameters$slow_parasite_clearance_prob[successfully_treated_indices]
-    slow_parasite_clearance_indices <- bernoulli_multi_p(p = slow_parasite_clearance_prob)
-    slow_parasite_clearance_individuals <- bitset_at(successfully_treated, slow_parasite_clearance_indices)
+    slow_parasite_clearance_indices <- bernoulli_multi_p(p = (artemisinin_resistance_prop * slow_parasite_clearance_prob))
+    slow_parasite_clearance_individuals <- bitset_at(successfully_treated_2, slow_parasite_clearance_indices)
     renderer$render('n_slow_parasite_clearance', slow_parasite_clearance_individuals$size(), timestep)
-    non_slow_parasite_clearance_individuals <- successfully_treated$copy()$set_difference(slow_parasite_clearance_individuals)
-    renderer$render('n_successfully_treated', successfully_treated$size(), timestep)
+    non_slow_parasite_clearance_individuals <- successfully_treated_2$copy()$set_difference(slow_parasite_clearance_individuals)
+    renderer$render('n_successfully_treated', successfully_treated_2$size(), timestep)
+    
+    # Subset the resistance parameter indices for individuals that will experience slow parasite clearance 
     dt_slow_parasite_clearance <- dt_slow_parasite_clearance[slow_parasite_clearance_indices]
     
   } else {
@@ -346,20 +361,37 @@ calculate_treated <- function(
   }
   
   if (successfully_treated$size() > 0) {
-    variables$state$queue_update("Tr", successfully_treated)
+    variables$state$queue_update("Tr", successfully_treated_2)
     variables$infectivity$queue_update(
       parameters$cd * parameters$drug_rel_c[drugs],
-      successfully_treated
+      successfully_treated_2
     )
     variables$drug$queue_update(
       drugs,
-      successfully_treated
+      successfully_treated_2
     )
     variables$drug_time$queue_update(
       timestep,
-      successfully_treated
+      successfully_treated_2
     )
     if(parameters$antimalarial_resistance) {
+      
+      # Schedule state update for people who will experience late parasitological failures:
+      if(n_late_parasitological_failure > 0) {
+        variables$state$queue_update('A', late_parasitological_failure_individuals)
+        new_infectivity <- asymptomatic_infectivity(
+          age = get_age(
+            variables$birth$get_values(late_parasitological_failure_individuals$to_vector()),
+            timestep), 
+          variables$id$get_values(index = late_parasitological_failure_individuals$to_vector()), 
+          parameters)
+        variables$infectivity$queue_update(
+          new_infectivity,
+          late_parasitological_failure_individuals$to_vector()
+        )
+      }
+      
+      # Schedule update to dt variables for successfully treated individuals:
       variables$dt$queue_update(
         parameters$dt,
         non_slow_parasite_clearance_individuals

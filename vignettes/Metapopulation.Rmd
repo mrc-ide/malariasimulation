@@ -86,7 +86,8 @@ metapop_loop <- function(mixing, mixnam){ # mixing matrix
                                    parameters = paramslist,
                                    correlations = NULL,
                                    mixing_tt = 1,
-                                   mixing = list(mixing), 
+                                   export_mixing = list(mixing), 
+                                   import_mixing = list(mixing), 
                                    p_captured = list(matrix(rep(0, 9), nrow = 3, ncol = 3)),
                                    p_captured_tt = 1,
                                    p_success = 0.95)

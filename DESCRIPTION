@@ -1,6 +1,6 @@
 Package: malariasimulation
 Title: An individual based model for malaria
-Version: 1.6.0
+Version: 1.6.1
 Authors@R: c(
   person(
     given = "Giovanni",
@@ -70,12 +70,12 @@ Remotes:
   mrc-ide/malariaEquilibrium,
   mrc-ide/individual
 Imports:
-    individual (>= 0.1.7),
+    individual (>= 0.1.16),
     malariaEquilibrium (>= 1.0.1),
     Rcpp,
     statmod,
     MASS,
-    dqrng,
+    dqrng (>= 0.4),
     sitmo,
     BH,
     R6,
@@ -91,7 +91,7 @@ Suggests:
   ggplot2,
   covr,
   mgcv 
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Roxygen: list(markdown = TRUE)
 LinkingTo:
   Rcpp,

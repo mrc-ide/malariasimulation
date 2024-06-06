@@ -29,16 +29,13 @@
 #'  * n: number of humans between an inclusive age range at this timestep. This
 #' defaults to n_730_3650. Other age ranges can be set with
 #' prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
-#'  * n_detect: number of humans with an infection detectable by microscopy between an inclusive age range at this timestep. This
+#'  * n_detect_lm (or pcr): number of humans with an infection detectable by microscopy (or pcr) between an inclusive age range at this timestep. This
 #' defaults to n_detect_730_3650. Other age ranges can be set with
 #' prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
-#'  * p_detect: the sum of probabilities of detection by microscopy between an
+#'  * p_detect_lm (or pcr): the sum of probabilities of detection by microscopy (or pcr) between an
 #' inclusive age range at this timestep. This
 #' defaults to p_detect_730_3650. Other age ranges can be set with
 #' prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
-#'  * n_severe: number of humans with a severe infection between an inclusive
-#' age range at this timestep. Age ranges can be set with
-#' severe_prevalence_rendering_min_ages and severe_prevalence_rendering_max_ages parameters.
 #'  * n_inc: number of new infections for humans between an inclusive age range at this timestep.
 #' incidence columns can be set with
 #' incidence_rendering_min_ages and incidence_rendering_max_ages parameters.
@@ -74,6 +71,10 @@
 #' susceptible
 #'  * net_usage: the number people protected by a bed net
 #'  * mosquito_deaths: number of adult female mosquitoes who die this timestep
+#'  * n_drug_efficacy_failures: number of clinically treated individuals whose treatment failed due to drug efficacy
+#'  * n_early_treatment_failure: number of clinically treated individuals who experienced early treatment failure
+#'  * n_successfully_treated: number of clinically treated individuals who are treated successfully (includes individuals who experience slow parasite clearance)
+#'  * n_slow_parasite_clearance: number of clinically treated individuals who experienced slow parasite clearance
 #'
 #' @param timesteps the number of timesteps to run the simulation for (in days)
 #' @param parameters a named list of parameters to use
@@ -84,6 +85,28 @@ run_simulation <- function(
     timesteps,
     parameters = NULL,
     correlations = NULL
+) {
+  run_resumable_simulation(timesteps, parameters, correlations)$data
+}
+
+#' @title Run the simulation in a resumable way
+#'
+#' @description this function accepts an initial simulation state as an argument, and returns the
+#' final state after running all of its timesteps. This allows one run to be resumed, possibly
+#' having changed some of the parameters.
+#' @param timesteps the timestep at which to stop the simulation
+#' @param parameters a named list of parameters to use
+#' @param correlations correlation parameters
+#' @param initial_state the state from which the simulation is resumed
+#' @param restore_random_state if TRUE, restore the random number generator's state from the checkpoint.
+#' @return a list with two entries, one for the dataframe of results and one for the final
+#' simulation state.
+run_resumable_simulation <- function(
+    timesteps,
+    parameters = NULL,
+    correlations = NULL,
+    initial_state = NULL,
+    restore_random_state = FALSE
 ) {
   random_seed(ceiling(runif(1) * .Machine$integer.max))
   if (is.null(parameters)) {
@@ -105,7 +128,26 @@ run_simulation <- function(
   )
   vector_models <- parameterise_mosquito_models(parameters, timesteps)
   solvers <- parameterise_solvers(vector_models, parameters)
-  individual::simulation_loop(
+
+  lagged_eir <- create_lagged_eir(variables, solvers, parameters)
+  lagged_infectivity <- create_lagged_infectivity(variables, parameters)
+
+  stateful_objects <- list(
+    RandomState$new(restore_random_state),
+    correlations,
+    vector_models,
+    solvers,
+    lagged_eir,
+    lagged_infectivity)
+
+  if (!is.null(initial_state)) {
+    individual::restore_object_state(
+      initial_state$timesteps,
+      stateful_objects,
+      initial_state$malariasimulation)
+  }
+
+  individual_state <- individual::simulation_loop(
     processes = create_processes(
       renderer,
       variables,
@@ -114,14 +156,31 @@ run_simulation <- function(
       vector_models,
       solvers,
       correlations,
-      create_lagged_eir(variables, solvers, parameters),
-      create_lagged_infectivity(variables, parameters)
+      lagged_eir,
+      lagged_infectivity,
+      timesteps
     ),
     variables = variables,
-    events = unlist(events),
-    timesteps = timesteps
+    events = events,
+    timesteps = timesteps,
+    state = initial_state$individual,
+    restore_random_state = restore_random_state
   )
-  renderer$to_dataframe()
+
+  final_state <- list(
+    timesteps = timesteps,
+    individual = individual_state,
+    malariasimulation = individual::save_object_state(stateful_objects)
+  )
+
+  data <- renderer$to_dataframe()
+  if (!is.null(initial_state)) {
+    # Drop the timesteps we didn't simulate from the data.
+    # It would just be full of NA.
+    data <- data[-(1:initial_state$timesteps),]
+  }
+
+  list(data=data, state=final_state)
 }
 
 #' @title Run a metapopulation model
@@ -271,6 +330,7 @@ run_metapop_simulation <- function(
         correlations[[i]],
         lagged_eir[[i]],
         lagged_infectivity[[i]],
+        timesteps,
         mixing_fn,
         i
       )

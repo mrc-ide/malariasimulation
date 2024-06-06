@@ -12,7 +12,7 @@ set_mass_pev(
   min_ages,
   max_ages,
   min_wait,
-  booster_timestep,
+  booster_spacing,
   booster_coverage,
   booster_profile
 )
@@ -20,7 +20,7 @@ set_mass_pev(
 \arguments{
 \item{parameters}{a list of parameters to modify}
 
-\item{profile}{primary vaccine profile of type PEVProfile}
+\item{profile}{a list of details for the vaccine profile, create with \code{create_pev_profile}}
 
 \item{timesteps}{a vector of timesteps for each round of vaccinations}
 
@@ -34,12 +34,11 @@ set_mass_pev(
 When using both set_mass_pev and set_pev_epi, this represents the minimum
 time between an individual being vaccinated under one scheme and vaccinated under another.}
 
-\item{booster_timestep}{the timesteps (following the initial vaccination) at which booster vaccinations are administered}
+\item{booster_spacing}{the timesteps (following the final primary dose) at which booster vaccinations are administered}
 
-\item{booster_coverage}{the proportion of the vaccinated population relative to the last vaccination (whether a previous booster or the primary series)}
+\item{booster_coverage}{a matrix of coverages (timesteps x boosters) specifying the proportion the previously vaccinated population to continue receiving booster doses. The rows of the matrix must be the same size as \code{timesteps}. The columns of the matrix must be the same size as \code{booster_spacing}.}
 
-\item{booster_profile}{list of booster vaccine profiles, of type
-PEVProfile, for each timestep in booster_timeteps}
+\item{booster_profile}{list of lists representing each booster profile, the outer list must be the same length as \code{booster_spacing}. Create vaccine profiles with \code{create_pev_profile}}
 }
 \description{
 distribute pre-erythrocytic vaccine to a population in an age range.

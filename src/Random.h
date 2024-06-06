@@ -58,6 +58,9 @@ public:
     Random(Random &&other) = delete;
     Random& operator=(const Random &other) = delete;
     Random& operator=(Random &&other) = delete;
+
+    std::string save_state();
+    void restore_state(std::string state);
 private:
     Random() : rng(dqrng::generator<dqrng::xoshiro256plus>(42)) {};
 };

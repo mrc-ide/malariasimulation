@@ -40,6 +40,28 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// adult_mosquito_model_save_state
+std::vector<double> adult_mosquito_model_save_state(Rcpp::XPtr<AdultMosquitoModel> model);
+RcppExport SEXP _malariasimulation_adult_mosquito_model_save_state(SEXP modelSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<AdultMosquitoModel> >::type model(modelSEXP);
+    rcpp_result_gen = Rcpp::wrap(adult_mosquito_model_save_state(model));
+    return rcpp_result_gen;
+END_RCPP
+}
+// adult_mosquito_model_restore_state
+void adult_mosquito_model_restore_state(Rcpp::XPtr<AdultMosquitoModel> model, std::vector<double> state);
+RcppExport SEXP _malariasimulation_adult_mosquito_model_restore_state(SEXP modelSEXP, SEXP stateSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<AdultMosquitoModel> >::type model(modelSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type state(stateSEXP);
+    adult_mosquito_model_restore_state(model, state);
+    return R_NilValue;
+END_RCPP
+}
 // create_adult_solver
 Rcpp::XPtr<Solver> create_adult_solver(Rcpp::XPtr<AdultMosquitoModel> model, std::vector<double> init, double r_tol, double a_tol, size_t max_steps);
 RcppExport SEXP _malariasimulation_create_adult_solver(SEXP modelSEXP, SEXP initSEXP, SEXP r_tolSEXP, SEXP a_tolSEXP, SEXP max_stepsSEXP) {
@@ -157,6 +179,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// exponential_process_cpp
+Rcpp::XPtr<process_t> exponential_process_cpp(Rcpp::XPtr<DoubleVariable> variable, const double rate);
+RcppExport SEXP _malariasimulation_exponential_process_cpp(SEXP variableSEXP, SEXP rateSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<DoubleVariable> >::type variable(variableSEXP);
+    Rcpp::traits::input_parameter< const double >::type rate(rateSEXP);
+    rcpp_result_gen = Rcpp::wrap(exponential_process_cpp(variable, rate));
+    return rcpp_result_gen;
+END_RCPP
+}
 // solver_get_states
 std::vector<double> solver_get_states(Rcpp::XPtr<Solver> solver);
 RcppExport SEXP _malariasimulation_solver_get_states(SEXP solverSEXP) {
@@ -166,6 +200,18 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::XPtr<Solver> >::type solver(solverSEXP);
     rcpp_result_gen = Rcpp::wrap(solver_get_states(solver));
     return rcpp_result_gen;
+END_RCPP
+}
+// solver_set_states
+void solver_set_states(Rcpp::XPtr<Solver> solver, double t, std::vector<double> state);
+RcppExport SEXP _malariasimulation_solver_set_states(SEXP solverSEXP, SEXP tSEXP, SEXP stateSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<Solver> >::type solver(solverSEXP);
+    Rcpp::traits::input_parameter< double >::type t(tSEXP);
+    Rcpp::traits::input_parameter< std::vector<double> >::type state(stateSEXP);
+    solver_set_states(solver, t, state);
+    return R_NilValue;
 END_RCPP
 }
 // solver_step
@@ -215,6 +261,28 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// timeseries_save_state
+Rcpp::List timeseries_save_state(Rcpp::XPtr<Timeseries> timeseries);
+RcppExport SEXP _malariasimulation_timeseries_save_state(SEXP timeseriesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<Timeseries> >::type timeseries(timeseriesSEXP);
+    rcpp_result_gen = Rcpp::wrap(timeseries_save_state(timeseries));
+    return rcpp_result_gen;
+END_RCPP
+}
+// timeseries_restore_state
+void timeseries_restore_state(Rcpp::XPtr<Timeseries> timeseries, Rcpp::List state);
+RcppExport SEXP _malariasimulation_timeseries_restore_state(SEXP timeseriesSEXP, SEXP stateSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::XPtr<Timeseries> >::type timeseries(timeseriesSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type state(stateSEXP);
+    timeseries_restore_state(timeseries, state);
+    return R_NilValue;
+END_RCPP
+}
 // random_seed
 void random_seed(size_t seed);
 RcppExport SEXP _malariasimulation_random_seed(SEXP seedSEXP) {
@@ -222,6 +290,26 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< size_t >::type seed(seedSEXP);
     random_seed(seed);
+    return R_NilValue;
+END_RCPP
+}
+// random_save_state
+std::string random_save_state();
+RcppExport SEXP _malariasimulation_random_save_state() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(random_save_state());
+    return rcpp_result_gen;
+END_RCPP
+}
+// random_restore_state
+void random_restore_state(std::string state);
+RcppExport SEXP _malariasimulation_random_restore_state(SEXP stateSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string >::type state(stateSEXP);
+    random_restore_state(state);
     return R_NilValue;
 END_RCPP
 }
@@ -260,11 +348,13 @@ BEGIN_RCPP
 END_RCPP
 }
 
-RcppExport SEXP run_testthat_tests();
+RcppExport SEXP run_testthat_tests(void);
 
 static const R_CallMethodDef CallEntries[] = {
     {"_malariasimulation_create_adult_mosquito_model", (DL_FUNC) &_malariasimulation_create_adult_mosquito_model, 5},
     {"_malariasimulation_adult_mosquito_model_update", (DL_FUNC) &_malariasimulation_adult_mosquito_model_update, 5},
+    {"_malariasimulation_adult_mosquito_model_save_state", (DL_FUNC) &_malariasimulation_adult_mosquito_model_save_state, 1},
+    {"_malariasimulation_adult_mosquito_model_restore_state", (DL_FUNC) &_malariasimulation_adult_mosquito_model_restore_state, 2},
     {"_malariasimulation_create_adult_solver", (DL_FUNC) &_malariasimulation_create_adult_solver, 5},
     {"_malariasimulation_create_aquatic_mosquito_model", (DL_FUNC) &_malariasimulation_create_aquatic_mosquito_model, 18},
     {"_malariasimulation_aquatic_mosquito_model_update", (DL_FUNC) &_malariasimulation_aquatic_mosquito_model_update, 4},
@@ -272,12 +362,18 @@ static const R_CallMethodDef CallEntries[] = {
     {"_malariasimulation_carrying_capacity", (DL_FUNC) &_malariasimulation_carrying_capacity, 8},
     {"_malariasimulation_eggs_laid", (DL_FUNC) &_malariasimulation_eggs_laid, 3},
     {"_malariasimulation_rainfall", (DL_FUNC) &_malariasimulation_rainfall, 5},
+    {"_malariasimulation_exponential_process_cpp", (DL_FUNC) &_malariasimulation_exponential_process_cpp, 2},
     {"_malariasimulation_solver_get_states", (DL_FUNC) &_malariasimulation_solver_get_states, 1},
+    {"_malariasimulation_solver_set_states", (DL_FUNC) &_malariasimulation_solver_set_states, 3},
     {"_malariasimulation_solver_step", (DL_FUNC) &_malariasimulation_solver_step, 1},
     {"_malariasimulation_create_timeseries", (DL_FUNC) &_malariasimulation_create_timeseries, 2},
     {"_malariasimulation_timeseries_at", (DL_FUNC) &_malariasimulation_timeseries_at, 3},
     {"_malariasimulation_timeseries_push", (DL_FUNC) &_malariasimulation_timeseries_push, 3},
+    {"_malariasimulation_timeseries_save_state", (DL_FUNC) &_malariasimulation_timeseries_save_state, 1},
+    {"_malariasimulation_timeseries_restore_state", (DL_FUNC) &_malariasimulation_timeseries_restore_state, 2},
     {"_malariasimulation_random_seed", (DL_FUNC) &_malariasimulation_random_seed, 1},
+    {"_malariasimulation_random_save_state", (DL_FUNC) &_malariasimulation_random_save_state, 0},
+    {"_malariasimulation_random_restore_state", (DL_FUNC) &_malariasimulation_random_restore_state, 1},
     {"_malariasimulation_bernoulli_multi_p_cpp", (DL_FUNC) &_malariasimulation_bernoulli_multi_p_cpp, 1},
     {"_malariasimulation_bitset_index_cpp", (DL_FUNC) &_malariasimulation_bitset_index_cpp, 2},
     {"_malariasimulation_fast_weighted_sample", (DL_FUNC) &_malariasimulation_fast_weighted_sample, 2},

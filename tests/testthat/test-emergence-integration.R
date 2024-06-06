@@ -8,22 +8,19 @@ test_that('emergence process fails when there are not enough individuals', {
     c('gamb'),
     rep('gamb', 2000)
   )
+  solvers <- list(
+    mock_solver(c(1000, 500, 100)),
+    mock_solver(c(1000, 500, 100))
+  )
+
   emergence_process <- create_mosquito_emergence_process(
-    list(),
+    solvers,
     state,
     species,
     c('gamb'),
     parameters$dpl
   )
-  mockery::stub(
-    emergence_process,
-    'solver_get_states', 
-    mockery::mock(
-      c(1000, 500, 100),
-      c(1000, 500, 100)
-    )
-  )
-  expect_error(emergence_process(0), '*')
+  expect_error(emergence_process(0), 'Not enough mosquitoes')
 })
 
 test_that('emergence_process creates the correct number of susceptables', {
@@ -36,21 +33,17 @@ test_that('emergence_process creates the correct number of susceptables', {
     c('a', 'b'),
     c('a', 'b')
   )
+  solvers <- list(
+    mock_solver(c(100000, 50000, 10000)),
+    mock_solver(c(1000, 5000, 1000))
+  )
+
   emergence_process <- create_mosquito_emergence_process(
-    list(mockery::mock(), mockery::mock()),
+    solvers,
     state,
     species,
     c('a', 'b'),
     parameters$dpl
-  )
-
-  mockery::stub(
-    emergence_process,
-    'solver_get_states', 
-    mockery::mock(
-      c(100000, 50000, 10000),
-      c(10000, 5000, 1000)
-    )
   )
 
   emergence_process(0)

@@ -4,8 +4,11 @@ in_age_range <- function(birth, timestep, lower, upper) {
 
 #' @title Render prevalence statistics
 #' 
-#' @description renders prevalence numerators and denominators for indivduals
-#' detected by microscopy and with severe malaria
+#' @description renders prevalence numerators and denominators for individuals
+#' detected by light microscopy and pcr, where those infected asymptomatically by
+#' P. falciparum have reduced probability of infection due to detectability
+#' immunity (reported as an integer sample: n_detect_lm, and summing over
+#' detection probabilities: p_detect_lm)
 #' 
 #' @param state human infection state
 #' @param birth variable for birth of the individual
@@ -32,7 +35,8 @@ create_prevelance_renderer <- function(
 
     clinically_detected <- state$get_index_of(c('Tr', 'D'))
     detected <- clinically_detected$copy()$or(asymptomatic_detected)
-
+    pcr_detected <- state$get_index_of(c('Tr', 'D', 'A', 'U'))
+    
     for (i in seq_along(parameters$prevalence_rendering_min_ages)) {
       lower <- parameters$prevalence_rendering_min_ages[[i]]
       upper <- parameters$prevalence_rendering_max_ages[[i]]
@@ -43,15 +47,20 @@ create_prevelance_renderer <- function(
         timestep
       ) 
       renderer$render(
-        paste0('n_detect_', lower, '_', upper),
+        paste0('n_detect_lm_', lower, '_', upper),
         in_age$copy()$and(detected)$size(),
         timestep
       )
       renderer$render(
-        paste0('p_detect_', lower, '_', upper),
+        paste0('p_detect_lm_', lower, '_', upper),
         in_age$copy()$and(clinically_detected)$size() + sum(
           prob[bitset_index(asymptomatic, in_age)]
         ),
+        timestep
+      )
+      renderer$render(
+        paste0('n_detect_pcr_', lower, '_', upper),
+        pcr_detected$copy()$and(in_age)$size(),
         timestep
       )
     }
@@ -146,7 +155,7 @@ create_total_M_renderer_compartmental <- function(renderer, solvers, parameters)
   function(timestep) {
     total_M <- 0
     for (i in seq_along(solvers)) {
-      row <- solver_get_states(solvers[[i]])
+      row <- solvers[[i]]$get_states()
       species_M <- sum(row[ADULT_ODE_INDICES])
       total_M <- total_M + species_M
       renderer$render(paste0('total_M_', parameters$species[[i]]), species_M, timestep)

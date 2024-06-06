@@ -10,17 +10,42 @@ get_parameters(overrides = list())
 \item{overrides}{a named list of parameter values to use instead of defaults
 The parameters are defined below.
 
-fixed state transitions:
+initial state proportions:
+\itemize{
+\item s_proportion - the proportion of \code{human_population} that begin as susceptible; default = 0.420433246
+\item d_proportion - the proportion of \code{human_population} that begin with
+clinical disease; default = 0.007215064
+\item a_proportion - the proportion of \code{human_population} that begin as
+asymptomatic; default = 0.439323667
+\item u_proportion - the proportion of \code{human_population} that begin as
+subpatents; default = 0.133028023
+\item t_proportion - the proportion of \code{human_population} that begin treated; default = 0
+}
+
+human fixed state transitions:
 \itemize{
 \item dd - the delay for humans to move from state D to A; default = 5
-\item dt - the delay for humans to move from state Tr to Ph; default = 5
+\item dt - the delay for humans to move from state Tr to S; default = 5
 \item da - the delay for humans to move from state A to U; default = 195
 \item du - the delay for humans to move from state U to S; default = 110
-\item del - the delay for mosquitoes to move from state E to L; default = 6.64
-\item dl - the delay for mosquitoes to move from state L to P; default = 3.72
-\item dpl - the delay mosquitoes to move from state P to Sm; default = 0.643
-\item mup - the rate at which pupal mosquitoes die; default = 0.249
-\item mum - the rate at which developed mosquitoes die; default (An. gambiae) = .132
+}
+
+human demography parameters:
+\itemize{
+\item human_population - the initial number of humans to model; default = 100
+\item average_age - the average age of humans (in timesteps), this is only used
+if custom_demography is FALSE; default = 7663
+\item custom_demography - population demography given; default = FALSE
+}
+
+initial immunity values:
+\itemize{
+\item init_icm - the immunity from clinical disease at birth; default = 0
+\item init_ivm - the immunity from severe disease at birth; default = 0
+\item init_ib  - the initial pre-erythrocitic immunity; default = 0
+\item init_ica - the initial acquired immunity from clinical disease; default = 0
+\item init_iva - the initial acquired immunity from severe disease; default = 0
+\item init_id  - the initial acquired immunity to detectability; default = 0
 }
 
 immunity decay rates:
@@ -33,12 +58,45 @@ immunity decay rates:
 \item rid - decay rate for acquired immunity to detectability; default = 3650
 }
 
+immunity boost grace periods:
+\itemize{
+\item ub - period in which pre-erythrocytic immunity cannot be boosted; default = 7.2
+\item uc - period in which clinical immunity cannot be boosted; default = 6.06
+\item uv - period in which severe immunity cannot be boosted; default = 11.4321
+\item ud - period in which immunity to detectability cannot be boosted; default = 9.44512
+}
+
+maternal immunity parameters:
+\itemize{
+\item pcm - new-born clinical immunity relative to mother's; default = 0.774368
+\item pvm - new-born severe immunity relative to mother's; default = 0.195768
+}
+
+unique biting rate:
+\itemize{
+\item a0 - age dependent biting parameter; default = 2920
+\item rho - age dependent biting parameter; default = 0.85
+\item sigma_squared - heterogeneity parameter; default = 1.67
+\item n_heterogeneity_groups - number discretised groups for heterogeneity, used
+for sampling mothers; default = 5
+}
+
 probability of pre-erythrocytic infection:
 \itemize{
 \item b0 - maximum probability due to no immunity; default = 0.59
 \item b1 - maximum reduction due to immunity; default = 0.5
 \item ib0 - scale parameter; default = 43.9
 \item kb - shape parameter; default = 2.16
+}
+
+probability of detection by light-microscopy when asymptomatic:
+\itemize{
+\item fd0 - time-scale at which immunity changes with age; default = 0.007055
+\item ad - scale parameter relating age to immunity; default = 7993.5
+\item gammad - shape parameter relating age to immunity; default = 4.8183
+\item d1 - minimum probability due to immunity; default = 0.160527
+\item id0 - scale parameter; default = 1.577533
+\item kd - shape parameter; default = 0.476614
 }
 
 probability of clinical infection:
@@ -60,24 +118,6 @@ probability of severe infection:
 \item gammav - age dependent modifier; default = 2.91282
 }
 
-immunity reducing probability of detection:
-\itemize{
-\item fd0 - time-scale at which immunity changes with age; default = 0.007055
-\item ad - scale parameter relating age to immunity; default = 7993.5
-\item gammad - shape parameter relating age to immunity; default = 4.8183
-\item d1 - minimum probability due to immunity; default = 0.160527
-\item id0 - scale parameter; default = 1.577533
-\item kd - shape parameter; default = 0.476614
-}
-
-immunity boost grace periods:
-\itemize{
-\item ub - period in which pre-erythrocytic immunity cannot be boosted; default = 7.2
-\item uc - period in which clinical immunity cannot be boosted; default = 6.06
-\item uv - period in which severe immunity cannot be boosted; default = 11.4321
-\item ud - period in which immunity to detectability cannot be boosted; default = 9.44512
-}
-
 infectivity towards mosquitoes:
 \itemize{
 \item cd - infectivity of clinically diseased humans towards mosquitoes; default = 0.068
@@ -86,67 +126,21 @@ infectivity towards mosquitoes:
 \item ct - infectivity of treated infection; default = 0.021896
 }
 
-unique biting rate:
+mosquito fixed state transitions (including mortality):
 \itemize{
-\item a0 - age dependent biting parameter; default = 2920
-\item rho - age dependent biting parameter; default = 0.85
-\item sigma_squared - heterogeneity parameter; default = 1.67
-\item n_heterogeneity_groups - number discretised groups for heterogeneity, used
-for sampling mothers; default = 5
-}
-
-mortality parameters:
-\itemize{
-\item average_age - the average age of humans (in timesteps), this is only used
-if custom_demography is FALSE; default = 7663
-\item pcm - new-born clinical immunity relative to mother's; default = 0.774368
-\item pvm - new-born severe immunity relative to mother's; default = 0.195768
+\item del - the delay for mosquitoes to move from state E to L; default = 6.64
+\item dl - the delay for mosquitoes to move from state L to P; default = 3.72
+\item dpl - the delay mosquitoes to move from state P to Sm; default = 0.643
 \item me - early stage larval mortality rate; default = 0.0338
 \item ml - late stage larval mortality rate; default = 0.0348
-}
-
-carrying capacity parameters:
-\itemize{
-\item model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall; default = FALSE
-\item g0 - rainfall fourier parameter; default = 2
-\item g - rainfall fourier parameter; default = 0.3, 0.6, 0.9
-\item h - rainfall fourier parameters; default = 0.1, 0.4, 0.7
-\item gamma - effect of density dependence on late instars relative to early
-instars; default = 13.25
-\item rainfall_floor - the minimum rainfall value (must be above 0); default 0.001
-}
-
-initial state proportions:
-\itemize{
-\item s_proportion - the proportion of \code{human_population} that begin as susceptible; default = 0.420433246
-\item d_proportion - the proportion of \code{human_population} that begin with
-clinical disease; default = 0.007215064
-\item a_proportion - the proportion of \code{human_population} that begin as
-asymptomatic; default = 0.439323667
-\item u_proportion - the proportion of \code{human_population} that begin as
-subpatents; default = 0.133028023
-\item t_proportion - the proportion of \code{human_population} that begin treated; default = 0
-}
-
-initial immunity values:
-\itemize{
-\item init_icm - the immunity from clinical disease at birth; default = 0
-\item init_ivm - the immunity from severe disease at birth; default = 0
-\item init_ib  - the initial pre-erythrocitic immunity; default = 0
-\item init_ica - the initial acquired immunity from clinical disease; default = 0
-\item init_iva - the initial acquired immunity from severe disease; default = 0
-\item init_id  - the initial acquired immunity to detectability; default = 0
-}
-
-incubation periods:
-\itemize{
-\item de - Duration of the human latent period of infection; default = 12
-\item delay_gam - Lag from parasites to infectious gametocytes; default = 12.5
-\item dem - Extrinsic incubation period in mosquito population model; default = 10
+\item mup - the rate at which pupal mosquitoes die; default = 0.249
+\item mum - the rate at which developed mosquitoes die; default (An. gambiae) = .132
 }
 
 vector biology:
 species specific values are vectors
+please set species parameters using the convenience function
+\code{\link{set_species}}
 \itemize{
 \item beta - the average number of eggs laid per female mosquito per day; default = 21.2
 \item total_M - the initial number of adult mosquitos in the simulation; default = 1000
@@ -158,19 +152,32 @@ species specific values are vectors
 \item foraging_time - time spent taking blood meals; default = 0.69
 }
 
-feeding cycle:
-please set vector control strategies using \code{set_betnets} and \code{set_spraying}
+seasonality and carrying capacity parameters:
+please set flexible carrying capacity using the convenience function
+\code{\link{set_carrying_capacity}}
 \itemize{
-\item bednets - boolean for if bednets are enabled; default = FALSE
-\item phi_bednets - proportion of bites taken in bed; default = 0.85
-\item k0 - proportion of females bloodfed with no net; default = 0.699
-\item spraying - boolean for if indoor spraying is enabled; default = FALSE
-\item phi_indoors - proportion of bites taken indoors; default = 0.90
+\item model_seasonality - boolean switch TRUE iff the simulation models seasonal rainfall; default = FALSE
+\item g0 - rainfall fourier parameter; default = 2
+\item g - rainfall fourier parameter; default = 0.3, 0.6, 0.9
+\item h - rainfall fourier parameters; default = 0.1, 0.4, 0.7
+\item gamma - effect of density dependence on late instars relative to early
+instars; default = 13.25
+\item rainfall_floor - the minimum rainfall value (must be above 0); default 0.001
+\item carrying_capacity; default = FALSE
+\item carrying_capacity_timesteps; default = NULL
+\item carrying_capacity_values; default = NULL#'
+}
+
+parasite incubation periods:
+\itemize{
+\item de - duration of the human latent period of infection; default = 12
+\item delay_gam - lag from parasites to infectious gametocytes; default = 12.5
+\item dem - extrinsic incubation period in mosquito population model; default = 10
 }
 
 treatment parameters:
-please set treatment parameters with the convenience functions in
-\code{drug_parameters.R}
+please set treatment parameters with the convenience functions
+\code{\link{set_drugs}} and \code{\link{set_clinical_treatment}}
 \itemize{
 \item drug_efficacy - a vector of efficacies for available drugs; default = turned off
 \item drug_rel_c - a vector of relative onward infectiousness values for drugs; default = turned off
@@ -183,22 +190,33 @@ clinically diseased (these values refer to the index in drug_* parameters); defa
 \item clinical_treatment_coverage - a vector of coverage values for each drug; default = NULL, NULL, NULL
 }
 
+MDA, SMC and PMC parameters:
+please set these parameters with the convenience functions
+\code{\link{set_mda}}, \code{\link{set_smc}} and \code{\link{set_pmc}},
+with \code{\link{peak_season_offset}}
+
+bednet, irs and mosquito feeding cycle parameters:
+please set vector control strategies using \code{\link{set_bednets}} and \code{\link{set_spraying}}
+\itemize{
+\item bednets - boolean for if bednets are enabled; default = FALSE
+\item phi_bednets - proportion of bites taken in bed; default = 0.85
+\item k0 - proportion of females bloodfed with no net; default = 0.699
+\item spraying - boolean for if indoor spraying is enabled; default = FALSE
+\item phi_indoors - proportion of bites taken indoors; default = 0.90
+}
+
 PEV parameters:
-please set vaccine strategies with the convenience functions in
-\code{pev_parameters.R:set_pev_epi}
-\code{pev_parameters.R:set_mass_pev}
+please set vaccine strategies with the convenience functions
+\code{\link{set_pev_epi}} and \code{\link{set_mass_pev}}
 \itemize{
 \item pev_doses - the dosing schedule before the vaccine takes effect; default =
 c(0, 1.5 * 30, 3 * 30)
 default = 365
 }
 
-MDA, SMC and PMC parameters:
-please set these parameters with the convenience functions in \code{mda_parameters.R}
-
 TBV parameters:
 please set TBV parameters with the convenience functions in
-\code{vaccine_parameters.R:set_tbv}
+\code{\link{set_tbv}}
 \itemize{
 \item tbv_mt - effect on treated infectiousness; default = 35
 \item tbv_md - effect on diseased infectiousness; default = 46.7
@@ -214,12 +232,29 @@ please set TBV parameters with the convenience functions in
 \item tbv_gamma2 - transmission reduction parameter; default = 0.06
 }
 
-rendering:
-All values are in timesteps and all ranges are inclusive
+Antimalarial resistance parameters:
+please set antimalarial resistance parameters with the convenience functions in
+\code{\link{set_antimalarial_resistance}}
 \itemize{
-\item prevalence_rendering_min_ages - the minimum ages for clinical prevalence
-outputs; default = 730
-\item prevalence_rendering_max_ages - the corresponding max ages; default = 3650
+\item antimalarial_resistance - boolean for if antimalarial resistance is enabled; default = FALSE
+\item antimalarial_resistance_drug - vector of drugs for which resistance can be parameterised; default = NULL
+\item antimalarial_resistance_timesteps - vector of time steps on which resistance updates occur; default = NULL
+\item artemisinin_resistant_proportion - vector of proportions of infections resistant to the artemisinin component of a given drug; default = NULL
+\item partner_drug_resistance_proportion - vector of proportions of infections resistant to the parter drug component of a given drug; default = NULL
+\item slow_parasite_clearance_probability - vector of probabilities of slow parasite clearance for a given drug; default = NULL
+\item early_treatment_failure_probability - vector of probabilities of early treatment failure for a given drug; default = NULL
+\item late_clinical_failure_probability - vector of probabilities of late clinical failure for a given drug; default = NULL
+\item late_parasitological_failure_probability - vector of probabilities of late parasitological failure for a given drug; default = NULL
+\item reinfection_during_prophylaxis_probability - vector of probabilities of reinfection during prophylaxis for a given drug; default = NULL
+\item dt_slow_parasite_clearance - the delay for humans experiencing slow parasite clearance to move from state Tr to S; default = NULL
+}
+
+rendering:
+All values are in timesteps and all ranges are inclusive.
+Please set rendered age groups using the convenience function
+\itemize{
+\item age_group_rendering_min_ages - the minimum ages for population size outputs; default = turned off
+\item age_group_rendering_max_ages - the corresponding max ages; default = turned off
 \item incidence_rendering_min_ages - the minimum ages for incidence
 outputs (includes asymptomatic microscopy +); default = turned off
 \item incidence_rendering_max_ages - the corresponding max ages; default = turned off
@@ -228,6 +263,9 @@ outputs (includes asymptomatic microscopy +); default = turned off
 \item severe_incidence_rendering_min_ages - the minimum ages for severe incidence
 outputs; default = turned off
 \item severe_incidence_rendering_max_ages - the corresponding max ages; default = turned off
+\item prevalence_rendering_min_ages - the minimum ages for clinical prevalence
+outputs; default = 730
+\item prevalence_rendering_max_ages - the corresponding max ages; default = 3650
 }
 
 mixing:
@@ -240,13 +278,12 @@ and microscopy prevalence; default = 0.907
 
 miscellaneous:
 \itemize{
-\item human_population - the initial number of humans to model; default = 100
-\item human_population_timesteps - the timesteps at which the population should
-change; default = 0
 \item mosquito_limit - the maximum number of mosquitoes to allow for in the
 simulation; default = 1.00E+05
 \item individual_mosquitoes - boolean whether adult mosquitoes are modeled
 individually or compartmentally; default = TRUE
+\item human_population_timesteps - the timesteps at which the population should
+change; default = 0
 \item r_tol - the relative tolerance for the ode solver; default = 1e-4
 \item a_tol - the absolute tolerance for the ode solver; default = 1e-4
 \item ode_max_steps - the max number of steps for the solver; default = 1e6

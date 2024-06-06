@@ -131,7 +131,7 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
   expect_equal(effects_args[[1]][[8]], parameters)
   expect_equal(effects_args[[1]][[9]], timestep)
 
-  mockery::expect_args(eqs_update, 1, models[[1]], 25, f, parameters$mum)
+  mockery::expect_args(eqs_update, 1, models[[1]]$.model, 25, f, parameters$mum)
   mockery::expect_args(
     pois_mock,
     1,

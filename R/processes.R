@@ -14,8 +14,8 @@
 #' population and species in the simulation
 #' @param lagged_infectivity a list of LaggedValue objects for FOIM for each population
 #' in the simulation
-#' @param mixing_tt a vector of timesteps for each mixing vector
-#' @param mixing a list of vectors of mixing coefficients for the lagged transmission
+#' @param timesteps Number of timesteps
+#' @param mixing a vector of mixing coefficients for the lagged transmission
 #' values (default: 1)
 #' @param mixing_fn function to retrieve mixed EIR and infectivity values
 #' @param mixing_index an index for this population's position in the
@@ -31,9 +31,11 @@ create_processes <- function(
   correlations,
   lagged_eir,
   lagged_infectivity,
+  timesteps,
   mixing_fn = NULL,
   mixing_index = 1
   ) {
+  
   # ========
   # Immunity
   # ========
@@ -48,7 +50,7 @@ create_processes <- function(
     create_exponential_decay_process(variables$iva, parameters$rva),
     create_exponential_decay_process(variables$id, parameters$rid)
   )
-  
+
   if (parameters$individual_mosquitoes) {
     processes <- c(
       processes,
@@ -61,7 +63,7 @@ create_processes <- function(
       )
     )
   }
-  
+
   # ==============================
   # Biting and mortality processes
   # ==============================
@@ -82,7 +84,6 @@ create_processes <- function(
       mixing_fn,
       mixing_index
     ),
-    create_mortality_process(variables, events, renderer, parameters),
     create_asymptomatic_progression_process(
       variables$state,
       parameters$dd,
@@ -104,17 +105,37 @@ create_processes <- function(
       parameters$du,
       variables$infectivity,
       0
-    ),
+    )
+  )
+  
+  # =======================
+  # Antimalarial Resistance
+  # =======================
+  # Add an a new process which governs the transition from Tr to S when
+  # antimalarial resistance is simulated. The rate of transition switches
+  # from a parameter to a variable when antimalarial resistance == TRUE.
+  
+  # Assign the dt input to a separate object with the default single parameter value:
+  dt_input <- parameters$dt
+  
+  # If antimalarial resistance is switched on, assign dt variable values to the 
+  if(parameters$antimalarial_resistance) {
+    dt_input <- variables$dt
+  }
+  
+  # Create the progression process for Tr --> S specifying dt_input as the rate:
+  processes <- c(
+    processes,
     create_progression_process(
       variables$state,
       'Tr',
       'S',
-      parameters$dt,
+      dt_input,
       variables$infectivity,
       0
     )
   )
-  
+
   # ===============
   # ODE integration
   # ===============
@@ -122,9 +143,9 @@ create_processes <- function(
     processes,
     create_solver_stepping_process(solvers, parameters)
   )
-  
+
   # =========
-  # RTS,S EPI
+  # PEV EPI
   # =========
   if (!is.null(parameters$pev_epi_coverage)) {
     processes <- c(
@@ -139,7 +160,7 @@ create_processes <- function(
       )
     )
   }
-  
+
   # =========
   # PMC
   # =========
@@ -158,7 +179,7 @@ create_processes <- function(
       )
     )
   }
-  
+
   # =========
   # Rendering
   # =========
@@ -188,7 +209,7 @@ create_processes <- function(
     ),
     create_compartmental_rendering_process(renderer, solvers, parameters)
   )
-  
+
   if (parameters$individual_mosquitoes) {
     processes <- c(
       processes,
@@ -210,11 +231,11 @@ create_processes <- function(
       )
     )
   }
-  
+
   # ======================
   # Intervention processes
   # ======================
-  
+
   if (parameters$bednets) {
     processes <- c(
       processes,
@@ -227,14 +248,14 @@ create_processes <- function(
       net_usage_renderer(variables$net_time, renderer)
     )
   }
-  
+
   if (parameters$spraying) {
     processes <- c(
       processes,
-      indoor_spraying(variables$spray_time, parameters, correlations)
+      indoor_spraying(variables$spray_time, renderer, parameters, correlations)
     )
   }
-  
+
   # ======================
   # Progress bar process
   # ======================
@@ -244,7 +265,12 @@ create_processes <- function(
       create_progress_process(timesteps)
     )
   }
-  
+
+  # Mortality step
+  processes <- c(
+    processes,
+    create_mortality_process(variables, events, renderer, parameters))
+
   processes
 }
 
@@ -261,14 +287,15 @@ create_processes <- function(
 #' @param rate the exponential rate
 #' @noRd
 create_exponential_decay_process <- function(variable, rate) {
+  stopifnot(inherits(variable, "DoubleVariable"))
   decay_rate <- exp(-1/rate)
-  function(timestep) variable$queue_update(variable$get_values() * decay_rate)
+  exponential_process_cpp(variable$.variable, decay_rate)
 }
 
 #' @title Create and initialise lagged_infectivity object
 #'
 #' @param variables model variables for initialisation
-#' @param parameters model parameters 
+#' @param parameters model parameters
 #' @noRd
 create_lagged_infectivity <- function(variables, parameters) {
   age <- get_age(variables$birth$get_values(), 0)
@@ -285,7 +312,7 @@ create_lagged_infectivity <- function(variables, parameters) {
 #'
 #' @param variables model variables for initialisation
 #' @param solvers model differential equation solvers
-#' @param parameters model parameters 
+#' @param parameters model parameters
 #' @noRd
 create_lagged_eir <- function(variables, solvers, parameters) {
   lapply(

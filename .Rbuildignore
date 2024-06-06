@@ -12,3 +12,4 @@ codecov.yml
 ^data-raw$
 ^doc$
 ^Meta$
+^touchstone$

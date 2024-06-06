@@ -66,10 +66,10 @@ and can run the simulations and compare the outputs
 ```{r, fig.width = 7, fig.height = 4, out.width='100%'}
 set.seed(123)
 s <- run_simulation(timesteps = timesteps, parameters = p)
-s$pfpr <- s$n_detect_730_3650 / s$n_730_3650
+s$pfpr <- s$n_detect_lm_730_3650 / s$n_730_3650
 set.seed(123)
 s_seasonal <- run_simulation(timesteps = timesteps, parameters = p_seasonal)
-s_seasonal$pfpr <- s_seasonal$n_detect_730_3650 / s_seasonal$n_730_3650
+s_seasonal$pfpr <- s_seasonal$n_detect_lm_730_3650 / s_seasonal$n_730_3650
 
 par(mfrow = c(1, 2))
 plot(s$EIR_gamb ~ s$timestep, t = "l", ylim = c(0, 200), xlab = "Time", ylab = "EIR")
@@ -81,17 +81,13 @@ lines(s_seasonal$pfpr ~ s_seasonal$timestep, col = "darkorchid3")
 ## Custom modification of the mosquito carrying capacity
 
 In malariasimulation, we can also modify the carrying capacity over time in a more
-bespoke manner. Firstly it is helpful to start with our baseline (equilibrium)
-carrying capacity. We can access this for our baseline parameters with:
+bespoke manner. We can use the `set_carrying_capacity()` helper function to 
+specify scalars that modify the species-specific carrying capacity through time,
+relative to the baseline carrying capacity, at defined time steps. The baseline
+carrying capacity is generated when calling `set_equilibrium()`, to match the 
+specified EIR and population size.
 
-```{r}
-cc <- get_init_carrying_capacity(p)
-cc
-```
-
-We can then use this in combination with `set_carrying_capacity()` to provide
-modified, species-specific carrying capacity values at given timepoints. This
-allows us to model a number of useful things:
+This functionality allows us to model a number of useful things:
 
 ### Larval source management
 
@@ -102,15 +98,15 @@ can be used to specify this intervention
 ```{r, fig.width = 7, fig.height = 4, out.width='100%'}
 # Specify the LSM coverage
 lsm_coverage <- 0.8
-# Set LSM by reducing the carrying capacity by (1 - coverage)
+# Set LSM by scaling the carrying capacity by (1 - coverage)
 p_lsm <- p |>
   set_carrying_capacity(
-    carrying_capacity = matrix(cc * (1 - lsm_coverage), ncol = 1),
+    carrying_capacity_scalers = matrix(1 - lsm_coverage, ncol = 1),
     timesteps = 365
   )
 set.seed(123)
 s_lsm <- run_simulation(timesteps = timesteps, parameters = p_lsm)
-s_lsm$pfpr <- s_lsm$n_detect_730_3650 / s_lsm$n_730_3650
+s_lsm$pfpr <- s_lsm$n_detect_lm_730_3650 / s_lsm$n_730_3650
 
 par(mfrow = c(1, 2))
 plot(s$EIR_gamb ~ s$timestep, t = "l", ylim = c(0, 150), xlab = "Time", ylab = "EIR")
@@ -124,7 +120,7 @@ abline(v = 365, lty = 2, col = "grey60")
 ### Invasive species
 
 An invasive species may exploit a new niche, increase the carrying
-capacity at the point of invasion. The functions
+capacity at the point of invasion. The function
 `set_carrying_capacity()` gives complete freedom to allow
 changes to the carrying capacity to be made. Here
 we will demonstrate using carrying capacity rescaling to capture the
@@ -136,19 +132,19 @@ invasion of _Anopheles stephensi_.
 p_stephensi <- p |>
   set_species(list(gamb_params, steph_params), c(0.995, 1 - 0.995)) |>
   set_equilibrium(init_EIR = 5)
-cc_invasive <- get_init_carrying_capacity(p_stephensi)
+
 # Next, at the time point of invasion, we scale up the carrying capacity for
-# the invasive species by a factor that will be dependent on the proporties of
+# the invasive species by a factor that will be dependent on the properties of
 # the invasion.
 p_stephensi <- p_stephensi |>
   set_carrying_capacity(
-    carrying_capacity = matrix(cc_invasive * c(1, 2000), ncol = 2),
+    carrying_capacity_scalers = matrix(c(1, 2000), ncol = 2),
     timesteps = 365
   )
 
 set.seed(123)
 s_stephensi <- run_simulation(timesteps = timesteps, parameters = p_stephensi)
-s_stephensi$pfpr <- s_stephensi$n_detect_730_3650 / s_stephensi$n_730_3650
+s_stephensi$pfpr <- s_stephensi$n_detect_lm_730_3650 / s_stephensi$n_730_3650
 
 par(mfrow = c(1, 2))
 plot(s_stephensi$EIR_gamb ~ s_stephensi$timestep,
@@ -169,13 +165,13 @@ time
 ```{r, fig.width = 7, fig.height = 4, out.width='100%'}
 p_flexible <- p |>
   set_carrying_capacity(
-    carrying_capacity = cc * matrix(c(0.1, 2, 0.1, 0.5, 0.9), ncol = 1),
+    carrying_capacity = matrix(c(0.1, 2, 0.1, 0.5, 0.9), ncol = 1),
     timesteps = seq(100, 500, 100)
   )
 
 set.seed(123)
 s_flexible <- run_simulation(timesteps = timesteps, parameters = p_flexible)
-s_flexible$pfpr <- s_flexible$n_detect_730_3650 / s_flexible$n_730_3650
+s_flexible$pfpr <- s_flexible$n_detect_lm_730_3650 / s_flexible$n_730_3650
 
 par(mfrow = c(1, 2))
 plot(s$EIR_gamb ~ s$timestep, t = "l", ylim = c(0, 150), xlab = "Time", ylab = "EIR")

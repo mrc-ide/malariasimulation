@@ -77,12 +77,12 @@ plot_prev <- function(type = "not seasonal"){
   output$time_year <- output$timestep / year
   comparison$time_year <- comparison$timestep / year
 
-  plot(x = output$time_year, y = output$n_detect_730_3650/output$n_730_3650, 
+  plot(x = output$time_year, y = output$n_detect_lm_730_3650/output$n_730_3650, 
        type = "l", col = cols[3], ylim=c(0,1), lwd = 3,
        xlab = "Time (years)", ylab = expression(paste(italic(Pf),"PR"[2-10])),
        xaxs = "i", yaxs = "i")
   grid(lty = 2, col = "grey80", lwd = 0.5)
-  lines(x = comparison$time_year, y = comparison$n_detect_730_3650/comparison$n_730_3650,
+  lines(x = comparison$time_year, y = comparison$n_detect_lm_730_3650/comparison$n_730_3650,
         col = cols[6], lwd = 3)
   abline(v = vaccinetime, col = "black", lty = 2, lwd = 2.5)
   text(x = vaccinetime + 0.05, y = 0.9, labels = "Start of\nvaccination", adj = 0, cex = 0.8)
@@ -158,8 +158,8 @@ rtssmassparams <- set_mass_pev(
   min_wait = 0, # The minimum acceptable time since the last vaccination is 0 because in our case we are only implementing one round of vaccination.
   min_ages = 5 * month, # The minimum age for the target population to be vaccinated. 
   max_ages = 50 * year, # The maximum age for the target population to be vaccinated.
-  booster_timestep = 12 * month, # The booster is given at 12 months after the primary series. 
-  booster_coverage = 0.95, # Coverage of the booster dose is 95%.
+  booster_spacing = 12 * month, # The booster is given at 12 months after the primary series. 
+  booster_coverage = matrix(0.95), # Coverage of the booster dose is 95%.
   booster_profile = list(rtss_booster_profile) # We will model implementation of the RTSS booster.
 )
 
@@ -228,8 +228,8 @@ seasmass_simparams <- set_mass_pev(
   min_ages = 5 * month, # The minimum age for the target population to be vaccinated. 
   max_ages = 50 * year, # The maximum age for the target population to be vaccinated.
   min_wait = 0, # There is no minimum wait between the last vaccination.
-  booster_timestep = round(c(12 * month + 2 * month)), # The booster is given 14 months after the first dose. 
-  booster_coverage = 1, # 100% of the vaccinated population is boosted.
+  booster_spacing = round(c(12 * month + 2 * month)), # The booster is given 14 months after the first dose. 
+  booster_coverage = matrix(1), # 100% of the vaccinated population is boosted.
   booster_profile = list(rtss_booster_profile) # We will model implementation of the RTSS booster.
   ) 
 
@@ -269,8 +269,8 @@ rtssepiparams <- set_pev_epi(
   coverages = 1, # Vaccine coverage is 100%.
   min_wait = 0, # There is no minimum wait since the last vaccination.
   age = 5 * month, # Individuals will be vaccinated once they reach 5 months of age.
-  booster_timestep = 12 * month, # The booster is administered 12 months following the third dose. 
-  booster_coverage = 0.95, # 95% of those vaccinated with the primary series will be boosted.
+  booster_spacing = 12 * month, # The booster is administered 12 months following the third dose. 
+  booster_coverage = matrix(0.95), # 95% of those vaccinated with the primary series will be boosted.
   booster_profile = list(rtss_booster_profile) # We will model implementation of the RTSS booster.
 )
 
@@ -322,8 +322,8 @@ rtssepiseasonalparams <- set_pev_epi(
   coverages = 1, # Vaccine coverage is 100%.
   min_wait = 6 * month, # When seasonal_boosters = TRUE, this is the minimum time between an individual receiving the final dose and the first booster.
   age = 5 * month, # Individuals will be vaccinated once they reach 5 months of age.
-  booster_timestep = peak - month * 3.5 , # Because seasonal_boosters = TRUE, the timestep here is relative to the start of the year. Here, we will give a booster at 3.5 months prior to peak transmission. 
-  booster_coverage = 0.95, # 95% of the vaccinated population is boosted.
+  booster_spacing = peak - month * 3.5 , # Because seasonal_boosters = TRUE, the timestep here is relative to the start of the year. Here, we will give a booster at 3.5 months prior to peak transmission. 
+  booster_coverage = matrix(0.95), # 95% of the vaccinated population is boosted.
   seasonal_boosters = TRUE, # Boosters will be given based on a seasonal schedule, so the timing in the boosters= argument above will be relative to the start of the year instead of relative to the 3rd dose.
   booster_profile = list(rtss_booster_profile) # We will model implementation of the RTSS booster.
 )
@@ -362,8 +362,8 @@ rtssepiparams2 <- set_pev_epi(
   coverages = 1, # Vaccine coverage is 100%.
   age = 5 * month, # Individuals will be vaccinated once they reach 5 months of age.
   min_wait = 0, # When seasonal_boosters = FALSE, this is the minimum time between doses.
-  booster_timestep = c(12 * month, 24 * month), # Here, we are testing a strategy with 2 boosters, one at 1 year after the 3rd dose and the second 2 years after the 3rd dose.
-  booster_coverage = c(1, 1), # For each of the two boosters, coverage is 100%.
+  booster_spacing = c(12 * month, 24 * month), # Here, we are testing a strategy with 2 boosters, one at 1 year after the 3rd dose and the second 2 years after the 3rd dose.
+  booster_coverage = matrix(c(1, 1), nrow=1, ncol=2), # For each of the two boosters, coverage is 100%.
   booster_profile = list(rtss_booster_profile, rtss_booster_profile) # We will model implementation of the RTSS booster.
 )
 
@@ -388,7 +388,7 @@ plot_prev()
 ```{r, fig.align = 'center', out.width='100%', message=FALSE}
 # Plot doses
 output$month <- ceiling(output$timestep / month)
-doses <- output[, c(2:6, 38)]
+doses <- output[, c(grep(pattern = "n_pev", x = names(output), value = T), "month")]
 doses <- aggregate(cbind(doses[1:5]),
                     by = list(doses$month), 
                     FUN = sum)

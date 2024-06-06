@@ -9,7 +9,8 @@ run_metapop_simulation(
   parameters,
   correlations = NULL,
   mixing_tt,
-  mixing,
+  export_mixing,
+  import_mixing,
   p_captured_tt,
   p_captured,
   p_success
@@ -25,16 +26,19 @@ run_metapop_simulation(
 
 \item{mixing_tt}{a vector of time steps for each mixing matrix}
 
-\item{mixing}{a list of matrices of mixing coefficients for infectivity.
+\item{export_mixing}{a list of matrices of coefficients for exportation of infectivity.
 Rows = origin sites, columns = destinations. Each matrix element
 describes the mixing pattern from destination to origin. Each matrix element must
 be between 0 and 1. Each matrix is activated at the corresponding timestep in mixing_tt}
+
+\item{import_mixing}{a list of matrices of coefficients for importation of
+infectivity.}
 
 \item{p_captured_tt}{a vector of time steps for each p_captured matrix}
 
 \item{p_captured}{a list of matrices representing the probability that
 travel between sites is intervened by a test and treat border check.
-Dimensions are the same as for \code{mixing}}
+Dimensions are the same as for \code{export_mixing}}
 
 \item{p_success}{the probability that an individual who has tested positive
 (through an RDT) successfully clears their infection through treatment}

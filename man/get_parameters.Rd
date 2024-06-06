@@ -271,9 +271,9 @@ outputs; default = 730
 mixing:
 \itemize{
 \item rdt_intercept - the y intercept for the log logit relationship betweeen rdt
-and microscopy prevalence; default = 0.108
+and PCR prevalence; default = -0.968
 \item rdt_coeff - the coefficient for the log logit relationship betweeen rdt
-and microscopy prevalence; default = 0.907
+and PCR prevalence; default = 1.186
 }
 
 miscellaneous:

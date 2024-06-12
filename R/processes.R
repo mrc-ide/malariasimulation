@@ -181,6 +181,9 @@ create_processes <- function(
   # =========
   # Rendering
   # =========
+  
+  imm_var_names <- c('ica', 'icm', 'id', 'ib', 'iva', 'ivm')
+  
   processes <- c(
     processes,
     individual::categorical_count_renderer_process(
@@ -190,10 +193,10 @@ create_processes <- function(
     ),
     create_variable_mean_renderer_process(
       renderer,
-      c('ica', 'icm', 'ib', 'id', 'iva', 'ivm'),
-      variables[c('ica', 'icm', 'ib', 'id', 'iva', 'ivm')]
+      imm_var_names,
+      variables[imm_var_names]
     ),
-    create_prevelance_renderer(
+    create_prevalence_renderer(
       variables$state,
       variables$birth,
       variables$id,
@@ -201,6 +204,13 @@ create_processes <- function(
       renderer
     ),
     create_age_group_renderer(
+      variables$birth,
+      parameters,
+      renderer
+    ),
+    create_age_variable_mean_renderer_process(
+      imm_var_names[paste0(imm_var_names,"_rendering_min_ages") %in% names(parameters)],
+      variables[imm_var_names[paste0(imm_var_names,"_rendering_min_ages") %in% names(parameters)]],
       variables$birth,
       parameters,
       renderer

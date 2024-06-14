@@ -64,6 +64,40 @@ create_prevelance_renderer <- function(
         timestep
       )
     }
+
+    if (!is.null(parameters$render_grid)) {
+      grid_renderer(
+        birth,
+        renderer,
+        NULL,
+        'n_',
+        timestep
+      )
+    }
+
+    if ('n_detect_' %in% parameters$render_grid) {
+      grid_renderer(
+        birth,
+        renderer,
+        detected,
+        'n_detect_',
+        timestep
+      )
+    }
+    if ('p_detect_' %in% parameters$render_grid) {
+      weights <- rep(0, parameters$human_population)
+      weights[clinically_detected$to_vector()] <- 1
+      weights[asymptomatic$to_vector()] <- prob
+      weights <- weights[detected$to_vector()]
+      grid_renderer(
+        birth,
+        renderer,
+        detected,
+        'p_detect_',
+        timestep,
+        weights
+      )
+    }
   }
 }
 
@@ -91,7 +125,8 @@ incidence_renderer <- function(
   prefix,
   lowers,
   uppers,
-  timestep
+  timestep,
+  render_grid = FALSE
   ) {
   for (i in seq_along(lowers)) {
     lower <- lowers[[i]]
@@ -108,6 +143,28 @@ incidence_renderer <- function(
       paste0('p_', prefix, lower, '_', upper),
       sum(prob[bitset_index(source_pop, in_age)]),
       timestep
+    )
+  }
+
+  n_prefix = paste0('n_', prefix)
+  if (n_prefix %in% render_grid) {
+    grid_renderer(
+      birth,
+      renderer,
+      target,
+      n_prefix,
+      timestep
+    )
+  }
+  p_prefix = paste0('p_', prefix)
+  if (p_prefix %in% render_grid) {
+    grid_renderer(
+      birth,
+      renderer,
+      source_pop,
+      p_prefix,
+      timestep,
+      prob
     )
   }
 }
@@ -180,4 +237,56 @@ create_age_group_renderer <- function(
       ) 
     }
   }
+}
+
+#' @title Render a grid of statistics
+#'
+#' @description renders incidence (new for this timestep) for year wide age bands between 0 and 100
+#'
+#' @param birth variable for birth of the individual
+#' @param renderer object for model outputs
+#' @param target incidence population
+#' @param prefix for model outputs
+#' @param timestep current target
+#'
+#' @noRd
+grid_renderer <- function(
+  birth,
+  renderer,
+  target,
+  prefix,
+  timestep,
+  weights = NULL
+  ) {
+  counts <- grid_count(birth, target, timestep, weights)
+  for (i in seq_along(counts)) {
+    renderer$render(
+      paste0('grid_', prefix, i - 1),
+      counts[[i]],
+      timestep
+    )
+  }
+}
+
+grid_count <- function(birth, selected, timestep, weights = NULL) {
+  if (is.null(selected)) {
+    selected_births <- birth$get_values()
+  } else {
+    selected_births <- birth$get_values(selected)
+  }
+  age <- floor(get_age(selected_births, timestep) / 365)
+  age[age < 0] <- NA
+  age[age > 100] <- NA
+  counts <- rep(0, 101)
+  if (!is.null(weights)) {
+    if (length(weights) == 0) {
+      return(counts)
+    }
+    non_zero <- aggregate(x = weights, by = list(age = age), FUN = sum)
+    counts[non_zero$age + 1] <- non_zero$x
+    return(counts)
+  }
+  non_zero <- table(age)
+  counts[as.numeric(names(non_zero)) + 1] <- non_zero
+  counts
 }

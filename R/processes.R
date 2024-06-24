@@ -68,31 +68,29 @@ create_processes <- function(
   
   infection_outcome <- CompetingOutcome$new(
     targeted_process = function(timestep, target){
-      infection_process_resolved_hazard(timestep, target, infection_outcome$source_humans,
-                                        variables, renderer, parameters, prob = rate_to_prob(infection_outcome$rates))
+      infection_outcome_process(timestep, target, 
+                                variables, renderer, parameters, 
+                                prob = rate_to_prob(infection_outcome$rates))
     },
     size = parameters$human_population
   )
   
   recovery_outcome <- CompetingOutcome$new(
     targeted_process = function(timestep, target){
-      recovery_process_resolved_hazard(timestep, target, variables, parameters, renderer)
+      recovery_outcome_process(timestep, target, variables, parameters, renderer)
     },
     size = parameters$human_population
   )
   
-  create_infection_recovery_hazard_process <- CompetingHazard$new(
-    outcomes = list(infection_outcome, recovery_outcome)
-  )
-
   # ==============================
   # Biting and mortality processes
   # ==============================
-  # simulate infections for humans and set last_boosted_*
+  # simulate bites, calculates infection rates for bitten humans and set last_boosted_*
   # move mosquitoes into incubating state
   # kill mosquitoes caught in vector control
-  create_infection_rates_process <- function(timestep){
-    biting_process(
+  processes <- c(
+    processes,
+    create_biting_process(
       renderer,
       solvers,
       models,
@@ -103,44 +101,27 @@ create_processes <- function(
       lagged_eir,
       mixing,
       mixing_index,
-      infection_outcome,
-      timestep
+      infection_outcome
     )
-  }
-  
-  # =======================
-  # Antimalarial Resistance
-  # =======================
-  # Add an a new process which governs the transition from Tr to S when
-  # antimalarial resistance is simulated. The rate of transition switches
-  # from a parameter to a variable when antimalarial resistance == TRUE.
-  
-  # Assign the dt input to a separate object with the default single parameter value:
-  dt_input <- parameters$dt
-  
-  # If antimalarial resistance is switched on, assign dt variable values to the 
-  if(parameters$antimalarial_resistance) {
-    dt_input <- variables$dt
-  }
+  )
   
   # ===================
   # Disease Progression
   # ===================
   
-  create_recovery_rates_process <- function(timestep){
-    calculate_recovery_rates(
+  processes <- c(
+    processes,
+    create_recovery_rates_process(
       variables,
-      parameters,
-      recovery_outcome,
-      dt_input
-    )
-  }
+      recovery_outcome
+    ),
+    
+    # Resolve competing hazards of infection with disease progression
+    CompetingHazard$new(
+      outcomes = list(infection_outcome, recovery_outcome)
+    )$resolve
+  )
   
-  processes <- c(processes,
-                 create_infection_rates_process,
-                 create_recovery_rates_process,
-                 create_infection_recovery_hazard_process$resolve)
-
   # ===============
   # ODE integration
   # ===============

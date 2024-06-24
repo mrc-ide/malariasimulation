@@ -220,6 +220,7 @@ run_metapop_simulation <- function(
   variables <- lapply(parameters, create_variables)
   events <- lapply(parameters, create_events)
   renderer <- lapply(parameters, function(.) individual::Render$new(timesteps))
+  populate_metapopulation_incidence_rendering_columns(renderer, parameters)
   for (i in seq_along(parameters)) {
     # NOTE: forceAndCall is necessary here to make sure i refers to the current
     # iteration

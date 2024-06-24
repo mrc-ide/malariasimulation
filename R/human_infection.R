@@ -1,7 +1,7 @@
 #' @title Simulate malaria infection in humans
 #' @description
 #' This function ends with the assignment of rates of infection to the competing
-#' hazard resolution object.  Boosts immunity given infectious bites.
+#' hazard resolution object and boosts immunity given infectious bites.
 #' @param variables a list of all of the model variables
 #' @param events a list of all of the model events
 #' @param bitten_humans a bitset of bitten humans
@@ -60,7 +60,6 @@ calculate_infections <- function(
 ) {
   source_humans <- variables$state$get_index_of(
     c('S', 'A', 'U'))$and(bitten_humans)
-  infection_outcome$stash_source_humans(source_humans)
 
   b <- blood_immunity(variables$ib$get_values(source_humans), parameters)
 
@@ -113,7 +112,7 @@ calculate_infections <- function(
   incidence_probability_renderer(
     variables$birth,
     renderer,
-    source_pop,
+    source_humans,
     prob,
     "inc_",
     parameters$incidence_min_ages,
@@ -122,7 +121,7 @@ calculate_infections <- function(
   )
   
   ## capture infection rates to resolve in competing hazards
-  infection_rates <- numeric(length = parameters$human_population)
+  infection_rates <- rep(0, length = parameters$human_population)
   infection_rates[source_vector] <- prob_to_rate(prob)
   infection_outcome$set_rates(infection_rates)
 }
@@ -133,16 +132,14 @@ calculate_infections <- function(
 #' and treated malaria; and resulting boosts in immunity
 #' @param timestep current timestep
 #' @param infected_humans bitset of infected humans
-#' @param source_humans bitset of humans with infection potential
 #' @param variables a list of all of the model variables
 #' @param renderer model render object
 #' @param parameters model parameters
 #' @param prob vector of population probabilities of infection
 #' @noRd
-infection_process_resolved_hazard <- function(
+infection_outcome_process <- function(
     timestep,
     infected_humans,
-    source_humans,
     variables,
     renderer,
     parameters,
@@ -410,13 +407,18 @@ calculate_treated <- function(
       successfully_treated
     )
     if(parameters$antimalarial_resistance) {
-      variables$dt$queue_update(
-        parameters$dt,
+      variables$recovery_rates$queue_update(
+        1/parameters$dt,
         non_slow_parasite_clearance_individuals
       )
-      variables$dt$queue_update(
-        dt_slow_parasite_clearance,
+      variables$recovery_rates$queue_update(
+        1/dt_slow_parasite_clearance,
         slow_parasite_clearance_individuals
+      )
+    } else {
+      variables$recovery_rates$queue_update(
+        1/parameters$dt,
+        successfully_treated
       )
     }
   }
@@ -455,6 +457,8 @@ schedule_infections <- function(
       'D',
       variables$infectivity,
       parameters$cd,
+      variables$recovery_rates,
+      1/parameters$dd,
       to_infect
     )
   }
@@ -523,7 +527,7 @@ severe_immunity <- function(age, acquired_immunity, maternal_immunity, parameter
   parameters$theta0 * (parameters$theta1 + (1 - parameters$theta1) / (
     1 + fv * (
       (acquired_immunity + maternal_immunity) / parameters$iv0) ** parameters$kv
-  )
+    )
   )
 }
 

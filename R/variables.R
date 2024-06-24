@@ -178,6 +178,7 @@ create_variables <- function(parameters) {
   diseased <- state$get_index_of('D')$to_vector()
   asymptomatic <- state$get_index_of('A')$to_vector()
   subpatent <- state$get_index_of('U')$to_vector()
+  treated <- state$get_index_of('Tr')$to_vector()
 
   # Set the initial infectivity values for each individual
   infectivity_values[diseased] <- parameters$cd
@@ -191,6 +192,16 @@ create_variables <- function(parameters) {
   # Initialise the infectivity variable
   infectivity <- individual::DoubleVariable$new(infectivity_values)
 
+  # Set recovery rate for each individual
+  recovery_values <- rep(0, get_human_population(parameters, 0))
+  recovery_values[diseased] <- 1/parameters$dd
+  recovery_values[asymptomatic] <- 1/parameters$da
+  recovery_values[subpatent] <- 1/parameters$du
+  recovery_values[treated] <- 1/parameters$dt
+
+  # Initialise the recovery rate variable
+  recovery_rates <- individual::DoubleVariable$new(recovery_values)
+  
   drug <- individual::IntegerVariable$new(rep(0, size))
   drug_time <- individual::IntegerVariable$new(rep(-1, size))
 
@@ -220,6 +231,7 @@ create_variables <- function(parameters) {
     zeta = zeta,
     zeta_group = zeta_group,
     infectivity = infectivity,
+    recovery_rates = recovery_rates,
     drug = drug,
     drug_time = drug_time,
     last_pev_timestep = last_pev_timestep,
@@ -230,14 +242,6 @@ create_variables <- function(parameters) {
     spray_time = spray_time
   )
   
-  # Add variables for antimalarial resistance state residency times (dt)
-  if(parameters$antimalarial_resistance) {
-    dt <- individual::DoubleVariable$new(rep(parameters$dt, size))
-    variables <- c(
-      variables,
-      dt = dt
-    )
-  }
 
   # Add variables for individual mosquitoes
   if (parameters$individual_mosquitoes) {

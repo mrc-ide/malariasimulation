@@ -23,7 +23,7 @@ test_that('simulate_infection integrates different types of infection and schedu
   
   infection_outcome <- CompetingOutcome$new(
     targeted_process = function(timestep, target){
-      infection_process_resolved_hazard(timestep, target, variables, renderer, parameters)
+      infection_outcome_process(timestep, target, variables, renderer, parameters)
     },
     size = parameters$human_population
   )
@@ -97,17 +97,16 @@ test_that('simulate_infection integrates different types of infection and schedu
   schedule_mock <- mockery::mock()
   
   
-  mockery::stub(infection_process_resolved_hazard, 'incidence_renderer', mockery::mock())
-  mockery::stub(infection_process_resolved_hazard, 'boost_immunity', boost_immunity_mock)
-  mockery::stub(infection_process_resolved_hazard, 'calculate_clinical_infections', clinical_infection_mock)
-  mockery::stub(infection_process_resolved_hazard, 'update_severe_disease', severe_infection_mock)
-  mockery::stub(infection_process_resolved_hazard, 'calculate_treated', treated_mock)
-  mockery::stub(infection_process_resolved_hazard, 'schedule_infections', schedule_mock)
+  mockery::stub(infection_outcome_process, 'incidence_renderer', mockery::mock())
+  mockery::stub(infection_outcome_process, 'boost_immunity', boost_immunity_mock)
+  mockery::stub(infection_outcome_process, 'calculate_clinical_infections', clinical_infection_mock)
+  mockery::stub(infection_outcome_process, 'update_severe_disease', severe_infection_mock)
+  mockery::stub(infection_outcome_process, 'calculate_treated', treated_mock)
+  mockery::stub(infection_outcome_process, 'schedule_infections', schedule_mock)
   
-  infection_process_resolved_hazard(
+  infection_outcome_process(
     timestep,
     infected,
-    source_humans,
     variables,
     renderer,
     parameters,
@@ -221,7 +220,7 @@ test_that('calculate_infections works various combinations of drug and vaccinati
   
   infection_outcome <- CompetingOutcome$new(
     targeted_process = function(timestep, target){
-      infection_process_resolved_hazard(timestep, target, variables, renderer, parameters)
+      infection_outcome_process(timestep, target, variables, renderer, parameters)
     },
     size = parameters$human_population
   )
@@ -321,6 +320,7 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   variables <- list(
     state = list(queue_update = mockery::mock()),
     infectivity = list(queue_update = mockery::mock()),
+    recovery_rates = list(queue_update = mockery::mock()),
     drug = list(queue_update = mockery::mock()),
     drug_time = list(queue_update = mockery::mock())
   )
@@ -410,9 +410,9 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   variables <- list(
     state = list(queue_update = mockery::mock()),
     infectivity = list(queue_update = mockery::mock()),
+    recovery_rates = list(queue_update = mockery::mock()),
     drug = list(queue_update = mockery::mock()),
-    drug_time = list(queue_update = mockery::mock()),
-    dt = list(queue_update = mockery::mock())
+    drug_time = list(queue_update = mockery::mock())
   )
   renderer <- individual::Render$new(timesteps = timestep)
   
@@ -487,8 +487,8 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   )
   expect_bitset_update(variables$drug$queue_update, c(2, 1, 1, 1, 2, 2, 2), c(1, 2, 3, 4, 5, 6, 7))
   expect_bitset_update(variables$drug_time$queue_update, 5, c(1, 2, 3, 4, 5, 6, 7))
-  expect_bitset_update(variables$dt$queue_update, 5, c(2, 3, 4, 5, 6, 7), 1)
-  expect_bitset_update(variables$dt$queue_update, 15, c(1), 2)
+  expect_bitset_update(variables$recovery_rates$queue_update, 1/5, c(2, 3, 4, 5, 6, 7), 1)
+  expect_bitset_update(variables$recovery_rates$queue_update, 1/15, c(1), 2)
 })
 
 test_that('calculate_treated correctly samples treated and updates the drug state when resistance not set for all drugs', {
@@ -523,9 +523,9 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   variables <- list(
     state = list(queue_update = mockery::mock()),
     infectivity = list(queue_update = mockery::mock()),
+    recovery_rates = list(queue_update = mockery::mock()),
     drug = list(queue_update = mockery::mock()),
-    drug_time = list(queue_update = mockery::mock()),
-    dt = list(queue_update = mockery::mock())
+    drug_time = list(queue_update = mockery::mock())
   )
   
   # Create a Bitset of individuals seeking treatment individuals:
@@ -629,15 +629,15 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   
   # Check that update queued for dt for the non-slow parasite clearance individuals is correct:
   expect_bitset_update(
-    variables$dt$queue_update,
-    parameters$dt,
+    variables$recovery_rates$queue_update,
+    1/parameters$dt,
     c(2, 3, 4, 5, 6, 7), 
     1)
   
   # Check that update queued for dt for the slow parasite clearance individuals is correct:
   expect_bitset_update(
-    variables$dt$queue_update,
-    unlist(parameters$dt_slow_parasite_clearance),
+    variables$recovery_rates$queue_update,
+    1/unlist(parameters$dt_slow_parasite_clearance),
     c(1), 
     2)
   
@@ -665,8 +665,8 @@ test_that('schedule_infections correctly schedules new infections', {
     parameters,
     42 
   )
-  
-  actual_infected <- mockery::mock_args(infection_mock)[[1]][[5]]$to_vector()
+
+  actual_infected <- mockery::mock_args(infection_mock)[[1]][[7]]$to_vector()
   actual_asymp_infected <- mockery::mock_args(asymp_mock)[[1]][[4]]$to_vector()
   
   expect_equal(
@@ -705,7 +705,7 @@ test_that('prophylaxis is considered for medicated humans', {
   
   infection_outcome <- CompetingOutcome$new(
     targeted_process = function(timestep, target){
-      infection_process_resolved_hazard(timestep, target, variables, renderer, parameters)
+      infection_outcome_process(timestep, target, variables, renderer, parameters)
     },
     size = parameters$human_population
   )
@@ -1053,9 +1053,9 @@ test_that('calculate_treated() successfully adds additional resistance columns t
   variables <- list(
     state = list(queue_update = mockery::mock()),
     infectivity = list(queue_update = mockery::mock()),
+    recovery_rates = list(queue_update = mockery::mock()),
     drug = list(queue_update = mockery::mock()),
-    drug_time = list(queue_update = mockery::mock()),
-    dt = list(queue_update = mockery::mock())
+    drug_time = list(queue_update = mockery::mock())
   )
   renderer <- individual::Render$new(timesteps = 10)
   

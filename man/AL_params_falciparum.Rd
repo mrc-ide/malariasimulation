@@ -3,7 +3,7 @@
 \docType{data}
 \name{AL_params_falciparum}
 \alias{AL_params_falciparum}
-\title{Preset parameters for the AL drug acting on P. falciparum}
+\title{Preset parameters for the DHA-PQP drug acting on P. falciparum - tmp to enable compatability}
 \format{
 An object of class \code{numeric} of length 4.
 }
@@ -12,8 +12,14 @@ AL_params_falciparum
 }
 \description{
 From SI of Commun. 5:5606 doi: 10.1038/ncomms6606 (2014)
+
+From SI of Commun. 5:5606 doi: 10.1038/ncomms6606 (2014)
 }
 \details{
+Use a vector of preset parameters for the DHA-PQP drug (dihydroartemisinin-piperaquine) acting on P. falciparum
+
+Default parameters, from L to R, are: drug_efficacy: 0.95, drug_rel_c: 0.09434, drug_prophylaxis_shape: 4.4, drug_prophylaxis_scale: 28.1
+
 Use a vector of preset parameters for the AL drug (artemether-lumefantrine) acting on P. falciparum
 
 Default parameters, from L to R, are: drug_efficacy: 0.95, drug_rel_c: 0.05094, drug_prophylaxis_shape: 11.3, drug_prophylaxis_scale: 10.6

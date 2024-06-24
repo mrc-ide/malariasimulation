@@ -3,7 +3,7 @@
 \docType{data}
 \name{CQ_params_vivax}
 \alias{CQ_params_vivax}
-\title{Preset parameters for the CQ drug acting on P. vivax}
+\title{Preset parameters for the SP-AQ drug acting on P. falciparum - tmp to enable compatability}
 \format{
 An object of class \code{numeric} of length 4.
 }
@@ -15,6 +15,10 @@ Efficacy from SI of Nekkab et al., DOI: 10.1371/journal.pmed.1003535 (2021),
 shape and scale consistent with a longer prophylaxis time: 28 days, decreasing gradually
 }
 \details{
+Use a vector of preset parameters for the SP-AQ drug (sulphadoxine-pyrimethamine and amodiaquine) acting on P. falciparum
+
+Default parameters, from L to R, are: drug_efficacy: 0.9, drug_rel_c: 0.32, drug_prophylaxis_shape: 4.3, drug_prophylaxis_scale: 38.1
+
 Use a vector of preset parameters for the CQ drug (chloroquine) acting on P. vivax
 
 Default parameters, from L to R, are: drug_efficacy: 0.899, drug_rel_c: 0.5, drug_prophylaxis_shape: 20, drug_prophylaxis_scale: 5

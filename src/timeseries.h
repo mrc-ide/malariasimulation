@@ -12,7 +12,7 @@
 
 class Timeseries {
 private:
-    std::map<double,double> values;
+    std::map<double,double> _values;
     size_t max_size;
     void clean();
     bool has_default;
@@ -23,6 +23,9 @@ public:
     Timeseries(size_t, double);
     void push(double, double);
     double at(double, bool = true) const;
+
+    const std::map<double, double>& values();
+    void set_values(std::map<double, double> state);
 };
 
 #endif /* SRC_TIMESERIES_ */

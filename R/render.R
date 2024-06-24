@@ -3,13 +3,13 @@ in_age_range <- function(birth, timestep, lower, upper) {
 }
 
 #' @title Render prevalence statistics
-#'
+#' 
 #' @description renders prevalence numerators and denominators for individuals
-#' detected by lm microscopy and pcr, where those infected asymptomatically by
+#' detected by light microscopy and pcr, where those infected asymptomatically by
 #' P. falciparum have reduced probability of infection due to detectability
-#' immunity (reported as an integer sample (n_detect_lm_) and summing over
+#' immunity (reported as an integer sample: n_detect_lm, and summing over
 #' detection probabilities: p_detect_lm)
-#'
+#' 
 #' @param state human infection state
 #' @param birth variable for birth of the individual
 #' @param immunity to detection
@@ -37,6 +37,7 @@ create_prevelance_renderer <- function(
       asymptomatic_detected <- bitset_at(asymptomatic, bernoulli_multi_p(prob))
 
     } else {
+      prob <- rep(1, asymptomatic$size())
       asymptomatic_detected <- asymptomatic
     }
 
@@ -58,28 +59,24 @@ create_prevelance_renderer <- function(
 
       # render pcr detection
       renderer$render(
-        paste0('n_detect_pcr_', lower, '_', upper),
-        pcr_detected$copy()$and(in_age)$size(),
+        paste0('n_detect_lm_', lower, '_', upper),
+        in_age$copy()$and(lm_detected)$size(),
         timestep
       )
 
       # render lm detection
       renderer$render(
-        paste0('n_detect_lm_', lower, '_', upper),
-        lm_detected$copy()$and(in_age)$size(),
+        paste0('p_detect_lm_', lower, '_', upper),
+        in_age$copy()$and(clinically_detected)$size() + sum(
+          prob[bitset_index(asymptomatic, in_age)]
+        ),
         timestep
       )
-
-      if(parameters$parasite == "falciparum"){
-        # render lm detection (falciparum): summed probability
-        renderer$render(
-          paste0('p_detect_lm_', lower, '_', upper),
-          clinically_detected$copy()$and(in_age)$size() + sum(
-            prob[bitset_index(asymptomatic, in_age)]
-          ),
-          timestep
-        )
-      }
+      renderer$render(
+        paste0('n_detect_pcr_', lower, '_', upper),
+        pcr_detected$copy()$and(in_age)$size(),
+        timestep
+      )
     }
   }
 }
@@ -145,6 +142,30 @@ create_variable_mean_renderer_process <- function(
   }
 }
 
+create_age_variable_mean_renderer_process <- function(
+    names,
+    variables,
+    birth,
+    parameters,
+    renderer
+) {
+  function(timestep) {
+    for (i in seq_along(variables)) {
+      for (j in seq_along(parameters[[paste0(names[[i]],"_rendering_min_ages")]])) {
+        lower <- parameters[[paste0(names[[i]],"_rendering_min_ages")]][[j]]
+        upper <- parameters[[paste0(names[[i]],"_rendering_max_ages")]][[j]]
+        in_age <- in_age_range(birth, timestep, lower, upper)
+        renderer$render(paste0('n_', lower, '_', upper), in_age$size(), timestep)
+        renderer$render(
+          paste0(names[[i]], '_mean_', lower, '_', upper),
+          mean(variables[[i]]$get_values(index = in_age)),
+          timestep
+        )
+      }
+    }
+  }
+}
+
 create_vector_count_renderer_individual <- function(
     mosquito_state,
     species,
@@ -172,7 +193,7 @@ create_total_M_renderer_compartmental <- function(renderer, solvers, parameters)
   function(timestep) {
     total_M <- 0
     for (i in seq_along(solvers)) {
-      row <- solver_get_states(solvers[[i]])
+      row <- solvers[[i]]$get_states()
       species_M <- sum(row[ADULT_ODE_INDICES])
       total_M <- total_M + species_M
       renderer$render(paste0('total_M_', parameters$species[[i]]), species_M, timestep)
@@ -199,34 +220,27 @@ create_age_group_renderer <- function(
   }
 }
 
-create_hypnozoite_renderer_process <- function(
-    renderer,
-    hypnozoites,
-    parameters
-) {
-  function(timestep) {
-    renderer$render(
-      paste0("n_hypnozoites"),
-      hypnozoites$size() - hypnozoites$get_size_of(0),
-      timestep
-    )
-  }
-}
-
-create_hypnozoite_age_renderer_process <- function(
+create_n_with_hypnozoites_age_renderer_process <- function(
     hypnozoites,
     birth,
     parameters,
     renderer
 ) {
   function(timestep) {
-    for (i in seq_along(parameters$hypnozoite_prevalence_rendering_min_ages)) {
-      lower <- parameters$hypnozoite_prevalence_rendering_min_ages[[i]]
-      upper <- parameters$hypnozoite_prevalence_rendering_max_ages[[i]]
+    
+    renderer$render(
+      paste0("n_with_hypnozoites"),
+      hypnozoites$size() - hypnozoites$get_size_of(0),
+      timestep
+    )
+    
+    for (i in seq_along(parameters$n_with_hypnozoites_rendering_min_ages)) {
+      lower <- parameters$n_with_hypnozoites_rendering_min_ages[[i]]
+      upper <- parameters$n_with_hypnozoites_rendering_max_ages[[i]]
       in_age <- in_age_range(birth, timestep, lower, upper)
       renderer$render(paste0('n_', lower, '_', upper), in_age$size(), timestep)
       renderer$render(
-        paste0('n_hypnozoites_', lower, '_', upper),
+        paste0('n_with_hypnozoites_', lower, '_', upper),
         sum(hypnozoites$get_values(index = in_age)!=0),
         timestep
       )

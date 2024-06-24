@@ -104,7 +104,7 @@ simulate_bites <- function(
 
   for (s_i in seq_along(parameters$species)) {
     species_name <- parameters$species[[s_i]]
-    solver_states <- solver_get_states(solvers[[s_i]])
+    solver_states <- solvers[[s_i]]$get_states()
     p_bitten <- prob_bitten(timestep, variables, s_i, parameters)
     Q0 <- parameters$Q0[[s_i]]
     W <- average_p_successful(p_bitten$prob_bitten_survives, .pi, Q0)
@@ -171,7 +171,7 @@ simulate_bites <- function(
     if (parameters$individual_mosquitoes) {
       # update the ODE with stats for ovoposition calculations
       aquatic_mosquito_model_update(
-        models[[s_i]],
+        models[[s_i]]$.model,
         species_index$size(),
         f,
         mu
@@ -193,7 +193,7 @@ simulate_bites <- function(
       )
     } else {
       adult_mosquito_model_update(
-        models[[s_i]],
+        models[[s_i]]$.model,
         mu,
         foim,
         solver_states[[ADULT_ODE_INDICES['Sm']]],
@@ -214,9 +214,7 @@ simulate_bites <- function(
 calculate_eir <- function(species, solvers, variables, parameters, timestep) {
   a <- human_blood_meal_rate(species, variables, parameters, timestep)
   infectious <- calculate_infectious(species, solvers, variables, parameters)
-  age <- get_age(variables$birth$get_values(), timestep)
-  psi <- unique_biting_rate(age, parameters)
-  infectious * a * mean(psi)
+  infectious * a
 }
 
 effective_biting_rates <- function(a, .pi, p_bitten) {
@@ -239,7 +237,7 @@ calculate_infectious <- function(species, solvers, variables, parameters) {
       )
     )
   }
-  calculate_infectious_compartmental(solver_get_states(solvers[[species]]))
+  calculate_infectious_compartmental(solvers[[species]]$get_states())
 }
 
 calculate_infectious_individual <- function(

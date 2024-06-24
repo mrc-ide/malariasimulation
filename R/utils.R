@@ -72,3 +72,27 @@ prob_to_rate <- function(prob){
 rate_to_prob <- function(rate){
   1- exp(-rate)
 }
+
+#' @title a placeholder class to save the random number generator class.
+#' @description the class integrates with the simulation loop to save and
+#' restore the random number generator class when appropriate.
+#' @noRd
+RandomState <- R6::R6Class(
+  'RandomState',
+  private = list(
+    restore_random_state = NULL
+  ),
+  public = list(
+    initialize = function(restore_random_state) {
+      private$restore_random_state <- restore_random_state
+    },
+    save_state = function() {
+      random_save_state()
+    },
+    restore_state = function(t, state) {
+      if (private$restore_random_state) {
+        random_restore_state(state)
+      }
+    }
+  )
+)

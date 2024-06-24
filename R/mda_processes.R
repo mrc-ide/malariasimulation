@@ -1,6 +1,5 @@
 #' @title Create listeners for MDA events
 #' @param variables the variables available in the model
-#' @param administer_event the event schedule for drug administration
 #' @param drug the drug to administer
 #' @param timesteps timesteps for each round
 #' @param coverages the coverage for each round
@@ -14,7 +13,6 @@
 #' @noRd
 create_mda_listeners <- function(
   variables,
-  administer_event,
   drug,
   timesteps,
   coverages,
@@ -81,7 +79,7 @@ create_mda_listeners <- function(
     }
 
     # Update liver stage drug effects
-    if(!is.na(parameters$drug_hypnozoite_efficacy[drug])){
+    if(parameters$parasite == "vivax" & !is.null(parameters$drug_hypnozoite_efficacy[drug])){
 
       to_clear <- sample_bitset(
         target_bit,
@@ -91,11 +89,6 @@ create_mda_listeners <- function(
       variables$hypnozoites$queue_update(0, to_clear)
       variables$ls_drug$queue_update(drug, to_clear)
       variables$ls_drug_time$queue_update(timestep, to_clear)
-    }
-
-    # Schedule next round
-    if (time_index < length(timesteps)) {
-      administer_event$schedule(timesteps[[time_index + 1]] - timestep)
     }
   }
 }

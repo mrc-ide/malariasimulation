@@ -138,13 +138,13 @@ calculate_infections <- function(
   } else if (parameters$parasite == "vivax"){
     ## Source_humans must include individuals with hypnozoites which may be impacted by prophylaxis/vaccination
     source_humans <- bitten_humans$copy()$or(variables$hypnozoites$get_index_of(0)$not(TRUE))
-    source_vector <- source_humans$to_vector()
     bitten_vector <- bitten_humans$to_vector()
 
     ## P. vivax does not model blood immunity
     b <- parameters$b
   }
-
+  source_vector <- source_humans$to_vector()
+  
   # calculate prophylaxis
   prophylaxis <- rep(0, source_humans$size())
   drug <- variables$drug$get_values(source_humans)
@@ -160,10 +160,11 @@ calculate_infections <- function(
   }
 
   # calculate vaccine efficacy
-  vaccine_efficacy <- rep(0, source_humans$size())
-  vaccine_times <- variables$pev_timestep$get_values(source_humans)
+  vaccine_efficacy <- rep(0, length(source_vector))
+  vaccine_times <- variables$last_eff_pev_timestep$get_values(source_vector)
+  pev_profile <- variables$pev_profile$get_values(source_vector)
+  # get vector of individuals who have received their 3rd dose
   vaccinated <- vaccine_times > -1
-  pev_profile <- variables$pev_profile$get_values(source_humans)
   pev_profile <- pev_profile[vaccinated]
   if (length(vaccinated) > 0) {
     antibodies <- calculate_pev_antibodies(
@@ -208,7 +209,6 @@ calculate_infections <- function(
   }
 
   else if(parameters$parasite == "vivax"){
-
     ## Calculated rate of infection for all bitten or with hypnozoites
     rate_infection_bitten <- rep(0, parameters$human_population)
     rate_infection_bitten[bitten_vector] <- prob_to_rate(b)
@@ -280,7 +280,6 @@ calculate_infections <- function(
   }
 
   newly_infected
-
 }
 
 #' @title Calculate patent infections (vivax only)
@@ -420,13 +419,18 @@ calculate_treated <- function(
     timestep,
     renderer
 ) {
+
+  if(clinical_infections$size() == 0) {
+    return(individual::Bitset$new(parameters$human_population))
+  }
+  
   treatment_coverages <- get_treatment_coverages(parameters, timestep)
   ft <- sum(treatment_coverages)
-
+  
   if (ft == 0) {
     return(individual::Bitset$new(parameters$human_population))
   }
-
+  
   renderer$render('ft', ft, timestep)
   seek_treatment <- sample_bitset(clinical_infections, ft)
   n_treat <- seek_treatment$size()
@@ -442,7 +446,8 @@ calculate_treated <- function(
     )
   ])
 
-  # Update liver stage drug effects
+  #+++ LIVER STAGE DRUG EFFICACY +++#
+  #+++++++++++++++++++++++++++++++++#
   if(length(parameters$drug_hypnozoite_efficacy)>0){
 
     ## When ls stage drug efficacy is NA, this does not results in a success
@@ -463,27 +468,80 @@ calculate_treated <- function(
     }
   }
 
-  # Update blood stage drug effects
-  successful <- bernoulli_multi_p(parameters$drug_efficacy[drugs])
-  treated_index <- bitset_at(seek_treatment, successful)
-
+  #+++ BLOOD STAGE DRUG EFFICACY +++#
+  #+++++++++++++++++++++++++++++++++#
+  effectively_treated_index <- bernoulli_multi_p(parameters$drug_efficacy[drugs])
+  effectively_treated <- bitset_at(seek_treatment, effectively_treated_index)
+  drugs <- drugs[effectively_treated_index]
+  n_drug_efficacy_failures <- n_treat - effectively_treated$size()
+  renderer$render('n_drug_efficacy_failures', n_drug_efficacy_failures, timestep)
+  
+  #+++ ANTIMALARIAL RESISTANCE +++#
+  #+++++++++++++++++++++++++++++++#
+  if(parameters$antimalarial_resistance) {
+    resistance_parameters <- get_antimalarial_resistance_parameters(
+      parameters = parameters,
+      drugs = drugs, 
+      timestep = timestep
+    )
+    
+    #+++ EARLY TREATMENT FAILURE +++#
+    #+++++++++++++++++++++++++++++++#
+    early_treatment_failure_probability <- resistance_parameters$artemisinin_resistance_proportion * resistance_parameters$early_treatment_failure_probability
+    successfully_treated_indices <- bernoulli_multi_p(p = 1 - early_treatment_failure_probability)
+    successfully_treated <- bitset_at(effectively_treated, successfully_treated_indices)
+    n_early_treatment_failure <- effectively_treated$size() - successfully_treated$size()
+    renderer$render('n_early_treatment_failure', n_early_treatment_failure, timestep)
+    drugs <- drugs[successfully_treated_indices]
+    dt_slow_parasite_clearance <- resistance_parameters$dt_slow_parasite_clearance[successfully_treated_indices]
+    
+    #+++ SLOW PARASITE CLEARANCE +++#
+    #+++++++++++++++++++++++++++++++#
+    slow_parasite_clearance_probability <- resistance_parameters$artemisinin_resistance_proportion[successfully_treated_indices] *
+      resistance_parameters$slow_parasite_clearance_probability[successfully_treated_indices]
+    slow_parasite_clearance_indices <- bernoulli_multi_p(p = slow_parasite_clearance_probability)
+    slow_parasite_clearance_individuals <- bitset_at(successfully_treated, slow_parasite_clearance_indices)
+    renderer$render('n_slow_parasite_clearance', slow_parasite_clearance_individuals$size(), timestep)
+    non_slow_parasite_clearance_individuals <- successfully_treated$copy()$set_difference(slow_parasite_clearance_individuals)
+    renderer$render('n_successfully_treated', successfully_treated$size(), timestep)
+    dt_slow_parasite_clearance <- dt_slow_parasite_clearance[slow_parasite_clearance_indices]
+    
+  } else {
+    
+    successfully_treated <- effectively_treated
+    renderer$render('n_successfully_treated', successfully_treated$size(), timestep)
+    
+  }
+  
   # Update those who have been treated
-  if (treated_index$size() > 0) {
-    variables$state$queue_update('Tr', treated_index)
+  if (successfully_treated$size() > 0) {
+    variables$state$queue_update("Tr", successfully_treated)
     variables$infectivity$queue_update(
-      parameters$cd * parameters$drug_rel_c[drugs[successful]],
-      treated_index
+      parameters$cd * parameters$drug_rel_c[drugs],
+      successfully_treated
     )
     variables$drug$queue_update(
-      drugs[successful],
-      treated_index
+      drugs,
+      successfully_treated
     )
     variables$drug_time$queue_update(
       timestep,
-      treated_index
+      successfully_treated
     )
+    if(parameters$antimalarial_resistance) {
+      variables$dt$queue_update(
+        parameters$dt,
+        non_slow_parasite_clearance_individuals
+      )
+      variables$dt$queue_update(
+        dt_slow_parasite_clearance,
+        slow_parasite_clearance_individuals
+      )
+    }
   }
-  treated_index
+  
+  successfully_treated
+  
 }
 
 #' @title Schedule infections

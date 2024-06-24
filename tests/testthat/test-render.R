@@ -34,14 +34,6 @@ test_that('that default rendering works', {
   mockery::expect_args(
     renderer$render_mock(),
     2,
-    'n_detect_pcr_730_3650',
-    3,
-    timestep
-  )
-
-  mockery::expect_args(
-    renderer$render_mock(),
-    3,
     'n_detect_lm_730_3650',
     2,
     timestep
@@ -49,12 +41,20 @@ test_that('that default rendering works', {
 
   mockery::expect_args(
     renderer$render_mock(),
-    4,
+    3,
     'p_detect_lm_730_3650',
     1.5,
     timestep
   )
 
+  mockery::expect_args(
+    renderer$render_mock(),
+    4,
+    'n_detect_pcr_730_3650',
+    3,
+    timestep
+  )
+  
 })
 
 test_that('that default rendering works when no one is in the age range', {
@@ -194,44 +194,60 @@ test_that('that multiple ages are rendered', {
     3,
     timestep
   )
-
+  
   mockery::expect_args(
     renderer$render_mock(),
     2,
-    'n_detect_pcr_730_3649',
-    3,
-    timestep
-  )
-
-  mockery::expect_args(
-    renderer$render_mock(),
-    3,
     'n_detect_lm_730_3649',
     2,
     timestep
   )
-
+  
+  mockery::expect_args(
+    renderer$render_mock(),
+    3,
+    'p_detect_lm_730_3649',
+    2,
+    timestep
+  )
+  
   mockery::expect_args(
     renderer$render_mock(),
     4,
+    'n_detect_pcr_730_3649',
+    3,
+    timestep
+  )
+  
+  mockery::expect_args(
+    renderer$render_mock(),
+    5,
     'n_3650_18249',
     3,
     timestep
   )
-
-  mockery::expect_args(
-    renderer$render_mock(),
-    5,
-    'n_detect_pcr_3650_18249',
-    2,
-    timestep
-  )
-
+  
   mockery::expect_args(
     renderer$render_mock(),
     6,
     'n_detect_lm_3650_18249',
     1,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    7,
+    'p_detect_lm_3650_18249',
+    1,
+    timestep
+  )
+  
+  mockery::expect_args(
+    renderer$render_mock(),
+    8,
+    'n_detect_pcr_3650_18249',
+    2,
     timestep
   )
 })

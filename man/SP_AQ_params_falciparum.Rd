@@ -3,7 +3,7 @@
 \docType{data}
 \name{SP_AQ_params_falciparum}
 \alias{SP_AQ_params_falciparum}
-\title{Preset parameters for the SP-AQ drug acting on P. falciparum}
+\title{Preset parameters for the AL drug acting on P. falciparum - tmp to enable compatability}
 \format{
 An object of class \code{numeric} of length 4.
 }
@@ -11,9 +11,13 @@ An object of class \code{numeric} of length 4.
 SP_AQ_params_falciparum
 }
 \description{
-Preset parameters for the SP-AQ drug acting on P. falciparum
+From SI of Commun. 5:5606 doi: 10.1038/ncomms6606 (2014)
 }
 \details{
+Use a vector of preset parameters for the AL drug (artemether-lumefantrine) acting on P. falciparum
+
+Default parameters, from L to R, are: drug_efficacy: 0.95, drug_rel_c: 0.05094, drug_prophylaxis_shape: 11.3, drug_prophylaxis_scale: 10.6
+
 Use a vector of preset parameters for the SP-AQ drug (sulphadoxine-pyrimethamine and amodiaquine) acting on P. falciparum
 
 Default parameters, from L to R, are: drug_efficacy: 0.9, drug_rel_c: 0.32, drug_prophylaxis_shape: 4.3, drug_prophylaxis_scale: 38.1

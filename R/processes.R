@@ -14,6 +14,7 @@
 #' population and species in the simulation
 #' @param lagged_infectivity a list of LaggedValue objects for FOIM for each population
 #' in the simulation
+#' @param timesteps Number of timesteps
 #' @param mixing a vector of mixing coefficients for the lagged transmission
 #' values (default: 1)
 #' @param mixing_index an index for this population's position in the
@@ -29,6 +30,7 @@ create_processes <- function(
     correlations,
     lagged_eir,
     lagged_infectivity,
+    timesteps, 
     mixing = 1,
     mixing_index = 1
 ) {
@@ -43,7 +45,7 @@ create_processes <- function(
     # Acquired immunity to detectability
     create_exponential_decay_process(variables$id, parameters$rid)
   )
-
+  
   if(parameters$parasite == "falciparum"){
     processes <- c(
       processes,
@@ -53,7 +55,7 @@ create_processes <- function(
       # Blood immunity
       create_exponential_decay_process(variables$ib, parameters$rb)
     )
-
+    
   } else if (parameters$parasite == "vivax"){
     processes <- c(
       processes,
@@ -63,7 +65,7 @@ create_processes <- function(
       create_hypnozoite_decay_process(variables$hypnozoites, parameters$gammal, renderer)
     )
   }
-
+  
   if (parameters$individual_mosquitoes) {
     processes <- c(
       processes,
@@ -76,10 +78,10 @@ create_processes <- function(
       )
     )
   }
-
-  # ==============================
-  # Biting and mortality processes
-  # ==============================
+  
+  # ================
+  # Biting processes
+  # ================
   # schedule infections for humans and set last_boosted_*
   # move mosquitoes into incubating state
   # kill mosquitoes caught in vector control
@@ -97,7 +99,6 @@ create_processes <- function(
       mixing,
       mixing_index
     ),
-    create_mortality_process(variables, events, renderer, parameters),
     if(parameters$parasite == "falciparum"){ ## P. falciparum has an age-dependent asymptomatic infectivity
       create_asymptomatic_progression_process(
         variables$state,
@@ -137,17 +138,38 @@ create_processes <- function(
         variables,
         parameters
       )
-    },
+    }
+  )
+  
+  
+  # =======================
+  # Antimalarial Resistance
+  # =======================
+  # Add an a new process which governs the transition from Tr to S when
+  # antimalarial resistance is simulated. The rate of transition switches
+  # from a parameter to a variable when antimalarial resistance == TRUE.
+  
+  # Assign the dt input to a separate object with the default single parameter value:
+  dt_input <- parameters$dt
+  
+  # If antimalarial resistance is switched on, assign dt variable values to the 
+  if(parameters$antimalarial_resistance) {
+    dt_input <- variables$dt
+  }
+  
+  # Create the progression process for Tr --> S specifying dt_input as the rate:
+  processes <- c(
+    processes,
     create_progression_process(
       variables$state,
       'Tr',
       'S',
-      parameters$dt,
+      dt_input,
       variables$infectivity,
       0
     )
   )
-
+  
   # ===============
   # ODE integration
   # ===============
@@ -155,7 +177,7 @@ create_processes <- function(
     processes,
     create_solver_stepping_process(solvers, parameters)
   )
-
+  
   # =========
   # RTS,S EPI
   # =========
@@ -172,7 +194,7 @@ create_processes <- function(
       )
     )
   }
-
+  
   # =========
   # PMC
   # =========
@@ -191,30 +213,31 @@ create_processes <- function(
       )
     )
   }
-
+  
   # =========
   # Rendering
   # =========
-
+  
   imm_var_names <- c('ica','icm','id')
   if(parameters$parasite == "falciparum"){
     imm_var_names <- c(imm_var_names,'ib','iva','ivm')
-
+    
   } else if(parameters$parasite == "vivax"){
     ## Add hypnozoite batches to average renderer vector
     imm_var_names <- c(imm_var_names,'idm',"hypnozoites")
-
+    
     ## Render age-stratified with hypnozoites
     processes <- c(
       processes,
-      create_hypnozoite_renderer_process(
-        renderer,
+      create_n_with_hypnozoites_age_renderer_process(
         variables$hypnozoites,
-        parameters
+        variables$birth,
+        parameters,
+        renderer
       )
     )
   }
-
+  
   processes <- c(
     processes,
     individual::categorical_count_renderer_process(
@@ -239,15 +262,16 @@ create_processes <- function(
       parameters,
       renderer
     ),
-    create_hypnozoite_age_renderer_process(
-      variables$hypnozoites,
+    create_age_variable_mean_renderer_process(
+      imm_var_names[paste0(imm_var_names,"_rendering_min_ages") %in% names(parameters)],
+      variables[imm_var_names[paste0(imm_var_names,"_rendering_min_ages") %in% names(parameters)]],
       variables$birth,
       parameters,
       renderer
     ),
     create_compartmental_rendering_process(renderer, solvers, parameters)
   )
-
+  
   if (parameters$individual_mosquitoes) {
     processes <- c(
       processes,
@@ -269,11 +293,11 @@ create_processes <- function(
       )
     )
   }
-
+  
   # ======================
   # Intervention processes
   # ======================
-
+  
   if (parameters$bednets) {
     processes <- c(
       processes,
@@ -286,14 +310,14 @@ create_processes <- function(
       net_usage_renderer(variables$net_time, renderer)
     )
   }
-
+  
   if (parameters$spraying) {
     processes <- c(
       processes,
       indoor_spraying(variables$spray_time, parameters, correlations)
     )
   }
-
+  
   # ======================
   # Progress bar process
   # ======================
@@ -303,7 +327,12 @@ create_processes <- function(
       create_progress_process(timesteps)
     )
   }
-
+  
+  # Mortality step
+  processes <- c(
+    processes,
+    create_mortality_process(variables, events, renderer, parameters))
+  
   processes
 }
 
@@ -320,8 +349,9 @@ create_processes <- function(
 #' @param rate the exponential rate
 #' @noRd
 create_exponential_decay_process <- function(variable, rate) {
+  stopifnot(inherits(variable, "DoubleVariable"))
   decay_rate <- exp(-1/rate)
-  function(timestep) variable$queue_update(variable$get_values() * decay_rate)
+  exponential_process_cpp(variable$.variable, decay_rate)
 }
 
 #' @title Create and initialise lagged_infectivity object

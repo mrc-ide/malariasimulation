@@ -182,16 +182,24 @@ test_that('that vivax patent prevalence rendering works', {
   mockery::expect_args(
     renderer$render_mock(),
     2,
-    'n_detect_pcr_730_3650',
-    3,
+    'n_detect_lm_730_3650',
+    2,
     timestep
   )
-
+  
   mockery::expect_args(
     renderer$render_mock(),
     3,
-    'n_detect_lm_730_3650',
+    'p_detect_lm_730_3650',
     2,
+    timestep
+  )
+  
+  mockery::expect_args(
+    renderer$render_mock(),
+    4,
+    'n_detect_pcr_730_3650',
+    3,
     timestep
   )
 })
@@ -289,7 +297,7 @@ test_that('relapses are recognised', {
     ),
     drug = individual::DoubleVariable$new(c(0, 0, 0, 0)),
     drug_time = individual::DoubleVariable$new(c(-1, -1, -1, -1)),
-    pev_timestep = individual::DoubleVariable$new(c(-1, -1, -1, -1)),
+    last_eff_pev_timestep = individual::DoubleVariable$new(c(-1, -1, -1, -1)),
     pev_profile = individual::IntegerVariable$new(c(-1, -1, -1, -1)),
     hypnozoites = individual::IntegerVariable$new(c(0, 1, 2, 3))
   )
@@ -336,7 +344,7 @@ test_that('infection division is correct', {
     ),
     drug = individual::DoubleVariable$new(rep(0, 10)),
     drug_time = individual::DoubleVariable$new(rep(-1, 10)),
-    pev_timestep = individual::DoubleVariable$new(rep(-1, 10)),
+    last_eff_pev_timestep = individual::DoubleVariable$new(rep(-1, 10)),
     pev_profile = individual::IntegerVariable$new(rep(-1, 10)),
     hypnozoites = individual::IntegerVariable$new(c(rep(0, 4), 1, 1, 50, 50, 0, 0))
   )

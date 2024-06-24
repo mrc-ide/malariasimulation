@@ -84,8 +84,8 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
     c(rep('Im', 10), rep('Sm', 15), rep('NonExistent', 75))
   )
   variables$species <- individual::CategoricalVariable$new(
-    c('All'),
-    rep('All', 100)
+    c('gamb'),
+    rep('gamb', 100)
   )
 
   lambda_mock <- mockery::mock(c(.5, .5, .5, .5))
@@ -131,7 +131,7 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
   expect_equal(effects_args[[1]][[8]], parameters)
   expect_equal(effects_args[[1]][[9]], timestep)
 
-  mockery::expect_args(eqs_update, 1, models[[1]], 25, f, parameters$mum)
+  mockery::expect_args(eqs_update, 1, models[[1]]$.model, 25, f, parameters$mum)
   mockery::expect_args(
     pois_mock,
     1,

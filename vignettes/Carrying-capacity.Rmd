@@ -66,10 +66,10 @@ and can run the simulations and compare the outputs
 ```{r, fig.width = 7, fig.height = 4, out.width='100%'}
 set.seed(123)
 s <- run_simulation(timesteps = timesteps, parameters = p)
-s$pfpr <- s$n_detect_lm_730_3650 / s$n_730_3650
+s$pfpr <- s$n_detect_lm_730_3650 / s$n_age_730_3650
 set.seed(123)
 s_seasonal <- run_simulation(timesteps = timesteps, parameters = p_seasonal)
-s_seasonal$pfpr <- s_seasonal$n_detect_lm_730_3650 / s_seasonal$n_730_3650
+s_seasonal$pfpr <- s_seasonal$n_detect_lm_730_3650 / s_seasonal$n_age_730_3650
 
 par(mfrow = c(1, 2))
 plot(s$EIR_gamb ~ s$timestep, t = "l", ylim = c(0, 200), xlab = "Time", ylab = "EIR")
@@ -144,7 +144,7 @@ p_stephensi <- p_stephensi |>
 
 set.seed(123)
 s_stephensi <- run_simulation(timesteps = timesteps, parameters = p_stephensi)
-s_stephensi$pfpr <- s_stephensi$n_detect_lm_730_3650 / s_stephensi$n_730_3650
+s_stephensi$pfpr <- s_stephensi$n_detect_lm_730_3650 / s_stephensi$n_age_730_3650
 
 par(mfrow = c(1, 2))
 plot(s_stephensi$EIR_gamb ~ s_stephensi$timestep,
@@ -171,7 +171,7 @@ p_flexible <- p |>
 
 set.seed(123)
 s_flexible <- run_simulation(timesteps = timesteps, parameters = p_flexible)
-s_flexible$pfpr <- s_flexible$n_detect_lm_730_3650 / s_flexible$n_730_3650
+s_flexible$pfpr <- s_flexible$n_detect_lm_730_3650 / s_flexible$n_age_730_3650
 
 par(mfrow = c(1, 2))
 plot(s$EIR_gamb ~ s$timestep, t = "l", ylim = c(0, 150), xlab = "Time", ylab = "EIR")

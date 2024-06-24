@@ -18,7 +18,7 @@
 #' @param infection_outcome competing hazards object for infection rates
 #' @param timestep the current timestep
 #' @noRd
-biting_process <- function(
+create_biting_process <- function(
     renderer,
     solvers,
     models,
@@ -29,37 +29,36 @@ biting_process <- function(
     lagged_eir,
     mixing = 1,
     mixing_index = 1,
-    infection_outcome,
-    timestep
-) {
-
-  age <- get_age(variables$birth$get_values(), timestep)
-  
-  bitten_humans <- simulate_bites(
-    renderer,
-    solvers,
-    models,
-    variables,
-    events,
-    age,
-    parameters,
-    timestep,
-    lagged_infectivity,
-    lagged_eir,
-    mixing,
-    mixing_index
-  )
-  
-  simulate_infection(
-    variables,
-    events,
-    bitten_humans,
-    age,
-    parameters,
-    timestep,
-    renderer,
     infection_outcome
-  )
+) {
+  function(timestep){
+    age <- get_age(variables$birth$get_values(), timestep)
+    bitten_humans <- simulate_bites(
+      renderer,
+      solvers,
+      models,
+      variables,
+      events,
+      age,
+      parameters,
+      timestep,
+      lagged_infectivity,
+      lagged_eir,
+      mixing,
+      mixing_index
+    )
+    
+    simulate_infection(
+      variables,
+      events,
+      bitten_humans,
+      age,
+      parameters,
+      timestep,
+      renderer,
+      infection_outcome
+    )
+  }
 }
 
 #' @importFrom stats rpois

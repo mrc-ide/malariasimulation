@@ -188,17 +188,19 @@ create_age_group_renderer <- function(
     parameters,
     renderer
 ) {
+  
+  age_ranges <- rbind(
+    cbind(parameters$prevalence_rendering_min_ages, parameters$prevalence_rendering_max_ages),
+    cbind(parameters$incidence_rendering_min_ages, parameters$incidence_rendering_max_ages),
+    cbind(parameters$clinical_incidence_rendering_min_ages, parameters$clinical_incidence_rendering_max_ages),
+    cbind(parameters$severe_incidence_rendering_min_ages, parameters$severe_incidence_rendering_max_ages),
+    cbind(parameters$age_group_rendering_min_ages, parameters$age_group_rendering_max_ages)
+  )
+  
+  unique_age_combinations <- as.data.frame(unique(age_ranges))
+  ordered_unique_age_combinations <- unique_age_combinations[order(unique_age_combinations$V1, unique_age_combinations$V2), ]
+  
   function(timestep) {
-    
-    unique_age_combinations <- as.data.frame(unique(rbind(cbind(parameters$prevalence_rendering_min_ages, parameters$prevalence_rendering_max_ages),
-          cbind(parameters$incidence_rendering_min_ages, parameters$incidence_rendering_max_ages),
-          cbind(parameters$clinical_incidence_rendering_min_ages, parameters$clinical_incidence_rendering_max_ages),
-          cbind(parameters$severe_incidence_rendering_min_ages, parameters$severe_incidence_rendering_max_ages),
-          cbind(parameters$age_group_rendering_min_ages, parameters$age_group_rendering_max_ages))))
-    
-    ordered_unique_age_combinations <- unique_age_combinations[
-      with(unique_age_combinations, order(V1, V2)),
-    ]
     
     for (i in seq_along(ordered_unique_age_combinations$V1)) {
       lower <- ordered_unique_age_combinations$V1[[i]]
@@ -263,3 +265,9 @@ render_initial_incidence <- function(renderer, lower_vals, upper_vals, inc_name)
   }
 }
   
+
+populate_metapopulation_incidence_rendering_columns <- function(renderer, parameters){
+  for(i in length(parameters)){
+    populate_incidence_rendering_columns(renderer[[i]], parameters[[i]])
+  }
+}

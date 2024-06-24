@@ -1,27 +1,19 @@
 #' @title Calculate recovery rates
 #' @description Calculates recovery rates for each individual in the population
-#' for storage in competing hazards object and future resolution
+#' for storage in competing hazards object and subsequent resolution
 #'
 #' @param variables the available human variables
-#' @param parameters model parameters
 #' @param recovery_outcome competing hazards object for recovery rates
 #' @noRd
-calculate_recovery_rates <- function(variables, parameters, recovery_outcome, dt_input){
-  
-  # Get correct input for dt depending on antimalarial resistance
-  if(isFALSE(parameters$antimalarial_resistance) & length(dt_input) == 1 & is.numeric(dt_input)){
-    dt_v <- dt_input
-  } else if (isTRUE(parameters$antimalarial_resistance)) {
-    dt_v <- dt_input$get_values(variables$state$get_index_of("Tr"))
+create_recovery_rates_process <- function(
+  variables,
+  recovery_outcome
+) {
+  function(timestep){
+    recovery_outcome$set_rates(variables$recovery_rates$get_values())
   }
-
-  recovery_rates <- numeric(length = parameters$human_population)
-  recovery_rates[variables$state$get_index_of("D")$to_vector()] <- 1/parameters$dd
-  recovery_rates[variables$state$get_index_of("A")$to_vector()] <- 1/parameters$da
-  recovery_rates[variables$state$get_index_of("U")$to_vector()] <- 1/parameters$du
-  recovery_rates[variables$state$get_index_of("Tr")$to_vector()] <- 1/dt_v
-  recovery_outcome$set_rates(recovery_rates)
 }
+
 
 #' @title Disease progression outcomes (recovery)
 #' @description Following resolution of competing hazards, update state and
@@ -33,7 +25,7 @@ calculate_recovery_rates <- function(variables, parameters, recovery_outcome, dt
 #' @param parameters model parameters
 #' @param renderer competing hazards object for recovery rates
 #' @noRd
-recovery_process_resolved_hazard <- function(
+recovery_outcome_process <- function(
     timestep,
     target,
     variables,
@@ -53,25 +45,31 @@ recovery_process_resolved_hazard <- function(
     "U",
     variables$infectivity,
     parameters$cu,
+    variables$recovery_rates,
+    1/parameters$du,
     variables$state$get_index_of("A")$and(target)
   )
   
+  # Is there a reason we aren't doing this in one step...? These all recover to S...
   update_infection(
     variables$state,
     "S",
     variables$infectivity,
     0,
-    variables$state$get_index_of("U")$and(target)
-  )
-  
-  update_infection(
-    variables$state,
-    "S",
-    variables$infectivity,
+    variables$recovery_rates,
     0,
-    variables$state$get_index_of("Tr")$and(target)
+    variables$state$get_index_of(c("U","Tr"))$and(target)
   )
   
+  # update_infection(
+  #   variables$state,
+  #   "S",
+  #   variables$infectivity,
+  #   0,
+  #   variables$recovery_rates,
+  #   0,
+  #   variables$state$get_index_of("Tr")$and(target)
+  # )
 }
 
 #' @title Update the state of an individual as infection events occur
@@ -84,14 +82,17 @@ recovery_process_resolved_hazard <- function(
 #' @param new_infectivity the new infectivity of the progressed individuals
 #' @noRd
 update_infection <- function(
-  state,
-  to_state,
-  infectivity,
-  new_infectivity,
-  to_move
-  ) {
+    state,
+    to_state,
+    infectivity,
+    new_infectivity,
+    recovery_rates,
+    new_recovery_rate,
+    to_move
+) {
   state$queue_update(to_state, to_move)
   infectivity$queue_update(new_infectivity, to_move)
+  recovery_rates$queue_update(new_recovery_rate, to_move)
 }
 
 #' @title Modelling the progression to asymptomatic disease
@@ -102,11 +103,11 @@ update_infection <- function(
 #' @param parameters model parameters
 #' @noRd
 update_to_asymptomatic_infection <- function(
-  variables,
-  parameters,
-  timestep,
-  to_move
-  ) {
+    variables,
+    parameters,
+    timestep,
+    to_move
+) {
   if (to_move$size() > 0) {
     variables$state$queue_update('A', to_move)
     new_infectivity <- asymptomatic_infectivity(
@@ -119,6 +120,10 @@ update_to_asymptomatic_infection <- function(
     )
     variables$infectivity$queue_update(
       new_infectivity,
+      to_move
+    )
+    variables$recovery_rates$queue_update(
+      1/parameters$da,
       to_move
     )
   }

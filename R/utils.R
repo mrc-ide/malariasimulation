@@ -100,5 +100,5 @@ prob_to_rate <- function(prob){
 #'@param rate rate
 #'@noRd
 rate_to_prob <- function(rate){
-  1- exp(-rate)
+  1 - exp(-rate)
 }

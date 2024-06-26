@@ -124,7 +124,7 @@ convert_to_long <- function(age_min, age_max, output) {
       data.frame(
         age_lower = age_min[[i]],
         age_upper = age_max[[i]],
-        n = output[,paste0('n_', age_min[[i]], '_',age_max[[i]])],
+        n = output[,paste0('n_age_', age_min[[i]], '_',age_max[[i]])],
         age_plot = age_min[[i]]/365,
         run = output$run,
         timestep = output$timestep)

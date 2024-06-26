@@ -150,6 +150,13 @@ test_that('Infection considers pev efficacy', {
     rep(.2, 4)
   )
 
+  infection_outcome <- CompetingOutcome$new(
+    targeted_process = function(timestep, target){
+      infection_process_resolved_hazard(timestep, target, variables, renderer, parameters)
+    },
+    size = parameters$human_population
+  )
+  
   # remove randomness from infection sampling
   bernoulli_mock <- mockery::mock(c(1, 2))
   mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
@@ -164,16 +171,17 @@ test_that('Infection considers pev efficacy', {
     depth = 4
   )
 
-  calculate_infections(
+  infection_rates <- calculate_infections(
     variables = variables,
     bitten_humans = individual::Bitset$new(4)$insert(seq(4)),
     parameters = parameters,
     renderer = mock_render(timestep),
-    timestep = timestep
+    timestep = timestep,
+    infection_outcome = infection_outcome
   )
 
   expect_equal(
-    mockery::mock_args(bernoulli_mock)[[1]][[1]],
+    rate_to_prob(infection_rates[infection_rates!=0]),
     c(0.590, 0.590, 0.215, 0.244),
     tolerance=1e-3
   )

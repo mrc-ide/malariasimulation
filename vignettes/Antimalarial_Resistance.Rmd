@@ -107,9 +107,9 @@ With the outputs from the `run_simulation()` function, we can visualise the effe
 ```{r, fig.align = 'center', eval = TRUE}
 
 # In each timestep, calculate PfPR_2-10 and add it to as a new column for each simulation output:
-sim_out_baseline$pfpr210 = sim_out_baseline$n_detect_lm_730_3650/sim_out_baseline$n_730_3650
-sim_out_clin_treatment$pfpr210 = sim_out_clin_treatment$n_detect_lm_730_3650/sim_out_clin_treatment$n_730_3650
-sim_out_resistance$pfpr210 = sim_out_resistance$n_detect_lm_730_3650/sim_out_resistance$n_730_3650
+sim_out_baseline$pfpr210 = sim_out_baseline$n_detect_lm_730_3650/sim_out_baseline$n_age_730_3650
+sim_out_clin_treatment$pfpr210 = sim_out_clin_treatment$n_detect_lm_730_3650/sim_out_clin_treatment$n_age_730_3650
+sim_out_resistance$pfpr210 = sim_out_resistance$n_detect_lm_730_3650/sim_out_resistance$n_age_730_3650
 
 # Plot the prevalence through time in each of the three simulated scenarios:
 plot.new(); par(mar = c(4, 4, 1, 1), new = TRUE)
@@ -225,7 +225,7 @@ We can visualise the effect of increasing resistance through time by plotting th
 ```{r, fig.align = 'center', eval = TRUE}
 
 # Calculate the prevalence (PfPR210) through time:
-dynamic_resistance_output$pfpr210 <- dynamic_resistance_output$n_detect_lm_730_3650/dynamic_resistance_output$n_730_3650
+dynamic_resistance_output$pfpr210 <- dynamic_resistance_output$n_detect_lm_730_3650/dynamic_resistance_output$n_age_730_3650
 
 # Open a new plotting window and add a grid:
 plot.new(); par(mar = c(4, 4, 1, 1), new = TRUE)
@@ -365,7 +365,7 @@ plot.new(); par(mar = c(4, 4, 1, 1), new = TRUE)
 
 # Plot malaria prevalence in 2-10 years through time:
 plot(x = simulation_outputs$base$timestep,
-     y = simulation_outputs$base$n_detect_lm_730_3650/simulation_outputs$base$n_730_3650,
+     y = simulation_outputs$base$n_detect_lm_730_3650/simulation_outputs$base$n_age_730_3650,
      xlab = "Time (days)",
      ylab = expression(paste(italic(Pf),"PR"[2-10])), cex = 0.8,
      ylim = c(0, 1), type = "l", lwd = 2, xaxs = "i", yaxs = "i",
@@ -373,19 +373,19 @@ plot(x = simulation_outputs$base$timestep,
 
 # Add the dynamics for no-intervention simulation
 lines(x = simulation_outputs$treatment$timestep,
-      y = simulation_outputs$treatment$n_detect_lm_730_3650/simulation_outputs$treatment$n_730_3650,
+      y = simulation_outputs$treatment$n_detect_lm_730_3650/simulation_outputs$treatment$n_age_730_3650,
       col = cols[4])
 
 lines(x = simulation_outputs$etf$timestep,
-      y = simulation_outputs$etf$n_detect_lm_730_3650/simulation_outputs$etf$n_730_3650,
+      y = simulation_outputs$etf$n_detect_lm_730_3650/simulation_outputs$etf$n_age_730_3650,
       col = cols[5])
 
 lines(x = simulation_outputs$spc$timestep,
-      y = simulation_outputs$spc$n_detect_lm_730_3650/simulation_outputs$spc$n_730_3650,
+      y = simulation_outputs$spc$n_detect_lm_730_3650/simulation_outputs$spc$n_age_730_3650,
       col = cols[6])
 
 lines(x = simulation_outputs$etf_spc$timestep,
-      y = simulation_outputs$etf_spc$n_detect_lm_730_3650/simulation_outputs$etf_spc$n_730_3650,
+      y = simulation_outputs$etf_spc$n_detect_lm_730_3650/simulation_outputs$etf_spc$n_age_730_3650,
       col = cols[7])
 
 # Add vlines to indicate when SP-AQ were administered:

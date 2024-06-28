@@ -39,13 +39,23 @@ Then we can run the simulation as normal:
 simulation <- run_simulation(timesteps = 100, parameters = p)
 ```
 
-## Parameters
+## Model details
+
+### Parameters
 
 Our default *P. vivax* parameters are sourced from a version of the analysis in White et al. 2018 (doi: 10.1038/s41467-018-05860-8), where model parameters were fitted to data from Papua New Guinea. The chosen parameter set fixes `b = 0.25` and `sigma_squared = 1.67` (for consistency with the *P. falciparum* model). The default parameters for both parasite species can be found in `data/raw/parasite_parameters.csv`, while parameters common to both models are given in `R/parameters.R` under `get_parameters()`.
 
 Values for the model fitting posterior distribution can be selected using the `set_parameter_draw()` function as found in the [Parameter Variation](https://mrc-ide.github.io/malariasimulation/articles/ParameterVariation.html) vignette.
 
-## Model structure
+### Structure
+
+The *P. falciparum* model has five human disease compartments: susceptible (S), clinical disease (D), asymptomatic infection (A), sub-patent infection (U), and treated (Tr). Asymptomatic infections may or may not be detectable by light-microscopy.
+
+The *P. vivax* model follows a similar structure to the *P. falciparum* model, and also has five human disease compartments. However, the human disease states modeled explicitly focus on parasite density and detectability, such that we have: susceptible (S), clinical disease (D), **light-microscopy detectable infection (A)**, **PCR detectable infection (U)**, and treated (Tr).
+
+### Infectivity of LM-detectable infections
+
+While the *P. falciparum* model calculates the onward infectivity of asymptomatic infections (`ca`) using the age and detectability immunity of each individual, the *P. vivax* model uses a constant infectivity for LM-detectable infections (`ca = 0.1`).
 
 ### Key Model References
 

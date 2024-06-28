@@ -182,11 +182,17 @@ create_variables <- function(parameters) {
 
   # Set the initial infectivity values for each individual
   infectivity_values[diseased] <- parameters$cd
-  infectivity_values[asymptomatic] <- asymptomatic_infectivity(
-    initial_age[asymptomatic],
-    id$get_values(asymptomatic),
-    parameters
-  )
+  if(parameters$parasite == "falciparum"){
+    # p.f has immunity-determined asymptomatic infectivity
+    infectivity_values[asymptomatic] <- asymptomatic_infectivity(
+      initial_age[asymptomatic],
+      id$get_values(asymptomatic),
+      parameters
+    )
+  } else if (parameters$parasite == "vivax"){
+    # p.v has constant asymptomatic infectivity
+    infectivity_values[asymptomatic] <- parameters$ca
+  }
   infectivity_values[subpatent] <- parameters$cu
 
   # Initialise the infectivity variable

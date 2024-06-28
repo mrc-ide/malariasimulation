@@ -6,9 +6,10 @@ in_age_range <- function(birth, timestep, lower, upper) {
 #' 
 #' @description renders prevalence numerators and denominators for individuals
 #' detected by light microscopy and pcr, where those infected asymptomatically by
-#' P. falciparum have reduced probability of infection due to detectability
+#' p.f has reduced probability of infection due to detectability
 #' immunity (reported as an integer sample: n_detect_lm, and summing over
-#' detection probabilities: p_detect_lm)
+#' detection probabilities: p_detect_lm), whearas p.v human states are defined
+#' explicitly by lm and pcr detectability.
 #' 
 #' @param state human infection state
 #' @param birth variable for birth of the individual
@@ -26,12 +27,17 @@ create_prevalence_renderer <- function(
 ) {
   function(timestep) {
     asymptomatic <- state$get_index_of('A')
-    prob <- probability_of_detection(
-      get_age(birth$get_values(asymptomatic), timestep),
-      immunity$get_values(asymptomatic),
-      parameters
-    )
-    asymptomatic_detected <- bitset_at(asymptomatic, bernoulli_multi_p(prob))
+    
+    if(parameters$parasite == "falciparum"){
+      prob <- probability_of_detection(
+        get_age(birth$get_values(asymptomatic), timestep),
+        immunity$get_values(asymptomatic),
+        parameters
+      )
+      asymptomatic_detected <- bitset_at(asymptomatic, bernoulli_multi_p(prob))
+    } else if (parameters$parasite == "vivax") {
+      asymptomatic_detected <- asymptomatic
+    }
 
     clinically_detected <- state$get_index_of(c('Tr', 'D'))
     detected <- clinically_detected$copy()$or(asymptomatic_detected)
@@ -46,13 +52,15 @@ create_prevalence_renderer <- function(
         in_age$copy()$and(detected)$size(),
         timestep
       )
-      renderer$render(
-        paste0('p_detect_lm_', lower, '_', upper),
-        in_age$copy()$and(clinically_detected)$size() + sum(
-          prob[bitset_index(asymptomatic, in_age)]
-        ),
-        timestep
-      )
+      if(parameters$parasite == "falciparum"){
+        renderer$render(
+          paste0('p_detect_lm_', lower, '_', upper),
+          in_age$copy()$and(clinically_detected)$size() + sum(
+            prob[bitset_index(asymptomatic, in_age)]
+          ),
+          timestep
+        )
+      }
       renderer$render(
         paste0('n_detect_pcr_', lower, '_', upper),
         pcr_detected$copy()$and(in_age)$size(),

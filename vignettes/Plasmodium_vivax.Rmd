@@ -59,6 +59,12 @@ The *P. falciparum* model tracks four kinds of immunity: immunity to blood stage
 
 The *P. vivax* model tracks two kinds of immunity: immunity to clinical infection (acquired and maternal, ICA and ICM) and anti-parasite immunity (acquired and maternal, IAA and IAM). We do not track immunity to blood stage infections, severe immunity or immunity to detectability.
 
+### Anti-parasite immunity
+
+Anti-parasite immunity has effects in two places. The first is in the separation of PCR-detectable infections from LM-detectable infections (where greater immunity reduces the change of an infection with higher parasitaemia). The second is in the calculation of a PCR-detectable infection (where greater immunity results in a shorter duration before recovery).
+
+The *P. falciparum* model does not model infections to the sub-patent compartment (U) and has a constant sub-patent infection duration (`du = 110`).
+
 ### Infectivity of LM-detectable infections
 
 While the *P. falciparum* model calculates the onward infectivity of asymptomatic infections (`ca`) using the age and detectability immunity of each individual, the *P. vivax* model uses a constant onwards infectivity for LM-detectable infections (`ca = 0.1`).

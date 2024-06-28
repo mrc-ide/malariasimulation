@@ -6,17 +6,33 @@
 #' @param progression_outcome competing hazards object for disease progression rates
 #' @noRd
 create_progression_rates_process <- function(
+  parameters,
   variables,
   progression_outcome
 ) {
   function(timestep){
     target <- variables$state$get_index_of("S")$not()
+    progression_rates <- variables$progression_rates$get_values(target)
+    if (parameters$parasite == "vivax"){
+      # p.v subpatent recovery is immunity-dependent
+      progression_rates <- variables$progression_rates$get_values(target)
+      u_index <- variables$state$get_index_of("U")
+      target_u <- bitset_index(target, u_index)
+      progression_rates[target_u] <-
+        1 / anti_parasite_immunity(
+          min = parameters$dpcr_min, 
+          max = parameters$dpcr_max, 
+          a50 = parameters$apcr50, 
+          k = parameters$kpcr,
+          iaa = variables$iaa$get_values(index = u_index),
+          iam = variables$iam$get_values(index = u_index)
+        )
+    }
     progression_outcome$set_rates(
       target,
-      variables$progression_rates$get_values(target))
+      progression_rates)
   }
 }
-
 
 #' @title Disease progression outcomes
 #' @description Following resolution of competing hazards, update state and

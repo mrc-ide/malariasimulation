@@ -69,6 +69,10 @@ sample_maternal_immunity <- function(variables, target, timestep, parameters) {
         birth_ivm <- variables$iva$get_values(mothers) * parameters$pvm
         variables$icm$queue_update(birth_icm, target_group)
         variables$ivm$queue_update(birth_ivm, target_group)
+        if(parameters$parasite == "vivax"){
+          birth_iam <- variables$iaa$get_values(mothers) * parameters$pcm
+          variables$iam$queue_update(birth_iam, target_group)
+        }
       }
     }
   }
@@ -93,15 +97,19 @@ reset_target <- function(variables, events, target, state, parameters, timestep)
     # non-maternal immunity
     variables$last_boosted_ica$queue_update(-1, target)
     variables$last_boosted_iva$queue_update(-1, target)
-    variables$last_boosted_id$queue_update(-1, target)
     variables$ica$queue_update(0, target)
     variables$iva$queue_update(0, target)
-    variables$id$queue_update(0, target)
     variables$state$queue_update(state, target)
     
     if(parameters$parasite == "falciparum"){
       variables$last_boosted_ib$queue_update(-1, target)
+      variables$last_boosted_id$queue_update(-1, target)
       variables$ib$queue_update(0, target)
+      variables$id$queue_update(0, target)
+      
+    } else if (parameters$parasite == "vivax"){
+      variables$last_boosted_iaa$queue_update(-1, target)
+      variables$iaa$queue_update(0, target)
     }
 
     # treatment

@@ -172,13 +172,23 @@ infection_outcome_process <- function(
       timestep,
       parameters$uc
     )
-    boost_immunity(
-      variables$id,
-      infected_humans,
-      variables$last_boosted_id,
-      timestep,
-      parameters$ud
-    )
+    if(parameters$parasite == "falciparum"){
+      boost_immunity(
+        variables$id,
+        infected_humans,
+        variables$last_boosted_id,
+        timestep,
+        parameters$ud
+      )
+    } else if (parameters$parasite == "vivax"){
+      boost_immunity(
+        variables$iaa,
+        infected_humans,
+        variables$last_boosted_iaa,
+        timestep,
+        parameters$ua
+      )
+    }
   }
   
   clinical_infections <- calculate_clinical_infections(
@@ -623,4 +633,10 @@ blood_immunity <- function(ib, parameters) {
       (1 - parameters$b1) /
       (1 + (ib / parameters$ib0) ** parameters$kb)
   )
+}
+
+# Implemented from White et al., 2018 - Supplementary Information
+anti_parasite_immunity <- function(min, max, a50, k, iaa, iam){
+  min + (max - min) / (
+    1 + ((iaa + iam) / a50) ** k)
 }

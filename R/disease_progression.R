@@ -36,12 +36,26 @@ progression_outcome_process <- function(
     renderer
 ){
   
-  update_to_asymptomatic_infection(
-    variables,
-    parameters,
-    timestep,
-    variables$state$get_index_of("D")$and(target)
-  )
+  if(parameters$parasite == "falciparum"){
+    # p.f has immunity-determined asymptomatic infectivity
+    update_to_asymptomatic_infection(
+      variables,
+      parameters,
+      timestep,
+      variables$state$get_index_of("D")$and(target)
+    )
+  } else if (parameters$parasite == "vivax"){
+    # p.v has constant asymptomatic infectivity
+    update_infection(
+      variables$state,
+      "A",
+      variables$infectivity,
+      parameters$ca,
+      variables$progression_rates,
+      1/parameters$da,
+      variables$state$get_index_of("D")$and(target)
+    )
+  }
   
   update_infection(
     variables$state,

@@ -45,9 +45,6 @@ create_processes <- function(
                                                         parameters$rm),
     immunity_process = create_exponential_decay_process(variables$ivm,
                                                         parameters$rvm),
-    # Blood immunity
-    immunity_process = create_exponential_decay_process(variables$ib,
-                                                        parameters$rb),
     # Acquired immunity
     immunity_process = create_exponential_decay_process(variables$ica,
                                                         parameters$rc),
@@ -56,6 +53,15 @@ create_processes <- function(
     immunity_process = create_exponential_decay_process(variables$id,
                                                         parameters$rid)
   )
+  
+  if(parameters$parasite == "falciparum"){
+    processes <- c(
+      processes,
+      # Blood immunity
+      immunity_process = create_exponential_decay_process(variables$ib,
+                                                          parameters$rb)
+    )
+  }
 
   if (parameters$individual_mosquitoes) {
     processes <- c(
@@ -179,7 +185,10 @@ create_processes <- function(
   # Rendering
   # =========
   
-  imm_var_names <- c('ica', 'icm', 'id', 'ib', 'iva', 'ivm')
+  imm_var_names <- c('ica', 'icm', 'id', 'iva', 'ivm')
+  if(parameters$parasite == "falciparum"){
+    imm_var_names <- c(imm_var_names, 'ib')
+  }
   
   processes <- c(
     processes,

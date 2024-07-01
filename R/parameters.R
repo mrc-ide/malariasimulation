@@ -244,6 +244,13 @@
 #' outputs; default = 730
 #' * prevalence_rendering_max_ages - the corresponding max ages; default = 3650
 #'
+#' mixing:
+#'
+#' * rdt_intercept - the y intercept for the log logit relationship betweeen rdt
+#' and PCR prevalence; default = -0.968
+#' * rdt_coeff - the coefficient for the log logit relationship betweeen rdt
+#' and PCR prevalence; default = 1.186
+#'
 #' miscellaneous:
 #'
 #' * mosquito_limit - the maximum number of mosquitoes to allow for in the
@@ -445,6 +452,9 @@ get_parameters <- function(overrides = list()) {
     severe_incidence_rendering_max_ages = numeric(0),
     age_group_rendering_min_ages = numeric(0),
     age_group_rendering_max_ages = numeric(0),
+    # mixing
+    rdt_intercept = -0.968,
+    rdt_coeff = 1.186,
     # misc
     mosquito_limit   = 100 * 1000,
     individual_mosquitoes = FALSE,

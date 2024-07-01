@@ -65,6 +65,22 @@ match_timestep <- function(ts, t) {
   min(sum(ts <= t), length(ts))
 }
 
+#'@title Time cache a function
+#'@description caches function outputs based on the timestep argument
+#'@param fn function to cache
+#'@noRd
+time_cached <- function(fn) {
+  cache <- new.env()
+  cache$timestep <- -1
+  function(..., timestep) {
+    if (cache$timestep != timestep) {
+      cache$value <- fn(..., timestep)
+      cache$timestep <- timestep
+    }
+    cache$value
+  }
+}
+
 #' @title a placeholder class to save the random number generator class.
 #' @description the class integrates with the simulation loop to save and
 #' restore the random number generator class when appropriate.

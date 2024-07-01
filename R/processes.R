@@ -17,23 +17,25 @@
 #' @param timesteps Number of timesteps
 #' @param mixing a vector of mixing coefficients for the lagged transmission
 #' values (default: 1)
+#' @param mixing_fn function to retrieve mixed EIR and infectivity values
 #' @param mixing_index an index for this population's position in the
 #' lagged transmission lists (default: 1)
 #' @noRd
 create_processes <- function(
-    renderer,
-    variables,
-    events,
-    parameters,
-    models,
-    solvers,
-    correlations,
-    lagged_eir,
-    lagged_infectivity,
-    timesteps, 
-    mixing = 1,
-    mixing_index = 1
-) {
+  renderer,
+  variables,
+  events,
+  parameters,
+  models,
+  solvers,
+  correlations,
+  lagged_eir,
+  lagged_infectivity,
+  timesteps,
+  mixing_fn = NULL,
+  mixing_index = 1
+  ) {
+  
   # ========
   # Immunity
   # ========
@@ -79,7 +81,7 @@ create_processes <- function(
       parameters,
       lagged_infectivity,
       lagged_eir,
-      mixing,
+      mixing_fn,
       mixing_index
     ),
     create_asymptomatic_progression_process(

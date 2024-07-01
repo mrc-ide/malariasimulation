@@ -45,7 +45,7 @@ create_transmission_mixer <- function(
     diag(test_and_treat_coeff) <- 1
 
     eir <- vapply(
-      seq(n_species),
+      seq_len(n_species),
       function(i) {
         mixed_eir <- t(species_eir[,i] * p_mix_import)
         rowSums(mixed_eir * test_and_treat_coeff)

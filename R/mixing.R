@@ -13,7 +13,7 @@ create_transmission_mixer <- function(
   function (timestep) {
     n_pops <- length(variables)
     rdt_positive <- vnapply(
-      seq(n_pops),
+      seq_len(n_pops),
       function(i) {
         rdt_detectable(variables[[i]], parameters[[i]], timestep)
       }

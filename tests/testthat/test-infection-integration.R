@@ -315,6 +315,7 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   expect_bitset_update(variables$drug_time$queue_update, 5, c(1, 4))
 })
 
+## FIX
 test_that('calculate_treated correctly samples treated and updates the drug state when resistance set', {
   
   parameters <- get_parameters()
@@ -352,7 +353,8 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
     infectivity = list(queue_update = mockery::mock()),
     drug = list(queue_update = mockery::mock()),
     drug_time = list(queue_update = mockery::mock()),
-    dt = list(queue_update = mockery::mock())
+    dt = list(queue_update = mockery::mock()),
+    birth = list(queue_update = mockery::mock())
   )
   renderer <- individual::Render$new(timesteps = timestep)
   
@@ -368,8 +370,17 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   # Set up bernoulli mock and instruct calculate_treated to return it when bernoulli_multi_p() called:
   bernoulli_mock <- mockery::mock(c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                                   c(1, 2, 3, 4, 5, 6, 7),
+                                  c(1),
                                   c(1))
   mockery::stub(calculate_treated, 'bernoulli_multi_p', bernoulli_mock)
+  
+  # Set up a mock for asymptomatic_infectivity() and instruct calculate_treated() to run it when get_age() called:
+  infectivity_mock <- mockery::mock(numeric())
+  mockery::stub(calculate_treated, 'asymptomatic_infectivity', infectivity_mock)
+  
+  # Set up a mock for get_ages() and instruct calculate_treated() to run it when get_age() called:
+  age_mock <- mockery::mock(numeric())
+  mockery::stub(calculate_treated, 'get_age', age_mock)
   
   calculate_treated(
     variables,
@@ -431,6 +442,7 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   expect_bitset_update(variables$dt$queue_update, 15, c(1), 2)
 })
 
+## FIX
 test_that('calculate_treated correctly samples treated and updates the drug state when resistance not set for all drugs', {
   
   # Establish the parameters
@@ -486,6 +498,7 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   # Create a bernoulli_mock of i) individuals susceptible, and ii) individuals successfully treated:
   bernoulli_mock <- mockery::mock(c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                                   c(1, 2, 3, 4, 5, 6, 7),
+                                  c(1),
                                   c(1))
   
   # Specify that when calculate_treated() calls bernoulli_multi_p() it returns the bernoulli_mock:

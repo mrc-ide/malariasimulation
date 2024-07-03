@@ -18,6 +18,7 @@ knitr::opts_chunk$set(
 
 # Load the requisite packages:
 library(malariasimulation)
+devtools::load_all()
 
 # Set colour palette:
 cols <- c("#E69F00", "#56B4E9", "#009E73", "#CC79A7","#F0E442", "#0072B2", "#D55E00")
@@ -358,7 +359,7 @@ for(i in seq(length(simulation_parameters))) {
 
 We can compare the effects of independent resistance outcomes with combined resistance outcomes visually. In the following plot, we compare the *Pf*PR~2-10~ between a baseline without any clinical treatment or antimalarial resistance, a clinical-treatment only run, a clinical treatment with early treatment failure run, a clinical treatment with slow parasite clearance run, and a clinical treatment with both early treatment failure and slow parasite clearance run.
 
-```{R}
+```{r}
 
 # Open a new plotting window and add a grid:
 plot.new(); par(mar = c(4, 4, 1, 1), new = TRUE)
@@ -403,6 +404,118 @@ legend(x = 3000, y = 0.99, legend = c("Baseline", "Treatment", "ETF-only", "SPC-
        col= c(cols[3:7]), box.col = "white",
        lwd = 1, lty = c(1, 1), cex = 0.8)
 
+
+```
+
+## Simulating partner drug resistance
+Resistance to the partner drug of an ACT is associated with different treatment outcomes to resistance to the artemisinin component. 
+
+### Parameterisation
+
+```{r}
+
+# Specify the time steps over which to simulate:
+timesteps <- 365 * 3
+
+# Specify an initial EIR to calibrate to:
+init_EIR <- 8
+
+# Specify a time step for treatment to begin:
+treatment_start <- (1 * 365) + 1
+
+# Specify a time step  for resistance to emerge:
+resistance_start <- (2 * 365) + 1
+
+# Load the base malariasimulation parameter set:
+simparams <- get_parameters(
+  overrides = list(
+    human_population = 10000)
+)
+
+# Calibrate to the initial EIR:
+simparams <- set_equilibrium(parameters = simparams, init_EIR = init_EIR)
+
+# Append the parameters for artemether lumefantrine (AL) to the parameter list:
+simparams_clin_treatment <- set_drugs(parameters = simparams, drugs = list(AL_params))
+
+# Use the set_clinical_treatment() function to specify a treatment regime for AL:
+simparams_clin_treatment <- set_clinical_treatment(parameters = simparams_clin_treatment, 
+                                                   drug = 1,
+                                                   timesteps = treatment_start,
+                                                   coverages = 0.8)
+
+# Use the set_antimalarial_resistance() function to specify resistance to AL:
+simparams_resistance <- set_antimalarial_resistance(parameters = simparams_clin_treatment,
+                                                    drug = 1,
+                                                    timesteps = c(0, resistance_start),
+                                                    artemisinin_resistance_proportion = rep(0, 2),
+                                                    partner_drug_resistance_proportion = c(0, 0.8),
+                                                    slow_parasite_clearance_probability = rep(0, 2),
+                                                    early_treatment_failure_probability = rep(0, 2),
+                                                    late_clinical_failure_probability = rep(0, 2),
+                                                    late_parasitological_failure_probability = c(0, 0.8),
+                                                    reinfection_during_prophylaxis_probability = rep(0, 2), 
+                                                    slow_parasite_clearance_time = 10)
+
+```
+
+### Simulation
+
+```{r}
+
+# Baseline: No-intervention, no resistance simulation:
+sim_out_baseline <- run_simulation(timesteps = timesteps, parameters = simparams)
+
+# Clinical treatment with no antimalarial drug resistance:
+sim_out_clin_treatment <- run_simulation(timesteps = timesteps, parameters = simparams_clin_treatment)
+
+# Clinical treatment with antimalarial drug resistance:
+sim_out_partner_resistance <- run_simulation(timesteps = timesteps, parameters = simparams_resistance)
+
+```
+
+### Visualisation
+
+```{r}
+
+# In each timestep, calculate PfPR_2-10 and add it to as a new column for each simulation output:
+sim_out_baseline$pfpr210 = sim_out_baseline$n_detect_lm_730_3650/sim_out_baseline$n_730_3650
+sim_out_clin_treatment$pfpr210 = sim_out_clin_treatment$n_detect_lm_730_3650/sim_out_clin_treatment$n_730_3650
+sim_out_partner_resistance$pfpr210 = sim_out_partner_resistance$n_detect_lm_730_3650/sim_out_partner_resistance$n_730_3650
+
+# Plot the prevalence through time in each of the three simulated scenarios:
+plot.new(); par(mar = c(4, 4, 1, 1), new = TRUE)
+plot(x = sim_out_baseline$timestep, y = sim_out_baseline$pfpr210,
+     xlab = "Time (days)",
+     ylab = expression(paste(italic(Pf),"PR"[2-10])), cex = 0.7,
+     ylim = c(0, 1), type = "l", lwd = 2, xaxs = "i", yaxs = "i",
+     col = cols[3])
+
+# Add a line for the clinical treatment scenario:
+lines(x = sim_out_clin_treatment$timestep,
+      y = sim_out_clin_treatment$pfpr210,
+      col = cols[4])
+
+# Add a line for the clinical treatment with resistance scenario:
+lines(x = sim_out_partner_resistance$timestep,
+      y = sim_out_partner_resistance$pfpr210,
+      col = cols[7])
+
+# Add lines to indicate the initiation of treatment and resistance:
+abline(v = treatment_start, lty = "dashed")
+abline(v = resistance_start, lty = "dashed")
+
+# Annotate the added vlines:
+text(x = treatment_start + 10, y = 0.9, labels = "Start of\nTreatment", adj = 0, cex = 0.7)
+text(x = resistance_start + 10, y = 0.9, labels = "Start of\nResistance", adj = 0, cex = 0.7)
+
+# Add gridlines:
+grid(lty = 2, col = "grey80", nx = NULL, ny = NULL, lwd = 0.5); box()
+
+# Add a legend:
+legend(x = 20, y = 0.99, legend = c("Baseline", "Treatment", "Resistance"),
+       col= c(cols[3:4], cols[7]), box.col = "white",
+       lwd = 1, lty = c(1, 1), cex = 0.7)
 
 ```
 

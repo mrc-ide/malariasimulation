@@ -20,6 +20,17 @@ env:
   R_GC_MEM_GROW: 3
 
 jobs:
+
+  print:    
+    name: Print event
+    runs-on: ubuntu-latest
+    steps:
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: |
+        echo "$GITHUB_CONTEXT"
+
   prepare:
     # The other jobs all depend on this one succeeding. They'll implicitly get
     # skipped as well if this condition is not met.

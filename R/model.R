@@ -101,6 +101,7 @@ run_simulation <- function(
 #' @param restore_random_state if TRUE, restore the random number generator's state from the checkpoint.
 #' @return a list with two entries, one for the dataframe of results and one for the final
 #' simulation state.
+#' @export
 run_resumable_simulation <- function(
     timesteps,
     parameters = NULL,

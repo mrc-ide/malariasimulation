@@ -50,7 +50,6 @@ recovery_outcome_process <- function(
     variables$state$get_index_of("A")$and(target)
   )
   
-  # Is there a reason we aren't doing this in one step...? These all recover to S...
   update_infection(
     variables$state,
     "S",
@@ -61,15 +60,6 @@ recovery_outcome_process <- function(
     variables$state$get_index_of(c("U","Tr"))$and(target)
   )
   
-  # update_infection(
-  #   variables$state,
-  #   "S",
-  #   variables$infectivity,
-  #   0,
-  #   variables$recovery_rates,
-  #   0,
-  #   variables$state$get_index_of("Tr")$and(target)
-  # )
 }
 
 #' @title Update the state of an individual as infection events occur

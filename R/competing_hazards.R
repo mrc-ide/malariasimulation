@@ -56,7 +56,7 @@ CompetingHazard <- R6::R6Class(
       occur_rng <- private$rng(private$size)
       occurs <- which(occur_rng < rate_to_prob(occur_rates))
 
-      norm_probs <- event_rates[occurs,] / occur_rates[occurs]
+      norm_probs <- event_rates[occurs, , drop=FALSE] / occur_rates[occurs]
       norm_probs[is.na(norm_probs)] <- 0
 
       cumulative <- rep(0, length(occurs))

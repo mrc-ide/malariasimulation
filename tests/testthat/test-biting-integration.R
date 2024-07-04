@@ -46,7 +46,7 @@ test_that('biting_process integrates mosquito effects and human infection', {
     timestep,
     lagged_foim,
     lagged_eir,
-    1,
+    NULL,
     1
   )
 
@@ -101,8 +101,8 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
   mockery::stub(simulate_bites, 'aquatic_mosquito_model_update', eqs_update)
   models <- parameterise_mosquito_models(parameters, timestep)
   solvers <- parameterise_solvers(models, parameters)
-  lagged_foim <- list(LaggedValue$new(12.5, .001))
-  lagged_eir <- list(list(LaggedValue$new(12, 10)))
+  lagged_foim <- LaggedValue$new(12.5, .001)
+  lagged_eir <- list(LaggedValue$new(12, 10))
   bitten <- simulate_bites(
     renderer,
     solvers,
@@ -144,43 +144,4 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
     2,
     c(.5, .5, .5, .5)
   )
-})
-
-
-test_that('simulate_bites works with mixed populations', {
-  population <- 4
-  timestep <- 5
-  renderer <- individual::Render$new(5)
-  parameters <- get_parameters(
-    list(human_population = population)
-  )
-  events <- create_events(parameters)
-  variables <- create_variables(parameters)
-
-  mock_foim <- mockery::mock(1)
-  mock_a <- mockery::mock(.3)
-
-  mockery::stub(simulate_bites, 'calculate_foim', mock_foim)
-  mockery::stub(simulate_bites, '.human_blood_meal_rate', mock_a)
-  models <- parameterise_mosquito_models(parameters, timestep)
-  solvers <- parameterise_solvers(models, parameters)
-  lagged_foim <- list(LaggedValue$new(12.5, .001), LaggedValue$new(12.5, .01))
-  lagged_eir <- list(list(LaggedValue$new(12, 10)), list(LaggedValue$new(12, 10)))
-  age <- c(20, 24, 5, 39) * 365
-  bitten <- simulate_bites(
-    renderer,
-    solvers,
-    models,
-    variables,
-    events,
-    age,
-    parameters,
-    timestep,
-    lagged_foim,
-    lagged_eir,
-    c(0.2, 0.8),
-    2
-  )
-
-  mockery::expect_args(mock_foim, 1, .3, c(.001, .01), c(.2, .8))
 })

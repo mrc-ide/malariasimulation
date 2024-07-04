@@ -4,7 +4,17 @@
 \alias{run_metapop_simulation}
 \title{Run a metapopulation model}
 \usage{
-run_metapop_simulation(timesteps, parameters, correlations = NULL, mixing)
+run_metapop_simulation(
+  timesteps,
+  parameters,
+  correlations = NULL,
+  mixing_tt,
+  export_mixing,
+  import_mixing,
+  p_captured_tt,
+  p_captured,
+  p_success
+)
 }
 \arguments{
 \item{timesteps}{the number of timesteps to run the simulation for (in days)}
@@ -14,12 +24,27 @@ run_metapop_simulation(timesteps, parameters, correlations = NULL, mixing)
 \item{correlations}{a list of correlation parameters for each population
 (default: NULL)}
 
-\item{mixing}{matrix of mixing coefficients for infectivity towards
-mosquitoes. Rows = origin sites, columns = destinations. Each element must
-be between 0 and 1 and all rows must sum to 1.}
+\item{mixing_tt}{a vector of time steps for each mixing matrix}
+
+\item{export_mixing}{a list of matrices of coefficients for exportation of infectivity.
+Rows = origin sites, columns = destinations. Each matrix element
+describes the mixing pattern from destination to origin. Each matrix element must
+be between 0 and 1. Each matrix is activated at the corresponding timestep in mixing_tt}
+
+\item{import_mixing}{a list of matrices of coefficients for importation of
+infectivity.}
+
+\item{p_captured_tt}{a vector of time steps for each p_captured matrix}
+
+\item{p_captured}{a list of matrices representing the probability that
+travel between sites is intervened by a test and treat border check.
+Dimensions are the same as for \code{export_mixing}}
+
+\item{p_success}{the probability that an individual who has tested positive
+(through an RDT) successfully clears their infection through treatment}
 }
 \value{
-a list of dataframe of results
+a list of dataframe of model outputs as in run_simulation
 }
 \description{
 Run a metapopulation model

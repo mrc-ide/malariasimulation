@@ -5,16 +5,12 @@
 #' @param variables the available human variables
 #' @param recovery_outcome competing hazards object for recovery rates
 #' @noRd
-recovery_rates_process <- function(variables, recovery_outcome) {
-    recovery_outcome$set_rates(variables$recovery_rates$get_values())
-}
-
 create_recovery_rates_process <- function(
   variables,
   recovery_outcome
 ) {
   function(timestep){
-    recovery_rates_process(variables, recovery_outcome)
+    recovery_outcome$set_rates(variables$recovery_rates$get_values())
   }
 }
 

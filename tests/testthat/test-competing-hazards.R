@@ -104,7 +104,7 @@ test_that('hazard resolves two outcomes when some events occur', {
     outcomes = list(outcome_1, outcome_2),
     rng = mockery::mock(
       c(0, 0, 1, 1), # some events occur
-      c(.05, .3, .2, .5), # event_rng
+      c(.05, .3), # event_rng
     )
   )
   

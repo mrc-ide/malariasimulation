@@ -52,22 +52,20 @@ CompetingHazard <- R6::R6Class(
         'cbind',
         lapply(private$outcomes, function(x) x$rates)
       )
-      occur_rates <- rowSums(event_rates)
-      occur_rng <- private$rng(private$size)
-      occurs <- which(occur_rng < rate_to_prob(occur_rates))
 
-      norm_probs <- event_rates[occurs, , drop=FALSE] / occur_rates[occurs]
-      norm_probs[is.na(norm_probs)] <- 0
+      total_rates <- rowSums(event_rates)
+      probs <- rate_to_prob(total_rates) * (event_rates / total_rates)
+      probs[is.na(probs)] <- 0
 
-      cumulative <- rep(0, length(occurs))
-      event_rng <- private$rng(length(occurs))
+      rng <- private$rng(private$size)
 
+      cumulative <- rep(0, private$size)
       for (o in seq_along(private$outcomes)) {
-        next_cumulative <- cumulative + norm_probs[,o]
-        selected <- (event_rng > cumulative) & (event_rng <= next_cumulative)
+        next_cumulative <- cumulative + probs[,o]
+        selected <- which((rng > cumulative) & (rng <= next_cumulative))
         cumulative <- next_cumulative
 
-        target <- individual::Bitset$new(private$size)$insert(occurs[selected])
+        target <- individual::Bitset$new(private$size)$insert(selected)
         if (target$size() > 0){
           private$outcomes[[o]]$execute(t, target)
         }

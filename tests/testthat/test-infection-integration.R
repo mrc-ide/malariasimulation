@@ -222,7 +222,7 @@ test_that('calculate_infections works various combinations of drug and vaccinati
     targeted_process = function(timestep, target){
       infection_outcome_process(timestep, target, variables, renderer, parameters)
     },
-    size = parameters$human_population
+    size = 4
   )
   
   infections <- calculate_infections(

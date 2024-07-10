@@ -268,6 +268,14 @@ outputs; default = 730
 \item prevalence_rendering_max_ages - the corresponding max ages; default = 3650
 }
 
+mixing:
+\itemize{
+\item rdt_intercept - the y intercept for the log logit relationship betweeen rdt
+and PCR prevalence; default = -0.968
+\item rdt_coeff - the coefficient for the log logit relationship betweeen rdt
+and PCR prevalence; default = 1.186
+}
+
 miscellaneous:
 \itemize{
 \item mosquito_limit - the maximum number of mosquitoes to allow for in the

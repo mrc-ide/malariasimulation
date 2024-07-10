@@ -85,7 +85,12 @@ metapop_loop <- function(mixing, mixnam){ # mixing matrix
   output <- run_metapop_simulation(timesteps = sim_length,
                                    parameters = paramslist,
                                    correlations = NULL,
-                                   mixing = mixing)
+                                   mixing_tt = 1,
+                                   export_mixing = list(mixing), 
+                                   import_mixing = list(mixing), 
+                                   p_captured = list(matrix(rep(0, 9), nrow = 3, ncol = 3)),
+                                   p_captured_tt = 1,
+                                   p_success = 0.95)
   
   # convert to dataframe and label EIR and mixing matrix type
   output <-  do.call('rbind', output)

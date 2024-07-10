@@ -11,7 +11,7 @@
 #'  * infectivity: the infectivity from humans towards mosquitoes
 #'  * FOIM: the force of infection towards mosquitoes (per species)
 #'  * mu: the death rate of adult mosquitoes (per species)
-#'  * EIR: the Entomological Inoculation Rate (per timestep, per species, over 
+#'  * EIR: the Entomological Inoculation Rate (per timestep, per species, over
 #'  the whole population)
 #'  * n_bitten: number of humans bitten by an infectious mosquito
 #'  * n_treated: number of humans treated for clinical or severe malaria this timestep
@@ -42,10 +42,10 @@
 #'  * p_inc: sum of probabilities of infection for humans between an inclusive age range at this timestep.
 #' incidence columns can be set with
 #' incidence_rendering_min_ages and incidence_rendering_max_ages parameters.
-#'  * n_inc_clinical: number of new clinical infections for humans between an inclusive age range at this timestep. 
+#'  * n_inc_clinical: number of new clinical infections for humans between an inclusive age range at this timestep.
 #' clinical incidence columns can be set with
 #' clinical_incidence_rendering_min_ages and clinical_incidence_rendering_max_ages parameters.
-#'  * p_inc_clinical: sub of probabilities of clinical infection for humans between an inclusive age range at this timestep. 
+#'  * p_inc_clinical: sub of probabilities of clinical infection for humans between an inclusive age range at this timestep.
 #' clinical incidence columns can be set with
 #' clinical_incidence_rendering_min_ages and clinical_incidence_rendering_max_ages parameters.
 #'  * n_inc_severe: number of new severe infections for humans between an inclusive age range at this timestep.
@@ -101,6 +101,7 @@ run_simulation <- function(
 #' @param restore_random_state if TRUE, restore the random number generator's state from the checkpoint.
 #' @return a list with two entries, one for the dataframe of results and one for the final
 #' simulation state.
+#' @export
 run_resumable_simulation <- function(
     timesteps,
     parameters = NULL,
@@ -157,8 +158,8 @@ run_resumable_simulation <- function(
       vector_models,
       solvers,
       correlations,
-      list(lagged_eir),
-      list(lagged_infectivity),
+      lagged_eir,
+      lagged_infectivity,
       timesteps
     ),
     variables = variables,
@@ -190,30 +191,79 @@ run_resumable_simulation <- function(
 #' @param parameters a list of model parameter lists for each population
 #' @param correlations a list of correlation parameters for each population
 #' (default: NULL)
-#' @param mixing matrix of mixing coefficients for infectivity towards
-#' mosquitoes. Rows = origin sites, columns = destinations. Each element must 
-#' be between 0 and 1 and all rows must sum to 1.
-#' @return a list of dataframe of results
+#' @param mixing_tt a vector of time steps for each mixing matrix
+#' @param export_mixing a list of matrices of coefficients for exportation of infectivity.
+#' Rows = origin sites, columns = destinations. Each matrix element
+#' describes the mixing pattern from destination to origin. Each matrix element must
+#' be between 0 and 1. Each matrix is activated at the corresponding timestep in mixing_tt
+#' @param import_mixing a list of matrices of coefficients for importation of
+#' infectivity.
+#' @param p_captured_tt a vector of time steps for each p_captured matrix
+#' @param p_captured a list of matrices representing the probability that
+#' travel between sites is intervened by a test and treat border check.
+#' Dimensions are the same as for `export_mixing`
+#' @param p_success the probability that an individual who has tested positive
+#' (through an RDT) successfully clears their infection through treatment
+#' @return a list of dataframe of model outputs as in run_simulation
 #' @export
 run_metapop_simulation <- function(
-    timesteps,
-    parameters,
-    correlations = NULL,
-    mixing
-) {
+  timesteps,
+  parameters,
+  correlations = NULL,
+  mixing_tt,
+  export_mixing,
+  import_mixing,
+  p_captured_tt,
+  p_captured,
+  p_success
+  ) {
   random_seed(ceiling(runif(1) * .Machine$integer.max))
-  if (nrow(mixing) != ncol(mixing)) {
-    stop('mixing matrix must be square')
+
+  for (mixing in list(export_mixing, import_mixing)) {
+    if (!is.list(mixing)) {
+      stop('mixing arguments must be a list of mixing matrices')
+    }
+
+    if (length(mixing_tt) != length(mixing)) {
+      stop('mixing_tt must be the same length as mixing matrices')
+    }
+
+    for (i in seq_along(mixing)) {
+      if (nrow(mixing[[i]]) != ncol(mixing[[i]])) {
+        stop(sprintf('mixing matrix %d must be square', i))
+      }
+      if (nrow(mixing[[i]]) != length(parameters)) {
+        stop(sprintf("mixing matrix %d's rows must match length of parameters", i))
+      }
+      if (!all(vlapply(seq_along(parameters), function(x) approx_sum(mixing[[i]][x,], 1)))) {
+        warning(sprintf("all of mixing matrix %d's rows must sum to 1", i))
+      }
+      if (!all(vlapply(seq_along(parameters), function(x) approx_sum(mixing[[i]][,x], 1)))) {
+        warning(sprintf('mixing matrix %d is asymmetrical', i))
+      }
+    }
+    if (length(mixing_tt) != length(mixing)) {
+      stop('mixing_tt must be the same size as mixing')
+    }
   }
-  if (nrow(mixing) != length(parameters)) {
-    stop('mixing matrix rows must match length of parameters')
+
+  for (i in seq_along(p_captured)) {
+    if (nrow(p_captured[[i]]) != ncol(p_captured[[i]])) {
+      stop(sprintf('p_captured matrix %d must be square', i))
+    }
+    if (!all(diag(p_captured[[i]]) == 0)) {
+      warning(sprintf('p_captured matrix %d has a non-zero diagonal', i))
+    }
   }
-  if (!all(vlapply(seq_along(parameters), function(x) approx_sum(mixing[x,], 1)))) {
-    stop('all mixing matrix rows must sum to 1')
+
+  if (!is.numeric(mixing_tt)) {
+    stop('mixing_tt must be numeric')
   }
-  if (!all(vlapply(seq_along(parameters), function(x) approx_sum(mixing[,x], 1)))) {
-    warning('mixing matrix is asymmetrical')
+
+  if (length(p_captured_tt) != length(p_captured)) {
+    stop('p_captured_tt must be the same length as p_captured')
   }
+
   if (is.null(correlations)) {
     correlations <- lapply(parameters, get_correlation_parameters)
   }
@@ -254,6 +304,22 @@ run_metapop_simulation <- function(
     seq_along(parameters),
     function(i) create_lagged_infectivity(variables[[i]], parameters[[i]])
   )
+
+  mixing_fn <- time_cached(
+    create_transmission_mixer(
+      variables,
+      parameters,
+      lagged_eir,
+      lagged_infectivity,
+      mixing_tt,
+      export_mixing,
+      import_mixing,
+      p_captured_tt,
+      p_captured,
+      p_success
+    )
+  )
+    
   processes <- lapply(
     seq_along(parameters),
     function(i) {
@@ -265,10 +331,10 @@ run_metapop_simulation <- function(
         vector_models[[i]],
         solvers[[i]],
         correlations[[i]],
-        lagged_eir,
-        lagged_infectivity,
+        lagged_eir[[i]],
+        lagged_infectivity[[i]],
         timesteps,
-        mixing[i,],
+        mixing_fn,
         i
       )
     }
@@ -279,7 +345,7 @@ run_metapop_simulation <- function(
     events = unlist(events),
     timesteps = timesteps
   )
-  
+
   lapply(renderer, function(r) r$to_dataframe())
 }
 

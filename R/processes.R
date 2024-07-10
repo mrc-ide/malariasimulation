@@ -118,7 +118,8 @@ create_processes <- function(
     
     # Resolve competing hazards of infection with disease progression
     CompetingHazard$new(
-      outcomes = list(infection_outcome, recovery_outcome)
+      outcomes = list(infection_outcome, recovery_outcome),
+      size = parameters$human_population
     )$resolve
   )
   

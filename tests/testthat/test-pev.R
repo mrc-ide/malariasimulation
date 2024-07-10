@@ -154,7 +154,7 @@ test_that('Infection considers pev efficacy', {
     targeted_process = function(timestep, target){
       infection_process_resolved_hazard(timestep, target, variables, renderer, parameters)
     },
-    size = parameters$human_population
+    size = 4
   )
   
   # remove randomness from infection sampling

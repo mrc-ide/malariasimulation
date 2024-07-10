@@ -10,7 +10,10 @@ create_recovery_rates_process <- function(
   recovery_outcome
 ) {
   function(timestep){
-    recovery_outcome$set_rates(variables$recovery_rates$get_values())
+    target <- variables$state$get_index_of(c("U", "Tr"))
+    recovery_outcome$set_rates(
+      target,
+      variables$recovery_rates$get_values(target))
   }
 }
 

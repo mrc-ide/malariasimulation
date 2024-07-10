@@ -121,9 +121,9 @@ calculate_infections <- function(
   )
   
   ## capture infection rates to resolve in competing hazards
-  infection_rates <- rep(0, length = parameters$human_population)
-  infection_rates[source_vector] <- prob_to_rate(prob)
-  infection_outcome$set_rates(infection_rates)
+  infection_outcome$set_rates(
+    source_humans,
+    prob_to_rate(prob))
 }
 
 #' @title Assigns infections to appropriate human states

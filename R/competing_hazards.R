@@ -13,15 +13,25 @@ CompetingOutcome <- R6::R6Class(
         stop("size must be positive integer")
       }
       private$targeted_process <- targeted_process
-      self$rates <- rep(0, size)
+
+      self$target <- individual::Bitset$new(size)
+      self$rates <- NULL
     },
-    set_rates = function(rates){
+    set_rates = function(target, rates){
+      stopifnot(target$size() == length(rates))
+
+      # TODO: add an assign method to Bitset
+      self$target$or(target)
       self$rates <- rates
     },
     execute = function(t, target){
       private$targeted_process(t, target)
-      self$rates <- rep(0, length(self$rates))
     },
+    reset = function() {
+      self$target$clear()
+      self$rates <- NULL
+    },
+    target = NULL,
     rates = NULL
   )
 )
@@ -29,46 +39,58 @@ CompetingOutcome <- R6::R6Class(
 CompetingHazard <- R6::R6Class(
   "CompetingHazard",
   private = list(
-    outcomes = list(),
     size = NULL,
+    outcomes = list(),
     # RNG is passed in because mockery is not able to stub runif
     # TODO: change when fixed
     rng = NULL
   ),
   public = list(
-    initialize = function(outcomes, rng = runif){
+    initialize = function(size, outcomes, rng = runif){
       if (length(outcomes) == 0){
         stop("At least one outcome must be provided")
       }
       if (!all(sapply(outcomes, function(x) inherits(x, "CompetingOutcome")))){
         stop("All outcomes must be of class CompetingOutcome")
       }
+      private$size <- size
       private$outcomes <- outcomes
-      private$size <- length(outcomes[[1]]$rates)
       private$rng <- rng
     },
     resolve = function(t){
-      event_rates <- do.call(
-        'cbind',
-        lapply(private$outcomes, function(x) x$rates)
-      )
+      candidates <- individual::Bitset$new(private$size)
+      for (o in private$outcomes) {
+        candidates$or(o$target)
+      }
 
-      total_rates <- rowSums(event_rates)
-      probs <- rate_to_prob(total_rates) * (event_rates / total_rates)
+      rates <- matrix(ncol = length(private$outcomes), nrow = candidates$size(), 0)
+      for (i in seq_along(private$outcomes)) {
+        idx <- bitset_index(
+          candidates,
+          private$outcomes[[i]]$target)
+
+        rates[idx, i] <- private$outcomes[[i]]$rates
+      }
+
+      total_rates <- rowSums(rates)
+      probs <- rate_to_prob(total_rates) * (rates / total_rates)
       probs[is.na(probs)] <- 0
 
-      rng <- private$rng(private$size)
+      rng <- private$rng(candidates$size())
 
-      cumulative <- rep(0, private$size)
+      cumulative <- rep(0, candidates$size())
+
       for (o in seq_along(private$outcomes)) {
         next_cumulative <- cumulative + probs[,o]
-        selected <- which((rng > cumulative) & (rng <= next_cumulative))
+        selected <- (rng > cumulative) & (rng <= next_cumulative)
         cumulative <- next_cumulative
 
-        target <- individual::Bitset$new(private$size)$insert(selected)
-        if (target$size() > 0){
+        # TODO: change bitset_at to accept logical array
+        target <- bitset_at(candidates, which(selected))
+        if (target$size() > 0) {
           private$outcomes[[o]]$execute(t, target)
         }
+        private$outcomes[[o]]$reset()
       }
     }
   )

@@ -707,7 +707,7 @@ test_that('prophylaxis is considered for medicated humans', {
     targeted_process = function(timestep, target){
       infection_outcome_process(timestep, target, variables, renderer, parameters)
     },
-    size = parameters$human_population
+    size = 4
   )
   
   infection_rates <- calculate_infections(

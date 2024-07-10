@@ -5,6 +5,8 @@
 
 test_that("hazard resolves two disjoint outcomes", {
   size <- 4
+  population <- individual::Bitset$new(size)$not()
+
   outcome_1_process <- mockery::mock()
   outcome_1 <- CompetingOutcome$new(
     targeted_process = outcome_1_process,
@@ -17,12 +19,13 @@ test_that("hazard resolves two disjoint outcomes", {
   )
 
   hazard <- CompetingHazard$new(
+    size = size,
     outcomes = list(outcome_1, outcome_2),
     rng = mockery::mock(c(.05, .3, .2, .5))
   )
   
-  outcome_1$set_rates(c(10, 0, 10, 0))
-  outcome_2$set_rates(c(0, 10, 0, 10))
+  outcome_1$set_rates(population, c(10, 0, 10, 0))
+  outcome_2$set_rates(population, c(0, 10, 0, 10))
   
   hazard$resolve(0)
    
@@ -42,6 +45,8 @@ test_that("hazard resolves two disjoint outcomes", {
 
 test_that("hazard resolves two competing outcomes", {
   size <- 4
+  population <- individual::Bitset$new(size)$not()
+
   outcome_1_process <- mockery::mock()
   outcome_1 <- CompetingOutcome$new(
     targeted_process = outcome_1_process,
@@ -54,12 +59,13 @@ test_that("hazard resolves two competing outcomes", {
   )
 
   hazard <- CompetingHazard$new(
+    size = size,
     outcomes = list(outcome_1, outcome_2),
     rng = mockery::mock(c(.7, .3, .2, .6))
   )
   
-  outcome_1$set_rates(c(5, 5, 5, 5))
-  outcome_2$set_rates(c(5, 5, 5, 5))
+  outcome_1$set_rates(population, c(5, 5, 5, 5))
+  outcome_2$set_rates(population, c(5, 5, 5, 5))
   
   hazard$resolve(0)
    
@@ -79,6 +85,8 @@ test_that("hazard resolves two competing outcomes", {
 
 test_that("hazard resolves partial outcomes", {
   size <- 4
+  population <- individual::Bitset$new(size)$not()
+
   outcome_1_process <- mockery::mock()
   outcome_1 <- CompetingOutcome$new(
     targeted_process = outcome_1_process,
@@ -91,12 +99,13 @@ test_that("hazard resolves partial outcomes", {
   )
 
   hazard <- CompetingHazard$new(
+    size = size,
     outcomes = list(outcome_1, outcome_2),
     rng = mockery::mock(c(.8, .4, .2, .6))
   )
   
-  outcome_1$set_rates(prob_to_rate(rep(0.5, size)))
-  outcome_2$set_rates(prob_to_rate(rep(0.5, size)))
+  outcome_1$set_rates(population, prob_to_rate(rep(0.5, size)))
+  outcome_2$set_rates(population, prob_to_rate(rep(0.5, size)))
   
   hazard$resolve(0)
    

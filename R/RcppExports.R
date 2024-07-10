@@ -101,6 +101,10 @@ bitset_index_cpp <- function(a, b) {
     .Call(`_malariasimulation_bitset_index_cpp`, a, b)
 }
 
+bitset_at_logical_cpp <- function(source, filter) {
+    .Call(`_malariasimulation_bitset_at_logical_cpp`, source, filter)
+}
+
 fast_weighted_sample <- function(size, probs) {
     .Call(`_malariasimulation_fast_weighted_sample`, size, probs)
 }

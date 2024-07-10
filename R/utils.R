@@ -24,6 +24,8 @@ bernoulli_multi_p <- function(p) bernoulli_multi_p_cpp(p)
 #' @noRd
 bitset_index <- function(a, b) bitset_index_cpp(a$.bitset, b$.bitset)
 
+bitset_at_logical <- function(a, b) individual::Bitset$new(from = bitset_at_logical_cpp(a$.bitset, b))
+
 #' @importFrom stats runif
 log_uniform <- function(size, rate) -rate * log(runif(size))
 

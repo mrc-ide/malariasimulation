@@ -85,8 +85,7 @@ CompetingHazard <- R6::R6Class(
         selected <- (rng > cumulative) & (rng <= next_cumulative)
         cumulative <- next_cumulative
 
-        # TODO: change bitset_at to accept logical array
-        target <- bitset_at(candidates, which(selected))
+        target <- bitset_at_logical(candidates, selected)
         if (target$size() > 0) {
           private$outcomes[[o]]$execute(t, target)
         }

@@ -30,9 +30,7 @@ test_that('biting_process integrates mosquito effects and human infection', {
     parameters,
     lagged_foim,
     lagged_eir,
-    1,
-    1,
-    infection_outcome
+    infection_outcome=infection_outcome
   )
   
   bitten <- individual::Bitset$new(parameters$human_population)

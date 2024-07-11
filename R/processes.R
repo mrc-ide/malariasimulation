@@ -41,20 +41,26 @@ create_processes <- function(
   # ========
   processes <- list(
     # Maternal immunity
-    create_exponential_decay_process(variables$icm, parameters$rm),
-    create_exponential_decay_process(variables$ivm, parameters$rvm),
+    immunity_process = create_exponential_decay_process(variables$icm,
+                                                        parameters$rm),
+    immunity_process = create_exponential_decay_process(variables$ivm,
+                                                        parameters$rvm),
     # Blood immunity
-    create_exponential_decay_process(variables$ib, parameters$rb),
+    immunity_process = create_exponential_decay_process(variables$ib,
+                                                        parameters$rb),
     # Acquired immunity
-    create_exponential_decay_process(variables$ica, parameters$rc),
-    create_exponential_decay_process(variables$iva, parameters$rva),
-    create_exponential_decay_process(variables$id, parameters$rid)
+    immunity_process = create_exponential_decay_process(variables$ica,
+                                                        parameters$rc),
+    immunity_process = create_exponential_decay_process(variables$iva,
+                                                        parameters$rva),
+    immunity_process = create_exponential_decay_process(variables$id,
+                                                        parameters$rid)
   )
 
   if (parameters$individual_mosquitoes) {
     processes <- c(
       processes,
-      create_mosquito_emergence_process(
+      mosquito_emergence_process = create_mosquito_emergence_process(
         solvers,
         variables$mosquito_state,
         variables$species,
@@ -72,7 +78,7 @@ create_processes <- function(
   # kill mosquitoes caught in vector control
   processes <- c(
     processes,
-    create_biting_process(
+    biting_process = create_biting_process(
       renderer,
       solvers,
       models,
@@ -84,13 +90,13 @@ create_processes <- function(
       mixing_fn,
       mixing_index
     ),
-    create_asymptomatic_progression_process(
+    asymptotic_progression_process = create_asymptomatic_progression_process(
       variables$state,
       parameters$dd,
       variables,
       parameters
     ),
-    create_progression_process(
+    progression_process = create_progression_process(
       variables$state,
       'A',
       'U',
@@ -98,7 +104,7 @@ create_processes <- function(
       variables$infectivity,
       parameters$cu
     ),
-    create_progression_process(
+    progression_process = create_progression_process(
       variables$state,
       'U',
       'S',
@@ -126,7 +132,7 @@ create_processes <- function(
   # Create the progression process for Tr --> S specifying dt_input as the rate:
   processes <- c(
     processes,
-    create_progression_process(
+    progression_process = create_progression_process(
       variables$state,
       'Tr',
       'S',
@@ -141,7 +147,7 @@ create_processes <- function(
   # ===============
   processes <- c(
     processes,
-    create_solver_stepping_process(solvers, parameters)
+    solver_process = create_solver_stepping_process(solvers, parameters)
   )
 
   # =========
@@ -150,7 +156,7 @@ create_processes <- function(
   if (!is.null(parameters$pev_epi_coverage)) {
     processes <- c(
       processes,
-      create_epi_pev_process(
+      epi_pev_process = create_epi_pev_process(
         variables,
         events,
         parameters,
@@ -167,7 +173,7 @@ create_processes <- function(
   if(!is.null(parameters$pmc_coverages)){
     processes <- c(
       processes,
-      create_pmc_process(
+      pmc_process = create_pmc_process(
         variables,
         events,
         parameters,
@@ -188,42 +194,46 @@ create_processes <- function(
   
   processes <- c(
     processes,
-    individual::categorical_count_renderer_process(
-      renderer,
-      variables$state,
-      c('S', 'A', 'D', 'U', 'Tr')
-    ),
-    create_variable_mean_renderer_process(
+    categorical_renderer = individual::categorical_count_renderer_process(
+        renderer,
+        variables$state,
+        c('S', 'A', 'D', 'U', 'Tr')
+      ),
+    immunity_renderer = create_variable_mean_renderer_process(
       renderer,
       imm_var_names,
       variables[imm_var_names]
     ),
-    create_prevalence_renderer(
+    prevalence_renderer = create_prevalence_renderer(
       variables$state,
       variables$birth,
       variables$id,
       parameters,
       renderer
     ),
-    create_age_group_renderer(
+    age_group_renderer = create_age_group_renderer(
       variables$birth,
       parameters,
       renderer
     ),
-    create_age_variable_mean_renderer_process(
+    age_aggregated_immunity_renderer = create_age_variable_mean_renderer_process(
       imm_var_names[paste0(imm_var_names,"_rendering_min_ages") %in% names(parameters)],
       variables[imm_var_names[paste0(imm_var_names,"_rendering_min_ages") %in% names(parameters)]],
       variables$birth,
       parameters,
       renderer
     ),
-    create_compartmental_rendering_process(renderer, solvers, parameters)
+    mosquito_state_renderer = create_compartmental_rendering_process(
+      renderer,
+      solvers,
+      parameters
+    )
   )
 
   if (parameters$individual_mosquitoes) {
     processes <- c(
       processes,
-      create_vector_count_renderer_individual(
+      vector_count_renderer = create_vector_count_renderer_individual(
         variables$mosquito_state,
         variables$species,
         variables$mosquito_state,
@@ -234,7 +244,7 @@ create_processes <- function(
   } else {
     processes <- c(
       processes,
-      create_total_M_renderer_compartmental(
+      vector_count_renderer = create_total_M_renderer_compartmental(
         renderer,
         solvers,
         parameters
@@ -249,20 +259,25 @@ create_processes <- function(
   if (parameters$bednets) {
     processes <- c(
       processes,
-      distribute_nets(
+      distribute_nets_process = distribute_nets(
         variables,
         events$throw_away_net,
         parameters,
         correlations
       ),
-      net_usage_renderer(variables$net_time, renderer)
+      net_usage_renderer = net_usage_renderer(variables$net_time, renderer)
     )
   }
 
   if (parameters$spraying) {
     processes <- c(
       processes,
-      indoor_spraying(variables$spray_time, renderer, parameters, correlations)
+      indoor_spraying_process = indoor_spraying(
+        variables$spray_time,
+        renderer,
+        parameters,
+        correlations
+      )
     )
   }
 
@@ -272,14 +287,20 @@ create_processes <- function(
   if (parameters$progress_bar){
     processes <- c(
       processes,
-      create_progress_process(timesteps)
+      progress_bar_process = create_progress_process(timesteps)
     )
   }
 
   # Mortality step
   processes <- c(
     processes,
-    create_mortality_process(variables, events, renderer, parameters))
+    mortality_process = create_mortality_process(
+      variables,
+      events,
+      renderer,
+      parameters
+    )
+  )
 
   processes
 }

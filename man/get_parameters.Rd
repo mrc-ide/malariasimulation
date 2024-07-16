@@ -34,7 +34,7 @@ human demography parameters:
 \itemize{
 \item human_population - the initial number of humans to model; default = 100
 \item average_age - the average age of humans (in timesteps), this is only used
-if custom_demography is FALSE; default = 7663
+if custom_demography is FALSE; default = 7665
 \item custom_demography - population demography given; default = FALSE
 }
 

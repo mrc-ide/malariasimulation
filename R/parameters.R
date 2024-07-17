@@ -30,7 +30,7 @@
 #'
 #' * human_population - the initial number of humans to model; default = 100
 #' * average_age - the average age of humans (in timesteps), this is only used
-#' if custom_demography is FALSE; default = 7663
+#' if custom_demography is FALSE; default = 7665
 #' * custom_demography - population demography given; default = FALSE
 #'
 #' initial immunity values:
@@ -281,7 +281,7 @@ get_parameters <- function(overrides = list()) {
     du    = 110,
     # human demography parameters
     human_population = 100,
-    average_age = 7663,
+    average_age = 7665,
     custom_demography = FALSE,
     # initial immunities
     init_ica = 0,

@@ -336,18 +336,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// bitset_at_logical_cpp
-Rcpp::XPtr<individual_index_t> bitset_at_logical_cpp(Rcpp::XPtr<individual_index_t> source, Rcpp::LogicalVector filter);
-RcppExport SEXP _malariasimulation_bitset_at_logical_cpp(SEXP sourceSEXP, SEXP filterSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::XPtr<individual_index_t> >::type source(sourceSEXP);
-    Rcpp::traits::input_parameter< Rcpp::LogicalVector >::type filter(filterSEXP);
-    rcpp_result_gen = Rcpp::wrap(bitset_at_logical_cpp(source, filter));
-    return rcpp_result_gen;
-END_RCPP
-}
 // fast_weighted_sample
 Rcpp::IntegerVector fast_weighted_sample(size_t size, std::vector<double> probs);
 RcppExport SEXP _malariasimulation_fast_weighted_sample(SEXP sizeSEXP, SEXP probsSEXP) {
@@ -388,7 +376,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_malariasimulation_random_restore_state", (DL_FUNC) &_malariasimulation_random_restore_state, 1},
     {"_malariasimulation_bernoulli_multi_p_cpp", (DL_FUNC) &_malariasimulation_bernoulli_multi_p_cpp, 1},
     {"_malariasimulation_bitset_index_cpp", (DL_FUNC) &_malariasimulation_bitset_index_cpp, 2},
-    {"_malariasimulation_bitset_at_logical_cpp", (DL_FUNC) &_malariasimulation_bitset_at_logical_cpp, 2},
     {"_malariasimulation_fast_weighted_sample", (DL_FUNC) &_malariasimulation_fast_weighted_sample, 2},
     {"run_testthat_tests", (DL_FUNC) &run_testthat_tests, 0},
     {NULL, NULL, 0}

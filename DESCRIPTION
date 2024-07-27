@@ -70,7 +70,7 @@ Remotes:
   mrc-ide/malariaEquilibrium,
   mrc-ide/individual
 Imports:
-    individual (>= 0.1.16),
+    individual (>= 0.1.17),
     malariaEquilibrium (>= 1.0.1),
     Rcpp,
     statmod,

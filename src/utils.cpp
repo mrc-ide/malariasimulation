@@ -43,28 +43,6 @@ std::vector<size_t> bitset_index_cpp(
     return values;
 }
 
-//[[Rcpp::export]]
-Rcpp::XPtr<individual_index_t> bitset_at_logical_cpp(
-    Rcpp::XPtr<individual_index_t> source,
-    Rcpp::LogicalVector filter
-    ) {
-    if (source->size() != filter.size()) {
-        Rcpp::stop("vector of logicals must equal the size of the bitset");
-    }
-
-    individual_index_t result(source->max_size());
-
-    auto source_it = source->begin();
-    auto filter_it = filter.begin();
-    for (; source_it != source->end() && filter_it != filter.end(); ++source_it, ++filter_it) {
-        if (*filter_it) {
-            result.insert(*source_it);
-        }
-    }
-
-    return Rcpp::XPtr<individual_index_t>(new individual_index_t(std::move(result)), true);
-}
-
 //[[Rcpp::export(rng = false)]]
 Rcpp::IntegerVector fast_weighted_sample(
     size_t size,

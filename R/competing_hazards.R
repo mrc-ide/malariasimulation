@@ -20,8 +20,7 @@ CompetingOutcome <- R6::R6Class(
     set_rates = function(target, rates){
       stopifnot(target$size() == length(rates))
 
-      # TODO: add an assign method to Bitset
-      self$target$or(target)
+      self$target$copy_from(target)
       self$rates <- rates
     },
     execute = function(t, target){
@@ -85,7 +84,7 @@ CompetingHazard <- R6::R6Class(
         selected <- (rng > cumulative) & (rng <= next_cumulative)
         cumulative <- next_cumulative
 
-        target <- bitset_at_logical(candidates, selected)
+        target <- bitset_at(candidates, selected)
         if (target$size() > 0) {
           private$outcomes[[o]]$execute(t, target)
         }

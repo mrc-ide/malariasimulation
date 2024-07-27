@@ -239,7 +239,7 @@ test_that("Correlations can be set when resuming with new interventions", {
       renderer$render("total_tbv_and_mda", tbv$copy()$and(mda)$size(), t)
       renderer$render("total_tbv_or_mda", tbv$copy()$or(mda)$size(), t)
     }
-    c(create_processes(renderer, variables, events, parameters, ...), p)
+    c(create_processes(renderer, variables, events, parameters, ...), p=p)
   }
 
   mockery::stub(run_resumable_simulation, 'create_processes', create_processes_stub)

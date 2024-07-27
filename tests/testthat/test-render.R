@@ -11,7 +11,7 @@ test_that('that default rendering works', {
   immunity <- individual::DoubleVariable$new(rep(1, 4))
 
   renderer <- mock_render(1)
-  process <- create_prevelance_renderer(
+  process <- create_prevalence_renderer(
     state,
     birth,
     immunity,
@@ -62,7 +62,7 @@ test_that('that default rendering works when no one is in the age range', {
   immunity <- individual::DoubleVariable$new(rep(1, 4))
 
   renderer <- mock_render(1)
-  process <- create_prevelance_renderer(
+  process <- create_prevalence_renderer(
     state,
     birth,
     immunity,

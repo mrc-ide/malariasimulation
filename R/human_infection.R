@@ -26,6 +26,14 @@ simulate_infection <- function(
       timestep,
       parameters$ub
     )
+    
+    boost_immunity(                                         ## NEW
+      immunity_variable = variables$cumulative_exposure,
+      exposed_index = bitten_humans,
+      last_boosted_variable = variables$last_boosted_cumulative_exposure,
+      timestep = timestep,
+      delay = 0)
+    
   }
 
   # Calculate Infected
@@ -51,6 +59,14 @@ simulate_infection <- function(
       variables$last_boosted_id,
       timestep,
       parameters$ud
+    )
+    
+    boost_immunity(                                             ## NEW
+      variables$cumulative_infections,
+      infected_humans,
+      variables$last_boosted_cumulative_infections,
+      timestep,
+      delay = 0
     )
   }
 

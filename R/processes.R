@@ -169,8 +169,11 @@ create_processes <- function(
     ),
     create_variable_mean_renderer_process(
       renderer,
-      c('ica', 'icm', 'ib', 'id', 'iva', 'ivm'),
-      variables[c('ica', 'icm', 'ib', 'id', 'iva', 'ivm')]
+      c('ica', 'icm', 'ib', 'id', 'iva', 'ivm', 
+        'cumulative_exposure', 'cumulative_infections'),      ## NEW
+      variables[c('ica', 'icm', 'ib', 'id', 'iva', 'ivm', 
+                  'cumulative_exposure', 'cumulative_infections')]
+      
     ),
     create_prevelance_renderer(
       variables$state,
@@ -181,6 +184,14 @@ create_processes <- function(
     ),
     create_age_group_renderer(
       variables$birth,
+      parameters,
+      renderer
+    ),
+    create_immunity_renderer(                            ## NEW
+      variables$birth,
+      c('ica', 'icm', 'ib', 'id', 'cumulative_exposure', 'cumulative_infections'),
+      variables[c('ica', 'icm', 'ib', 'id', 'cumulative_exposure',
+                  'cumulative_infections')],
       parameters,
       renderer
     ),

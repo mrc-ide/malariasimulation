@@ -94,6 +94,8 @@ create_variables <- function(parameters) {
   last_boosted_ica <- individual::DoubleVariable$new(rep(-1, size))
   last_boosted_iva <- individual::DoubleVariable$new(rep(-1, size))
   last_boosted_id <- individual::DoubleVariable$new(rep(-1, size))
+  last_boosted_cumulative_exposure <- individual::DoubleVariable$new(rep(-1, size))    ## NEW
+  last_boosted_cumulative_infections <- individual::DoubleVariable$new(rep(-1, size))  ## NEW
 
   # Maternal immunity
   icm <- individual::DoubleVariable$new(
@@ -162,6 +164,29 @@ create_variables <- function(parameters) {
       'ID'
     )
   )
+  
+  # Cumulative exposure (based on IB)                           ## NEW
+  cumulative_exposure <- individual::DoubleVariable$new(           
+    initial_immunity(
+      parameter = parameters$init_ib,
+      age = initial_age,
+      groups = groups,
+      eq = eq,
+      parameters = parameters,
+      eq_name = 'IB'
+    )
+  )
+  # Cumulative infections (based on ID)                         ## NEW
+  cumulative_infections <- individual::DoubleVariable$new(
+    initial_immunity(
+      parameters$init_id,
+      initial_age,
+      groups,
+      eq,
+      parameters,
+      'ID'
+    )
+  )
 
   # Initialise infectiousness of humans -> mosquitoes
   # NOTE: not yet supporting initialisation of infectiousness of Treated individuals
@@ -219,7 +244,11 @@ create_variables <- function(parameters) {
     pev_profile = pev_profile,
     tbv_vaccinated = tbv_vaccinated,
     net_time = net_time,
-    spray_time = spray_time
+    spray_time = spray_time,
+    cumulative_exposure = cumulative_exposure,                                ## NEW
+    last_boosted_cumulative_exposure = last_boosted_cumulative_exposure,      ## NEW
+    cumulative_infections = cumulative_infections,                            ## NEW
+    last_boosted_cumulative_infections = last_boosted_cumulative_infections   ## NEW
   )
 
   # Add variables for individual mosquitoes

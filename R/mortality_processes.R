@@ -100,6 +100,10 @@ reset_target <- function(variables, events, target, state, timestep) {
     variables$iva$queue_update(0, target)
     variables$id$queue_update(0, target)
     variables$state$queue_update(state, target)
+    variables$last_boosted_cumulative_exposure$queue_update(-1, target)    ## NEW
+    variables$cumulative_exposure$queue_update(0, target)                  ## NEW
+    variables$last_boosted_cumulative_infections$queue_update(-1, target)  ## NEW
+    variables$cumulative_infections$queue_update(0, target)                ## NEW
 
     # treatment
     variables$drug$queue_update(0, target)

@@ -172,3 +172,26 @@ create_age_group_renderer <- function(
     }
   }
 }
+
+create_immunity_renderer <- function(                                    ## NEW
+  birth,
+  names,
+  variables,
+  parameters,
+  renderer
+) {
+  function(timestep) {
+    for (j in seq_along(variables)) {
+      for (i in seq_along(parameters$immunity_rendering_min_ages)) {
+        lower <- parameters$immunity_rendering_min_ages[[i]]
+        upper <- parameters$immunity_rendering_max_ages[[i]]
+        in_age <- in_age_range(birth, timestep, lower, upper)
+        renderer$render(
+          paste0(names[[j]], '_', lower, '_', upper),
+          mean(variables[[j]]$get_values(in_age)), # in_age$copy()$and(id)$size()
+          timestep
+        )
+      }
+    }
+  }
+}

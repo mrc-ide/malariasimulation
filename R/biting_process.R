@@ -15,6 +15,8 @@
 #' on the other populations
 #' @param mixing_index an index for this population's position in the
 #' lagged_infectivity list (default: 1)
+#' @param infection_outcome competing hazards object for infection rates
+#' @param timestep the current timestep
 #' @noRd
 create_biting_process <- function(
   renderer,
@@ -26,12 +28,12 @@ create_biting_process <- function(
   lagged_infectivity,
   lagged_eir,
   mixing_fn = NULL,
-  mixing_index = 1
+  mixing_index = 1,
+  infection_outcome
   ) {
   function(timestep) {
     # Calculate combined EIR
     age <- get_age(variables$birth$get_values(), timestep)
-    
     bitten_humans <- simulate_bites(
       renderer,
       solvers,
@@ -54,7 +56,8 @@ create_biting_process <- function(
       age,
       parameters,
       timestep,
-      renderer
+      renderer,
+      infection_outcome
     )
   }
 }

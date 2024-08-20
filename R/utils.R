@@ -104,3 +104,17 @@ RandomState <- R6::R6Class(
     }
   )
 )
+
+#'@title Convert probability to a rate
+#'@param prob probability
+#'@noRd
+prob_to_rate <- function(prob){
+  -log(1 - prob)
+}
+
+#'@title Convert rate to a probability
+#'@param rate rate
+#'@noRd
+rate_to_prob <- function(rate){
+  1 - exp(-rate)
+}

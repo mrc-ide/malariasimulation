@@ -32,6 +32,11 @@ std::vector<size_t> bitset_index_cpp(
     Rcpp::XPtr<individual_index_t> a,
     Rcpp::XPtr<individual_index_t> b
     ) {
+    if (a->max_size() != b->max_size()) {
+        Rcpp::stop("Incompatible bitmap sizes, %d vs %d",
+                   a->max_size(), b->max_size());
+    }
+
     auto values = std::vector<size_t>();
     auto i = 1u;
     for (const auto& v : *a) {

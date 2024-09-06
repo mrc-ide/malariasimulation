@@ -105,3 +105,7 @@ fast_weighted_sample <- function(size, probs) {
     .Call(`_malariasimulation_fast_weighted_sample`, size, probs)
 }
 
+individual_headers_version <- function() {
+    .Call(`_malariasimulation_individual_headers_version`)
+}
+

@@ -347,6 +347,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// individual_headers_version
+std::string individual_headers_version();
+RcppExport SEXP _malariasimulation_individual_headers_version() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(individual_headers_version());
+    return rcpp_result_gen;
+END_RCPP
+}
 
 RcppExport SEXP run_testthat_tests(void);
 
@@ -377,6 +387,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_malariasimulation_bernoulli_multi_p_cpp", (DL_FUNC) &_malariasimulation_bernoulli_multi_p_cpp, 1},
     {"_malariasimulation_bitset_index_cpp", (DL_FUNC) &_malariasimulation_bitset_index_cpp, 2},
     {"_malariasimulation_fast_weighted_sample", (DL_FUNC) &_malariasimulation_fast_weighted_sample, 2},
+    {"_malariasimulation_individual_headers_version", (DL_FUNC) &_malariasimulation_individual_headers_version, 0},
     {"run_testthat_tests", (DL_FUNC) &run_testthat_tests, 0},
     {NULL, NULL, 0}
 };

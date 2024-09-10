@@ -46,7 +46,7 @@ create_pmc_process <- function(
     target <- in_age[sample_intervention(in_age, 'pmc', coverage, correlations)]
     
     renderer$render('n_pmc_treated', length(target), timestep)
-    treated <- bitset_at(individual::Bitset$new(parameters$human_population)$not(), target)
+    treated <- individual::Bitset$new(parameters$human_population)$insert(target)
     
     to_move <- calculate_successful_treatments(
       parameters,

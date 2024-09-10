@@ -397,6 +397,7 @@ calculate_treated <- function(
 #' @param drugs drug index
 #' @param timestep the current timestep
 #' @param renderer simulation renderer
+#' @param int_name the intervention name to use for rendering, use "" for frontline treatment
 #' @noRd
 calculate_successful_treatments <- function(
     parameters,

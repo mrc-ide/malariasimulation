@@ -49,7 +49,7 @@ create_mda_listeners <- function(
     target <- in_age[sample_intervention(in_age, int_name, coverage, correlations)]
     
     renderer$render(paste0('n_', int_name, '_treated'), length(target), timestep)
-    treated <- bitset_at(individual::Bitset$new(parameters$human_population)$not(), target)
+    treated <- individual::Bitset$new(parameters$human_population)$insert(target)
     
     to_move <- calculate_successful_treatments(
       parameters,
@@ -73,7 +73,7 @@ create_mda_listeners <- function(
 
 #' @title Update individuals during MDA/PMC
 #' @description Updates individuals disease states, infectivity, dt and drug variables
-#' @param target bitset for individuals who have been successfully treated
+#' @param target a list containing the successfully treated, the drug used and resistance parameters
 #' @param variables the variables available in the model
 #' @param parameters the model parameters
 #' @param timestep the current timestep
@@ -101,7 +101,9 @@ update_mass_drug_admin <- function(
     to_treated <- clinical$or(asymptomatic$and(detectable))$and(target$successfully_treated)
     
     if(parameters$antimalarial_resistance) {
-      dt_update_vector <- target$dt_spc_combined[target$successfully_treated$to_vector() %in% to_treated$to_vector()]
+      dt_update_vector <- target$dt_spc_combined[
+        target$successfully_treated$copy()$and(to_treated)$to_vector()
+      ]
     } else {
       dt_update_vector <- parameters$dt
     }

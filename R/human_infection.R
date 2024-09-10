@@ -347,13 +347,72 @@ calculate_treated <- function(
     )
   ])
   
+  successfully_treated <- calculate_successful_treatments(
+    parameters,
+    seek_treatment,
+    drugs,
+    timestep,
+    renderer,
+    ""
+  )
+  
+  if (successfully_treated$successfully_treated$size() > 0) {
+    
+    if(parameters$antimalarial_resistance) {
+      dt_update_vector <- successfully_treated$dt_spc_combined
+    } else {
+      dt_update_vector <- parameters$dt
+    }
+    
+    update_infection(
+      variables$state,
+      'Tr',
+      variables$infectivity,
+      parameters$cd * parameters$drug_rel_c[successfully_treated$drugs],
+      variables$progression_rates,
+      1/dt_update_vector,
+      successfully_treated$successfully_treated
+    )
+    
+    variables$drug$queue_update(
+      successfully_treated$drugs,
+      successfully_treated$successfully_treated
+    )
+    variables$drug_time$queue_update(
+      timestep,
+      successfully_treated$successfully_treated
+    )
+  }
+  
+  successfully_treated$successfully_treated
+  
+}
+
+
+#' @title Calculate successfully treated humans
+#' @description
+#' Sample successful treatments based on drug efficacy and antimalarial resistance
+#' @param parameters model parameters
+#' @param target bitset of treated humans
+#' @param drugs drug index
+#' @param timestep the current timestep
+#' @param renderer simulation renderer
+#' @noRd
+calculate_successful_treatments <- function(
+    parameters,
+    target,
+    drugs,
+    timestep,
+    renderer,
+    int_name){
+  
   #+++ DRUG EFFICACY +++#
   #+++++++++++++++++++++#
   effectively_treated_index <- bernoulli_multi_p(parameters$drug_efficacy[drugs])
-  effectively_treated <- bitset_at(seek_treatment, effectively_treated_index)
+  effectively_treated <- bitset_at(target, effectively_treated_index)
   drugs <- drugs[effectively_treated_index]
-  n_drug_efficacy_failures <- n_treat - effectively_treated$size()
-  renderer$render('n_drug_efficacy_failures', n_drug_efficacy_failures, timestep)
+  n_drug_efficacy_failures <- target$size() - effectively_treated$size()
+  renderer$render(paste0('n_', int_name, 'drug_efficacy_failures'), n_drug_efficacy_failures, timestep)
   
   #+++ ANTIMALARIAL RESISTANCE +++#
   #+++++++++++++++++++++++++++++++#
@@ -370,7 +429,7 @@ calculate_treated <- function(
     successfully_treated_indices <- bernoulli_multi_p(p = 1 - early_treatment_failure_probability)
     successfully_treated <- bitset_at(effectively_treated, successfully_treated_indices)
     n_early_treatment_failure <- effectively_treated$size() - successfully_treated$size()
-    renderer$render('n_early_treatment_failure', n_early_treatment_failure, timestep)
+    renderer$render(paste0('n_', int_name, 'early_treatment_failure'), n_early_treatment_failure, timestep)
     drugs <- drugs[successfully_treated_indices]
     dt_slow_parasite_clearance <- resistance_parameters$dt_slow_parasite_clearance[successfully_treated_indices]
     
@@ -380,51 +439,30 @@ calculate_treated <- function(
       resistance_parameters$slow_parasite_clearance_probability[successfully_treated_indices]
     slow_parasite_clearance_indices <- bernoulli_multi_p(p = slow_parasite_clearance_probability)
     slow_parasite_clearance_individuals <- bitset_at(successfully_treated, slow_parasite_clearance_indices)
-    renderer$render('n_slow_parasite_clearance', slow_parasite_clearance_individuals$size(), timestep)
+    renderer$render(paste0('n_', int_name, 'slow_parasite_clearance'), slow_parasite_clearance_individuals$size(), timestep)
     non_slow_parasite_clearance_individuals <- successfully_treated$copy()$set_difference(slow_parasite_clearance_individuals)
-    renderer$render('n_successfully_treated', successfully_treated$size(), timestep)
+    renderer$render(paste0('n_', int_name, 'successfully_treated'), successfully_treated$size(), timestep)
     dt_slow_parasite_clearance <- dt_slow_parasite_clearance[slow_parasite_clearance_indices]
+    
+    dt_spc_combined <- rep(parameters$dt, length(successfully_treated_indices))
+    dt_spc_combined[slow_parasite_clearance_indices] <- dt_slow_parasite_clearance
+    
+    successfully_treated_list <- list(
+      drugs = drugs,
+      successfully_treated = successfully_treated,
+      dt_spc_combined = dt_spc_combined)
     
   } else {
     
     successfully_treated <- effectively_treated
-    renderer$render('n_successfully_treated', successfully_treated$size(), timestep)
+    renderer$render(paste0('n_', int_name, 'successfully_treated'), successfully_treated$size(), timestep)
+    
+    successfully_treated_list <- list(
+      drugs = drugs,
+      successfully_treated = successfully_treated)
     
   }
-  
-  if (successfully_treated$size() > 0) {
-    variables$state$queue_update("Tr", successfully_treated)
-    variables$infectivity$queue_update(
-      parameters$cd * parameters$drug_rel_c[drugs],
-      successfully_treated
-    )
-    variables$drug$queue_update(
-      drugs,
-      successfully_treated
-    )
-    variables$drug_time$queue_update(
-      timestep,
-      successfully_treated
-    )
-    if(parameters$antimalarial_resistance) {
-      variables$recovery_rates$queue_update(
-        1/parameters$dt,
-        non_slow_parasite_clearance_individuals
-      )
-      variables$recovery_rates$queue_update(
-        1/dt_slow_parasite_clearance,
-        slow_parasite_clearance_individuals
-      )
-    } else {
-      variables$recovery_rates$queue_update(
-        1/parameters$dt,
-        successfully_treated
-      )
-    }
-  }
-  
-  successfully_treated
-  
+  successfully_treated_list
 }
 
 #' @title Schedule infections
@@ -444,6 +482,7 @@ schedule_infections <- function(
     parameters,
     timestep
 ) {
+
   included <- treated$not(TRUE)
 
   to_infect <- clinical_infections$and(included)
@@ -457,7 +496,7 @@ schedule_infections <- function(
       'D',
       variables$infectivity,
       parameters$cd,
-      variables$recovery_rates,
+      variables$progression_rates,
       1/parameters$dd,
       to_infect
     )

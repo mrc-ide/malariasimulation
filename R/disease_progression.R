@@ -1,34 +1,34 @@
-#' @title Calculate recovery rates
-#' @description Calculates recovery rates for each individual in the population
+#' @title Calculate disease progression rates
+#' @description Calculates disease progression rates for each individual in the population
 #' for storage in competing hazards object and subsequent resolution
 #'
 #' @param variables the available human variables
-#' @param recovery_outcome competing hazards object for recovery rates
+#' @param progression_outcome competing hazards object for disease progression rates
 #' @noRd
-create_recovery_rates_process <- function(
+create_progression_rates_process <- function(
   variables,
-  recovery_outcome
+  progression_outcome
 ) {
   function(timestep){
     target <- variables$state$get_index_of("S")$not()
-    recovery_outcome$set_rates(
+    progression_outcome$set_rates(
       target,
-      variables$recovery_rates$get_values(target))
+      variables$progression_rates$get_values(target))
   }
 }
 
 
-#' @title Disease progression outcomes (recovery)
+#' @title Disease progression outcomes
 #' @description Following resolution of competing hazards, update state and
 #' infectivity of sampled individuals
 #'
 #' @param timestep the current timestep
-#' @param target the sampled recovering individuals
+#' @param target the sampled progressing individuals
 #' @param variables the available human variables
 #' @param parameters model parameters
-#' @param renderer competing hazards object for recovery rates
+#' @param renderer competing hazards object for disease progression rates
 #' @noRd
-recovery_outcome_process <- function(
+progression_outcome_process <- function(
     timestep,
     target,
     variables,
@@ -48,7 +48,7 @@ recovery_outcome_process <- function(
     "U",
     variables$infectivity,
     parameters$cu,
-    variables$recovery_rates,
+    variables$progression_rates,
     1/parameters$du,
     variables$state$get_index_of("A")$and(target)
   )
@@ -58,7 +58,7 @@ recovery_outcome_process <- function(
     "S",
     variables$infectivity,
     0,
-    variables$recovery_rates,
+    variables$progression_rates,
     0,
     variables$state$get_index_of(c("U","Tr"))$and(target)
   )
@@ -73,19 +73,21 @@ recovery_outcome_process <- function(
 #' @param to_state the destination disease state
 #' @param infectivity the handle for the infectivity variable
 #' @param new_infectivity the new infectivity of the progressed individuals
+#' @param progression_rates the handle for the progression_rates variable
+#' @param new_progression the new disease progression rate of the progressed individuals
 #' @noRd
 update_infection <- function(
     state,
     to_state,
     infectivity,
     new_infectivity,
-    recovery_rates,
-    new_recovery_rate,
+    progression_rates,
+    new_progression_rate,
     to_move
 ) {
   state$queue_update(to_state, to_move)
   infectivity$queue_update(new_infectivity, to_move)
-  recovery_rates$queue_update(new_recovery_rate, to_move)
+  progression_rates$queue_update(new_progression_rate, to_move)
 }
 
 #' @title Modelling the progression to asymptomatic disease
@@ -115,7 +117,7 @@ update_to_asymptomatic_infection <- function(
       new_infectivity,
       to_move
     )
-    variables$recovery_rates$queue_update(
+    variables$progression_rates$queue_update(
       1/parameters$da,
       to_move
     )

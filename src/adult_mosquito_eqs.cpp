@@ -17,7 +17,7 @@ AdultMosquitoModel::AdultMosquitoModel(
     ) : growth_model(growth_model), mu(mu), tau(tau), foim(foim)
 {
     for (auto i = 0u; i < tau; ++i) {
-        lagged_incubating.push(incubating);
+        lagged_incubating.push_back(incubating);
     }
 }
 
@@ -82,10 +82,28 @@ void adult_mosquito_model_update(
     model->foim = foim;
     model->growth_model.f = f;
     model->growth_model.mum = mu;
-    model->lagged_incubating.push(susceptible * foim);
+    model->lagged_incubating.push_back(susceptible * foim);
     if (model->lagged_incubating.size() > 0) {
-        model->lagged_incubating.pop();
+        model->lagged_incubating.pop_front();
     }
+}
+
+//[[Rcpp::export]]
+std::vector<double> adult_mosquito_model_save_state(
+    Rcpp::XPtr<AdultMosquitoModel> model
+    ) {
+    // Only the lagged_incubating needs to be saved. The rest of the model
+    // state is reset at each time step by a call to update before it gets
+    // used.
+    return {model->lagged_incubating.begin(), model->lagged_incubating.end()};
+}
+
+//[[Rcpp::export]]
+void adult_mosquito_model_restore_state(
+    Rcpp::XPtr<AdultMosquitoModel> model,
+    std::vector<double> state
+    ) {
+    model->lagged_incubating.assign(state.begin(), state.end());
 }
 
 //[[Rcpp::export]]

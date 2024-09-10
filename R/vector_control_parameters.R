@@ -143,23 +143,24 @@ set_spraying <- function(
 #' 
 #' @param parameters the model parameters
 #' @param timesteps vector of timesteps for each rescale change
-#' @param carrying_capacity matrix of baseline carrying_capacity for each species 
-#' With nrows = length(timesteps), ncols = length(species)
+#' @param carrying_capacity_scalers matrix of scaling factors to scale the baseline 
+#' carrying capacity for each species with nrows = length(timesteps),
+#'  ncols = length(species)
 #' 
 #' @export
 set_carrying_capacity <- function(
     parameters,
     timesteps,
-    carrying_capacity
+    carrying_capacity_scalers
 ){
-  stopifnot(nrow(carrying_capacity) == length(timesteps))
-  stopifnot(ncol(carrying_capacity) == length(parameters$species))
+  stopifnot(nrow(carrying_capacity_scalers) == length(timesteps))
+  stopifnot(ncol(carrying_capacity_scalers) == length(parameters$species))
   stopifnot(min(timesteps) > 0)
-  stopifnot(min(carrying_capacity) >= 0)
+  stopifnot(min(carrying_capacity_scalers) >= 0)
   
   parameters$carrying_capacity <- TRUE
   parameters$carrying_capacity_timesteps <- timesteps
-  parameters$carrying_capacity_values <- carrying_capacity
+  parameters$carrying_capacity_scalers <- carrying_capacity_scalers
   parameters
 }
 

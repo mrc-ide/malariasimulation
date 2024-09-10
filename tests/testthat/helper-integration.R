@@ -88,6 +88,13 @@ mock_event <- function(event) {
   )
 }
 
+mock_solver <- function(states) {
+  list(
+    get_states = mockery::mock(states),
+    step = mockery::mock()
+  )
+}
+
 expect_bitset_update <- function(mock, value, index, call = 1) {
   expect_equal(mockery::mock_args(mock)[[call]][[1]], value)
   expect_equal(mockery::mock_args(mock)[[call]][[2]]$to_vector(), index)

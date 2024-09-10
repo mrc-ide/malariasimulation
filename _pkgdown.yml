@@ -48,6 +48,7 @@ reference:
     - run_simulation
     - run_metapop_simulation
     - run_simulation_with_repetitions
+    - run_resumable_simulation
 - title: "Parameter functions"
   contents:
     - get_parameters

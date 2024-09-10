@@ -28,7 +28,7 @@ enum class AdultState : size_t {S = 3, E = 4, I = 5};
  */
 struct AdultMosquitoModel {
     AquaticMosquitoModel growth_model;
-    std::queue<double> lagged_incubating; //last tau values for incubating mosquitos
+    std::deque<double> lagged_incubating; //last tau values for incubating mosquitos
     double mu; //death rate for adult female mosquitoes
     const double tau; //extrinsic incubation period
     double foim; //force of infection towards mosquitoes

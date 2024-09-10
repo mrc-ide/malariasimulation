@@ -85,7 +85,12 @@ metapop_loop <- function(mixing, mixnam){ # mixing matrix
   output <- run_metapop_simulation(timesteps = sim_length,
                                    parameters = paramslist,
                                    correlations = NULL,
-                                   mixing = mixing)
+                                   mixing_tt = 1,
+                                   export_mixing = list(mixing), 
+                                   import_mixing = list(mixing), 
+                                   p_captured = list(matrix(rep(0, 9), nrow = 3, ncol = 3)),
+                                   p_captured_tt = 1,
+                                   p_success = 0.95)
   
   # convert to dataframe and label EIR and mixing matrix type
   output <-  do.call('rbind', output)
@@ -107,7 +112,7 @@ output3$mix <- 'perfectly-mixed'
 output <- rbind(output1, output2, output3)
 
 # get mean PfPR 2-10 by year
-output$prev2to10 = output$p_detect_730_3650 / output$n_730_3650
+output$prev2to10 = output$p_detect_lm_730_3650 / output$n_age_730_3650
 output$year = ceiling(output$timestep / 365)
 output$mix = factor(output$mix, levels = c('isolated', 'semi-mixed', 'perfectly-mixed'))
 output <- aggregate(prev2to10 ~ mix + EIR + year, data = output, FUN = mean)

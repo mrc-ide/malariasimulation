@@ -23,54 +23,46 @@ create_pmc_process <- function(
     drug
 ){
   renderer$set_default('n_pmc_treated', 0)
+  renderer$set_default(paste0('n_pmc_drug_efficacy_failures'), 0)
+  renderer$set_default(paste0('n_pmc_successfully_treated'), 0)
+  
+  if(parameters$antimalarial_resistance){
+    renderer$set_default(paste0('n_pmc_early_treatment_failure'), 0)
+    renderer$set_default(paste0('n_pmc_slow_parasite_clearance'), 0)
+  }
+  
   function(timestep) {
-    timestep_index <- match_timestep(ts = timesteps, t = timestep)
-    if(timestep_index == 0){
+    time_index <- match_timestep(ts = timesteps, t = timestep)
+    if(time_index == 0){
       return()
     }
-    coverage <- coverages[timestep_index]
+    coverage <- coverages[time_index]
     if(coverage == 0){
       return()
     }
-    
-    age <- get_age(variables$birth$get_values(), timestep)
-    
-    in_age <- which(age %in% parameters$pmc_ages)
+    in_age <- variables$birth$get_index_of(
+      timesteps[time_index] - parameters$pmc_ages
+    )$to_vector()
     target <- in_age[sample_intervention(in_age, 'pmc', coverage, correlations)]
     
     renderer$render('n_pmc_treated', length(target), timestep)
+    treated <- individual::Bitset$new(parameters$human_population)$insert(target)
     
-    successful_treatments <- bernoulli(
-      length(target),
-      parameters$drug_efficacy[[drug]]
+    to_move <- calculate_successful_treatments(
+      parameters,
+      treated,
+      rep(drug, treated$size()),
+      timestep,
+      renderer,
+      "pmc_")
+    
+    update_mass_drug_admin(
+      to_move,
+      variables,
+      parameters,
+      timestep,
+      drug
     )
-    to_move <- individual::Bitset$new(parameters$human_population)
-    to_move$insert(target[successful_treatments])
     
-    if (to_move$size() > 0) {
-      # Move Diseased
-      diseased <- variables$state$get_index_of(c('D', 'A'))$and(to_move)
-      if (diseased$size() > 0) {
-        variables$state$queue_update('Tr', diseased)
-      }
-      
-      # Move everyone else
-      other <- to_move$copy()$and(diseased$not(TRUE))
-      if (other$size() > 0) {
-        variables$state$queue_update('S', other)
-      }
-      
-      # Update infectivity
-      variables$infectivity$queue_update(
-        variables$infectivity$get_values(
-          to_move
-        ) * parameters$drug_rel_c[[drug]],
-        to_move
-      )
-      
-      # Update drug
-      variables$drug$queue_update(drug, to_move)
-      variables$drug_time$queue_update(timestep, to_move)
-    }
   }
 }

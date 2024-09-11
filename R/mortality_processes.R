@@ -113,7 +113,7 @@ reset_target <- function(variables, events, target, state, parameters, timestep)
 
     # onwards infectiousness
     variables$infectivity$queue_update(0, target)
-    variables$recovery_rates$queue_update(0, target)
+    variables$progression_rates$queue_update(0, target)
     
     # zeta and zeta group and vector controls survive rebirth
   }

@@ -192,15 +192,15 @@ create_variables <- function(parameters) {
   # Initialise the infectivity variable
   infectivity <- individual::DoubleVariable$new(infectivity_values)
 
-  # Set recovery rate for each individual
-  recovery_values <- rep(0, get_human_population(parameters, 0))
-  recovery_values[diseased] <- 1/parameters$dd
-  recovery_values[asymptomatic] <- 1/parameters$da
-  recovery_values[subpatent] <- 1/parameters$du
-  recovery_values[treated] <- 1/parameters$dt
+  # Set disease progression rates for each individual
+  progression_rate_values <- rep(0, get_human_population(parameters, 0))
+  progression_rate_values[diseased] <- 1/parameters$dd
+  progression_rate_values[asymptomatic] <- 1/parameters$da
+  progression_rate_values[subpatent] <- 1/parameters$du
+  progression_rate_values[treated] <- 1/parameters$dt
 
-  # Initialise the recovery rate variable
-  recovery_rates <- individual::DoubleVariable$new(recovery_values)
+  # Initialise the disease progression rate variable
+  progression_rates <- individual::DoubleVariable$new(progression_rate_values)
   
   drug <- individual::IntegerVariable$new(rep(0, size))
   drug_time <- individual::IntegerVariable$new(rep(-1, size))
@@ -231,7 +231,7 @@ create_variables <- function(parameters) {
     zeta = zeta,
     zeta_group = zeta_group,
     infectivity = infectivity,
-    recovery_rates = recovery_rates,
+    progression_rates = progression_rates,
     drug = drug,
     drug_time = drug_time,
     last_pev_timestep = last_pev_timestep,

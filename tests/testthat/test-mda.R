@@ -76,6 +76,7 @@ test_that('MDA moves the diseased and non-diseased population correctly', {
     ),
     birth = mock_double(-365 * c(2, 20, 5, 7)),
     infectivity = mock_double(c(.1, .2, .3, .4)),
+    progression_rates = mock_double(c(.1, .2, .3, .4)),
     id = mock_double(c(.1, .2, .3, .4)),
     drug_time = mock_double(c(1, 2, 3, 4)),
     drug = mock_double(c(1, 2, 1, 2))
@@ -94,15 +95,12 @@ test_that('MDA moves the diseased and non-diseased population correctly', {
     renderer
   )
   
-  mockery::stub(listener, 'bernoulli', mockery::mock(c(TRUE, TRUE)))
   mock_correlation <- mockery::mock(c(TRUE, TRUE))
   mockery::stub(listener, 'sample_intervention', mock_correlation)
+  local_mocked_bindings(bernoulli_multi_p = mockery::mock(1:2))
+  local_mocked_bindings(calculate_asymptomatic_detectable = mockery::mock(individual::Bitset$new(4)$insert(3)))
+  
   listener(timestep)
-  mockery::stub(
-    listener,
-    'calculate_asymptomatic_detectable',
-    mockery::mock(individual::Bitset$new(4)$insert(3))
-  )
   
   expect_equal(
     mockery::mock_args(mock_correlation)[[1]][[1]],
@@ -123,8 +121,14 @@ test_that('MDA moves the diseased and non-diseased population correctly', {
   
   expect_bitset_update(
     variables$infectivity$queue_update_mock(),
-    c(.3, .4) * SP_AQ_params[[2]],
-    c(3, 4)
+    c(.3) * SP_AQ_params[[2]],
+    c(3)
+  )
+
+  expect_bitset_update(
+    variables$progression_rates$queue_update_mock(),
+    1/parameters$dt,
+    c(3)
   )
   
   expect_bitset_update(
@@ -162,6 +166,7 @@ test_that('MDA moves the diseased and non-diseased population correctly - second
     ),
     birth = mock_double(-365 * c(2, 20, 5, 7)),
     infectivity = mock_double(c(.1, .2, .3, .4)),
+    progression_rates = mock_double(c(.1, .2, .3, .4)),
     id = mock_double(c(.1, .2, .3, .4)),
     drug_time = mock_double(c(1, 2, 3, 4)),
     drug = mock_double(c(1, 2, 1, 2))
@@ -180,14 +185,11 @@ test_that('MDA moves the diseased and non-diseased population correctly - second
     renderer
   )
   
-  mockery::stub(listener, 'bernoulli', mockery::mock(c(TRUE, TRUE, TRUE, TRUE)))
   mock_correlation <- mockery::mock(c(TRUE, TRUE, TRUE, TRUE))
   mockery::stub(listener, 'sample_intervention', mock_correlation)
-  mockery::stub(
-    listener,
-    'calculate_asymptomatic_detectable',
-    mockery::mock(individual::Bitset$new(4)$insert(3))
-  )
+  local_mocked_bindings(bernoulli_multi_p = mockery::mock(1:4))
+  local_mocked_bindings(calculate_asymptomatic_detectable = mockery::mock(individual::Bitset$new(4)$insert(3)))
+  
   listener(timestep)
   
   expect_equal(
@@ -209,8 +211,28 @@ test_that('MDA moves the diseased and non-diseased population correctly - second
   
   expect_bitset_update(
     variables$infectivity$queue_update_mock(),
-    c(.1, .2, .3, .4) * SP_AQ_params[[2]],
-    c(1, 2, 3, 4)
+    c(.1, .3) * SP_AQ_params[[2]],
+    c(1, 3)
+  )
+  
+  expect_bitset_update(
+    variables$infectivity$queue_update_mock(),
+    0,
+    c(2, 4), 
+    call = 2
+  )
+
+  expect_bitset_update(
+    variables$progression_rates$queue_update_mock(),
+    1/parameters$dt,
+    c(1, 3)
+  )
+  
+  expect_bitset_update(
+    variables$progression_rates$queue_update_mock(),
+    0,
+    c(2, 4),
+    call = 2
   )
   
   expect_bitset_update(
@@ -248,6 +270,7 @@ test_that('MDA ignores non-detectable asymptomatics', {
     ),
     birth = mock_double(-365 * c(2, 20, 5, 7)),
     infectivity = mock_double(c(.1, .2, .3, .4)),
+    progression_rates = mock_double(c(.1, .2, .3, .4)),
     id = mock_double(c(.1, .2, .3, .4)),
     drug_time = mock_double(c(1, 2, 3, 4)),
     drug = mock_double(c(1, 2, 1, 2))
@@ -266,14 +289,10 @@ test_that('MDA ignores non-detectable asymptomatics', {
     renderer
   )
   
-  mockery::stub(listener, 'bernoulli', mockery::mock(c(TRUE, TRUE, TRUE, TRUE)))
   mock_correlation <- mockery::mock(c(TRUE, TRUE, TRUE, TRUE))
   mockery::stub(listener, 'sample_intervention', mock_correlation)
-  mockery::stub(
-    listener,
-    'calculate_asymptomatic_detectable',
-    mockery::mock(individual::Bitset$new(4))
-  )
+  local_mocked_bindings(calculate_asymptomatic_detectable = mockery::mock(individual::Bitset$new(4)))
+  
   listener(timestep)
   
   expect_bitset_update(
@@ -291,8 +310,28 @@ test_that('MDA ignores non-detectable asymptomatics', {
   
   expect_bitset_update(
     variables$infectivity$queue_update_mock(),
-    c(.1, .2, .3, .4) * SP_AQ_params[[2]],
-    c(1, 2, 3, 4)
+    c(.1) * SP_AQ_params[[2]],
+    c(1)
+  )
+
+  expect_bitset_update(
+    variables$infectivity$queue_update_mock(),
+    0,
+    c(2, 3, 4),
+    call = 2
+  )
+
+  expect_bitset_update(
+    variables$progression_rates$queue_update_mock(),
+    1/parameters$dt,
+    c(1)
+  )
+  
+  expect_bitset_update(
+    variables$progression_rates$queue_update_mock(),
+    0,
+    c(2, 3, 4),
+    call = 2
   )
   
   expect_bitset_update(

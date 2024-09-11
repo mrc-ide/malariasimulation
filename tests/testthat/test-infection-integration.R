@@ -320,7 +320,7 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   variables <- list(
     state = list(queue_update = mockery::mock()),
     infectivity = list(queue_update = mockery::mock()),
-    recovery_rates = list(queue_update = mockery::mock()),
+    progression_rates = list(queue_update = mockery::mock()),
     drug = list(queue_update = mockery::mock()),
     drug_time = list(queue_update = mockery::mock())
   )
@@ -336,8 +336,9 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   )
   sample_mock <- mockery::mock(c(2, 1, 1, 1))
   mockery::stub(calculate_treated, 'sample.int', sample_mock)
+  
   bernoulli_mock <- mockery::mock(c(1, 3))
-  mockery::stub(calculate_treated, 'bernoulli_multi_p', bernoulli_mock)
+  local_mocked_bindings(bernoulli_multi_p = bernoulli_mock)
   mockery::stub(calculate_treated, 'log_uniform', mockery::mock(c(3, 4)))
   
   clinical_infections <- individual::Bitset$new(4)
@@ -410,7 +411,7 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   variables <- list(
     state = list(queue_update = mockery::mock()),
     infectivity = list(queue_update = mockery::mock()),
-    recovery_rates = list(queue_update = mockery::mock()),
+    progression_rates = list(queue_update = mockery::mock()),
     drug = list(queue_update = mockery::mock()),
     drug_time = list(queue_update = mockery::mock())
   )
@@ -429,7 +430,7 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   bernoulli_mock <- mockery::mock(c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                                   c(1, 2, 3, 4, 5, 6, 7),
                                   c(1))
-  mockery::stub(calculate_treated, 'bernoulli_multi_p', bernoulli_mock)
+  local_mocked_bindings(bernoulli_multi_p = bernoulli_mock)
   
   calculate_treated(
     variables,
@@ -487,8 +488,7 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   )
   expect_bitset_update(variables$drug$queue_update, c(2, 1, 1, 1, 2, 2, 2), c(1, 2, 3, 4, 5, 6, 7))
   expect_bitset_update(variables$drug_time$queue_update, 5, c(1, 2, 3, 4, 5, 6, 7))
-  expect_bitset_update(variables$recovery_rates$queue_update, 1/5, c(2, 3, 4, 5, 6, 7), 1)
-  expect_bitset_update(variables$recovery_rates$queue_update, 1/15, c(1), 2)
+  expect_bitset_update(variables$progression_rates$queue_update, c(1/15,rep(1/5,6)), c(1, 2, 3, 4, 5, 6, 7), 1)
 })
 
 test_that('calculate_treated correctly samples treated and updates the drug state when resistance not set for all drugs', {
@@ -523,7 +523,7 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   variables <- list(
     state = list(queue_update = mockery::mock()),
     infectivity = list(queue_update = mockery::mock()),
-    recovery_rates = list(queue_update = mockery::mock()),
+    progression_rates = list(queue_update = mockery::mock()),
     drug = list(queue_update = mockery::mock()),
     drug_time = list(queue_update = mockery::mock())
   )
@@ -549,7 +549,7 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
                                   c(1))
   
   # Specify that when calculate_treated() calls bernoulli_multi_p() it returns the bernoulli_mock:
-  mockery::stub(calculate_treated, 'bernoulli_multi_p', bernoulli_mock)
+  local_mocked_bindings(bernoulli_multi_p = bernoulli_mock)
   
   # Run the calculate_treated() function now the mocks and stubs are established:
   calculate_treated(
@@ -559,7 +559,7 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
     timestep,
     mock_render(timestep)
   )
-  
+
   # Check that mock_drugs was called only once, and that the arguments used in the function call
   # mock_drugs() was used in (sample.int()) match those expected:
   mockery::expect_args(
@@ -627,19 +627,12 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
     c(1, 2, 3, 4, 5, 6, 7)
   )
   
-  # Check that update queued for dt for the non-slow parasite clearance individuals is correct:
+  # Check that update queued for dt for the slow and non-slow parasite clearance individuals is correct:
   expect_bitset_update(
-    variables$recovery_rates$queue_update,
-    1/parameters$dt,
-    c(2, 3, 4, 5, 6, 7), 
+    variables$progression_rates$queue_update,
+    c(1/unlist(parameters$dt_slow_parasite_clearance), rep(1/parameters$dt, 6)),
+    c(1, 2, 3, 4, 5, 6, 7), 
     1)
-  
-  # Check that update queued for dt for the slow parasite clearance individuals is correct:
-  expect_bitset_update(
-    variables$recovery_rates$queue_update,
-    1/unlist(parameters$dt_slow_parasite_clearance),
-    c(1), 
-    2)
   
 })
 
@@ -1053,7 +1046,7 @@ test_that('calculate_treated() successfully adds additional resistance columns t
   variables <- list(
     state = list(queue_update = mockery::mock()),
     infectivity = list(queue_update = mockery::mock()),
-    recovery_rates = list(queue_update = mockery::mock()),
+    progression_rates = list(queue_update = mockery::mock()),
     drug = list(queue_update = mockery::mock()),
     drug_time = list(queue_update = mockery::mock())
   )

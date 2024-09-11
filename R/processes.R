@@ -71,7 +71,7 @@ create_processes <- function(
   }
   
   # =====================================================
-  # Competing Hazard Outcomes (Infections and Recoveries)
+  # Competing Hazard Outcomes (infections and disease progression)
   # =====================================================
   
   infection_outcome <- CompetingOutcome$new(
@@ -83,9 +83,9 @@ create_processes <- function(
     size = parameters$human_population
   )
   
-  recovery_outcome <- CompetingOutcome$new(
+  progression_outcome <- CompetingOutcome$new(
     targeted_process = function(timestep, target){
-      recovery_outcome_process(timestep, target, variables, parameters, renderer)
+      progression_outcome_process(timestep, target, variables, parameters, renderer)
     },
     size = parameters$human_population
   )
@@ -119,14 +119,14 @@ create_processes <- function(
   
   processes <- c(
     processes,
-    progression_process = create_recovery_rates_process(
+    progression_process = create_progression_rates_process(
       variables,
-      recovery_outcome
+      progression_outcome
     ),
     
     # Resolve competing hazards of infection with disease progression
     hazard_resolution_process = CompetingHazard$new(
-      outcomes = list(infection_outcome, recovery_outcome),
+      outcomes = list(infection_outcome, progression_outcome),
       size = parameters$human_population
     )$resolve
   )

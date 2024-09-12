@@ -1,23 +1,26 @@
 #' @title Simulate malaria infection in humans
 #' @description
-#' Updates human states and variables to represent asymptomatic/clinical/severe
-#' and treated malaria; and resulting boosts in immunity
+#' This function ends with the assignment of rates of infection to the competing
+#' hazard resolution object and boosts immunity given infectious bites.
 #' @param variables a list of all of the model variables
 #' @param events a list of all of the model events
 #' @param bitten_humans a bitset of bitten humans
 #' @param age of each human (timesteps)
 #' @param parameters of the model
 #' @param timestep current timestep
+#' @param renderer the model renderer object
+#' @param infection_outcome competing hazards object for infection rates
 #' @noRd
 simulate_infection <- function(
-  variables,
-  events,
-  bitten_humans,
-  age,
-  parameters,
-  timestep,
-  renderer
-  ) {
+    variables,
+    events,
+    bitten_humans,
+    age,
+    parameters,
+    timestep,
+    renderer,
+    infection_outcome
+) {
   if (bitten_humans$size() > 0) {
     boost_immunity(
       variables$ib,
@@ -29,70 +32,18 @@ simulate_infection <- function(
   }
 
   # Calculate Infected
-  infected_humans <- calculate_infections(
+  calculate_infections(
     variables,
     bitten_humans,
     parameters,
     renderer,
-    timestep
-  )
-
-  if (infected_humans$size() > 0) {
-    boost_immunity(
-      variables$ica,
-      infected_humans,
-      variables$last_boosted_ica,
-      timestep,
-      parameters$uc
-    )
-    boost_immunity(
-      variables$id,
-      infected_humans,
-      variables$last_boosted_id,
-      timestep,
-      parameters$ud
-    )
-  }
-
-  clinical_infections <- calculate_clinical_infections(
-    variables,
-    infected_humans,
-    parameters,
-    renderer,
-    timestep
-  )
-
-  update_severe_disease(
     timestep,
-    infected_humans,
-    variables,
-    parameters,
-    renderer
-  )
-
-  treated <- calculate_treated(
-    variables,
-    clinical_infections,
-    parameters,
-    timestep,
-    renderer
-  )
-
-  renderer$render('n_infections', infected_humans$size(), timestep)
-
-  schedule_infections(
-    variables,
-    clinical_infections,
-    treated,
-    infected_humans,
-    parameters,
-    timestep
+    infection_outcome
   )
 }
 
 #' @title Calculate overall infections for bitten humans
-#' @description
-#' Sample infected humans given prophylaxis and vaccination
+#' @description Infection rates are stored in the infection outcome competing hazards object
 #' @param variables a list of all of the model variables
 #' @param bitten_humans bitset of bitten humans
 #' @param parameters model parameters
@@ -100,12 +51,13 @@ simulate_infection <- function(
 #' @param timestep current timestep
 #' @noRd
 calculate_infections <- function(
-  variables,
-  bitten_humans,
-  parameters,
-  renderer,
-  timestep
-  ) {
+    variables,
+    bitten_humans,
+    parameters,
+    renderer,
+    timestep,
+    infection_outcome
+) {
   source_humans <- variables$state$get_index_of(
     c('S', 'A', 'U'))$and(bitten_humans)
 
@@ -129,9 +81,10 @@ calculate_infections <- function(
 
   # calculate vaccine efficacy
   vaccine_efficacy <- rep(0, length(source_vector))
-  vaccine_times <- variables$pev_timestep$get_values(source_vector)
-  vaccinated <- vaccine_times > -1
+  vaccine_times <- variables$last_eff_pev_timestep$get_values(source_vector)
   pev_profile <- variables$pev_profile$get_values(source_vector)
+  # get vector of individuals who have received their 3rd dose
+  vaccinated <- vaccine_times > -1
   pev_profile <- pev_profile[vaccinated]
   if (length(vaccinated) > 0) {
     antibodies <- calculate_pev_antibodies(
@@ -154,21 +107,105 @@ calculate_infections <- function(
   }
 
   prob <- b * (1 - prophylaxis) * (1 - vaccine_efficacy)
-  infected <- bitset_at(source_humans, bernoulli_multi_p(prob))
 
+  ## probability of incidence must be rendered at each timestep
+  incidence_probability_renderer(
+    variables$birth,
+    renderer,
+    source_humans,
+    prob,
+    "inc_",
+    parameters$incidence_min_ages,
+    parameters$incidence_max_ages,
+    timestep
+  )
+  
+  ## capture infection rates to resolve in competing hazards
+  infection_outcome$set_rates(
+    source_humans,
+    prob_to_rate(prob))
+}
+
+#' @title Assigns infections to appropriate human states
+#' @description
+#' Updates human states and variables to represent asymptomatic/clinical/severe
+#' and treated malaria; and resulting boosts in immunity
+#' @param timestep current timestep
+#' @param infected_humans bitset of infected humans
+#' @param variables a list of all of the model variables
+#' @param renderer model render object
+#' @param parameters model parameters
+#' @param prob vector of population probabilities of infection
+#' @noRd
+infection_outcome_process <- function(
+    timestep,
+    infected_humans,
+    variables,
+    renderer,
+    parameters,
+    prob){
+  
   incidence_renderer(
     variables$birth,
     renderer,
-    infected,
-    source_humans,
-    prob,
+    infected_humans,
     'inc_',
     parameters$incidence_rendering_min_ages,
     parameters$incidence_rendering_max_ages,
     timestep
   )
-
-  infected
+  
+  if (infected_humans$size() > 0) {
+    boost_immunity(
+      variables$ica,
+      infected_humans,
+      variables$last_boosted_ica,
+      timestep,
+      parameters$uc
+    )
+    boost_immunity(
+      variables$id,
+      infected_humans,
+      variables$last_boosted_id,
+      timestep,
+      parameters$ud
+    )
+  }
+  
+  clinical_infections <- calculate_clinical_infections(
+    variables,
+    infected_humans,
+    parameters,
+    renderer,
+    timestep
+  )
+  
+  update_severe_disease(
+    timestep,
+    infected_humans,
+    variables,
+    parameters,
+    renderer
+  )
+  
+  treated <- calculate_treated(
+    variables,
+    clinical_infections,
+    parameters,
+    timestep,
+    renderer
+  )
+  
+  renderer$render('n_infections', infected_humans$size(), timestep)
+  
+  schedule_infections(
+    variables,
+    clinical_infections,
+    treated,
+    infected_humans,
+    parameters,
+    timestep
+  )
 }
 
 #' @title Calculate clinical infections
@@ -181,12 +218,12 @@ calculate_infections <- function(
 #' @param timestep current timestep
 #' @noRd
 calculate_clinical_infections <- function(
-  variables,
-  infections,
-  parameters,
-  renderer,
-  timestep
-  ) {
+    variables,
+    infections,
+    parameters,
+    renderer,
+    timestep
+) {
   ica <- variables$ica$get_values(infections)
   icm <- variables$icm$get_values(infections)
   phi <- clinical_immunity(ica, icm, parameters)
@@ -195,6 +232,14 @@ calculate_clinical_infections <- function(
     variables$birth,
     renderer,
     clinical_infections,
+    'inc_clinical_',
+    parameters$clinical_incidence_rendering_min_ages,
+    parameters$clinical_incidence_rendering_max_ages,
+    timestep
+  )
+  incidence_probability_renderer(
+    variables$birth,
+    renderer,
     infections,
     phi,
     'inc_clinical_',
@@ -215,12 +260,12 @@ calculate_clinical_infections <- function(
 #' @param renderer model outputs
 #' @noRd
 update_severe_disease <- function(
-  timestep,
-  infections,
-  variables,
-  parameters,
-  renderer
-  ) {
+    timestep,
+    infections,
+    variables,
+    parameters,
+    renderer
+) {
   age <- get_age(variables$birth$get_values(infections), timestep)
   iva <- variables$iva$get_values(infections)
   ivm <- variables$ivm$get_values(infections)
@@ -236,6 +281,14 @@ update_severe_disease <- function(
     variables$birth,
     renderer,
     severe_infections,
+    'inc_severe_',
+    parameters$severe_incidence_rendering_min_ages,
+    parameters$severe_incidence_rendering_max_ages,
+    timestep
+  )
+  incidence_probability_renderer(
+    variables$birth,
+    renderer,
     infections,
     theta,
     'inc_severe_',
@@ -262,23 +315,27 @@ update_severe_disease <- function(
 #' @param renderer simulation renderer
 #' @noRd
 calculate_treated <- function(
-  variables,
-  clinical_infections,
-  parameters,
-  timestep,
-  renderer
-  ) {
+    variables,
+    clinical_infections,
+    parameters,
+    timestep,
+    renderer
+) {
+  
+  if(clinical_infections$size() == 0) {
+    return(individual::Bitset$new(parameters$human_population))
+  }
+  
   treatment_coverages <- get_treatment_coverages(parameters, timestep)
   ft <- sum(treatment_coverages)
-
+  
   if (ft == 0) {
     return(individual::Bitset$new(parameters$human_population))
   }
-
+  
   renderer$render('ft', ft, timestep)
   seek_treatment <- sample_bitset(clinical_infections, ft)
   n_treat <- seek_treatment$size()
-  
   renderer$render('n_treated', n_treat, timestep)
   
   drugs <- as.numeric(parameters$clinical_treatment_drugs[
@@ -289,27 +346,124 @@ calculate_treated <- function(
       replace = TRUE
     )
   ])
-
-  successful <- bernoulli_multi_p(parameters$drug_efficacy[drugs])
-  treated_index <- bitset_at(seek_treatment, successful)
-
-  # Update those who have been treated
-  if (treated_index$size() > 0) {
-    variables$state$queue_update('Tr', treated_index)
-    variables$infectivity$queue_update(
-      parameters$cd * parameters$drug_rel_c[drugs[successful]],
-      treated_index
+  
+  successfully_treated <- calculate_successful_treatments(
+    parameters,
+    seek_treatment,
+    drugs,
+    timestep,
+    renderer,
+    ""
+  )
+  
+  if (successfully_treated$successfully_treated$size() > 0) {
+    
+    if(parameters$antimalarial_resistance) {
+      dt_update_vector <- successfully_treated$dt_spc_combined
+    } else {
+      dt_update_vector <- parameters$dt
+    }
+    
+    update_infection(
+      variables$state,
+      'Tr',
+      variables$infectivity,
+      parameters$cd * parameters$drug_rel_c[successfully_treated$drugs],
+      variables$progression_rates,
+      1/dt_update_vector,
+      successfully_treated$successfully_treated
     )
+    
     variables$drug$queue_update(
-      drugs[successful],
-      treated_index
+      successfully_treated$drugs,
+      successfully_treated$successfully_treated
     )
     variables$drug_time$queue_update(
       timestep,
-      treated_index
+      successfully_treated$successfully_treated
     )
   }
-  treated_index
+  
+  successfully_treated$successfully_treated
+  
+}
+
+
+#' @title Calculate successfully treated humans
+#' @description
+#' Sample successful treatments based on drug efficacy and antimalarial resistance
+#' @param parameters model parameters
+#' @param target bitset of treated humans
+#' @param drugs drug index
+#' @param timestep the current timestep
+#' @param renderer simulation renderer
+#' @param int_name the intervention name to use for rendering, use "" for frontline treatment
+#' @noRd
+calculate_successful_treatments <- function(
+    parameters,
+    target,
+    drugs,
+    timestep,
+    renderer,
+    int_name){
+  
+  #+++ DRUG EFFICACY +++#
+  #+++++++++++++++++++++#
+  effectively_treated_index <- bernoulli_multi_p(parameters$drug_efficacy[drugs])
+  effectively_treated <- bitset_at(target, effectively_treated_index)
+  drugs <- drugs[effectively_treated_index]
+  n_drug_efficacy_failures <- target$size() - effectively_treated$size()
+  renderer$render(paste0('n_', int_name, 'drug_efficacy_failures'), n_drug_efficacy_failures, timestep)
+  
+  #+++ ANTIMALARIAL RESISTANCE +++#
+  #+++++++++++++++++++++++++++++++#
+  if(parameters$antimalarial_resistance) {
+    resistance_parameters <- get_antimalarial_resistance_parameters(
+      parameters = parameters,
+      drugs = drugs, 
+      timestep = timestep
+    )
+    
+    #+++ EARLY TREATMENT FAILURE +++#
+    #+++++++++++++++++++++++++++++++#
+    early_treatment_failure_probability <- resistance_parameters$artemisinin_resistance_proportion * resistance_parameters$early_treatment_failure_probability
+    successfully_treated_indices <- bernoulli_multi_p(p = 1 - early_treatment_failure_probability)
+    successfully_treated <- bitset_at(effectively_treated, successfully_treated_indices)
+    n_early_treatment_failure <- effectively_treated$size() - successfully_treated$size()
+    renderer$render(paste0('n_', int_name, 'early_treatment_failure'), n_early_treatment_failure, timestep)
+    drugs <- drugs[successfully_treated_indices]
+    dt_slow_parasite_clearance <- resistance_parameters$dt_slow_parasite_clearance[successfully_treated_indices]
+    
+    #+++ SLOW PARASITE CLEARANCE +++#
+    #+++++++++++++++++++++++++++++++#
+    slow_parasite_clearance_probability <- resistance_parameters$artemisinin_resistance_proportion[successfully_treated_indices] *
+      resistance_parameters$slow_parasite_clearance_probability[successfully_treated_indices]
+    slow_parasite_clearance_indices <- bernoulli_multi_p(p = slow_parasite_clearance_probability)
+    slow_parasite_clearance_individuals <- bitset_at(successfully_treated, slow_parasite_clearance_indices)
+    renderer$render(paste0('n_', int_name, 'slow_parasite_clearance'), slow_parasite_clearance_individuals$size(), timestep)
+    non_slow_parasite_clearance_individuals <- successfully_treated$copy()$set_difference(slow_parasite_clearance_individuals)
+    renderer$render(paste0('n_', int_name, 'successfully_treated'), successfully_treated$size(), timestep)
+    dt_slow_parasite_clearance <- dt_slow_parasite_clearance[slow_parasite_clearance_indices]
+    
+    dt_spc_combined <- rep(parameters$dt, length(successfully_treated_indices))
+    dt_spc_combined[slow_parasite_clearance_indices] <- dt_slow_parasite_clearance
+    
+    successfully_treated_list <- list(
+      drugs = drugs,
+      successfully_treated = successfully_treated,
+      dt_spc_combined = dt_spc_combined)
+    
+  } else {
+    
+    successfully_treated <- effectively_treated
+    renderer$render(paste0('n_', int_name, 'successfully_treated'), successfully_treated$size(), timestep)
+    
+    successfully_treated_list <- list(
+      drugs = drugs,
+      successfully_treated = successfully_treated)
+    
+  }
+  successfully_treated_list
 }
 
 #' @title Schedule infections
@@ -322,13 +476,14 @@ calculate_treated <- function(
 #' @param parameters model parameters
 #' @noRd
 schedule_infections <- function(
-  variables,
-  clinical_infections,
-  treated,
-  infections,
-  parameters,
-  timestep
-  ) {
+    variables,
+    clinical_infections,
+    treated,
+    infections,
+    parameters,
+    timestep
+) {
+
   included <- treated$not(TRUE)
 
   to_infect <- clinical_infections$and(included)
@@ -342,6 +497,8 @@ schedule_infections <- function(
       'D',
       variables$infectivity,
       parameters$cd,
+      variables$progression_rates,
+      1/parameters$dd,
       to_infect
     )
   }
@@ -360,12 +517,12 @@ schedule_infections <- function(
 # Utility functions
 # =================
 boost_immunity <- function(
-  immunity_variable,
-  exposed_index,
-  last_boosted_variable,
-  timestep,
-  delay
-  ) {
+    immunity_variable,
+    exposed_index,
+    last_boosted_variable,
+    timestep,
+    delay
+) {
   # record who can be boosted
   exposed_index_vector <- exposed_index$to_vector()
   last_boosted <- last_boosted_variable$get_values(exposed_index)

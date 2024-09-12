@@ -4,15 +4,16 @@
 \alias{set_carrying_capacity}
 \title{Parameterise custom baseline carrying capacity}
 \usage{
-set_carrying_capacity(parameters, timesteps, carrying_capacity)
+set_carrying_capacity(parameters, timesteps, carrying_capacity_scalers)
 }
 \arguments{
 \item{parameters}{the model parameters}
 
 \item{timesteps}{vector of timesteps for each rescale change}
 
-\item{carrying_capacity}{matrix of baseline carrying_capacity for each species
-With nrows = length(timesteps), ncols = length(species)}
+\item{carrying_capacity_scalers}{matrix of scaling factors to scale the baseline
+carrying capacity for each species with nrows = length(timesteps),
+ncols = length(species)}
 }
 \description{
 Allows the user to set a completely flexible and custom

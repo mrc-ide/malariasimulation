@@ -1,13 +1,14 @@
-test_that('calculate_initial_ages defaults to an exponential distribution', {
+test_that('calculate_initial_ages defaults to a truncated exponential distribution', {
   parameters <- get_parameters(list(human_population = 4))
   mock_exp <- mockery::mock(seq(4))
-  mockery::stub(calculate_initial_ages, 'rexp', mock_exp)
+  mockery::stub(calculate_initial_ages, 'rtexp', mock_exp)
   ages <- calculate_initial_ages(parameters)
   mockery::expect_args(
     mock_exp,
     1,
     parameters$human_population,
-    1 / parameters$average_age
+    1 / parameters$average_age,
+    max(EQUILIBRIUM_AGES)*365
   )
 })
 

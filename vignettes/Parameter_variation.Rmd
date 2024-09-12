@@ -40,7 +40,7 @@ sim <- run_simulation(timesteps = 1000, simparams)
 # plot the default median parameter
 plot(
   sim$timestep,
-  sim$n_detect_730_3650 / sim$n_730_3650,
+  sim$n_detect_lm_730_3650 / sim$n_age_730_3650,
   t = "l",
   ylim = c(0, 1),
   ylab = "PfPr",
@@ -60,7 +60,7 @@ Keep in mind that `set_parameter_draw` must be called prior to `set_equilibrium`
 # plot the default median parameter
 plot(
   sim$timestep[1:500],
-  sim$n_detect_730_3650[1:500] / sim$n_730_3650[1:500],
+  sim$n_detect_lm_730_3650[1:500] / sim$n_age_730_3650[1:500],
   t = "l",
   ylim = c(0, 1),
   ylab = "PfPr",
@@ -78,7 +78,7 @@ for (i in 1:7) {
   
   sim <- run_simulation(timesteps = 500, param_draw)
   
-  lines(sim$timestep, sim$n_detect_730_3650 / sim$n_730_3650, col = cols[i])
+  lines(sim$timestep, sim$n_detect_lm_730_3650 / sim$n_age_730_3650, col = cols[i])
 }
 ```
 

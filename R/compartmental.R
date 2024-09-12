@@ -39,6 +39,7 @@ parameterise_mosquito_models <- function(parameters, timesteps) {
         calculate_R_bar(parameters),
         parameters$mum[[i]],
         parameters$blood_meal_rates[[i]],
+        parameters$semiochemical_effect[[i]],
         parameters$rainfall_floor
       )
       

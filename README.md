@@ -9,8 +9,7 @@ intervention strategies.
 
 The model is defined in this package, whereas the simulation is executed using
 the [individual](https://github.com/mrc-ide/individual) package.
-
-
+<br><br><br>
 
 ## Installation
 

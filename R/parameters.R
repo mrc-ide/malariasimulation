@@ -149,6 +149,8 @@
 #' * k0 - proportion of females bloodfed with no net; default = 0.699
 #' * spraying - boolean for if indoor spraying is enabled; default = FALSE
 #' * phi_indoors - proportion of bites taken indoors; default = 0.90
+#' * semiochemical - boolean for if semiochemical exposure is enabled; default = FALSE
+#' * semiochemical_effect - the proportional reduction introduced on blood feeding rates for each species; default = 1
 #'
 #' treatment parameters:
 #' please set treatment parameters with the convenience functions in
@@ -330,6 +332,9 @@ get_parameters <- function(overrides = list()) {
     # indoor spraying
     spraying = FALSE,
     phi_indoors = .90,
+    # semiochemical use
+    semiochemical = FALSE,
+    semiochemical_effect = 1,
     # treatment
     drug_efficacy          = numeric(0),
     drug_rel_c             = numeric(0),

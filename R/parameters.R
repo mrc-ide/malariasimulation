@@ -176,7 +176,7 @@
 #' with \code{\link{peak_season_offset}}
 #'
 #' bednet, irs and mosquito feeding cycle parameters:
-#' please set vector control strategies using \code{\link{set_bednets}} and \code{\link{set_spraying}}
+#' please set vector control strategies using \code{\link{set_bednets}}, \code{\link{set_spraying}} and \code{\link{set_semiochemical}}
 #'
 #' * bednets - boolean for if bednets are enabled; default = FALSE
 #' * phi_bednets - proportion of bites taken in bed; default = 0.85

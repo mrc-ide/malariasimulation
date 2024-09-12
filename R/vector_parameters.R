@@ -6,7 +6,6 @@
 #' Q0: 0.92
 #' phi_bednets: 0.85
 #' phi_indoors: 0.90
-#' semiochemical_effect: 1
 #' mum: 0.132
 #'
 #' parameters from:
@@ -19,7 +18,6 @@ gamb_params <- list(
   Q0 = .92,
   phi_bednets = .85,
   phi_indoors = .90,
-  semiochemical_effect = 1,
   mum = .132
 )
 
@@ -31,7 +29,6 @@ gamb_params <- list(
 #' Q0: 0.71
 #' phi_bednets: 0.8
 #' phi_indoors: 0.86
-#' semiochemical_effect: 1
 #' mum: 0.132
 #'
 #' parameters from:
@@ -44,7 +41,6 @@ arab_params <- list(
   Q0 = .71,
   phi_bednets = .8,
   phi_indoors = .86,
-  semiochemical_effect = 1,
   mum = .132
 )
 
@@ -56,7 +52,6 @@ arab_params <- list(
 #' Q0: 0.94
 #' phi_bednets: 0.78
 #' phi_indoors: 0.87
-#' semiochemical: 1
 #' mum: 0.112
 #'
 #' parameters from:
@@ -69,7 +64,6 @@ fun_params <- list(
   Q0 = .94,
   phi_bednets = .78,
   phi_indoors = .87,
-  semiochemical_effect = 1,
   mum = .112
 )
 
@@ -81,7 +75,6 @@ fun_params <- list(
 #' Q0: 0.21
 #' phi_bednets: 0.57
 #' phi_indoors: 0.37
-#' semiochemical_effect: 1
 #' mum: 0.112
 #'
 #' parameters reference:
@@ -98,7 +91,6 @@ steph_params <- list(
   Q0 = 0.21,
   phi_bednets = 0.52186,
   phi_indoors = 0.4776,
-  semiochemical_effect = 1,
   mum = .112
 )
 
@@ -122,18 +114,17 @@ set_species <- function(parameters, species, proportions) {
     'Q0',
     'phi_bednets',
     'phi_indoors',
-    'semiochemical_effect',
     'mum'
   )
   for (key in keys) {
     parameters[[key]] <- rep(NA, length(species))
   }
   for (v in seq_along(species)) {
-    if (species[[v]]$foraging_time > 1 / (species[[v]]$blood_meal_rates * species[[v]]$semiochemical_effect) ) {
+    if (species[[v]]$foraging_time > 1 / species[[v]]$blood_meal_rates ) {
       stop(
         sprintf(
           "blood meal time (%f) must be >= foraging time (%f)",
-          1 / (species[[v]]$blood_meal_rates * species[[v]]$semiochemical_effect),
+          1 / species[[v]]$blood_meal_rates,
           species[[v]]$foraging_time
         )
       )

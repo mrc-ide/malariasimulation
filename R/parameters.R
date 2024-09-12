@@ -232,6 +232,8 @@
 #' * k0 - proportion of females bloodfed with no net; default = 0.699
 #' * spraying - boolean for if indoor spraying is enabled; default = FALSE
 #' * phi_indoors - proportion of bites taken indoors; default = 0.90
+#' * semiochemical - boolean for if semiochemical exposure is enabled; default = FALSE
+#' * semiochemical_effect - the proportional reduction introduced on blood feeding rates for each species; default = 1
 #'
 #'
 #' PEV parameters:
@@ -461,6 +463,9 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       tbv_timesteps = NULL,
       tbv_coverages = NULL,
       tbv_ages = NULL,
+      # semiochemical use
+      semiochemical = FALSE,
+      semiochemical_effect = 1,
       # antimalarial resistance
       antimalarial_resistance = FALSE,
       antimalarial_resistance_drug = NULL,

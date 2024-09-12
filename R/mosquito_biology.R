@@ -53,7 +53,7 @@ calculate_omega <- function(parameters, species) {
   beta <- eggs_laid(
     parameters$beta,
     mum,
-    parameters$blood_meal_rates[[species]] * parameters$semiochemical_effect[[species]]
+    parameters$blood_meal_rates[[species]] 
   )
 
   -.5 * sub_omega + sqrt(
@@ -116,7 +116,7 @@ equilibrium_total_M <- function(parameters, EIR) {
     parameters$init_foim + mum
   )
   total_daily_eir / sum(
-    parameters$species_proportions * parameters$blood_meal_rates * parameters$semiochemical_effect * parameters$Q0 * lifetime
+    parameters$species_proportions * parameters$blood_meal_rates * parameters$Q0 * lifetime
   )
 }
 
@@ -157,7 +157,7 @@ death_rate <- function(f, W, Z, species, parameters) {
 }
 
 get_gonotrophic_cycle <- function(v, parameters) {
-  f <- parameters$blood_meal_rates[[v]] * parameters$semiochemical_effect[[v]]
+  f <- parameters$blood_meal_rates[[v]]
   gonotrophic_cycle <- 1 / f - parameters$foraging_time[[v]]
 }
 

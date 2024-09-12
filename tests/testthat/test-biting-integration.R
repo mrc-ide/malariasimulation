@@ -118,7 +118,7 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
 
   expect_equal(bitten$to_vector(), c(2, 3))
 
-  f <- parameters$blood_meal_rates[[1]] * parameters$semiochemical_effect[[1]]
+  f <- parameters$blood_meal_rates[[1]]
 
   effects_args <- mockery::mock_args(mosquito_effects_mock)
 

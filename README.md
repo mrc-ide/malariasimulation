@@ -10,6 +10,8 @@ intervention strategies.
 The model is defined in this package, whereas the simulation is executed using
 the [individual](https://github.com/mrc-ide/individual) package.
 
+
+
 ## Installation
 
 Please note, malariasimulation is only compatible with R >= 4.0.0

@@ -232,7 +232,14 @@ create_processes <- function(
       indoor_spraying(variables$spray_time, parameters, correlations)
     )
   }
-  
+
+  if (parameters$semiochemical) {
+    processes <- c(
+      processes,
+      distribute_semiochemical(variables$semiochemical_time, parameters)
+    )
+  }
+
   # ======================
   # Progress bar process
   # ======================

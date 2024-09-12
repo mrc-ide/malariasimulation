@@ -4,7 +4,7 @@ age. Efficacy will take effect after the last dose"><!-- mathjax --><script src=
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-reference-topic">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -18,7 +18,7 @@ age. Efficacy will take effect after the last dose"><!-- mathjax --><script src=
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.6.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.0</span>
       </span>
     </div>
 
@@ -26,7 +26,7 @@ age. Efficacy will take effect after the last dose"><!-- mathjax --><script src=
       <ul class="nav navbar-nav"><li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Vignettes
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
@@ -78,20 +78,20 @@ age. Efficacy will take effect after the last dose"><!-- mathjax --><script src=
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/mrc-ide/malariasimulation" class="external-link">
     <span class="fa fa-github"></span>
-     
+
   </a>
 </li>
       </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Parameterise a pre-erythrocytic vaccine with an EPI strategy</h1>
-    
+
     <div class="hidden name"><code>set_pev_epi.Rd</code></div>
     </div>
 
@@ -108,7 +108,7 @@ age. Efficacy will take effect after the last dose</p>
 <span>  <span class="va">timesteps</span>,</span>
 <span>  <span class="va">age</span>,</span>
 <span>  <span class="va">min_wait</span>,</span>
-<span>  <span class="va">booster_timestep</span>,</span>
+<span>  <span class="va">booster_spacing</span>,</span>
 <span>  <span class="va">booster_coverage</span>,</span>
 <span>  <span class="va">booster_profile</span>,</span>
 <span>  seasonal_boosters <span class="op">=</span> <span class="cn">FALSE</span></span>
@@ -117,28 +117,30 @@ age. Efficacy will take effect after the last dose</p>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>parameters</dt>
+
+
+<dl><dt id="arg-parameters">parameters<a class="anchor" aria-label="anchor" href="#arg-parameters"></a></dt>
 <dd><p>a list of parameters to modify</p></dd>
 
 
-<dt>profile</dt>
-<dd><p>primary vaccine profile of type PEVProfile</p></dd>
+<dt id="arg-profile">profile<a class="anchor" aria-label="anchor" href="#arg-profile"></a></dt>
+<dd><p>a list of details for the vaccine profile, create with <code>create_pev_profile</code></p></dd>
 
 
-<dt>coverages</dt>
+<dt id="arg-coverages">coverages<a class="anchor" aria-label="anchor" href="#arg-coverages"></a></dt>
 <dd><p>a vector of coverages for the primary doses</p></dd>
 
 
-<dt>timesteps</dt>
-<dd><p>a vector of timesteps associated with coverages</p></dd>
+<dt id="arg-timesteps">timesteps<a class="anchor" aria-label="anchor" href="#arg-timesteps"></a></dt>
+<dd><p>a vector of timesteps for each change in coverage</p></dd>
 
 
-<dt>age</dt>
+<dt id="arg-age">age<a class="anchor" aria-label="anchor" href="#arg-age"></a></dt>
 <dd><p>the age when an individual will receive the first dose of the
 vaccine (in timesteps)</p></dd>
 
 
-<dt>min_wait</dt>
+<dt id="arg-min-wait">min_wait<a class="anchor" aria-label="anchor" href="#arg-min-wait"></a></dt>
 <dd><p>the minimum acceptable time since the last vaccination (in
 timesteps); When seasonal_boosters = TRUE, this represents the minimum time
 between an individual receiving the final dose and the first booster. When using
@@ -146,22 +148,21 @@ both set_mass_pev and set_pev_epi, this represents the minimum time between
 an individual being vaccinated under one scheme and vaccinated under another.</p></dd>
 
 
-<dt>booster_timestep</dt>
-<dd><p>the timesteps (following the final dose) at which booster vaccinations are administered</p></dd>
+<dt id="arg-booster-spacing">booster_spacing<a class="anchor" aria-label="anchor" href="#arg-booster-spacing"></a></dt>
+<dd><p>the timesteps (following the final primary dose) at which booster vaccinations are administered</p></dd>
 
 
-<dt>booster_coverage</dt>
-<dd><p>the proportion of the vaccinated population relative to the last vaccination (whether a previous booster or the primary series)</p></dd>
+<dt id="arg-booster-coverage">booster_coverage<a class="anchor" aria-label="anchor" href="#arg-booster-coverage"></a></dt>
+<dd><p>a matrix of coverages (timesteps x boosters) specifying the proportion the previously vaccinated population to continue receiving booster doses. The rows of the matrix must be the same size as <code>timesteps</code>. The columns of the matrix must be the same size as <code>booster_spacing</code>.</p></dd>
 
 
-<dt>booster_profile</dt>
-<dd><p>list of booster vaccine profiles, of type
-PEVProfile, for each timestep in booster_timeteps</p></dd>
+<dt id="arg-booster-profile">booster_profile<a class="anchor" aria-label="anchor" href="#arg-booster-profile"></a></dt>
+<dd><p>list of lists representing each booster profile, the outer list must be the same length as <code>booster_spacing</code>. Create vaccine profiles with <code>create_pev_profile</code></p></dd>
 
 
-<dt>seasonal_boosters</dt>
+<dt id="arg-seasonal-boosters">seasonal_boosters<a class="anchor" aria-label="anchor" href="#arg-seasonal-boosters"></a></dt>
 <dd><p>logical, if TRUE the first booster timestep is
-relative to the start of the year, otherwise they are relative to the last dose</p></dd>
+relative to the start of the year, otherwise they are relative to the last primary dose</p></dd>
 
 </dl></div>
 
@@ -177,15 +178,15 @@ relative to the start of the year, otherwise they are relative to the last dose<
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer></div>
 
-  
 
 
-  
+
+
 
   </body></html>
 

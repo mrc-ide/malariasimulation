@@ -1,183 +1,70 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>/404.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>/LICENSE.html</loc>
-  </url>
-  <url>
-    <loc>/articles/Carrying-capacity.html</loc>
-  </url>
-  <url>
-    <loc>/articles/Demography.html</loc>
-  </url>
-  <url>
-    <loc>/articles/EIRprevmatch.html</loc>
-  </url>
-  <url>
-    <loc>/articles/MDA.html</loc>
-  </url>
-  <url>
-    <loc>/articles/Metapopulation.html</loc>
-  </url>
-  <url>
-    <loc>/articles/Model.html</loc>
-  </url>
-  <url>
-    <loc>/articles/Parameter_variation.html</loc>
-  </url>
-  <url>
-    <loc>/articles/SetSpecies.html</loc>
-  </url>
-  <url>
-    <loc>/articles/Treatment.html</loc>
-  </url>
-  <url>
-    <loc>/articles/Vaccines.html</loc>
-  </url>
-  <url>
-    <loc>/articles/Variation.html</loc>
-  </url>
-  <url>
-    <loc>/articles/VectorControl_Bednets.html</loc>
-  </url>
-  <url>
-    <loc>/articles/VectorControl_IRS.html</loc>
-  </url>
-  <url>
-    <loc>/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>/authors.html</loc>
-  </url>
-  <url>
-    <loc>/index.html</loc>
-  </url>
-  <url>
-    <loc>/news/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/AL_params.html</loc>
-  </url>
-  <url>
-    <loc>/reference/CorrelationParameters.html</loc>
-  </url>
-  <url>
-    <loc>/reference/DHA_PQP_params.html</loc>
-  </url>
-  <url>
-    <loc>/reference/SP_AQ_params.html</loc>
-  </url>
-  <url>
-    <loc>/reference/arab_params.html</loc>
-  </url>
-  <url>
-    <loc>/reference/calculate_carrying_capacity.html</loc>
-  </url>
-  <url>
-    <loc>/reference/create_pev_profile.html</loc>
-  </url>
-  <url>
-    <loc>/reference/create_progress_process.html</loc>
-  </url>
-  <url>
-    <loc>/reference/find_birthrates.html</loc>
-  </url>
-  <url>
-    <loc>/reference/fun_params.html</loc>
-  </url>
-  <url>
-    <loc>/reference/gamb_params.html</loc>
-  </url>
-  <url>
-    <loc>/reference/get_correlation_parameters.html</loc>
-  </url>
-  <url>
-    <loc>/reference/get_init_carrying_capacity.html</loc>
-  </url>
-  <url>
-    <loc>/reference/get_parameters.html</loc>
-  </url>
-  <url>
-    <loc>/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>/reference/parameter_draws.html</loc>
-  </url>
-  <url>
-    <loc>/reference/parameterise_mosquito_equilibrium.html</loc>
-  </url>
-  <url>
-    <loc>/reference/parameterise_total_M.html</loc>
-  </url>
-  <url>
-    <loc>/reference/peak_season_offset.html</loc>
-  </url>
-  <url>
-    <loc>/reference/rtss_booster_profile.html</loc>
-  </url>
-  <url>
-    <loc>/reference/rtss_profile.html</loc>
-  </url>
-  <url>
-    <loc>/reference/run_metapop_simulation.html</loc>
-  </url>
-  <url>
-    <loc>/reference/run_simulation.html</loc>
-  </url>
-  <url>
-    <loc>/reference/run_simulation_with_repetitions.html</loc>
-  </url>
-  <url>
-    <loc>/reference/set_bednets.html</loc>
-  </url>
-  <url>
-    <loc>/reference/set_carrying_capacity.html</loc>
-  </url>
-  <url>
-    <loc>/reference/set_clinical_treatment.html</loc>
-  </url>
-  <url>
-    <loc>/reference/set_demography.html</loc>
-  </url>
-  <url>
-    <loc>/reference/set_drugs.html</loc>
-  </url>
-  <url>
-    <loc>/reference/set_equilibrium.html</loc>
-  </url>
-  <url>
-    <loc>/reference/set_mass_pev.html</loc>
-  </url>
-  <url>
-    <loc>/reference/set_mda.html</loc>
-  </url>
-  <url>
-    <loc>/reference/set_parameter_draw.html</loc>
-  </url>
-  <url>
-    <loc>/reference/set_pev_epi.html</loc>
-  </url>
-  <url>
-    <loc>/reference/set_pmc.html</loc>
-  </url>
-  <url>
-    <loc>/reference/set_smc.html</loc>
-  </url>
-  <url>
-    <loc>/reference/set_species.html</loc>
-  </url>
-  <url>
-    <loc>/reference/set_spraying.html</loc>
-  </url>
-  <url>
-    <loc>/reference/set_tbv.html</loc>
-  </url>
-  <url>
-    <loc>/reference/steph_params.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/LICENSE-text.html</loc></url>
+<url><loc>/LICENSE.html</loc></url>
+<url><loc>/articles/Antimalarial_Resistance.html</loc></url>
+<url><loc>/articles/Carrying-capacity.html</loc></url>
+<url><loc>/articles/Demography.html</loc></url>
+<url><loc>/articles/EIRprevmatch.html</loc></url>
+<url><loc>/articles/MDA.html</loc></url>
+<url><loc>/articles/Metapopulation.html</loc></url>
+<url><loc>/articles/Model.html</loc></url>
+<url><loc>/articles/Parameter_variation.html</loc></url>
+<url><loc>/articles/SetSpecies.html</loc></url>
+<url><loc>/articles/Treatment.html</loc></url>
+<url><loc>/articles/Vaccines.html</loc></url>
+<url><loc>/articles/Variation.html</loc></url>
+<url><loc>/articles/VectorControl_Bednets.html</loc></url>
+<url><loc>/articles/VectorControl_IRS.html</loc></url>
+<url><loc>/articles/index.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/news/index.html</loc></url>
+<url><loc>/reference/AL_params.html</loc></url>
+<url><loc>/reference/CorrelationParameters.html</loc></url>
+<url><loc>/reference/DHA_PQP_params.html</loc></url>
+<url><loc>/reference/SP_AQ_params.html</loc></url>
+<url><loc>/reference/arab_params.html</loc></url>
+<url><loc>/reference/calculate_carrying_capacity.html</loc></url>
+<url><loc>/reference/create_pev_profile.html</loc></url>
+<url><loc>/reference/create_progress_process.html</loc></url>
+<url><loc>/reference/find_birthrates.html</loc></url>
+<url><loc>/reference/fun_params.html</loc></url>
+<url><loc>/reference/gamb_params.html</loc></url>
+<url><loc>/reference/get_antimalarial_resistance_parameters.html</loc></url>
+<url><loc>/reference/get_correlation_parameters.html</loc></url>
+<url><loc>/reference/get_init_carrying_capacity.html</loc></url>
+<url><loc>/reference/get_parameters.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/parameter_draws.html</loc></url>
+<url><loc>/reference/parameterise_mosquito_equilibrium.html</loc></url>
+<url><loc>/reference/parameterise_total_M.html</loc></url>
+<url><loc>/reference/peak_season_offset.html</loc></url>
+<url><loc>/reference/r21_booster_profile.html</loc></url>
+<url><loc>/reference/r21_profile.html</loc></url>
+<url><loc>/reference/rtss_booster_profile.html</loc></url>
+<url><loc>/reference/rtss_profile.html</loc></url>
+<url><loc>/reference/run_metapop_simulation.html</loc></url>
+<url><loc>/reference/run_resumable_simulation.html</loc></url>
+<url><loc>/reference/run_simulation.html</loc></url>
+<url><loc>/reference/run_simulation_with_repetitions.html</loc></url>
+<url><loc>/reference/set_antimalarial_resistance.html</loc></url>
+<url><loc>/reference/set_bednets.html</loc></url>
+<url><loc>/reference/set_carrying_capacity.html</loc></url>
+<url><loc>/reference/set_clinical_treatment.html</loc></url>
+<url><loc>/reference/set_demography.html</loc></url>
+<url><loc>/reference/set_drugs.html</loc></url>
+<url><loc>/reference/set_epi_outputs.html</loc></url>
+<url><loc>/reference/set_equilibrium.html</loc></url>
+<url><loc>/reference/set_mass_pev.html</loc></url>
+<url><loc>/reference/set_mda.html</loc></url>
+<url><loc>/reference/set_parameter_draw.html</loc></url>
+<url><loc>/reference/set_pev_epi.html</loc></url>
+<url><loc>/reference/set_pmc.html</loc></url>
+<url><loc>/reference/set_smc.html</loc></url>
+<url><loc>/reference/set_species.html</loc></url>
+<url><loc>/reference/set_spraying.html</loc></url>
+<url><loc>/reference/set_tbv.html</loc></url>
+<url><loc>/reference/steph_params.html</loc></url>
 </urlset>
+

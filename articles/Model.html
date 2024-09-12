@@ -12,14 +12,13 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Model Introduction">
-<meta property="og:description" content="malariasimulation">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -33,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.6.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.0</span>
       </span>
     </div>
 
@@ -42,7 +41,7 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Vignettes
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -98,7 +97,7 @@
 <li>
   <a href="https://github.com/mrc-ide/malariasimulation" class="external-link">
     <span class="fa fa-github"></span>
-     
+
   </a>
 </li>
       </ul>
@@ -109,7 +108,7 @@
 </div>
 <!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
@@ -117,7 +116,7 @@
       <h1 data-toc-skip>Model Introduction</h1>
             
       
-      
+
       <div class="hidden name"><code>Model.Rmd</code></div>
 
     </div>
@@ -164,43 +163,45 @@ processes are described in the following files:</p>
 <p>Parameters shown on the infographic include:</p>
 <ul>
 <li>
-<span class="math inline">\(\Lambda_i\)</span>: the age-specific
-(<em>i</em>) force of infection</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Λ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\Lambda_i</annotation></semantics></math>:
+the age-specific (<em>i</em>) force of infection</li>
 <li>
-<span class="math inline">\(\phi_i\)</span>: the age-specific
-(<em>i</em>) probability of clinical disease</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ϕ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\phi_i</annotation></semantics></math>:
+the age-specific (<em>i</em>) probability of clinical disease</li>
 <li>
-<span class="math inline">\(f_T\)</span>: the probability of
-receiving treatment (or force of treatment)</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mi>T</mi></msub><annotation encoding="application/x-tex">f_T</annotation></semantics></math>:
+the probability of receiving treatment (or force of treatment)</li>
 </ul>
 <p>with the rates of recovery:</p>
 <ul>
 <li>
-<span class="math inline">\(r_D\)</span>: from clinical disease to
-asymptomatic infection</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mi>D</mi></msub><annotation encoding="application/x-tex">r_D</annotation></semantics></math>:
+from clinical disease to asymptomatic infection</li>
 <li>
-<span class="math inline">\(r_A\)</span>: from asymptomatic
-infection to sub-patent infection</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mi>A</mi></msub><annotation encoding="application/x-tex">r_A</annotation></semantics></math>:
+from asymptomatic infection to sub-patent infection</li>
 <li>
-<span class="math inline">\(r_U\)</span>: from sub-patent infection
-to complete recovery</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mi>U</mi></msub><annotation encoding="application/x-tex">r_U</annotation></semantics></math>:
+from sub-patent infection to complete recovery</li>
 <li>
-<span class="math inline">\(r_T\)</span>: from treated clinical
-disease to complete recovery</li>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mi>T</mi></msub><annotation encoding="application/x-tex">r_T</annotation></semantics></math>:
+from treated clinical disease to complete recovery</li>
 </ul>
 <p>Superinfection may occur in individuals with asymptomatic or
 sub-patent infections at the same rates as standard infection (dashed
 arrows).</p>
-<p>The force of infection (<span class="math inline">\(\Lambda_i\)</span>) is impacted by
-pre-erythrocytic immunity, mosquito biting rate and population size and
-level of infectivity (specific details can be found in the references
-below). All default parameters can be found in the documentation for the
-function <code><a href="../reference/get_parameters.html">get_parameters()</a></code>. Please also note that while the
-infographic above displays rate parameters, the parameter list uses
-delay durations, e.g. the rate <span class="math inline">\(r_D\)</span>
+<p>The force of infection
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Λ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\Lambda_i</annotation></semantics></math>)
+is impacted by pre-erythrocytic immunity, mosquito biting rate and
+population size and level of infectivity (specific details can be found
+in the references below). All default parameters can be found in the
+documentation for the function <code><a href="../reference/get_parameters.html">get_parameters()</a></code>. Please
+also note that while the infographic above displays rate parameters, the
+parameter list uses delay durations, e.g. the rate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mi>D</mi></msub><annotation encoding="application/x-tex">r_D</annotation></semantics></math>
 is the inverse of the delay from state <em>D</em> to <em>A</em>
 (<code>dr</code> in the model):</p>
-<p><span class="math display">\[r_D=dr^{-1}\]</span></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mi>D</mi></msub><mo>=</mo><mi>d</mi><msup><mi>r</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">r_D=dr^{-1}</annotation></semantics></math></p>
 <p>To maintain a constant population size during simulations, the birth
 rate of new susceptible individuals is set to be equal to the overall
 death rate.</p>
@@ -235,40 +236,43 @@ mosquitoes.</p>
 <p>Parameters shown on the infographic include mosquito developmental
 rates:</p>
 <ul>
-<li><p><span class="math inline">\(r_{EL}\)</span>: from early to late
-larval stage</p></li>
-<li><p><span class="math inline">\(r_{L}\)</span>: from late larval
-stage to pupal stage</p></li>
-<li><p><span class="math inline">\(r_P\)</span>: from pupal stage to
-adult stage</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mrow><mi>E</mi><mi>L</mi></mrow></msub><annotation encoding="application/x-tex">r_{EL}</annotation></semantics></math>:
+from early to late larval stage</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mi>L</mi></msub><annotation encoding="application/x-tex">r_{L}</annotation></semantics></math>:
+from late larval stage to pupal stage</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mi>P</mi></msub><annotation encoding="application/x-tex">r_P</annotation></semantics></math>:
+from pupal stage to adult stage</p></li>
 </ul>
 <p>Mosquito infection and incubation rates:</p>
 <ul>
-<li><p><span class="math inline">\(\Lambda_M\)</span>: the force of
-infection on mosquitos (FOIM, i.e. from human to mosquito)</p></li>
-<li><p><span class="math inline">\(r_{EM}\)</span>: extrinsic incubation
-period</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Λ</mi><mi>M</mi></msub><annotation encoding="application/x-tex">\Lambda_M</annotation></semantics></math>:
+the force of infection on mosquitos (FOIM, i.e. from human to
+mosquito)</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mrow><mi>E</mi><mi>M</mi></mrow></msub><annotation encoding="application/x-tex">r_{EM}</annotation></semantics></math>:
+extrinsic incubation period</p></li>
 </ul>
 <p>And mortality rates:</p>
 <ul>
-<li><p><span class="math inline">\(\mu_E(t)\)</span>: the early larval
-stage death rate</p></li>
-<li><p><span class="math inline">\(\mu_L(t)\)</span>: the late larval
-stage death rate</p></li>
-<li><p><span class="math inline">\(\mu_P\)</span>: the pupal death
-rate</p></li>
-<li><p><span class="math inline">\(\mu_M\)</span>: the adult mosquito
-death rate</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mi>E</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mu_E(t)</annotation></semantics></math>:
+the early larval stage death rate</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mi>L</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mu_L(t)</annotation></semantics></math>:
+the late larval stage death rate</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mi>P</mi></msub><annotation encoding="application/x-tex">\mu_P</annotation></semantics></math>:
+the pupal death rate</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mi>M</mi></msub><annotation encoding="application/x-tex">\mu_M</annotation></semantics></math>:
+the adult mosquito death rate</p></li>
 </ul>
 <p>Larval mosquitoes experience density dependent mortality due to a
-carrying capacity, <span class="math inline">\(K(t)\)</span>, which may
-change seasonally with rainfall and where <span class="math inline">\(\gamma\)</span> is the effect of
-density-dependence on late stage larvae compared with early stage larvae
-as follows:</p>
-<p><span class="math display">\[
+carrying capacity,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">K(t)</annotation></semantics></math>,
+which may change seasonally with rainfall and where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>γ</mi><annotation encoding="application/x-tex">\gamma</annotation></semantics></math>
+is the effect of density-dependence on late stage larvae compared with
+early stage larvae as follows:</p>
+<p><span class="math display">$$
 \mu_E = \mu_E^0(1+\frac{E(t)+L(t)}{K(t)}) \\
 \mu_L = \mu_L^0(1+\gamma\frac{E(t)+L(t)}{K(t)})
-\]</span></p>
+$$</span></p>
 </div>
 </div>
 <div class="section level3">
@@ -360,15 +364,15 @@ infection</li>
 <code>ivm_mean</code>: mean maternal immunity to severe
 infection</li>
 <li>
-<code>n_730_3650</code>: population size of an age group of interest
-(where the default is set to 730-3650 days old, or 2-10 years, but which
-may be adjusted (see <a href="https://mrc-ide.github.io/malariasimulation/articles/Demography.html" class="external-link">Demography</a>
+<code>n_age_730_3650</code>: population size of an age group of
+interest (where the default is set to 730-3650 days old, or 2-10 years,
+but which may be adjusted (see <a href="https://mrc-ide.github.io/malariasimulation/articles/Demography.html" class="external-link">Demography</a>
 vignette for more details)</li>
 <li>
-<code>n_detect_730_3650</code>: number with possible detection
+<code>n_detect_lm_730_3650</code>: number with possible detection
 through microscopy of a given age group</li>
 <li>
-<code>p_detect_730_3650</code>: the sum of probabilities of
+<code>p_detect_lm_730_3650</code>: the sum of probabilities of
 detection through microscopy of a given age group</li>
 <li>
 <code>E_gamb_count</code>, <code>L_gamb_count</code>,
@@ -382,26 +386,26 @@ mosquitoes (default set to <em>An. gambiae</em>)</li>
 </ul>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">test_sim</span>, n <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   timestep infectivity EIR_gamb   FOIM_gamb mu_gamb n_bitten n_infections</span></span>
-<span><span class="co">#&gt; 1        1    0.031406        0 0.006284865   0.132        0            0</span></span>
-<span><span class="co">#&gt; 2        2    0.031406        0 0.006284865   0.132        0            0</span></span>
-<span><span class="co">#&gt; 3        3    0.030788        0 0.006284865   0.132        0            0</span></span>
-<span><span class="co">#&gt;   natural_deaths S_count A_count D_count U_count Tr_count ica_mean icm_mean</span></span>
-<span><span class="co">#&gt; 1              0      42      44       1      13        0        0        0</span></span>
-<span><span class="co">#&gt; 2              0      42      44       1      13        0        0        0</span></span>
-<span><span class="co">#&gt; 3              0      42      43       1      14        0        0        0</span></span>
-<span><span class="co">#&gt;   ib_mean id_mean iva_mean ivm_mean n_730_3650 n_detect_730_3650</span></span>
-<span><span class="co">#&gt; 1       0       0        0        0         37                19</span></span>
-<span><span class="co">#&gt; 2       0       0        0        0         36                19</span></span>
-<span><span class="co">#&gt; 3       0       0        0        0         36                19</span></span>
-<span><span class="co">#&gt;   p_detect_730_3650 E_gamb_count L_gamb_count P_gamb_count Sm_gamb_count</span></span>
-<span><span class="co">#&gt; 1                19     39147.67     1139.318     169.7520      994.1303</span></span>
-<span><span class="co">#&gt; 2                19     39142.56     1139.333     169.7485      989.0188</span></span>
-<span><span class="co">#&gt; 3                19     39133.52     1139.286     169.7476      984.5653</span></span>
-<span><span class="co">#&gt;   Pm_gamb_count Im_gamb_count total_M_gamb</span></span>
-<span><span class="co">#&gt; 1      5.869671             0     1000.000</span></span>
-<span><span class="co">#&gt; 2     10.981277             0     1000.000</span></span>
-<span><span class="co">#&gt; 3     15.432717             0      999.998</span></span></code></pre></div>
+<span><span class="co">#&gt;   timestep n_infections infectivity EIR_gamb   FOIM_gamb mu_gamb n_bitten</span></span>
+<span><span class="co">#&gt; 1        1            0    0.031406        0 0.007188826   0.132        0</span></span>
+<span><span class="co">#&gt; 2        2            0    0.031406        0 0.007188826   0.132        0</span></span>
+<span><span class="co">#&gt; 3        3            0    0.031406        0 0.007188826   0.132        0</span></span>
+<span><span class="co">#&gt;   S_count A_count D_count U_count Tr_count ica_mean icm_mean id_mean ib_mean</span></span>
+<span><span class="co">#&gt; 1      42      44       1      13        0        0        0       0       0</span></span>
+<span><span class="co">#&gt; 2      42      44       1      13        0        0        0       0       0</span></span>
+<span><span class="co">#&gt; 3      42      45       0      13        0        0        0       0       0</span></span>
+<span><span class="co">#&gt;   iva_mean ivm_mean n_detect_lm_730_3650 p_detect_lm_730_3650</span></span>
+<span><span class="co">#&gt; 1        0        0                   14                   14</span></span>
+<span><span class="co">#&gt; 2        0        0                   14                   14</span></span>
+<span><span class="co">#&gt; 3        0        0                   14                   14</span></span>
+<span><span class="co">#&gt;   n_detect_pcr_730_3650 n_age_730_3650 E_gamb_count L_gamb_count P_gamb_count</span></span>
+<span><span class="co">#&gt; 1                    16             27     39151.84     1139.318     169.7520</span></span>
+<span><span class="co">#&gt; 2                    16             27     39151.01     1139.246     169.7578</span></span>
+<span><span class="co">#&gt; 3                    16             27     39148.82     1139.301     169.7523</span></span>
+<span><span class="co">#&gt;   Sm_gamb_count Pm_gamb_count Im_gamb_count total_M_gamb natural_deaths</span></span>
+<span><span class="co">#&gt; 1      993.2890      6.710951             0    1000.0000              0</span></span>
+<span><span class="co">#&gt; 2      987.4494     12.549906             0     999.9993              0</span></span>
+<span><span class="co">#&gt; 3      982.3697     17.630169             0     999.9998              0</span></span></code></pre></div>
 <p>Additional output details can be found in the
 <code><a href="../reference/run_simulation.html">run_simulation()</a></code> documentation.</p>
 </div>
@@ -429,8 +433,8 @@ treatment. Where <strong>bed nets</strong> are distributed,
 <p>These outputs can then be visualised, such as the population changes
 in states. Another key output is the prevalence of detectable infections
 between the ages of 2-10 (<em>Pf</em>PR<sub>2-10</sub>), which can be
-obtained by dividing <code>n_detect_730_3650</code> by
-<code>n_730_3650</code>.</p>
+obtained by dividing <code>n_detect_lm_730_3650</code> by
+<code>n_age_730_3650</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Define vector of column names to plot</span></span>
 <span><span class="va">cols_to_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"S"</span>,<span class="st">"D"</span>,<span class="st">"A"</span>,<span class="st">"U"</span>,<span class="st">"Tr"</span><span class="op">)</span>,<span class="st">"_count"</span><span class="op">)</span></span>
@@ -458,7 +462,7 @@ obtained by dividing <code>n_detect_730_3650</code> by
 <span><span class="fu">states_plot</span><span class="op">(</span><span class="va">test_sim</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Calculate Pf PR 2-10</span></span>
-<span><span class="va">test_sim</span><span class="op">$</span><span class="va">PfPR2_10</span> <span class="op">&lt;-</span> <span class="va">test_sim</span><span class="op">$</span><span class="va">n_detect_730_3650</span><span class="op">/</span><span class="va">test_sim</span><span class="op">$</span><span class="va">n_730_3650</span></span>
+<span><span class="va">test_sim</span><span class="op">$</span><span class="va">PfPR2_10</span> <span class="op">&lt;-</span> <span class="va">test_sim</span><span class="op">$</span><span class="va">n_detect_lm_730_3650</span><span class="op">/</span><span class="va">test_sim</span><span class="op">$</span><span class="va">n_age_730_3650</span></span>
 <span></span>
 <span><span class="co"># Plot Pf PR 2-10</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">test_sim</span><span class="op">$</span><span class="va">timestep</span>, y <span class="op">=</span> <span class="va">test_sim</span><span class="op">$</span><span class="va">PfPR2_10</span>, type <span class="op">=</span> <span class="st">"l"</span>,</span>
@@ -487,7 +491,7 @@ an initial EIR value:</p>
 <span><span class="fu">states_plot</span><span class="op">(</span><span class="va">test_sim_eq</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Calculate Pf PR 2-10</span></span>
-<span><span class="va">test_sim_eq</span><span class="op">$</span><span class="va">PfPR2_10</span> <span class="op">&lt;-</span> <span class="va">test_sim_eq</span><span class="op">$</span><span class="va">n_detect_730_3650</span><span class="op">/</span><span class="va">test_sim_eq</span><span class="op">$</span><span class="va">n_730_3650</span></span>
+<span><span class="va">test_sim_eq</span><span class="op">$</span><span class="va">PfPR2_10</span> <span class="op">&lt;-</span> <span class="va">test_sim_eq</span><span class="op">$</span><span class="va">n_detect_lm_730_3650</span><span class="op">/</span><span class="va">test_sim_eq</span><span class="op">$</span><span class="va">n_age_730_3650</span></span>
 <span></span>
 <span><span class="co"># Plot Pf PR 2-10</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">test_sim_eq</span><span class="op">$</span><span class="va">timestep</span>, y <span class="op">=</span> <span class="va">test_sim_eq</span><span class="op">$</span><span class="va">PfPR2_10</span>, type <span class="op">=</span> <span class="st">"l"</span>,</span>
@@ -695,9 +699,7 @@ variation</li>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
+      </div>
 
 </div>
 
@@ -710,16 +712,16 @@ variation</li>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer>
 </div>
 
-  
 
 
-  
+
+
 
   </body>
 </html>

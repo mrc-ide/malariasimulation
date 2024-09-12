@@ -25,16 +25,13 @@ id_mean: the mean immunity from detection through microscopy over the population
 n: number of humans between an inclusive age range at this timestep. This
 defaults to n_730_3650. Other age ranges can be set with
 prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
-n_detect: number of humans with an infection detectable by microscopy between an inclusive age range at this timestep. This
+n_detect_lm (or pcr): number of humans with an infection detectable by microscopy (or pcr) between an inclusive age range at this timestep. This
 defaults to n_detect_730_3650. Other age ranges can be set with
 prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
-p_detect: the sum of probabilities of detection by microscopy between an
+p_detect_lm (or pcr): the sum of probabilities of detection by microscopy (or pcr) between an
 inclusive age range at this timestep. This
 defaults to p_detect_730_3650. Other age ranges can be set with
 prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.
-n_severe: number of humans with a severe infection between an inclusive
-age range at this timestep. Age ranges can be set with
-severe_prevalence_rendering_min_ages and severe_prevalence_rendering_max_ages parameters.
 n_inc: number of new infections for humans between an inclusive age range at this timestep.
 incidence columns can be set with
 incidence_rendering_min_ages and incidence_rendering_max_ages parameters.
@@ -70,12 +67,16 @@ rate_U_S: rate that humans transition from subpatent to
 susceptible
 net_usage: the number people protected by a bed net
 mosquito_deaths: number of adult female mosquitoes who die this timestep
+n_drug_efficacy_failures: number of clinically treated individuals whose treatment failed due to drug efficacy
+n_early_treatment_failure: number of clinically treated individuals who experienced early treatment failure
+n_successfully_treated: number of clinically treated individuals who are treated successfully (includes individuals who experience slow parasite clearance)
+n_slow_parasite_clearance: number of clinically treated individuals who experienced slow parasite clearance
 
 "><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-reference-topic">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -89,7 +90,7 @@ mosquito_deaths: number of adult female mosquitoes who die this timestep
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.6.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.0</span>
       </span>
     </div>
 
@@ -97,7 +98,7 @@ mosquito_deaths: number of adult female mosquitoes who die this timestep
       <ul class="nav navbar-nav"><li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Vignettes
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
@@ -149,20 +150,20 @@ mosquito_deaths: number of adult female mosquitoes who die this timestep
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/mrc-ide/malariasimulation" class="external-link">
     <span class="fa fa-github"></span>
-     
+
   </a>
 </li>
       </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Run the simulation</h1>
-    
+
     <div class="hidden name"><code>run_simulation.Rd</code></div>
     </div>
 
@@ -192,16 +193,13 @@ the whole population)</p></li>
 <li><p>n: number of humans between an inclusive age range at this timestep. This
 defaults to n_730_3650. Other age ranges can be set with
 prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.</p></li>
-<li><p>n_detect: number of humans with an infection detectable by microscopy between an inclusive age range at this timestep. This
+<li><p>n_detect_lm (or pcr): number of humans with an infection detectable by microscopy (or pcr) between an inclusive age range at this timestep. This
 defaults to n_detect_730_3650. Other age ranges can be set with
 prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.</p></li>
-<li><p>p_detect: the sum of probabilities of detection by microscopy between an
+<li><p>p_detect_lm (or pcr): the sum of probabilities of detection by microscopy (or pcr) between an
 inclusive age range at this timestep. This
 defaults to p_detect_730_3650. Other age ranges can be set with
 prevalence_rendering_min_ages and prevalence_rendering_max_ages parameters.</p></li>
-<li><p>n_severe: number of humans with a severe infection between an inclusive
-age range at this timestep. Age ranges can be set with
-severe_prevalence_rendering_min_ages and severe_prevalence_rendering_max_ages parameters.</p></li>
 <li><p>n_inc: number of new infections for humans between an inclusive age range at this timestep.
 incidence columns can be set with
 incidence_rendering_min_ages and incidence_rendering_max_ages parameters.</p></li>
@@ -237,6 +235,10 @@ subpatent</p></li>
 susceptible</p></li>
 <li><p>net_usage: the number people protected by a bed net</p></li>
 <li><p>mosquito_deaths: number of adult female mosquitoes who die this timestep</p></li>
+<li><p>n_drug_efficacy_failures: number of clinically treated individuals whose treatment failed due to drug efficacy</p></li>
+<li><p>n_early_treatment_failure: number of clinically treated individuals who experienced early treatment failure</p></li>
+<li><p>n_successfully_treated: number of clinically treated individuals who are treated successfully (includes individuals who experience slow parasite clearance)</p></li>
+<li><p>n_slow_parasite_clearance: number of clinically treated individuals who experienced slow parasite clearance</p></li>
 </ul></div>
 
     <div id="ref-usage">
@@ -245,23 +247,23 @@ susceptible</p></li>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>timesteps</dt>
+
+
+<dl><dt id="arg-timesteps">timesteps<a class="anchor" aria-label="anchor" href="#arg-timesteps"></a></dt>
 <dd><p>the number of timesteps to run the simulation for (in days)</p></dd>
 
 
-<dt>parameters</dt>
+<dt id="arg-parameters">parameters<a class="anchor" aria-label="anchor" href="#arg-parameters"></a></dt>
 <dd><p>a named list of parameters to use</p></dd>
 
 
-<dt>correlations</dt>
+<dt id="arg-correlations">correlations<a class="anchor" aria-label="anchor" href="#arg-correlations"></a></dt>
 <dd><p>correlation parameters</p></dd>
 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    
-
-<p>dataframe of results</p>
+    <p>dataframe of results</p>
     </div>
 
   </div>
@@ -276,15 +278,15 @@ susceptible</p></li>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer></div>
 
-  
 
 
-  
+
+
 
   </body></html>
 

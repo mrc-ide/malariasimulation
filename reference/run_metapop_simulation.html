@@ -3,7 +3,7 @@
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-reference-topic">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.6.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.0</span>
       </span>
     </div>
 
@@ -25,7 +25,7 @@
       <ul class="nav navbar-nav"><li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Vignettes
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
@@ -77,20 +77,20 @@
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/mrc-ide/malariasimulation" class="external-link">
     <span class="fa fa-github"></span>
-     
+
   </a>
 </li>
       </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Run a metapopulation model</h1>
-    
+
     <div class="hidden name"><code>run_metapop_simulation.Rd</code></div>
     </div>
 
@@ -99,35 +99,70 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">run_metapop_simulation</span><span class="op">(</span><span class="va">timesteps</span>, <span class="va">parameters</span>, correlations <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">mixing</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">run_metapop_simulation</span><span class="op">(</span></span>
+<span>  <span class="va">timesteps</span>,</span>
+<span>  <span class="va">parameters</span>,</span>
+<span>  correlations <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">mixing_tt</span>,</span>
+<span>  <span class="va">export_mixing</span>,</span>
+<span>  <span class="va">import_mixing</span>,</span>
+<span>  <span class="va">p_captured_tt</span>,</span>
+<span>  <span class="va">p_captured</span>,</span>
+<span>  <span class="va">p_success</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>timesteps</dt>
+
+
+<dl><dt id="arg-timesteps">timesteps<a class="anchor" aria-label="anchor" href="#arg-timesteps"></a></dt>
 <dd><p>the number of timesteps to run the simulation for (in days)</p></dd>
 
 
-<dt>parameters</dt>
+<dt id="arg-parameters">parameters<a class="anchor" aria-label="anchor" href="#arg-parameters"></a></dt>
 <dd><p>a list of model parameter lists for each population</p></dd>
 
 
-<dt>correlations</dt>
+<dt id="arg-correlations">correlations<a class="anchor" aria-label="anchor" href="#arg-correlations"></a></dt>
 <dd><p>a list of correlation parameters for each population
 (default: NULL)</p></dd>
 
 
-<dt>mixing</dt>
-<dd><p>matrix of mixing coefficients for infectivity towards
-mosquitoes. Rows = origin sites, columns = destinations. Each element must
-be between 0 and 1 and all rows must sum to 1.</p></dd>
+<dt id="arg-mixing-tt">mixing_tt<a class="anchor" aria-label="anchor" href="#arg-mixing-tt"></a></dt>
+<dd><p>a vector of time steps for each mixing matrix</p></dd>
+
+
+<dt id="arg-export-mixing">export_mixing<a class="anchor" aria-label="anchor" href="#arg-export-mixing"></a></dt>
+<dd><p>a list of matrices of coefficients for exportation of infectivity.
+Rows = origin sites, columns = destinations. Each matrix element
+describes the mixing pattern from destination to origin. Each matrix element must
+be between 0 and 1. Each matrix is activated at the corresponding timestep in mixing_tt</p></dd>
+
+
+<dt id="arg-import-mixing">import_mixing<a class="anchor" aria-label="anchor" href="#arg-import-mixing"></a></dt>
+<dd><p>a list of matrices of coefficients for importation of
+infectivity.</p></dd>
+
+
+<dt id="arg-p-captured-tt">p_captured_tt<a class="anchor" aria-label="anchor" href="#arg-p-captured-tt"></a></dt>
+<dd><p>a vector of time steps for each p_captured matrix</p></dd>
+
+
+<dt id="arg-p-captured">p_captured<a class="anchor" aria-label="anchor" href="#arg-p-captured"></a></dt>
+<dd><p>a list of matrices representing the probability that
+travel between sites is intervened by a test and treat border check.
+Dimensions are the same as for <code>export_mixing</code></p></dd>
+
+
+<dt id="arg-p-success">p_success<a class="anchor" aria-label="anchor" href="#arg-p-success"></a></dt>
+<dd><p>the probability that an individual who has tested positive
+(through an RDT) successfully clears their infection through treatment</p></dd>
 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    
-
-<p>a list of dataframe of results</p>
+    <p>a list of dataframe of model outputs as in run_simulation</p>
     </div>
 
   </div>
@@ -142,15 +177,15 @@ be between 0 and 1 and all rows must sum to 1.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer></div>
 
-  
 
 
-  
+
+
 
   </body></html>
 

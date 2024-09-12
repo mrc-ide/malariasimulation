@@ -12,14 +12,13 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Mosquito species">
-<meta property="og:description" content="malariasimulation">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -33,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.6.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.0</span>
       </span>
     </div>
 
@@ -42,7 +41,7 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Vignettes
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
@@ -98,7 +97,7 @@
 <li>
   <a href="https://github.com/mrc-ide/malariasimulation" class="external-link">
     <span class="fa fa-github"></span>
-     
+
   </a>
 </li>
       </ul>
@@ -109,7 +108,7 @@
 </div>
 <!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
@@ -117,7 +116,7 @@
       <h1 data-toc-skip>Mosquito species</h1>
             
       
-      
+
       <div class="hidden name"><code>SetSpecies.Rmd</code></div>
 
     </div>
@@ -171,11 +170,11 @@ this could alter intervention impact using an example with IRS.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plotting functions</span></span>
 <span><span class="va">plot_prev</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">output_endophilic</span><span class="op">$</span><span class="va">timestep</span>, y <span class="op">=</span> <span class="va">output_endophilic</span><span class="op">$</span><span class="va">n_detect_730_3650</span> <span class="op">/</span> <span class="va">output_endophilic</span><span class="op">$</span><span class="va">n_730_3650</span>, </span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">output_endophilic</span><span class="op">$</span><span class="va">timestep</span>, y <span class="op">=</span> <span class="va">output_endophilic</span><span class="op">$</span><span class="va">n_detect_lm_730_3650</span> <span class="op">/</span> <span class="va">output_endophilic</span><span class="op">$</span><span class="va">n_age_730_3650</span>, </span>
 <span>       type <span class="op">=</span> <span class="st">"l"</span>, col <span class="op">=</span> <span class="va">cols</span><span class="op">[</span><span class="fl">3</span><span class="op">]</span>, lwd <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>       xlab <span class="op">=</span> <span class="st">"Time (days)"</span>, ylab <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/expression.html" class="external-link">expression</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu">italic</span><span class="op">(</span><span class="va">Pf</span><span class="op">)</span>,<span class="st">"PR"</span><span class="op">[</span><span class="fl">2</span><span class="op">-</span><span class="fl">10</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>       xaxs <span class="op">=</span> <span class="st">"i"</span>, yaxs <span class="op">=</span> <span class="st">"i"</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">output_exophilic</span><span class="op">$</span><span class="va">timestep</span>, y <span class="op">=</span> <span class="va">output_exophilic</span><span class="op">$</span><span class="va">n_detect_730_3650</span> <span class="op">/</span> <span class="va">output_exophilic</span><span class="op">$</span><span class="va">n_730_3650</span>,</span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">output_exophilic</span><span class="op">$</span><span class="va">timestep</span>, y <span class="op">=</span> <span class="va">output_exophilic</span><span class="op">$</span><span class="va">n_detect_lm_730_3650</span> <span class="op">/</span> <span class="va">output_exophilic</span><span class="op">$</span><span class="va">n_age_730_3650</span>,</span>
 <span>        col <span class="op">=</span> <span class="va">cols</span><span class="op">[</span><span class="fl">5</span><span class="op">]</span>, lwd <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>v <span class="op">=</span> <span class="va">sprayingtimesteps</span>, lty <span class="op">=</span> <span class="fl">2</span>, lwd <span class="op">=</span> <span class="fl">2.5</span>, col <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/text.html" class="external-link">text</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">sprayingtimesteps</span> <span class="op">+</span> <span class="fl">10</span>, y <span class="op">=</span> <span class="fl">0.9</span>, labels <span class="op">=</span> <span class="st">"Spraying\nint."</span>, adj <span class="op">=</span> <span class="fl">0</span>, cex <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span>
@@ -277,9 +276,8 @@ more comprehensive explanation in the Supplementary Information of <a href="http
 <p>We can see below that only the endophilic species is modelled.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">simparams</span><span class="op">$</span><span class="va">species</span></span>
-<span><span class="co">#&gt; [1] "endophilic"</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">simparams</span><span class="op">$</span><span class="va">species_proportions</span></span>
+<span><span class="co">#&gt; [1] "endophilic"</span></span>
+<span><span class="va">simparams</span><span class="op">$</span><span class="va">species_proportions</span></span>
 <span><span class="co">#&gt; [1] 1</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -294,7 +292,7 @@ that now there are two rows for the <code>ls_theta</code>,
 represent timesteps where changes occur, columns represent additional
 species). See the Vector Control: IRS vignette for more information
 about setting IRS with different mosquito species.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Create an example mosquito species (named exophilic) with a low value for `phi_indoors`</span></span>
 <span><span class="va">exophilic_mosquito_params</span> <span class="op">&lt;-</span> <span class="va">fun_params</span></span>
 <span><span class="va">exophilic_mosquito_params</span><span class="op">$</span><span class="va">phi_indoors</span> <span class="op">&lt;-</span> <span class="fl">0.2</span></span>
@@ -334,7 +332,7 @@ the endophilic mosquito species is modelled compared to the scenario
 where an exophilic species is modelled. In this case, IRS will not be as
 effective because a larger proportion of bites take place outside of the
 home.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">plot_prev</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="SetSpecies_files/figure-html/unnamed-chunk-6-1.png" width="100%" style="display: block; margin: auto;"></p>
 </div>
@@ -344,7 +342,7 @@ home.</p>
 </h2>
 <p>Finally, we give an example of how to set multiple mosquito
 species.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Update parameter list with species distributions</span></span>
 <span><span class="va">simparams</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_parameters.html">get_parameters</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -373,9 +371,7 @@ species.</p>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
+      </div>
 
 </div>
 
@@ -388,16 +384,16 @@ species.</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer>
 </div>
 
-  
 
 
-  
+
+
 
   </body>
 </html>

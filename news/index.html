@@ -3,7 +3,7 @@
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-news">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.6.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.0</span>
       </span>
     </div>
 
@@ -25,7 +25,7 @@
       <ul class="nav navbar-nav"><li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Vignettes
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
@@ -77,22 +77,110 @@
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/mrc-ide/malariasimulation" class="external-link">
     <span class="fa fa-github"></span>
-     
+
   </a>
 </li>
       </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
       <h1 data-toc-skip>Changelog <small></small></h1>
-      
+
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="2.0.0" id="malariasimulation-200">malariasimulation 2.0.0<a class="anchor" aria-label="anchor" href="#malariasimulation-200"></a></h2>
+<p>Release v2.0.0. This will mark our shift to <a href="https://semver.org/spec/v2.0.0.html" class="external-link">semver 2.0.0</a> for versioning, i.e:</p>
+<blockquote>
+<p>Given a version number MAJOR.MINOR.PATCH, increment the:</p>
+<ol style="list-style-type: decimal"><li>MAJOR version when you make incompatible API changes</li>
+<li>MINOR version when you add functionality in a backward compatible manner</li>
+<li>PATCH version when you make backward compatible bug fixes</li>
+</ol><p>Additional labels for pre-release and build metadata are available as extensions to the MAJOR.MINOR.PATCH format.</p>
+</blockquote>
+<div class="section level3">
+<h3 id="transparent-changes-2-0-0">Transparent changes<a class="anchor" aria-label="anchor" href="#transparent-changes-2-0-0"></a></h3>
+<ul><li>Fix progress bar bug by @pwinskill in <a href="https://github.com/mrc-ide/malariasimulation/pull/258" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/258</a>
+</li>
+<li>Fix bug with pev min_wait by @giovannic in <a href="https://github.com/mrc-ide/malariasimulation/pull/264" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/264</a>
+</li>
+<li>Fix competing hazards for mass and EPI pev: by @giovannic in <a href="https://github.com/mrc-ide/malariasimulation/pull/265" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/265</a>
+</li>
+<li>Improve correlation tests. by @plietar in <a href="https://github.com/mrc-ide/malariasimulation/pull/287" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/287</a>
+</li>
+<li>Assign names to all processes. by @plietar in <a href="https://github.com/mrc-ide/malariasimulation/pull/325" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/325</a>
+</li>
+<li>Correcting default average_age parameter by @RJSheppard in <a href="https://github.com/mrc-ide/malariasimulation/pull/326" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/326</a>
+</li>
+<li>Add a range check to bitset_index. by @plietar in <a href="https://github.com/mrc-ide/malariasimulation/pull/331" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/331</a>
+</li>
+<li>Rewrite the exponential decay process in C++. by @plietar in <a href="https://github.com/mrc-ide/malariasimulation/pull/285" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/285</a>
+</li>
+<li>recovery_rates variable has been renamed as (disease) progression_rates. by @RJSheppard in <a href="https://github.com/mrc-ide/malariasimulation/pull/334" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/334</a>
+</li>
+</ul><div class="section level4">
+<h4 id="transparent-changes-to-model-behaviour-2-0-0">Transparent changes to model behaviour<a class="anchor" aria-label="anchor" href="#transparent-changes-to-model-behaviour-2-0-0"></a></h4>
+<ul><li>Moved mortality to the end of processes to resolve order of competing… by @RJSheppard in <a href="https://github.com/mrc-ide/malariasimulation/pull/292" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/292</a>
+</li>
+<li>calculate_eir function correction by @RJSheppard in <a href="https://github.com/mrc-ide/malariasimulation/pull/296" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/296</a>
+</li>
+<li>Older age groups (older than equilibrium age object) are not correctl… by @RJSheppard in <a href="https://github.com/mrc-ide/malariasimulation/pull/301" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/301</a>
+</li>
+<li>Competing hazards recovery infection resolution by @RJSheppard in <a href="https://github.com/mrc-ide/malariasimulation/pull/300" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/300</a>
+</li>
+<li>Bug/maternal immunity sampling by @tbreweric in <a href="https://github.com/mrc-ide/malariasimulation/pull/279" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/279</a>
+</li>
+</ul></div>
+<div class="section level4">
+<h4 id="improved-documentation-2-0-0">Improved documentation<a class="anchor" aria-label="anchor" href="#improved-documentation-2-0-0"></a></h4>
+<ul><li>Update description of the dt parameter. by @plietar in <a href="https://github.com/mrc-ide/malariasimulation/pull/288" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/288</a>
+</li>
+<li>Clarify some intervention parametrization documentation. by @plietar in <a href="https://github.com/mrc-ide/malariasimulation/pull/291" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/291</a>
+</li>
+<li>Parameter and output documentation. by @RJSheppard in <a href="https://github.com/mrc-ide/malariasimulation/pull/299" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/299</a>
+</li>
+<li>Hex by @pwinskill in <a href="https://github.com/mrc-ide/malariasimulation/pull/336" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/336</a>
+</li>
+</ul></div>
+</div>
+<div class="section level3">
+<h3 id="new-features-2-0-0">New features<a class="anchor" aria-label="anchor" href="#new-features-2-0-0"></a></h3>
+<ul><li>Pausing and resuming of simulations by @plietar in <a href="https://github.com/mrc-ide/malariasimulation/pull/280" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/280</a> <a href="https://github.com/mrc-ide/malariasimulation/pull/286" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/286</a> <a href="https://github.com/mrc-ide/malariasimulation/pull/293" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/293</a> <a href="https://github.com/mrc-ide/malariasimulation/pull/323" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/323</a>
+</li>
+<li>Function for setting age-structured outputs. by @RJSheppard in <a href="https://github.com/mrc-ide/malariasimulation/pull/297" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/297</a>
+</li>
+<li>Add GitHub workflow for continuous benchmarking. by @plietar in <a href="https://github.com/mrc-ide/malariasimulation/pull/304" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/304</a>
+</li>
+<li>adding in n_spray output by @htopazian in <a href="https://github.com/mrc-ide/malariasimulation/pull/310" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/310</a>
+</li>
+<li>Antimalarial resistance by @tbreweric in <a href="https://github.com/mrc-ide/malariasimulation/pull/263" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/263</a> <a href="https://github.com/mrc-ide/malariasimulation/pull/282" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/282</a> <a href="https://github.com/mrc-ide/malariasimulation/pull/289" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/289</a>
+</li>
+<li>Add R21 PEV profiles by @lmhaile in <a href="https://github.com/mrc-ide/malariasimulation/pull/333" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/333</a>
+</li>
+</ul></div>
+<div class="section level3">
+<h3 id="breaking-changes-2-0-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-2-0-0"></a></h3>
+<ul><li>Custom carrying capacity is set as a relative scaler, not absolute value by @pwinskill in <a href="https://github.com/mrc-ide/malariasimulation/pull/272" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/272</a>
+</li>
+<li>Implement time varying coverage for PEV boosters: by @giovannic in <a href="https://github.com/mrc-ide/malariasimulation/pull/270" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/270</a>
+</li>
+<li>Add asymmetric transmission in mixing in metapopulation modelling: by @giovannic in <a href="https://github.com/mrc-ide/malariasimulation/pull/277" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/277</a> <a href="https://github.com/mrc-ide/malariasimulation/pull/259" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/259</a>
+</li>
+<li>lm pcr prevalence explicit by @RJSheppard in <a href="https://github.com/mrc-ide/malariasimulation/pull/298" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/298</a>
+</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-contributors-2-0-0">New Contributors<a class="anchor" aria-label="anchor" href="#new-contributors-2-0-0"></a></h3>
+<ul><li>@lmhaile made their first contribution in <a href="https://github.com/mrc-ide/malariasimulation/pull/333" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/333</a>
+</li>
+</ul><p><strong>Full Changelog</strong>: <a href="https://github.com/mrc-ide/malariasimulation/compare/v1.6.0" class="external-link uri">https://github.com/mrc-ide/malariasimulation/compare/v1.6.0</a>…v2.0.0</p>
+</div>
+</div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.6.0" id="malariasimulation-160">malariasimulation 1.6.0<a class="anchor" aria-label="anchor" href="#malariasimulation-160"></a></h2>
 <ul><li>Fix MDA bug where undetectable asymptomatics are treated</li>
@@ -142,15 +230,15 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer></div>
 
-  
 
 
-  
+
+
 
   </body></html>
 

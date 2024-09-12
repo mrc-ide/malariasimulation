@@ -1,7 +1,8 @@
 pandoc: 3.1.11
-pkgdown: 2.0.9
+pkgdown: 2.1.0
 pkgdown_sha: ~
 articles:
+  Antimalarial_Resistance: Antimalarial_Resistance.html
   Carrying-capacity: Carrying-capacity.html
   Demography: Demography.html
   EIRprevmatch: EIRprevmatch.html
@@ -15,5 +16,4 @@ articles:
   Variation: Variation.html
   VectorControl_Bednets: VectorControl_Bednets.html
   VectorControl_IRS: VectorControl_IRS.html
-last_built: 2024-05-30T15:54Z
-
+last_built: 2024-09-12T14:47Z

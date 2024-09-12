@@ -96,6 +96,27 @@ prob_bitten <- function(
   )
 }
 
+#' @title SemiochemicalEffects
+#' @description models semiochemical effects on feeding rates
+#' from `set_semiochemical`
+#'
+#' @param semiochemical_time the variable for the time of semiochemical release
+#' @param parameters the model parameters
+#' @noRd
+distribute_semiochemical <- function(semiochemical_time, parameters) {
+  function(timestep) {
+    matches <- timestep == parameters$semiochemical_timesteps
+    if (any(matches)) {
+      target <- which(sample_intervention(
+        seq(parameters$human_population),
+        'semiochemical',
+        parameters$semiochemical_effect[matches]
+      ))
+      semiochemical_time$queue_update(timestep, target)
+    }
+  }
+}
+
 #' @title Indoor spraying
 #' @description models indoor residual spraying according to the strategy
 #' from `set_spraying` and correlation parameters from

@@ -4,7 +4,7 @@ test_that('ODE stays at equilibrium with a constant total_M', {
   ))
   total_M <- 1000
   timesteps <- 365 * 10
-  f <- parameters$blood_meal_rates
+  f <- parameters$blood_meal_rates * parameters$semiochemical_effect
   models <- parameterise_mosquito_models(parameters, timesteps)
   solvers <- parameterise_solvers(models, parameters)
   
@@ -33,7 +33,7 @@ test_that('ODE stays at equilibrium with a constant total_M', {
 test_that('Adult ODE stays at equilibrium with a constant foim and mu', {
   parameters <- get_parameters()
   parameters <- set_equilibrium(parameters, 100.)
-  f <- parameters$blood_meal_rates
+  f <- parameters$blood_meal_rates * parameters$semiochemical_effect
   timesteps <- 365 * 10
   models <- parameterise_mosquito_models(parameters, timesteps)
   solvers <- parameterise_solvers(models, parameters)
@@ -74,7 +74,7 @@ test_that('ODE stays at equilibrium with low total_M', {
     individual_mosquitoes = TRUE
   ))
   timesteps <- 365 * 10
-  f <- parameters$blood_meal_rates
+  f <- parameters$blood_meal_rates * parameters$semiochemical_effect
   models <- parameterise_mosquito_models(parameters, timesteps)
   solvers <- parameterise_solvers(models, parameters)
   
@@ -110,7 +110,7 @@ test_that('Changing total_M stabilises', {
     total_M = total_M_0,
     individual_mosquitoes = TRUE
   ))
-  f <- parameters$blood_meal_rates
+  f <- parameters$blood_meal_rates * parameters$semiochemical_effect
   timesteps <- 365 * 10
   models <- parameterise_mosquito_models(parameters, timesteps)
   solvers <- parameterise_solvers(models, parameters)

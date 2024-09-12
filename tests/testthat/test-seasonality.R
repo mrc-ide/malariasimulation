@@ -20,7 +20,6 @@ test_that('Seasonality correctly affects P', {
       models[[1]],
       total_M,
       parameters$blood_meal_rates,
-      parameters$semiochemical_effect,
       parameters$mum
     )
     solver_step(solvers[[1]])

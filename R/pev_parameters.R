@@ -30,7 +30,7 @@ create_pev_profile <- function(vmax, alpha, beta, cs, rho, ds, dl) {
 
 #' @title RTS,S vaccine profile
 #' @description Parameters for a primary dose of RTS,S for use with the
-#' set_mass_pev and set_pev_epi functions
+#' set_mass_pev and set_pev_epi functions (White MT et al. 2015 Lancet ID)
 #' @export
 rtss_profile <- create_pev_profile(
   vmax = 0.93,
@@ -38,13 +38,28 @@ rtss_profile <- create_pev_profile(
   beta = 99.4,
   cs = c(6.37008, 0.35),
   rho = c(2.37832, 1.00813),
-  ds = c(3.74502, 0.341185), # (White MT et al. 2015 Lancet ID)
-  dl = c(6.30365, 0.396515) # (White MT et al. 2015 Lancet ID)
+  ds = c(3.74502, 0.341185),
+  dl = c(6.30365, 0.396515)
 )
+
+#' @title R21 vaccine profile
+#' @description Parameters for a primary dose of R21 for use with the
+#' set_mass_pev and set_pev_epi functions (Schmit + Topazian et al. 2022 Lancet ID)
+#' @export
+r21_profile <- create_pev_profile(
+  vmax = 0.87,
+  alpha = 0.91,
+  beta = 471,
+  cs = c(9.3199677, 0.8387902),
+  rho = c(0.8071676, 0.6010363),
+  ds = c(3.7996007, 0.1618982),
+  dl = c(6.2820200, 0.4549185)
+)
+
 
 #' @title RTS,S booster vaccine profile
 #' @description Parameters for a booster dose of RTS,S for use with the
-#' set_mass_pev and set_pev_epi functions
+#' set_mass_pev and set_pev_epi functions (White MT et al. 2015 Lancet ID)
 #' @export
 rtss_booster_profile <- create_pev_profile(
   vmax = 0.93,
@@ -52,8 +67,22 @@ rtss_booster_profile <- create_pev_profile(
   beta = 99.4,
   cs = c(5.56277, 0.35),
   rho = c(1.03431, 1.02735),
-  ds = c(3.74502, 0.341185), # (White MT et al. 2015 Lancet ID)
-  dl = c(6.30365, 0.396515) # (White MT et al. 2015 Lancet ID)
+  ds = c(3.74502, 0.341185),
+  dl = c(6.30365, 0.396515)
+)
+
+#' @title R21 booster vaccine profile
+#' @description Parameters for a booster dose of R21 for use with the
+#' set_mass_pev and set_pev_epi functions (Schmit + Topazian et al. 2022 Lancet ID)
+#' @export
+r21_booster_profile <- create_pev_profile(
+  vmax = 0.87,
+  alpha = 0.91,
+  beta = 471,
+  cs = c(9.2372858, 0.7188541),
+  rho = c(0.07140337, 0.54175154),
+  ds = c(3.7996007, 0.1618982), 
+  dl = c(6.2820200, 0.4549185)
 )
 
 #' @title Parameterise a pre-erythrocytic vaccine with an EPI strategy

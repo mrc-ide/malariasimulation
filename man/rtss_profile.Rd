@@ -12,6 +12,6 @@ rtss_profile
 }
 \description{
 Parameters for a primary dose of RTS,S for use with the
-set_mass_pev and set_pev_epi functions
+set_mass_pev and set_pev_epi functions (White MT et al. 2015 Lancet ID)
 }
 \keyword{datasets}

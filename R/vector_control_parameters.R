@@ -136,6 +136,32 @@ set_spraying <- function(
   parameters
 }
 
+#' @title Parameterise a semiochemical strategy
+#'
+#' @description The model will deploy semiochemicals at `timesteps` to a random
+#' sample of the entire vector population. 
+#'
+#' Theory and data are courtesey of Noushin Emami (LSTM in press)
+#'
+#' @param parameters a list of parameters to modify
+#' @param timesteps the timesteps at which to deploy semiochemicals
+#' @param semiochemical_effect matrix of impact on blood feeding rates, 
+#' With nrows=length(timesteps), ncols=length(species)
+#' @export
+set_semiochemical <- function(
+    parameters,
+    timesteps
+) {
+  stopifnot(all(semiochemical_effect >= 0) && all(semiochemical_effect <= 1))
+  if (length(semiochemical_effect) != length(timesteps)) {
+    stop('semiochemical_effect and timesteps must align')
+  }
+  parameters$semiochemical <- TRUE
+  parameters$semiochemical_timesteps <- timesteps
+  parameters$semiochemical_effect <- semiochemical_effect
+  parameters
+}
+
 #' @title Parameterise custom baseline carrying capacity
 #' 
 #' @description Allows the user to set a completely flexible and custom

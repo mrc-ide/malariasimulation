@@ -234,6 +234,7 @@
 #' * phi_indoors - proportion of bites taken indoors; default = 0.90
 #' * semiochemical - boolean for if semiochemical exposure is enabled; default = FALSE
 #' * semiochemical_effect - the proportional reduction introduced on blood feeding rates for each species; default = 1
+#' * semiochemical_timesteps - to enable a reduced foraging time to be implemented as required; default = NULL
 #'
 #'
 #' PEV parameters:
@@ -466,6 +467,7 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       # semiochemical use
       semiochemical = FALSE,
       semiochemical_effect = 1,
+      semiochemical_timesteps = list(),
       # antimalarial resistance
       antimalarial_resistance = FALSE,
       antimalarial_resistance_drug = NULL,

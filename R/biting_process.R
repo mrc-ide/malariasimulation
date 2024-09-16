@@ -112,12 +112,16 @@ simulate_bites <- function(
     W <- average_p_successful(p_bitten$prob_bitten_survives, .pi, Q0)
     Z <- average_p_repelled(p_bitten$prob_repelled, .pi, Q0)
     ## SEMIOCHEMICAL EFFECT ##
-    if (parameters$semiochemical & timestep >= parameters$semiochemical_timesteps) {
-      semiochemical_index <- match_timestep(parameters$semiochemical_timesteps, timestep)
-      semiochemical_effect <- parameters$semiochemical_effect[semiochemical_index, s_i]
+    if (parameters$semiochemical) {
+      if(timestep >= parameters$semiochemical_timesteps){
+        semiochemical_index <- match_timestep(parameters$semiochemical_timesteps, timestep)
+        semiochemical_effect <- parameters$semiochemical_effect[semiochemical_index, s_i]
       } else {
-        semiochemical_effect <- 1 
+        semiochemical_effect <- 1
       }
+    } else {
+      semiochemical_effect <- 1
+    }
     ##----------------------##
     f <- blood_meal_rate(s_i, Z, semiochemical_effect, parameters)
     a <- .human_blood_meal_rate(f, s_i, W, parameters)

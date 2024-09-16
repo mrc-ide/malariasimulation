@@ -412,8 +412,8 @@ get_parameters <- function(overrides = list()) {
     phi_indoors = .90,
     # semiochemical use
     semiochemical = FALSE,
-    semiochemical_effect = list(),
-    semiochemical_timesteps = list(),
+    semiochemical_effect = NULL,
+    semiochemical_timesteps = NULL,
     # pev
     pev = FALSE,
     pev_doses = c(0, 1.5 * 30, 3 * 30),

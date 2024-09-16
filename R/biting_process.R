@@ -111,7 +111,7 @@ simulate_bites <- function(
     Q0 <- parameters$Q0[[s_i]]
     W <- average_p_successful(p_bitten$prob_bitten_survives, .pi, Q0)
     Z <- average_p_repelled(p_bitten$prob_repelled, .pi, Q0)
-    f <- blood_meal_rate(s_i, Z, parameters)
+    f <- blood_meal_rate(s_i, Z, parameters, timestep)
     a <- .human_blood_meal_rate(f, s_i, W, parameters)
     lambda <- effective_biting_rates(a, .pi, p_bitten)
 

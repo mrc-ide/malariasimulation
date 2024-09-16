@@ -466,8 +466,8 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       tbv_ages = NULL,
       # semiochemical use
       semiochemical = FALSE,
-      semiochemical_effect = list(),
-      semiochemical_timesteps = list(),
+      semiochemical_effect = NULL,
+      semiochemical_timesteps = NULL,
       # antimalarial resistance
       antimalarial_resistance = FALSE,
       antimalarial_resistance_drug = NULL,

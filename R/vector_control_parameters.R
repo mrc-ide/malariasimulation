@@ -150,6 +150,7 @@ set_spraying <- function(
 #' @export
 set_semiochemical <- function(
     parameters,
+    semiochemical_effect,
     timesteps
 ) {
   stopifnot(all(semiochemical_effect >= 0) && all(semiochemical_effect <= 1))

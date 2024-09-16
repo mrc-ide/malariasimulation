@@ -265,8 +265,12 @@ human_pi <- function(zeta, psi) {
 }
 
 blood_meal_rate <- function(v, z, parameters, timestep) {
-
-    semiochemical_effect <- parameters$semiochemical_effect[[v]][match_timestep(parameters$semiochemical_timesteps[[v]], timestep)]
+  
+  if (timestep < parameters$semiochemical_timesteps) {
+    semiochemical_effect <- 1 
+    } else {
+      semiochemical_effect <- parameters$semiochemical_effect[,v][match_timestep(parameters$semiochemical_timesteps, timestep)]
+    }
     
   gonotrophic_cycle <- get_gonotrophic_cycle(v, parameters)
   interrupted_foraging_time <- (parameters$foraging_time[[v]] * semiochemical_effect) / (1 - z)

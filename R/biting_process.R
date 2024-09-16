@@ -111,7 +111,15 @@ simulate_bites <- function(
     Q0 <- parameters$Q0[[s_i]]
     W <- average_p_successful(p_bitten$prob_bitten_survives, .pi, Q0)
     Z <- average_p_repelled(p_bitten$prob_repelled, .pi, Q0)
-    f <- blood_meal_rate(s_i, Z, parameters, timestep)
+    ## SEMIOCHEMICAL EFFECT ##
+    if (parameters$semiochemical & timestep >= parameters$semiochemical_timesteps) {
+      semiochemical_index <- match_timestep(parameters$semiochemical_timesteps, timestep)
+      semiochemical_effect <- parameters$semiochemical_effect[semiochemical_index, s_i]
+      } else {
+        semiochemical_effect <- 1 
+      }
+    ##----------------------##
+    f <- blood_meal_rate(s_i, Z, semiochemical_effect, parameters)
     a <- .human_blood_meal_rate(f, s_i, W, parameters)
     lambda <- effective_biting_rates(a, .pi, p_bitten)
 
@@ -166,7 +174,7 @@ simulate_bites <- function(
 
     foim <- calculate_foim(a, infectivity)
     renderer$render(paste0('FOIM_', species_name), foim, timestep)
-    mu <- death_rate(f, W, Z, s_i, parameters)
+    mu <- death_rate(f, W, Z, semiochemical_effect, s_i, parameters)
     renderer$render(paste0('mu_', species_name), mu, timestep)
     
     if (parameters$individual_mosquitoes) {
@@ -264,15 +272,8 @@ human_pi <- function(zeta, psi) {
   (zeta * psi) / sum(zeta * psi)
 }
 
-blood_meal_rate <- function(v, z, parameters, timestep) {
-  
-  if (timestep < parameters$semiochemical_timesteps) {
-    semiochemical_effect <- 1 
-    } else {
-      semiochemical_effect <- parameters$semiochemical_effect[,v][match_timestep(parameters$semiochemical_timesteps, timestep)]
-    }
-    
-  gonotrophic_cycle <- get_gonotrophic_cycle(v, parameters)
+blood_meal_rate <- function(v, z, semiochemical_effect, parameters) {
+    gonotrophic_cycle <- get_gonotrophic_cycle(v, parameters)
   interrupted_foraging_time <- (parameters$foraging_time[[v]] * semiochemical_effect) / (1 - z)
   1 / (interrupted_foraging_time + gonotrophic_cycle)
 }
@@ -286,7 +287,7 @@ human_blood_meal_rate <- function(species, variables, parameters, timestep) {
   Q0 <- parameters$Q0[[species]]
   W <- average_p_successful(p_bitten$prob_bitten_survives, .pi, Q0)
   Z <- average_p_repelled(p_bitten$prob_repelled, .pi, Q0)
-  f <- blood_meal_rate(species, Z, parameters, timestep)
+  f <- blood_meal_rate(species, Z, 1, parameters)
   .human_blood_meal_rate(f, species, W, parameters)
 }
 

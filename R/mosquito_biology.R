@@ -89,12 +89,12 @@ calculate_carrying_capacity <- function(parameters, m, species) {
 #' @noRd
 calculate_R_bar <- function(parameters) {
   mean(vnapply(1:365, function(t) rainfall(
-		t,
+    t,
     parameters$g0,
     parameters$g,
     parameters$h,
     parameters$rainfall_floor
-	)))
+  )))
 }
 
 #' @title Calculate equilibrium total_M from parameters
@@ -147,9 +147,9 @@ peak_season_offset <- function(parameters) {
 #' @param Z the mean probability that a mosquito is repelled
 #' @param Z the mean probability that a mosquito is repelled
 #' @noRd
-death_rate <- function(f, W, Z, species, parameters) {
+death_rate <- function(f, W, Z, semiochemical_effect, species, parameters) {
   mum <- parameters$mum[[species]]
-  p1_0 <- exp(-mum * parameters$foraging_time[[species]])
+  p1_0 <- exp(-mum * parameters$foraging_time[[species]] * semiochemical_effect)
   gonotrophic_cycle <- get_gonotrophic_cycle(species, parameters)
   p2 <- exp(-mum * gonotrophic_cycle)
   p1 <- p1_0 * W / (1 - Z * p1_0)

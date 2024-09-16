@@ -280,7 +280,7 @@ human_blood_meal_rate <- function(species, variables, parameters, timestep) {
   Q0 <- parameters$Q0[[species]]
   W <- average_p_successful(p_bitten$prob_bitten_survives, .pi, Q0)
   Z <- average_p_repelled(p_bitten$prob_repelled, .pi, Q0)
-  f <- blood_meal_rate(species, Z, parameters)
+  f <- blood_meal_rate(species, Z, parameters, timestep)
   .human_blood_meal_rate(f, species, W, parameters)
 }
 

@@ -153,7 +153,7 @@ set_semiochemical <- function(
     semiochemical_effect,
     timesteps
 ) {
-  if (length(semiochemical_effect) != length(timesteps)) {
+  if (nrow(semiochemical_effect) != length(timesteps)) {
     stop('semiochemical_effect and timesteps must align')
   }
   parameters$semiochemical <- TRUE

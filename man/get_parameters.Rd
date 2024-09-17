@@ -38,10 +38,10 @@ human fixed state transitions:
 \item du - the delay for humans to move from state U to S (p.f only); default = 110
 }
 
-duration of pcr detectable infection: du (p.v only):
+duration of pcr detectable infections: du (p.v only):
 \itemize{
-\item dpcr_max - Maximum duration of subpatent infection: default = 53.69
-\item dpcr_min - Minimum duration of subpatent infection: default = 10
+\item dpcr_max - Maximum duration of PCR-detectable infections: default = 53.69
+\item dpcr_min - Minimum duration of PCR-detectable infections: default = 10
 \item kpcr - Shape parameter: default = 4.021
 \item apcr50 - Scale parameter: default = 9.8
 }
@@ -124,7 +124,7 @@ probability of detection by light-microscopy when asymptomatic (p.f only):
 \item kd - shape parameter; default = 0.476614
 }
 
-probability of patent infection due to anti-parasite immunity (p.v only):
+probability of light-microscopy detectable infections due to anti-parasite immunity (p.v only):
 \itemize{
 \item philm_max - maximum probability due to no immunity; default = 0.9329
 \item philm_min - maximum reduction due to immunity; default = 0.0131
@@ -156,7 +156,7 @@ infectivity towards mosquitoes:
 \item cd - infectivity of clinically diseased humans towards mosquitoes; default = 0.068
 \item ca - infectivity of asymptomatic humans towards mosquitoes (p.v only); default = 0.1
 \item gamma1 - parameter for infectivity of asymptomatic humans; default = 1.82425
-\item cu - infectivity of sub-patent infection; default = 0.0062
+\item cu - infectivity of subpatent infection; default = 0.0062
 \item ct - infectivity of treated infection; default = 0.021896
 }
 

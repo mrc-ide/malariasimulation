@@ -53,17 +53,17 @@ The *P. falciparum* model has five human disease compartments: susceptible (S), 
 
 The *P. vivax* model follows a similar structure to the *P. falciparum* model, and also has five human disease compartments. However, the human disease states modeled explicitly focus on parasite density and detectability, such that we have: susceptible (S), clinical disease (D), **light-microscopy detectable infection (A)**, **PCR detectable infection (U)**, and treated (Tr).
 
+### New Infections
+
+Newly infected individuals in the  *P. falciparum* model can move into either the clinically diseased or asymptomatic infection compartment. In addition to these compartments, the *P. vivax* model allows infection to the PCR-detectable compartment (U), where the assignment of light-miscroscopy detectable infections and PCR-detectable infections is mediated by anti-parasite immunity.
+
 ### Immunity
 
 The *P. falciparum* model tracks four kinds of immunity: immunity to blood stage infection (IB), clinical disease (acquired and maternal, ICA and ICM), to severe disease (acquired and maternal, IVA and IVM), and to detectability (ID).
 
 The *P. vivax* model tracks two kinds of immunity: immunity to clinical infection (acquired and maternal, ICA and ICM) and anti-parasite immunity (acquired and maternal, IAA and IAM). We do not track immunity to blood stage infections, severe immunity or immunity to detectability.
 
-### Anti-parasite immunity
-
-Anti-parasite immunity has effects in two places. The first is in the separation of PCR-detectable infections from LM-detectable infections (where greater immunity reduces the change of an infection with higher parasitaemia). The second is in the calculation of a PCR-detectable infection (where greater immunity results in a shorter duration before recovery).
-
-The *P. falciparum* model does not model infections to the sub-patent compartment (U) and has a constant sub-patent infection duration (`du = 110`).
+Anti-parasite immunity has effects in two places. The first is in the separation of PCR-detectable infections from LM-detectable infections (where greater immunity reduces the change of an infection with higher parasitaemia). The second is in the calculation of a PCR-detectable infection (where greater immunity results in a shorter duration before recovery). The *P. falciparum* model does not model infections to the sub-patent compartment (U) and has a constant sub-patent infection duration (`du = 110`).
 
 ### Infectivity of LM-detectable infections
 

@@ -86,16 +86,3 @@ vivax,f,0.02439024, White (2018); doi: 10.1186/s12936-018-2318-1
 vivax,gammal,0.002610966, White (2018): doi: 10.1186/s12936-018-2318-1
 vivax,init_hyp,0,
 vivax,kmax,10, White (2018); doi: 10.1038/s41467-018-05860-8
-vivax,init_iva,0,to_be_removed
-vivax,init_ivm,0,to_be_removed
-vivax,uv,11.4321,to_be_removed
-vivax,pvm,0.195768,to_be_removed
-vivax,rvm,76.8365,to_be_removed
-vivax,rva,10950,to_be_removed
-vivax,theta0,0.0749886,to_be_removed
-vivax,theta1,0.0001191,to_be_removed
-vivax,iv0,1.09629,to_be_removed
-vivax,kv,2.00048,to_be_removed
-vivax,fv0,0.141195,to_be_removed
-vivax,av,2493.41,to_be_removed
-vivax,gammav,2.91282,to_be_removed

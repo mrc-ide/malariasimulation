@@ -209,9 +209,9 @@ parasite incubation periods:
 \item dem - extrinsic incubation period in mosquito population model; default = 10
 }
 
-hypnozoite parameters (p.v only):
+hypnozoite batch parameters (p.v only):
 \itemize{
-\item f - hypnozoite relapse rate; default = 0.02439024
+\item f - hypnozoite batch relapse rate; default = 0.02439024
 \item gammal - hypnozoite batch clearance rate; default = 0.002610966
 \item init_hyp - initial hypnozoite batch number; default = 0
 \item kmax - maximum number of hypnozoite batches for use in the equilibrium solution; default = 10

@@ -55,6 +55,8 @@ The *P. vivax* model follows a similar structure to the *P. falciparum* model, a
 
 ### New Infections
 
+The rate of infection for an individual who has been bitten increases with the number of bites they have received in the *P. vivax* model. In contrast, the rate of infection in the *P. falciparum* model is independent of the number of bites an individual has received.
+
 Newly infected individuals in the  *P. falciparum* model can move into either the clinically diseased or asymptomatic infection compartment. In addition to these compartments, the *P. vivax* model allows infection to the PCR-detectable compartment (U), where the assignment of light-miscroscopy detectable infections and PCR-detectable infections is mediated by anti-parasite immunity.
 
 ### Immunity
@@ -68,6 +70,10 @@ Anti-parasite immunity has effects in two places. The first is in the separation
 ### Infectivity of LM-detectable infections
 
 While the *P. falciparum* model calculates the onward infectivity of asymptomatic infections (`ca`) using the age and detectability immunity of each individual, the *P. vivax* model uses a constant onwards infectivity for LM-detectable infections (`ca = 0.1`).
+
+### Hypnozoites
+
+The *P. vivax* model tracks the number of hypnozoite batches of each individual which contribute to the rate of new infections. Acquisition of new batches comes from bite infections and are capped (where `kmax = 10` by default). All individuals can acquire new hypnozoite batches via bites, even when these do not result in new blood-stage infection (as in the clinically diseased and treated). Hypnozoite batches are lost probabilistically where an individual's number of batches determines the loss rate of a single batch.
 
 ### Key Model References
 

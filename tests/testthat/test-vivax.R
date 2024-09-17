@@ -280,11 +280,11 @@ test_that('relapses are recognised with division between bite infections and rel
     hypnozoites = individual::IntegerVariable$new(c(0, 1, 2, 3))
   )
   
-  bernoulli_mock <- mockery::mock(c(1, 3), 2, cycle = TRUE)
+  bernoulli_mock <- mockery::mock(c(1, 3), 1, 2, cycle = TRUE)
   calc_mock <- mockery::mock(individual::Bitset$new(4)$insert(2))
   mockery::stub(vivax_infection_outcome_process, 'bernoulli_multi_p', bernoulli_mock, depth = 2)
   mockery::stub(vivax_infection_outcome_process, 'calculate_clinical_infections', calc_mock)
-  
+
   renderer <- mock_render(1)
   infected_humans <- individual::Bitset$new(4)$insert(c(1, 2, 3, 4))
   

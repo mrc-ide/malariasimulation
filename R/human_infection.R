@@ -519,13 +519,33 @@ relapse_bite_infection_hazard_resolution <- function(
   ## all bitten humans with an infectious bite (incorporating prophylaxis) get a new batch of hypnozoites
   if(bite_infections$size()>0){
     
+    ## drug prophylaxis may limit formation of new hypnozoite batches
+    ls_prophylaxis <- rep(0, bite_infections$size())
+    if(length(parameters$drug_hypnozoite_efficacy) > 0){
+      
+      ls_drug <- variables$ls_drug$get_values(bite_infections)
+      ls_medicated <- (ls_drug > 0)
+      ls_medicated[ls_drug > 0] <- !is.na(parameters$drug_hypnozoite_efficacy[ls_drug])
+      
+      if (any(ls_medicated)) {
+        ls_drug <- ls_drug[ls_medicated]
+        ls_drug_time <- variables$ls_drug_time$get_values(bite_infections)[ls_medicated]
+        ls_prophylaxis[ls_medicated] <- weibull_survival(
+          timestep - ls_drug_time,
+          parameters$drug_hypnozoite_prophylaxis_shape[ls_drug],
+          parameters$drug_hypnozoite_prophylaxis_scale[ls_drug]
+        )
+      }
+    }
+    
     # make sure batches are capped
-    current_batches <- variables$hypnozoites$get_values(bite_infections)
+    new_hypnozoite_batch_formed <- bitset_at(bite_infections, bernoulli_multi_p(1 - ls_prophylaxis))
+    current_batches <- variables$hypnozoites$get_values(new_hypnozoite_batch_formed)
     new_batch_number <- pmin(current_batches + 1, parameters$kmax)
     
     variables$hypnozoites$queue_update(
       new_batch_number,
-      bite_infections
+      new_hypnozoite_batch_formed
     )
   }
 }
@@ -729,6 +749,15 @@ calculate_treated <- function(
     )
   }
   
+  # Update liver stage drug effects
+  if(length(parameters$drug_hynozoite_efficacy) > 0){
+    if(successfully_treated$successfully_treated_hypnozoites$size() > 0){
+      variables$hypnozoites$queue_update(0, successfully_treated$successfully_treated_hypnozoites)
+      variables$ls_drug$queue_update(drug, successfully_treated$successfully_treated_hypnozoites)
+      variables$ls_drug_time$queue_update(timestep, successfully_treated$successfully_treated_hypnozoites)
+    }
+  }
+  
   successfully_treated$successfully_treated
   
 }
@@ -808,6 +837,16 @@ calculate_successful_treatments <- function(
       successfully_treated = successfully_treated)
     
   }
+  
+  if(length(parameters$drug_hypnozoite_efficacy) > 0){
+    effectively_treated_hypnozoites_index <- bernoulli_multi_p(parameters$drug_hypnozoite_efficacy[drugs])
+    successfully_treated_hypnozoites <- bitset_at(target, effectively_treated_hypnozoites_index)
+    successfully_treated_list <- c(
+      successfully_treated_list,
+      successfully_treated_hypnozoites = successfully_treated_hypnozoites
+    )
+  }
+  
   successfully_treated_list
 }
 

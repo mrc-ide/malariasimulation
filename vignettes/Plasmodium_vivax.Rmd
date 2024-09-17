@@ -73,7 +73,9 @@ While the *P. falciparum* model calculates the onward infectivity of asymptomati
 
 ### Hypnozoites
 
-The *P. vivax* model tracks the number of hypnozoite batches of each individual which contribute to the rate of new infections. Acquisition of new batches comes from bite infections and are capped (where `kmax = 10` by default). All individuals can acquire new hypnozoite batches via bites, even when these do not result in new blood-stage infection (as in the clinically diseased and treated). Hypnozoite batches are lost probabilistically where an individual's number of batches determines the loss rate of a single batch.
+The *P. vivax* model tracks the number of hypnozoite batches of each individual which then contribute to the rate of new infections. Acquisition of new batches come from bite infections, which are mediated by liver-stage drug prophylaxis, and are capped (where `kmax = 10` by default). All individuals can acquire new hypnozoite batches via bites, even when these do not result in new blood-stage infection (as in the clinically diseased and treated). Hypnozoite batches are lost probabilistically where an individual's number of batches determines the loss rate of a single batch.
+
+Successful liver-stage drug treatment results in the clearing of all hypnozoite batches of an individual.
 
 ### Equilibrium
 

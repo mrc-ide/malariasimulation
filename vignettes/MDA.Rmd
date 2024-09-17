@@ -63,7 +63,7 @@ simparams <- set_equilibrium(simparams, starting_EIR)
 
 ### Interventions
 
-Having established a base set of parameters (`simparams`), the next step is to add the parameters specifying the MDA campaign. We first use the `set_drugs()` function to update the parameter list (`simparams`) with the parameter values for the drug(s) we wish to simulate, in this case using the in-built parameter set for SP-AQ (`SP_AQ_params`). Note that the `malariasimulation` package also contains in-built parameter sets for dihydroartemisinin-piperaquine (`DHA_PQP_params`) and artemether lumefantrine (`AL_params`), and users can also define their own drug parameters.
+Having established a base set of parameters (`simparams`), the next step is to add the parameters specifying the MDA campaign. We first use the `set_drugs()` function to update the parameter list (`simparams`) with the parameter values for the drug(s) we wish to simulate, in this case using the in-built parameter set for SP-AQ (`SP_AQ_params_falciparum`). Note that the `malariasimulation` package also contains in-built parameter sets for dihydroartemisinin-piperaquine (`DHA_PQP_params_falciparum`) and artemether lumefantrine (`AL_params_falciparum`), and users can also define their own drug parameters.
 
 We then define the time steps on which we want the MDA to occur (stored here in the vector `mda_events` for legibility), and use the `set_mda()` function to update the parameter list with our MDA campaign parameters. `set_mda()` takes as its first two arguments the base parameter list and the time steps on which to schedule MDA events. This function also requires the user to specify the proportion of the population they want to treat using `coverages`, as well as the age-range of the population we want to treat using `min_ages` and `max_ages`, *for each timestep on which MDA is scheduled*. Note that this enables users to specify individual events to have different drug, coverage, and human-target properties. The `drug` argument refers to the index of the drug we want to distribute in the MDA in the list of parameters (in this demonstration we have only added a single drug, SP-AQ, using `set_drugs()`, but we could have specified additional drugs).
 
@@ -73,7 +73,7 @@ mdaparams <- simparams
 
 # Update the parameter list with the default parameters for sulphadoxine-pyrimethamine
 # amodiaquine (SP-AQ)
-mdaparams <- set_drugs(mdaparams, list(SP_AQ_params))
+mdaparams <- set_drugs(mdaparams, list(SP_AQ_params_falciparum))
 
 # Specify the days on which to administer the SP-AQ
 mda_events <- (c(1, 2) * 365)
@@ -180,7 +180,7 @@ While the first step would typically be to establish the base set of parameters,
 smcparams <- simparams
 
 # Append the parameters for SP-AQ using set_drugs
-smcparams <- set_drugs(smcparams, list(SP_AQ_params))
+smcparams <- set_drugs(smcparams, list(SP_AQ_params_falciparum))
 
 # Use the peak_season_offset() to calculate the yearly offset (in daily timesteps) for the peak mosq.
 # season

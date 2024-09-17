@@ -63,6 +63,5 @@ create_pmc_process <- function(
       timestep,
       drug
     )
-    
   }
 }

@@ -9,7 +9,7 @@ test_that("pmc parameterisation works", {
   
   p <- set_drugs(
     parameters = p,
-    drugs = list(SP_AQ_params))
+    drugs = list(SP_AQ_params_falciparum))
   p <- set_pmc(
     parameters = p,
     drug = 1,
@@ -50,7 +50,7 @@ test_that("pmc gives drugs to correct ages", {
   p <- get_parameters(list(human_population = 6))
   p <- set_drugs(
     parameters = p,
-    drugs = list(SP_AQ_params))
+    drugs = list(SP_AQ_params_falciparum))
 
   p <- set_pmc(
     parameters = p,
@@ -123,4 +123,3 @@ test_that("pmc gives drugs to correct ages", {
     c(2, 3, 5)
   )
 })
-  

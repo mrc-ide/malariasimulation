@@ -199,13 +199,15 @@ infection_outcome_process <- function(
     timestep
   )
   
-  update_severe_disease(
-    timestep,
-    infected_humans,
-    variables,
-    parameters,
-    renderer
-  )
+  if(parameters$parasite == "falciparum"){
+    update_severe_disease(
+      timestep,
+      infected_humans,
+      variables,
+      parameters,
+      renderer
+    )
+  }
   
   treated <- calculate_treated(
     variables,

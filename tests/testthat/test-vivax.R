@@ -24,15 +24,18 @@ test_that('Test difference between falciparum and vivax parameter lists', {
   
   expect_identical(
     in_falciparum_not_vivax,
-    c("du", # human delays
-      "init_ib", "init_id", ## initial immunities
-      "rb", "rid", # rates of immune loss
-      "ub", "ud", # immunity non-boosting periods
+    c("du",
+      "init_ib", "init_iva", "init_ivm", "init_id", # initial immunity parameters
+      "rb", "rva", "rid", "rvm", # rates of immune loss
+      "ub", "uv", "ud", # immunity non-boosting periods
+      "pvm", # maternal immunity parameters
       "b0", "b1", "ib0", "kb", # blood immunity parameters
-      "fd0", "ad", "gammad", "d1", "id0", "kd", # immunity to detectability parameters
-      "gamma1") # asymptomatic infected infectivity towards mosquitos parameter
-  )
-
+      "fd0", "ad", "gammad", "d1", "id0", "kd", # asymptomatic detection by light microscopy parameters
+      "theta0", "theta1", "iv0", "kv", "fv0", "av", "gammav", # severe immunity parameters
+      "gamma1" # asymptomatic infected infectivity towards mosquitos parameter
+      )
+    )
+  
   expect_identical(
     in_vivax_not_falciparum,
     c("dpcr_max", "dpcr_min", "kpcr", "apcr50", # human sub-patent state delay

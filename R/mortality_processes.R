@@ -112,6 +112,7 @@ reset_target <- function(variables, events, target, state, parameters, timestep)
     } else if (parameters$parasite == "vivax"){
       variables$last_boosted_iaa$queue_update(-1, target)
       variables$iaa$queue_update(0, target)
+      variables$hypnozoites$queue_update(0, target)
     }
 
     # treatment

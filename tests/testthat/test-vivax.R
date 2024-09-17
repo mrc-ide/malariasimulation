@@ -255,3 +255,63 @@ test_that('vivax schedule_infections correctly schedules new infections', {
     c(1)
   )
 })
+
+test_that('relapses are recognised with division between bite infections and relapses', {
+  timestep <- 50
+  parameters <- get_parameters(parasite = "vivax", overrides = list(human_population = 4))
+  
+  variables <- list(
+    state = individual::CategoricalVariable$new(
+      c('D', 'S', 'A', 'U', 'Tr'),
+      c('D', 'S', 'A', 'U')
+    ),
+    infectivity = individual::DoubleVariable$new(rep(0, 4)),
+    progression_rates = individual::DoubleVariable$new(rep(0, 4)),
+    drug = individual::DoubleVariable$new(rep(0, 4)),
+    drug_time = individual::DoubleVariable$new(rep(-1, 4)),
+    iaa = individual::DoubleVariable$new(rep(0, 4)),
+    iam = individual::DoubleVariable$new(rep(0, 4)),
+    ica = individual::DoubleVariable$new(rep(0, 4)),
+    icm = individual::DoubleVariable$new(rep(0, 4)),
+    last_boosted_iaa = individual::DoubleVariable$new(rep(-1, 4)),
+    last_boosted_ica = individual::DoubleVariable$new(rep(-1, 4)),
+    last_eff_pev_timestep = individual::DoubleVariable$new(rep(-1, 4)),
+    pev_profile = individual::IntegerVariable$new(rep(-1, 4)),
+    hypnozoites = individual::IntegerVariable$new(c(0, 1, 2, 3))
+  )
+  
+  bernoulli_mock <- mockery::mock(c(1, 3), 2, cycle = TRUE)
+  calc_mock <- mockery::mock(individual::Bitset$new(4)$insert(2))
+  mockery::stub(infection_outcome_process, 'bernoulli_multi_p', bernoulli_mock, depth = 2)
+  mockery::stub(infection_outcome_process, 'calculate_clinical_infections', calc_mock)
+  
+  renderer <- mock_render(1)
+  infected_humans <- individual::Bitset$new(4)$insert(c(1, 2, 3, 4))
+  
+  infection_outcome_process(
+    timestep = timestep,
+    infected_humans,
+    variables,
+    renderer,
+    parameters,
+    prob = c(rep(0.5, 4)),
+    relative_rate = c(rep(0.5, 3))
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    1,
+    'n_infections',
+    4,
+    timestep
+  )
+
+  mockery::expect_args(
+    renderer$render_mock(),
+    2,
+    'n_relapses',
+    2,
+    timestep
+  )
+  
+})

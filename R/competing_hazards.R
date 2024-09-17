@@ -16,6 +16,7 @@ CompetingOutcome <- R6::R6Class(
 
       self$target <- individual::Bitset$new(size)
       self$rates <- NULL
+      self$relative_rates <- NULL
     },
     set_rates = function(target, rates){
       stopifnot(target$size() == length(rates))
@@ -23,15 +24,23 @@ CompetingOutcome <- R6::R6Class(
       self$target$copy_from(target)
       self$rates <- rates
     },
+    set_relative_rates = function(target, relative_rates){
+      stopifnot(target$size() == length(relative_rates))
+      
+      self$target$copy_from(target)
+      self$relative_rates <- relative_rates
+    },
     execute = function(t, target){
       private$targeted_process(t, target)
     },
     reset = function() {
       self$target$clear()
       self$rates <- NULL
+      self$relative_rates <- NULL
     },
     target = NULL,
-    rates = NULL
+    rates = NULL,
+    relative_rates = NULL
   )
 )
 

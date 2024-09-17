@@ -266,6 +266,11 @@ populate_incidence_rendering_columns <- function(renderer, parameters){
     renderer$set_default('n_early_treatment_failure', 0)
     renderer$set_default('n_slow_parasite_clearance', 0)
   }
+
+  # relapses only render for the vivax model
+  if(parameters$parasite == "vivax"){
+    renderer$set_default('n_relapses', 0)
+  }
   
   if(length(parameters$incidence_rendering_min_ages)>0){
     render_initial_incidence(renderer,
@@ -301,5 +306,40 @@ render_initial_incidence <- function(renderer, lower_vals, upper_vals, inc_name)
 populate_metapopulation_incidence_rendering_columns <- function(renderer, parameters){
   for(i in length(parameters)){
     populate_incidence_rendering_columns(renderer[[i]], parameters[[i]])
+  }
+}
+
+create_n_with_hypnozoites_renderer_process <- function(
+    renderer,
+    hypnozoites,
+    parameters
+) {
+  function(timestep) {
+    renderer$render(
+      paste0("n_with_hypnozoites"),
+      hypnozoites$size() - hypnozoites$get_size_of(0),
+      timestep
+    )
+  }
+}
+
+create_n_with_hypnozoites_age_renderer_process <- function(
+    hypnozoites,
+    birth,
+    parameters,
+    renderer
+) {
+  function(timestep) {
+    for (i in seq_along(parameters$n_with_hypnozoites_rendering_min_ages)) {
+      lower <- parameters$n_with_hypnozoites_rendering_min_ages[[i]]
+      upper <- parameters$n_with_hypnozoites_rendering_max_ages[[i]]
+      in_age <- in_age_range(birth, timestep, lower, upper)
+      renderer$render(paste0('n_', lower, '_', upper), in_age$size(), timestep)
+      renderer$render(
+        paste0('n_with_hypnozoites_', lower, '_', upper),
+        sum(hypnozoites$get_values(index = in_age)!=0),
+        timestep
+      )
+    }
   }
 }

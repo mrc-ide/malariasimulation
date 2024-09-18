@@ -75,6 +75,10 @@ While the *P. falciparum* model calculates the onward infectivity of asymptomati
 
 The *P. vivax* model tracks the number of hypnozoite batches of each individual which contribute to the rate of new infections. Acquisition of new batches comes from bite infections and are capped (where `kmax = 10` by default). All individuals can acquire new hypnozoite batches via bites, even when these do not result in new blood-stage infection (as in the clinically diseased and treated). Hypnozoite batches are lost probabilistically where an individual's number of batches determines the loss rate of a single batch.
 
+### Equilibrium
+
+The malariaEquilibriumVivax package has been designed to calculate the equilibrium solution for the *P. vivax* model. This equilibrium is calculated by assigning an initial EIR value via the `set_equilibrium` function, as  in the *P. falciparum* model. Based on the age and heterogeneity group of an individual, it assigns a human disease state, clinical and anti-parasite immunities and number of hypnozoite batches.
+
 ### Key Model References
 
 White, M. T., Walker, P., Karl, S., Hetzel, M. W., Freeman, T., Waltmann, A., Laman, M., Robinson, L. J., Ghani, A., & Mueller, I. (2018). Mathematical modelling of the impact of expanding levels of malaria control interventions on Plasmodium vivax. Nature Communications, 9(1), 1–10. <https://doi.org/10.1038/s41467-018-05860-8>

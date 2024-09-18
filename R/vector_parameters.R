@@ -94,6 +94,30 @@ steph_params <- list(
   mum = .112
 )
 
+#' @title Preset parameters for the An. koliensis vector
+#' @details Default parameters:
+#' species: "kol"
+#' blood_meal_rates: 0.3333333
+#' foraging_time: .68
+#' Q0: 0.5
+#' phi_bednets: 0.9
+#' phi_indoors: 0.5
+#' mum: 0.1666667
+#'
+#' parameters reference:
+#' https://github.com/MWhite-InstitutPasteur/Pvivax_IBM/blob/master/koliensis_parameters.txt
+#' Value for blood meal rate is assumed in absence of  phi are from:
+#' @export
+kol_params <- list(
+  species = 'kol',
+  blood_meal_rates = 1/3,
+  foraging_time = 0.68,
+  Q0 = 0.5,
+  phi_bednets = 0.9,
+  phi_indoors = 0.5,
+  mum = 0.1666667
+)
+
 #' @title Parameterise the mosquito species to use in the model
 #'
 #' @param parameters the model parameters

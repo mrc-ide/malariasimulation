@@ -175,7 +175,7 @@ test_that('simulate_infection integrates different types of infection and schedu
 test_that('calculate_infections works various combinations of drug and vaccination', {
   timestep <- 50
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters, list(AL_params, DHA_PQP_params))
+  parameters <- set_drugs(parameters, list(AL_params_falciparum, DHA_PQP_params_falciparum))
   parameters <- set_clinical_treatment(parameters, 2, 1, .5)
   parameters <- set_mass_pev(
     parameters,
@@ -321,7 +321,7 @@ test_that('calculate_clinical_infections correctly samples clinically infected',
 
 test_that('calculate_treated correctly samples treated and updates the drug state', {
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters, list(AL_params, DHA_PQP_params))
+  parameters <- set_drugs(parameters, list(AL_params_falciparum, DHA_PQP_params_falciparum))
   parameters <- set_clinical_treatment(parameters, 1, 1, .25)
   parameters <- set_clinical_treatment(parameters, 2, 1, .25)
   timestep <- 5
@@ -388,7 +388,7 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
 test_that('calculate_treated correctly samples treated and updates the drug state when resistance set', {
   
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters = parameters, drugs = list(AL_params, SP_AQ_params))
+  parameters <- set_drugs(parameters = parameters, drugs = list(AL_params_falciparum, SP_AQ_params_falciparum))
   parameters <- set_clinical_treatment(parameters = parameters, drug = 1, timesteps = 1, coverages = 0.25)
   parameters <- set_clinical_treatment(parameters = parameters, drug = 2, timesteps = 1, coverages = 0.25)
   parameters <- set_antimalarial_resistance(parameters = parameters,
@@ -504,7 +504,7 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   
   # Establish the parameters
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters = parameters, drugs = list(AL_params, SP_AQ_params))
+  parameters <- set_drugs(parameters = parameters, drugs = list(AL_params_falciparum, SP_AQ_params_falciparum))
   parameters <- set_clinical_treatment(parameters = parameters, drug = 1, timesteps = 1, coverages = 0.25)
   parameters <- set_clinical_treatment(parameters = parameters, drug = 2, timesteps = 1, coverages = 0.25)
   parameters <- set_antimalarial_resistance(parameters = parameters,
@@ -688,7 +688,7 @@ test_that('schedule_infections correctly schedules new infections', {
 
 test_that('prophylaxis is considered for medicated humans', {
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters, list(AL_params, DHA_PQP_params))
+  parameters <- set_drugs(parameters, list(AL_params_falciparum, DHA_PQP_params_falciparum))
   events <- create_events(parameters)
   timestep <- 50
   
@@ -889,7 +889,7 @@ test_that('update_severe_disease renders with no infections', {
 
 test_that('calculate_treated returns empty Bitset when there is no clinical treatment coverage', {
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters = parameters, drugs = list(AL_params))
+  parameters <- set_drugs(parameters = parameters, drugs = list(AL_params_falciparum))
   parameters <- set_clinical_treatment(parameters = parameters, drug = 1, timesteps = 1, coverages = 0)
   parameters <- set_antimalarial_resistance(parameters = parameters,
                                             drug = 1,
@@ -925,7 +925,7 @@ test_that('calculate_treated returns empty Bitset when there is no clinical trea
 
 test_that('calculate_treated returns empty Bitset when the clinically_infected input is an empty Bitset', {
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters = parameters, drugs = list(AL_params))
+  parameters <- set_drugs(parameters = parameters, drugs = list(AL_params_falciparum))
   parameters <- set_clinical_treatment(parameters = parameters, drug = 1, timesteps = 1, coverages = 1)
   parameters <- set_antimalarial_resistance(parameters = parameters,
                                             drug = 1,
@@ -986,7 +986,7 @@ test_that('calculate_treated() returns an empty Bitset when the parameter list c
 test_that('Number of treatment failures matches number of individuals treated when artemisinin resistance
           proportion and early treatment failure probability both set to 1', {
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters = parameters, drugs = list(AL_params, SP_AQ_params))
+  parameters <- set_drugs(parameters = parameters, drugs = list(AL_params_falciparum, SP_AQ_params_falciparum))
   parameters <- set_clinical_treatment(parameters = parameters,
                                        drug = 1,
                                        timesteps = 1,
@@ -1040,7 +1040,7 @@ test_that('Number of treatment failures matches number of individuals treated wh
 
 test_that('calculate_treated() successfully adds additional resistance columns to the renderer', {
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters = parameters, drugs = list(AL_params))
+  parameters <- set_drugs(parameters = parameters, drugs = list(AL_params_falciparum))
   parameters <- set_clinical_treatment(parameters = parameters, drug = 1, timesteps = 1, coverages = 1)
   parameters <- set_antimalarial_resistance(parameters = parameters,
                                             drug = 1,

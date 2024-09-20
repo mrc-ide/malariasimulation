@@ -137,6 +137,15 @@ update_mass_drug_admin <- function(
     variables$drug_time$queue_update(timestep, target$successfully_treated)
     
   }
+
+  # Update liver stage drug effects
+  if(length(parameters$drug_hypnozoite_efficacy) > 0){
+    if(target$successfully_treated_hypnozoites$size() > 0){
+      variables$hypnozoites$queue_update(0, target$successfully_treated_hypnozoites)
+      variables$ls_drug$queue_update(drug, target$successfully_treated_hypnozoites)
+      variables$ls_drug_time$queue_update(timestep, target$successfully_treated_hypnozoites)
+    }
+  }
 }
 
 #' @title Calculate asymptomatic detectable individuals

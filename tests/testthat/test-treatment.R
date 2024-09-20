@@ -1,7 +1,7 @@
 
 test_that('You can set time varying clinical treatment', {
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters, list(DHA_PQP_params, AL_params))
+  parameters <- set_drugs(parameters, list(DHA_PQP_params_falciparum, AL_params_falciparum))
   parameters <- set_clinical_treatment(
     parameters,
     drug = 1,
@@ -62,7 +62,7 @@ test_that('You can set time varying clinical treatment', {
 
 test_that('You cannot set invalid coverages', {
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters, list(DHA_PQP_params, AL_params))
+  parameters <- set_drugs(parameters, list(DHA_PQP_params_falciparum, AL_params_falciparum))
   parameters <- set_clinical_treatment(
     parameters,
     drug = 1,
@@ -82,7 +82,7 @@ test_that('You cannot set invalid coverages', {
 test_that('set_drugs errors if a list is not provided', {
   parameters <- get_parameters()
   expect_error(
-    set_drugs(parameters, AL_params),
+    set_drugs(parameters, AL_params_falciparum),
     "is.list(drugs) is not TRUE",
     fixed = TRUE
   )

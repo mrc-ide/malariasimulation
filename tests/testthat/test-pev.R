@@ -174,6 +174,7 @@ test_that('Infection considers pev efficacy', {
   infection_rates <- calculate_infections(
     variables = variables,
     bitten_humans = individual::Bitset$new(4)$insert(seq(4)),
+    n_bites_per_person = numeric(0),
     parameters = parameters,
     renderer = mock_render(timestep),
     timestep = timestep,

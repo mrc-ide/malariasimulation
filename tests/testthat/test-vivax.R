@@ -137,3 +137,121 @@ test_that('that vivax patent prevalence rendering works', {
   )
   
 })
+
+test_that('Test default vivax incidence rendering works', {
+  
+  timestep <- 0
+  year <- 365
+  birth <- individual::IntegerVariable$new(
+    -c(2, 5, 10, 11) * year
+  )
+  vivax_parameters <- get_parameters(
+    parasite = "vivax")
+  
+  renderer <- mock_render(1)
+  incidence_renderer(
+    birth,
+    renderer,
+    individual::Bitset$new(4)$insert(c(1, 2, 4)),
+    'inc_patent_',
+    c(0, 2) * year,
+    c(5, 10) * year,
+    timestep
+  )
+  
+  incidence_probability_renderer(
+    birth,
+    renderer,
+    individual::Bitset$new(4)$insert(seq(4)),
+    c(.1, .2, .3, .4),
+    'inc_patent_',
+    c(0, 2) * year,
+    c(5, 10) * year,
+    timestep
+  )
+  
+  mockery::expect_args(
+    renderer$render_mock(),
+    1,
+    'n_inc_patent_0_1825',
+    2,
+    timestep
+  )
+  
+  mockery::expect_args(
+    renderer$render_mock(),
+    2,
+    'n_inc_patent_730_3650',
+    2,
+    timestep
+  )
+  
+  mockery::expect_args(
+    renderer$render_mock(),
+    3,
+    'p_inc_patent_0_1825',
+    0.3,
+    timestep
+  )
+  
+  mockery::expect_args(
+    renderer$render_mock(),
+    4,
+    'p_inc_patent_730_3650',
+    .6,
+    timestep
+  )
+})
+
+test_that('vivax schedule_infections correctly schedules new infections', {
+  parameters <- get_parameters(list(human_population = 20), parasite = "vivax")
+  variables <- create_variables(parameters)
+  
+  variables$state <- individual::CategoricalVariable$new(
+    c('U', 'A', 'D', 'S', 'Tr'),
+    rep(c('S','U','A','D','Tr'), times = 4)
+  )
+  
+  infections <- individual::Bitset$new(20)$insert(1:20)
+  lm_detectable <- individual::Bitset$new(20)$insert(6:20)$and(variables$state$get_index_of(c("S", "U")))
+  clinical <- individual::Bitset$new(20)$insert(11:20)$and(variables$state$get_index_of(c("A"))$or(lm_detectable))
+  treated <- individual::Bitset$new(20)$insert(16:20)$and(clinical)
+  # Only S can be a subpatent infection (1)
+  # Only S and U can be a patent infection (6, 7)
+  # S, U and A can be clinical infections (11, 12, 13), but the model re-infects everyone
+  # Treated only looks at new clinical infections (from SAU, not from D)
+  to_U <- infections$and(lm_detectable$not(F))$and(variables$state$get_index_of(c("S")))
+  to_A <- lm_detectable$and(clinical$not(F))
+  to_D <- clinical$and(treated$not(F))
+  
+  infection_mock <- mockery::mock()
+  mockery::stub(schedule_infections, 'update_infection', infection_mock)
+  
+  schedule_infections(
+    parameters,
+    variables,
+    timestep = 42,
+    to_D,
+    to_A,
+    to_U
+  )
+  
+  actual_infected <- mockery::mock_args(infection_mock)[[1]][[7]]$to_vector()
+  actual_asymp_infected <- mockery::mock_args(infection_mock)[[2]][[7]]$to_vector()
+  actual_subpatent_infected <- mockery::mock_args(infection_mock)[[3]][[7]]$to_vector()
+  
+  expect_equal(
+    actual_infected,
+    c(11:13)
+  )
+  
+  expect_equal(
+    actual_asymp_infected,
+    c(6, 7)
+  )
+  
+  expect_equal(
+    actual_subpatent_infected,
+    c(1)
+  )
+})

@@ -47,7 +47,7 @@ create_processes <- function(
     immunity_process = create_exponential_decay_process(variables$ica,
                                                         parameters$rc)
   )
-
+  
   if(parameters$parasite == "falciparum"){
     processes <- c(
       processes,
@@ -61,14 +61,17 @@ create_processes <- function(
       immunity_process = create_exponential_decay_process(variables$iva,
                                                           parameters$rva),
       # Immunity to detectability
-      immunity_process = create_exponential_decay_process(variables$id, parameters$rid)
+      immunity_process = create_exponential_decay_process(variables$id, 
+                                                          parameters$rid)
     )
   } else if (parameters$parasite == "vivax"){
     processes <- c(
       processes,
       # Anti-parasite immunity
-      immunity_process = create_exponential_decay_process(variables$iam, parameters$rm),
-      immunity_process = create_exponential_decay_process(variables$iaa, parameters$ra)
+      immunity_process = create_exponential_decay_process(variables$iam, 
+                                                          parameters$rm),
+      immunity_process = create_exponential_decay_process(variables$iaa, 
+                                                          parameters$ra)
     )
   }
 

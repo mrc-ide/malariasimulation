@@ -1,0 +1,161 @@
+test_that('vivax ODE stays at equilibrium with a constant total_M', {
+  parameters <- get_parameters(list(
+    individual_mosquitoes = TRUE
+  ), parasite = "vivax")
+  total_M <- 1000
+  timesteps <- 365 * 10
+  f <- parameters$blood_meal_rates
+  models <- parameterise_mosquito_models(parameters, timesteps)
+  solvers <- parameterise_solvers(models, parameters)
+  
+  counts <- c()
+  
+  for (t in seq(timesteps)) {
+    counts <- rbind(counts, c(t, solvers[[1]]$get_states()))
+    aquatic_mosquito_model_update(
+      models[[1]]$.model,
+      total_M,
+      f,
+      parameters$mum
+    )
+    solvers[[1]]$step()
+  }
+  
+  expected <- c()
+  equilibrium <- initial_mosquito_counts(
+    parameters,
+    1,
+    parameters$init_foim,
+    parameters$total_M
+  )[ODE_INDICES]
+  for (t in seq(timesteps)) {
+    expected <- rbind(expected, c(t, equilibrium))
+  }
+  
+  expect_equal(counts, expected, tolerance=1e-4)
+})
+
+test_that('vivax Adult ODE stays at equilibrium with a constant foim and mu', {
+  parameters <- get_parameters(parasite = "vivax")
+  parameters <- set_equilibrium(parameters, 100.)
+  f <- parameters$blood_meal_rates
+  timesteps <- 365 * 10
+  models <- parameterise_mosquito_models(parameters, timesteps)
+  solvers <- parameterise_solvers(models, parameters)
+  
+  counts <- c()
+  
+  for (t in seq(timesteps)) {
+    states <- solvers[[1]]$get_states()
+    counts <- rbind(counts, c(t, states))
+    adult_mosquito_model_update(
+      models[[1]]$.model,
+      parameters$mum,
+      parameters$init_foim,
+      states[ADULT_ODE_INDICES['Sm']],
+      f
+    )
+    solvers[[1]]$step()
+  }
+  
+  expected <- c()
+  equilibrium <- initial_mosquito_counts(
+    parameters,
+    1,
+    parameters$init_foim,
+    parameters$total_M
+  )
+  
+  for (t in seq(timesteps)) {
+    expected <- rbind(expected, c(t, equilibrium))
+  }
+  expect_equal(counts, expected, tolerance=1e-3)
+})
+
+test_that('vivax ODE stays at equilibrium with low total_M', {
+  total_M <- 10
+  parameters <- get_parameters(list(
+    total_M = total_M,
+    individual_mosquitoes = TRUE
+  ), parasite = "vivax")
+  timesteps <- 365 * 10
+  f <- parameters$blood_meal_rates
+  models <- parameterise_mosquito_models(parameters, timesteps)
+  solvers <- parameterise_solvers(models, parameters)
+  
+  
+  counts <- c()
+  
+  for (t in seq(timesteps)) {
+    counts <- rbind(counts, c(t, solvers[[1]]$get_states()))
+    aquatic_mosquito_model_update(
+      models[[1]]$.model,
+      total_M,
+      f,
+      parameters$mum
+    )
+    solvers[[1]]$step()
+  }
+  
+  expected <- c()
+  equilibrium <- initial_mosquito_counts(
+    parameters,
+    1,
+    parameters$init_foim,
+    parameters$total_M
+  )[ODE_INDICES]
+  
+  for (t in seq(timesteps)) {
+    expected <- rbind(expected, c(t, equilibrium))
+  }
+  
+  expect_equal(counts, expected, tolerance=1e-4)
+})
+
+
+test_that('vivax changing total_M stabilises', {
+  total_M_0 <- 500
+  total_M_1 <- 400
+  parameters <- get_parameters(list(
+    total_M = total_M_0,
+    individual_mosquitoes = TRUE
+  ), parasite = "vivax")
+  f <- parameters$blood_meal_rates
+  timesteps <- 365 * 10
+  models <- parameterise_mosquito_models(parameters, timesteps)
+  solvers <- parameterise_solvers(models, parameters)
+  
+  change <- 50
+  burn_in <- 365 * 5
+  
+  counts <- c()
+  
+  for (t in seq(timesteps)) {
+    counts <- rbind(counts, c(t, solvers[[1]]$get_states()))
+    if (t < change) {
+      total_M <- total_M_0
+    } else {
+      total_M <- total_M_1
+    }
+    aquatic_mosquito_model_update(
+      models[[1]]$.model,
+      total_M,
+      f,
+      parameters$mum
+    )
+    solvers[[1]]$step()
+  }
+  
+  initial_eq <- initial_mosquito_counts(
+    parameters,
+    1,
+    parameters$init_foim,
+    parameters$total_M
+  )[ODE_INDICES]
+  final_eq <- counts[burn_in, ODE_INDICES + 1]
+  
+  expect_equal(counts[1,], c(1, initial_eq), tolerance=1e-4)
+  expect_equal(counts[timesteps,], c(timesteps, final_eq), tolerance=1e-4)
+  expect_false(isTRUE(all.equal(initial_eq, final_eq)))
+  expect_false(any(is.na(counts)))
+})

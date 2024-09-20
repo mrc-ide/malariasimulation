@@ -18,5 +18,5 @@ The default malariaEquilibrium parameters will be used}
 \description{
 This will update the IBM parameters to match the
 equilibrium parameters and set up the initial human and mosquito population
-to acheive init_EIR
+to achieve init_EIR
 }

@@ -71,8 +71,8 @@ vivax,philm_min,0.0131, White (2018); doi: 10.1038/s41467-018-05860-8
 vivax,philm_max,0.9329, White (2018); doi: 10.1038/s41467-018-05860-8
 vivax,klm,3.202, White (2018); doi: 10.1038/s41467-018-05860-8
 vivax,alm50,17.30, White (2018); doi: 10.1038/s41467-018-05860-8
-vivax,phi0,4.2857, White (2018); doi: 10.1038/s41467-018-05860-8; phi0 is equivalent to phi_D_max (4.2857)
-vivax,phi1,0.2186, White (2018); doi: 10.1038/s41467-018-05860-8; phi1 is equivalent to phi_D_min/phi_D_max (0.9368/4.2857)
+vivax,phi0,0.9368, White (2018); doi: 10.1038/s41467-018-05860-8; phi0 is equivalent to phi_D_max (0.9368)
+vivax,phi1,0.0139, White (2018); doi: 10.1038/s41467-018-05860-8; phi1 is equivalent to phi_D_min/phi_D_max (0.013/0.9368)
 vivax,ic0,23.788, White (2018); doi: 10.1038/s41467-018-05860-8
 vivax,kc,5.41, White (2018); doi: 10.1038/s41467-018-05860-8
 vivax,cd,0.8, Kiattibutr (2017); doi: 10.1016/j.ijpara.2016.10.006

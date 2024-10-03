@@ -99,7 +99,7 @@ jobs:
       - name: Download benchmarking results
         if: needs.build.result == 'success'
         # Version number must match the one used by touchstone when uploading
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: pr
 

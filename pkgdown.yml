@@ -1,5 +1,5 @@
 pandoc: 3.1.11
-pkgdown: 2.1.0
+pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   Antimalarial_Resistance: Antimalarial_Resistance.html
@@ -16,4 +16,4 @@ articles:
   Variation: Variation.html
   VectorControl_Bednets: VectorControl_Bednets.html
   VectorControl_IRS: VectorControl_IRS.html
-last_built: 2024-09-12T14:47Z
+last_built: 2024-10-03T14:09Z

@@ -12,7 +12,7 @@
 #' boosted for tracking grace periods in the boost of immunity
 #' * ICM - Maternal immunity to clinical disease
 #' * IVM - Maternal immunity to severe disease
-#' * IB  - Pre-erythoctic immunity
+#' * IB  - Pre-erythrocytic immunity (p.f only)
 #' * ICA  - Acquired immunity to clinical disease
 #' * IVA  - Acquired immunity to severe disease
 #' * ID - Acquired immunity to detectability
@@ -96,7 +96,6 @@ create_variables <- function(parameters) {
   initial_states <- initial_state(parameters, initial_age, groups, eq, states)
   state <- individual::CategoricalVariable$new(states, initial_states)
   birth <- individual::IntegerVariable$new(-initial_age)
-  last_boosted_ib <- individual::DoubleVariable$new(rep(-1, size))
   last_boosted_ica <- individual::DoubleVariable$new(rep(-1, size))
   last_boosted_iva <- individual::DoubleVariable$new(rep(-1, size))
   last_boosted_id <- individual::DoubleVariable$new(rep(-1, size))
@@ -124,17 +123,21 @@ create_variables <- function(parameters) {
     )
   )
 
-  # Pre-erythoctic immunity
-  ib  <- individual::DoubleVariable$new(
-    initial_immunity(
-      parameters$init_ib,
-      initial_age,
-      groups,
-      eq,
-      parameters,
-      'IB'
+  if(parameters$parasite == "falciparum"){
+    # Pre-erythrocytic immunity
+    last_boosted_ib <- individual::DoubleVariable$new(rep(-1, size))
+    ib  <- individual::DoubleVariable$new(
+      initial_immunity(
+        parameters$init_ib,
+        initial_age,
+        groups,
+        eq,
+        parameters,
+        'IB'
+      )
     )
-  )
+  }
+  
   # Acquired immunity to clinical disease
   ica <- individual::DoubleVariable$new(
     initial_immunity(
@@ -224,13 +227,11 @@ create_variables <- function(parameters) {
   variables <- list(
     state = state,
     birth = birth,
-    last_boosted_ib = last_boosted_ib,
     last_boosted_ica = last_boosted_ica,
     last_boosted_iva = last_boosted_iva,
     last_boosted_id = last_boosted_id,
     icm = icm,
     ivm = ivm,
-    ib = ib,
     ica = ica,
     iva = iva,
     id = id,
@@ -248,7 +249,13 @@ create_variables <- function(parameters) {
     spray_time = spray_time
   )
   
-
+  if(parameters$parasite == "falciparum"){
+    variables <- c(variables,
+                   last_boosted_ib = last_boosted_ib,
+                   ib = ib
+    )
+  }
+  
   # Add variables for individual mosquitoes
   if (parameters$individual_mosquitoes) {
     species_values <- NULL

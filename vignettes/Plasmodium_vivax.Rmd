@@ -53,9 +53,15 @@ The *P. falciparum* model has five human disease compartments: susceptible (S), 
 
 The *P. vivax* model follows a similar structure to the *P. falciparum* model, and also has five human disease compartments. However, the human disease states modeled explicitly focus on parasite density and detectability, such that we have: susceptible (S), clinical disease (D), **light-microscopy detectable infection (A)**, **PCR detectable infection (U)**, and treated (Tr).
 
+### Immunity
+
+The *P. falciparum* model tracks four kinds of immunity: immunity to blood stage infection (IB), clinical disease (acquired and maternal, ICA and ICM), to severe disease (acquired and maternal, IVA and IVM), and to detectability (ID).
+
+The *P. vivax* model tracks two kinds of immunity: immunity to clinical infection (acquired and maternal, ICA and ICM) and anti-parasite immunity (acquired and maternal, IAA and IAM). We do not track immunity to blood stage infections, severe immunity or immunity to detectability.
+
 ### Infectivity of LM-detectable infections
 
-While the *P. falciparum* model calculates the onward infectivity of asymptomatic infections (`ca`) using the age and detectability immunity of each individual, the *P. vivax* model uses a constant infectivity for LM-detectable infections (`ca = 0.1`).
+While the *P. falciparum* model calculates the onward infectivity of asymptomatic infections (`ca`) using the age and detectability immunity of each individual, the *P. vivax* model uses a constant onwards infectivity for LM-detectable infections (`ca = 0.1`).
 
 ### Key Model References
 

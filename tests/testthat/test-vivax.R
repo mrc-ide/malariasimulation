@@ -24,7 +24,8 @@ test_that('Test difference between falciparum and vivax parameter lists', {
   
   expect_identical(
     in_falciparum_not_vivax,
-    c("gamma1") # asymptomatic infected infectivity towards mosquitos parameter
+    c("init_ib", "rb", "ub", "b0", "b1", "ib0", "kb", # blood immunity parameters
+    "gamma1") # asymptomatic infected infectivity towards mosquitos parameter
   )
   
   expect_identical(

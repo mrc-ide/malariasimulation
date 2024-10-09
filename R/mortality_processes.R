@@ -91,15 +91,18 @@ reset_target <- function(variables, events, target, state, parameters, timestep)
     variables$birth$queue_update(timestep, target)
 
     # non-maternal immunity
-    variables$last_boosted_ib$queue_update(-1, target)
     variables$last_boosted_ica$queue_update(-1, target)
     variables$last_boosted_iva$queue_update(-1, target)
     variables$last_boosted_id$queue_update(-1, target)
-    variables$ib$queue_update(0, target)
     variables$ica$queue_update(0, target)
     variables$iva$queue_update(0, target)
     variables$id$queue_update(0, target)
     variables$state$queue_update(state, target)
+    
+    if(parameters$parasite == "falciparum"){
+      variables$last_boosted_ib$queue_update(-1, target)
+      variables$ib$queue_update(0, target)
+    }
 
     # treatment
     variables$drug$queue_update(0, target)

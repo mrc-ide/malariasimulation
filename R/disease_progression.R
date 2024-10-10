@@ -6,9 +6,9 @@
 #' @param progression_outcome competing hazards object for disease progression rates
 #' @noRd
 create_progression_rates_process <- function(
-  parameters,
-  variables,
-  progression_outcome
+    parameters,
+    variables,
+    progression_outcome
 ) {
   function(timestep){
     target <- variables$state$get_index_of("S")$not()

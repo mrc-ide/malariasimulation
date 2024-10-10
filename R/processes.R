@@ -40,24 +40,26 @@ create_processes <- function(
   # Immunity
   # ========
   processes <- list(
-    # Maternal immunity
+    # Immunity to clinical disease (maternal)
     immunity_process = create_exponential_decay_process(variables$icm,
                                                         parameters$rm),
-    immunity_process = create_exponential_decay_process(variables$ivm,
-                                                        parameters$rvm),
-    # Acquired immunity
+    # Immunity to clinical disease (acquired)
     immunity_process = create_exponential_decay_process(variables$ica,
-                                                        parameters$rc),
-    immunity_process = create_exponential_decay_process(variables$iva,
-                                                        parameters$rva)
+                                                        parameters$rc)
   )
-  
+
   if(parameters$parasite == "falciparum"){
     processes <- c(
       processes,
       # Blood immunity
       immunity_process = create_exponential_decay_process(variables$ib,
                                                           parameters$rb),
+      # Immunity to severe disease (maternal)
+      immunity_process = create_exponential_decay_process(variables$ivm,
+                                                          parameters$rvm),
+      # Immunity to severe disease (acquired)
+      immunity_process = create_exponential_decay_process(variables$iva,
+                                                          parameters$rva),
       # Immunity to detectability
       immunity_process = create_exponential_decay_process(variables$id, parameters$rid)
     )
@@ -193,13 +195,13 @@ create_processes <- function(
   # Rendering
   # =========
   
-  imm_var_names <- c('ica', 'icm', 'iva', 'ivm')
+  imm_var_names <- c('ica', 'icm')
   if(parameters$parasite == "falciparum"){
-    imm_var_names <- c(imm_var_names, 'ib', 'id')
+    imm_var_names <- c(imm_var_names, 'ib', 'iva', 'ivm', 'id')
   } else if (parameters$parasite == "vivax"){
     imm_var_names <- c(imm_var_names, 'iaa', 'iam')
   }
-  
+
   processes <- c(
     processes,
     categorical_renderer = individual::categorical_count_renderer_process(

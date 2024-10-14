@@ -152,37 +152,31 @@ test_that('Infection considers pev efficacy', {
 
   infection_outcome <- CompetingOutcome$new(
     targeted_process = function(timestep, target){
-      infection_process_resolved_hazard(timestep, target, variables, renderer, parameters)
+      falciparum_infection_outcome_process(timestep, target, variables, renderer, parameters)
     },
     size = 4
   )
   
   # remove randomness from infection sampling
   bernoulli_mock <- mockery::mock(c(1, 2))
-  mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
+  mockery::stub(calculate_falciparum_infections, 'bernoulli_multi_p', bernoulli_mock)
 
   # remove randomness from pev parameters
-  mockery::stub(
-    calculate_infections,
-    'sample_pev_param',
-    function(index, profiles, name) {
-      vnapply(index, function(i) profiles[[i]][[name]][[1]]) # return mu
-    },
-    depth = 4
-  )
-
-  infection_rates <- calculate_infections(
+  local_mocked_bindings(sample_pev_param = function(index, profiles, name) {
+    vnapply(index, function(i) profiles[[i]][[name]][[1]]) # return mu
+  })
+  
+  infection_rates <- calculate_falciparum_infections(
     variables = variables,
     bitten_humans = individual::Bitset$new(4)$insert(seq(4)),
-    n_bites_per_person = numeric(0),
     parameters = parameters,
     renderer = mock_render(timestep),
     timestep = timestep,
     infection_outcome = infection_outcome
   )
-
+  
   expect_equal(
-    rate_to_prob(infection_rates[infection_rates!=0]),
+    rate_to_prob(infection_outcome$rates),
     c(0.590, 0.590, 0.215, 0.244),
     tolerance=1e-3
   )

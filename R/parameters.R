@@ -37,10 +37,10 @@
 #' * da - the delay for humans to move from state A to U; default = 195
 #' * du - the delay for humans to move from state U to S (p.f only); default = 110
 #'
-#' duration of pcr detectable infection: du (p.v only):
+#' duration of pcr detectable infections: du (p.v only):
 #'
-#' * dpcr_max - Maximum duration of subpatent infection: default = 53.69
-#' * dpcr_min - Minimum duration of subpatent infection: default = 10
+#' * dpcr_max - Maximum duration of PCR-detectable infections: default = 53.69
+#' * dpcr_min - Minimum duration of PCR-detectable infections: default = 10
 #' * kpcr - Shape parameter: default = 4.021
 #' * apcr50 - Scale parameter: default = 9.8
 #' 
@@ -112,7 +112,7 @@
 #' * id0 - scale parameter; default = 1.577533
 #' * kd - shape parameter; default = 0.476614
 #'
-#' probability of patent infection due to anti-parasite immunity (p.v only):
+#' probability of light-microscopy detectable infections due to anti-parasite immunity (p.v only):
 #'
 #' * philm_max - maximum probability due to no immunity; default = 0.9329
 #' * philm_min - maximum reduction due to immunity; default = 0.0131
@@ -141,7 +141,7 @@
 #' * cd - infectivity of clinically diseased humans towards mosquitoes; default = 0.068
 #' * ca - infectivity of asymptomatic humans towards mosquitoes (p.v only); default = 0.1
 #' * gamma1 - parameter for infectivity of asymptomatic humans; default = 1.82425
-#' * cu - infectivity of sub-patent infection; default = 0.0062
+#' * cu - infectivity of subpatent infection; default = 0.0062
 #' * ct - infectivity of treated infection; default = 0.021896
 #'
 #' mosquito fixed state transitions (including mortality):
@@ -344,7 +344,7 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
     # maternal immunity parameters
     # probability of pre-erythrocytic infection/blood immunity
     # probability of asymptomatic detection (p.f only)
-    # probability of patent infection (due to anti-parasite immunity, p.v only)
+    # probability of light-microscopy detectable infection (due to anti-parasite immunity, p.v only)
     # probability of clinical infection
     # probability of severe infection (p.f only)
     # infectivity towards mosquitos

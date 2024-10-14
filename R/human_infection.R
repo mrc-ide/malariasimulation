@@ -154,17 +154,19 @@ infection_outcome_process <- function(
     parameters,
     prob){
   
-  incidence_renderer(
-    variables$birth,
-    renderer,
-    infected_humans,
-    'inc_',
-    parameters$incidence_rendering_min_ages,
-    parameters$incidence_rendering_max_ages,
-    timestep
-  )
-  
   if (infected_humans$size() > 0) {
+    
+    renderer$render('n_infections', infected_humans$size(), timestep)
+    incidence_renderer(
+      variables$birth,
+      renderer,
+      infected_humans,
+      'inc_',
+      parameters$incidence_rendering_min_ages,
+      parameters$incidence_rendering_max_ages,
+      timestep
+    )
+    
     boost_immunity(
       variables$ica,
       infected_humans,
@@ -172,6 +174,7 @@ infection_outcome_process <- function(
       timestep,
       parameters$uc
     )
+
     if(parameters$parasite == "falciparum"){
       boost_immunity(
         variables$id,
@@ -180,7 +183,38 @@ infection_outcome_process <- function(
         timestep,
         parameters$ud
       )
+      
+      clinical <- calculate_clinical_infections(
+        variables,
+        infected_humans,
+        parameters,
+        renderer,
+        timestep
+      )
+      
+      treated <- calculate_treated(
+        variables,
+        clinical,
+        parameters,
+        timestep,
+        renderer
+      )
+      
+      update_severe_disease(
+        timestep,
+        infected_humans,
+        variables,
+        parameters,
+        renderer
+      )
+      
+      ## The treated and infected_humans bitsets are re-written so be cautious!
+      to_D <- treated$not(FALSE)$and(clinical)
+      to_A <- infected_humans$and(clinical$not(FALSE))
+      to_U <- NULL
+      
     } else if (parameters$parasite == "vivax"){
+      
       boost_immunity(
         variables$iaa,
         infected_humans,
@@ -188,45 +222,79 @@ infection_outcome_process <- function(
         timestep,
         parameters$ua
       )
+      
+      ## Only S and U infections are considered in generating lm-det infections
+      lm_detectable <- calculate_lm_det_infections(
+        variables,
+        variables$state$get_index_of(c("S","U"))$and(infected_humans),
+        parameters,
+        renderer,
+        timestep
+      )
+      
+      # Lm-detectable level infected S and U, and all A infections may receive clinical infections
+      # There is a different calculation to generate clinical infections, based on current infection level
+      # LM infections must only pass through the clinical calculation, therefore all "A" infections are included
+      # "S" and "U" infections must pass through the lm-detectable calculation prior to and in addition to the clinical
+      # calculation. We therefore consider all "A" infections and only the "S" and "U" infections that are now lm-detectable.
+      clinical <- calculate_clinical_infections(
+        variables,
+        variables$state$get_index_of("A")$and(infected_humans)$or(lm_detectable),
+        parameters,
+        renderer,
+        timestep
+      )
+      
+      treated <- calculate_treated(
+        variables,
+        clinical,
+        parameters,
+        timestep,
+        renderer
+      )
+      
+      ## The infected_humans,lm_detectable and clinical bitsets are re-written so be cautious!
+      to_U <- infected_humans$and(lm_detectable$not(F))$and(variables$state$get_index_of(c("S")))
+      to_A <- lm_detectable$and(clinical$not(F))
+      to_D <- clinical$and(treated$not(F))
     }
+    
+    schedule_infections(
+      parameters,
+      variables,
+      timestep,
+      to_D,
+      to_A,
+      to_U
+    )
   }
-  
-  clinical_infections <- calculate_clinical_infections(
+}
+
+#' @title Calculate light microscopy detectable infections (p.v only)
+#' @description
+#' Sample light microscopy detectable infections from all infections
+#' @param variables a list of all of the model variables
+#' @param infections bitset of infected humans
+#' @param parameters model parameters
+#' @param renderer model render
+#' @param timestep current timestep
+#' @noRd
+calculate_lm_det_infections <- function(
     variables,
-    infected_humans,
+    infections,
     parameters,
     renderer,
     timestep
-  )
+) {
   
-  if(parameters$parasite == "falciparum"){
-    update_severe_disease(
-      timestep,
-      infected_humans,
-      variables,
-      parameters,
-      renderer
-    )
-  }
-  
-  treated <- calculate_treated(
-    variables,
-    clinical_infections,
-    parameters,
-    timestep,
-    renderer
-  )
-  
-  renderer$render('n_infections', infected_humans$size(), timestep)
-  
-  schedule_infections(
-    variables,
-    clinical_infections,
-    treated,
-    infected_humans,
-    parameters,
-    timestep
-  )
+  iaa <- variables$iaa$get_values(infections)
+  iam <- variables$iam$get_values(infections)
+
+  philm <- anti_parasite_immunity(
+    min = parameters$philm_min, max = parameters$philm_max, a50 = parameters$alm50,
+    k = parameters$klm, iaa = iaa, iam = iam)
+
+  lm_det_infections <- bitset_at(infections, bernoulli_multi_p(philm))
 }
 
 #' @title Calculate clinical infections
@@ -487,32 +555,27 @@ calculate_successful_treatments <- function(
   successfully_treated_list
 }
 
+
 #' @title Schedule infections
 #' @description
 #' Schedule infections in humans after the incubation period
-#' @param events a list of all of the model events
-#' @param clinical_infections bitset of clinically infected humans
-#' @param treated bitset of treated humans
-#' @param infections bitset of infected humans
 #' @param parameters model parameters
+#' @param variables a list of all of the model variables
+#' @param timestep current timestep
+#' @param to_D bitset of humans to move to state D
+#' @param to_A bitset of humans to move to state A
+#' @param to_U bitset of humans to move to state U
 #' @noRd
 schedule_infections <- function(
-    variables,
-    clinical_infections,
-    treated,
-    infections,
     parameters,
-    timestep
+    variables,
+    timestep,
+    to_D,
+    to_A,
+    to_U
 ) {
 
-  included <- treated$not(TRUE)
-
-  to_infect <- clinical_infections$and(included)
-  to_infect_asym <- clinical_infections$copy()$not(TRUE)$and(infections)$and(
-    included
-  )
-
-  if(to_infect$size() > 0) {
+  if(to_D$size() > 0) {
     update_infection(
       variables$state,
       'D',
@@ -520,18 +583,18 @@ schedule_infections <- function(
       parameters$cd,
       variables$progression_rates,
       1/parameters$dd,
-      to_infect
+      to_D
     )
   }
 
-  if(to_infect_asym$size() > 0) {
+  if(to_A$size() > 0) {
     if(parameters$parasite == "falciparum"){
       # p.f has immunity-determined asymptomatic infectivity
       update_to_asymptomatic_infection(
         variables,
         parameters,
         timestep,
-        to_infect_asym
+        to_A
       )
     } else if (parameters$parasite == "vivax"){
       # p.v has constant asymptomatic infectivity
@@ -542,7 +605,27 @@ schedule_infections <- function(
         parameters$ca,
         variables$progression_rates,
         1/parameters$da,
-        to_infect_asym
+        to_A
+      )
+    }
+  }
+  
+  if(parameters$parasite == "vivax"){
+    # new p.v infections may be pcr-detectable
+    if(to_U$size() > 0){
+      # p.v pcr-detectable recovery rate is immunity dependent
+      update_infection(
+        variables$state,
+        'U',
+        variables$infectivity,
+        parameters$cu,
+        variables$progression_rates,
+        1/anti_parasite_immunity(
+          parameters$dpcr_min, parameters$dpcr_max, parameters$apcr50, parameters$kpcr,
+          variables$iaa$get_values(to_U),
+          variables$iam$get_values(to_U)
+        ),
+        to_U
       )
     }
   }

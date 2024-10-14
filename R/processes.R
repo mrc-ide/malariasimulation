@@ -94,18 +94,30 @@ create_processes <- function(
   # Competing Hazard Outcomes (infections and disease progression)
   # =====================================================
   
-  infection_outcome <- CompetingOutcome$new(
-    targeted_process = function(timestep, target){
-      infection_outcome_process(timestep, target, 
-                                variables, renderer, parameters, 
-                                prob = rate_to_prob(infection_outcome$rates),
-                                relative_rates = infection_outcome$relative_rates)
-    },
-    size = parameters$human_population
-  )
+  if(parameters$parasite == "falciparum"){
+    infection_outcome <- CompetingOutcome$new(
+      targeted_process = function(timestep, target, args){
+        falciparum_infection_outcome_process(timestep, target, 
+                                  variables, renderer, parameters
+        )
+      },
+      size = parameters$human_population
+    )
+    
+  } else if (parameters$parasite == "vivax"){
+    infection_outcome <- CompetingOutcome$new(
+      targeted_process = function(timestep, target, args){
+        vivax_infection_outcome_process(timestep, target, 
+                                  variables, renderer, parameters, 
+                                  args$relative_rates
+        )
+      },
+      size = parameters$human_population
+    )
+  }
   
   progression_outcome <- CompetingOutcome$new(
-    targeted_process = function(timestep, target){
+    targeted_process = function(timestep, target, ...){
       progression_outcome_process(timestep, target, variables, parameters, renderer)
     },
     size = parameters$human_population

@@ -181,9 +181,6 @@ calculate_vivax_infections <- function(
       infection_rates[hyp_source_index] <- infection_rates[hyp_source_index] + relapse_rates
       # Get and store relative rates for bite/relapse competing hazards resolution
       relative_rates <- relapse_rates/infection_rates[hyp_source_index]
-      # infection_outcome$set_relative_rates(
-      # hypnozoites_humans, 
-      # relative_rates)
     }
     
     prob <- rate_to_prob(infection_rates) * (1 - prophylaxis) * (1 - vaccine_efficacy)
@@ -944,7 +941,7 @@ severe_immunity <- function(age, acquired_immunity, maternal_immunity, parameter
   parameters$theta0 * (parameters$theta1 + (1 - parameters$theta1) / (
     1 + fv * (
       (acquired_immunity + maternal_immunity) / parameters$iv0) ** parameters$kv
-  )
+    )
   )
 }
 

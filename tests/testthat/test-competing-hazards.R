@@ -26,14 +26,15 @@ test_that("hazard resolves two disjoint outcomes", {
   
   outcome_1$set_rates(population, c(10, 0, 10, 0))
   outcome_2$set_rates(population, c(0, 10, 0, 10))
-  
+
   hazard$resolve(0)
+
   mockery::expect_args(outcome_1_process, 1, 0,
-                       individual::Bitset$new(size)$insert(c(1, 3)),
-                       list())
+                       individual::Bitset$new(size)$insert(c(1, 3)))
+
   mockery::expect_args(outcome_2_process, 1, 0,
-                       individual::Bitset$new(size)$insert(c(2, 4)),
-                       list())
+                       individual::Bitset$new(size)$insert(c(2, 4)))
+  
 })
 
 test_that("hazard resolves two competing outcomes", {
@@ -63,11 +64,9 @@ test_that("hazard resolves two competing outcomes", {
   hazard$resolve(0)
    
   mockery::expect_args(outcome_1_process, 1, 0,
-                       individual::Bitset$new(size)$insert(c(2, 3)),
-                       list())
+                       individual::Bitset$new(size)$insert(c(2, 3)))
   mockery::expect_args(outcome_2_process, 1, 0,
-                       individual::Bitset$new(size)$insert(c(1, 4)),
-                       list())
+                       individual::Bitset$new(size)$insert(c(1, 4)))
 })
 
 test_that("hazard may resolve to neither outcome", {
@@ -97,11 +96,9 @@ test_that("hazard may resolve to neither outcome", {
   hazard$resolve(0)
    
   mockery::expect_args(outcome_1_process, 1, 0,
-                       individual::Bitset$new(size)$insert(c(3)),
-                       list())
+                       individual::Bitset$new(size)$insert(c(3)))
   mockery::expect_args(outcome_2_process, 1, 0,
-                       individual::Bitset$new(size)$insert(c(2, 4)),
-                       list())
+                       individual::Bitset$new(size)$insert(c(2, 4)))
 })
 
 test_that("outcomes can define a partial set of rates", {
@@ -133,11 +130,9 @@ test_that("outcomes can define a partial set of rates", {
   hazard$resolve(0)
    
   mockery::expect_args(outcome_1_process, 1, 0,
-                       individual::Bitset$new(size)$insert(c(1, 3)),
-                       list())
+                       individual::Bitset$new(size)$insert(c(1, 3)))
   mockery::expect_args(outcome_2_process, 1, 0,
-                       individual::Bitset$new(size)$insert(c(4)),
-                       list())
+                       individual::Bitset$new(size)$insert(c(4)))
 })
 
 test_that("hazard resolves three competing outcomes", {
@@ -173,12 +168,9 @@ test_that("hazard resolves three competing outcomes", {
   hazard$resolve(0)
    
   mockery::expect_args(outcome_1_process, 1, 0,
-                       individual::Bitset$new(size)$insert(c(1)),
-                       list())
+                       individual::Bitset$new(size)$insert(c(1)))
   mockery::expect_args(outcome_2_process, 1, 0,
-                       individual::Bitset$new(size)$insert(c(2)),
-                       list())
+                       individual::Bitset$new(size)$insert(c(2)))
   mockery::expect_args(outcome_3_process, 1, 0,
-                       individual::Bitset$new(size)$insert(c(3, 4)),
-                       list())
+                       individual::Bitset$new(size)$insert(c(3, 4)))
 })

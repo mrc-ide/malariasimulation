@@ -96,7 +96,7 @@ create_processes <- function(
   
   if(parameters$parasite == "falciparum"){
     infection_outcome <- CompetingOutcome$new(
-      targeted_process = function(timestep, target, args){
+      targeted_process = function(timestep, target){
         falciparum_infection_outcome_process(timestep, target, 
                                   variables, renderer, parameters
         )
@@ -106,10 +106,10 @@ create_processes <- function(
     
   } else if (parameters$parasite == "vivax"){
     infection_outcome <- CompetingOutcome$new(
-      targeted_process = function(timestep, target, args){
+      targeted_process = function(timestep, target, relative_rates){
         vivax_infection_outcome_process(timestep, target, 
                                   variables, renderer, parameters, 
-                                  args$relative_rates
+                                  relative_rates
         )
       },
       size = parameters$human_population
@@ -117,7 +117,7 @@ create_processes <- function(
   }
   
   progression_outcome <- CompetingOutcome$new(
-    targeted_process = function(timestep, target, ...){
+    targeted_process = function(timestep, target){
       progression_outcome_process(timestep, target, variables, parameters, renderer)
     },
     size = parameters$human_population

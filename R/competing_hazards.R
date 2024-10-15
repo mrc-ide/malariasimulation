@@ -25,7 +25,7 @@ CompetingOutcome <- R6::R6Class(
       self$args <- list(...)
     },
     execute = function(t, target){
-      do.call(private$targeted_process, list(t, target, self$args))
+      do.call(private$targeted_process, c(t, list(target), self$args))
     },
     reset = function() {
       self$target$clear()

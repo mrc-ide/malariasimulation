@@ -18,6 +18,7 @@
 #' * ICA  - Acquired immunity to clinical disease
 #' * IVA  - Acquired immunity to severe disease (p.f only)
 #' * ID - Acquired immunity to detectability (p.f only)
+#' * hypnozoites - Hypnozoite batch number (p.v only)
 #' * zeta - Heterogeneity of human individuals
 #' * zeta_group - Discretised heterogeneity of human individuals
 #' * last_pev_timestep - The timestep of the last pev vaccination (-1 if there
@@ -98,7 +99,10 @@ create_variables <- function(parameters) {
   initial_states <- initial_state(parameters, initial_age, groups, eq, states)
   state <- individual::CategoricalVariable$new(states, initial_states)
   birth <- individual::IntegerVariable$new(-initial_age)
-  
+  if(parameters$parasite == "vivax"){
+    hypnozoites <- individual::IntegerVariable$new(rep(parameters$init_hyp, parameters$human_population))
+  }
+
   # Maternal immunity to clinical disease
   icm <- individual::DoubleVariable$new(
     initial_immunity(
@@ -299,7 +303,8 @@ create_variables <- function(parameters) {
     variables <- c(variables,
                    last_boosted_iaa = last_boosted_iaa,
                    iaa = iaa,
-                   iam = iam
+                   iam = iam,
+                   hypnozoites = hypnozoites
     )
   }
   

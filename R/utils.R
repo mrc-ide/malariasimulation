@@ -118,3 +118,27 @@ prob_to_rate <- function(prob){
 rate_to_prob <- function(rate){
   1 - exp(-rate)
 }
+
+#'@title Combine named lists retaining first instance of non-unique names
+#' @description merges multiple named lists into a single list
+#' preserving the first occurrence of each unique name
+#'@noRd
+merged_named_lists <- function(...) {
+  args <- list(...)
+  if (length(args) == 1 && is.list(args[[1]]) && !is.null(args[[1]][[1]])) {
+    named_list <- args[[1]]
+  } else {
+    named_list <- args
+  }
+  
+  result <- list()
+  for (item in named_list) {
+    for (name in names(item)) {
+      if (!name %in% names(result)) {
+        idx <- which(names(item) == name)[1]
+        result[[name]] <- item[[idx]]
+      }
+    }
+  }
+  return(result)
+}

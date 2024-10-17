@@ -205,7 +205,7 @@ set_equilibrium <- function(parameters, init_EIR, eq_params = NULL) {
     age = EQUILIBRIUM_AGES,
     h = malariaEquilibrium::gq_normal(parameters$n_heterogeneity_groups)
   )
-  parameters <- c(
+  parameters <- merged_named_lists(
     list(
       init_foim = eq$FOIM,
       init_EIR = init_EIR,

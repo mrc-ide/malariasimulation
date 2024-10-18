@@ -189,9 +189,9 @@
 #' * delay_gam - lag from parasites to infectious gametocytes; default = 12.5
 #' * dem - extrinsic incubation period in mosquito population model; default = 10
 #' 
-#' hypnozoite parameters (p.v only):
+#' hypnozoite batch parameters (p.v only):
 #'
-#' * f - hypnozoite relapse rate; default = 0.02439024
+#' * f - hypnozoite batch relapse rate; default = 0.02439024
 #' * gammal - hypnozoite batch clearance rate; default = 0.002610966
 #' * init_hyp - initial hypnozoite batch number; default = 0
 #' * kmax - maximum number of hypnozoite batches for use in the equilibrium solution; default = 10

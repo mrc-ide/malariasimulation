@@ -33,8 +33,9 @@ test_that('biting_process integrates mosquito effects and human infection', {
     infection_outcome=infection_outcome
   )
   
-  bitten <- individual::Bitset$new(parameters$human_population)
-  bites_mock <- mockery::mock(bitten)
+  bitten <- list(bitten_humans = individual::Bitset$new(parameters$human_population),
+                 n_bites_per_person = numeric(0))
+  bites_mock <- mockery::mock(bitten, cycle = T)
   infection_mock <- mockery::mock()
 
   mockery::stub(biting_process, 'simulate_bites', bites_mock)
@@ -63,7 +64,8 @@ test_that('biting_process integrates mosquito effects and human infection', {
     1,
     variables,
     events,
-    bitten,
+    bitten$bitten,
+    bitten$n_bites_per_person,
     age,
     parameters,
     timestep,
@@ -125,7 +127,7 @@ test_that('simulate_bites integrates eir calculation and mosquito side effects',
     lagged_eir
   )
 
-  expect_equal(bitten$to_vector(), c(2, 3))
+  expect_equal(bitten$bitten_humans$to_vector(), c(2, 3))
 
   f <- parameters$blood_meal_rates[[1]]
 

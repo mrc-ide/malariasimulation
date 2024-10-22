@@ -26,13 +26,15 @@ test_that("hazard resolves two disjoint outcomes", {
   
   outcome_1$set_rates(population, c(10, 0, 10, 0))
   outcome_2$set_rates(population, c(0, 10, 0, 10))
-  
+
   hazard$resolve(0)
-   
+
   mockery::expect_args(outcome_1_process, 1, 0,
                        individual::Bitset$new(size)$insert(c(1, 3)))
+
   mockery::expect_args(outcome_2_process, 1, 0,
                        individual::Bitset$new(size)$insert(c(2, 4)))
+  
 })
 
 test_that("hazard resolves two competing outcomes", {
@@ -130,8 +132,7 @@ test_that("outcomes can define a partial set of rates", {
   mockery::expect_args(outcome_1_process, 1, 0,
                        individual::Bitset$new(size)$insert(c(1, 3)))
   mockery::expect_args(outcome_2_process, 1, 0,
-                       individual::Bitset$new(size)$insert(c(4))
-  )
+                       individual::Bitset$new(size)$insert(c(4)))
 })
 
 test_that("hazard resolves three competing outcomes", {
@@ -173,4 +174,3 @@ test_that("hazard resolves three competing outcomes", {
   mockery::expect_args(outcome_3_process, 1, 0,
                        individual::Bitset$new(size)$insert(c(3, 4)))
 })
-

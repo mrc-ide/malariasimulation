@@ -895,7 +895,8 @@ boost_immunity <- function(
     exposed_index,
     last_boosted_variable,
     timestep,
-    delay
+    delay,
+    decay_rate = 0
 ) {
   # record who can be boosted
   exposed_index_vector <- exposed_index$to_vector()
@@ -905,7 +906,7 @@ boost_immunity <- function(
   if (sum(to_boost) > 0) {
     # boost the variable
     immunity_variable$queue_update(
-      immunity_variable$get_values(exposed_to_boost) + 1,
+      immunity_variable$get_values(exposed_to_boost) * (1-decay_rate) + 1,
       exposed_to_boost
     )
     # record last boosted

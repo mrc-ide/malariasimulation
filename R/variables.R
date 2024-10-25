@@ -82,26 +82,49 @@ create_variables <- function(parameters) {
       to_char_vector(groups)
     )
     if (!is.null(parameters$init_EIR)) {
-      eq <-	list(
-        malariaEquilibrium::human_equilibrium_no_het(
-          parameters$init_EIR,
-          sum(get_treatment_coverages(parameters, 0)),
-          parameters$eq_params,
-          EQUILIBRIUM_AGES
+      if(parameters$parasite == "falciparum"){
+        eq <- list(
+          malariaEquilibrium::human_equilibrium_no_het(
+            parameters$init_EIR,
+            sum(get_treatment_coverages(parameters, 0)),
+            parameters$eq_params,
+            EQUILIBRIUM_AGES
+          )
         )
-      )
+      } else if (parameters$parasite == "vivax"){
+        eq <- malariaEquilibriumVivax::vivax_equilibrium(
+          EIR = parameters$init_EIR,
+          ft = sum(get_treatment_coverages(parameters, 0)),
+          p = translate_vivax_parameters(parameters),
+          age = EQUILIBRIUM_AGES
+        )$states
+      }
     } else {
       eq <- NULL
     }
   }
 
   states <- c('S', 'D', 'A', 'U', 'Tr')
-  initial_states <- initial_state(parameters, initial_age, groups, eq, states)
+  
+  if(parameters$parasite == "falciparum"){
+    initial_states <- initial_state(parameters, initial_age, groups, eq, states)
+    hypnozoite_v <- NULL
+    
+  } else if (parameters$parasite == "vivax"){
+    
+    eq_v_output <- initial_state_vivax(parameters, initial_age, groups, eq, states)
+    
+    # Human states
+    initial_states <- eq_v_output$human_states
+    hypnozoite_v <- eq_v_output$hypnozoites_v
+    
+    ## Initial hypnozoites
+    hypnozoites <- individual::IntegerVariable$new(hypnozoite_v)
+    
+  }
+  
   state <- individual::CategoricalVariable$new(states, initial_states)
   birth <- individual::IntegerVariable$new(-initial_age)
-  if(parameters$parasite == "vivax"){
-    hypnozoites <- individual::IntegerVariable$new(rep(parameters$init_hyp, parameters$human_population))
-  }
 
   # Maternal immunity to clinical disease
   icm <- individual::DoubleVariable$new(
@@ -111,7 +134,8 @@ create_variables <- function(parameters) {
       groups,
       eq,
       parameters,
-      'ICM'
+      'ICM',
+      hypnozoite_v
     )
   )
   
@@ -124,7 +148,8 @@ create_variables <- function(parameters) {
       groups,
       eq,
       parameters,
-      'ICA'
+      'ICA',
+      hypnozoite_v
     )
   )
 
@@ -189,7 +214,8 @@ create_variables <- function(parameters) {
         groups,
         eq,
         parameters,
-        'IAM'
+        'IAM',
+        hypnozoite_v
       )
     )
     
@@ -202,11 +228,12 @@ create_variables <- function(parameters) {
         groups,
         eq,
         parameters,
-        'IAA'
+        'IAA',
+        hypnozoite_v
       )
     )
   }
-
+  
   # Initialise infectiousness of humans -> mosquitoes
   # NOTE: not yet supporting initialisation of infectiousness of Treated individuals
   infectivity_values <- rep(0, get_human_population(parameters, 0))
@@ -386,7 +413,8 @@ initial_immunity <- function(
   groups = NULL,
   eq = NULL,
   parameters = NULL,
-  eq_name = NULL
+  eq_name = NULL,
+  hyp = NULL
   ) {
   if (!is.null(eq)) {
     age <- age / 365
@@ -395,7 +423,12 @@ initial_immunity <- function(
       function(i) {
         g <- groups[[i]]
         a <- age[[i]]
-        eq[[g]][which.max(a < eq[[g]][, 'age']), eq_name]
+        if(parameters$parasite == "falciparum"){
+          eq[[g]][which.max(a < eq[[g]][, 'age']), eq_name]
+        } else if (parameters$parasite == "vivax"){
+          h <- hyp[[i]]
+          eq[[eq_name]][which.max(a < eq$Age[-1]), g, h+1]
+        }
       }
     ))
   }
@@ -423,6 +456,30 @@ initial_state <- function(parameters, age, groups, eq, states) {
   rep(ibm_states, times = calculate_initial_counts(parameters))
 }
 
+initial_state_vivax <- function(parameters, age, groups, eq, states) {
+  # vivax human states and hypnozoites must be calculated over a combined probability distribution
+  ibm_states <- states
+  if (!is.null(eq)) {
+    eq_states <- c('S', 'D', 'A', 'U', 'T')
+    age <- age / 365
+    human_states_pop <- sapply(
+      seq_along(age),
+      function(i) {
+        g <- groups[[i]]
+        a <- age[[i]]
+        human_states <- c(expand.grid("hyp" = 0:parameters$kmax, "human_state" = eq_states))
+        probs <- c(sapply(eq_states, function(state){eq[[state]][which.max(a < eq$Age[-1]), g, ]}))
+        smp <- sample(x = 1:length(probs), size = 1, replace = T, prob = probs)
+        return(c(human_states$human_state[smp],human_states$hyp[smp]))
+      }
+    )
+    return(list(human_states = states[human_states_pop[1,]],
+                hypnozoites_v = human_states_pop[2,]))
+  }
+  return(list(human_states = rep(ibm_states, calculate_initial_counts(parameters)),
+              hypnozoites_v = rep(parameters$init_hyp, parameters$human_population)))
+}
+
 calculate_initial_counts <- function(parameters) {
   pop <- get_human_population(parameters, 0)
   initial_counts <- round(
@@ -441,17 +498,26 @@ calculate_initial_counts <- function(parameters) {
 
 calculate_eq <- function(het_nodes, parameters) {
   ft <- sum(get_treatment_coverages(parameters, 0))
-	lapply(
-		het_nodes,
-		function(n) {
-			malariaEquilibrium::human_equilibrium_no_het(
-				parameters$init_EIR * calculate_zeta(n, parameters),
-				ft,
-				parameters$eq_params,
-        EQUILIBRIUM_AGES
-			)
-		}
-	)
+  if(parameters$parasite == "falciparum"){
+    lapply(
+      het_nodes,
+      function(n) {
+        malariaEquilibrium::human_equilibrium_no_het(
+          parameters$init_EIR * calculate_zeta(n, parameters),
+          ft,
+          parameters$eq_params,
+          EQUILIBRIUM_AGES
+        )
+      }
+    )
+  } else if (parameters$parasite == "vivax"){
+    eq <- malariaEquilibriumVivax::vivax_equilibrium(
+      EIR = parameters$init_EIR,
+      ft = sum(get_treatment_coverages(parameters, 0)),
+      age = EQUILIBRIUM_AGES,
+      p = translate_vivax_parameters(parameters)
+    )$states
+  }
 }
 
 calculate_zeta <- function(zeta_norm, parameters) {

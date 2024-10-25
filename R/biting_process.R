@@ -169,13 +169,13 @@ simulate_bites <- function(
       }
     }
 
+    lagged_infectivity$save(sum(human_infectivity * .pi), timestep)
+
     if (is.null(mixing_fn)) {
       infectivity <- lagged_infectivity$get(timestep - parameters$delay_gam)
     } else {
       infectivity <- mixing_fn(timestep=timestep)$inf[[mixing_index]]
     }
-
-    lagged_infectivity$save(sum(human_infectivity * .pi), timestep)
 
     foim <- calculate_foim(a, infectivity)
     renderer$render(paste0('FOIM_', species_name), foim, timestep)

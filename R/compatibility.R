@@ -4,6 +4,10 @@ inverse_param <- function(name, new_name) {
   function(params) { list(new_name, 1 / params[[name]]) }
 }
 
+product_param <- function(new_name, name_1, name_2) {
+  function(params) { list(new_name, params[[name_1]] * params[[name_2]]) }
+}
+
 mean_param <- function(new_name, name, weights) {
   function(params) {
     list(new_name, weighted.mean(params[[name]], params[[weights]]))
@@ -120,6 +124,56 @@ back_translations = list(
   kv = 'kv'
 )
 
+vivax_translations = list(
+  
+  mean_age  = 'average_age',
+  rho_age   = 'rho',
+  age_0     = 'a0',
+  N_het     = 'n_heterogeneity_groups',
+  
+  bb  = 'b',      ## mosquito -> human transmission probability
+  
+  c_PCR = 'cu',   ## human -> mosquito transmission probability (PCR)
+  c_LM  = 'ca',   ## human -> mosquito transmission probability (LM-detectable)
+  c_D   = 'cd',   ## human -> mosquito transmission probability (disease state)
+  c_T   = 'ct',   ## human -> mosquito transmission probability (treatment)
+  
+  d_E   = 'de',   ## duration of liver-stage latency
+  r_D   = inverse_param('dd', 'r_D'),   ## duraton of disease = 1/rate
+  r_T   = inverse_param('dt', 'r_T'),   ## duraton of prophylaxis = 1/rate
+  
+  r_par = inverse_param('ra', 'r_par'),    ## rate of decay of anti-parasite immunity
+  r_clin= inverse_param('rc', 'r_clin'),    ## rate of decay of clinical immunity
+  
+  mu_M  = mean_param('mum', 'mum', 'species_proportions'),  ## mosquito death rate = 1/(mosquito life expectancy)
+  Q0    = mean_param('Q0', 'Q0', 'species_proportions'),
+  blood_meal_rates = mean_param('blood_meal_rates', 'blood_meal_rates', 'species_proportions'),
+  tau_M = 'dem', 	## duration of sporogony
+  
+  ff      = 'f',      ## relapse rate
+  gamma_L = 'gammal', ## duration of liver-stage carriage
+  K_max   = 'kmax', ## maximum hypnozoite batches
+  
+  u_par        = 'ua',        ## refractory period for anti-parasite immune boosting
+  phi_LM_max   = 'philm_max', ## probability of LM_detectable infection with no immunity
+  phi_LM_min   = 'philm_min', ## probability of LM_detectable infection with maximum immunity
+  A_LM_50pc    = 'alm50',     ## blood-stage immunity scale parameter
+  K_LM         = 'klm',       ## blood-stage immunity shape parameter
+  u_clin       = 'uc',        ## refractory period for clinical immune boosting
+  phi_D_max    = 'phi0',      ## probability of clinical episode with no immunity
+  phi_D_min    = product_param("phi_D_min", "phi0", "phi1"),    ## probability of clinical episode with maximum immunity
+  A_D_50pc     = 'ic0',       ## clinical immunity scale parameter
+  K_D          = 'kc',        ## clinical immunity shape parameter
+  A_d_PCR_50pc = 'apcr50',    ## scale parameter for effect of anti-parasite immunity on PCR-detectable infection
+  K_d_PCR      = 'kpcr',      ## shape parameter for effect of anti-parasite immunity on PCR-detectable infection
+  d_PCR_max    = 'dpcr_max',  ## maximum duration on PCR-detectable infection
+  d_PCR_min    = 'dpcr_min',  ## maximum duration of PCR-detectable infection
+  d_LM         = 'da',        ## duration of LM-detectable infection
+  P_MI         = 'pcm',       ## Proportion of immunity acquired maternally
+  d_MI         = 'rm'         ## Rate of waning of maternal immunity
+  
+)
+
 #' @description translate parameter keys from the malariaEquilibrium format
 #' to ones compatible with this IBM 
 #' @param params with keys in the malariaEquilibrium format
@@ -162,6 +216,23 @@ translate_parameters <- function(params) {
   translated
 }
 
+#' @description translate parameter keys from the malariaVivaxEquilibrium format
+#' to ones compatible with this IBM
+#' @param params with keys in the malariaVivaxEquilibrium format
+#' @noRd
+translate_vivax_parameters <- function(params) {
+  translated <- params
+  for (i in 1:length(vivax_translations)) {
+    if (is.character(vivax_translations[[i]])) {
+      translated[[names(vivax_translations)[i]]] <- params[[vivax_translations[[i]]]]
+    }
+    if (is.function(vivax_translations[[i]])) {
+      translated[[names(vivax_translations)[i]]] <- vivax_translations[[i]](params)[[2]]
+    }
+  }
+  translated
+}
+
 #' @title remove parameter keys from the malariaEquilibrium format that are not used
 #' in this IBM 
 #' @param params with keys in the malariaEquilibrium format
@@ -182,7 +253,7 @@ remove_unused_equilibrium <- function(params) {
 #' @title Set equilibrium
 #' @description This will update the IBM parameters to match the
 #' equilibrium parameters and set up the initial human and mosquito population
-#' to acheive init_EIR
+#' to achieve init_EIR
 #' @param parameters model parameters to update
 #' @param init_EIR the desired initial EIR (infectious bites per person per day over the entire human
 #' population)
@@ -190,28 +261,50 @@ remove_unused_equilibrium <- function(params) {
 #' The default malariaEquilibrium parameters will be used
 #' @export
 set_equilibrium <- function(parameters, init_EIR, eq_params = NULL) {
-  if (is.null(eq_params)) {
-    eq_params <- translate_parameters(parameters)
-  } else {
+  if(parameters$parasite == "falciparum"){
+    if (is.null(eq_params)) {
+      eq_params <- translate_parameters(parameters)
+    } else {
+      parameters <- c(
+        translate_equilibrium(remove_unused_equilibrium(eq_params)),
+        parameters
+      )
+    }
+    eq <- malariaEquilibrium::human_equilibrium(
+      EIR = init_EIR,
+      ft = sum(get_treatment_coverages(parameters, 1)),
+      p = eq_params,
+      age = EQUILIBRIUM_AGES,
+      h = malariaEquilibrium::gq_normal(parameters$n_heterogeneity_groups)
+    )
     parameters <- c(
-      translate_equilibrium(remove_unused_equilibrium(eq_params)),
+      list(
+        init_foim = eq$FOIM,
+        init_EIR = init_EIR,
+        eq_params = eq_params
+      ),
+      parameters
+    )
+  } else if (parameters$parasite == "vivax"){
+    
+    if (!(is.null(eq_params))) {
+      stop("Importing MalariaEquilibriumVivax parameters is not supported")
+    }
+    
+    eq <- malariaEquilibriumVivax::vivax_equilibrium(
+      EIR = init_EIR,
+      ft = sum(get_treatment_coverages(parameters, 1)),
+      p = translate_vivax_parameters(parameters),
+      age = EQUILIBRIUM_AGES
+    )
+    
+    parameters <- c(
+      list(
+        init_foim = eq$FOIM,
+        init_EIR = init_EIR
+      ),
       parameters
     )
   }
-  eq <- malariaEquilibrium::human_equilibrium(
-    EIR = init_EIR,
-    ft = sum(get_treatment_coverages(parameters, 1)),
-    p = eq_params,
-    age = EQUILIBRIUM_AGES,
-    h = malariaEquilibrium::gq_normal(parameters$n_heterogeneity_groups)
-  )
-  parameters <- merged_named_lists(
-    list(
-      init_foim = eq$FOIM,
-      init_EIR = init_EIR,
-      eq_params = eq_params
-    ),
-    parameters
-  )
   parameterise_mosquito_equilibrium(parameters, init_EIR)
 }

@@ -1,6 +1,6 @@
 test_that('set_antimalarial_resistance() toggles resistance on', {
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters = parameters, drugs = list(SP_AQ_params_falciparum))
+  parameters <- set_drugs(parameters = parameters, drugs = list(SP_AQ_params))
   parameters <- set_clinical_treatment(parameters = parameters,
                                        drug = 1,
                                        timesteps = 1,
@@ -21,7 +21,7 @@ test_that('set_antimalarial_resistance() toggles resistance on', {
 
 test_that('set_antimalarial_resistance() errors if parameter inputs of different length to timesteps', {
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters = parameters, drugs = list(SP_AQ_params_falciparum))
+  parameters <- set_drugs(parameters = parameters, drugs = list(SP_AQ_params))
   parameters <- set_clinical_treatment(parameters = parameters,
                                        drug = 1,
                                        timesteps = 1,
@@ -41,7 +41,7 @@ test_that('set_antimalarial_resistance() errors if parameter inputs of different
 
 test_that('set_antimalarial_resistance() errors if resistance proportions outside of range 0-1', {
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters = parameters, drugs = list(SP_AQ_params_falciparum))
+  parameters <- set_drugs(parameters = parameters, drugs = list(SP_AQ_params))
   parameters <- set_clinical_treatment(parameters = parameters,
                                        drug = 1,
                                        timesteps = 1,
@@ -62,7 +62,7 @@ test_that('set_antimalarial_resistance() errors if resistance proportions outsid
 
 test_that('set_antimalarial_resistance() errors if resistance phenotype probabilities outside bound of 0-1', {
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters = parameters, drugs = list(SP_AQ_params_falciparum))
+  parameters <- set_drugs(parameters = parameters, drugs = list(SP_AQ_params))
   parameters <- set_clinical_treatment(parameters = parameters,
                                        drug = 1,
                                        timesteps = 1,
@@ -82,7 +82,7 @@ test_that('set_antimalarial_resistance() errors if resistance phenotype probabil
 
 test_that('set_antimalarial_resistance() errors if drug index > than number of drugs assigned using set_drugs()', {
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters = parameters, drugs = list(SP_AQ_params_falciparum))
+  parameters <- set_drugs(parameters = parameters, drugs = list(SP_AQ_params))
   parameters <- set_clinical_treatment(parameters = parameters,
                                        drug = 1,
                                        timesteps = 1,
@@ -103,7 +103,7 @@ test_that('set_antimalarial_resistance() errors if drug index > than number of d
 test_that('set_antimalarial_resistance() assigns parameters correctly despite order in which resistance parameters are specified', {
   
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters = parameters, drugs = list(AL_params_falciparum, SP_AQ_params_falciparum, DHA_PQP_params_falciparum))
+  parameters <- set_drugs(parameters = parameters, drugs = list(AL_params, SP_AQ_params, DHA_PQP_params))
   parameters <- set_clinical_treatment(parameters = parameters, drug = 2, timesteps = 1, coverages = 0.2)
   parameters <- set_clinical_treatment(parameters = parameters, drug = 1, timesteps = 1, coverages = 0.1)
   parameters <- set_clinical_treatment(parameters = parameters, drug = 3, timesteps = 1, coverages = 0.4)
@@ -158,7 +158,7 @@ test_that('set_antimalarial_resistance() assigns parameters correctly despite or
 test_that("set_antimalarial_resistance errors if length slow_parasite_clearance_time > 1", {
   
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters = parameters, drugs = list(SP_AQ_params_falciparum))
+  parameters <- set_drugs(parameters = parameters, drugs = list(SP_AQ_params))
   parameters <- set_clinical_treatment(parameters = parameters,
                                        drug = 1,
                                        timesteps = c(0, 10), 
@@ -182,7 +182,7 @@ test_that("set_antimalarial_resistance errors if length slow_parasite_clearance_
 test_that("set_antimalarial_resistance errors if slow_parasite_clearance_time not positive", {
   
   parameters <- get_parameters()
-  parameters <- set_drugs(parameters = parameters, drugs = list(SP_AQ_params_falciparum))
+  parameters <- set_drugs(parameters = parameters, drugs = list(SP_AQ_params))
   parameters <- set_clinical_treatment(parameters = parameters,
                                        drug = 1,
                                        timesteps = c(0, 10), 
@@ -206,7 +206,7 @@ test_that("set_antimalarial_resistance errors if slow_parasite_clearance_time no
 test_that('get_antimalarial_resistance_parameters() correctly retrieves parameters when multiple drugs assigned', {
   
   get_parameters(overrides = list(human_population = 10000)) |>
-    set_drugs(drugs = list(AL_params_falciparum, SP_AQ_params_falciparum, DHA_PQP_params_falciparum)) |>
+    set_drugs(drugs = list(AL_params, SP_AQ_params, DHA_PQP_params)) |>
     set_clinical_treatment(drug = 1, timesteps = 1, coverages = 0.4) |>
     set_clinical_treatment(drug = 2, timesteps = 1, coverages = 0.3) |>
     set_clinical_treatment(drug = 3, timesteps = 1, coverages = 0.2) |>
@@ -266,7 +266,7 @@ test_that('get_antimalarial_resistance_parameters() correctly retrieves paramete
 test_that('get_antimalarial_resistance_parameters() correctly retrieves parameters when not all drugs assigned resistance', {
   
   get_parameters(overrides = list(human_population = 10000)) %>%
-    set_drugs(drugs = list(AL_params_falciparum, SP_AQ_params_falciparum, DHA_PQP_params_falciparum)) %>%
+    set_drugs(drugs = list(AL_params, SP_AQ_params, DHA_PQP_params)) %>%
     set_clinical_treatment(drug = 1, timesteps = 1, coverages = 0.4) %>%
     set_clinical_treatment(drug = 2, timesteps = 1, coverages = 0.3) %>%
     set_clinical_treatment(drug = 3, timesteps = 1, coverages = 0.2) %>%
@@ -306,7 +306,7 @@ test_that('get_antimalarial_resistance_parameters() correctly retrieves paramete
 test_that('get_antimalarial_resistance_parameters() returns an error when antimalarial resistance has not been parameterised', {
   
   get_parameters(overrides = list(human_population = 10000)) %>%
-    set_drugs(drugs = list(AL_params_falciparum, SP_AQ_params_falciparum, DHA_PQP_params_falciparum)) %>%
+    set_drugs(drugs = list(AL_params, SP_AQ_params, DHA_PQP_params)) %>%
     set_clinical_treatment(drug = 1, timesteps = 1, coverages = 0.4) %>%
     set_clinical_treatment(drug = 2, timesteps = 1, coverages = 0.3) %>%
     set_clinical_treatment(drug = 3, timesteps = 1, coverages = 0.2) %>%

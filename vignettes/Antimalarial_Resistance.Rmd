@@ -36,7 +36,7 @@ Simulations capturing the effects of resistance to clinical treatment using anti
 To illustrate how to parameterise resistance to an ACT using the `set_antimalarial_resistance()` function, we'll set-up and run three simulations. The first simulates malaria transmission in the absence of interventions or resistance. The second simulates a simple regime of clinical treatment in which 80% of clinical cases are treated with artemether lumefantrine (AL), beginning after one year, in the absence of antimalarial resistance. The third simulates the same clinical treatment programme but with resistance to the artemisinin component of AL emerging after two years. For illustrative purposes, we assume that the proportion of infections resistant to the artemisinin component of AL increases from 0% to 80%, and that these infections have a 90% chance of resulting in early treatment failure.
 
 ### Parameterisation
-First, we load the default `malariasimulation` model parameters, using the `overrides` argument to increase the human population. The human and mosquito population parameters are then calibrated to a user-specified initial EIR using the `set_equilibrium()` function. Next, we load the in-built parameters for the antimalarial drug AL and append them to the parameter list using `set_drugs()`. We can then use `set_clinical_treatment()` to specify a clinical treatment regime, beginning after one year, that treats, on average, 80% of the clinical cases of malaria with AL (`AL_params_falciparum`). The `set_antimalarial_resistance()` function is then used to specify a scenario in which resistance is initially absent from the population, but after two years the proportion of malaria infections that are resistant to the artemisinin component of AL rises to 80%. We also set the probability that artemisinin-resistant infections result in early treatment failure to 0.9. In the current instance, we've set the proportion of infections resistant to the AL partner drug to 0% and the probabilities of other resistant infection outcomes to zero for simplicity.
+First, we load the default `malariasimulation` model parameters, using the `overrides` argument to increase the human population. The human and mosquito population parameters are then calibrated to a user-specified initial EIR using the `set_equilibrium()` function. Next, we load the in-built parameters for the antimalarial drug AL and append them to the parameter list using `set_drugs()`. We can then use `set_clinical_treatment()` to specify a clinical treatment regime, beginning after one year, that treats, on average, 80% of the clinical cases of malaria with AL (`AL_params`). The `set_antimalarial_resistance()` function is then used to specify a scenario in which resistance is initially absent from the population, but after two years the proportion of malaria infections that are resistant to the artemisinin component of AL rises to 80%. We also set the probability that artemisinin-resistant infections result in early treatment failure to 0.9. In the current instance, we've set the proportion of infections resistant to the AL partner drug to 0% and the probabilities of other resistant infection outcomes to zero for simplicity.
 
 ```{r, eval = TRUE}
 
@@ -62,7 +62,7 @@ simparams <- get_parameters(
 simparams <- set_equilibrium(parameters = simparams, init_EIR = init_EIR)
 
 # Append the parameters for artemether lumefantrine (AL) to the parameter list:
-simparams_clin_treatment <- set_drugs(parameters = simparams, drugs = list(AL_params_falciparum))
+simparams_clin_treatment <- set_drugs(parameters = simparams, drugs = list(AL_params))
 
 # Use the set_clinical_treatment() function to specify a treatment regime for AL:
 simparams_clin_treatment <- set_clinical_treatment(parameters = simparams_clin_treatment, 
@@ -153,7 +153,7 @@ In the absence of clinical treatment or resistance, prevalence is comparable bet
 We can also capture scenarios in which resistance to a drug changes through time. To illustrate, we'll establish and simulate a scenario in which resistance to sulfadoxine-pyrimethamine amodiaquine (SP-AQ) is absent from the population in the first year, but emerges in the third year and doubles in proportion each year thereafter until 100% of infections are artemisinin resistant. For simplicity, we'll assume only artemisinin resistance is present in the population, and resistance to artemisinin results only, and always, in early treatment failure.
 
 ### Parameterisation
-First, we store in vectors the artemisinin resistance proportions and the time steps on which they will be updated in the simulation. We also create a vector of early treatment failure probabilities which, for simplicity, we assume remain at 1 for each update. Next, we load the default `malariasimulation` parameter set, specifying a larger population size and seasonal transmission, and append the parameters for SP-AQ (`SP_AQ_params_falciparum`) using the `set_drugs()` function. We'll specify a simple treatment regimen using `set_clinical_treatment()` where, on average, 80% of clinical cases are treated with SP-AQ, beginning after one year. We then specify a resistance schedule in which artemisinin resistance is introduced at a proportion of 0.2 after 3 years, and doubles each year thereafter until all infections are artemisinin resistant. Finally, we calibrate the human and mosquito population parameters to a defined entomological inoculation rate (EIR) and are ready to run the simulation.
+First, we store in vectors the artemisinin resistance proportions and the time steps on which they will be updated in the simulation. We also create a vector of early treatment failure probabilities which, for simplicity, we assume remain at 1 for each update. Next, we load the default `malariasimulation` parameter set, specifying a larger population size and seasonal transmission, and append the parameters for SP-AQ (`SP_AQ_params`) using the `set_drugs()` function. We'll specify a simple treatment regimen using `set_clinical_treatment()` where, on average, 80% of clinical cases are treated with SP-AQ, beginning after one year. We then specify a resistance schedule in which artemisinin resistance is introduced at a proportion of 0.2 after 3 years, and doubles each year thereafter until all infections are artemisinin resistant. Finally, we calibrate the human and mosquito population parameters to a defined entomological inoculation rate (EIR) and are ready to run the simulation.
 
 ```{r, eval = TRUE}
 
@@ -183,7 +183,7 @@ simparams <- get_parameters(
 ))
 
 # Append the parameters for sulfadomamine pyrimethaine (SP-AQ) to the parameter list:
-simparams <- set_drugs(parameters = simparams, drugs = list(SP_AQ_params_falciparum))
+simparams <- set_drugs(parameters = simparams, drugs = list(SP_AQ_params))
 
 # Use the set_clinical_treatment() function to specify a treatment regime for SP-AQ:
 simparams <- set_clinical_treatment(parameters = simparams,
@@ -278,7 +278,7 @@ get_parameters(overrides = list(human_population = 1000)) -> simulation_paramete
 
 # Establish a parameter list with clinical treatment starting after one year:
 simulation_parameters$base |>
-  set_drugs(drugs = list(AL_params_falciparum)) |>
+  set_drugs(drugs = list(AL_params)) |>
   set_clinical_treatment(drug = 1, timesteps = (365 * 1) + 1, coverages = c(0.8)) |>
   set_equilibrium(init_EIR = 16) -> simulation_parameters$treatment
 

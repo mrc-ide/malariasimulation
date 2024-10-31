@@ -3,7 +3,7 @@
 \docType{data}
 \name{CQ_PQ_params_vivax}
 \alias{CQ_PQ_params_vivax}
-\title{Preset parameters for the CQ-PQ drug acting on P. vivax}
+\title{Preset parameters for the CQ-PQ drug (P. vivax)}
 \format{
 An object of class \code{numeric} of length 7.
 }

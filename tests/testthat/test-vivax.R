@@ -314,3 +314,68 @@ test_that('relapses are recognised with division between bite infections and rel
   )
   
 })
+
+test_that('Drug functions provide warnings if applied incorrectly', {
+
+  expect_warning(
+    get_parameters(parasite = "falciparum") |> 
+      set_drugs(drugs = list(c(1,2,3,4,5))),
+    "Drug 1 has incorrect number of P. falciparum drug parameters. The number of parameters should be 4."
+  )
+  
+  expect_warning(
+    get_parameters(parasite = "vivax") |> 
+      set_drugs(drugs = list(c(1,2,3,4,5))),
+    "Drug 1 has incorrect number of P. vivax drug parameters. The number of parameters should be 4, for blood stage treatment only, or 7, for radical cure."
+  )
+
+  expect_warning(
+    get_parameters(parasite = "falciparum") |> 
+      set_drugs(drugs = list(CQ_params_vivax)),
+    regexp = "P. vivax drug parameters are being applied to P. falciparum"
+  )
+  
+  expect_warning(
+    get_parameters(parasite = "vivax") |> 
+      set_drugs(drugs = list(AL_params)),
+    "P. falciparum drug parameters are being applied to P. vivax"
+    )
+  
+})
+
+test_that('Liver stage prophylaxis functions correctly', {
+  
+  bite_infections <- individual::Bitset$new(4)$insert(1:4)
+  
+  variables <- list(
+    ls_drug = individual::DoubleVariable$new(c(0,1,2,3)),
+    ls_drug_time = individual::DoubleVariable$new(c(-1,1,1,1))
+  )
+
+  parms <- get_parameters(parasite = "vivax") |> 
+    set_drugs(drugs = list(CQ_params_vivax, CQ_PQ_params_vivax, CQ_TQ_params_vivax)) |> 
+    set_clinical_treatment(drug = 1, timesteps = 0, coverages = 0.3) |> 
+    set_clinical_treatment(drug = 2, timesteps = 0, coverages = 0.3) |> 
+    set_clinical_treatment(drug = 3, timesteps = 0, coverages = 0.3)
+  
+  timestep <- 6
+
+  ls_prophylaxis <- ls_treatment_prophylaxis_efficacy(
+    bite_infections,
+    variables,
+    parms,
+    timestep
+  )
+
+  expect_identical(
+    ls_prophylaxis,
+    c(0, 0, 
+      weibull_survival(
+        c(5,5),
+        parms$drug_hypnozoite_prophylaxis_shape[c(2, 3)],
+        parms$drug_hypnozoite_prophylaxis_scale[c(2, 3)]
+      )
+    )
+  )
+  
+})

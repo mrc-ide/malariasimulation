@@ -519,24 +519,12 @@ relapse_bite_infection_hazard_resolution <- function(
   ## all bitten humans with an infectious bite (incorporating prophylaxis) get a new batch of hypnozoites
   if(bite_infections$size()>0){
     
-    ## drug prophylaxis may limit formation of new hypnozoite batches
-    ls_prophylaxis <- rep(0, bite_infections$size())
-    if(length(parameters$drug_hypnozoite_efficacy) > 0){
-      
-      ls_drug <- variables$ls_drug$get_values(bite_infections)
-      ls_medicated <- (ls_drug > 0)
-      ls_medicated[ls_drug > 0] <- !is.na(parameters$drug_hypnozoite_efficacy[ls_drug])
-      
-      if (any(ls_medicated)) {
-        ls_drug <- ls_drug[ls_medicated]
-        ls_drug_time <- variables$ls_drug_time$get_values(bite_infections)[ls_medicated]
-        ls_prophylaxis[ls_medicated] <- weibull_survival(
-          timestep - ls_drug_time,
-          parameters$drug_hypnozoite_prophylaxis_shape[ls_drug],
-          parameters$drug_hypnozoite_prophylaxis_scale[ls_drug]
-        )
-      }
-    }
+    ls_prophylaxis <- ls_treatment_prophylaxis_efficacy(
+      bite_infections,
+      variables,
+      parameters,
+      timestep
+    )
     
     # make sure batches are capped
     new_hypnozoite_batch_formed <- bitset_at(bite_infections, bernoulli_multi_p(1 - ls_prophylaxis))
@@ -550,6 +538,42 @@ relapse_bite_infection_hazard_resolution <- function(
   }
 }
 
+#' @title Calculate protection from formation of new hypnozoite batches due to liver stage drug prophylaxis
+#' @description This function calculates the probability that liver stage drug prophylaxis will 
+#' protect each individual from the formation of new hynozoite batches
+#' @param bite_infections a vector of individuals with prospective formation of new hypnozoite batches
+#' @param variables a list of all of the model variables
+#' @param parameters model parameters
+#' @param timestep current timestep
+#' @noRd
+ls_treatment_prophylaxis_efficacy <- function(
+    bite_infections,
+    variables,
+    parameters,
+    timestep
+){
+  
+  ## drug prophylaxis may limit formation of new hypnozoite batches
+  ls_prophylaxis <- rep(0, bite_infections$size())
+  if(length(parameters$drug_hypnozoite_efficacy) > 0){
+
+    ls_drug <- variables$ls_drug$get_values(bite_infections)
+    ls_medicated <- ls_drug > 0
+    ls_medicated[ls_medicated] <- !is.na(parameters$drug_hypnozoite_efficacy[ls_drug])
+
+    if (any(ls_medicated)) {
+      ls_drug <- ls_drug[ls_medicated]
+      ls_drug_time <- variables$ls_drug_time$get_values(bite_infections)[ls_medicated]
+      ls_prophylaxis[ls_medicated] <- weibull_survival(
+        timestep - ls_drug_time,
+        parameters$drug_hypnozoite_prophylaxis_shape[ls_drug],
+        parameters$drug_hypnozoite_prophylaxis_scale[ls_drug]
+      )
+    }
+  }
+  
+  ls_prophylaxis
+}
 #' @title Calculate light microscopy detectable infections (p.v only)
 #' @description
 #' Sample light microscopy detectable infections from all infections

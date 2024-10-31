@@ -47,7 +47,7 @@ ms_parameterize <- function(x){ # index of EIR
                                 individual_mosquitoes = FALSE))
   
   # setting treatment
-  params <- set_drugs(params, list(AL_params_falciparum))
+  params <- set_drugs(params, list(AL_params))
   params <- set_clinical_treatment(params, drug = 1, timesteps = 1, coverages = 0.40)
 
   params <- set_equilibrium(params, init_EIR = EIR_vector[x])

@@ -131,7 +131,7 @@ test_that("TBV intervention can be added when resuming", {
 
 test_that("MDA intervention can be added when resuming", {
   set_default_mda <- function(parameters, timesteps) {
-    parameters %>% set_drugs(list(SP_AQ_params_falciparum)) %>% set_mda(
+    parameters %>% set_drugs(list(SP_AQ_params)) %>% set_mda(
       drug = 1,
       timesteps = timesteps,
       coverages = rep(0.8, length(timesteps)),
@@ -217,7 +217,7 @@ test_that("Correlations can be set when resuming with new interventions", {
       coverage=tbv_coverage,
       ages=0:200)
 
-  drug <- SP_AQ_params_falciparum
+  drug <- SP_AQ_params
   drug[1] <- 1. # Override the drug efficacy to 100%
   parameters <- warmup_parameters %>%
     set_drugs(list(drug)) %>%

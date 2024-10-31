@@ -103,7 +103,7 @@ simparams <- set_species(parameters = simparams,
 
 # Use the set_drugs() function to append the in-built parameters for the 
 # drug artemether lumefantrine (AL):
-simparams <- set_drugs(simparams, list(AL_params_falciparum))
+simparams <- set_drugs(simparams, list(AL_params))
 
 # Use the set_clinical_treatment() function to parameterise human 
 # population treatment with AL in the first timestep:

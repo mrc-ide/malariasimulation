@@ -1,7 +1,7 @@
 test_that('mortality_process resets humans correctly', {
   timestep <- 2
   parameters <- get_parameters(list(human_population = 4))
-  parameters <- set_drugs(parameters, list(SP_AQ_params_falciparum))
+  parameters <- set_drugs(parameters, list(SP_AQ_params))
   parameters <- set_mda(
     parameters,
     drug = 1,

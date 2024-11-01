@@ -77,6 +77,10 @@ The *P. vivax* model tracks the number of hypnozoite batches of each individual 
 
 Successful liver-stage drug treatment results in the clearing of all hypnozoite batches of an individual.
 
+### Drug treatment
+
+While *P. falciparum* drugs have four parameters (efficacy, relative reduction in onwards infectivity, and two prophylaxis parameters: shape and scale), the *P. vivax* drug parameters may have four (if the drug only targets the blood stage infection) or seven parameters (if the drug also targets hypnozoites). These three additional parameters are drug efficacy on hypnozoite clearance and two hypnozoite prophylaxis parameters: shape and scale. The hypnozoite prophylaxis functions the same way as standard prophlylaxis to infection, but reduced the probability that a bite infection results in the formation of a new hypnozoite batch.
+
 ### Equilibrium
 
 The malariaEquilibriumVivax package has been designed to calculate the equilibrium solution for the *P. vivax* model. This equilibrium is calculated by assigning an initial EIR value via the `set_equilibrium` function, as  in the *P. falciparum* model. Based on the age and heterogeneity group of an individual, it assigns a human disease state, clinical and anti-parasite immunities and number of hypnozoite batches.

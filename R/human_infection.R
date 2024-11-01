@@ -571,9 +571,9 @@ ls_treatment_prophylaxis_efficacy <- function(
       )
     }
   }
-  
   ls_prophylaxis
 }
+
 #' @title Calculate light microscopy detectable infections (p.v only)
 #' @description
 #' Sample light microscopy detectable infections from all infections

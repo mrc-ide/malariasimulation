@@ -43,6 +43,7 @@ CQ_PQ_params_vivax <- c(0.948, 0.5, 5, 20, 0.713, 10, 5.5)
 #' @details Use a vector of preset parameters for the CQ-TQ drug (chloroquine and tafenoquine) acting on P. vivax
 #' @details Default parameters, from L to R, are: drug_efficacy: 1, drug_rel_c: 0.5, drug_prophylaxis_shape: 5, drug_prophylaxis_scale: 20,
 #' drug_hypnozoite_efficacy: 0.713, drug_hypnozoite_prophylaxis_shape: 5.5, drug_hypnozoite_prophylaxis_scale: 30
+#' @export
 CQ_TQ_params_vivax <- c(1, 0.5, 5, 20, 0.713, 5, 30)
 
 #' @title Parameterise drugs to use in the model

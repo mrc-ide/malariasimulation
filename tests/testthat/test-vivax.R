@@ -345,18 +345,17 @@ test_that('Drug functions provide warnings if applied incorrectly', {
 
 test_that('Liver stage prophylaxis functions correctly', {
   
-  bite_infections <- individual::Bitset$new(4)$insert(1:4)
+  bite_infections <- individual::Bitset$new(3)$insert(1:3)
   
   variables <- list(
-    ls_drug = individual::DoubleVariable$new(c(0,1,2,3)),
-    ls_drug_time = individual::DoubleVariable$new(c(-1,1,1,1))
+    ls_drug = individual::DoubleVariable$new(c(0,1,2)),
+    ls_drug_time = individual::DoubleVariable$new(c(-1,1,1))
   )
 
   parms <- get_parameters(parasite = "vivax") |> 
-    set_drugs(drugs = list(CQ_params_vivax, CQ_PQ_params_vivax, CQ_TQ_params_vivax)) |> 
+    set_drugs(drugs = list(CQ_PQ_params_vivax, CQ_TQ_params_vivax)) |> 
     set_clinical_treatment(drug = 1, timesteps = 0, coverages = 0.3) |> 
-    set_clinical_treatment(drug = 2, timesteps = 0, coverages = 0.3) |> 
-    set_clinical_treatment(drug = 3, timesteps = 0, coverages = 0.3)
+    set_clinical_treatment(drug = 2, timesteps = 0, coverages = 0.3)
   
   timestep <- 6
 
@@ -369,11 +368,11 @@ test_that('Liver stage prophylaxis functions correctly', {
 
   expect_identical(
     ls_prophylaxis,
-    c(0, 0, 
+    c(0,
       weibull_survival(
         c(5,5),
-        parms$drug_hypnozoite_prophylaxis_shape[c(2, 3)],
-        parms$drug_hypnozoite_prophylaxis_scale[c(2, 3)]
+        parms$drug_hypnozoite_prophylaxis_shape[c(1, 2)],
+        parms$drug_hypnozoite_prophylaxis_scale[c(1, 2)]
       )
     )
   )

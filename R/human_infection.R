@@ -559,7 +559,6 @@ ls_treatment_prophylaxis_efficacy <- function(
 
     ls_drug <- variables$ls_drug$get_values(bite_infections)
     ls_medicated <- ls_drug > 0
-    ls_medicated[ls_medicated] <- !is.na(parameters$drug_hypnozoite_efficacy[ls_drug])
 
     if (any(ls_medicated)) {
       ls_drug <- ls_drug[ls_medicated]

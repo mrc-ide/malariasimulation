@@ -142,6 +142,7 @@ simulate_bites <- function(
     renderer$render(paste0('EIR_', species_name), species_eir, timestep)
     EIR <- EIR + species_eir
     expected_bites <- species_eir * mean(psi)
+    #browser()
     if (expected_bites > 0) {
       n_bites <- rpois(1, expected_bites)
       if (n_bites > 0) {
@@ -207,13 +208,19 @@ simulate_bites <- function(
 # Utility functions
 # =================
 
-endec_adjusted_mortality<-function(mu, parameters, species, timestep){
+endec_adjusted_mortality<-function(mu, parameters, species, timestep, endec_on){
   if (parameters$endec){
-    matches <- timestep == parameters$endec_timesteps
-    if (any(matches)) {
-      mu_endec<-(parameters$mum[[species]] + parameters$mu_endec[[species]])*parameters$Q0[[species]]*parameters$endec_coverages[matches] #slightly different to atsb
-      #mu_endec<-(parameters$mum[[species]] + parameters$mu_endec[[species]])*parameters$Q0[[species]]*parameters$blood_meal_rates[[species]]*parameters$endec_coverages[matches] #slightly different to atsb
-      return(mu_endec)
+    matches <- timestep == parameters$endec_timesteps 
+    #endec_killing <- parameters$mu_endec[[species]]
+    eff_len <- timestep-parameters$endec_on
+    endec_killing <- parameters$mu_endec[[species]]*exp(-parameters$wane_endec[[species]]*(timestep-parameters$endec_on)) #t - endec_on_t
+    #endec_killing <- (parameters$mum[[species]] + parameters$mu_endec[[species]])*parameters$Q0[[species]]*parameters$endec_coverages[matches]
+    #endec_killing <- parameters$mu_endec[[species]]*parameters$Q0[[species]]*parameters$endec_coverages[matches]
+    if (any(matches)){ #add and coverage greater than 0 here: so if the coverage is 0, drop back to the baseline mu
+     #mu_endec <- ifelse(parameters$endec_coverages[matches] > 0, endec_killing, 0.132) #slightly different to atsb
+     mu_endec <- ifelse(parameters$endec_coverages[matches] > 0, endec_killing, parameters$mum[[species]])
+      # mu_endec<-(parameters$mum[[species]] + parameters$mu_endec[[species]])*parameters$Q0[[species]]*parameters$endec_coverages[matches] #slightly different to atsb
+     return(mu + mu_endec)
       #mu_atsb<-parameters$mu_atsb[[species]]*parameters$atsb_coverages[matches]
       #return(mu+mu_atsb)
       
@@ -222,7 +229,24 @@ endec_adjusted_mortality<-function(mu, parameters, species, timestep){
   }  else {return(parameters$mum[[species]])}
 }
 
-
+#endec_adjusted_mortality<-function(mu, parameters, species, timestep){
+#  if (parameters$endec){
+#    matches <- timestep == parameters$endec_timesteps #&& parameters$endec_timesteps > 0
+#    #if (any(matches)){ #add and coverage greater than 0 here
+#    # mu_endec<-(parameters$mum[[species]] + parameters$mu_endec[[species]])*parameters$Q0[[species]]*parameters$endec_coverages[matches] #slightly different to atsb
+#    #  #mu_endec<-(parameters$mum[[species]] + parameters$mu_endec[[species]])*parameters$Q0[[species]]*parameters$blood_meal_rates[[species]]*parameters$endec_coverages[matches] #slightly different to atsb
+#    # return(mu_endec)
+#    #  #mu_atsb<-parameters$mu_atsb[[species]]*parameters$atsb_coverages[matches]
+#    #  #return(mu+mu_atsb)
+#    #  
+#    #}
+#    endec_killing <- (parameters$mum[[species]] + parameters$mu_endec[[species]])*parameters$Q0[[species]]*parameters$endec_coverages[matches]
+#    mu0_species <- parameters$mum[[species]]
+#    mu_endec <- ifelse(any(matches) & parameters$endec_coverages[matches] > 0, endec_killing, mu0_species)
+#    return(mu_endec)
+#    #else {return(parameters$mum[[species]])}
+#  }  else {return(parameters$mum[[species]])}
+#}
 
 calculate_eir <- function(species, solvers, variables, parameters, timestep) {
   a <- human_blood_meal_rate(species, variables, parameters, timestep)

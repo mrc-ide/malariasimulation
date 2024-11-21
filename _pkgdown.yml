@@ -48,12 +48,14 @@ reference:
     - run_simulation
     - run_metapop_simulation
     - run_simulation_with_repetitions
+    - run_resumable_simulation
 - title: "Parameter functions"
   contents:
     - get_parameters
     - get_correlation_parameters
     - set_parameter_draw
     - set_equilibrium
+    - set_epi_outputs
 - title: "Demography functions"
   contents:
     - set_demography
@@ -75,6 +77,8 @@ reference:
     - AL_params
     - DHA_PQP_params
     - SP_AQ_params
+    - set_antimalarial_resistance
+    - get_antimalarial_resistance_parameters
 - subtitle: "MDA and chemoprevention"
   contents:
     - set_mda
@@ -86,6 +90,10 @@ reference:
     - set_mass_pev
     - set_pev_epi
     - set_tbv
+    - rtss_profile
+    - rtss_booster_profile
+    - r21_profile
+    - r21_booster_profile
 - subtitle: "Vector control"
   contents:
     - set_bednets
@@ -99,5 +107,3 @@ reference:
     - parameter_draws
     - parameterise_mosquito_equilibrium
     - parameterise_total_M
-    - rtss_booster_profile
-    - rtss_profile

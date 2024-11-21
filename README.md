@@ -1,7 +1,7 @@
 [![R build status](https://github.com/mrc-ide/malariasimulation/workflows/R-CMD-check/badge.svg)](https://github.com/mrc-ide/malariasimulation/actions)
 [![codecov](https://codecov.io/github/mrc-ide/malariasimulation/branch/master/graphs/badge.svg)](https://codecov.io/github/mrc-ide/malariasimulation)
 
-# malariasimulation
+# malariasimulation <img src="man/figures/malariasimulation.png" align="right" width=30% height=30% />
 
 Imperial College London's next malaria simulation. The main goals are make an
 extensible, maintainable and fast simulation to evaluate and report on malaria
@@ -9,6 +9,7 @@ intervention strategies.
 
 The model is defined in this package, whereas the simulation is executed using
 the [individual](https://github.com/mrc-ide/individual) package.
+<br><br><br>
 
 !!Endectocides branch is not yet ready for use!!
 

@@ -59,7 +59,7 @@ endec_params <- set_endectocide(parameters = simparams, timesteps = steps,
 #  gamman = rep(2.64 * 365, 2) # Vector of bed net half-lives for each distribution timestep
 #)
 
-output_endec <- run_simulation_with_repetitions(timesteps = sim_length, parameters = endec_params, repetitions = 30)
+output_endec <- run_simulation_with_repetitions(timesteps = sim_length, overrides = endec_params, repetitions = 30)
 
 ggplot(output_endec, aes(x = timestep, y = mu_gamb))+
   geom_line()+

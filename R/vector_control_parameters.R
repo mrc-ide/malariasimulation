@@ -32,16 +32,21 @@
 set_endectocide <- function(
     parameters,
     timesteps,
-    coverages
+    #coverages, 
+    endec_on, 
+    endec_ts
 ) {
-  if (length(timesteps) != length(coverages)) {
-    stop('timesteps and coverages must align')
-  }
+  #if (length(timesteps) != length(coverages)) {
+  #  stop('timesteps and coverages must align')
+  #}
   endec_min_age <- 5
   endec_max_age <- 90
   parameters$endec <- TRUE
   parameters$endec_timesteps <- timesteps
-  parameters$endec_coverages <- coverages*(exp(-endec_min_age/21) - exp(-endec_max_age/21)) #may need to change this with Anna's work
+  parameters$endec_on <- endec_on
+  parameters$endec_ts <- endec_ts
+  #parameters$endec_coverages <- coverages*(exp(-endec_min_age/21) - exp(-endec_max_age/21)) #may need to change this with Anna's work
+  #parameters$endec_coverages <- coverages #just operating it as a switch, background work happens in odin
   parameters
 }
 

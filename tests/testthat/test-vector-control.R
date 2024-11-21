@@ -201,9 +201,11 @@ test_that('indoor_spraying process sets spray_time correctly', {
     ms_gamma = matrix(c(-0.009, -0.009), nrow=2, ncol=1)
   )
   spray_time <- mock_double(rep(0, 4))
+  renderer <- individual::Render$new(timestep)
   correlations <- get_correlation_parameters(parameters)
   process <- indoor_spraying(
     spray_time,
+    renderer,
     parameters,
     correlations
   )
@@ -372,18 +374,18 @@ test_that('set_carrying_capacity works',{
       species = "gamb",
       carrying_capacity = TRUE,
       carrying_capacity_timesteps = 1,
-      carrying_capacity_values = matrix(0.1)
+      carrying_capacity_scalers = matrix(0.1)
     )
   )
   
   expect_error(
     set_carrying_capacity(p, 1, matrix(c(0.1, 0.1), nrow = 2)),
-    "nrow(carrying_capacity) == length(timesteps) is not TRUE",
+    "nrow(carrying_capacity_scalers) == length(timesteps) is not TRUE",
     fixed = TRUE
   )
   expect_error(
     set_carrying_capacity(p, 1, matrix(c(0.1, 0.1), ncol = 2)),
-    "ncol(carrying_capacity) == length(parameters$species) is not TRUE",
+    "ncol(carrying_capacity_scalers) == length(parameters$species) is not TRUE",
     fixed = TRUE
   )
   expect_error(
@@ -393,7 +395,7 @@ test_that('set_carrying_capacity works',{
   )
   expect_error(
     set_carrying_capacity(p, 1, matrix(-1)),
-    "min(carrying_capacity) >= 0",
+    "min(carrying_capacity_scalers) >= 0",
     fixed = TRUE
   )
 })

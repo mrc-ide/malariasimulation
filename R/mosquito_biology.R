@@ -221,7 +221,7 @@ create_mosquito_emergence_process <- function(
     p_counts <- vnapply(
       solvers,
       function(solver) {
-        solver_get_states(solver)[[ODE_INDICES[['P']]]]
+        solver$get_states()[[ODE_INDICES[['P']]]]
       }
     )
     n <- sum(p_counts) * rate

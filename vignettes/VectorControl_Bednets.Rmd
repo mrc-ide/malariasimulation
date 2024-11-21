@@ -30,11 +30,11 @@ We can create a few plotting functions to visualise the output.
 ```{r}
 # Plotting functions
 plot_prev <- function() {
-  plot(x = output$timestep, y = output$n_detect_730_3650 / output$n_730_3650, 
+  plot(x = output$timestep, y = output$n_detect_lm_730_3650 / output$n_age_730_3650, 
        type = "l", col = cols[3], lwd = 1,
        xlab = "Time (days)", ylab = expression(paste(italic(Pf),"PR"[2-10])),
        xaxs = "i", yaxs = "i", ylim = c(0, 1))
-  lines(x = output_control$timestep, y = output_control$n_detect_730_3650 / output_control$n_730_3650,
+  lines(x = output_control$timestep, y = output_control$n_detect_lm_730_3650 / output_control$n_age_730_3650,
         col = cols[5], lwd = 1)
   abline(v = bednetstimesteps, col = "black", lty = 2, lwd = 1)
   text(x = bednetstimesteps + 10, y = 0.95, labels = "Bed net int.", adj = 0, cex = 0.8)

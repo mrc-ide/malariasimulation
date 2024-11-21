@@ -29,7 +29,7 @@ plot_prev <- function(output, ylab = TRUE, ylim = c(0,1)){
   if (ylab == TRUE) {
     ylab = "Prevalence in children aged 2-10 years"
     } else {ylab = ""}
-  plot(x = output$timestep, y = output$n_detect_730_3650 / output$n_730_3650, 
+  plot(x = output$timestep, y = output$n_detect_lm_730_3650 / output$n_age_730_3650, 
        type = "l", col = cols[3], ylim = ylim,
        xlab = "Time (days)", ylab = ylab, lwd = 1,
        xaxs = "i", yaxs = "i")
@@ -40,7 +40,7 @@ plot_inci <- function(output, ylab = TRUE, ylim){
   if (ylab == TRUE) {
     ylab = "Incidence per 1000 children aged 0-5 years"
     } else {ylab = ""}
-  plot(x = output$timestep, y = output$n_inc_clinical_0_1825 / output$n_0_1825 * 1000, 
+  plot(x = output$timestep, y = output$n_inc_clinical_0_1825 / output$n_age_0_1825 * 1000, 
        type = "l", col = cols[5], ylim = ylim,
        xlab = "Time (days)", ylab = ylab, lwd = 1,
        xaxs = "i", yaxs = "i")
@@ -49,7 +49,7 @@ plot_inci <- function(output, ylab = TRUE, ylim){
 
 aggregate_function <- function(df){
   tmp <- aggregate(
-    df$n_detect_730_3650,
+    df$n_detect_lm_730_3650,
     by=list(df$timestep),
     FUN = function(x) {
       c(median = median(x),
@@ -108,7 +108,7 @@ simparams_big <- set_equilibrium(parameters = simparams_big, init_EIR = 50)
 
 ### Simulations
 
-The `n_detect_730_3650` output below shows the total number of individuals in the age group rendered (here, 730-3650 timesteps or 2-10 years) who have microscopy-detectable malaria. Notice that the output is smoother at a higher population.  
+The `n_detect_lm_730_3650` output below shows the total number of individuals in the age group rendered (here, 730-3650 timesteps or 2-10 years) who have microscopy-detectable malaria. Notice that the output is smoother at a higher population.  
 
 Some outcomes will be more sensitive than others to stochastic variation even with the same population size. In the plots below, prevalence is smoother than incidence even at the same population. This is because prevalence is a measure of existing infection, while incidence is recording new cases per timestep.
 

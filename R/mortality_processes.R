@@ -27,7 +27,7 @@ create_mortality_process <- function(variables, events, renderer, parameters) {
       died <- individual::Bitset$new(pop)$insert(bernoulli_multi_p(deathrates))
       renderer$render('natural_deaths', died$size(), timestep)
     }
-    reset_target(variables, events, died, 'S', timestep)
+    reset_target(variables, events, died, 'S', parameters, timestep)
     sample_maternal_immunity(variables, died, timestep, parameters)
   }
 }
@@ -66,7 +66,7 @@ sample_maternal_immunity <- function(variables, target, timestep, parameters) {
 
         # set their maternal immunities
         birth_icm <- variables$ica$get_values(mothers) * parameters$pcm
-        birth_ivm <- variables$ica$get_values(mothers) * parameters$pvm
+        birth_ivm <- variables$iva$get_values(mothers) * parameters$pvm
         variables$icm$queue_update(birth_icm, target_group)
         variables$ivm$queue_update(birth_ivm, target_group)
       }
@@ -74,7 +74,7 @@ sample_maternal_immunity <- function(variables, target, timestep, parameters) {
   }
 }
 
-reset_target <- function(variables, events, target, state, timestep) {
+reset_target <- function(variables, events, target, state, parameters, timestep) {
   if (target$size() > 0) {
     # clear events
     to_clear <- c(
@@ -106,13 +106,15 @@ reset_target <- function(variables, events, target, state, timestep) {
     variables$drug_time$queue_update(-1, target)
 
     # vaccination
-    variables$pev_timestep$queue_update(-1, target)
+    variables$last_pev_timestep$queue_update(-1, target)
+    variables$last_eff_pev_timestep$queue_update(-1, target)
     variables$pev_profile$queue_update(-1, target)
     variables$tbv_vaccinated$queue_update(-1, target)
 
     # onwards infectiousness
     variables$infectivity$queue_update(0, target)
-
+    variables$progression_rates$queue_update(0, target)
+    
     # zeta and zeta group and vector controls survive rebirth
   }
 }

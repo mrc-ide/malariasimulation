@@ -235,7 +235,8 @@ get_parameters <- function(overrides = list()) {
     dpl   = .643,
     mup   = .249,
     mum   = .132,
-    mu_endec = c(0.21, 0.21, 0.21), #this is the mu_h. Need to check if varies with ivm_cov and Q0
+    mu_endec = c(0.2, 0.2, 0.2), #this is the mu_h. Need to check if varies with ivm_cov and Q0.
+    wane_endec = c(0.04, 0.04, 0.04),
     sigma_squared   = 1.67,
     n_heterogeneity_groups = 5,
     # immunity decay rates

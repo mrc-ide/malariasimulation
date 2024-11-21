@@ -59,8 +59,7 @@ endec_params <- set_endectocide(parameters = simparams, timesteps = steps,
 #  gamman = rep(2.64 * 365, 2) # Vector of bed net half-lives for each distribution timestep
 #)
 
-output_endec <- run_simulation(timesteps = sim_length, parameters = endec_params)
-
+output_endec <- run_simulation_with_repetitions(timesteps = sim_length, parameters = endec_params, repetitions = 30)
 
 ggplot(output_endec, aes(x = timestep, y = mu_gamb))+
   geom_line()+
@@ -91,7 +90,7 @@ odin_models <- odin_models %>%
   select(t, mv, EIR_tot, slide_prev0to5, Ivtot, model_type)
 
 output_endec2 <- output_endec %>%
-  mutate(slide_prev0to5 = n_detect_0_1825/n_0_1825) %>%
+  mutate(slide_prev0to5 = n_detect_lm_0_1825/n_age_0_1825) %>%
   select(timestep, total_M_gamb, EIR_gamb, slide_prev0to5, Im_gamb_count) %>%
   mutate(model_type = "malariasim") %>%
   rename(t = timestep, 

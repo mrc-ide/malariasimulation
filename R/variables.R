@@ -1,4 +1,4 @@
-#' @title Define model variables 
+#' @title Define model variables
 #' @description
 #' create_variables creates the human and mosquito variables for
 #' the model. Variables are used to track real data for each individual over
@@ -18,13 +18,10 @@
 #' * ID - Acquired immunity to detectability
 #' * zeta - Heterogeneity of human individuals
 #' * zeta_group - Discretised heterogeneity of human individuals
-#' * last_pev_timestep - The timestep of the last pev vaccination (-1 if there
-#' * last_eff_pev_timestep - The timestep of the last efficacious pev
-#' vaccination, including final primary dose and booster doses (-1 if there have not been any)
-#' * pev_profile - The index of the efficacy profile of any pev vaccinations.
-#' Not set until the final primary dose.
-#' This is only set on the final primary dose and subsequent booster doses
-#' (-1 otherwise)
+#' * pev_timestep - The timestep of the last pev vaccination (-1 if there
+#' haven't been any)
+#' * pev_profile - The index of the profile of the last administered pev vaccine 
+#' (-1 if there haven't been any)
 #' * tbv_vaccinated - The timstep of the last tbv vaccination (-1 if there
 #' haven't been any
 #' * net_time - The timestep when a net was last put up (-1 if never)
@@ -32,9 +29,6 @@
 #' * infectivity - The onward infectiousness to mosquitos
 #' * drug - The last prescribed drug
 #' * drug_time - The timestep of the last drug
-#'
-#' Antimalarial resistance variables are:
-#' * dt - the delay for humans to move from state Tr to state S
 #'
 #' Mosquito variables are: 
 #' * mosquito_state - the state of the mosquito, a category Sm|Pm|Im|NonExistent
@@ -178,7 +172,6 @@ create_variables <- function(parameters) {
   diseased <- state$get_index_of('D')$to_vector()
   asymptomatic <- state$get_index_of('A')$to_vector()
   subpatent <- state$get_index_of('U')$to_vector()
-  treated <- state$get_index_of('Tr')$to_vector()
 
   # Set the initial infectivity values for each individual
   infectivity_values[diseased] <- parameters$cd
@@ -192,21 +185,10 @@ create_variables <- function(parameters) {
   # Initialise the infectivity variable
   infectivity <- individual::DoubleVariable$new(infectivity_values)
 
-  # Set disease progression rates for each individual
-  progression_rate_values <- rep(0, get_human_population(parameters, 0))
-  progression_rate_values[diseased] <- 1/parameters$dd
-  progression_rate_values[asymptomatic] <- 1/parameters$da
-  progression_rate_values[subpatent] <- 1/parameters$du
-  progression_rate_values[treated] <- 1/parameters$dt
-
-  # Initialise the disease progression rate variable
-  progression_rates <- individual::DoubleVariable$new(progression_rate_values)
-  
   drug <- individual::IntegerVariable$new(rep(0, size))
   drug_time <- individual::IntegerVariable$new(rep(-1, size))
 
-  last_pev_timestep <- individual::IntegerVariable$new(rep(-1, size))
-  last_eff_pev_timestep <- individual::IntegerVariable$new(rep(-1, size))
+  pev_timestep <- individual::IntegerVariable$new(rep(-1, size))
   pev_profile <- individual::IntegerVariable$new(rep(-1, size))
 
   tbv_vaccinated <- individual::DoubleVariable$new(rep(-1, size))
@@ -231,17 +213,14 @@ create_variables <- function(parameters) {
     zeta = zeta,
     zeta_group = zeta_group,
     infectivity = infectivity,
-    progression_rates = progression_rates,
     drug = drug,
     drug_time = drug_time,
-    last_pev_timestep = last_pev_timestep,
-    last_eff_pev_timestep = last_eff_pev_timestep,
+    pev_timestep = pev_timestep,
     pev_profile = pev_profile,
     tbv_vaccinated = tbv_vaccinated,
     net_time = net_time,
     spray_time = spray_time
   )
-  
 
   # Add variables for individual mosquitoes
   if (parameters$individual_mosquitoes) {
@@ -399,10 +378,9 @@ calculate_initial_ages <- function(parameters) {
   n_pop <- get_human_population(parameters, 0)
   # check if we've set up a custom demography
   if (!parameters$custom_demography) {
-    return(round(rtexp(
+    return(round(rexp(
       n_pop,
-      1 / parameters$average_age,
-      max(EQUILIBRIUM_AGES)*365
+      rate = 1 / parameters$average_age
     )))
   }
 

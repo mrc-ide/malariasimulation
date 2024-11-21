@@ -14,14 +14,6 @@ LaggedValue <- R6::R6Class(
     
     get = function(timestep) {
       timeseries_at(private$history, timestep, TRUE)
-    },
-
-    save_state = function() {
-      timeseries_save_state(private$history)
-    },
-
-    restore_state = function(t, state) {
-      timeseries_restore_state(private$history, state)
     }
   )
 )

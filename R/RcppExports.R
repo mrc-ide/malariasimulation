@@ -9,14 +9,6 @@ adult_mosquito_model_update <- function(model, mu, foim, susceptible, f) {
     invisible(.Call(`_malariasimulation_adult_mosquito_model_update`, model, mu, foim, susceptible, f))
 }
 
-adult_mosquito_model_save_state <- function(model) {
-    .Call(`_malariasimulation_adult_mosquito_model_save_state`, model)
-}
-
-adult_mosquito_model_restore_state <- function(model, state) {
-    invisible(.Call(`_malariasimulation_adult_mosquito_model_restore_state`, model, state))
-}
-
 create_adult_solver <- function(model, init, r_tol, a_tol, max_steps) {
     .Call(`_malariasimulation_create_adult_solver`, model, init, r_tol, a_tol, max_steps)
 }
@@ -45,16 +37,8 @@ rainfall <- function(t, g0, g, h, floor) {
     .Call(`_malariasimulation_rainfall`, t, g0, g, h, floor)
 }
 
-exponential_process_cpp <- function(variable, rate) {
-    .Call(`_malariasimulation_exponential_process_cpp`, variable, rate)
-}
-
 solver_get_states <- function(solver) {
     .Call(`_malariasimulation_solver_get_states`, solver)
-}
-
-solver_set_states <- function(solver, t, state) {
-    invisible(.Call(`_malariasimulation_solver_set_states`, solver, t, state))
 }
 
 solver_step <- function(solver) {
@@ -73,24 +57,8 @@ timeseries_push <- function(timeseries, value, timestep) {
     invisible(.Call(`_malariasimulation_timeseries_push`, timeseries, value, timestep))
 }
 
-timeseries_save_state <- function(timeseries) {
-    .Call(`_malariasimulation_timeseries_save_state`, timeseries)
-}
-
-timeseries_restore_state <- function(timeseries, state) {
-    invisible(.Call(`_malariasimulation_timeseries_restore_state`, timeseries, state))
-}
-
 random_seed <- function(seed) {
     invisible(.Call(`_malariasimulation_random_seed`, seed))
-}
-
-random_save_state <- function() {
-    .Call(`_malariasimulation_random_save_state`)
-}
-
-random_restore_state <- function(state) {
-    invisible(.Call(`_malariasimulation_random_restore_state`, state))
 }
 
 bernoulli_multi_p_cpp <- function(p) {

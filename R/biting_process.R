@@ -208,26 +208,50 @@ simulate_bites <- function(
 # Utility functions
 # =================
 
-endec_adjusted_mortality<-function(mu, parameters, species, timestep, endec_on){
-  if (parameters$endec){
-    matches <- timestep == parameters$endec_timesteps 
-    #endec_killing <- parameters$mu_endec[[species]]
-    eff_len <- timestep-parameters$endec_on
-    endec_killing <- parameters$mu_endec[[species]]*exp(-parameters$wane_endec[[species]]*(timestep-parameters$endec_on)) #t - endec_on_t
-    #endec_killing <- (parameters$mum[[species]] + parameters$mu_endec[[species]])*parameters$Q0[[species]]*parameters$endec_coverages[matches]
-    #endec_killing <- parameters$mu_endec[[species]]*parameters$Q0[[species]]*parameters$endec_coverages[matches]
-    if (any(matches)){ #add and coverage greater than 0 here: so if the coverage is 0, drop back to the baseline mu
-     #mu_endec <- ifelse(parameters$endec_coverages[matches] > 0, endec_killing, 0.132) #slightly different to atsb
-     mu_endec <- ifelse(parameters$endec_coverages[matches] > 0, endec_killing, parameters$mum[[species]])
-      # mu_endec<-(parameters$mum[[species]] + parameters$mu_endec[[species]])*parameters$Q0[[species]]*parameters$endec_coverages[matches] #slightly different to atsb
-     return(mu + mu_endec)
-      #mu_atsb<-parameters$mu_atsb[[species]]*parameters$atsb_coverages[matches]
-      #return(mu+mu_atsb)
-      
-    }
-    else {return(parameters$mum[[species]])}
-  }  else {return(parameters$mum[[species]])}
+#endec_adjusted_mortality<-function(mu, parameters, species, timestep, endec_on){
+#  if (parameters$endec){
+#    if (timestep == 130){browser()}
+#    matches <- timestep == parameters$endec_timesteps 
+#    eff_len <- timestep-parameters$endec_on
+#    endec_killing <- parameters$mu_endec[[species]]*exp(-parameters$wane_endec[[species]]*eff_len) #t - endec_on_t
+#    #endec_killing <- parameters$mu_endec[[species]] this works as a switch
+#    if (any(matches)){ #add and coverage greater than 0 here: so if the coverage is 0, drop back to the baseline mu
+#     endec_mu <- ifelse(parameters$endec_coverages[matches] > 0, endec_killing, 0)
+#     #mu_endec<-(parameters$mum[[species]] + parameters$mu_endec[[species]])*parameters$Q0[[species]]*parameters$endec_coverages[matches] #slightly different to atsb
+#     return(mu + endec_mu)
+#      #mu_atsb<-parameters$mu_atsb[[species]]*parameters$atsb_coverages[matches]
+#      #return(mu+mu_atsb)
+#      
+#    }
+#    else {return(parameters$mum[[species]])}
+#  }  else {return(parameters$mum[[species]])}
+#  
+#}
+
+endec_adjusted_mortality<-function(parameters, species, timestep){
+    if (parameters$endec){
+     # if (timestep == 130){browser()}
+      if (timestep %in% parameters$endec_on){
+        eff_len <- timestep-max(parameters$endec_ts[parameters$endec_ts <= timestep]) 
+        #eff_len <- seq(1, 23, 1)
+        endec_killing <- parameters$mum[[species]] + (parameters$mu_endec[[species]]*exp(-parameters$wane_endec[[species]]*eff_len)) #t - endec_on_t
+        #endec_killing <- parameters$mum + (parameters$mu_endec*exp(-parameters$wane_endec*eff_len)) #t - endec_on_t
+        return(endec_killing)
+        }
+      #endec_mu <- ifelse(parameters$endec_coverages[matches] > 0, endec_killing, 0)
+      #endec_killing <- parameters$mu_endec[[species]] this works as a switch
+      #if (any(matches)){ #add and coverage greater than 0 here: so if the coverage is 0, drop back to the baseline mu
+       
+       #mu_endec<-(parameters$mum[[species]] + parameters$mu_endec[[species]])*parameters$Q0[[species]]*parameters$endec_coverages[matches] #slightly different to atsb
+       
+        #mu_atsb<-parameters$mu_atsb[[species]]*parameters$atsb_coverages[matches]
+        #return(mu+mu_atsb)
+        
+      #}
+      else {return(parameters$mum[[species]])}
+    } 
 }
+
 
 #endec_adjusted_mortality<-function(mu, parameters, species, timestep){
 #  if (parameters$endec){

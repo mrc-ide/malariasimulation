@@ -288,7 +288,7 @@ create_variables <- function(parameters) {
   drug <- individual::IntegerVariable$new(rep(0, size))
   drug_time <- individual::IntegerVariable$new(rep(-1, size))
 
-  if(length(parameters$drug_hypnozoite_efficacy) > 0){
+  if(any(parameters$drug_hypnozoite_efficacy > 0)){
     ls_drug <- individual::IntegerVariable$new(rep(0, size))
     ls_drug_time <- individual::IntegerVariable$new(rep(-1, size))
   }

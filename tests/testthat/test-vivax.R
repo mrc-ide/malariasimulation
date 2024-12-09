@@ -316,7 +316,6 @@ test_that('relapses are recognised with division between bite infections and rel
 })
 
 test_that('Drug functions provide warnings if applied incorrectly', {
-
   expect_warning(
     get_parameters(parasite = "falciparum") |> 
       set_drugs(drugs = list(c(1,2,3,4,5))),
@@ -326,21 +325,8 @@ test_that('Drug functions provide warnings if applied incorrectly', {
   expect_warning(
     get_parameters(parasite = "vivax") |> 
       set_drugs(drugs = list(c(1,2,3,4,5))),
-    "Drug 1 has incorrect number of P. vivax drug parameters. The number of parameters should be 4, for blood stage treatment only, or 7, for radical cure."
+    "Drug 1 has incorrect number of P. vivax drug parameters. The number of parameters should be 7 for radical cure. To assign a blood stage drug only, set the liver stage drug parameters to 0: see CQ_params_vivax for an example."
   )
-
-  expect_warning(
-    get_parameters(parasite = "falciparum") |> 
-      set_drugs(drugs = list(CQ_params_vivax)),
-    regexp = "P. vivax drug parameters are being applied to P. falciparum"
-  )
-  
-  expect_warning(
-    get_parameters(parasite = "vivax") |> 
-      set_drugs(drugs = list(AL_params)),
-    "P. falciparum drug parameters are being applied to P. vivax"
-    )
-  
 })
 
 test_that('Liver stage prophylaxis functions correctly', {

@@ -488,7 +488,7 @@ relapse_bite_infection_hazard_resolution <- function(
     timestep
 ){
   
-  if(variables$hypnozoites$get_index_of(0)$not(T)$and(infected_humans)$size()>0){
+  if(variables$hypnozoites$get_index_of(0)$not(T)$and(infected_humans)$size() > 0){
     
     hypnozoite_humans <- variables$hypnozoites$get_index_of(0)$not(T)
     potential_relapse_index <- bitset_index(hypnozoite_humans, infected_humans)
@@ -555,7 +555,7 @@ ls_treatment_prophylaxis_efficacy <- function(
   
   ## drug prophylaxis may limit formation of new hypnozoite batches
   ls_prophylaxis <- rep(0, bite_infections$size())
-  if(length(parameters$drug_hypnozoite_efficacy) > 0){
+  if(any(parameters$drug_hypnozoite_efficacy > 0)){
 
     ls_drug <- variables$ls_drug$get_values(bite_infections)
     ls_medicated <- ls_drug > 0
@@ -861,7 +861,7 @@ calculate_successful_treatments <- function(
     
   }
   
-  if(length(parameters$drug_hypnozoite_efficacy) > 0){
+  if(any(parameters$drug_hypnozoite_efficacy > 0)){
     effectively_treated_hypnozoites_index <- bernoulli_multi_p(parameters$drug_hypnozoite_efficacy[drugs])
     successfully_treated_hypnozoites <- bitset_at(target, effectively_treated_hypnozoites_index)
     successfully_treated_list <- c(

@@ -24,7 +24,8 @@ SP_AQ_params <- c(0.9, 0.32, 4.3, 38.1)
 #' @details Use a vector of preset parameters for the CQ drug (chloroquine) acting on P. vivax
 #' @details Default parameters, from L to R, are: drug_efficacy: 0.899, drug_rel_c: 0.5, drug_prophylaxis_shape: 20, drug_prophylaxis_scale: 5
 #' @export
-CQ_params_vivax <- c(0.899, 0.5, 5, 20)
+CQ_params_vivax <- c(0.899, 0.5, 5, 20, 0, 0, 0)
+
 
 #' @title Preset parameters for the CQ-PQ drug (P. vivax)
 #' @description Efficacy from SI of Nekkab et al., DOI: 10.1371/journal.pmed.1003535 (2021),
@@ -69,24 +70,13 @@ set_drugs <- function(parameters, drugs) {
       if(length(drugs[[drug]]) != 4){
         warning(paste0("Drug ", drug, " has incorrect number of P. falciparum drug parameters. The number of parameters should be 4."),
                 call. = FALSE)
-      } else if (
-        all(drugs[[drug]] == CQ_params_vivax)){
-        warning("P. vivax drug parameters are being applied to P. falciparum",
-                call. = FALSE)
       }
     }
   } else if (parameters$parasite == "vivax"){
     for (drug in seq_along(drugs)) {
-      if(!length(drugs[[drug]]) %in% c(4, 7)){
-        warning(paste0("Drug ", drug, " has incorrect number of P. vivax drug parameters. The number of parameters should be 4, for blood stage treatment only, or 7, for radical cure."),
+      if(length(drugs[[drug]]) != 7){
+        warning(paste0("Drug ", drug, " has incorrect number of P. vivax drug parameters. The number of parameters should be 7 for radical cure. To assign a blood stage drug only, set the liver stage drug parameters to 0: see CQ_params_vivax for an example."),
                 call. = FALSE)
-      } else if(length(drugs[[drug]]) == 4){
-        if(all(drugs[[drug]] == AL_params) |
-           all(drugs[[drug]] == DHA_PQP_params) |
-           all(drugs[[drug]] == SP_AQ_params)){
-          warning("P. falciparum drug parameters are being applied to P. vivax.",
-                  call. = FALSE)
-        }
       }
     }
   }

@@ -1,3 +1,7 @@
+# malariasimulation 2.1.0
+
+* Fix PMC bug where timesteps to generate targetted individuals were not increasing
+
 # malariasimulation 2.0.0
 
 Release v2.0.0. This will mark our shift to [semver 2.0.0](https://semver.org/spec/v2.0.0.html) for versioning, i.e:

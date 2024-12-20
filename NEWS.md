@@ -1,4 +1,4 @@
-# malariasimulation 2.1.0
+# malariasimulation 2.0.1
 
 * Fix PMC bug where timesteps to generate targetted individuals were not increasing
 

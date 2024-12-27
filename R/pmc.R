@@ -41,7 +41,7 @@ create_pmc_process <- function(
       return()
     }
     in_age <- variables$birth$get_index_of(
-      timesteps[time_index] - parameters$pmc_ages
+      timestep - parameters$pmc_ages
     )$to_vector()
     target <- in_age[sample_intervention(in_age, 'pmc', coverage, correlations)]
     

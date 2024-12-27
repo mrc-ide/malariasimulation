@@ -280,11 +280,11 @@ test_that('relapses are recognised with division between bite infections and rel
     hypnozoites = individual::IntegerVariable$new(c(0, 1, 2, 3))
   )
   
-  bernoulli_mock <- mockery::mock(c(1, 3), 2, cycle = TRUE)
+  bernoulli_mock <- mockery::mock(c(1, 3), 1, 2, cycle = TRUE)
   calc_mock <- mockery::mock(individual::Bitset$new(4)$insert(2))
   mockery::stub(vivax_infection_outcome_process, 'bernoulli_multi_p', bernoulli_mock, depth = 2)
   mockery::stub(vivax_infection_outcome_process, 'calculate_clinical_infections', calc_mock)
-  
+
   renderer <- mock_render(1)
   infected_humans <- individual::Bitset$new(4)$insert(c(1, 2, 3, 4))
   
@@ -311,6 +311,56 @@ test_that('relapses are recognised with division between bite infections and rel
     'n_relapses',
     2,
     timestep
+  )
+  
+})
+
+test_that('Drug functions provide warnings if applied incorrectly', {
+  expect_warning(
+    get_parameters(parasite = "falciparum") |> 
+      set_drugs(drugs = list(c(1,2,3,4,5))),
+    "Drug 1 has incorrect number of P. falciparum drug parameters. The number of parameters should be 4."
+  )
+  
+  expect_warning(
+    get_parameters(parasite = "vivax") |> 
+      set_drugs(drugs = list(c(1,2,3,4,5))),
+    "Drug 1 has incorrect number of P. vivax drug parameters. The number of parameters should be 7 for radical cure. To assign a blood stage drug only, set the liver stage drug parameters to 0: see CQ_params_vivax for an example."
+  )
+})
+
+test_that('Liver stage prophylaxis functions correctly', {
+  
+  bite_infections <- individual::Bitset$new(3)$insert(1:3)
+  
+  variables <- list(
+    ls_drug = individual::DoubleVariable$new(c(0,1,2)),
+    ls_drug_time = individual::DoubleVariable$new(c(-1,1,1))
+  )
+
+  parms <- get_parameters(parasite = "vivax") |> 
+    set_drugs(drugs = list(CQ_PQ_params_vivax, CQ_TQ_params_vivax)) |> 
+    set_clinical_treatment(drug = 1, timesteps = 0, coverages = 0.3) |> 
+    set_clinical_treatment(drug = 2, timesteps = 0, coverages = 0.3)
+  
+  timestep <- 6
+
+  ls_prophylaxis <- ls_treatment_prophylaxis_efficacy(
+    bite_infections,
+    variables,
+    parms,
+    timestep
+  )
+
+  expect_identical(
+    ls_prophylaxis,
+    c(0,
+      weibull_survival(
+        c(5,5),
+        parms$drug_hypnozoite_prophylaxis_shape[c(1, 2)],
+        parms$drug_hypnozoite_prophylaxis_scale[c(1, 2)]
+      )
+    )
   )
   
 })

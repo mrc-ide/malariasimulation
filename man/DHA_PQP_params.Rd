@@ -3,7 +3,7 @@
 \docType{data}
 \name{DHA_PQP_params}
 \alias{DHA_PQP_params}
-\title{Preset parameters for the DHA-PQP drug}
+\title{Preset parameters for the DHA-PQP drug (P. falciparum)}
 \format{
 An object of class \code{numeric} of length 4.
 }

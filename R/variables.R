@@ -35,6 +35,8 @@
 #' * infectivity - The onward infectiousness to mosquitos
 #' * drug - The last prescribed drug
 #' * drug_time - The timestep of the last drug
+#' * ls_drug - The last prescribed drug
+#' * ls_drug_time - The timestep of the last drug
 #'
 #' Antimalarial resistance variables are:
 #' * dt - the delay for humans to move from state Tr to state S
@@ -286,6 +288,11 @@ create_variables <- function(parameters) {
   drug <- individual::IntegerVariable$new(rep(0, size))
   drug_time <- individual::IntegerVariable$new(rep(-1, size))
 
+  if(any(parameters$drug_hypnozoite_efficacy > 0)){
+    ls_drug <- individual::IntegerVariable$new(rep(0, size))
+    ls_drug_time <- individual::IntegerVariable$new(rep(-1, size))
+  }
+  
   last_pev_timestep <- individual::IntegerVariable$new(rep(-1, size))
   last_eff_pev_timestep <- individual::IntegerVariable$new(rep(-1, size))
   pev_profile <- individual::IntegerVariable$new(rep(-1, size))

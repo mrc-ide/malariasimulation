@@ -73,7 +73,13 @@ While the *P. falciparum* model calculates the onward infectivity of asymptomati
 
 ### Hypnozoites
 
-The *P. vivax* model tracks the number of hypnozoite batches of each individual which contribute to the rate of new infections. Acquisition of new batches comes from bite infections and are capped (where `kmax = 10` by default). All individuals can acquire new hypnozoite batches via bites, even when these do not result in new blood-stage infection (as in the clinically diseased and treated). Hypnozoite batches are lost probabilistically where an individual's number of batches determines the loss rate of a single batch.
+The *P. vivax* model tracks the number of hypnozoite batches of each individual which then contribute to the rate of new infections. Acquisition of new batches come from bite infections, which are mediated by liver-stage drug prophylaxis, and are capped (where `kmax = 10` by default). All individuals can acquire new hypnozoite batches via bites, even when these do not result in new blood-stage infection (as in the clinically diseased and treated). Hypnozoite batches are lost probabilistically where an individual's number of batches determines the loss rate of a single batch.
+
+Successful liver-stage drug treatment results in the clearing of all hypnozoite batches of an individual.
+
+### Drug treatment
+
+While *P. falciparum* drugs have four parameters (efficacy, relative reduction in onwards infectivity, and two prophylaxis parameters: shape and scale), the *P. vivax* drug parameters may have four (if the drug only targets the blood stage infection) or seven parameters (if the drug also targets hypnozoites). These three additional parameters are drug efficacy on hypnozoite clearance and two hypnozoite prophylaxis parameters: shape and scale. The hypnozoite prophylaxis functions the same way as standard prophlylaxis to infection, but reduced the probability that a bite infection results in the formation of a new hypnozoite batch.
 
 ### Equilibrium
 

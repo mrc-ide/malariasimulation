@@ -82,6 +82,8 @@ test_that('MDA moves the diseased and non-diseased population correctly', {
     drug = mock_double(c(1, 2, 1, 2))
   )
   
+  events$mda_administer <- mock_event(events$mda_administer)
+  
   listener <- create_mda_listeners(
     variables,
     parameters$mda_drug,

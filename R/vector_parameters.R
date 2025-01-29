@@ -9,7 +9,8 @@
 #' mum: 0.132
 #'
 #' parameters from:
-#' https://www.pnas.org/content/pnas/early/2019/07/02/1820646116.full.pdf
+#' Values for phi_bednets and phi_indoors are from: https://www.pnas.org/content/pnas/early/2019/07/02/1820646116.full.pdf
+#' Value for Q0 estimated in https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1000324, using data from these studies: https://pubmed.ncbi.nlm.nih.gov/18697309/, https://pubmed.ncbi.nlm.nih.gov/12943105/, https://link.springer.com/article/10.1186/1475-2875-7-136 & https://pubmed.ncbi.nlm.nih.gov/14732241/  
 #' @export
 gamb_params <- list(
   species = 'gamb',
@@ -31,8 +32,9 @@ gamb_params <- list(
 #' phi_indoors: 0.86
 #' mum: 0.132
 #'
-#' parameters from:
-#' https://www.pnas.org/content/pnas/early/2019/07/02/1820646116.full.pdf
+#' parameters reference:
+#' Values for phi_bednets and phi_indoors are from: https://www.pnas.org/content/pnas/early/2019/07/02/1820646116.full.pdf
+#' Value for Q0 estimated in https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1000324, using data from these studies: https://pubmed.ncbi.nlm.nih.gov/12943105/, https://link.springer.com/article/10.1186/1475-2875-7-136, https://pubmed.ncbi.nlm.nih.gov/14732241/ & https://pubmed.ncbi.nlm.nih.gov/17199754/
 #' @export
 arab_params <- list(
   species = 'arab',
@@ -54,8 +56,9 @@ arab_params <- list(
 #' phi_indoors: 0.87
 #' mum: 0.112
 #'
-#' parameters from:
-#' https://www.pnas.org/content/pnas/early/2019/07/02/1820646116.full.pdf
+#' parameters reference:
+#' Values for phi_bednets and phi_indoors are from: https://www.pnas.org/content/pnas/early/2019/07/02/1820646116.full.pdf
+#' Value for Q0 estimated by in https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1000324, using data from these studies: https://pubmed.ncbi.nlm.nih.gov/18697309/, https://pubmed.ncbi.nlm.nih.gov/12943105/ & https://pubmed.ncbi.nlm.nih.gov/14732241/
 #' @export
 fun_params <- list(
   species = 'fun',
@@ -79,10 +82,10 @@ fun_params <- list(
 #'
 #' parameters reference:
 #' https://bmcmedicine.biomedcentral.com/articles/10.1186/s12916-022-02324-1
-#' Values for phi are from:
+#' Values for phi_bednets and phi_indoors are from:
 #' https://github.com/arranhamlet/stephensi_ETH_publication/blob/297352e244f8ed658e8bc3f32be42f011269c7f0/R/functions/cluster_hypercube_sampling_djibouti.R#L14-L21
 #' values for Q0: are the average from:
-#' ttps://github.com/cwhittaker1000/stephenseasonality/blob/main/data/bionomic_species_all_LHC_100.csv
+#' https://github.com/cwhittaker1000/stephenseasonality/blob/main/data/bionomic_species_all_LHC_100.csv
 #' @export
 steph_params <- list(
   species = 'steph',

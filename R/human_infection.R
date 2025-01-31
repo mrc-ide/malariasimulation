@@ -773,7 +773,7 @@ calculate_treated <- function(
   }
   
   # Update liver stage drug effects
-  if(length(parameters$drug_hynozoite_efficacy) > 0){
+  if(parameters$parasite == "vivax"){
     if(successfully_treated$successfully_treated_hypnozoites$size() > 0){
       variables$hypnozoites$queue_update(0, successfully_treated$successfully_treated_hypnozoites)
       variables$ls_drug$queue_update(drug, successfully_treated$successfully_treated_hypnozoites)

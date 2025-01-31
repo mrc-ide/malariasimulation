@@ -11,12 +11,16 @@ set_epi_outputs(
   clinical_incidence = NULL,
   severe_incidence = NULL,
   prevalence = NULL,
+  n_with_hypnozoites = NULL,
   ica = NULL,
   icm = NULL,
   iva = NULL,
   ivm = NULL,
   id = NULL,
-  ib = NULL
+  ib = NULL,
+  iaa = NULL,
+  iam = NULL,
+  hypnozoites = NULL
 )
 }
 \arguments{
@@ -28,21 +32,29 @@ set_epi_outputs(
 
 \item{clinical_incidence}{age breaks for clinical incidence outputs (symptomatic); default = c(0, 1825)}
 
-\item{severe_incidence}{age breaks for severe incidence outputs; default = NULL}
+\item{severe_incidence}{age breaks for severe incidence outputs (pf only); default = NULL}
 
 \item{prevalence}{age breaks for clinical prevalence outputs (pcr and lm detectable infections); default = c(730, 3650)}
+
+\item{n_with_hypnozoites}{age breaks for individuals with hypnozoites outputs (pv only); default = NULL}
 
 \item{ica}{age breaks for average acquired clinical immunity; default = NULL}
 
 \item{icm}{age breaks for average maternal clinical immunity; default = NULL}
 
-\item{iva}{age breaks for average acquired severe immunity; default = NULL}
+\item{iva}{age breaks for average acquired severe immunity (pf only); default = NULL}
 
-\item{ivm}{age breaks for average maternal severe immunity; default = NULL}
+\item{ivm}{age breaks for average maternal severe immunity (pf only); default = NULL}
 
-\item{id}{age breaks for average immunity to detectability; default = NULL}
+\item{id}{age breaks for average immunity to detectability (pf only); default = NULL}
 
-\item{ib}{age breaks for average blood immunity; default = NULL}
+\item{ib}{age breaks for average blood immunity (pf only); default = NULL}
+
+\item{iaa}{age breaks for average acquired antiparasite immunity (pv only); default = NULL}
+
+\item{iam}{age breaks for average maternal antiparasite immunity (pv only); default = NULL}
+
+\item{hypnozoites}{age breaks for average hypnozoite batches (pv only); default = NULL}
 }
 \description{
 Parameterise age grouped output rendering

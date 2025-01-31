@@ -56,6 +56,18 @@ set_epi_outputs <- function(parameters,
     iam = iam,
     hypnozoites = hypnozoites
   )
+  
+  if(parameters$parasite == "falciparum"){
+    if(!any(lapply(list(n_with_hypnozoites, iaa, iam, hypnozoites), is.null))){
+      stop("Some selected epi outputs do not apply to this parasite.")
+    }
+    
+  } else if (parameters$parasite == "vivax"){
+    if(!any(lapply(list(severe_incidence, iva, ivm, id, ib), is.null))){
+      stop("Some selected epi outputs do not apply to this parasite.")
+    }
+  }
+  
   input <- input[!sapply(input, is.null)]
   
   for(i in seq_along(input)){

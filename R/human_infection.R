@@ -488,7 +488,7 @@ relapse_bite_infection_hazard_resolution <- function(
     timestep
 ){
   
-  if(variables$hypnozoites$get_index_of(0)$not(T)$and(infected_humans)$size()>0){
+  if(variables$hypnozoites$get_index_of(0)$not(T)$and(infected_humans)$size() > 0){
     
     hypnozoite_humans <- variables$hypnozoites$get_index_of(0)$not(T)
     potential_relapse_index <- bitset_index(hypnozoite_humans, infected_humans)
@@ -519,15 +519,58 @@ relapse_bite_infection_hazard_resolution <- function(
   ## all bitten humans with an infectious bite (incorporating prophylaxis) get a new batch of hypnozoites
   if(bite_infections$size()>0){
     
+    ls_prophylaxis <- ls_treatment_prophylaxis_efficacy(
+      bite_infections,
+      variables,
+      parameters,
+      timestep
+    )
+    
     # make sure batches are capped
-    current_batches <- variables$hypnozoites$get_values(bite_infections)
+    new_hypnozoite_batch_formed <- bitset_at(bite_infections, bernoulli_multi_p(1 - ls_prophylaxis))
+    current_batches <- variables$hypnozoites$get_values(new_hypnozoite_batch_formed)
     new_batch_number <- pmin(current_batches + 1, parameters$kmax)
     
     variables$hypnozoites$queue_update(
       new_batch_number,
-      bite_infections
+      new_hypnozoite_batch_formed
     )
   }
+}
+
+#' @title Calculate protection from formation of new hypnozoite batches due to liver stage drug prophylaxis
+#' @description This function calculates the probability that liver stage drug prophylaxis will 
+#' protect each individual from the formation of new hynozoite batches
+#' @param bite_infections a vector of individuals with prospective formation of new hypnozoite batches
+#' @param variables a list of all of the model variables
+#' @param parameters model parameters
+#' @param timestep current timestep
+#' @noRd
+ls_treatment_prophylaxis_efficacy <- function(
+    bite_infections,
+    variables,
+    parameters,
+    timestep
+){
+  
+  ## drug prophylaxis may limit formation of new hypnozoite batches
+  ls_prophylaxis <- rep(0, bite_infections$size())
+  if(any(parameters$drug_hypnozoite_efficacy > 0)){
+
+    ls_drug <- variables$ls_drug$get_values(bite_infections)
+    ls_medicated <- ls_drug > 0
+
+    if (any(ls_medicated)) {
+      ls_drug <- ls_drug[ls_medicated]
+      ls_drug_time <- variables$ls_drug_time$get_values(bite_infections)[ls_medicated]
+      ls_prophylaxis[ls_medicated] <- weibull_survival(
+        timestep - ls_drug_time,
+        parameters$drug_hypnozoite_prophylaxis_shape[ls_drug],
+        parameters$drug_hypnozoite_prophylaxis_scale[ls_drug]
+      )
+    }
+  }
+  ls_prophylaxis
 }
 
 #' @title Calculate light microscopy detectable infections (p.v only)
@@ -729,6 +772,15 @@ calculate_treated <- function(
     )
   }
   
+  # Update liver stage drug effects
+  if(parameters$parasite == "vivax"){
+    if(successfully_treated$successfully_treated_hypnozoites$size() > 0){
+      variables$hypnozoites$queue_update(0, successfully_treated$successfully_treated_hypnozoites)
+      variables$ls_drug$queue_update(drug, successfully_treated$successfully_treated_hypnozoites)
+      variables$ls_drug_time$queue_update(timestep, successfully_treated$successfully_treated_hypnozoites)
+    }
+  }
+  
   successfully_treated$successfully_treated
   
 }
@@ -808,6 +860,16 @@ calculate_successful_treatments <- function(
       successfully_treated = successfully_treated)
     
   }
+  
+  if(any(parameters$drug_hypnozoite_efficacy > 0)){
+    effectively_treated_hypnozoites_index <- bernoulli_multi_p(parameters$drug_hypnozoite_efficacy[drugs])
+    successfully_treated_hypnozoites <- bitset_at(target, effectively_treated_hypnozoites_index)
+    successfully_treated_list <- c(
+      successfully_treated_list,
+      successfully_treated_hypnozoites = successfully_treated_hypnozoites
+    )
+  }
+  
   successfully_treated_list
 }
 

@@ -3,7 +3,7 @@
 \docType{data}
 \name{AL_params}
 \alias{AL_params}
-\title{Preset parameters for the AL drug}
+\title{Preset parameters for the AL drug (P. falciparum)}
 \format{
 An object of class \code{numeric} of length 4.
 }

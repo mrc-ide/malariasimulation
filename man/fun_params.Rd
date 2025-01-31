@@ -23,7 +23,8 @@ phi_bednets: 0.78
 phi_indoors: 0.87
 mum: 0.112
 
-parameters from:
-https://www.pnas.org/content/pnas/early/2019/07/02/1820646116.full.pdf
+parameters reference:
+Values for phi_bednets and phi_indoors are from: https://www.pnas.org/content/pnas/early/2019/07/02/1820646116.full.pdf
+Value for Q0 estimated by in https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1000324, using data from these studies: https://pubmed.ncbi.nlm.nih.gov/18697309/, https://pubmed.ncbi.nlm.nih.gov/12943105/ & https://pubmed.ncbi.nlm.nih.gov/14732241/
 }
 \keyword{datasets}

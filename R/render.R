@@ -6,9 +6,10 @@ in_age_range <- function(birth, timestep, lower, upper) {
 #' 
 #' @description renders prevalence numerators and denominators for individuals
 #' detected by light microscopy and pcr, where those infected asymptomatically by
-#' P. falciparum have reduced probability of infection due to detectability
+#' p.f has reduced probability of infection due to detectability
 #' immunity (reported as an integer sample: n_detect_lm, and summing over
-#' detection probabilities: p_detect_lm)
+#' detection probabilities: p_detect_lm), whearas p.v human states are defined
+#' explicitly by lm and pcr detectability.
 #' 
 #' @param state human infection state
 #' @param birth variable for birth of the individual
@@ -26,12 +27,17 @@ create_prevalence_renderer <- function(
 ) {
   function(timestep) {
     asymptomatic <- state$get_index_of('A')
-    prob <- probability_of_detection(
-      get_age(birth$get_values(asymptomatic), timestep),
-      immunity$get_values(asymptomatic),
-      parameters
-    )
-    asymptomatic_detected <- bitset_at(asymptomatic, bernoulli_multi_p(prob))
+    
+    if(parameters$parasite == "falciparum"){
+      prob <- probability_of_detection(
+        get_age(birth$get_values(asymptomatic), timestep),
+        immunity$get_values(asymptomatic),
+        parameters
+      )
+      asymptomatic_detected <- bitset_at(asymptomatic, bernoulli_multi_p(prob))
+    } else if (parameters$parasite == "vivax") {
+      asymptomatic_detected <- asymptomatic
+    }
 
     clinically_detected <- state$get_index_of(c('Tr', 'D'))
     detected <- clinically_detected$copy()$or(asymptomatic_detected)
@@ -46,13 +52,15 @@ create_prevalence_renderer <- function(
         in_age$copy()$and(detected)$size(),
         timestep
       )
-      renderer$render(
-        paste0('p_detect_lm_', lower, '_', upper),
-        in_age$copy()$and(clinically_detected)$size() + sum(
-          prob[bitset_index(asymptomatic, in_age)]
-        ),
-        timestep
-      )
+      if(parameters$parasite == "falciparum"){
+        renderer$render(
+          paste0('p_detect_lm_', lower, '_', upper),
+          in_age$copy()$and(clinically_detected)$size() + sum(
+            prob[bitset_index(asymptomatic, in_age)]
+          ),
+          timestep
+        )
+      }
       renderer$render(
         paste0('n_detect_pcr_', lower, '_', upper),
         pcr_detected$copy()$and(in_age)$size(),
@@ -258,6 +266,11 @@ populate_incidence_rendering_columns <- function(renderer, parameters){
     renderer$set_default('n_early_treatment_failure', 0)
     renderer$set_default('n_slow_parasite_clearance', 0)
   }
+
+  # relapses only render for the vivax model
+  if(parameters$parasite == "vivax"){
+    renderer$set_default('n_relapses', 0)
+  }
   
   if(length(parameters$incidence_rendering_min_ages)>0){
     render_initial_incidence(renderer,
@@ -293,5 +306,40 @@ render_initial_incidence <- function(renderer, lower_vals, upper_vals, inc_name)
 populate_metapopulation_incidence_rendering_columns <- function(renderer, parameters){
   for(i in length(parameters)){
     populate_incidence_rendering_columns(renderer[[i]], parameters[[i]])
+  }
+}
+
+create_n_with_hypnozoites_renderer_process <- function(
+    renderer,
+    hypnozoites,
+    parameters
+) {
+  function(timestep) {
+    renderer$render(
+      paste0("n_with_hypnozoites"),
+      hypnozoites$size() - hypnozoites$get_size_of(0),
+      timestep
+    )
+  }
+}
+
+create_n_with_hypnozoites_age_renderer_process <- function(
+    hypnozoites,
+    birth,
+    parameters,
+    renderer
+) {
+  function(timestep) {
+    for (i in seq_along(parameters$n_with_hypnozoites_rendering_min_ages)) {
+      lower <- parameters$n_with_hypnozoites_rendering_min_ages[[i]]
+      upper <- parameters$n_with_hypnozoites_rendering_max_ages[[i]]
+      in_age <- in_age_range(birth, timestep, lower, upper)
+      renderer$render(paste0('n_', lower, '_', upper), in_age$size(), timestep)
+      renderer$render(
+        paste0('n_with_hypnozoites_', lower, '_', upper),
+        sum(hypnozoites$get_values(index = in_age)!=0),
+        timestep
+      )
+    }
   }
 }

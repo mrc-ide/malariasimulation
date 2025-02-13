@@ -1,0 +1,90 @@
+---
+title: "P. vivax Model"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{P. vivax model}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  dpi=300,
+  fig.width=7
+)
+```
+
+```{r, output.lines=6}
+# Load the requisite packages:
+library(malariasimulation)
+# Set colour palette:
+cols  <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+```
+
+This vignette describes the unique features of the *P. vivax* model.
+
+## Using the *P. vivax* model
+
+To select the *P. vivax* model, use the `parasite` argument in the `get_parameters()` function:
+
+```{r, output.lines=6}
+p <- get_parameters(parasite = "vivax")
+```
+
+Then we can run the simulation as normal:
+
+```{r, output.lines=6}
+simulation <- run_simulation(timesteps = 100, parameters = p)
+```
+
+## Model details
+
+### Parameters
+
+Our default *P. vivax* parameters are sourced from a version of the analysis in White et al. 2018 (doi: 10.1038/s41467-018-05860-8), where model parameters were fitted to data from Papua New Guinea. The chosen parameter set fixes `b = 0.25` and `sigma_squared = 1.67` (for consistency with the *P. falciparum* model). The default parameters for both parasite species can be found in `data/raw/parasite_parameters.csv`, while parameters common to both models are given in `R/parameters.R` under `get_parameters()`.
+
+Values for the model fitting posterior distribution can be selected using the `set_parameter_draw()` function as found in the [Parameter Variation](https://mrc-ide.github.io/malariasimulation/articles/ParameterVariation.html) vignette.
+
+### Structure
+
+The *P. falciparum* model has five human disease compartments: susceptible (S), clinical disease (D), asymptomatic infection (A), sub-patent infection (U), and treated (Tr). Asymptomatic infections may or may not be detectable by light-microscopy.
+
+The *P. vivax* model follows a similar structure to the *P. falciparum* model, and also has five human disease compartments. However, the human disease states modeled explicitly focus on parasite density and detectability, such that we have: susceptible (S), clinical disease (D), **light-microscopy detectable infection (A)**, **PCR detectable infection (U)**, and treated (Tr).
+
+### New Infections
+
+The rate of infection for an individual who has been bitten increases with the number of bites they have received in the *P. vivax* model. In contrast, the rate of infection in the *P. falciparum* model is independent of the number of bites an individual has received.
+
+Newly infected individuals in the  *P. falciparum* model can move into either the clinically diseased or asymptomatic infection compartment. In addition to these compartments, the *P. vivax* model allows infection to the PCR-detectable compartment (U), where the assignment of light-miscroscopy detectable infections and PCR-detectable infections is mediated by anti-parasite immunity.
+
+### Immunity
+
+The *P. falciparum* model tracks four kinds of immunity: immunity to blood stage infection (IB), clinical disease (acquired and maternal, ICA and ICM), to severe disease (acquired and maternal, IVA and IVM), and to detectability (ID).
+
+The *P. vivax* model tracks two kinds of immunity: immunity to clinical infection (acquired and maternal, ICA and ICM) and anti-parasite immunity (acquired and maternal, IAA and IAM). We do not track immunity to blood stage infections, severe immunity or immunity to detectability.
+
+Anti-parasite immunity has effects in two places. The first is in the separation of PCR-detectable infections from LM-detectable infections (where greater immunity reduces the change of an infection with higher parasitaemia). The second is in the calculation of a PCR-detectable infection (where greater immunity results in a shorter duration before recovery). The *P. falciparum* model does not model infections to the sub-patent compartment (U) and has a constant sub-patent infection duration (`du = 110`).
+
+### Infectivity of LM-detectable infections
+
+While the *P. falciparum* model calculates the onward infectivity of asymptomatic infections (`ca`) using the age and detectability immunity of each individual, the *P. vivax* model uses a constant onwards infectivity for LM-detectable infections (`ca = 0.1`).
+
+### Hypnozoites
+
+The *P. vivax* model tracks the number of hypnozoite batches of each individual which then contribute to the rate of new infections. Acquisition of new batches come from bite infections, which are mediated by liver-stage drug prophylaxis, and are capped (where `kmax = 10` by default). All individuals can acquire new hypnozoite batches via bites, even when these do not result in new blood-stage infection (as in the clinically diseased and treated). Hypnozoite batches are lost probabilistically where an individual's number of batches determines the loss rate of a single batch.
+
+Successful liver-stage drug treatment results in the clearing of all hypnozoite batches of an individual.
+
+### Drug treatment
+
+While *P. falciparum* drugs have four parameters (efficacy, relative reduction in onwards infectivity, and two prophylaxis parameters: shape and scale), the *P. vivax* drug parameters may have four (if the drug only targets the blood stage infection) or seven parameters (if the drug also targets hypnozoites). These three additional parameters are drug efficacy on hypnozoite clearance and two hypnozoite prophylaxis parameters: shape and scale. The hypnozoite prophylaxis functions the same way as standard prophlylaxis to infection, but reduced the probability that a bite infection results in the formation of a new hypnozoite batch.
+
+### Equilibrium
+
+The malariaEquilibriumVivax package has been designed to calculate the equilibrium solution for the *P. vivax* model. This equilibrium is calculated by assigning an initial EIR value via the `set_equilibrium` function, as  in the *P. falciparum* model. Based on the age and heterogeneity group of an individual, it assigns a human disease state, clinical and anti-parasite immunities and number of hypnozoite batches.
+
+### Key Model References
+
+White, M. T., Walker, P., Karl, S., Hetzel, M. W., Freeman, T., Waltmann, A., Laman, M., Robinson, L. J., Ghani, A., & Mueller, I. (2018). Mathematical modelling of the impact of expanding levels of malaria control interventions on Plasmodium vivax. Nature Communications, 9(1), 1–10. <https://doi.org/10.1038/s41467-018-05860-8>

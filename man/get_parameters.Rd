@@ -4,11 +4,19 @@
 \alias{get_parameters}
 \title{Get model parameters}
 \usage{
-get_parameters(overrides = list())
+get_parameters(overrides = list(), parasite = "falciparum")
 }
 \arguments{
-\item{overrides}{a named list of parameter values to use instead of defaults
+\item{overrides}{a named list of parameter values to use instead of defaults}
+
+\item{parasite}{Plasmodium parasite species ("falciparum" or "vivax"); default = "falciparum"
+
 The parameters are defined below.
+
+parasite parameter
+\itemize{
+\item parasite - parasite species (falciparum or vivax); default = "falciparum"
+}
 
 initial state proportions:
 \itemize{
@@ -27,7 +35,15 @@ human fixed state transitions:
 \item dd - the delay for humans to move from state D to A; default = 5
 \item dt - the delay for humans to move from state Tr to S; default = 5
 \item da - the delay for humans to move from state A to U; default = 195
-\item du - the delay for humans to move from state U to S; default = 110
+\item du - the delay for humans to move from state U to S (p.f only); default = 110
+}
+
+duration of pcr detectable infections: du (p.v only):
+\itemize{
+\item dpcr_max - Maximum duration of PCR-detectable infections: default = 53.69
+\item dpcr_min - Minimum duration of PCR-detectable infections: default = 10
+\item kpcr - Shape parameter: default = 4.021
+\item apcr50 - Scale parameter: default = 9.8
 }
 
 human demography parameters:
@@ -40,36 +56,40 @@ if custom_demography is FALSE; default = 7665
 
 initial immunity values:
 \itemize{
-\item init_icm - the immunity from clinical disease at birth; default = 0
-\item init_ivm - the immunity from severe disease at birth; default = 0
-\item init_ib  - the initial pre-erythrocitic immunity; default = 0
+\item init_ib  - the initial pre-erythrocitic immunity (p.f only); default = 0
+\item init_iaa - the initial acquired anti-parasite immunity (p.v only): default = 0
+\item init_iam - the initial anti-parasite immunity at birth (p.v only); default = 0
 \item init_ica - the initial acquired immunity from clinical disease; default = 0
-\item init_iva - the initial acquired immunity from severe disease; default = 0
-\item init_id  - the initial acquired immunity to detectability; default = 0
+\item init_icm - the initial clinical immunity at birth; default = 0
+\item init_iva - the initial acquired immunity from severe disease (p.f only); default = 0
+\item init_ivm - the initial severe immunity from severe disease at birth (p.f only); default = 0
+\item init_id  - the initial acquired immunity to lm detectability (p.f only); default = 0
 }
 
 immunity decay rates:
 \itemize{
-\item rm - decay rate for maternal immunity to clinical disease; default = 67.6952
-\item rvm - decay rate for maternal immunity to severe disease; default = 76.8365
-\item rb - decay rate for acquired pre-erythrocytic immunity; default = 3650
+\item rb - decay rate for acquired pre-erythrocytic immunity (p.f only); default = 3650
+\item ra - decay rate for acquired anti-parasite immunity (p.v only); default = 3650
 \item rc - decay rate for acquired immunity to clinical disease; default = 10950
-\item rva - decay rate for acquired immunity to severe disease; default = 10950
-\item rid - decay rate for acquired immunity to detectability; default = 3650
+\item rva - decay rate for acquired immunity to severe disease (p.f only); default = 10950
+\item rm - decay rate for maternal immunity to clinical disease (or p.v: maternal clinical and anti-parasite immunities); default = 67.6952
+\item rvm - decay rate for maternal immunity to severe disease (p.f only); default = 76.8365
+\item rid - decay rate for acquired immunity to lm-detectability (p.f only); default = 3650
 }
 
 immunity boost grace periods:
 \itemize{
-\item ub - period in which pre-erythrocytic immunity cannot be boosted; default = 7.2
+\item ub - period in which pre-erythrocytic immunity cannot be boosted (p.f only); default = 7.2
+\item ua - period in which anti-parasite immunity cannot be boosted (p.v only); default = 44.09
 \item uc - period in which clinical immunity cannot be boosted; default = 6.06
-\item uv - period in which severe immunity cannot be boosted; default = 11.4321
-\item ud - period in which immunity to detectability cannot be boosted; default = 9.44512
+\item uv - period in which severe immunity cannot be boosted (p.f only); default = 11.4321
+\item ud - period in which immunity to detectability cannot be boosted (p.f only); default = 9.44512
 }
 
 maternal immunity parameters:
 \itemize{
-\item pcm - new-born clinical immunity relative to mother's; default = 0.774368
-\item pvm - new-born severe immunity relative to mother's; default = 0.195768
+\item pcm - new-born clinical immunity (or p.v: clinical and anti-parasite immunities) relative to mother's; default = 0.774368
+\item pvm - new-born severe immunity relative to mother's (p.f only); default = 0.195768
 }
 
 unique biting rate:
@@ -81,7 +101,7 @@ unique biting rate:
 for sampling mothers; default = 5
 }
 
-probability of pre-erythrocytic infection:
+probability of pre-erythrocytic infection (p.f only):
 \itemize{
 \item b0 - maximum probability due to no immunity; default = 0.59
 \item b1 - maximum reduction due to immunity; default = 0.5
@@ -89,7 +109,12 @@ probability of pre-erythrocytic infection:
 \item kb - shape parameter; default = 2.16
 }
 
-probability of detection by light-microscopy when asymptomatic:
+probability of pre-erythrocytic infection (p.v only):
+\itemize{
+\item b - probability of pre-erythrocytic infection: default = 0.25
+}
+
+probability of detection by light-microscopy when asymptomatic (p.f only):
 \itemize{
 \item fd0 - time-scale at which immunity changes with age; default = 0.007055
 \item ad - scale parameter relating age to immunity; default = 7993.5
@@ -97,6 +122,14 @@ probability of detection by light-microscopy when asymptomatic:
 \item d1 - minimum probability due to immunity; default = 0.160527
 \item id0 - scale parameter; default = 1.577533
 \item kd - shape parameter; default = 0.476614
+}
+
+probability of light-microscopy detectable infections due to anti-parasite immunity (p.v only):
+\itemize{
+\item philm_max - maximum probability due to no immunity; default = 0.9329
+\item philm_min - maximum reduction due to immunity; default = 0.0131
+\item alm50 - scale parameter; default = 17.3
+\item klm - shape parameter; default = 3.202
 }
 
 probability of clinical infection:
@@ -107,7 +140,7 @@ probability of clinical infection:
 \item kc - shape parameter; default = 2.36949
 }
 
-probability of severe infection:
+probability of severe infection (p.f only):
 \itemize{
 \item theta0 - maximum probability due to no immunity; default = 0.0749886
 \item theta1 - maximum reduction due to immunity; default = 0.0001191
@@ -121,8 +154,9 @@ probability of severe infection:
 infectivity towards mosquitoes:
 \itemize{
 \item cd - infectivity of clinically diseased humans towards mosquitoes; default = 0.068
+\item ca - infectivity of asymptomatic humans towards mosquitoes (p.v only); default = 0.1
 \item gamma1 - parameter for infectivity of asymptomatic humans; default = 1.82425
-\item cu - infectivity of sub-patent infection; default = 0.0062
+\item cu - infectivity of subpatent infection; default = 0.0062
 \item ct - infectivity of treated infection; default = 0.021896
 }
 
@@ -175,6 +209,14 @@ parasite incubation periods:
 \item dem - extrinsic incubation period in mosquito population model; default = 10
 }
 
+hypnozoite batch parameters (p.v only):
+\itemize{
+\item f - hypnozoite batch relapse rate; default = 0.02439024
+\item gammal - hypnozoite batch clearance rate; default = 0.002610966
+\item init_hyp - initial hypnozoite batch number; default = 0
+\item kmax - maximum number of hypnozoite batches for use in the equilibrium solution; default = 10
+}
+
 treatment parameters:
 please set treatment parameters with the convenience functions
 \code{\link{set_drugs}} and \code{\link{set_clinical_treatment}}
@@ -185,6 +227,9 @@ please set treatment parameters with the convenience functions
 model prophylaxis for each drug; default = turned off
 \item drug_prophylaxis_scale - a vector of scale parameters for weibull curves to
 model prophylaxis for each drug; default = turned off
+\item drug_hypnozoite_efficacy - a vector of efficacies targeting hypnozoites; default = turned off
+\item drug_hypnozoite_prophylaxis_shape - a vector of shape parameters for weibull curves to model prophylaxis against hypnozoite batch formation (days); default = turned off
+\item drug_hypnozoite_prophylaxis_scale - a vector of scale parameters for weibull curves to model prophylaxis against hypnozoite batch formation (days); default = turned off
 \item clinical_treatment_drugs - a vector of drugs that are available for
 clinically diseased (these values refer to the index in drug_* parameters); default = NULL, NULL, NULL
 \item clinical_treatment_coverage - a vector of coverage values for each drug; default = NULL, NULL, NULL
@@ -266,6 +311,30 @@ outputs; default = turned off
 \item prevalence_rendering_min_ages - the minimum ages for clinical prevalence
 outputs; default = 730
 \item prevalence_rendering_max_ages - the corresponding max ages; default = 3650
+\item n_with_hypnozoites_rendering_min_ages - the minimum ages for number with hypnozoites outputs (p.v only); default = numeric(0)
+\item n_with_hypnozoites_rendering_max_ages - the corresponding max ages; default = numeric(0)
+}
+
+Age structured mean immunity (/hyponozoite) rendering:
+\itemize{
+\item ib_rendering_min_ages - the minimum ages for blood immunity outputs (p.f only); default = numeric(0)
+\item ib_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item id_rendering_min_ages - the minimum ages for acquired detectability immunity (p.f); default = numeric(0)
+\item id_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item iaa_rendering_min_ages - the minimum ages for antiparasite immunity (p.v only); default = numeric(0)
+\item iam_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item ica_rendering_min_ages - the minimum ages for acquired clinical immunity outputs; default = numeric(0)
+\item ica_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item iva_rendering_min_ages - the minimum ages for acquired severe immunity outputs (p.f only); default = numeric(0)
+\item iva_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item idm_rendering_min_ages - the minimum ages for maternal antiparasite immunity outputs (p.v only); default = numeric(0)
+\item idm_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item icm_rendering_min_ages - the minimum ages for maternal clinical immunity outputs; default = numeric(0)
+\item icm_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item ivm_rendering_min_ages - the minimum ages for maternal severe immunity outputs (p.f only); default = numeric(0)
+\item ivm_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item hypnozoites_rendering_min_ages - the minimum ages average hypnozoite batches outputs (p.v only); default = numeric(0)
+\item hypnozoites_rendering_max_ages - the corresponding max ages; default = numeric(0)
 }
 
 mixing:
@@ -293,7 +362,13 @@ rates; default = TRUE
 }
 \description{
 get_parameters creates a named list of parameters for use in the model. These
-parameters are passed to process functions. These parameters are explained in
+parameters are passed to process functions.
+
+The default parameters, which are for Plasmodium falciparum, are explained in
 "The US President's Malaria Initiative, Plasmodium falciparum transmission
 and mortality: A modelling study."
+
+Plasmodium vivax specific parameters are explained in
+"Mathematical modelling of the impact of expanding levels of malaria control
+interventions on Plasmodium vivax." by White, Michael T., et al.
 }

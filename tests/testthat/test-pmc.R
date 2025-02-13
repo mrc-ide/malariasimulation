@@ -123,4 +123,3 @@ test_that("pmc gives drugs to correct ages", {
     c(2, 3, 5)
   )
 })
-  

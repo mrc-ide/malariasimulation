@@ -34,7 +34,7 @@ create_biting_process <- function(
   function(timestep) {
     # Calculate combined EIR
     age <- get_age(variables$birth$get_values(), timestep)
-    bitten_humans <- simulate_bites(
+    bitten <- simulate_bites(
       renderer,
       solvers,
       models,
@@ -52,7 +52,8 @@ create_biting_process <- function(
     simulate_infection(
       variables,
       events,
-      bitten_humans,
+      bitten$bitten_humans,
+      bitten$n_bites_per_person,
       age,
       parameters,
       timestep,
@@ -78,6 +79,7 @@ simulate_bites <- function(
   mixing_index = 1
   ) {
   bitten_humans <- individual::Bitset$new(parameters$human_population)
+  n_bites_per_person <- numeric(0)
   
   human_infectivity <- variables$infectivity$get_values()
   if (parameters$tbv) {
@@ -146,23 +148,34 @@ simulate_bites <- function(
 
     renderer$render(paste0('EIR_', species_name), species_eir, timestep)
     EIR <- EIR + species_eir
-    expected_bites <- species_eir * mean(psi)
+    if(parameters$parasite == "falciparum"){
+      # p.f model factors eir by psi
+      expected_bites <- species_eir * mean(psi)
+    } else if (parameters$parasite == "vivax"){
+      # p.v model standardises biting rate het to eir
+      expected_bites <- species_eir
+    }
+    
     if (expected_bites > 0) {
       n_bites <- rpois(1, expected_bites)
       if (n_bites > 0) {
-        bitten_humans$insert(
-          fast_weighted_sample(n_bites, lambda)
-        )
+        bitten <- fast_weighted_sample(n_bites, lambda)
+        bitten_humans$insert(bitten)
+        renderer$render('n_bitten', bitten_humans$size(), timestep)
+        if(parameters$parasite == "vivax"){
+          # p.v must pass through the number of bites per person
+          n_bites_per_person <- tabulate(bitten, nbins = length(lambda))
+        }
       }
     }
+
+    lagged_infectivity$save(sum(human_infectivity * .pi), timestep)
 
     if (is.null(mixing_fn)) {
       infectivity <- lagged_infectivity$get(timestep - parameters$delay_gam)
     } else {
       infectivity <- mixing_fn(timestep=timestep)$inf[[mixing_index]]
     }
-
-    lagged_infectivity$save(sum(human_infectivity * .pi), timestep)
 
     foim <- calculate_foim(a, infectivity)
     renderer$render(paste0('FOIM_', species_name), foim, timestep)
@@ -202,9 +215,8 @@ simulate_bites <- function(
       )
     }
   }
-  
-  renderer$render('n_bitten', bitten_humans$size(), timestep)
-  bitten_humans
+
+  list(bitten_humans = bitten_humans, n_bites_per_person = n_bites_per_person)
 }
 
 

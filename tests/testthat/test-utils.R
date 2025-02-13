@@ -41,3 +41,40 @@ test_that("bitset_index errors if size does not match", {
   b <- individual::Bitset$new(20)$insert(c(2,4,5,8,9))
   expect_error(bitset_index(a, b), "Incompatible bitmap sizes")
 })
+
+test_that("merged_named_lists works with duplicate 'a's in lists", {
+  x <- list(
+    { tmp <- list(1, 2); names(tmp) <- c("a", "a"); tmp },
+    { tmp <- list(3); names(tmp) <- "a"; tmp },
+    { tmp <- list(3); names(tmp) <- "b"; tmp }
+  )
+  result <- merged_named_lists(x)
+  expected <- list(a = 1, b = 3)
+  expect_equal(result, expected)
+})
+
+test_that("merged_named_lists works with single list containing duplicates", {
+  x <- list(
+    { tmp <- list(1, 2, 3); names(tmp) <- c("a", "a", "b"); tmp }
+  )
+  result <- merged_named_lists(x)
+  expected <- list(a = 1, b = 3)
+  expect_equal(result, expected)
+})
+
+test_that("merged_named_lists works with mixed lists and top-level elements", {
+  x <- list(
+    list(a = 1, b = 2),
+    list(a = 3),
+    a = 4
+  )
+  result <- merged_named_lists(x)
+  expected <- list(a = 1, b = 2)
+  expect_equal(result, expected)
+})
+
+test_that("merged_named_lists works with multiple list arguments", {
+  result <- merged_named_lists(list(a = 1, b = 2), list(a = 3), list(b = 3))
+  expected <- list(a = 1, b = 2)
+  expect_equal(result, expected)
+})

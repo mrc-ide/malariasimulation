@@ -3,7 +3,7 @@
 \docType{data}
 \name{SP_AQ_params}
 \alias{SP_AQ_params}
-\title{Preset parameters for the SP-AQ drug}
+\title{Preset parameters for the SP-AQ drug (P. falciparum)}
 \format{
 An object of class \code{numeric} of length 4.
 }
@@ -11,7 +11,7 @@ An object of class \code{numeric} of length 4.
 SP_AQ_params
 }
 \description{
-Preset parameters for the SP-AQ drug
+Preset parameters for the SP-AQ drug (P. falciparum)
 }
 \details{
 Use a vector of preset parameters for the SP-AQ drug (sulphadoxine-pyrimethamine and amodiaquine)

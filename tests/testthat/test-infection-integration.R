@@ -20,21 +20,23 @@ test_that('simulate_infection integrates different types of infection and schedu
   boost_immunity_mock <- mockery::mock()
   infected <- individual::Bitset$new(population)$insert(c(1, 3, 5))
   infection_mock <- mockery::mock(infected)
+  n_bites_per_person <- NULL
   
   infection_outcome <- CompetingOutcome$new(
-    targeted_process = function(timestep, target){
-      infection_outcome_process(timestep, target, variables, renderer, parameters)
+    targeted_process = function(timestep, target, args){
+      falciparum_infection_outcome_process(timestep, target, variables, renderer, parameters)
     },
     size = parameters$human_population
   )
   
   mockery::stub(simulate_infection, 'boost_immunity', boost_immunity_mock)
-  mockery::stub(simulate_infection, 'calculate_infections', infection_mock)
+  mockery::stub(simulate_infection, 'calculate_falciparum_infections', infection_mock)
   
   simulate_infection(
     variables,
     events,
     bitten,
+    n_bites_per_person,
     age,
     parameters,
     timestep,
@@ -64,7 +66,6 @@ test_that('simulate_infection integrates different types of infection and schedu
   )
 })
 
-
 test_that('simulate_infection integrates different types of infection and scheduling', {
   population <- 8
   timestep <- 5
@@ -83,7 +84,6 @@ test_that('simulate_infection integrates different types of infection and schedu
     # state = list(get_index_of = mockery::mock(asymptomatics, cycle = T))
     state = individual::CategoricalVariable$new(categories = c("S","A","U","D","Tr"), initial_values = rep("S", population))#list(get_index_of = mockery::mock(asymptomatics, cycle = T))
   )
-  prob <- rep(0.5,population)
   
   source_humans <- individual::Bitset$new(population)$insert(c(1, 2, 3, 5))
   infected <- individual::Bitset$new(population)$insert(c(1, 3, 5))
@@ -95,24 +95,25 @@ test_that('simulate_infection integrates different types of infection and schedu
   treated <- individual::Bitset$new(population)$insert(3)
   treated_mock <- mockery::mock(treated)
   schedule_mock <- mockery::mock()
+
+  to_D <- treated$not(FALSE)$and(clinical)
+  to_A <- infected$and(clinical$not(FALSE))
+  to_U <- NULL
+
+  mockery::stub(falciparum_infection_outcome_process, 'incidence_renderer', mockery::mock())
+  mockery::stub(falciparum_infection_outcome_process, 'boost_immunity', boost_immunity_mock)
+  mockery::stub(falciparum_infection_outcome_process, 'calculate_clinical_infections', clinical_infection_mock)
+  mockery::stub(falciparum_infection_outcome_process, 'update_severe_disease', severe_infection_mock)
+  mockery::stub(falciparum_infection_outcome_process, 'calculate_treated', treated_mock)
+  mockery::stub(falciparum_infection_outcome_process, 'schedule_infections', schedule_mock)
   
-  
-  mockery::stub(infection_outcome_process, 'incidence_renderer', mockery::mock())
-  mockery::stub(infection_outcome_process, 'boost_immunity', boost_immunity_mock)
-  mockery::stub(infection_outcome_process, 'calculate_clinical_infections', clinical_infection_mock)
-  mockery::stub(infection_outcome_process, 'update_severe_disease', severe_infection_mock)
-  mockery::stub(infection_outcome_process, 'calculate_treated', treated_mock)
-  mockery::stub(infection_outcome_process, 'schedule_infections', schedule_mock)
-  
-  infection_outcome_process(
+  falciparum_infection_outcome_process(
     timestep,
     infected,
     variables,
     renderer,
-    parameters,
-    prob)
-  
-  
+    parameters)
+
   mockery::expect_args(
     boost_immunity_mock,
     1,
@@ -143,6 +144,7 @@ test_that('simulate_infection integrates different types of infection and schedu
     renderer
   )
   
+  mockery::mock_args(treated_mock)[[1]][[2]]$to_vector()
   mockery::expect_args(
     treated_mock,
     1,
@@ -153,15 +155,17 @@ test_that('simulate_infection integrates different types of infection and schedu
     renderer
   )
   
+  mockery::mock_args(schedule_mock)
+  
   mockery::expect_args(
     schedule_mock,
     1,
-    variables,
-    clinical,
-    treated,
-    infected,
     parameters,
-    timestep
+    variables,
+    timestep,
+    to_D,
+    to_A,
+    to_U
   )
 })
 
@@ -200,32 +204,29 @@ test_that('calculate_infections works various combinations of drug and vaccinati
   vaccine_antibodies_mock <- mockery::mock(c(2, 3))
   vaccine_efficacy_mock <- mockery::mock(c(.2, .3))
   bernoulli_mock <- mockery::mock(2)
-  mockery::stub(calculate_infections, 'blood_immunity', immunity_mock)
-  mockery::stub(calculate_infections, 'weibull_survival', weibull_mock)
-  mockery::stub(calculate_infections, 'calculate_pev_antibodies', vaccine_antibodies_mock)
-  mockery::stub(calculate_infections, 'calculate_pev_efficacy', vaccine_efficacy_mock)
-  mockery::stub(calculate_infections, 'bernoulli_multi_p', bernoulli_mock)
+  mockery::stub(calculate_falciparum_infections, 'blood_immunity', immunity_mock)
+  mockery::stub(calculate_falciparum_infections, 'bernoulli_multi_p', bernoulli_mock)
+  
+  local_mocked_bindings(weibull_survival = weibull_mock)
+  local_mocked_bindings(calculate_pev_antibodies = vaccine_antibodies_mock)
+  local_mocked_bindings(calculate_pev_efficacy = vaccine_efficacy_mock)
   
   # remove randomness from vaccine parameters
-  mockery::stub(
-    calculate_infections,
-    'sample_pev_param',
-    function(index, profiles, name) {
-      vnapply(index, function(i) profiles[[i]][[name]][[1]]) # return mu
-    },
-    depth = 4
-  )
+  local_mocked_bindings(sample_pev_param = function(index, profiles, name) {
+    vnapply(index, function(i) profiles[[i]][[name]][[1]]) # return mu
+  })
   
   bitten_humans <- individual::Bitset$new(4)$insert(c(1, 2, 3, 4))
+  n_bites_per_person <- numeric(0)
   
   infection_outcome <- CompetingOutcome$new(
     targeted_process = function(timestep, target){
-      infection_outcome_process(timestep, target, variables, renderer, parameters)
+      falciparum_infection_outcome_process(timestep, target, variables, renderer, parameters)
     },
     size = 4
   )
   
-  infections <- calculate_infections(
+  infections <- calculate_falciparum_infections(
     variables,
     bitten_humans, 
     parameters,
@@ -233,8 +234,8 @@ test_that('calculate_infections works various combinations of drug and vaccinati
     timestep,
     infection_outcome
   )
-  
-  expect_equal(sum(infections!=0), 3)
+
+  expect_equal(sum(infection_outcome$rates!=0), 3)
   
   mockery::expect_args(immunity_mock, 1, c(.3, .5, .9), parameters)
   mockery::expect_args(
@@ -647,16 +648,20 @@ test_that('schedule_infections correctly schedules new infections', {
   infection_mock <- mockery::mock()
   asymp_mock <- mockery::mock()
   
+  to_D <- treated$not(FALSE)$and(clinical_infections)
+  to_A <- clinical_infections$not(FALSE)$and(infections)
+  to_U <- NULL
+  
   mockery::stub(schedule_infections, 'update_infection', infection_mock)
   mockery::stub(schedule_infections, 'update_to_asymptomatic_infection', asymp_mock)
   
   schedule_infections(
-    variables,
-    clinical_infections,
-    treated,
-    infections,
     parameters,
-    42 
+    variables,
+    42,
+    to_D,
+    to_A,
+    to_U
   )
 
   actual_infected <- mockery::mock_args(infection_mock)[[1]][[7]]$to_vector()
@@ -693,17 +698,16 @@ test_that('prophylaxis is considered for medicated humans', {
   
   bitten <- individual::Bitset$new(4)$insert(seq(4))
   m <- mockery::mock(seq(3))
-  mockery::stub(calculate_infections, 'bernoulli_multi_p', m)
-  
+  mockery::stub(calculate_falciparum_infections, 'bernoulli_multi_p', m)
   
   infection_outcome <- CompetingOutcome$new(
     targeted_process = function(timestep, target){
-      infection_outcome_process(timestep, target, variables, renderer, parameters)
+      falciparum_infection_outcome_process(timestep, target, variables, renderer, parameters)
     },
     size = 4
   )
   
-  infection_rates <- calculate_infections(
+  infection_rates <- calculate_falciparum_infections(
     variables,
     bitten,
     parameters,
@@ -713,7 +717,7 @@ test_that('prophylaxis is considered for medicated humans', {
   )
   
   expect_equal(
-    rate_to_prob(infection_rates[infection_rates!=0]),
+    rate_to_prob(infection_outcome$rates[infection_outcome$rates!=0]),
     c(2.491951e-07, 2.384032e-01, 5.899334e-01),
     tolerance = 1e-3
   )

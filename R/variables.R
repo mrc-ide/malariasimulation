@@ -10,12 +10,15 @@
 #' * birth - an integer representing the timestep when this individual was born
 #' * last_boosted_* - the last timestep at which this individual's immunity was
 #' boosted for tracking grace periods in the boost of immunity
+#' * IAM - Maternal anti-parasite immunity (p.v only)
 #' * ICM - Maternal immunity to clinical disease
-#' * IVM - Maternal immunity to severe disease
-#' * IB  - Pre-erythoctic immunity
+#' * IVM - Maternal immunity to severe disease (p.f only)
+#' * IB  - Pre-erythrocytic immunity (p.f only)
+#' * IAA  - Acquired anti-parasite immunity (p.v only)
 #' * ICA  - Acquired immunity to clinical disease
-#' * IVA  - Acquired immunity to severe disease
-#' * ID - Acquired immunity to detectability
+#' * IVA  - Acquired immunity to severe disease (p.f only)
+#' * ID - Acquired immunity to detectability (p.f only)
+#' * hypnozoites - Hypnozoite batch number (p.v only)
 #' * zeta - Heterogeneity of human individuals
 #' * zeta_group - Discretised heterogeneity of human individuals
 #' * last_pev_timestep - The timestep of the last pev vaccination (-1 if there
@@ -32,6 +35,8 @@
 #' * infectivity - The onward infectiousness to mosquitos
 #' * drug - The last prescribed drug
 #' * drug_time - The timestep of the last drug
+#' * ls_drug - The last prescribed drug
+#' * ls_drug_time - The timestep of the last drug
 #'
 #' Antimalarial resistance variables are:
 #' * dt - the delay for humans to move from state Tr to state S
@@ -79,29 +84,51 @@ create_variables <- function(parameters) {
       to_char_vector(groups)
     )
     if (!is.null(parameters$init_EIR)) {
-      eq <-	list(
-        malariaEquilibrium::human_equilibrium_no_het(
-          parameters$init_EIR,
-          sum(get_treatment_coverages(parameters, 0)),
-          parameters$eq_params,
-          EQUILIBRIUM_AGES
+      if(parameters$parasite == "falciparum"){
+        eq <- list(
+          malariaEquilibrium::human_equilibrium_no_het(
+            parameters$init_EIR,
+            sum(get_treatment_coverages(parameters, 0)),
+            parameters$eq_params,
+            EQUILIBRIUM_AGES
+          )
         )
-      )
+      } else if (parameters$parasite == "vivax"){
+        eq <- malariaEquilibriumVivax::vivax_equilibrium(
+          EIR = parameters$init_EIR,
+          ft = sum(get_treatment_coverages(parameters, 0)),
+          p = translate_vivax_parameters(parameters),
+          age = EQUILIBRIUM_AGES
+        )$states
+      }
     } else {
       eq <- NULL
     }
   }
 
   states <- c('S', 'D', 'A', 'U', 'Tr')
-  initial_states <- initial_state(parameters, initial_age, groups, eq, states)
+  
+  if(parameters$parasite == "falciparum"){
+    initial_states <- initial_state(parameters, initial_age, groups, eq, states)
+    hypnozoite_v <- NULL
+    
+  } else if (parameters$parasite == "vivax"){
+    
+    eq_v_output <- initial_state_vivax(parameters, initial_age, groups, eq, states)
+    
+    # Human states
+    initial_states <- eq_v_output$human_states
+    hypnozoite_v <- eq_v_output$hypnozoites_v
+    
+    ## Initial hypnozoites
+    hypnozoites <- individual::IntegerVariable$new(hypnozoite_v)
+    
+  }
+  
   state <- individual::CategoricalVariable$new(states, initial_states)
   birth <- individual::IntegerVariable$new(-initial_age)
-  last_boosted_ib <- individual::DoubleVariable$new(rep(-1, size))
-  last_boosted_ica <- individual::DoubleVariable$new(rep(-1, size))
-  last_boosted_iva <- individual::DoubleVariable$new(rep(-1, size))
-  last_boosted_id <- individual::DoubleVariable$new(rep(-1, size))
 
-  # Maternal immunity
+  # Maternal immunity to clinical disease
   icm <- individual::DoubleVariable$new(
     initial_immunity(
       parameters$init_icm,
@@ -109,33 +136,13 @@ create_variables <- function(parameters) {
       groups,
       eq,
       parameters,
-      'ICM'
+      'ICM',
+      hypnozoite_v
     )
   )
-
-  ivm <- individual::DoubleVariable$new(
-    initial_immunity(
-      parameters$init_ivm,
-      initial_age,
-      groups,
-      eq,
-      parameters,
-      'IVM'
-    )
-  )
-
-  # Pre-erythoctic immunity
-  ib  <- individual::DoubleVariable$new(
-    initial_immunity(
-      parameters$init_ib,
-      initial_age,
-      groups,
-      eq,
-      parameters,
-      'IB'
-    )
-  )
+  
   # Acquired immunity to clinical disease
+  last_boosted_ica <- individual::DoubleVariable$new(rep(-1, size))
   ica <- individual::DoubleVariable$new(
     initial_immunity(
       parameters$init_ica,
@@ -143,32 +150,92 @@ create_variables <- function(parameters) {
       groups,
       eq,
       parameters,
-      'ICA'
-    )
-  )
-  # Acquired immunity to severe disease
-  iva <- individual::DoubleVariable$new(
-    initial_immunity(
-      parameters$init_iva,
-      initial_age,
-      groups,
-      eq,
-      parameters,
-      'IVA'
-    )
-  )
-  # Acquired immunity to detectability
-  id <- individual::DoubleVariable$new(
-    initial_immunity(
-      parameters$init_id,
-      initial_age,
-      groups,
-      eq,
-      parameters,
-      'ID'
+      'ICA',
+      hypnozoite_v
     )
   )
 
+  if(parameters$parasite == "falciparum"){
+    # Pre-erythoctic immunity
+    last_boosted_ib <- individual::DoubleVariable$new(rep(-1, size))
+    ib  <- individual::DoubleVariable$new(
+      initial_immunity(
+        parameters$init_ib,
+        initial_age,
+        groups,
+        eq,
+        parameters,
+        'IB'
+      )
+    )
+    
+    # Maternal immunity to severe disease
+    ivm <- individual::DoubleVariable$new(
+      initial_immunity(
+        parameters$init_ivm,
+        initial_age,
+        groups,
+        eq,
+        parameters,
+        'IVM'
+      )
+    )
+    
+    # Acquired immunity to severe disease
+    last_boosted_iva <- individual::DoubleVariable$new(rep(-1, size))
+    iva <- individual::DoubleVariable$new(
+      initial_immunity(
+        parameters$init_iva,
+        initial_age,
+        groups,
+        eq,
+        parameters,
+        'IVA'
+      )
+    )
+    
+    # Acquired immunity to lm detectability
+    last_boosted_id <- individual::DoubleVariable$new(rep(-1, size))
+    id <- individual::DoubleVariable$new(
+      initial_immunity(
+        parameters$init_id,
+        initial_age,
+        groups,
+        eq,
+        parameters,
+        'ID'
+      )
+    )
+    
+  } else if (parameters$parasite == "vivax"){
+    # Maternal anti-parasite immunity
+    iam <- individual::DoubleVariable$new(
+      initial_immunity(
+        parameters$init_iam,
+        initial_age,
+        groups,
+        eq,
+        parameters,
+        'IAM',
+        hypnozoite_v
+      )
+    )
+    
+    # Acquired anti-parasite immunity
+    last_boosted_iaa <- individual::DoubleVariable$new(rep(-1, size))
+    iaa <- individual::DoubleVariable$new(
+      initial_immunity(
+        parameters$init_iaa,
+        initial_age,
+        groups,
+        eq,
+        parameters,
+        'IAA',
+        hypnozoite_v
+      )
+    )
+  }
+  
   # Initialise infectiousness of humans -> mosquitoes
   # NOTE: not yet supporting initialisation of infectiousness of Treated individuals
   infectivity_values <- rep(0, get_human_population(parameters, 0))
@@ -182,11 +249,17 @@ create_variables <- function(parameters) {
 
   # Set the initial infectivity values for each individual
   infectivity_values[diseased] <- parameters$cd
-  infectivity_values[asymptomatic] <- asymptomatic_infectivity(
-    initial_age[asymptomatic],
-    id$get_values(asymptomatic),
-    parameters
-  )
+  if(parameters$parasite == "falciparum"){
+    # p.f has immunity-determined asymptomatic infectivity
+    infectivity_values[asymptomatic] <- asymptomatic_infectivity(
+      initial_age[asymptomatic],
+      id$get_values(asymptomatic),
+      parameters
+    )
+  } else if (parameters$parasite == "vivax"){
+    # p.v has constant asymptomatic infectivity
+    infectivity_values[asymptomatic] <- parameters$ca
+  }
   infectivity_values[subpatent] <- parameters$cu
 
   # Initialise the infectivity variable
@@ -196,7 +269,17 @@ create_variables <- function(parameters) {
   progression_rate_values <- rep(0, get_human_population(parameters, 0))
   progression_rate_values[diseased] <- 1/parameters$dd
   progression_rate_values[asymptomatic] <- 1/parameters$da
-  progression_rate_values[subpatent] <- 1/parameters$du
+  if(parameters$parasite == "falciparum"){
+    # p.f subpatent recovery rate is constant
+    progression_rate_values[subpatent] <- 1/parameters$du
+  } else if (parameters$parasite == "vivax"){
+    # p.v subpatent recovery rate is immunity-dependent
+    progression_rate_values[subpatent] <- 1/anti_parasite_immunity(
+      parameters$dpcr_min, parameters$dpcr_max, parameters$apcr50, parameters$kpcr,
+      iaa$get_values(subpatent),
+      iam$get_values(subpatent)
+    )
+  }
   progression_rate_values[treated] <- 1/parameters$dt
 
   # Initialise the disease progression rate variable
@@ -205,6 +288,11 @@ create_variables <- function(parameters) {
   drug <- individual::IntegerVariable$new(rep(0, size))
   drug_time <- individual::IntegerVariable$new(rep(-1, size))
 
+  if(any(parameters$drug_hypnozoite_efficacy > 0)){
+    ls_drug <- individual::IntegerVariable$new(rep(0, size))
+    ls_drug_time <- individual::IntegerVariable$new(rep(-1, size))
+  }
+  
   last_pev_timestep <- individual::IntegerVariable$new(rep(-1, size))
   last_eff_pev_timestep <- individual::IntegerVariable$new(rep(-1, size))
   pev_profile <- individual::IntegerVariable$new(rep(-1, size))
@@ -218,16 +306,9 @@ create_variables <- function(parameters) {
   variables <- list(
     state = state,
     birth = birth,
-    last_boosted_ib = last_boosted_ib,
     last_boosted_ica = last_boosted_ica,
-    last_boosted_iva = last_boosted_iva,
-    last_boosted_id = last_boosted_id,
     icm = icm,
-    ivm = ivm,
-    ib = ib,
     ica = ica,
-    iva = iva,
-    id = id,
     zeta = zeta,
     zeta_group = zeta_group,
     infectivity = infectivity,
@@ -242,7 +323,25 @@ create_variables <- function(parameters) {
     spray_time = spray_time
   )
   
-
+  if(parameters$parasite == "falciparum"){
+    variables <- c(variables,
+                   last_boosted_ib = last_boosted_ib,
+                   last_boosted_iva = last_boosted_iva,
+                   last_boosted_id = last_boosted_id,
+                   ivm = ivm,
+                   ib = ib,
+                   iva = iva,
+                   id = id
+    )
+  } else if (parameters$parasite == "vivax"){
+    variables <- c(variables,
+                   last_boosted_iaa = last_boosted_iaa,
+                   iaa = iaa,
+                   iam = iam,
+                   hypnozoites = hypnozoites
+    )
+  }
+  
   # Add variables for individual mosquitoes
   if (parameters$individual_mosquitoes) {
     species_values <- NULL
@@ -321,7 +420,8 @@ initial_immunity <- function(
   groups = NULL,
   eq = NULL,
   parameters = NULL,
-  eq_name = NULL
+  eq_name = NULL,
+  hyp = NULL
   ) {
   if (!is.null(eq)) {
     age <- age / 365
@@ -330,7 +430,12 @@ initial_immunity <- function(
       function(i) {
         g <- groups[[i]]
         a <- age[[i]]
-        eq[[g]][which.max(a < eq[[g]][, 'age']), eq_name]
+        if(parameters$parasite == "falciparum"){
+          eq[[g]][which.max(a < eq[[g]][, 'age']), eq_name]
+        } else if (parameters$parasite == "vivax"){
+          h <- hyp[[i]]
+          eq[[eq_name]][which.max(a < eq$Age[-1]), g, h+1]
+        }
       }
     ))
   }
@@ -358,6 +463,30 @@ initial_state <- function(parameters, age, groups, eq, states) {
   rep(ibm_states, times = calculate_initial_counts(parameters))
 }
 
+initial_state_vivax <- function(parameters, age, groups, eq, states) {
+  # vivax human states and hypnozoites must be calculated over a combined probability distribution
+  ibm_states <- states
+  if (!is.null(eq)) {
+    eq_states <- c('S', 'D', 'A', 'U', 'T')
+    age <- age / 365
+    human_states_pop <- sapply(
+      seq_along(age),
+      function(i) {
+        g <- groups[[i]]
+        a <- age[[i]]
+        human_states <- c(expand.grid("hyp" = 0:parameters$kmax, "human_state" = eq_states))
+        probs <- c(sapply(eq_states, function(state){eq[[state]][which.max(a < eq$Age[-1]), g, ]}))
+        smp <- sample(x = 1:length(probs), size = 1, replace = T, prob = probs)
+        return(c(human_states$human_state[smp],human_states$hyp[smp]))
+      }
+    )
+    return(list(human_states = states[human_states_pop[1,]],
+                hypnozoites_v = human_states_pop[2,]))
+  }
+  return(list(human_states = rep(ibm_states, calculate_initial_counts(parameters)),
+              hypnozoites_v = rep(parameters$init_hyp, parameters$human_population)))
+}
+
 calculate_initial_counts <- function(parameters) {
   pop <- get_human_population(parameters, 0)
   initial_counts <- round(
@@ -376,17 +505,26 @@ calculate_initial_counts <- function(parameters) {
 
 calculate_eq <- function(het_nodes, parameters) {
   ft <- sum(get_treatment_coverages(parameters, 0))
-	lapply(
-		het_nodes,
-		function(n) {
-			malariaEquilibrium::human_equilibrium_no_het(
-				parameters$init_EIR * calculate_zeta(n, parameters),
-				ft,
-				parameters$eq_params,
-        EQUILIBRIUM_AGES
-			)
-		}
-	)
+  if(parameters$parasite == "falciparum"){
+    lapply(
+      het_nodes,
+      function(n) {
+        malariaEquilibrium::human_equilibrium_no_het(
+          parameters$init_EIR * calculate_zeta(n, parameters),
+          ft,
+          parameters$eq_params,
+          EQUILIBRIUM_AGES
+        )
+      }
+    )
+  } else if (parameters$parasite == "vivax"){
+    eq <- malariaEquilibriumVivax::vivax_equilibrium(
+      EIR = parameters$init_EIR,
+      ft = sum(get_treatment_coverages(parameters, 0)),
+      age = EQUILIBRIUM_AGES,
+      p = translate_vivax_parameters(parameters)
+    )$states
+  }
 }
 
 calculate_zeta <- function(zeta_norm, parameters) {

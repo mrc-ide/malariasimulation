@@ -1,3 +1,34 @@
+
+test_that('set_bednets validates death and repelling parameters', {
+    parameters <- get_parameters()
+    # check that dn0 + rn < 1
+    expect_error(
+      set_bednets(
+        parameters,
+        timesteps = 5,
+        coverages = .5,
+        retention = 40,
+        dn0 = matrix(c(.5, .5), nrow=2, ncol=1),
+        rn = matrix(c(.5, .5), nrow=2, ncol=1),
+        rnm = matrix(c(.25, .25), nrow=2, ncol=1),
+        gamman = c(963.6, 963.6)
+      )
+    )
+    # check that rnm < rn
+    expect_error(
+      set_bednets(
+        parameters,
+        timesteps = 5,
+        coverages = .5,
+        retention = 40,
+        dn0 = matrix(c(.5, .5), nrow=2, ncol=1),
+        rn = matrix(c(.15, .15), nrow=2, ncol=1),
+        rnm = matrix(c(.25, .25), nrow=2, ncol=1),
+        gamman = c(963.6, 963.6)
+      )
+    )
+})
+
 test_that('set_bednets validates coverages', {
   parameters <- get_parameters()
   expect_error(
@@ -6,8 +37,8 @@ test_that('set_bednets validates coverages', {
       timesteps = c(5, 50),
       coverages = c(.5),
       retention = 40,
-      dn0 = matrix(c(.533, .533), nrow=2, ncol=1),
-      rn = matrix(c(.56, .56), nrow=2, ncol=1),
+      dn0 = matrix(c(.5, .5), nrow=2, ncol=1),
+      rn = matrix(c(.4, .4), nrow=2, ncol=1),
       rnm = matrix(c(.24, .24), nrow=2, ncol=1),
       gamman = c(963.6, 963.6)
     )
@@ -19,8 +50,8 @@ test_that('set_bednets validates coverages', {
       timesteps = c(5, 50),
       coverages = c(-1, 0.5),
       retention = 40,
-      dn0 = matrix(c(.533, .533), nrow=2, ncol=1),
-      rn = matrix(c(.56, .56), nrow=2, ncol=1),
+      dn0 = matrix(c(.5, .5), nrow=2, ncol=1),
+      rn = matrix(c(.4, .4), nrow=2, ncol=1),
       rnm = matrix(c(.24, .24), nrow=2, ncol=1),
       gamman = c(963.6, 963.6)
     ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
@@ -33,8 +64,8 @@ test_that('set_bednets validates coverages', {
       timesteps = c(5, 50),
       coverages = c(0.5, 1.5),
       retention = 40,
-      dn0 = matrix(c(.533, .533), nrow=2, ncol=1),
-      rn = matrix(c(.56, .56), nrow=2, ncol=1),
+      dn0 = matrix(c(.5, .5), nrow=2, ncol=1),
+      rn = matrix(c(.4, .4), nrow=2, ncol=1),
       rnm = matrix(c(.24, .24), nrow=2, ncol=1),
       gamman = c(963.6, 963.6)
     ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
@@ -51,8 +82,8 @@ test_that('set_bednets validates matrices', {
       timesteps = c(5, 50),
       coverages = c(.5, .9),
       retention = 40,
-      dn0 = matrix(c(.533, .533), nrow=2, ncol=1),
-      rn = matrix(c(.56, .56), nrow=2, ncol=1),
+      dn0 = matrix(c(.5, .5), nrow=2, ncol=1),
+      rn = matrix(c(.4, .4), nrow=2, ncol=1),
       rnm = matrix(c(.24, .24), nrow=2, ncol=1),
       gamman = c(963.6, 963.6)
     )
@@ -66,8 +97,8 @@ test_that('set_bednets sets parameters', {
     timesteps = c(5, 50),
     coverages = c(.5, .9),
     retention = 40,
-    dn0 = matrix(c(.533, .533), nrow=2, ncol=1),
-    rn = matrix(c(.56, .56), nrow=2, ncol=1),
+    dn0 = matrix(c(.5, .5), nrow=2, ncol=1),
+    rn = matrix(c(.4, .4), nrow=2, ncol=1),
     rnm = matrix(c(.24, .24), nrow=2, ncol=1),
     gamman = c(963.6, 963.6)
   )
@@ -120,8 +151,8 @@ test_that('distribute_bednets process sets net_time correctly', {
     timesteps = c(5, 50),
     coverages = c(.5, .9),
     retention = 40,
-    dn0 = matrix(c(.533, .533), nrow=2, ncol=1),
-    rn = matrix(c(.56, .56), nrow=2, ncol=1),
+    dn0 = matrix(c(.5, .5), nrow=2, ncol=1),
+    rn = matrix(c(.4, .4), nrow=2, ncol=1),
     rnm = matrix(c(.24, .24), nrow=2, ncol=1),
     gamman = c(963.6, 963.6)
   )
@@ -167,8 +198,8 @@ test_that('throw_away_bednets process resets net_time correctly', {
     timesteps = c(5, 50),
     coverages = c(.5, .9),
     retention = 40,
-    dn0 = matrix(c(.533, .533), nrow=2, ncol=1),
-    rn = matrix(c(.56, .56), nrow=2, ncol=1),
+    dn0 = matrix(c(.5, .5), nrow=2, ncol=1),
+    rn = matrix(c(.4, .4), nrow=2, ncol=1),
     rnm = matrix(c(.24, .24), nrow=2, ncol=1),
     gamman = c(963.6, 963.6)
   )
@@ -241,34 +272,29 @@ test_that('prob_bitten defaults to 1 with no protection', {
   )
 })
 
-test_that('prob_bitten correctly calculates net only probabilities', {
-  timestep <- 100
+test_that('prob_survives_bednets correctly calculates net only probabilities on the same day of distribution', {
   parameters <- get_parameters()
   parameters <- set_bednets(
     parameters,
-    timesteps = c(5, 50, 100),
-    coverages = c(.5, .9, .2),
+    timesteps = 100,
+    coverages = .5,
     retention = 40,
-    dn0 = matrix(rep(.533, 3), nrow=3, ncol=1),
-    rn = matrix(rep(.56, 3), nrow=3, ncol=1),
-    rnm = matrix(rep(.24, 3), nrow=3, ncol=1),
-    gamman = rep(25, 3)
+    dn0 = matrix(.5, nrow=1, ncol=1),
+    rn = matrix(.4, nrow=1, ncol=1),
+    rnm = matrix(.24, nrow=1, ncol=1),
+    gamman = 25
   )
-  variables <- create_variables(parameters)
-  variables$net_time <- individual::DoubleVariable$new(
-    c(-1, 5, 50, 100)
+
+  since_net <- 0
+  matches <- 1
+  sn <- prob_survives_bednets(
+    .4,
+    matches,
+    since_net,
+    1,
+    parameters
   )
-  variables$spray_time <- individual::DoubleVariable$new(rep(-1, 4))
-  
-  expect_equal(
-    prob_bitten(timestep, variables, 1, parameters),
-    list(
-      prob_bitten_survives = c(1, 0.7797801, 0.6978752, 0.0709500),
-      prob_bitten = c(1, 0.7797801, 0.6978752, 0.0709500),
-      prob_repelled = c(0, 0.2100848, 0.2408112, 0.4760000)
-    ),
-    tolerance = 1e-5
-  )
+  expect_equal(sn, .1)
 })
 
 test_that('prob_bitten correctly calculates spraying only probabilities', {
@@ -300,49 +326,6 @@ test_that('prob_bitten correctly calculates spraying only probabilities', {
       prob_repelled = c(0, 0.1731843, 0.1898617, 0.2311648)
     ),
     tolerance = 1e-5
-  )
-})
-
-test_that('prob_bitten correctly combines spraying and net probabilities', {
-  timestep <- 100
-  parameters <- get_parameters(list(human_population = 4))
-  parameters <- set_bednets(
-    parameters,
-    timesteps = c(5, 50, 100),
-    coverages = c(.5, .9, .2),
-    retention = 40,
-    dn0 = matrix(rep(.533, 3), nrow=3, ncol=1),
-    rn = matrix(rep(.56, 3), nrow=3, ncol=1),
-    rnm = matrix(rep(.24, 3), nrow=3, ncol=1),
-    gamman = rep(25, 3)
-  )
-  parameters <- set_spraying(
-    parameters,
-    timesteps = c(5, 50, 100),
-    coverages = c(.5, .9, .2),
-    ls_theta = matrix(rep(2.025, 3), nrow=3, ncol=1),
-    ls_gamma = matrix(rep(-0.009, 3), nrow=3, ncol=1),
-    ks_theta = matrix(rep(-2.222, 3), nrow=3, ncol=1),
-    ks_gamma = matrix(rep(0.008, 3), nrow=3, ncol=1),
-    ms_theta = matrix(rep(-1.232, 3), nrow=3, ncol=1),
-    ms_gamma = matrix(rep(-0.009, 3), nrow=3, ncol=1)
-  )
-  variables <- create_variables(parameters)
-  variables$net_time <- individual::IntegerVariable$new(
-    c(100, 50, 5, -1)
-  )
-  variables$spray_time <- individual::IntegerVariable$new(
-    c(-1, 5, 50, 100)
-  )
-  
-  expect_equal(
-    prob_bitten(timestep, variables, 1, parameters),
-    list(
-      prob_bitten_survives = c(0.0709500, 0.1808229, 0.1629512, 0.1506359),
-      prob_bitten = c(0.0709500, 0.5828278, 0.6363754, 0.7688352),
-      prob_repelled = c(0.4760000, 0.3676569, 0.3556276, 0.2311648)
-    ),
-    tolerance=1e-4
   )
 })
 

@@ -1,6 +1,6 @@
 Package: malariasimulation
 Title: An individual based model for malaria
-Version: 2.0.1
+Version: 2.0.2
 Authors@R: c(
   person(
     given = "Giovanni",

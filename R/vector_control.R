@@ -134,6 +134,19 @@ indoor_spraying <- function(spray_time, renderer, parameters, correlations) {
 #' @param correlations correlation parameters
 #' @noRd
 distribute_nets <- function(variables, throw_away_net, parameters, correlations) {
+  if (!is.null(parameters$bednet_retention)) {
+    sample_net_time <- function(n) {
+      log_uniform(n, parameters$bednet_retention)
+    }
+  } else {
+    sample_net_time <- function(n) {
+      logistic_net_retention_time(
+        n,
+        parameters$logistic_half_life,
+        parameters$k
+      )
+    }
+  }
   function(timestep) {
     matches <- timestep == parameters$bednet_timesteps
     if (any(matches)) {
@@ -147,7 +160,7 @@ distribute_nets <- function(variables, throw_away_net, parameters, correlations)
       throw_away_net$clear_schedule(target)
       throw_away_net$schedule(
         target,
-        log_uniform(length(target), parameters$bednet_retention)
+        sample_net_time(length(target))
       )
     }
   }
@@ -198,4 +211,19 @@ net_usage_renderer <- function(net_time, renderer) {
       t
     )
   }
+}
+
+logistic_net_retention_time <- function(n, half_life, k) {
+  # Time at which all nets fail:
+  l <- half_life / sqrt(1 - k / (k - log(0.5)))
+
+  # Apply inverse of S(t):
+  #  T = l * sqrt( [ -log(U)/k ] / [ 1 - ( -log(U)/k ) ] )
+  #  Or more neatly: T = l * sqrt( a / (1 + a ) ),  a = -log(U)/k
+  a <- -log(runif(n)) / k
+  T <- l * sqrt(a / (1 + a))
+
+  # Numerically, T will be in [0, l]. If we want to be certain we never
+  # exceed l by floating rounding, you can do:
+  pmin(T, l)
 }

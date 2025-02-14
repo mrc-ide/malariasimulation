@@ -52,6 +52,12 @@ set_bednets <- function(
       stop('death and repelling probabilities columns need to align with timesteps')
     }
   }
+  if (!all((dn0 + rn) < 1)) {
+    stop('all death and repelling probabilities must sum to less than 1')
+  }
+  if (!all(rnm < rn)) {
+    stop('rnm must be less than rn')
+  }
   parameters$bednets <- TRUE
   parameters$bednet_timesteps <- timesteps
   parameters$bednet_coverages <- coverages

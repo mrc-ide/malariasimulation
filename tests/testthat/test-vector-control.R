@@ -77,6 +77,91 @@ test_that('set_bednets sets parameters', {
   expect_equal(parameters$bednet_retention, 40)
 })
 
+test_that("Parameterise logistic retention method", {
+  timesteps <- 1:3
+  coverages <- rep(0.5, length(timesteps))
+  dn0 <- matrix(0.1, nrow = length(timesteps), ncol = 1)
+  rn  <- matrix(0.2, nrow = length(timesteps), ncol = 1)
+  rnm <- matrix(0.1, nrow = length(timesteps), ncol = 1)
+  gamman <- rep(2 * 365, length(timesteps))
+
+  logistic_half_life <- rep(10, length(timesteps))
+  logistic_k <- rep(0.5, length(timesteps))
+  result <- set_bednets(
+    parameters = get_parameters(),
+    timesteps = timesteps,
+    coverages = coverages,
+    dn0 = dn0,
+    rn = rn,
+    rnm = rnm,
+    gamman = gamman,
+    logistic_half_life = logistic_half_life,
+    logistic_k = logistic_k
+  )
+
+  # Check that the returned parameters list has the expected logistic entries.
+  expect_true(result$bednets)
+  expect_equal(result$bednet_timesteps, timesteps)
+  expect_equal(result$bednet_coverages, coverages)
+
+  expect_equal(result$bednet_logistic_half_life, logistic_half_life)
+  expect_equal(result$bednet_logistic_k, logistic_k)
+
+  # Ensure that retention is not set.
+  expect_null(result$bednet_retention)
+})
+
+test_that("Cannot parameterise both retention methods", {
+  timesteps <- 1:3
+  coverages <- rep(0.5, length(timesteps))
+  dn0 <- matrix(0.1, nrow = length(timesteps), ncol = 1)
+  rn  <- matrix(0.2, nrow = length(timesteps), ncol = 1)
+  rnm <- matrix(0.1, nrow = length(timesteps), ncol = 1)
+  retention <- 10
+  gamman <- rep(2 * 365, length(timesteps))
+  logistic_half_life <- rep(10, length(timesteps))
+  logistic_k <- rep(0.5, length(timesteps))
+
+  expect_error(
+    set_bednets(
+      parameters = get_parameters(),
+      timesteps = timesteps,
+      coverages = coverages,
+      dn0 = dn0,
+      rn = rn,
+      rnm = rnm,
+      gamman = gamman,
+      retention = retention,
+      logistic_half_life = logistic_half_life,
+      logistic_k = logistic_k
+    ),
+    "retention cannot be used with logistic_half_life or logistic_k"
+  )
+})
+
+test_that("Cannot parameterise neither bednet retention method", {
+  timesteps <- 1:3
+  coverages <- rep(0.5, length(timesteps))
+  dn0 <- matrix(0.1, nrow = length(timesteps), ncol = 1)
+  rn  <- matrix(0.2, nrow = length(timesteps), ncol = 1)
+  rnm <- matrix(0.1, nrow = length(timesteps), ncol = 1)
+  gamman <- rep(2 * 365, length(timesteps))
+
+  # Neither gamman nor logistic_half_life/logistic_k is provided.
+  expect_error(
+    set_bednets(
+      parameters = get_parameters(),
+      timesteps = timesteps,
+      coverages = coverages,
+      dn0 = dn0,
+      rn = rn,
+      rnm = rnm,
+      gamman = gamman
+    ),
+    "retention must be set"
+  )
+})
+
 test_that('set_spraying validates parameters', {
   parameters <- get_parameters()
   expect_error(
@@ -139,7 +224,7 @@ test_that('distribute_bednets process sets net_time correctly', {
   
   target_mock <- mockery::mock(c(FALSE, FALSE, TRUE, TRUE))
   mockery::stub(process, 'sample_intervention', target_mock)
-  mockery::stub(process, 'log_uniform', mockery::mock(c(3, 4)))
+  mockery::stub(process, 'sample_net_time', mockery::mock(c(3, 4)))
   
   process(timestep)
   
@@ -400,3 +485,67 @@ test_that('set_carrying_capacity works',{
   )
 })
 
+test_that("logistic_net_retention_time returns a numeric vector of correct length", {
+	n <- 1000
+	half_life <- 10
+	k <- 0.5
+  result <- logistic_net_retention_time(n, half_life, k)
+  expect_type(result, "double")
+  expect_length(result, n)
+})
+
+test_that("logistic_net_retention_time	returns times are between 0 and l", {
+	n <- 1000
+	half_life <- 10
+	k <- 0.5
+	l <- half_life / sqrt(1 - k / (k - log(0.5)))
+  result <- logistic_net_retention_time(n, half_life, k)
+  expect_true(all(result >= 0))
+  expect_true(all(result <= l))
+})
+
+test_that("logistic_net_retention_time handles n = 0 correctly", {
+  n <- 1000
+	half_life <- 10
+	k <- 0.5
+  result <- logistic_net_retention_time(0, half_life, k)
+  expect_equal(result, numeric(0))
+})
+
+# Extreme inputs tests for logistic_net_retention_time()
+test_that("Output does not exceed l for extremely small k", {
+  n <- 1000
+  half_life <- 10
+  k <- 1e-10  # extremely small k
+  l <- half_life / sqrt(1 - k / (k - log(0.5)))
+
+  result <- logistic_net_retention_time(n, half_life, k)
+
+  # All times should be in [0, l]
+  expect_true(all(result >= 0))
+  expect_true(all(result <= l))
+})
+
+test_that("Output does not exceed l for extremely large k", {
+  n <- 1000
+  half_life <- 10
+  k <- 1e10  # extremely large k
+  l <- half_life / sqrt(1 - k / (k - log(0.5)))
+
+  result <- logistic_net_retention_time(n, half_life, k)
+
+  expect_true(all(result >= 0))
+  expect_true(all(result <= l))
+})
+
+test_that("Output does not exceed l for an extremely large half_life", {
+  n <- 1000
+  half_life <- 1e10  # very large half_life
+  k <- 0.5
+  l <- half_life / sqrt(1 - k / (k - log(0.5)))
+
+  result <- logistic_net_retention_time(n, half_life, k)
+
+  expect_true(all(result >= 0))
+  expect_true(all(result <= l))
+})

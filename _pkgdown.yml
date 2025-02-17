@@ -104,6 +104,5 @@ reference:
     - create_pev_profile
     - create_progress_process
     - find_birthrates
-    - parameter_draws
     - parameterise_mosquito_equilibrium
     - parameterise_total_M

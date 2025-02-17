@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.2</span>
       </span>
     </div>
 
@@ -106,12 +106,16 @@
 <span>  clinical_incidence <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  severe_incidence <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  prevalence <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  n_with_hypnozoites <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ica <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  icm <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  iva <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ivm <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  id <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  ib <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  ib <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  iaa <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  iam <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  hypnozoites <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -136,11 +140,15 @@
 
 
 <dt id="arg-severe-incidence">severe_incidence<a class="anchor" aria-label="anchor" href="#arg-severe-incidence"></a></dt>
-<dd><p>age breaks for severe incidence outputs; default = NULL</p></dd>
+<dd><p>age breaks for severe incidence outputs (pf only); default = NULL</p></dd>
 
 
 <dt id="arg-prevalence">prevalence<a class="anchor" aria-label="anchor" href="#arg-prevalence"></a></dt>
 <dd><p>age breaks for clinical prevalence outputs (pcr and lm detectable infections); default = c(730, 3650)</p></dd>
+
+
+<dt id="arg-n-with-hypnozoites">n_with_hypnozoites<a class="anchor" aria-label="anchor" href="#arg-n-with-hypnozoites"></a></dt>
+<dd><p>age breaks for individuals with hypnozoites outputs (pv only); default = NULL</p></dd>
 
 
 <dt id="arg-ica">ica<a class="anchor" aria-label="anchor" href="#arg-ica"></a></dt>
@@ -152,19 +160,31 @@
 
 
 <dt id="arg-iva">iva<a class="anchor" aria-label="anchor" href="#arg-iva"></a></dt>
-<dd><p>age breaks for average acquired severe immunity; default = NULL</p></dd>
+<dd><p>age breaks for average acquired severe immunity (pf only); default = NULL</p></dd>
 
 
 <dt id="arg-ivm">ivm<a class="anchor" aria-label="anchor" href="#arg-ivm"></a></dt>
-<dd><p>age breaks for average maternal severe immunity; default = NULL</p></dd>
+<dd><p>age breaks for average maternal severe immunity (pf only); default = NULL</p></dd>
 
 
 <dt id="arg-id">id<a class="anchor" aria-label="anchor" href="#arg-id"></a></dt>
-<dd><p>age breaks for average immunity to detectability; default = NULL</p></dd>
+<dd><p>age breaks for average immunity to detectability (pf only); default = NULL</p></dd>
 
 
 <dt id="arg-ib">ib<a class="anchor" aria-label="anchor" href="#arg-ib"></a></dt>
-<dd><p>age breaks for average blood immunity; default = NULL</p></dd>
+<dd><p>age breaks for average blood immunity (pf only); default = NULL</p></dd>
+
+
+<dt id="arg-iaa">iaa<a class="anchor" aria-label="anchor" href="#arg-iaa"></a></dt>
+<dd><p>age breaks for average acquired antiparasite immunity (pv only); default = NULL</p></dd>
+
+
+<dt id="arg-iam">iam<a class="anchor" aria-label="anchor" href="#arg-iam"></a></dt>
+<dd><p>age breaks for average maternal antiparasite immunity (pv only); default = NULL</p></dd>
+
+
+<dt id="arg-hypnozoites">hypnozoites<a class="anchor" aria-label="anchor" href="#arg-hypnozoites"></a></dt>
+<dd><p>age breaks for average hypnozoite batches (pv only); default = NULL</p></dd>
 
 </dl></div>
     <div id="details">

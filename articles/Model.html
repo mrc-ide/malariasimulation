@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.2</span>
       </span>
     </div>
 
@@ -386,26 +386,26 @@ mosquitoes (default set to <em>An. gambiae</em>)</li>
 </ul>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">test_sim</span>, n <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   timestep n_infections infectivity EIR_gamb   FOIM_gamb mu_gamb n_bitten</span></span>
-<span><span class="co">#&gt; 1        1            0    0.031406        0 0.007188826   0.132        0</span></span>
-<span><span class="co">#&gt; 2        2            0    0.031406        0 0.007188826   0.132        0</span></span>
-<span><span class="co">#&gt; 3        3            0    0.031406        0 0.007188826   0.132        0</span></span>
-<span><span class="co">#&gt;   S_count A_count D_count U_count Tr_count ica_mean icm_mean id_mean ib_mean</span></span>
-<span><span class="co">#&gt; 1      42      44       1      13        0        0        0       0       0</span></span>
-<span><span class="co">#&gt; 2      42      44       1      13        0        0        0       0       0</span></span>
-<span><span class="co">#&gt; 3      42      45       0      13        0        0        0       0       0</span></span>
-<span><span class="co">#&gt;   iva_mean ivm_mean n_detect_lm_730_3650 p_detect_lm_730_3650</span></span>
-<span><span class="co">#&gt; 1        0        0                   14                   14</span></span>
-<span><span class="co">#&gt; 2        0        0                   14                   14</span></span>
-<span><span class="co">#&gt; 3        0        0                   14                   14</span></span>
-<span><span class="co">#&gt;   n_detect_pcr_730_3650 n_age_730_3650 E_gamb_count L_gamb_count P_gamb_count</span></span>
-<span><span class="co">#&gt; 1                    16             27     39151.84     1139.318     169.7520</span></span>
-<span><span class="co">#&gt; 2                    16             27     39151.01     1139.246     169.7578</span></span>
-<span><span class="co">#&gt; 3                    16             27     39148.82     1139.301     169.7523</span></span>
-<span><span class="co">#&gt;   Sm_gamb_count Pm_gamb_count Im_gamb_count total_M_gamb natural_deaths</span></span>
-<span><span class="co">#&gt; 1      993.2890      6.710951             0    1000.0000              0</span></span>
-<span><span class="co">#&gt; 2      987.4494     12.549906             0     999.9993              0</span></span>
-<span><span class="co">#&gt; 3      982.3697     17.630169             0     999.9998              0</span></span></code></pre></div>
+<span><span class="co">#&gt;   timestep n_infections infectivity EIR_gamb   FOIM_gamb mu_gamb S_count</span></span>
+<span><span class="co">#&gt; 1        1            0    0.031406        0 0.007188859   0.132      42</span></span>
+<span><span class="co">#&gt; 2        2            0    0.031406        0 0.007188859   0.132      42</span></span>
+<span><span class="co">#&gt; 3        3            0    0.031406        0 0.007188859   0.132      42</span></span>
+<span><span class="co">#&gt;   A_count D_count U_count Tr_count ica_mean icm_mean ib_mean iva_mean ivm_mean</span></span>
+<span><span class="co">#&gt; 1      44       1      13        0        0        0       0        0        0</span></span>
+<span><span class="co">#&gt; 2      44       1      13        0        0        0       0        0        0</span></span>
+<span><span class="co">#&gt; 3      45       0      13        0        0        0       0        0        0</span></span>
+<span><span class="co">#&gt;   id_mean n_detect_lm_730_3650 p_detect_lm_730_3650 n_detect_pcr_730_3650</span></span>
+<span><span class="co">#&gt; 1       0                   14                   14                    16</span></span>
+<span><span class="co">#&gt; 2       0                   14                   14                    16</span></span>
+<span><span class="co">#&gt; 3       0                   14                   14                    16</span></span>
+<span><span class="co">#&gt;   n_age_730_3650 E_gamb_count L_gamb_count P_gamb_count Sm_gamb_count</span></span>
+<span><span class="co">#&gt; 1             27     39150.44     1139.318     169.7520      993.2890</span></span>
+<span><span class="co">#&gt; 2             27     39138.92     1139.300     169.7512      987.4500</span></span>
+<span><span class="co">#&gt; 3             27     39132.10     1139.281     169.7472      982.3678</span></span>
+<span><span class="co">#&gt;   Pm_gamb_count Im_gamb_count total_M_gamb natural_deaths n_bitten</span></span>
+<span><span class="co">#&gt; 1      6.710981             0    1000.0000              0       NA</span></span>
+<span><span class="co">#&gt; 2     12.549963             0    1000.0000              0       NA</span></span>
+<span><span class="co">#&gt; 3     17.630243             0     999.9981              0       NA</span></span></code></pre></div>
 <p>Additional output details can be found in the
 <code><a href="../reference/run_simulation.html">run_simulation()</a></code> documentation.</p>
 </div>

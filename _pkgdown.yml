@@ -69,6 +69,7 @@ reference:
     - fun_params
     - gamb_params
     - steph_params
+    - kol_params
 - title: "Intervention functions"
 - subtitle: "Drug treatments"
   contents:
@@ -77,6 +78,9 @@ reference:
     - AL_params
     - DHA_PQP_params
     - SP_AQ_params
+    - CQ_PQ_params_vivax
+    - CQ_TQ_params_vivax
+    - CQ_params_vivax
     - set_antimalarial_resistance
     - get_antimalarial_resistance_parameters
 - subtitle: "MDA and chemoprevention"
@@ -106,3 +110,6 @@ reference:
     - find_birthrates
     - parameterise_mosquito_equilibrium
     - parameterise_total_M
+    - parameter_draws_pf
+    - parameter_draws_pv
+    - parasite_parameters

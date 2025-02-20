@@ -36,7 +36,7 @@ Authors@R: c(
     given = "Richard",
     family = "Sheppard",
     role = c('aut', 'cre'),
-    email = 'r.sheppard11@imperial.ac.uk'
+    email = 'richard.sheppard11@imperial.ac.uk'
   ),
   person(
     given = "Tom",

@@ -160,8 +160,8 @@ test_that("Bednets intervention can be added when resuming", {
       timesteps = timesteps,
       coverages = rep(0.5, n),
       retention = 25,
-      dn0 = matrix(rep(0.533, n), ncol=1),
-      rn = matrix(rep(0.56, n), ncol=1),
+      dn0 = matrix(rep(0.5, n), ncol=1),
+      rn = matrix(rep(0.4, n), ncol=1),
       rnm = matrix(rep(0.24, n), ncol=1),
       gamman = rep(2.64 * 365, n))
   }

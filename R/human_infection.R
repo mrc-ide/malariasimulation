@@ -756,14 +756,14 @@ calculate_treated <- function(
       variables$state,
       'Tr',
       variables$infectivity,
-      parameters$cd * parameters$drug_rel_c[successfully_treated$drugs],
+      parameters$cd * parameters$drug_rel_c[successfully_treated$bs_drugs],
       variables$progression_rates,
       1/dt_update_vector,
       successfully_treated$successfully_treated
     )
     
     variables$drug$queue_update(
-      successfully_treated$drugs,
+      successfully_treated$bs_drugs,
       successfully_treated$successfully_treated
     )
     variables$drug_time$queue_update(
@@ -774,9 +774,9 @@ calculate_treated <- function(
   
   # Update liver stage drug effects
   if(parameters$parasite == "vivax"){
-    if(successfully_treated$successfully_treated_hypnozoites$size() > 0){
+    if(!is.null(successfully_treated$successfully_treated_hypnozoites)){
       variables$hypnozoites$queue_update(0, successfully_treated$successfully_treated_hypnozoites)
-      variables$ls_drug$queue_update(drug, successfully_treated$successfully_treated_hypnozoites)
+      variables$ls_drug$queue_update(successfully_treated$ls_drugs, successfully_treated$successfully_treated_hypnozoites)
       variables$ls_drug_time$queue_update(timestep, successfully_treated$successfully_treated_hypnozoites)
     }
   }
@@ -808,7 +808,7 @@ calculate_successful_treatments <- function(
   #+++++++++++++++++++++#
   effectively_treated_index <- bernoulli_multi_p(parameters$drug_efficacy[drugs])
   effectively_treated <- bitset_at(target, effectively_treated_index)
-  drugs <- drugs[effectively_treated_index]
+  bs_drugs <- drugs[effectively_treated_index]
   n_drug_efficacy_failures <- target$size() - effectively_treated$size()
   renderer$render(paste0('n_', int_name, 'drug_efficacy_failures'), n_drug_efficacy_failures, timestep)
   
@@ -817,7 +817,7 @@ calculate_successful_treatments <- function(
   if(parameters$antimalarial_resistance) {
     resistance_parameters <- get_antimalarial_resistance_parameters(
       parameters = parameters,
-      drugs = drugs, 
+      drugs = bs_drugs, 
       timestep = timestep
     )
     
@@ -828,7 +828,7 @@ calculate_successful_treatments <- function(
     successfully_treated <- bitset_at(effectively_treated, successfully_treated_indices)
     n_early_treatment_failure <- effectively_treated$size() - successfully_treated$size()
     renderer$render(paste0('n_', int_name, 'early_treatment_failure'), n_early_treatment_failure, timestep)
-    drugs <- drugs[successfully_treated_indices]
+    bs_drugs <- bs_drugs[successfully_treated_indices]
     dt_slow_parasite_clearance <- resistance_parameters$dt_slow_parasite_clearance[successfully_treated_indices]
     
     #+++ SLOW PARASITE CLEARANCE +++#
@@ -846,7 +846,7 @@ calculate_successful_treatments <- function(
     dt_spc_combined[slow_parasite_clearance_indices] <- dt_slow_parasite_clearance
     
     successfully_treated_list <- list(
-      drugs = drugs,
+      bs_drugs = bs_drugs,
       successfully_treated = successfully_treated,
       dt_spc_combined = dt_spc_combined)
     
@@ -856,18 +856,24 @@ calculate_successful_treatments <- function(
     renderer$render(paste0('n_', int_name, 'successfully_treated'), successfully_treated$size(), timestep)
     
     successfully_treated_list <- list(
-      drugs = drugs,
+      bs_drugs = bs_drugs,
       successfully_treated = successfully_treated)
     
   }
   
   if(any(parameters$drug_hypnozoite_efficacy > 0)){
+    
     effectively_treated_hypnozoites_index <- bernoulli_multi_p(parameters$drug_hypnozoite_efficacy[drugs])
+    ls_drugs <- drugs[effectively_treated_hypnozoites_index]
     successfully_treated_hypnozoites <- bitset_at(target, effectively_treated_hypnozoites_index)
+    
     successfully_treated_list <- c(
       successfully_treated_list,
-      successfully_treated_hypnozoites = successfully_treated_hypnozoites
+      list(ls_drugs = ls_drugs,
+           successfully_treated_hypnozoites = successfully_treated_hypnozoites
+      )
     )
+    
   }
   
   successfully_treated_list

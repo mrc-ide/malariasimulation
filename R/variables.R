@@ -288,7 +288,7 @@ create_variables <- function(parameters) {
   drug <- individual::IntegerVariable$new(rep(0, size))
   drug_time <- individual::IntegerVariable$new(rep(-1, size))
 
-  if(any(parameters$drug_hypnozoite_efficacy > 0)){
+  if(parameters$parasite == "vivax"){
     ls_drug <- individual::IntegerVariable$new(rep(0, size))
     ls_drug_time <- individual::IntegerVariable$new(rep(-1, size))
   }
@@ -338,7 +338,9 @@ create_variables <- function(parameters) {
                    last_boosted_iaa = last_boosted_iaa,
                    iaa = iaa,
                    iam = iam,
-                   hypnozoites = hypnozoites
+                   hypnozoites = hypnozoites,
+                   ls_drug = ls_drug,
+                   ls_drug_time = ls_drug_time
     )
   }
   

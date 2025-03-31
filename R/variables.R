@@ -35,8 +35,8 @@
 #' * infectivity - The onward infectiousness to mosquitos
 #' * drug - The last prescribed drug
 #' * drug_time - The timestep of the last drug
-#' * ls_drug - The last prescribed drug
-#' * ls_drug_time - The timestep of the last drug
+#' * ls_drug - The last prescribed liver-stage drug
+#' * ls_drug_time - The timestep of the last liver-stage drug
 #'
 #' Antimalarial resistance variables are:
 #' * dt - the delay for humans to move from state Tr to state S

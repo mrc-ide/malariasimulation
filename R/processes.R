@@ -189,8 +189,8 @@ create_processes <- function(
     ),
     create_immunity_renderer(                            ## NEW
       variables$birth,
-      c('ica', 'icm', 'ib', 'id', 'cumulative_exposure', 'cumulative_infections'),
-      variables[c('ica', 'icm', 'ib', 'id', 'cumulative_exposure',
+      c('ica', 'icm', 'ib', 'id', 'iva', 'ivm', 'cumulative_exposure', 'cumulative_infections'),
+      variables[c('ica', 'icm', 'ib', 'id', 'iva', 'ivm','cumulative_exposure',
                   'cumulative_infections')],
       parameters,
       renderer

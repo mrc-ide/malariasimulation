@@ -353,13 +353,15 @@ run_metapop_simulation <- function(
 #'
 #' @param timesteps the number of timesteps to run the simulation for
 #' @param repetitions n times to run the simulation
-#' @param overrides a named list of parameters to use instead of defaults
+#' @param parameters a named list of parameters to use
+#' @param correlations correlation parameters
 #' @param parallel execute runs in parallel
 #' @export
 run_simulation_with_repetitions <- function(
     timesteps,
     repetitions,
-    overrides = list(),
+    parameters,
+    correlations = NULL,
     parallel = FALSE
 ) {
   if (parallel) {
@@ -370,7 +372,11 @@ run_simulation_with_repetitions <- function(
   dfs <- fapply(
     seq(repetitions),
     function(repetition) {
-      df <- run_simulation(timesteps, overrides)
+      df <- run_simulation(
+        timesteps = timesteps,
+        parameters = parameters,
+        correlations = correlations
+      )
       df$repetition <- repetition
       df
     }

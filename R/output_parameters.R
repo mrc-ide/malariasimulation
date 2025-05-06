@@ -19,6 +19,7 @@
 #' @param iaa age breaks for average acquired antiparasite immunity (pv only); default = NULL
 #' @param iam age breaks for average maternal antiparasite immunity (pv only); default = NULL
 #' @param hypnozoites age breaks for average hypnozoite batches (pv only); default = NULL
+#' @param n_use_net age breaks for number of people using bed nets; default = NULL
 #' @export
 #'
 set_epi_outputs <- function(parameters,
@@ -36,7 +37,8 @@ set_epi_outputs <- function(parameters,
                             ib = NULL,
                             iaa = NULL,
                             iam = NULL,
-                            hypnozoites = NULL
+                            hypnozoites = NULL,
+                            n_use_net = NULL
 ){
   
   input <- list(
@@ -54,7 +56,8 @@ set_epi_outputs <- function(parameters,
     ib = ib,
     iaa = iaa,
     iam = iam,
-    hypnozoites = hypnozoites
+    hypnozoites = hypnozoites,
+    n_use_net = n_use_net
   )
   
   if(parameters$parasite == "falciparum"){

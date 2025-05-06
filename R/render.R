@@ -247,6 +247,23 @@ create_age_group_renderer <- function(
   }
 }
 
+create_age_group_net_usage_renderer <- function(
+    net_time,
+    birth,
+    parameters,
+    renderer
+) {
+  function(timestep) {
+    for (i in seq_along(parameters[["n_use_net_rendering_min_ages"]])) {
+        lower <- parameters[["n_use_net_rendering_min_ages"]][[i]]
+        upper <- parameters[["n_use_net_rendering_max_ages"]][[i]]
+        in_age <- in_age_range(birth, timestep, lower, upper)
+        netted <- net_time$get_index_of(-1)$not(TRUE)
+        netted_in_age <- in_age$and(netted)
+        renderer$render(paste0('n_use_net_', lower, '_', upper), netted_in_age$size(), timestep)
+    }
+  }
+}
 
 populate_incidence_rendering_columns <- function(renderer, parameters){
   

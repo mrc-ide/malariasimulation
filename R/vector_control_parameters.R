@@ -37,12 +37,20 @@ set_bednets <- function(
     dn0,
     rn,
     rnm,
-    gamman
+    gamman,
+    min_ages,
+    max_ages
 ) {
   stopifnot(all(coverages >= 0) && all(coverages <= 1))
   lengths <- vnapply(list(coverages, gamman), length)
   if (!all(lengths == length(timesteps))) {
     stop('timesteps and time-varying parameters must align')
+  }
+  if(length(min_ages) != length(timesteps)){
+    stop("minimum ages and timesteps do no align")
+  }
+  if(length(max_ages) != length(timesteps)){
+    stop("maximum ages and timesteps do no align")
   }
   for (x in list(dn0, rn, rnm)) {
     if (ncol(x) != length(parameters$species)) {
@@ -60,6 +68,8 @@ set_bednets <- function(
   parameters$bednet_rnm <- rnm
   parameters$bednet_gamman <- gamman
   parameters$bednet_retention <- retention
+  parameters$bednet_min_ages <- min_ages
+  parameters$bednet_max_ages <- max_ages
   parameters
 }
 

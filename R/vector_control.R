@@ -137,12 +137,16 @@ distribute_nets <- function(variables, throw_away_net, parameters, correlations)
   function(timestep) {
     matches <- timestep == parameters$bednet_timesteps
     if (any(matches)) {
-      target <- which(sample_intervention(
-        seq(parameters$human_population),
+      in_age <- variables$birth$get_index_of(
+        a = timestep - parameters$bednet_max_ages[matches],
+        b = timestep - parameters$bednet_min_ages[matches]
+      )$to_vector()
+      target <- in_age[sample_intervention(
+        in_age,
         'bednets',
         parameters$bednet_coverages[matches],
         correlations
-      ))
+      )]
       variables$net_time$queue_update(timestep, target)
       throw_away_net$clear_schedule(target)
       throw_away_net$schedule(

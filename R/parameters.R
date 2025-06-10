@@ -517,6 +517,11 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
     )
   )
   
+  # For the vivax model EIR is by default at the adult level
+  if(parasite == "vivax"){
+    parameters$vivax_EIR_at_population_level <- FALSE
+  }
+  
   # Override parameters with any client specified ones
   if (!is.list(overrides)) {
     stop('overrides must be a list')

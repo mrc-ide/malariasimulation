@@ -60,14 +60,14 @@ test_that("run_simulation_with_repetitions() runs successfully without correlati
   
   # Check the run_simulation_with_repetitions function runs without any correlation object specified:
   testthat::expect_no_error(
-    simulation <- run_simulation_with_repetitions(
+    run_simulation_with_repetitions(
       timesteps = 10,
       parameters = parameters, 
       parallel = F,
       repetitions = reps))
   
   # Check that the repetitions present in the output matches expectations:
-  expect_identical(object = unique(simulation$repetition), expected = 1:reps)
+  expect_identical(object = unique(output$repetition), expected =  1:reps)
   
 })
 

@@ -33,7 +33,7 @@ test_that('run_metapop_simulation integrates two models correctly', {
   parametersets <- list(parameters, parameters)
   mixing <- diag(nrow = 2)
   p_captured <- 1 - diag(nrow = 2)
-
+  
   outputs <- run_metapop_simulation(
     timesteps,
     parametersets,
@@ -56,18 +56,18 @@ test_that("run_simulation_with_repetitions() runs successfully without correlati
   parameters <- get_parameters()
   
   # Specify a number of repetitions to run:
-  reps <- 2
+  reps <- 3
   
   # Check the run_simulation_with_repetitions function runs without any correlation object specified:
   testthat::expect_no_error(
-    run_simulation_with_repetitions(
+    simulation <- run_simulation_with_repetitions(
       timesteps = 10,
       parameters = parameters, 
       parallel = F,
       repetitions = reps))
   
   # Check that the repetitions present in the output matches expectations:
-  expect_identical(object = unique(output$repetition), expected =  1:reps)
+  expect_identical(object = unique(simulation$repetition), expected = 1:reps)
   
 })
 

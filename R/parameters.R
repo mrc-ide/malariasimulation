@@ -632,5 +632,6 @@ set_parameter_draw <- function(parameters, draw){
   for (name in names(parameter_draw)) {
     parameters[[name]] <- parameter_draw[[name]]
   }
+  parameters$parameter_draw <- draw
   return(parameters)
 }

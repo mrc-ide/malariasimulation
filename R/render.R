@@ -251,6 +251,7 @@ create_age_group_renderer <- function(
 populate_incidence_rendering_columns <- function(renderer, parameters){
   
   # infections must render in all simulations 
+  renderer$set_default('n_bitten', 0)
   renderer$set_default('n_infections', 0)
   
   # treatment associated only renders when drugs are used

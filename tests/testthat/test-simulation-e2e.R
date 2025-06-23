@@ -49,3 +49,80 @@ test_that('run_metapop_simulation integrates two models correctly', {
   expect_equal(nrow(outputs[[1]]), 5)
   expect_equal(nrow(outputs[[2]]), 5)
 })
+
+test_that("run_simulation_with_repetitions() runs successfully without correlations specfied", {
+  
+  # Load the default parameters:
+  parameters <- get_parameters()
+  
+  # Specify a number of repetitions to run:
+  reps <- 2
+  
+  # Check the run_simulation_with_repetitions function runs without any correlation object specified:
+  testthat::expect_no_error(
+    simulation <- run_simulation_with_repetitions(
+      timesteps = 10,
+      parameters = parameters, 
+      parallel = F,
+      repetitions = reps))
+  
+  # Check that the repetitions present in the output matches expectations:
+  expect_identical(object = unique(simulation$repetition), expected =  1:reps)
+  
+})
+
+test_that("run_simulation_with_repetitions() runs successfully with correlations specfied", {
+  
+  # Load the default model parameters:
+  parameters <- get_parameters()
+  
+  # Set some vaccination strategy
+  parameters <- set_mass_pev(
+    parameters,
+    profile = rtss_profile,
+    timesteps = 1,
+    coverages = .9,
+    min_wait = 0,
+    min_ages = 100,
+    max_ages = 1000,
+    booster_spacing = numeric(0),
+    booster_coverage = numeric(0),
+    booster_profile = NULL
+  )
+  
+  # Set some smc strategy
+  parameters <- set_drugs(parameters, list(SP_AQ_params))
+  parameters <- set_smc(
+    parameters,
+    drug = 1,
+    timesteps = 100,
+    coverages = .9,
+    min_age = 100,
+    max_age = 1000
+  )
+  
+  # Correlate the vaccination and smc targets
+  correlations <- get_correlation_parameters(parameters)
+  correlations$inter_intervention_rho('pev', 'smc', 1)
+  
+  # Correlate the rounds of smc
+  correlations$inter_round_rho('smc', 1)
+  
+  # Specify a number of repetitions to simulate:
+  reps <- 2
+  
+  # Run the simulation without any correlation object specified:
+  testthat::expect_no_error(
+    output <- run_simulation_with_repetitions(
+      timesteps = 10,
+      parameters = parameters, 
+      correlations = correlations,
+      parallel = F,
+      repetitions = reps
+    )
+  )
+  
+  # Check that the repetitions present in the output matches expectations:
+  expect_identical(object = unique(output$repetition), expected =  1:reps)
+  
+})

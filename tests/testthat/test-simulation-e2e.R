@@ -50,6 +50,11 @@ test_that('run_metapop_simulation integrates two models correctly', {
   expect_equal(nrow(outputs[[2]]), 5)
 })
 
+test_that('Simulation runs for a few timesteps', {
+  sim <- run_simulation_with_repetitions(timesteps = 10, repetitions = 2)
+  expect_equal(nrow(sim), 20)
+})
+
 test_that("run_simulation_with_repetitions() runs successfully without correlations specfied", {
   
   # Load the default parameters:

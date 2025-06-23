@@ -360,10 +360,13 @@ run_metapop_simulation <- function(
 run_simulation_with_repetitions <- function(
     timesteps,
     repetitions,
-    parameters,
+    parameters = NULL,
     correlations = NULL,
     parallel = FALSE
 ) {
+  if (is.null(parameters)) {
+    parameters <- get_parameters()
+  }
   if (parallel) {
     fapply <- parallel::mclapply
   } else {

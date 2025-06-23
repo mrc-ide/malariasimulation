@@ -611,7 +611,8 @@ parameterise_total_M <- function(parameters, total_M) {
 #' Use parameter draw from the join posterior
 #' 
 #' Overrides default (median) model parameters with a single draw from the fitted
-#' joint posterior. Must be called prior to set_equilibrium.
+#' joint posterior and appends parameter_draw to the parameters list. Must be
+#' called prior to set_equilibrium.
 #'
 #' @param parameters the model parameters
 #' @param draw the draw to use. Must be an integer between 1 and 1000

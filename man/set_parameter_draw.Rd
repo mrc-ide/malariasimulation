@@ -13,5 +13,6 @@ set_parameter_draw(parameters, draw)
 }
 \description{
 Overrides default (median) model parameters with a single draw from the fitted
-joint posterior. Must be called prior to set_equilibrium.
+joint posterior and appends parameter_draw to the parameters list. Must be
+called prior to set_equilibrium.
 }

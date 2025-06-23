@@ -154,6 +154,12 @@
 #' * mup - the rate at which pupal mosquitoes die; default = 0.249
 #' * mum - the rate at which developed mosquitoes die; default (An. gambiae) = .132
 #'
+#' paramter variation parameters:
+#' please set parameter draw using the convenience function
+#' \code{\link{set_parameter_draw}}
+#' 
+#' * parameter_draw - the index of the parameter draw assigned using set_parameter_draw; default = NULL
+#'
 #' vector biology:
 #' species specific values are vectors
 #' please set species parameters using the convenience function

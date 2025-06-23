@@ -277,8 +277,6 @@ set_equilibrium <- function(parameters, init_EIR, eq_params = NULL) {
       age = EQUILIBRIUM_AGES,
       h = malariaEquilibrium::gq_normal(parameters$n_heterogeneity_groups)
     )
-    parameters$init_foim <- eq$FOIM
-    parameters$init_EIR <- init_EIR
     parameters$eq_params <- eq_params
     
   } else if (parameters$parasite == "vivax"){
@@ -293,9 +291,8 @@ set_equilibrium <- function(parameters, init_EIR, eq_params = NULL) {
       p = translate_vivax_parameters(parameters),
       age = EQUILIBRIUM_AGES
     )
-    
-    parameters$init_foim <- eq$FOIM
-    parameters$init_EIR <- init_EIR
   }
+  parameters$init_foim <- eq$FOIM
+  parameters$init_EIR <- init_EIR
   parameterise_mosquito_equilibrium(parameters, init_EIR)
 }

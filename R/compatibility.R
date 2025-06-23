@@ -296,7 +296,6 @@ set_equilibrium <- function(parameters, init_EIR, eq_params = NULL) {
     
     parameters$init_foim <- eq$FOIM
     parameters$init_EIR <- init_EIR
-    parameters$eq_params <- eq_params
   }
   parameterise_mosquito_equilibrium(parameters, init_EIR)
 }

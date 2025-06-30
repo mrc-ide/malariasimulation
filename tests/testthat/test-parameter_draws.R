@@ -25,3 +25,19 @@ test_that("Draw overwrite works (vivax)", {
   p2 <- set_parameter_draw(p, 1000)
   expect_identical(p2[names(parameter_draws_pv[[1000]])], parameter_draws_pv[[1000]])
 })
+
+test_that("Parameter draw is appended to parameter list (falciparum)", {
+  p <- get_parameters()
+  p1 <- set_parameter_draw(p, 1000)
+  expect_identical(p$parameter_draw, NULL)
+  expect_identical(p1[names(parameter_draws_pf[[1000]])], parameter_draws_pf[[1000]])
+  expect_identical(p1$parameter_draw, 1000)
+})
+
+test_that("Parameter draw is appended to parameter list (vivax)", {
+  p <- get_parameters(parasite = "vivax")
+  p1 <- set_parameter_draw(p, 1000)
+  expect_identical(p$parameter_draw, NULL)
+  expect_identical(p1[names(parameter_draws_pv[[1000]])], parameter_draws_pv[[1000]])
+  expect_identical(p1$parameter_draw, 1000)
+})

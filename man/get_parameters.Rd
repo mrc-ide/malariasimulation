@@ -352,6 +352,14 @@ and PCR prevalence; default = -0.968
 and PCR prevalence; default = 1.186
 }
 
+Non-malarial fever parameters:
+\itemize{
+\item nmf_rates - vector of rates of non-malarial fever per day for each
+age group; default = numeric(0)
+\item nmf_ages - upper bounds of the corresponding age groups (in timesteps);
+default = numeric(0)
+}
+
 miscellaneous:
 \itemize{
 \item mosquito_limit - the maximum number of mosquitoes to allow for in the

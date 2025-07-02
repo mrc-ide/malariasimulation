@@ -284,6 +284,7 @@ pev_efficacy <- function(
 #' and treated malaria; and resulting boosts in immunity
 #' @param timestep current timestep
 #' @param infected_humans bitset of infected humans
+#' @param nmf bitset of individuals with non-malarial fever
 #' @param variables a list of all of the model variables
 #' @param renderer model render object
 #' @param parameters model parameters
@@ -292,10 +293,14 @@ pev_efficacy <- function(
 falciparum_infection_outcome_process <- function(
     timestep,
     infected_humans,
+    nmf,
     variables,
     renderer,
     parameters){
-  
+
+  renderer$set_default('n_treated_nmf', 0)
+
+
   if (infected_humans$size() > 0) {
     
     renderer$render('n_infections', infected_humans$size(), timestep)
@@ -332,10 +337,14 @@ falciparum_infection_outcome_process <- function(
       renderer,
       timestep
     )
-    
+
+    nmf$set_difference(clinical)
+    nmf_detectable <- nmf$copy()$and(variables$state$get_index_of(c('D','A','U')))
+
     treated <- calculate_treated(
       variables,
       clinical,
+      nmf_detectable,
       parameters,
       timestep,
       renderer
@@ -698,6 +707,7 @@ update_severe_disease <- function(
 #' Sample treated humans from the clinically infected
 #' @param variables a list of all of the model variables
 #' @param clinical_infections a bitset of clinically infected humans
+#' @param nmf_detectable a bitset of nmf individuals with detectable malaria
 #' @param parameters model parameters
 #' @param timestep the current timestep
 #' @param renderer simulation renderer
@@ -705,12 +715,13 @@ update_severe_disease <- function(
 calculate_treated <- function(
     variables,
     clinical_infections,
+    nmf_detectable,
     parameters,
     timestep,
     renderer
 ) {
-  
-  if(clinical_infections$size() == 0) {
+
+  if(clinical_infections$size() == 0 && nmf_detectable$size() == 0) {
     return(individual::Bitset$new(parameters$human_population))
   }
   
@@ -722,9 +733,12 @@ calculate_treated <- function(
   }
   
   renderer$render('ft', ft, timestep)
-  seek_treatment <- sample_bitset(clinical_infections, ft)
-  n_treat <- seek_treatment$size()
-  renderer$render('n_treated', n_treat, timestep)
+  seek_treat_clin <- sample_bitset(clinical_infections, ft)
+  seek_treat_nmf <- sample_bitset(nmf_detectable, ft)
+  renderer$render('n_treated', seek_treat_clin$size(), timestep)
+  renderer$render('n_treated_nmf', seek_treat_nmf$size(), timestep)
+  treaters <- seek_treat_clin$copy()$or(seek_treat_nmf)
+  n_treat <- treaters$size()
   
   drugs <- as.numeric(parameters$clinical_treatment_drugs[
     sample.int(
@@ -737,7 +751,7 @@ calculate_treated <- function(
   
   successfully_treated <- calculate_successful_treatments(
     parameters,
-    seek_treatment,
+    treaters,
     drugs,
     timestep,
     renderer,

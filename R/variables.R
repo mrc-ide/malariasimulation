@@ -37,6 +37,7 @@
 #' * drug_time - The timestep of the last drug
 #' * ls_drug - The last prescribed liver-stage drug
 #' * ls_drug_time - The timestep of the last liver-stage drug
+#' * nmf_count - Cumulative number of non-malarial fevers experienced
 #'
 #' Antimalarial resistance variables are:
 #' * dt - the delay for humans to move from state Tr to state S
@@ -299,6 +300,8 @@ create_variables <- function(parameters) {
 
   tbv_vaccinated <- individual::DoubleVariable$new(rep(-1, size))
 
+  nmf_count <- individual::IntegerVariable$new(rep(0L, size))
+
   # Init vector controls
   net_time <- individual::IntegerVariable$new(rep(-1, size))
   spray_time <- individual::IntegerVariable$new(rep(-1, size))
@@ -319,6 +322,7 @@ create_variables <- function(parameters) {
     last_eff_pev_timestep = last_eff_pev_timestep,
     pev_profile = pev_profile,
     tbv_vaccinated = tbv_vaccinated,
+    nmf_count = nmf_count,
     net_time = net_time,
     spray_time = spray_time
   )

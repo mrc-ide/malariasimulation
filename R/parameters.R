@@ -322,7 +322,14 @@
 #' and PCR prevalence; default = -0.968
 #' * rdt_coeff - the coefficient for the log logit relationship betweeen rdt
 #' and PCR prevalence; default = 1.186
-#' 
+#'
+#' Non-malarial fever parameters:
+#'
+#' * nmf_rates - vector of rates of non-malarial fever per day for each
+#'   age group; default = numeric(0)
+#' * nmf_ages - upper bounds of the corresponding age groups (in timesteps);
+#'   default = numeric(0)
+#'
 #' miscellaneous:
 #'
 #' * mosquito_limit - the maximum number of mosquitoes to allow for in the
@@ -506,6 +513,8 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       # mixing
       rdt_intercept = -0.968,
       rdt_coeff = 1.186,
+      nmf_rates = numeric(0),
+      nmf_ages = numeric(0),
       # misc
       mosquito_limit   = 100 * 1000,
       individual_mosquitoes = FALSE,

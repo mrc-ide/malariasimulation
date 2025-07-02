@@ -41,6 +41,7 @@ test_that('non malarial fevers treat individuals', {
 
   df <- renderer$to_dataframe()
   expect_equal(df$n_nmf[[1]], 3)
+  expect_equal(df$n_nmf_malaria_detectable[[1]], 3)
   expect_equal(df$n_treated_nmf[[1]], 3)
   expect_equal(vars$state$get_values(), rep('Tr', 3))
   expect_equal(vars$nmf_count$get_values(), rep(1L,3))

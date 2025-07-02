@@ -255,6 +255,7 @@ populate_incidence_rendering_columns <- function(renderer, parameters){
   renderer$set_default('n_infections', 0)
   renderer$set_default('n_nmf', 0)
   renderer$set_default('n_treated_nmf', 0)
+  renderer$set_default('n_nmf_malaria_detectable', 0)
   
   # treatment associated only renders when drugs are used
   if(sum(unlist(parameters$clinical_treatment_coverages))>0){

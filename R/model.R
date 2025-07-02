@@ -17,6 +17,7 @@
 #'  * n_treated: number of humans treated for clinical or severe malaria this timestep
 #'  * n_nmf: number of non-malarial fevers in the population
 #'  * n_treated_nmf: number of individuals treated due to non-malarial fever
+#'  * n_nmf_malaria_detectable: number of non-malarial fever cases with detectable malaria
 #'  * n_infections: number of humans who get an asymptomatic, clinical or severe malaria this timestep
 #'  * natural_deaths: number of humans who die from aging
 #'  * S_count: number of humans who are Susceptible

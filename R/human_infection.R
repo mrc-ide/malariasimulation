@@ -340,7 +340,8 @@ falciparum_infection_outcome_process <- function(
 
     nmf$set_difference(clinical)
     nmf_detectable <- nmf$copy()$and(variables$state$get_index_of(c('D','A','U')))
-
+    renderer$render('nmf_detectable', nmf_detectable$size(), timestep)
+    
     treated <- calculate_treated(
       variables,
       clinical,

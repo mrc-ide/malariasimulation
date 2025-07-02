@@ -41,9 +41,5 @@ create_nmf_process <- function(variables, parameters, renderer, nmf){
     rates[in_range] <- parameters$nmf_rates[groups[in_range]]
     nmf$insert(bernoulli_multi_p(rates))
     renderer$render('n_nmf', nmf$size(), timestep)
-    if(nmf$size() > 0){
-      current <- variables$nmf_count$get_values(nmf)
-      variables$nmf_count$queue_update(current + 1L, nmf)
-    }
   }
 }

@@ -297,55 +297,54 @@ falciparum_infection_outcome_process <- function(
     variables,
     renderer,
     parameters){
-
+  
   renderer$set_default('n_treated_nmf', 0)
-
-
-  if (infected_humans$size() > 0) {
-    
-    renderer$render('n_infections', infected_humans$size(), timestep)
-    incidence_renderer(
-      variables$birth,
-      renderer,
-      infected_humans,
-      'inc_',
-      parameters$incidence_rendering_min_ages,
-      parameters$incidence_rendering_max_ages,
-      timestep
-    )
-    
-    boost_immunity(
-      variables$ica,
-      infected_humans,
-      variables$last_boosted_ica,
-      timestep,
-      parameters$uc
-    )
-    
-    boost_immunity(
-      variables$id,
-      infected_humans,
-      variables$last_boosted_id,
-      timestep,
-      parameters$ud
-    )
-    
-    clinical <- calculate_clinical_infections(
-      variables,
-      infected_humans,
-      parameters,
-      renderer,
-      timestep
-    )
-
-    nmf$set_difference(clinical)
-    nmf_detectable <- nmf$copy()$and(variables$state$get_index_of(c('D','A','U')))
-    renderer$render('nmf_detectable', nmf_detectable$size(), timestep)
+  
+  
+  if (infected_humans$size() > 0 || nmf$sizer() > 0) {
+    if (infected_humans$size() > 0) {
+      renderer$render('n_infections', infected_humans$size(), timestep)
+      incidence_renderer(
+        variables$birth,
+        renderer,
+        infected_humans,
+        'inc_',
+        parameters$incidence_rendering_min_ages,
+        parameters$incidence_rendering_max_ages,
+        timestep
+      )
+      
+      boost_immunity(
+        variables$ica,
+        infected_humans,
+        variables$last_boosted_ica,
+        timestep,
+        parameters$uc
+      )
+      
+      boost_immunity(
+        variables$id,
+        infected_humans,
+        variables$last_boosted_id,
+        timestep,
+        parameters$ud
+      )
+      
+      clinical <- calculate_clinical_infections(
+        variables,
+        infected_humans,
+        parameters,
+        renderer,
+        timestep
+      )
+      
+      nmf$set_difference(clinical)
+    }
     
     treated <- calculate_treated(
       variables,
       clinical,
-      nmf_detectable,
+      nmf,
       parameters,
       timestep,
       renderer
@@ -566,10 +565,10 @@ ls_treatment_prophylaxis_efficacy <- function(
   ## drug prophylaxis may limit formation of new hypnozoite batches
   ls_prophylaxis <- rep(0, bite_infections$size())
   if(any(parameters$drug_hypnozoite_efficacy > 0)){
-
+    
     ls_drug <- variables$ls_drug$get_values(bite_infections)
     ls_medicated <- ls_drug > 0
-
+    
     if (any(ls_medicated)) {
       ls_drug <- ls_drug[ls_medicated]
       ls_drug_time <- variables$ls_drug_time$get_values(bite_infections)[ls_medicated]
@@ -716,12 +715,14 @@ update_severe_disease <- function(
 calculate_treated <- function(
     variables,
     clinical_infections,
-    nmf_detectable,
+    nmf,
     parameters,
     timestep,
     renderer
 ) {
-
+  
+  nmf_detectable <- nmf$copy()$and(variables$state$get_index_of(c('D','A','U')))
+  
   if(clinical_infections$size() == 0 && nmf_detectable$size() == 0) {
     return(individual::Bitset$new(parameters$human_population))
   }
@@ -737,7 +738,7 @@ calculate_treated <- function(
   seek_treat_clin <- sample_bitset(clinical_infections, ft)
   seek_treat_nmf <- sample_bitset(nmf_detectable, ft)
   renderer$render('n_treated', seek_treat_clin$size(), timestep)
-  renderer$render('n_treated_nmf', seek_treat_nmf$size(), timestep)
+  renderer$render('n_nmf_malaria_detected', seek_treat_nmf$size(), timestep)
   treaters <- seek_treat_clin$copy()$or(seek_treat_nmf)
   n_treat <- treaters$size()
   
@@ -1025,7 +1026,7 @@ severe_immunity <- function(age, acquired_immunity, maternal_immunity, parameter
   parameters$theta0 * (parameters$theta1 + (1 - parameters$theta1) / (
     1 + fv * (
       (acquired_immunity + maternal_immunity) / parameters$iv0) ** parameters$kv
-    )
+  )
   )
 }
 

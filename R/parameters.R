@@ -627,9 +627,9 @@ parameterise_total_M <- function(parameters, total_M) {
 set_parameter_draw <- function(parameters, draw){
   
   if(parameters$parasite == "falciparum"){
-    parameter_draws <- parameter_draws_pf
+    parameter_draws <- malariasimulation::parameter_draws_pf
   } else if (parameters$parasite == "vivax"){
-    parameter_draws <- parameter_draws_pv
+    parameter_draws <- malariasimulation::parameter_draws_pv
   }
   
   if(draw > 1000 || draw < 1){

@@ -741,8 +741,8 @@ calculate_treated <- function(
   seek_treat_nmf <- sample_bitset(nmf_detectable, ft)
   renderer$render('n_treated', seek_treat_clin$size(), timestep)
   renderer$render('n_nmf_malaria_detected', seek_treat_nmf$size(), timestep)
-  treaters <- seek_treat_clin$copy()$or(seek_treat_nmf)
-  n_treat <- treaters$size()
+  seek_treatment <- seek_treat_clin$copy()$or(seek_treat_nmf)
+  n_treat <- seek_treatment$size()
   
   drugs <- as.numeric(parameters$clinical_treatment_drugs[
     sample.int(
@@ -755,7 +755,7 @@ calculate_treated <- function(
   
   successfully_treated <- calculate_successful_treatments(
     parameters,
-    treaters,
+    seek_treatment,
     drugs,
     timestep,
     renderer,

@@ -114,9 +114,14 @@ create_processes <- function(
   } else if (parameters$parasite == "vivax"){
     infection_outcome <- CompetingOutcome$new(
       targeted_process = function(timestep, target, relative_rates){
-        vivax_infection_outcome_process(timestep, target, 
-                                  variables, renderer, parameters, 
-                                  relative_rates
+        vivax_infection_outcome_process(
+          timestep,
+          target,
+          nmf,
+          variables,
+          renderer,
+          parameters,
+          relative_rates
         )
       },
       size = parameters$human_population

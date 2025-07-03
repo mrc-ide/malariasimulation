@@ -96,6 +96,7 @@ test_that('simulate_infection integrates different types of infection and schedu
   treated <- individual::Bitset$new(population)$insert(3)
   treated_mock <- mockery::mock(treated)
   schedule_mock <- mockery::mock()
+  nmf <- individual::Bitset$new(population)
 
   to_D <- treated$not(FALSE)$and(clinical)
   to_A <- infected$and(clinical$not(FALSE))

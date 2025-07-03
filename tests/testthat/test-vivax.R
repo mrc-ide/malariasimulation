@@ -287,10 +287,12 @@ test_that('relapses are recognised with division between bite infections and rel
 
   renderer <- mock_render(1)
   infected_humans <- individual::Bitset$new(4)$insert(c(1, 2, 3, 4))
-  
+  nmf <- individual::Bitset$new(4)
+
   vivax_infection_outcome_process(
     timestep = timestep,
     infected_humans,
+    nmf,
     variables,
     renderer,
     parameters,

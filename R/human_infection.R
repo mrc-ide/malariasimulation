@@ -298,10 +298,7 @@ falciparum_infection_outcome_process <- function(
     renderer,
     parameters){
   
-  renderer$set_default('n_treated_nmf', 0)
-  
-  
-  if (infected_humans$size() > 0 || nmf$sizer() > 0) {
+  if (infected_humans$size() > 0 || nmf$size() > 0) {
     if (infected_humans$size() > 0) {
       renderer$render('n_infections', infected_humans$size(), timestep)
       incidence_renderer(
@@ -329,17 +326,17 @@ falciparum_infection_outcome_process <- function(
         timestep,
         parameters$ud
       )
-      
-      clinical <- calculate_clinical_infections(
-        variables,
-        infected_humans,
-        parameters,
-        renderer,
-        timestep
-      )
-      
-      nmf$set_difference(clinical)
-    }
+    }      
+    
+    clinical <- calculate_clinical_infections(
+      variables,
+      infected_humans,
+      parameters,
+      renderer,
+      timestep
+    )
+    
+    nmf$set_difference(clinical)
     
     treated <- calculate_treated(
       variables,
@@ -394,7 +391,7 @@ vivax_infection_outcome_process <- function(
     parameters,
     relative_rates){
   
-  if (infected_humans$size() > 0 || nmf$sizer() > 0) {
+  if (infected_humans$size() > 0 || nmf$size() > 0) {
     if (infected_humans$size() > 0) {
       
       renderer$render('n_infections', infected_humans$size(), timestep)
@@ -439,21 +436,21 @@ vivax_infection_outcome_process <- function(
         variables$state$get_index_of(c("S","U"))$and(infected_humans),
         parameters
       )
-      
-      # Lm-detectable level infected S and U, and all A infections may receive clinical infections
-      # There is a different calculation to generate clinical infections, based on current infection level
-      # LM infections must only pass through the clinical calculation, therefore all "A" infections are included
-      # "S" and "U" infections must pass through the lm-detectable calculation prior to and in addition to the clinical
-      # calculation. We therefore consider all "A" infections and only the "S" and "U" infections that are now lm-detectable.
-      clinical <- calculate_clinical_infections(
-        variables,
-        variables$state$get_index_of("A")$and(infected_humans)$or(lm_detectable),
-        parameters,
-        renderer,
-        timestep
-      )
-      nmf$set_difference(clinical)
     }
+    
+    # Lm-detectable level infected S and U, and all A infections may receive clinical infections
+    # There is a different calculation to generate clinical infections, based on current infection level
+    # LM infections must only pass through the clinical calculation, therefore all "A" infections are included
+    # "S" and "U" infections must pass through the lm-detectable calculation prior to and in addition to the clinical
+    # calculation. We therefore consider all "A" infections and only the "S" and "U" infections that are now lm-detectable.
+    clinical <- calculate_clinical_infections(
+      variables,
+      variables$state$get_index_of("A")$and(infected_humans)$or(lm_detectable),
+      parameters,
+      renderer,
+      timestep
+    )
+    nmf$set_difference(clinical)
     
     treated <- calculate_treated(
       variables,
@@ -726,7 +723,7 @@ calculate_treated <- function(
     renderer
 ) {
   
-  nmf_detectable <- nmf$copy()$and(variables$state$get_index_of(c('D','A','U')))
+  nmf_detectable <- nmf$copy()$and(variables$state$get_index_of(c('D','A')))
   
   if(clinical_infections$size() == 0 && nmf_detectable$size() == 0) {
     return(individual::Bitset$new(parameters$human_population))

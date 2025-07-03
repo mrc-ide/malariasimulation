@@ -9,7 +9,7 @@
 #' @export
 set_nmf <- function(parameters, ages, rates){
   stopifnot(length(ages) == length(rates))
-  stopifnot(all(rates >= 0) & all(rates <= 1))
+  stopifnot(all(rates >= 0))
   stopifnot(all(diff(c(0, ages)) > 0))
   parameters$nmf_ages <- ages
   parameters$nmf_rates <- rates

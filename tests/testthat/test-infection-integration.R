@@ -96,6 +96,7 @@ test_that('simulate_infection integrates different types of infection and schedu
   treated <- individual::Bitset$new(population)$insert(3)
   treated_mock <- mockery::mock(treated)
   schedule_mock <- mockery::mock()
+  nmf <- individual::Bitset$new(population)
 
   to_D <- treated$not(FALSE)$and(clinical)
   to_A <- infected$and(clinical$not(FALSE))
@@ -912,7 +913,7 @@ test_that('calculate_treated returns empty Bitset when there is no clinical trea
   
   treated <- calculate_treated(variables = variables,
                                clinical_infections = clinical_infections,
-                               nmf_detectable = individual::Bitset$new(20),
+                               nmf = individual::Bitset$new(20),
                                parameters = parameters,
                                timestep = timestep,
                                renderer = renderer)
@@ -949,7 +950,7 @@ test_that('calculate_treated returns empty Bitset when the clinically_infected i
   
   treated <- calculate_treated(variables = variables,
                                clinical_infections = clinical_infections,
-                               nmf_detectable = individual::Bitset$new(20),
+                               nmf = individual::Bitset$new(20),
                                parameters = parameters,
                                timestep = timestep,
                                renderer = renderer)
@@ -974,7 +975,7 @@ test_that('calculate_treated() returns an empty Bitset when the parameter list c
   
   treated <- calculate_treated(variables = variables,
                                clinical_infections = clinical_infections,
-                               nmf_detectable = individual::Bitset$new(20),
+                               nmf = individual::Bitset$new(20),
                                parameters = parameters,
                                timestep = timestep,
                                renderer = renderer)
@@ -1029,7 +1030,7 @@ test_that('Number of treatment failures matches number of individuals treated wh
   
   treated <- calculate_treated(variables = variables,
                                clinical_infections = clinical_infections,
-                               nmf_detectable = individual::Bitset$new(100),
+                               nmf = individual::Bitset$new(100),
                                parameters = parameters,
                                timestep = timestep,
                                renderer = renderer)
@@ -1069,7 +1070,7 @@ test_that('calculate_treated() successfully adds additional resistance columns t
   
   treated <- calculate_treated(variables = variables,
                                clinical_infections = clinical_infections,
-                               nmf_detectable = individual::Bitset$new(20),
+                               nmf = individual::Bitset$new(20),
                                parameters = parameters,
                                timestep = timestep,
                                renderer = renderer)

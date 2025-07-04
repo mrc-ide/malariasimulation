@@ -35,6 +35,8 @@ navbar:
         href: articles/Variation.html
       - text: "Parameter Variation"
         href: articles/Parameter_variation.html
+      - text: "Non-malarial fevers"
+        href: articles/Non-malarial-fevers.html
     functions:
       text: "Functions"
       href: reference/index.html

@@ -153,6 +153,7 @@ test_that('simulate_infection integrates different types of infection and schedu
     1,
     variables,
     clinical,
+    nmf,
     parameters,
     timestep,
     renderer
@@ -337,7 +338,7 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   mockery::stub(
     calculate_treated,
     'sample_bitset',
-    mockery::mock(seek_treatment)
+    mockery::mock(seek_treatment, individual::Bitset$new(4))
   )
   sample_mock <- mockery::mock(c(2, 1, 1, 1))
   mockery::stub(calculate_treated, 'sample.int', sample_mock)
@@ -348,6 +349,7 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   
   clinical_infections <- individual::Bitset$new(4)
   clinical_infections$insert(c(1, 2, 3, 4))
+  
   calculate_treated(
     variables,
     clinical_infections,
@@ -425,8 +427,14 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   
   # Set up seek_treatment mock and instruct calculate_treated() to return it when sample_bitset() called:
   seek_treatment <- individual::Bitset$new(20)$insert(c(1:10))
-  seek_treatment_mock <- mockery::mock(seek_treatment)
-  mockery::stub(where = calculate_treated, what = 'sample_bitset', how = seek_treatment_mock)
+  seek_treatment_mock <-mockery::mock(seek_treatment, individual::Bitset$new(20))
+
+  mockery::stub(
+    calculate_treated,
+    'sample_bitset',
+    seek_treatment_mock
+  )
+  
   
   # Set up drugs mock and instruct it to return it when sample.int() called:
   mock_drugs <- mockery::mock(c(2, 1, 1, 1, 2, 2, 2, 1, 2, 1))
@@ -539,7 +547,7 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   seek_treatment <- individual::Bitset$new(20)$insert(c(1:10))
   
   # Create a mock of seek_treatment:
-  seek_treatment_mock <- mockery::mock(seek_treatment)
+  seek_treatment_mock <- mockery::mock(seek_treatment, individual::Bitset$new(20))
   
   # Specify that, when calculate_treated() calls sample_bitset(), return the seek_treatment_mock:
   mockery::stub(where = calculate_treated, what = 'sample_bitset', how = seek_treatment_mock)
@@ -553,7 +561,8 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   # Create a bernoulli_mock of i) individuals susceptible, and ii) individuals successfully treated:
   bernoulli_mock <- mockery::mock(c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                                   c(1, 2, 3, 4, 5, 6, 7),
-                                  c(1))
+                                  c(1),
+                                  integer(0))
   
   # Specify that when calculate_treated() calls bernoulli_multi_p() it returns the bernoulli_mock:
   local_mocked_bindings(bernoulli_multi_p = bernoulli_mock)

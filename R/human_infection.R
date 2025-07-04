@@ -723,7 +723,10 @@ calculate_treated <- function(
     renderer
 ) {
   
-  nmf_detectable <- nmf$copy()$and(variables$state$get_index_of(c('D','A')))
+  nmf_detectable <- nmf$copy()
+  if(nmf_detectable$size() > 0){
+    nmf_detectable <- nmf_detectable$and(variables$state$get_index_of(c('D','A')))
+  }
   
   if(clinical_infections$size() == 0 && nmf_detectable$size() == 0) {
     return(individual::Bitset$new(parameters$human_population))

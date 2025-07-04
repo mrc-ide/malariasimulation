@@ -58,6 +58,7 @@ reference:
     - set_parameter_draw
     - set_equilibrium
     - set_epi_outputs
+    - set_nmf
 - title: "Demography functions"
   contents:
     - set_demography

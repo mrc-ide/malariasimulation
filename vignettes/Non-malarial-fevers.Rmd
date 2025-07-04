@@ -23,13 +23,20 @@ library(malariasimulation)
 cols <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 ```
 
-Non‑malarial fevers (NMFs) can influence the number of routine malaria cases in two ways. They prompt individuals to seek treatment and, if an asymptomatic malaria infection is present, this can be detected and treated. NMFs therefore increase the number of infections that are diagnosed as part of routine care and drive antimalarial treatment.
+Non‑malarial fevers (NMFs) can influence the number of routine malaria cases and
+the diagnosis and treatment of malaria. They prompt individuals to seek treatment 
+and, if an asymptomatic malaria infection is present, this can be detected and 
+treated. NMFs therefore increase the number of infections that are diagnosed as 
+part of routine care and drive antimalarial treatment.
 
-In this vignette we demonstrate these effects in a highly seasonal setting. We assume a constant NMF rate across the year and show how this interacts with seasonal malaria transmission.
+In this vignette we demonstrate these effects in a highly seasonal setting. 
+We assume a constant NMF rate across the year and show how this interacts with 
+seasonal malaria transmission.
 
 ## Simulation setup
 
-We will simulate three years in an area of high seasonal transmission. Treatment with artemether‑lumefantrine (AL) is available to 60% of clinical cases.
+We will simulate three years in an area of high seasonal transmission. 
+Treatment with artemether‑lumefantrine (AL) is available to 60% of clinical cases.
 
 ```{r}
 # Time
@@ -69,7 +76,9 @@ s2 <- run_simulation(sim_length, p2)
 
 ## Aggregating incidence
 
-NMF cases that are malaria‑positive are recorded in `n_nmf_malaria_detected`. We add these to the clinical incidence counts and aggregate by week.
+NMF cases that seek treatment, are diagnosed as malaria‑positive and treated are
+recorded in `n_nmf_malaria_detected`. We add these to the clinical incidence 
+counts and aggregate by week.
 
 ```{r}
 aggregate_week <- function(sim){
@@ -98,7 +107,7 @@ r <- rbind(r1, r2)
 
 ## Visualisation
 
-```{r, fig.align = 'center', out.width='100%'}
+```{r, fig.align = 'center', out.width='100%', fig.height=5}
 plot(
   r$time[r$nmf == "FALSE"], r$clinical[r$nmf == "FALSE"],
   type = "l", col = cols[1],
@@ -111,13 +120,14 @@ lines(
   col = cols[2]
 )
 legend(
-  "topright", legend = c("Without NMF", "With NMF"),
+  "topleft", legend = c("Without NMF", "With NMF"),
   col = cols[1:2], lty = 1, bty = "n"
 )
 grid(lty = 2, col = "grey80", lwd = 0.5)
 ```
 
-The impact of NMFs varies through the year because additional treatment coincides with the peaks and troughs of malaria transmission.
+The impact of NMFs varies through the year as a function of the NMF rate(s) and
+asymptomatic prevalence.
 
 ## Age‑specific NMF rates
 
@@ -127,7 +137,8 @@ Different age groups can experience different NMF rates. For example:
 p_age <- set_nmf(p, ages = c(5 * year, 15 * year), rates = c(0.01, 0.003))
 ```
 
-This sets a higher rate for children under five and a lower rate for those aged five to fifteen, with no NMFs occurring after fifteen years of age.
+This sets a higher rate for children under five and a lower rate for those aged 
+five to fifteen, with no NMFs occurring after fifteen years of age.
 
 ## Limitations
 
@@ -136,4 +147,3 @@ The current implementation does not capture:
 - seasonal variation in NMF rates,
 - any correlation between malaria exposure and NMF risk, or
 - age‑specific treatment seeking for NMFs.
-```

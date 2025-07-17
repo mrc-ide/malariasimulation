@@ -115,7 +115,7 @@ simulate_bites <- function(
     Z <- average_p_repelled(p_bitten$prob_repelled, .pi, Q0)
     ## SEMIOCHEMICAL EFFECT ##
     if (parameters$semiochemical) {
-      if(timestep >= parameters$semiochemical_timesteps){
+      if(any(timestep >= parameters$semiochemical_timesteps)){
         semiochemical_index <- match_timestep(parameters$semiochemical_timesteps, timestep)
         semiochemical_effect <- parameters$semiochemical_effect[semiochemical_index, s_i]
       } else {

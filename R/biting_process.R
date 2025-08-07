@@ -149,7 +149,7 @@ simulate_bites <- function(
     renderer$render(paste0('EIR_', species_name), species_eir, timestep)
     EIR <- EIR + species_eir
     
-    if(parameters$parasite == "vivax" & parameters$vivax_EIR_at_population_level){
+    if(parameters$parasite == "vivax" & isTRUE(parameters$vivax_EIR_at_population_level)){
       # the original p.v model uses EIR at the whole population level
       # such that EIR ~ bites
       expected_bites <- species_eir

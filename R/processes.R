@@ -215,7 +215,7 @@ create_processes <- function(
   
   imm_var_names <- c('ica', 'icm')
   if(parameters$parasite == "falciparum"){
-    imm_var_names <- c(imm_var_names, 'ib', 'iva', 'ivm', 'id')
+    imm_var_names <- c(imm_var_names, 'ib', 'iva', 'ivm', 'id', 'cumulative_infections')  ## NEW
   } else if (parameters$parasite == "vivax"){
     imm_var_names <- c(imm_var_names, 'iaa', 'iam', 'hypnozoites')
 

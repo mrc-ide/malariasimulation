@@ -108,6 +108,8 @@ reset_target <- function(variables, events, target, state, parameters, timestep)
       variables$ib$queue_update(0, target)
       variables$iva$queue_update(0, target)
       variables$id$queue_update(0, target)
+      variables$last_boosted_cumulative_infections$queue_update(-1, target)  ## NEW
+      variables$cumulative_infections$queue_update(0, target)                ## NEW
       
     } else if (parameters$parasite == "vivax"){
       variables$last_boosted_iaa$queue_update(-1, target)

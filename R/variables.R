@@ -207,6 +207,20 @@ create_variables <- function(parameters) {
       )
     )
     
+    # Cumulative infections
+    last_boosted_cumulative_infections <- individual::DoubleVariable$new(rep(-1, size))  ## NEW
+    cumulative_infections <- individual::DoubleVariable$new(   ## NEW
+      initial_immunity(
+        parameters$init_id,
+        initial_age,
+        groups,
+        eq,
+        parameters,
+        'ID'
+      )
+    )
+    
+        
   } else if (parameters$parasite == "vivax"){
     # Maternal anti-parasite immunity
     iam <- individual::DoubleVariable$new(
@@ -331,7 +345,9 @@ create_variables <- function(parameters) {
                    ivm = ivm,
                    ib = ib,
                    iva = iva,
-                   id = id
+                   id = id,
+                   cumulative_infections = cumulative_infections,                            ## NEW
+                   last_boosted_cumulative_infections = last_boosted_cumulative_infections   ## NEW
     )
   } else if (parameters$parasite == "vivax"){
     variables <- c(variables,

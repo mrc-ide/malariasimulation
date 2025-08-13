@@ -325,6 +325,14 @@ falciparum_infection_outcome_process <- function(
       parameters$ud
     )
     
+    boost_immunity(                                         ## NEW
+      variables$cumulative_infections,
+      infected_humans,
+      variables$last_boosted_cumulative_infections,
+      timestep,
+      delay = 0
+    )
+    
     clinical <- calculate_clinical_infections(
       variables,
       infected_humans,

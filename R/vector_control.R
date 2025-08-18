@@ -159,6 +159,84 @@ throw_away_nets <- function(variables) {
   }
 }
 
+#' @title Indoor spraying
+#' @description models indoor residual spraying according to the strategy
+#' from `set_spraying` and correlation parameters from
+#' `get_correlation_parameters`
+#'
+#' @param spray_time the variable for the time of spraying
+#' @param renderer model rendering object
+#' @param parameters the model parameters
+#' @param correlations correlation parameters
+#' @noRd
+indoor_spraying_verbose <- function(spray_time, renderer, parameters, correlations) {
+  renderer$set_default('n_spray', 0)
+  function(timestep) {
+    matches <- timestep == parameters$spraying_timesteps
+    if (any(matches)) {
+      target <- which(sample_intervention(
+        seq(parameters$human_population),
+        'spraying',
+        parameters$spraying_coverages[matches],
+        correlations
+      ))
+      spray_time$queue_update(timestep, target)
+      renderer$render('n_spray', length(target), timestep)
+      if(parameters$spraying_verbose){
+        states <- variables$state$get_values(target)
+        personal_inds <- variables$personal_tracker_index$get_values(target)
+        print_to_csv(parameters$file_name, timestep, personal_inds, "sprayed", states)
+      }
+    }
+  }
+}
+
+#' @title Distribute nets
+#' @description distributes nets to individuals according to the strategy
+#' from `set_bednets` and correlation parameters from
+#' `get_correlation_parameters`
+#'
+#' @param variables list of variables in the model
+#' @param throw_away_net an event to trigger when the net will be removed
+#' @param parameters the model parameters
+#' @param correlations correlation parameters
+#' @noRd
+distribute_nets_verbose <- function(variables, throw_away_net, parameters, correlations) {
+  function(timestep) {
+    matches <- timestep == parameters$bednet_timesteps
+    if (any(matches)) {
+      target <- which(sample_intervention(
+        seq(parameters$human_population),
+        'bednets',
+        parameters$bednet_coverages[matches],
+        correlations
+      ))
+      variables$net_time$queue_update(timestep, target)
+      throw_away_net$clear_schedule(target)
+      throw_away_net$schedule(
+        target,
+        log_uniform(length(target), parameters$bednet_retention)
+      )
+      if(parameters$nets_verbose){
+        states <- variables$state$get_values(target)
+        personal_inds <- variables$personal_tracker_index$get_values(target)
+        print_to_csv(parameters$file_name, timestep, personal_inds, "recieved_net", states)
+      }
+    }
+  }
+}
+
+throw_away_nets_verbose <- function(variables, parameters) {
+  function(timestep, target) {
+    variables$net_time$queue_update(-1, target)
+    if(parameters$nets_verbose){
+      states <- variables$state$get_values(target$to_vector())
+      personal_inds <- variables$personal_tracker_index$get_values(target$to_vector())
+      print_to_csv(parameters$file_name, timestep, personal_inds, "removed_net", states)
+    }
+  }
+}
+
 # =================
 # Utility functions
 # =================

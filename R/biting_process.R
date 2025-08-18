@@ -219,6 +219,237 @@ simulate_bites <- function(
   list(bitten_humans = bitten_humans, n_bites_per_person = n_bites_per_person)
 }
 
+#' @title Verbose biting process
+#' @description
+#' This is the biting process. It results in human and mosquito infection and
+#' mosquito death. It also outputs all individuals which have been bitten
+#' @param renderer the model renderer object
+#' @param solvers mosquito ode solvers
+#' @param models mosquito ode models
+#' @param variables a list of all of the model variables
+#' @param events a list of all of the model events
+#' @param parameters model pararmeters
+#' @param lagged_infectivity a list of LaggedValue objects with historical sums
+#' of infectivity, one for every metapopulation
+#' @param lagged_eir a LaggedValue class with historical EIRs
+#' @param mixing_fn a function to retrieve the mixed EIR and infectivity based
+#' on the other populations
+#' @param mixing_index an index for this population's position in the
+#' lagged_infectivity list (default: 1)
+#' @param infection_outcome competing hazards object for infection rates
+#' @param timestep the current timestep
+#' @noRd
+create_verbose_biting_process <- function(
+  renderer,
+  solvers,
+  models,
+  variables,
+  events,
+  parameters,
+  lagged_infectivity,
+  lagged_eir,
+  mixing_fn = NULL,
+  mixing_index = 1,
+  infection_outcome
+  ) {
+  function(timestep) {
+    # Calculate combined EIR
+    age <- get_age(variables$birth$get_values(), timestep)
+    bitten <- simulate_bites_verbose(
+      renderer,
+      solvers,
+      models,
+      variables,
+      events,
+      age,
+      parameters,
+      timestep,
+      lagged_infectivity,
+      lagged_eir,
+      mixing_fn,
+      mixing_index
+    )
+    
+    simulate_infection(
+      variables,
+      events,
+      bitten$bitten_humans,
+      bitten$n_bites_per_person,
+      age,
+      parameters,
+      timestep,
+      renderer,
+      infection_outcome
+    )
+  }
+}
+
+#' @importFrom stats rpois
+simulate_bites_verbose <- function(
+  renderer,
+  solvers,
+  models,
+  variables,
+  events,
+  age,
+  parameters,
+  timestep,
+  lagged_infectivity,
+  lagged_eir,
+  mixing_fn = NULL,
+  mixing_index = 1
+  ) {
+  bitten_humans <- individual::Bitset$new(parameters$human_population)
+  n_bites_per_person <- numeric(0)
+  
+  human_infectivity <- variables$infectivity$get_values()
+  if (parameters$tbv) {
+    human_infectivity <- account_for_tbv(
+      timestep,
+      human_infectivity,
+      variables,
+      parameters
+    )
+  }
+  renderer$render('infectivity', mean(human_infectivity), timestep)
+  
+  # Calculate pi (the relative biting rate for each human)
+  psi <- unique_biting_rate(age, parameters)
+  zeta <- variables$zeta$get_values()
+  .pi <- human_pi(zeta, psi)
+  
+  # Get some indices for later
+  if (parameters$individual_mosquitoes) {
+    infectious_index <- variables$mosquito_state$get_index_of('Im')
+    susceptible_index <- variables$mosquito_state$get_index_of('Sm')
+    adult_index <- variables$mosquito_state$get_index_of('NonExistent')$not(TRUE)
+  }
+  
+  EIR <- 0
+  
+  for (s_i in seq_along(parameters$species)) {
+    species_name <- parameters$species[[s_i]]
+    solver_states <- solvers[[s_i]]$get_states()
+    p_bitten <- prob_bitten(timestep, variables, s_i, parameters)
+    Q0 <- parameters$Q0[[s_i]]
+    W <- average_p_successful(p_bitten$prob_bitten_survives, .pi, Q0)
+    Z <- average_p_repelled(p_bitten$prob_repelled, .pi, Q0)
+    f <- blood_meal_rate(s_i, Z, parameters)
+    a <- .human_blood_meal_rate(f, s_i, W, parameters)
+    lambda <- effective_biting_rates(a, .pi, p_bitten)
+
+    if (parameters$individual_mosquitoes) {
+      species_index <- variables$species$get_index_of(
+        parameters$species[[s_i]]
+      )$and(adult_index)
+      n_infectious <- calculate_infectious_individual(
+        s_i,
+        variables,
+        infectious_index,
+        adult_index,
+        species_index,
+        parameters
+      )
+    } else {
+      n_infectious <- calculate_infectious_compartmental(solver_states)
+    }
+    
+    # store the current population's EIR for later
+    lagged_eir[[s_i]]$save(
+      n_infectious * a,
+      timestep
+    )
+
+    # lagged EIR
+    if (is.null(mixing_fn)) {
+      species_eir <- lagged_eir[[s_i]]$get(timestep - parameters$de)
+    } else {
+      species_eir <- mixing_fn(timestep=timestep)$eir[[mixing_index, s_i]]
+    }
+
+    renderer$render(paste0('EIR_', species_name), species_eir, timestep)
+    EIR <- EIR + species_eir
+    if(parameters$parasite == "falciparum"){
+      # p.f model factors eir by psi
+      expected_bites <- species_eir * mean(psi)
+    } else if (parameters$parasite == "vivax"){
+      # p.v model standardises biting rate het to eir
+      expected_bites <- species_eir
+    }
+    
+    if (expected_bites > 0) {
+      n_bites <- rpois(1, expected_bites)
+      if (n_bites > 0) {
+        bitten <- fast_weighted_sample(n_bites, lambda)
+        bitten_humans$insert(bitten)
+        renderer$render('n_bitten', bitten_humans$size(), timestep)
+        if(parameters$parasite == "vivax"){
+          # p.v must pass through the number of bites per person
+          n_bites_per_person <- tabulate(bitten, nbins = length(lambda))
+        }
+      }
+    }
+
+    lagged_infectivity$save(sum(human_infectivity * .pi), timestep)
+
+    if (is.null(mixing_fn)) {
+      infectivity <- lagged_infectivity$get(timestep - parameters$delay_gam)
+    } else {
+      infectivity <- mixing_fn(timestep=timestep)$inf[[mixing_index]]
+    }
+
+    foim <- calculate_foim(a, infectivity)
+    renderer$render(paste0('FOIM_', species_name), foim, timestep)
+    mu <- death_rate(f, W, Z, s_i, parameters)
+    renderer$render(paste0('mu_', species_name), mu, timestep)
+    
+    if (parameters$individual_mosquitoes) {
+      # update the ODE with stats for ovoposition calculations
+      aquatic_mosquito_model_update(
+        models[[s_i]]$.model,
+        species_index$size(),
+        f,
+        mu
+      )
+      
+      # update the individual mosquitoes
+      susceptible_species_index <- susceptible_index$copy()$and(species_index)
+      
+      biting_effects_individual(
+        variables,
+        foim,
+        events,
+        s_i,
+        susceptible_species_index,
+        species_index,
+        mu,
+        parameters,
+        timestep
+      )
+    } else {
+      adult_mosquito_model_update(
+        models[[s_i]]$.model,
+        mu,
+        foim,
+        solver_states[[ADULT_ODE_INDICES['Sm']]],
+        f
+      )
+    }
+  }
+  if(parameters$biting_verbose){
+    states <- variables$state$get_values(bitten_humans$to_vector())
+    personal_inds <- variables$personal_tracker_index$get_values(bitten_humans)
+    print_to_csv(parameters$file_name, timestep, personal_inds, "bitten", states)
+    # for(i in seq_along(personal_inds)){
+    #   cat(timestep, ",")
+    #   cat(personal_inds[i], ",")
+    #   cat("bitten,")
+    #   cat(states[i], "\n")
+    # }
+  }
+  list(bitten_humans = bitten_humans, n_bites_per_person = n_bites_per_person)
+}
+
 
 # =================
 # Utility functions

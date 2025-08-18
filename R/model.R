@@ -89,6 +89,93 @@ run_simulation <- function(
   run_resumable_simulation(timesteps, parameters, correlations)$data
 }
 
+run_verbose_simulation <- function(
+  timesteps,
+  parameters = NULL,
+  correlations = NULL,
+  initial_state = NULL,
+  restore_random_state = FALSE
+){
+  file_name <- parameters$file_name
+  sink(parameters$file_name)
+  cat("timestep,individual_index,process,state\n")
+  random_seed(ceiling(runif(1) * .Machine$integer.max))
+  if (is.null(parameters)) {
+    parameters <- get_parameters()
+  }
+  if (is.null(correlations)) {
+    correlations <- get_correlation_parameters(parameters)
+  }
+  variables <- create_variables(parameters)
+  events <- create_events(parameters)
+  initialise_events(events, variables, parameters)
+  renderer <- individual::Render$new(timesteps)
+  populate_incidence_rendering_columns(renderer, parameters)
+  attach_verbose_event_listeners(
+    events,
+    variables,
+    parameters,
+    correlations,
+    renderer
+  )
+  vector_models <- parameterise_mosquito_models(parameters, timesteps)
+  solvers <- parameterise_solvers(vector_models, parameters)
+
+  lagged_eir <- create_lagged_eir(variables, solvers, parameters)
+  lagged_infectivity <- create_lagged_infectivity(variables, parameters)
+
+  stateful_objects <- list(
+    RandomState$new(restore_random_state),
+    correlations,
+    vector_models,
+    solvers,
+    lagged_eir,
+    lagged_infectivity)
+
+  if (!is.null(initial_state)) {
+    individual::restore_object_state(
+      initial_state$timesteps,
+      stateful_objects,
+      initial_state$malariasimulation)
+  }
+
+  individual_state <- individual::simulation_loop(
+    processes = create_verbose_processes(
+      renderer,
+      variables,
+      events,
+      parameters,
+      vector_models,
+      solvers,
+      correlations,
+      lagged_eir,
+      lagged_infectivity,
+      timesteps
+    ),
+    variables = variables,
+    events = events,
+    timesteps = timesteps,
+    state = initial_state$individual,
+    restore_random_state = restore_random_state
+  )
+
+  sink()
+  final_state <- list(
+    timesteps = timesteps,
+    individual = individual_state,
+    malariasimulation = individual::save_object_state(stateful_objects)
+  )
+
+  data <- renderer$to_dataframe()
+  if (!is.null(initial_state)) {
+    # Drop the timesteps we didn't simulate from the data.
+    # It would just be full of NA.
+    data <- data[-(1:initial_state$timesteps),]
+  }
+
+  list(data=data, state=final_state)
+}
+
 #' @title Run the simulation in a resumable way
 #'
 #' @description this function accepts an initial simulation state as an argument, and returns the

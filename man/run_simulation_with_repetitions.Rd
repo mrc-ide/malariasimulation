@@ -7,7 +7,8 @@
 run_simulation_with_repetitions(
   timesteps,
   repetitions,
-  overrides = list(),
+  parameters = NULL,
+  correlations = NULL,
   parallel = FALSE
 )
 }
@@ -16,7 +17,9 @@ run_simulation_with_repetitions(
 
 \item{repetitions}{n times to run the simulation}
 
-\item{overrides}{a named list of parameters to use instead of defaults}
+\item{parameters}{a named list of parameters to use}
+
+\item{correlations}{correlation parameters}
 
 \item{parallel}{execute runs in parallel}
 }

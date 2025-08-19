@@ -177,15 +177,15 @@ simparams <- get_parameters() |>  set_equilibrium(init_EIR = 1)
 
 output_few_reps <- run_simulation_with_repetitions(
   timesteps = 365,
-  repetitions = 5,
-  overrides = simparams,
+  repetitions = 5, 
+  parameters = simparams,
   parallel=TRUE
 )
 
 output_many_reps <- run_simulation_with_repetitions(
   timesteps = 365,
   repetitions = 50,
-  overrides = simparams,
+  parameters = simparams,
   parallel=TRUE
 )
 

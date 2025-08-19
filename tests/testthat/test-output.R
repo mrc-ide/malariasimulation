@@ -30,4 +30,10 @@ test_that('Test age parameter function works', {
                      "_", age_limits[-4]+rep(offsets, each = 3),
                      "_", age_limits[-1]-1+rep(offsets, each = 3))
   expect_in(expected, names(sim))
+  
+  
+  expect_error(set_epi_outputs(parameters, iaa = age_limits))
+  expect_error(get_parameters(parasite = "vivax") |> 
+                 set_epi_outputs(iva = age_limits))
+  
 })

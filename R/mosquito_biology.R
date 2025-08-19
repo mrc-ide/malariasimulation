@@ -145,7 +145,8 @@ peak_season_offset <- function(parameters) {
 #' @param f the feeding rate for this species of mosquito
 #' @param W the mean probability that a mosquito feeds and survives
 #' @param Z the mean probability that a mosquito is repelled
-#' @param Z the mean probability that a mosquito is repelled
+#' @param species the index of the species to calculate the death rate for
+#' @param parameters the model parameters
 #' @noRd
 death_rate <- function(f, W, Z, species, parameters) {
   mum <- parameters$mum[[species]]

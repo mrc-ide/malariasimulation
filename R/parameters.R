@@ -154,6 +154,12 @@
 #' * mup - the rate at which pupal mosquitoes die; default = 0.249
 #' * mum - the rate at which developed mosquitoes die; default (An. gambiae) = .132
 #'
+#' paramter variation parameters:
+#' please set parameter draw using the convenience function
+#' \code{\link{set_parameter_draw}}
+#' 
+#' * parameter_draw - the index of the parameter draw assigned using set_parameter_draw; default = NULL
+#'
 #' vector biology:
 #' species specific values are vectors
 #' please set species parameters using the convenience function
@@ -621,7 +627,8 @@ parameterise_total_M <- function(parameters, total_M) {
 #' Use parameter draw from the join posterior
 #' 
 #' Overrides default (median) model parameters with a single draw from the fitted
-#' joint posterior. Must be called prior to set_equilibrium.
+#' joint posterior and appends parameter_draw to the parameters list. Must be
+#' called prior to set_equilibrium.
 #'
 #' @param parameters the model parameters
 #' @param draw the draw to use. Must be an integer between 1 and 1000
@@ -630,9 +637,9 @@ parameterise_total_M <- function(parameters, total_M) {
 set_parameter_draw <- function(parameters, draw){
   
   if(parameters$parasite == "falciparum"){
-    parameter_draws <- parameter_draws_pf
+    parameter_draws <- malariasimulation::parameter_draws_pf
   } else if (parameters$parasite == "vivax"){
-    parameter_draws <- parameter_draws_pv
+    parameter_draws <- malariasimulation::parameter_draws_pv
   }
   
   if(draw > 1000 || draw < 1){
@@ -642,5 +649,6 @@ set_parameter_draw <- function(parameters, draw){
   for (name in names(parameter_draw)) {
     parameters[[name]] <- parameter_draw[[name]]
   }
+  parameters$parameter_draw <- draw
   return(parameters)
 }

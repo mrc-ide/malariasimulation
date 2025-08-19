@@ -500,6 +500,16 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       # mixing
       rdt_intercept = -0.968,
       rdt_coeff = 1.186,
+      #Individual outputs
+      biting_verbose <- FALSE,
+      mortality_verbose <- FALSE,
+      progression_verbose <- FALSE,
+      spraying_verbose <- FALSE,
+      nets_verbose <- FALSE,
+      pev_verbose <- FALSE,
+      states_verbose <- FALSE,
+      state_recording_freq <- FALSE,
+      file_name <- "",
       # misc
       mosquito_limit   = 100 * 1000,
       individual_mosquitoes = FALSE,

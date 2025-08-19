@@ -64,6 +64,7 @@ set_bednets <- function(
       stop('death and repelling probabilities columns need to align with timesteps')
     }
   }
+
   retention_set <- FALSE
   if (!is.null(retention)) {
     if (!is.null(logistic_half_life) || !is.null(logistic_k)) {
@@ -82,6 +83,13 @@ set_bednets <- function(
   }
   if (!retention_set) {
     stop('retention must be set')
+  }
+
+  if (!all((dn0 + rn) < 1)) {
+    stop('all death and repelling probabilities must sum to less than 1')
+  }
+  if (!all(rnm < rn)) {
+    stop('rnm must be less than rn')
   }
 
   parameters$bednets <- TRUE

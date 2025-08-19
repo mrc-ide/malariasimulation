@@ -89,6 +89,15 @@ run_simulation <- function(
   run_resumable_simulation(timesteps, parameters, correlations)$data
 }
 
+
+#' @title Run verbose simulation wwhich outputs inidividual level outputs
+#' to a csv file alongside standard simulation outputs
+#'
+#' @param timesteps the number of timesteps to run the simulation for
+#' @param parameters a named list of parameters to use
+#' @param correlations correlation parameters
+#' @param parallel execute runs in parallel
+#' @export
 run_verbose_simulation <- function(
   timesteps,
   parameters = NULL,

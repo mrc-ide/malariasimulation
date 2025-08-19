@@ -133,6 +133,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// print_to_csv
+void print_to_csv(const std::string filename, const int timestep, const std::vector<int> personal_indicies, const std::string process, const std::vector<std::string> categories);
+RcppExport SEXP _malariasimulation_print_to_csv(SEXP filenameSEXP, SEXP timestepSEXP, SEXP personal_indiciesSEXP, SEXP processSEXP, SEXP categoriesSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string >::type filename(filenameSEXP);
+    Rcpp::traits::input_parameter< const int >::type timestep(timestepSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int> >::type personal_indicies(personal_indiciesSEXP);
+    Rcpp::traits::input_parameter< const std::string >::type process(processSEXP);
+    Rcpp::traits::input_parameter< const std::vector<std::string> >::type categories(categoriesSEXP);
+    print_to_csv(filename, timestep, personal_indicies, process, categories);
+    return R_NilValue;
+END_RCPP
+}
 // carrying_capacity
 double carrying_capacity(const size_t timestep, const bool model_seasonality, const double g0, const std::vector<double>& g, const std::vector<double>& h, const double K0, const double R_bar, const double rainfall_floor);
 RcppExport SEXP _malariasimulation_carrying_capacity(SEXP timestepSEXP, SEXP model_seasonalitySEXP, SEXP g0SEXP, SEXP gSEXP, SEXP hSEXP, SEXP K0SEXP, SEXP R_barSEXP, SEXP rainfall_floorSEXP) {
@@ -359,6 +373,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_malariasimulation_create_aquatic_mosquito_model", (DL_FUNC) &_malariasimulation_create_aquatic_mosquito_model, 18},
     {"_malariasimulation_aquatic_mosquito_model_update", (DL_FUNC) &_malariasimulation_aquatic_mosquito_model_update, 4},
     {"_malariasimulation_create_aquatic_solver", (DL_FUNC) &_malariasimulation_create_aquatic_solver, 5},
+    {"_malariasimulation_print_to_csv", (DL_FUNC) &_malariasimulation_print_to_csv, 5},
     {"_malariasimulation_carrying_capacity", (DL_FUNC) &_malariasimulation_carrying_capacity, 8},
     {"_malariasimulation_eggs_laid", (DL_FUNC) &_malariasimulation_eggs_laid, 3},
     {"_malariasimulation_rainfall", (DL_FUNC) &_malariasimulation_rainfall, 5},

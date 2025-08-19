@@ -142,8 +142,8 @@ distribute_nets <- function(variables, throw_away_net, parameters, correlations)
     sample_net_time <- function(n) {
       logistic_net_retention_time(
         n,
-        parameters$logistic_half_life,
-        parameters$k
+        parameters$bednet_logistic_half_life,
+        parameters$bednet_logistic_k
       )
     }
   }

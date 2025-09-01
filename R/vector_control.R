@@ -78,22 +78,78 @@ prob_bitten <- function(
     ss <- 1
   }
 
+  if (parameters$spatial_emanator) {
+    protected <- variables$spatial_emanator_time$get_index_of(set=-1)$not(TRUE)
+    spatial_emanator_time <- variables$spatial_emanator_time$get_values(protected)
+    matches <- match(spatial_emanator_time, parameters$spatial_emanator_timesteps)
+    
+    rse_out_theta <- parameters$spatial_emanator_out_theta[matches, species]
+    rse_out_gamma <- parameters$spatial_emanator_out_gamma[matches, species]
+    
+    rse_in_theta <- parameters$spatial_emanator_in_theta[matches, species]
+    rse_in_gamma <- parameters$spatial_emanator_in_gamma[matches, species]
+    
+    since_spatial_emanator <- timestep - spatial_emanator_time
+    
+    protected_index <- protected$to_vector()
+    rse_out <- rep(0, n)
+    rse_out[protected_index] <- spraying_decay(since_spatial_emanator, rse_out_theta, rse_out_gamma)
+    rse_in <- rep(0, n)
+    rse_in[protected_index] <- spraying_decay(since_spatial_emanator, rse_in_theta, rse_in_gamma)
+    
+    rse_out_comp <- 1 - rse_out
+    rse_in_comp <- 1 - rse_in
+
+  } else {
+    rse_out <- 0
+    rse_in <- 0
+    rse_out_comp <- 1
+    rse_in_comp <- 1
+  }
+  
   list(
     prob_bitten_survives = (
-      1 - phi_indoors +
-      phi_bednets * rs_comp * sn * ss +
-      (phi_indoors - phi_bednets) * rs_comp * ss
+      (1 - phi_indoors) * rse_out_comp +
+      phi_bednets * rs_comp * sn * ss * rse_in_comp +
+      (phi_indoors - phi_bednets) * rs_comp * ss * rse_in_comp
     ),
     prob_bitten = (
-      1 - phi_indoors +
-      phi_bednets * rs_comp * sn +
-      (phi_indoors - phi_bednets) * rs_comp
+      (1 - phi_indoors) * rse_out_comp +
+      phi_bednets * rs_comp * sn * rse_in_comp +
+      (phi_indoors - phi_bednets) * rs_comp * rse_in_comp
     ),
     prob_repelled = (
-      phi_bednets * rs_comp * rn +
-      phi_indoors * rs
+      phi_bednets * rs_comp * rn * rse_in_comp +
+      phi_indoors * rs * rse_out_comp
     )
   )
+}
+
+#' @title Spatial Emanators
+#' @description models indoor (or outdoor) use of spatial emanators according to the strategy
+#' from `set_spatial_emanator` and correlation parameters from
+#' `get_correlation_parameters`
+#'
+#' @param spatial_emanator_time the variable for the time of spatial emanator deployment
+#' @param renderer model rendering object
+#' @param parameters the model parameters
+#' @param correlations correlation parameters
+#' @noRd
+spatial_emanator <- function(spatial_emanator_time, renderer, parameters, correlations) {
+  renderer$set_default('n_spatial_emanator', 0)
+  function(timestep) {
+    matches <- timestep == parameters$spatial_emanator_timesteps
+    if (any(matches)) {
+      target <- which(sample_intervention(
+        seq(parameters$human_population),
+        'spatial_emanator',
+        parameters$spatial_emanator_coverages[matches],
+        correlations
+      ))
+      spatial_emanator_time$queue_update(timestep, target)
+      renderer$render('n_spatial_emanator', length(target), timestep)
+    }
+  }
 }
 
 #' @title Indoor spraying

@@ -136,6 +136,70 @@ set_spraying <- function(
   parameters
 }
 
+#' @title Parameterise a spatial emanator strategy
+#'
+#' @description The model will apply indoor or outdoor spatial emanators 
+#' at `timesteps` to a random sample of the entire human population. 
+#' The sample size will be a proportion of the human population taken 
+#' from the corresponding `coverages`.
+#' The sample _can_ contain humans who have already benefited from spatial emanators.
+#'
+#' If a human in the sample lives in a treated house, the efficacy of the
+#' spatial emanator will be returned to the maximum impact.
+#'
+#' The structure for the spatial emanator model will be documented in
+#' Kuipou et al (PI Ellie Sherrard-Smith)
+#'
+#' @param parameters a list of parameters to modify
+#' @param timesteps the timesteps at which to spray
+#' @param coverages the proportion of the population who get indoor
+#' spraying
+#' @param rse_out_theta matrix of repellence outdoor parameters
+#' With nrows=length(timesteps), ncols=length(species)
+#' @param rse_out_gamma matrix of repellence outdoor parameters per timestep
+#' With nrows=length(timesteps), ncols=length(species)
+#' @param rse_in_theta matrix of repellence indoor parameters per timestep 
+#' With nrows=length(timesteps), ncols=length(species)
+#' @param rse_in_gamma matrix of repellence indoor parameters per timestep 
+#' With nrows=length(timesteps), ncols=length(species)
+#' @export
+set_spatial_emanator <- function(
+    parameters,
+    timesteps,
+    coverages,
+    rse_out_theta,
+    rse_out_gamma,
+    rse_in_theta,
+    rse_in_gamma
+) {
+  stopifnot(all(coverages >= 0) && all(coverages <= 1))
+  if (length(coverages) != length(timesteps)) {
+    stop('coverages and timesteps must must align')
+  }
+  decays <- list(
+    rse_out_theta,
+    rse_out_gamma,
+    rse_in_theta,
+    rse_in_gamma
+  )
+  for (x in decays) {
+    if (ncol(x) != length(parameters$species)) {
+      stop('theta and gamma rows need to align with species')
+    }
+    if (nrow(x) != length(timesteps)) {
+      stop('theta and gamma cols need to align with timesteps')
+    }
+  }
+  parameters$spatial_emanator <- TRUE
+  parameters$spatial_emanator_timesteps <- timesteps
+  parameters$spatial_emanator_coverages <- coverages
+  parameters$spatial_emanator_out_theta <- rse_out_theta
+  parameters$spatial_emanator_out_gamma <- rse_out_gamma
+  parameters$spatial_emanator_in_theta <- rse_in_theta
+  parameters$spatial_emanator_in_gamma <- rse_in_gamma
+  parameters
+}
+
 #' @title Parameterise a semiochemical strategy
 #'
 #' @description The model will deploy semiochemicals at `timesteps` to a random

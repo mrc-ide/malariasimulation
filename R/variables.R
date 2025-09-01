@@ -32,6 +32,7 @@
 #' haven't been any
 #' * net_time - The timestep when a net was last put up (-1 if never)
 #' * spray_time - The timestep when the house was last sprayed (-1 if never)
+#' * spatial_emanator_time - The timestep when the spatial emanator was put up (-1 if never)
 #' * infectivity - The onward infectiousness to mosquitos
 #' * drug - The last prescribed drug
 #' * drug_time - The timestep of the last drug
@@ -302,7 +303,8 @@ create_variables <- function(parameters) {
   # Init vector controls
   net_time <- individual::IntegerVariable$new(rep(-1, size))
   spray_time <- individual::IntegerVariable$new(rep(-1, size))
-
+  spatial_emanator_time <- individual::IntegerVariable$new(rep(-1, size))
+  
   variables <- list(
     state = state,
     birth = birth,
@@ -320,7 +322,8 @@ create_variables <- function(parameters) {
     pev_profile = pev_profile,
     tbv_vaccinated = tbv_vaccinated,
     net_time = net_time,
-    spray_time = spray_time
+    spray_time = spray_time,
+    spatial_emanator_time = spatial_emanator_time
   )
   
   if(parameters$parasite == "falciparum"){

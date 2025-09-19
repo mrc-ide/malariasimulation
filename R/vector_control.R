@@ -31,10 +31,12 @@ prob_bitten <- function(
     unused <- net_time == -1
     sn[unused] <- 1
     rn[unused] <- 0
+    # adjust_se_check = 0
   } else {
     phi_bednets <- 0
     sn <- 1
     rn <- 0
+    # adjust_se_check = 1
   }
 
   if (parameters$spraying) {
@@ -79,6 +81,9 @@ prob_bitten <- function(
   }
 
   if (parameters$spatial_emanator) {
+    phi_bednets <- parameters$phi_bednets[[species]]
+    phi_indoors <- parameters$phi_indoors[[species]]
+    
     protected <- variables$spatial_emanator_time$get_index_of(set=-1)$not(TRUE)
     spatial_emanator_time <- variables$spatial_emanator_time$get_values(protected)
     matches <- match(spatial_emanator_time, parameters$spatial_emanator_timesteps)
@@ -97,14 +102,20 @@ prob_bitten <- function(
     rse_in <- rep(0, n)
     rse_in[protected_index] <- spraying_decay(since_spatial_emanator, rse_in_theta, rse_in_gamma)
     
-    rse_out_comp <- 1 - rse_out
-    rse_in_comp <- 1 - rse_in
+    # if (parameters$spatial_emanator_outdoors) {
+    #   rse_out_comp <- 1 - rse_out
+    #   rse_in_comp <- 1 - rse_in }
+    # else {
+      rse_out_comp <- 1
+      rse_in_comp <- 1 - rse_in 
+      
+      # }
 
   } else {
     rse_out <- 0
     rse_in <- 0
-    rse_out_comp <- 1
-    rse_in_comp <- 1
+    rse_out_comp <- 1 - rse_out
+    rse_in_comp <- 1 - rse_in
   }
   
   list(
@@ -120,7 +131,9 @@ prob_bitten <- function(
     ),
     prob_repelled = (
       phi_bednets * rs_comp * rn * rse_in_comp +
-      phi_indoors * rs * rse_out_comp
+      # phi_indoors * rs * rse_in + ## need to adjust this given rs will be 0 unless we modified (see housing branch)
+        phi_indoors * rse_in #+ ## need to adjust this given rs will be 0 unless we modified (see housing branch)
+        # (1 - phi_indoors) * rse_out * adjust_se_check
     )
   )
 }

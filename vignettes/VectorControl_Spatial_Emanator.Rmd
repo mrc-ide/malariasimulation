@@ -1,0 +1,132 @@
+---
+title: "Vector Control: Spatial Emanator"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vector Control: Spatial Emanator}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+devtools::load_all()
+devtools::document()
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  dpi=300,
+  fig.width=7
+)
+```
+
+```{r setup}
+# Load the requisite packages:
+library(malariasimulation)
+library(malariaEquilibrium)
+# Set colour palette:
+cols <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+```
+
+Spatial emanators can be outdoor or indoor interventions that provide devices with volatile insecticides to target adult female mosquitoes that host seek in the proximity. `malariasimulation` can be used to investigate the effect of malaria control strategies that deploy spatial emanators. Users can set spatial emanators in the model to have effects on indoor or outdoor mosquitoes using the `set_spatial_emanator()` function to parameterise the efficacy, time and coverage of campaigns. 
+
+We will create a few plotting functions to visualise the output.
+```{r}
+# Plotting functions
+plot_prev <- function() {
+  plot(x = output$timestep, y = output$n_detect_lm_730_3650 / output$n_age_730_3650, 
+       type = "l", col = cols[3], lwd = 1,
+       xlab = "Time (days)", ylab = expression(paste(italic(Pf),"PR"[2-10])),
+       xaxs = "i", yaxs = "i", ylim = c(0,1))
+  lines(x = output_control$timestep, y = output_control$n_detect_lm_730_3650 / output_control$n_age_730_3650,
+        col = cols[5], lwd = 1)
+  abline(v = spatial_emanator_timesteps, lty = 2, lwd = 1, col = "black")
+  text(x = spatial_emanator_timesteps + 10, y = 0.9, 
+       labels = "Emanator\nint.", adj = 0, cex = 0.8)
+  grid(lty = 2, col = "grey80", lwd = 0.5)
+  legend("bottomleft", box.lty = 0, 
+         legend = c("Prevalence for spatial emanator scenario",
+                    "Prevalence for control scenario"),
+         col = c(cols[3], cols[5]), lty = c(1,1), lwd = 2, cex = 0.8, y.intersp = 1.3)
+}
+```
+
+## Setting Spatial Emanator parameters
+
+### Parameterisation 
+
+Use the `get_parameters()` function to generate a list of parameters, accepting most of the default values, but modifying seasonality values to model a seasonal setting. Then, we use the `set_equilibrium()` function to to initialise the model at a given entomological innoculation rate (EIR). 
+
+```{r}
+year <- 365
+month <- 30
+sim_length <- 3 * year
+human_population <- 1000
+starting_EIR <- 10
+
+simparams <- get_parameters(
+  list(
+    human_population = human_population,
+    # seasonality parameters
+    model_seasonality = TRUE, 
+    g0 = 0.285277,
+    g = c(-0.0248801, -0.0529426, -0.0168910),
+    h = c(-0.0216681, -0.0242904, -0.0073646)
+  )
+)
+
+simparams <- set_equilibrium(parameters = simparams, init_EIR = starting_EIR)
+
+# Running simulation with no Spatial Emanators
+output_control <- run_simulation(timesteps = sim_length, parameters = simparams)
+```
+
+#### A note on mosquito species  
+It is also possible to use the `set_species()` function to account for 3 different mosquito species in the simulation. In this case, the matrices would need to have additional column corresponding to each mosquito species. For example, if we specified that there were 3 species of mosquitoes in the model and nets were distributed at two timesteps, then the matrices would have 2 rows and 3 columns. If you are not already familiar with the `set_species()` function, see the [Mosquito Species](https://mrc-ide.github.io/malariasimulation/articles/SetSpecies.html) vignette.  
+
+The default parameters are set to model *Anopheles gambiae*. 
+```{r}
+simparams$species
+simparams$species_proportions
+```
+
+
+### Simulation 
+
+Then we can run the simulations for a variety of spatial emanator strategies. In the example below, there are two rounds of spatial emanator, the first at 30% coverage and the second at 80% coverage, each implemented at day 1 of the implementation year. The matrices specified for the parameters for `rse_out_theta`, `rse_out_gamma`, `rse_in_theta`, and `rse_in_gamma` have two rows, one for each timestep where spatial emanator is implemented, and a number of columns corresponding to mosquito species. In this example, we only have 1 column because the species is set to "gamb" as we saw above.
+
+The structure for the spatial emanator model will be published with Kuipou et al. currently in preparation.
+
+```{r, fig.align = 'center', out.width='100%'}
+
+spatial_emanator_timesteps = c(1, 2) * year + 1 # Each round of spatial emanator is implemented in the 1st and second year.
+
+spatial_emanator_params <- set_spatial_emanator(
+  simparams,
+  timesteps = spatial_emanator_timesteps,
+  coverages = c(0.3, 0.8), # # The first round covers 30% of the population and the second covers 80%. 
+  rse_out_theta = matrix(2.025, nrow=length(spatial_emanator_timesteps), ncol=1), # Matrix of impact parameters outdoors 
+  rse_out_gamma = matrix(-0.009, nrow=length(spatial_emanator_timesteps), ncol=1), # Matrix of impact parameters outdoors
+  rse_in_theta = matrix(-2.222, nrow=length(spatial_emanator_timesteps), ncol=1), # Matrix of impact parameters indoors
+  rse_in_gamma = matrix(0.008, nrow=length(spatial_emanator_timesteps), ncol=1) # Matrix of impact parameters indoors
+  
+)
+
+# Spatial emanators may also cause a longer gap between feeding attempts by disarming female vectors. The transmission model includes these by extending the foraging time
+sim_disarm_params = set_semiochemical(spatial_emanator_params,
+                              semiochemical_effect = matrix(c(rep(4.2,length(spatial_emanator_timesteps)),1),
+                                                            nrow = length(spatial_emanator_timesteps)+1,
+                                                            ncol = 1),
+                              timesteps = c(spatial_emanator_timesteps,
+800))
+
+output <- run_simulation(timesteps = sim_length, parameters = sim_disarm_params)
+```
+
+
+#### Visualisation
+
+```{r, fig.align = 'center', out.width='100%'}
+# Plot prevalence
+plot_prev()
+```
+

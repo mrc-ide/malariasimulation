@@ -43,8 +43,7 @@ test_that('Test difference between falciparum and vivax parameter lists', {
       "b", # probability of infection given an infectious bite
       "philm_min", "philm_max", "klm", "alm50", # probability of light-microscopy detectable infection parameters
       "ca", # light-microscopy detectable infection infectivity towards mosquitos
-      "f", "gammal", "init_hyp", "kmax", # hypnozoite parameters
-      "vivax_EIR_at_population_level" # model eir version
+      "f", "gammal", "init_hyp", "kmax" # hypnozoite parameters
     )
   )
 })

@@ -148,17 +148,8 @@ simulate_bites <- function(
 
     renderer$render(paste0('EIR_', species_name), species_eir, timestep)
     EIR <- EIR + species_eir
-    
-    if(parameters$parasite == "vivax" & isTRUE(parameters$vivax_EIR_at_population_level)){
-      # the original p.v model uses EIR at the whole population level
-      # such that EIR ~ bites
-      expected_bites <- species_eir
-    } else {
-      # p.f model (and now our p.v model) uses EIR at the adult level
-      # such that EIR * psi ~ bites
-      expected_bites <- species_eir * mean(psi)
-    }
-    
+
+    expected_bites <- species_eir * mean(psi)
     if (expected_bites > 0) {
       n_bites <- rpois(1, expected_bites)
       if (n_bites > 0) {

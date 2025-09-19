@@ -51,7 +51,7 @@ Values for the model fitting posterior distribution can be selected using the `s
 
 The *P. falciparum* model has five human disease compartments: susceptible (S), clinical disease (D), asymptomatic infection (A), sub-patent infection (U), and treated (Tr). Asymptomatic infections may or may not be detectable by light-microscopy.
 
-The *P. vivax* model follows a similar structure to the *P. falciparum* model, and also has five human disease compartments. However, the human disease states modeled explicitly focus on parasite density and detectability, such that we have: susceptible (S), clinical disease (D), **light-microscopy detectable infection (A)**, **PCR detectable infection (U)**, and treated (Tr).
+The *P. vivax* model follows a similar structure to the *P. falciparum* model, and also has five human disease compartments. However, the human disease states modeled explicitly focus on parasite density and detectability, such that we have: susceptible (S), clinical disease (D), **light-microscopy detectable infection (A)**, **PCR detectable infection (U)**, and treated (Tr). This version of the model was adapted from the White et al. (2018) model which included a prophylaxis state which individuals entered following treatment and prior to entering the susceptible state. The *malariasimulation* framework instead models individual-level prophylaxis protection as described in the Drug treatment section below.
 
 ### New Infections
 
@@ -84,6 +84,8 @@ While *P. falciparum* drugs have four parameters (efficacy, relative reduction i
 ### Equilibrium
 
 The malariaEquilibriumVivax package has been designed to calculate the equilibrium solution for the *P. vivax* model. This equilibrium is calculated by assigning an initial EIR value via the `set_equilibrium` function, as  in the *P. falciparum* model. Based on the age and heterogeneity group of an individual, it assigns a human disease state, clinical and anti-parasite immunities and number of hypnozoite batches.
+
+The *P. falciparum* model defines EIR at the adult level, which gets moderated by age-specific biting rates while the original White et al. (2018) *P. vivax* model is defined at the whole population level, which then gets distributed according to age and heterogeneity patterns. The *malariasimulation*  *P. vivax* model EIR definition has been adjusted and defined at the adult level, to reflect its use in the *malariasimulation* *P. falciparum* model. This produces equivalent results at the human population level, but requires a larger mosquito population to maintain transmission. Users may still choose to initialise EIR at the whole population level, which is converted to adult EIR for use in the model. 
 
 ### Key Model References
 

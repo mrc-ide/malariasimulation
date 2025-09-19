@@ -11,7 +11,7 @@ prob_bitten <- function(
   parameters
   ) {
   n <- parameters$human_population
-  if (!(parameters$bednets || parameters$spraying)) {
+  if (!(parameters$bednets || parameters$spraying || parameters$spatial_emanator)) {
     return(
       list(
         prob_bitten_survives = rep(1, n),
@@ -74,7 +74,7 @@ prob_bitten <- function(
       parameters$k0
     )
   } else {
-    phi_indoors <- 0
+    spray_on = 0
     rs <- 0
     rs_comp <- 1
     ss <- 1
@@ -98,7 +98,7 @@ prob_bitten <- function(
     
     protected_index <- protected$to_vector()
     rse_out <- rep(0, n)
-    rse_out[protected_index] <- spraying_decay(since_spatial_emanator, rse_out_theta, rse_out_gamma)
+    # rse_out[protected_index] <- spraying_decay(since_spatial_emanator, rse_out_theta, rse_out_gamma)
     rse_in <- rep(0, n)
     rse_in[protected_index] <- spraying_decay(since_spatial_emanator, rse_in_theta, rse_in_gamma)
     
@@ -118,6 +118,10 @@ prob_bitten <- function(
     rse_in_comp <- 1 - rse_in
   }
   
+  if ((!parameters$spatial_emanator & !parameters$spraying)) {
+    phi_indoors <- 0 ## we want phi_indoors to be applied if housing is on
+  }
+  
   list(
     prob_bitten_survives = (
       (1 - phi_indoors) * rse_out_comp +
@@ -131,9 +135,9 @@ prob_bitten <- function(
     ),
     prob_repelled = (
       phi_bednets * rs_comp * rn * rse_in_comp +
-      # phi_indoors * rs * rse_in + ## need to adjust this given rs will be 0 unless we modified (see housing branch)
-        phi_indoors * rse_in #+ ## need to adjust this given rs will be 0 unless we modified (see housing branch)
-        # (1 - phi_indoors) * rse_out * adjust_se_check
+      phi_indoors * rs * rse_in * spray_on + ## need to adjust this given rs will be 0 unless we modified (see housing branch)
+      phi_indoors * rse_in +   # phi_indoors * rse_in #+ ## need to adjust this given rs will be 0 unless we modified (see housing branch)
+        (1 - phi_indoors) * rse_out
     )
   )
 }

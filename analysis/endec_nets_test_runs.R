@@ -92,6 +92,7 @@ output_no_int %>%
 output_endec <- run_simulation_with_repetitions(timesteps = sim_length, overrides = endec_params, repetitions = 30)
 write_rds(output_endec, file = "analysis/output_endec.rds")
 
+output_endec <- readRDS("analysis/output_endec.rds")
 
 output_endec_summary <- output_endec %>%
   group_by(timestep) %>%
@@ -99,7 +100,8 @@ output_endec_summary <- output_endec %>%
             mean_M_gamb = mean(total_M_gamb), 
             mean_EIR_gamb = mean(EIR_gamb), 
             mean_prev0to5 = mean(n_detect_lm_0_1825/n_age_0_1825))
-output_endec_summary$mean_prev0to5
+
+plot(output_endec_summary$timestep, output_endec_summary$mean_prev0to5)
 
 
 
@@ -112,10 +114,10 @@ ggplot(output_endec, aes(x = timestep, y = mu_gamb, col = as.factor(repetition))
   theme_bw()
 
 ggplot(output_endec, aes(x = timestep, y = total_M_gamb, col = as.factor(repetition)))+
-  geom_line()+
-  geom_vline(xintercept = IVM_start[1], col = "red")+
-  geom_vline(xintercept = IVM_start[2], col = "red")+
-  geom_vline(xintercept = IVM_start[3], col = "red")
+  geom_line(size = 2)+
+  geom_vline(xintercept = IVM_start[1], col = "black")+
+  geom_vline(xintercept = IVM_start[2], col = "black")+
+  geom_vline(xintercept = IVM_start[3], col = "black")
 
 ggplot(output_endec, aes(x = timestep, y = EIR_gamb, col = as.factor(repetition)))+
   geom_line()+
@@ -124,10 +126,36 @@ ggplot(output_endec, aes(x = timestep, y = EIR_gamb, col = as.factor(repetition)
 ggplot(output_endec, aes(x = timestep, y = n_detect_lm_0_1825/n_age_0_1825, 
                          col = as.factor(repetition)))+
   geom_line()+
-  ylim(0, 0.8) #malariasim slightly overestimates. 
+  ylim(0, 0.8) #malariasim slightly overestimates.
+
+#malariasim endec low coverage
+
+simparams_low <- get_parameters(overrides = list(
+  human_population = human_population,
+  endec = TRUE,
+  prevalence_rendering_min_ages = 0,    
+  prevalence_rendering_max_ages = 5 * 365, 
+  individual_mosquitoes = FALSE, 
+  mu_endec = c(0.1, 0.1, 0.1), 
+  wane_endec = c(0.06, 0.06, 0.06)))
+
+simparams_low <- set_equilibrium(parameters = simparams_low, init_EIR = starting_EIR) ##is this the right order? Should we set to eqm later on?
+mosq_params <- gamb_params
+mosq_params$Q0 <- 0.9
+simparams_low <- set_species(simparams_low, species = list(mosq_params), 
+                         proportions = c(1))
+endec_params_low <- set_endectocide(parameters = simparams_low, timesteps = steps,
+                                endec_on = endec_on, endec_ts = endec_ts) #Error in if (expected_bites > 0) { : 
+
+output_endec_low <- run_simulation_with_repetitions(timesteps = sim_length, overrides = endec_params_low, repetitions = 30)
+
+
 
 #read in the odin models
 odin_models <- readRDS("C:/Users/nc1115/Documents/github/ivRmectin/analysis/exploring_interactions/malariasim-odin/hazards_endec_mu_compare.rds")
+#see work in odin-expdecay-compare.R which generates this. 
+
+
 covs <- unique(odin_models$ivm_cov)
 odin_models <- odin_models %>%
   filter(ivm_cov == covs[2]) %>%
@@ -149,7 +177,6 @@ head(odin_models)
 
 output <- rbind(output_endec2, odin_models)
 
-plot(output_endec2$slide_prev0to5, odin_models$slide_prev0to5) #do model stats to calculate R squared. 
 
 output_endec3 <- output_endec2 %>%
   rename(slide_prev0to5_malsim = slide_prev0to5) %>%
@@ -171,6 +198,8 @@ output_join_compare <- output_join %>%
 
 lm_compare <- lm(slide_prev0to5_hazards ~ slide_prev0to5_malsim, data = output_join_compare)
 summary(lm_compare) # P value <2e-16 adj Rsq 0.9998
+
+confint(lm_compare, level = 0.95)
 
 ggplot(output_join_compare, aes(x = slide_prev0to5_malsim, y = slide_prev0to5_hazards))+
   geom_point() +

@@ -359,8 +359,8 @@ get_parameters <- function(overrides = list()) {
     total_M  = 1000,
     init_foim= 0,
     #endectocide params
-    mu_endec = c(0.2, 0.2, 0.2), 
-    wane_endec = c(0.03, 0.03, 0.03), 
+    mu_endec = c(0.14, 0.14, 0.14), 
+    wane_endec = c(0.01, 0.01, 0.01), 
     endec = FALSE,
     # carrying capacity parameters
     g0    = 2,

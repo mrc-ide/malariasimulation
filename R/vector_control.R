@@ -112,6 +112,7 @@ prob_bitten <- function(
       # }
 
   } else {
+    spatial_emanator_on = 0
     rse_out <- 0
     rse_in <- 0
     rse_out_comp <- 1 - rse_out
@@ -135,8 +136,8 @@ prob_bitten <- function(
     ),
     prob_repelled = (
       phi_bednets * rs_comp * rn * rse_in_comp +
-      phi_indoors * rs * rse_in * spray_on + ## need to adjust this given rs will be 0 unless we modified (see housing branch)
-      phi_indoors * rse_in +   # phi_indoors * rse_in #+ ## need to adjust this given rs will be 0 unless we modified (see housing branch)
+      phi_indoors * rs * rse_in * spray_on +         ## will go to 0 if IRS off
+      phi_indoors * rse_in * spatial_emanator_on +   # will go to 0 if spatial_emanator off
         (1 - phi_indoors) * rse_out
     )
   )

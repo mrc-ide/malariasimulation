@@ -6,7 +6,8 @@ INTS <- c(
   'tbv',
   'bednets',
   'spraying',
-  'spatial_emanator'
+  'spatial_emanator',
+  'spatial_emanator_outdoor'
 )
 
 #' Class: Correlation parameters

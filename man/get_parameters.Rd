@@ -248,7 +248,7 @@ please set these parameters with the convenience functions
 with \code{\link{peak_season_offset}}
 
 bednet, irs and mosquito feeding cycle parameters:
-please set vector control strategies using \code{\link{set_bednets}}, \code{\link{set_spraying}}, \code{\link{set_spatial_emanator}} and \code{\link{set_semiochemical}}
+please set vector control strategies using \code{\link{set_bednets}}, \code{\link{set_spraying}}, \code{\link{set_spatial_emanator}}, \code{\link{set_spatial_emanator_outdoor}} and \code{\link{set_semiochemical}}
 \itemize{
 \item bednets - boolean for if bednets are enabled; default = FALSE
 \item phi_bednets - proportion of bites taken in bed; default = 0.85
@@ -256,6 +256,7 @@ please set vector control strategies using \code{\link{set_bednets}}, \code{\lin
 \item spraying - boolean for if indoor spraying is enabled; default = FALSE
 \item phi_indoors - proportion of bites taken indoors; default = 0.90
 \item spatial_emanator - boolean for if spatial_emanator is enabled; default = FALSE
+\item spatial_emanator_outdoor - boolean for if spatial_emanator_outdoor is enabled; default = FALSE
 \item semiochemical - boolean for if semiochemical exposure is enabled; default = FALSE
 \item semiochemical_effect - the proportional reduction introduced on blood feeding rates for each species; default = NULL
 \item seriochemical_timesteps - to enable a reduced foraging time to be implemented as required; default = NULL

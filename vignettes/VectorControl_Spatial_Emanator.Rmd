@@ -27,26 +27,41 @@ library(malariaEquilibrium)
 cols <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 ```
 
-Spatial emanators can be outdoor or indoor interventions that provide devices with volatile insecticides to target adult female mosquitoes that host seek in the proximity. `malariasimulation` can be used to investigate the effect of malaria control strategies that deploy spatial emanators. Users can set spatial emanators in the model to have effects on indoor or outdoor mosquitoes using the `set_spatial_emanator()` function to parameterise the efficacy, time and coverage of campaigns. 
+Spatial emanators can be used both indoors or outdoors. These interventions provide protection through devices that release volatile insecticides that apparently confuse adult female Anopheles mosquitoes. Exposure is understood to "disarm" vectors as they seek blood meals in the proximity. 
+
+`malariasimulation` can be used to investigate the effect of malaria control strategies that deploy spatial emanators indoors or outdoors or in both spaces. Spatial emanators are thought to have mortality inducing effects (Knock down is observed in laboratory tests), repellence effects (measured in laboratory, experimental hut trials and semi-field trials) and effects that seem to confuse the mosquito rendering her less likely to bite should she land. 
+
+The `set_spatial_emanator()` function can be used to parameterise the efficacy, time and coverage of indoor campaigns. 
+
+The corresponding `set_spatial_emanator_outdoor()` function enables outdoor mortality and repellence impacts. 
+
+Finally, the `set_semiochemical` function can be used to introduce a disarming effect to be set that delays the completion of a feed during a gonotrophic cycle.
 
 We will create a few plotting functions to visualise the output.
 ```{r}
 # Plotting functions
 plot_prev <- function() {
-  plot(x = output$timestep, y = output$n_detect_lm_730_3650 / output$n_age_730_3650, 
+  plot(x = output_indoors$timestep, y = output_indoors$n_detect_lm_730_3650 / output_indoors$n_age_730_3650, 
        type = "l", col = cols[3], lwd = 1,
        xlab = "Time (days)", ylab = expression(paste(italic(Pf),"PR"[2-10])),
        xaxs = "i", yaxs = "i", ylim = c(0,1))
+  
+  lines(x = output_outdoors$timestep, y = output_outdoors$n_detect_lm_730_3650 / output_outdoors$n_age_730_3650,
+        col = cols[2], lwd = 1)
+  lines(x = output_indoors_outdoors$timestep, y = output_indoors_outdoors$n_detect_lm_730_3650 / output_indoors_outdoors$n_age_730_3650,
+        col = cols[7], lwd = 1)
   lines(x = output_control$timestep, y = output_control$n_detect_lm_730_3650 / output_control$n_age_730_3650,
         col = cols[5], lwd = 1)
   abline(v = spatial_emanator_timesteps, lty = 2, lwd = 1, col = "black")
-  text(x = spatial_emanator_timesteps + 10, y = 0.9, 
+  text(x = spatial_emanator_timesteps + 10, y = 0.05, 
        labels = "Emanator\nint.", adj = 0, cex = 0.8)
   grid(lty = 2, col = "grey80", lwd = 0.5)
-  legend("bottomleft", box.lty = 0, 
-         legend = c("Prevalence for spatial emanator scenario",
+  legend("topleft", box.lty = 0, 
+         legend = c("Prevalence for indoor SE scenario",
+                    "Prevalence for outdoor SE scenario",
+                    "Prevalence for in & outdoor SE scenario",
                     "Prevalence for control scenario"),
-         col = c(cols[3], cols[5]), lty = c(1,1), lwd = 2, cex = 0.8, y.intersp = 1.3)
+         col = c(cols[3], cols[2],cols[7], cols[5]), lty = c(1,1,1,1), lwd = 2, cex = 0.8, y.intersp = 1.3)
 }
 ```
 
@@ -60,7 +75,7 @@ Use the `get_parameters()` function to generate a list of parameters, accepting 
 year <- 365
 month <- 30
 sim_length <- 3 * year
-human_population <- 1000
+human_population <- 10000
 starting_EIR <- 10
 
 simparams <- get_parameters(
@@ -96,19 +111,20 @@ Then we can run the simulations for a variety of spatial emanator strategies. In
 
 The structure for the spatial emanator model will be published with Kuipou et al. currently in preparation.
 
+#### Example to simulate indoor spatial emanators
 ```{r, fig.align = 'center', out.width='100%'}
 
-spatial_emanator_timesteps = c(1, 2) * year + 1 # Each round of spatial emanator is implemented in the 1st and second year.
+spatial_emanator_timesteps = c(1) * year + 1 # Each round of spatial emanator is implemented in the 1st and second year.
 
 spatial_emanator_params <- set_spatial_emanator(
   simparams,
   timesteps = spatial_emanator_timesteps,
-  coverages = c(0.3, 0.8), # # The first round covers 30% of the population and the second covers 80%. 
-  rse_out_theta = matrix(2.025, nrow=length(spatial_emanator_timesteps), ncol=1), # Matrix of impact parameters outdoors 
-  rse_out_gamma = matrix(-0.009, nrow=length(spatial_emanator_timesteps), ncol=1), # Matrix of impact parameters outdoors
-  rse_in_theta = matrix(-2.222, nrow=length(spatial_emanator_timesteps), ncol=1), # Matrix of impact parameters indoors
-  rse_in_gamma = matrix(0.008, nrow=length(spatial_emanator_timesteps), ncol=1) # Matrix of impact parameters indoors
-  
+  coverages = c(0.8), # # The first round covers 30% of the population and the second covers 80%. 
+  rse_in_theta = matrix(2.025, nrow=length(spatial_emanator_timesteps), ncol=1), # Matrix of repellence impact parameters indoors
+  rse_in_gamma = matrix(-0.009, nrow=length(spatial_emanator_timesteps), ncol=1), # Matrix of repellence impact parameters indoors
+    dse_in_theta = matrix(1.1, nrow=length(spatial_emanator_timesteps), ncol=1), # Matrix of mortality impact parameters indoors
+  dse_in_gamma = matrix(-0.009, nrow=length(spatial_emanator_timesteps), ncol=1) # Matrix of mortality impact parameters indoors
+
 )
 
 # Spatial emanators may also cause a longer gap between feeding attempts by disarming female vectors. The transmission model includes these by extending the foraging time
@@ -119,10 +135,50 @@ sim_disarm_params = set_semiochemical(spatial_emanator_params,
                               timesteps = c(spatial_emanator_timesteps,
 800))
 
-output <- run_simulation(timesteps = sim_length, parameters = sim_disarm_params)
+output_indoors <- run_simulation(timesteps = sim_length, parameters = sim_disarm_params)
 ```
 
+#### Example to simulate outdoor spatial emanators
+```{r, fig.align = 'center', out.width='100%'}
 
+spatial_emanator_outdoors_params <- set_spatial_emanator_outdoor(
+  simparams,
+  timesteps = spatial_emanator_timesteps,
+  coverages = c(0.8), # # The first round covers 30% of the population and the second covers 80%. 
+  rse_out_theta = matrix(1.2, nrow=length(spatial_emanator_timesteps), ncol=1), # Matrix of impact parameters outdoors
+  rse_out_gamma = matrix(-0.009, nrow=length(spatial_emanator_timesteps), ncol=1), # Matrix of repellence impact parameters outdoors
+    dse_out_theta = matrix(1.1, nrow=length(spatial_emanator_timesteps), ncol=1), # Matrix of mortality impact parameters outdoors
+  dse_out_gamma = matrix(-0.009, nrow=length(spatial_emanator_timesteps), ncol=1) # Matrix of mortality impact parameters outdoors
+  
+)
+
+# Spatial emanators may also cause a longer gap between feeding attempts by disarming female vectors. The transmission model includes these by extending the foraging time
+sim_out_disarm_params = set_semiochemical(spatial_emanator_outdoors_params,
+                              semiochemical_effect = matrix(c(rep(4.2,length(spatial_emanator_timesteps)),1),
+                                                            nrow = length(spatial_emanator_timesteps)+1,
+                                                            ncol = 1),
+                              timesteps = c(spatial_emanator_timesteps,
+800))
+
+output_outdoors <- run_simulation(timesteps = sim_length, parameters = sim_out_disarm_params)
+```
+
+#### Example to simulate in and outdoor spatial emanators
+```{r, fig.align = 'center', out.width='100%'}
+
+spatial_emanator_everywhere_params <- set_spatial_emanator_outdoor(
+  sim_disarm_params,
+  timesteps = spatial_emanator_timesteps,
+  coverages = c(0.8), # # The first round covers 30% of the population and the second covers 80%. 
+  rse_out_theta = matrix(1.2, nrow=length(spatial_emanator_timesteps), ncol=1), # Matrix of impact parameters outdoors
+  rse_out_gamma = matrix(-0.009, nrow=length(spatial_emanator_timesteps), ncol=1), # Matrix of repellence impact parameters outdoors
+    dse_out_theta = matrix(1.1, nrow=length(spatial_emanator_timesteps), ncol=1), # Matrix of mortality impact parameters outdoors
+  dse_out_gamma = matrix(-0.009, nrow=length(spatial_emanator_timesteps), ncol=1) # Matrix of mortality impact parameters outdoors
+  
+)
+
+output_indoors_outdoors <- run_simulation(timesteps = sim_length, parameters = spatial_emanator_everywhere_params)
+```
 #### Visualisation
 
 ```{r, fig.align = 'center', out.width='100%'}

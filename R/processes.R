@@ -336,6 +336,18 @@ create_processes <- function(
       )
     )
   }
+  
+  if (parameters$spatial_emanator_outdoor) {
+    processes <- c(
+      processes,
+      spatial_emanator_outdoor_process = spatial_emanator_outdoor(
+        variables$spatial_emanator_outdoor_time,
+        renderer,
+        parameters,
+        correlations
+      )
+    )
+  }
 
   # ======================
   # Progress bar process

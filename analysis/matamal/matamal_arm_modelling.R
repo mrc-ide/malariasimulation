@@ -1,5 +1,6 @@
 devtools::load_all()
 require(tidyverse)
+require(cali)
 #malariasim with baseline scenario, ITN and endectocides
 
 #baseline scenario####
@@ -7,9 +8,9 @@ require(tidyverse)
 #matamal trial modelling
 
 year <- 365
-sim_length <- 365*10
+sim_length <- 365*11 # 10 years. From 2012 to 2022
 human_population <- 1e5
-starting_EIR <- 150
+#starting_EIR <- 10
 
 
 # Set the age ranges (in days)
@@ -26,7 +27,7 @@ simparams <- get_parameters(overrides = list(
   prevalence_rendering_max_ages = 85 * 365, #all age prevalence
   individual_mosquitoes = FALSE, 
   age_group_rendering_min_ages = age_min, 
-  age_group_rendering_max_ages = age_max,
+  age_group_rendering_max_ages = age_max ,
   model_seasonality = TRUE,
   g0 = seasonality_params$g0,
   g = c(seasonality_params$g1, seasonality_params$g2, seasonality_params$g3),
@@ -38,6 +39,7 @@ mosq_params <- gamb_params
 
 #setting parameters
 df_setting <- readRDS("C:/Users/nc1115/Documents/github/matamal-cluster-modelling/2.stat-analysis-model-params/output/df_odin_inputs.rds")
+
 df_phi <- read.csv("analysis/matamal/phi_estimates_bijagos.csv", header = TRUE) %>%
   filter(scenario == "Data")
 
@@ -48,180 +50,244 @@ mosq_params$phi_bednets <- round(df_phi$mean,3) #phi-bed from Bijagos
 simparams <- set_species(simparams, species = list(mosq_params), 
                          proportions = c(1))
 
-simparams <- set_equilibrium(parameters = simparams, 
-                             init_EIR = starting_EIR)
+#set demography####
 
 
+#set drugs and treatment. Use site file for AL####
 
-ggplot(baseline_sim, aes(x = timestep, y = (n_detect_pcr_0_1825/n_age_0_1825)*100))+
-  geom_line()+
-  ylim(0,100)
+#leaving out for now - can't find AL - it is case detection and treatment with AL and IPTp in pregnancy
+
+# Update parameter set with chosen drug-specific parameters (AL and DHA/PQP)
+#drug_params <- set_drugs(simparams, list(AL_params))
+#
+#
+## Set treatment program for AL (drug index = 1)
+#treatment_params <- set_clinical_treatment(
+#  parameters = drug_params,
+#  drug = 1, #just AL
+#  timesteps =  c(300,600), # Treatment coverage changes on day 300 and day 600
+#  coverages =  c(0.4,0)) # The initial treatment coverage (0%) is the default 
+## and does not need to be set
+#
+#
+##simparams <- set_equilibrium(parameters = treatment_params, 
+# #                            init_EIR = starting_EIR)
 
 ##vector control####
 #ITNs: setup
 
-bednet_years <- seq(3, 10, by = 3)
-bednet_timesteps <- bednet_years*year
-itn_distr <- length(bednet_years)
 
-retention_net <- c(5, 2, 0.5) #long, medium and short
+retention_net <- 21*30 # 730 days. Andrew Glover work.
+
+df_nets <- readRDS("C:/Users/nc1115/Documents/github/matamal-cluster-modelling/2.stat-analysis-model-params/output/df_net_matamal_info.rds")
+
+df_nets2 <- df_nets %>%
+  filter(year >= 2012)
+
+itn_distr <- nrow(df_nets2)
+
+distr_campaign <- 6*30 # mass distributions are around June
+
+med_dn0 <- unique(df_nets2$dn0_med)
+med_rn0 <- unique(df_nets2$rn0_med)
+med_gamman <- unique(df_nets2$gamman_med)
+
+#some sort of bug here in set_bednets
+bednet_params <- set_bednets(simparams, 
+                             timesteps = (df_nets2$year - 2012)*365 + distr_campaign, 
+                             retention = retention_net, 
+                             coverages = df_nets2$itn_input_distr,
+                             dn0 = matrix(rep(med_dn0, itn_distr), nrow = itn_distr,ncol = 1), # Matrix of death probabilities for each mosquito species over time
+                             rn = matrix(rep(med_rn0, itn_distr), nrow = itn_distr, ncol = 1), # Matrix of repelling probabilities for each mosquito species over time
+                             rnm = matrix(rep(0.24, itn_distr), nrow = itn_distr, ncol = 1), # Matrix of minimum repelling probabilities for each mosquito species over time
+                             gamman = rep(med_gamman * 365, itn_distr))
+
+correlations <- get_correlation_parameters(bednet_params)
+correlations$inter_round_rho('bednets', 1)
 
 
-#run with long retention
-bednet_params_long <- set_bednets(simparams, 
-                                  timesteps = bednet_timesteps, 
-                                  retention =retention_net[1], 
-                                  coverages = rep(0.8, itn_distr),
-                                  dn0 = matrix(rep(0.533, itn_distr), nrow = itn_distr, ncol = 1), # Matrix of death probabilities for each mosquito species over time
-                                  rn = matrix(rep(0.56, itn_distr), nrow = itn_distr, ncol = 1), # Matrix of repelling probabilities for each mosquito species over time
-                                  rnm = matrix(rep(0.24, itn_distr), nrow = itn_distr, ncol = 1), # Matrix of minimum repelling probabilities for each mosquito species over time
-                                  gamman = rep(2.64 * 365, itn_distr)) # Vector of bed net half-lives for each distribution timestep)
-
-correlations_long <- get_correlation_parameters(bednet_params_long)
-correlations_long$inter_round_rho('bednets', 1)
+#use cali or malariaeqm methods to get the correct starting_EIR
+#how do you specify that this prev survey is from 2019
 
 
+nov <- 30*11
+y_2019 <- 365*7 # 7 years into simulation
+prev_survey_date <- nov+y_2019
 
-run_bednets_long <- run_simulation(bednet_params_long, timesteps = sim_length, 
-                                   correlations = correlations_long)
+baseline_prev_2019 <- unique(df_setting$mean_prev) #from late October to early December 2019
 
-saveRDS(run_bednets_long, file = "analysis/chapter-int-ecology/run_bednets_long.rds")
+library(cali)
+
+# Prepare a summary function that returns the mean PfPR2-10 from each simulation output: 
+summary_mean_pfpr_all_age <- function (x) {
+  
+  # Calculate the PfPR2-10:
+  prev <- x$n_detect_pcr_0_31025[prev_survey_date]/x$n_age_0_31025[prev_survey_date] #specify here that this is around Nov 2019
+  
+  # Return the calculated PfPR2-10:
+  return(prev)
+}
+
+# Establish a target PfPR2-10 value:
+target_pfpr <- baseline_prev_2019
+
+# Add a parameter to the parameter list specifying the number of timesteps to
+# simulate over. Note, increasing the number of steps gives the simulation longer
+# to stablise/equilibrate, but will increase the runtime for calibrate().  
+#simparams$timesteps <- 3 * 365
+
+# Establish a tolerance value:
+pfpr_tolerance <- 0.01
+
+# Set upper and lower EIR bounds for the calibrate function to check (remembering EIR is
+# the variable that is used to tune to the target PfPR):
+lower_EIR <- 5; upper_EIR <- 15
+
+# Run the calibrate() function:
+cali_EIR <- calibrate(target = target_pfpr,
+                      summary_function = summary_mean_pfpr_all_age,
+                      parameters = simparams,
+                      tolerance = pfpr_tolerance, 
+                      low = lower_EIR, high = upper_EIR) #adjust this
+
+simparams_cali <- set_equilibrium(simparams, init_EIR = cali_EIR)
+
+# Run the simulation:
+cali_sim <- run_simulation(timesteps = (simparams_cali$timesteps),
+                           parameters = simparams_cali)
 
 
 
-ggplot(run_bednets_long, aes(x = timestep/365, y = (n_detect_pcr_0_1825/n_age_0_1825)*100))+
+cali_pfpr <- cali_sim$n_detect_pcr_0_31025 / cali_sim$n_age_0_31025 
+
+
+# Set the plotting window:
+par(mfrow = c(1, 2), mar = c(4, 4, 1, 1))
+
+# Plot the PfPR2-10 under the EIR recommended by the cali method:
+plot(x = df$timestep,
+     y = df$malsim_pfpr,
+     type = "b",
+     ylab = expression(paste(italic(Pf),"PR"[2-10])),
+     xlab = "Time (days)",
+     ylim = c(target_pfpr - 0.2, target_pfpr + 0.2),
+     #ylim = c(0, 1),
+     col = cols[3])
+
+# Add grid lines
+grid(lty = 2, col = "grey80", lwd = 0.5)
+
+# Add a textual identifier and lines indicating target PfPR2-10 with
+# tolerance bounds:
+text(x = 10, y = 0.47, pos = 4, cex = 0.9,
+     paste0("a) cali \n init_EIR = ", round(cali_EIR, digits = 3)))
+abline(h = target_pfpr, col = "dodgerblue", lwd = 2)
+abline(h = target_pfpr - pfpr_tolerance, lwd = 2)
+abline(h = target_pfpr + pfpr_tolerance, lwd = 2)
+
+# Plot the PfPR2-10 under the EIR recommended by the malariasimulation method:
+plot(x = df$timestep,
+     y = df$cali_pfpr,
+     type = "b",
+     xlab = "Time (days)",
+     ylab = "",
+     ylim = c(target_pfpr - 0.2, target_pfpr + 0.2),
+     #ylim = c(0, 1),
+     col = cols[1])
+
+# Add grid lines
+grid(lty = 2, col = "grey80", lwd = 0.5)
+
+# Add a textual identifier and lines indicating target PfPR2-10 with
+# tolerance bounds
+text(x = 10, y = 0.47, pos = 4, cex = 0.9,
+     paste0("b) malariasimulation \n init_EIR = ", round(malsim_EIR, digits = 3)))
+abline(h = target_pfpr, col = "dodgerblue", lwd = 2)
+abline(h = target_pfpr - pfpr_tolerance, lwd = 2)
+abline(h = target_pfpr + pfpr_tolerance, lwd = 2)
+
+
+
+
+
+
+#then set eqm
+simparams <- set_equilibrium(parameters = simparams, 
+                             init_EIR = starting_EIR)
+
+out <- run_simulation(simparams, timesteps = sim_length)
+
+ggplot(out, aes(x = timestep, y = n_detect_lm_0_31025/n_age_0_31025))+
   geom_line()+
-  ylim(0, 100)+
-  geom_vline(xintercept = 3, col = "red", lty = "dashed")+
-  geom_vline(xintercept = 6, col = "red", lty = "dashed")+
-  geom_vline(xintercept = 9, col = "red", lty = "dashed")
+  ylim(0,1)
 
-#short retention time
+#
+#then put in the DP MDA
+# Make a copy of the base simulation parameters to which we can add the MDA campaign parameters:
+mdaparams <- simparams
+
+# Update the parameter list with the default parameters for sulphadoxine-pyrimethamine
+# amodiaquine (SP-AQ)
+mdaparams <- set_drugs(mdaparams, list(DHA_PQP_params))
+
+# Specify the days on which to administer: modify according to the trial information
+# for purpose here, could do first of Jul, Aug and Sept
+mda_events <- (c(1, 2) * 365)
+
+# Use set_mda() function to set the proportion of the population that the MDA reaches and the age 
+# ranges which can receive treatment.
+mdaparams <- set_mda(mdaparams,
+                     drug = 1, #just DP
+                     timesteps = mda_events,
+                     coverages = rep(.8, 2), #modify cov for each distr acc to data
+                     min_ages = rep(0, length(mda_events)), #check minimum age for DP
+                     max_ages = rep(200 * 365, length(mda_events)))
 
 
+#run simulation here for control arm
 
-bednet_params_short <-  set_bednets(simparams, 
-                                    timesteps = bednet_timesteps, 
-                                    retention =retention_net[3], 
-                                    coverages = rep(0.8, itn_distr),
-                                    dn0 = matrix(rep(0.533, itn_distr), nrow = itn_distr, ncol = 1), # Matrix of death probabilities for each mosquito species over time
-                                    rn = matrix(rep(0.56, itn_distr), nrow = itn_distr, ncol = 1), # Matrix of repelling probabilities for each mosquito species over time
-                                    rnm = matrix(rep(0.24, itn_distr), nrow = itn_distr, ncol = 1), # Matrix of minimum repelling probabilities for each mosquito species over time
-                                    gamman = rep(2.64 * 365, itn_distr)) # Vector of bed net half-lives for each distribution timestep)
+#for intervention arm, add endectocides in 
 
-correlations_short <- get_correlation_parameters(bednet_params_short)
-correlations_short$inter_round_rho('bednets', 1)
-
-
-
-
-#medium retention 
-bednet_params_medium <- set_bednets(simparams, 
-                                    timesteps = bednet_timesteps, 
-                                    retention =retention_net[2], 
-                                    coverages = rep(0.8, itn_distr),
-                                    dn0 = matrix(rep(0.533, itn_distr), nrow = itn_distr, ncol = 1), # Matrix of death probabilities for each mosquito species over time
-                                    rn = matrix(rep(0.56, itn_distr), nrow = itn_distr, ncol = 1), # Matrix of repelling probabilities for each mosquito species over time
-                                    rnm = matrix(rep(0.24, itn_distr), nrow = itn_distr, ncol = 1), # Matrix of minimum repelling probabilities for each mosquito species over time
-                                    gamman = rep(2.64 * 365, itn_distr)) # Vector of bed net half-lives for each distribution timestep)
-
-correlations_medium <- get_correlation_parameters(bednet_params_medium)
-correlations_medium$inter_round_rho('bednets', 1)
-#endectocide####
-
-#endectocide MDA happens early after bednet campaign
+#endectocide set up####
 mda_int <- 30
 eff_len <- 23
-early_IVM <- 180
-early_IVM_begin1 <- bednet_timesteps[1]+early_IVM # 6 months into bednet campaign
-early_IVM_start <- c(early_IVM_begin1, early_IVM_begin1+mda_int, early_IVM_begin1+mda_int+mda_int)
-early_eff_len <- 23
-early_steps <- (early_IVM_start[1]):(early_IVM_start[3]+eff_len)
+#early_IVM <- 180
+endec_y1_start <- 365 #start time of first MDA
+endec_y2_start <- 365*2
+#start time of each MDA (Jul, Aug, Sep 2021 and Jul, Aug, Sep 2022)
+early_IVM_start <- c(endec_y1_start, endec_y1_start+mda_int, endec_y1_start+mda_int+mda_int, 
+                     endec_y2_start, endec_y2_start+mda_int, endec_y2_start+mda_int+mda_int)
+
+#start time of each MDA for the model input
+early_endec_ts <- c(early_IVM_start[1], early_IVM_start[2], early_IVM_start[3], 
+                    early_IVM_start[4], early_IVM_start[5], early_IVM_start[6])
+
+#overall time that endec is "on"
+early_steps <- (early_IVM_start[1]):(early_IVM_start[6]+eff_len)
+
+#actual on period for each MDA..so increase this up to 6 (3 per year)
 early_endec_on <- c(as.numeric(early_IVM_start[1]):as.numeric(early_IVM_start[1]+eff_len), 
                     as.numeric(early_IVM_start[2]):as.numeric(early_IVM_start[2]+eff_len), 
-                    as.numeric(early_IVM_start[3]):as.numeric(early_IVM_start[3]+eff_len))
-early_endec_ts <- c(early_IVM_start[1], early_IVM_start[2], early_IVM_start[3])
-
-#endectocide MDA happens late after bednet campaign
-mda_int <- 30
-late_IVM <- 2*365 #2y after
-late_IVM_begin1 <- bednet_timesteps[1]+late_IVM # 6 months into bednet campaign
-late_IVM_start <- c(late_IVM_begin1, late_IVM_begin1+mda_int, late_IVM_begin1+mda_int+mda_int)
-late_eff_len <- 23
-late_steps <- (late_IVM_start[1]):(late_IVM_start[3]+eff_len)
-late_endec_on <- c(as.numeric(late_IVM_start[1]):as.numeric(late_IVM_start[1]+eff_len), 
-                   as.numeric(late_IVM_start[2]):as.numeric(late_IVM_start[2]+eff_len), 
-                   as.numeric(late_IVM_start[3]):as.numeric(late_IVM_start[3]+eff_len))
-late_endec_ts <- c(late_IVM_start[1], late_IVM_start[2], late_IVM_start[3])
-
+                    as.numeric(early_IVM_start[3]):as.numeric(early_IVM_start[3]+eff_len), 
+                    as.numeric(early_IVM_start[4]):as.numeric(early_IVM_start[4]+eff_len),
+                    as.numeric(early_IVM_start[5]):as.numeric(early_IVM_start[5]+eff_len),
+                    as.numeric(early_IVM_start[6]):as.numeric(early_IVM_start[6]+eff_len)
+                    )
 
 #early MDA with long net retention
-endec_params_early_endec_long_bednet <- set_endectocide(bednet_params_long, 
-                                                        timesteps = early_steps,
-                                                        endec_on = early_endec_on, 
-                                                        endec_ts = early_endec_ts)
-
-#early MDA with medium net retention 
-endec_params_early_endec_medium_bednet <- set_endectocide(bednet_params_medium, 
-                                                          timesteps = early_steps,
-                                                          endec_on = early_endec_on, 
-                                                          endec_ts = early_endec_ts)
-
-#early MDA with short net retention 
-endec_params_early_endec_short_bednet <- set_endectocide(bednet_params_short, 
-                                                         timesteps = early_steps,
-                                                         endec_on = late_endec_on, 
-                                                         endec_ts = late_endec_ts)
-
-
-#late MDA with long net retention 
-endec_params_late_endec_long_bednet <- set_endectocide(bednet_params_long, 
-                                                       timesteps = late_steps,
-                                                       endec_on = late_endec_on, 
-                                                       endec_ts = late_endec_ts)
-
-#late MDA with medium net retention
-endec_params_late_endec_medium_bednet <- set_endectocide(bednet_params_medium, 
-                                                         timesteps = late_steps,
-                                                         endec_on = late_endec_on, 
-                                                         endec_ts = late_endec_ts)
-
-#late MDA with short net retention
-endec_params_late_endec_short_bednet <- set_endectocide(bednet_params_short, 
-                                                        timesteps = late_steps,
-                                                        endec_on = late_endec_on, 
-                                                        endec_ts = late_endec_ts)
+endec_params <- set_endectocide(simparams, timesteps = early_steps,
+                                endec_on = early_endec_on, 
+                                endec_ts = early_endec_ts)
 
 #run model####
-run_endec_early_long_bednet <- run_simulation(endec_params_early_endec_long_bednet, 
-                                              timesteps = sim_length, 
-                                              correlations = correlations_long)
+run_endec <- run_simulation(endec_params, 
+                            timesteps = sim_length)
+                            #correlations = correlations_long)
+                            
+#run_simulation(endec_params,  timesteps = sim_length,correlations = correlations_long)
 
-saveRDS(run_endec_early_long_bednet, file = "analysis/chapter-int-ecology/run_endec_early_long_bednet.rds")
+ggplot(run_endec, aes(x = timestep, y = (n_detect_lm_0_31025/n_age_0_31025)))+
+  geom_line()+
+  geom_vline(aes(xintercept = early_IVM_start[3]+30+30), lty = "dashed")+
+  geom_vline(aes(xintercept = early_IVM_start[6]+30+30), lty = "dashed")
 
-run_endec_early_medium_bednet <- run_simulation(endec_params_early_endec_medium_bednet, 
-                                                timesteps = sim_length, 
-                                                correlations = correlations_medium) 
-saveRDS(run_endec_early_medium_bednet, file = "analysis/chapter-int-ecology/run_endec_early_medium_bednet.rds")
-
-run_endec_early_short_bednet <- run_simulation(endec_params_early_endec_short_bednet, 
-                                               timesteps = sim_length, 
-                                               correlations = correlations_short)
-
-saveRDS(run_endec_early_short_bednet, file = "analysis/chapter-int-ecology/run_endec_early_short_bednet.rds")
-
-run_endec_late_long_bednet <- run_simulation(endec_params_late_endec_long_bednet, 
-                                             timesteps = sim_length, 
-                                             correlations = correlations_long)
-saveRDS(run_endec_late_long_bednet, file = "analysis/chapter-int-ecology/run_endec_late_long_bednet.rds")
-
-run_endec_late_medium_bednet <- run_simulation(endec_params_late_endec_medium_bednet, 
-                                               timesteps = sim_length, 
-                                               correlations = correlations_medium)
-saveRDS(run_endec_late_medium_bednet, file = "analysis/chapter-int-ecology/run_endec_late_medium_bednet.rds")
-
-run_endec_late_short_bednet <- run_simulation(endec_params_late_endec_short_bednet, 
-                                              timesteps = sim_length, 
-                                              correlations = correlations_short)
-
-saveRDS(run_endec_late_short_bednet, file = "analysis/chapter-int-ecology/run_endec_late_short_bednet.rds")

@@ -8,7 +8,7 @@ require(cali)
 #matamal trial modelling
 
 year <- 365
-sim_length <- 365*11 # 10 years. From 2012 to 2022
+sim_length <- 365*13 #From 2012 
 human_population <- 1e5
 #starting_EIR <- 10
 
@@ -35,6 +35,32 @@ simparams <- get_parameters(overrides = list(
   
 ))
 
+#site_demo <- readRDS("C:/Users/nc1115/Documents/github/matamal-cluster-modelling/1.data-cleaning/output/site_file_demography.rds")
+#site_demo_2012 <- site_demo %>%
+#  filter(year >= 2012)
+#
+#dim(site_demo_2012)
+#
+#add_demography <- function(p, demography){
+#  
+#  # Age group upper
+#  ages <- round(unique(demography$age_upper) * 365)
+#  timesteps <-  (unique(demography$year) - 2012)*365 #2012 or whatever year you are starting your simulation
+#  deathrates <- demography$adj_mort_rates / 365
+#  deathrates_matrix <- matrix(deathrates, nrow = length(timesteps), byrow = TRUE)
+#  # Add parameters
+#  p <- malariasimulation::set_demography(
+#    parameters = p,
+#    agegroups = ages,
+#    timesteps = timesteps,
+#    deathrates = deathrates_matrix
+#  )
+#  
+#  return(p)
+#}
+#
+#demo_params <- add_demography(p = simparams, demography=site_demo_2012)
+
 mosq_params <- gamb_params 
 
 #setting parameters
@@ -60,29 +86,40 @@ simparams <- set_species(simparams, species = list(mosq_params),
 # Update parameter set with chosen drug-specific parameters (AL and DHA/PQP)
 #drug_params <- set_drugs(simparams, list(AL_params))
 #
+#sf_treatment <- readRDS("C:/Users/nc1115/Documents/github/matamal-cluster-modelling/1.data-cleaning/output/site_file_tx_cov_AL.rds")
+#names(sf_treatment) <- c("year", "tx_cov")
+#sf_treatment_2012 <- sf_treatment %>%
+#  filter(year >= 2012)
 #
 ## Set treatment program for AL (drug index = 1)
 #treatment_params <- set_clinical_treatment(
 #  parameters = drug_params,
 #  drug = 1, #just AL
-#  timesteps =  c(300,600), # Treatment coverage changes on day 300 and day 600
-#  coverages =  c(0.4,0)) # The initial treatment coverage (0%) is the default 
-## and does not need to be set
+#  timesteps =  (sf_treatment_2012$year - 2012)*365 + 1, # Treatment coverage changes on day 300 and day 600
+#  coverages =  sf_treatment_2012$tx_cov) # The initial treatment coverage (0%) is the default 
 #
-#
-##simparams <- set_equilibrium(parameters = treatment_params, 
-# #                            init_EIR = starting_EIR)
 
 ##vector control####
 #ITNs: setup
 
 
-retention_net <- 21*30 # 730 days. Andrew Glover work.
+retention_net <- c(12, 21, 38)*30 #AG work https://www.medrxiv.org/content/10.1101/2025.08.27.25334550v1.full.pdf
 
 df_nets <- readRDS("C:/Users/nc1115/Documents/github/matamal-cluster-modelling/2.stat-analysis-model-params/output/df_net_matamal_info.rds")
 
+ggplot(df_nets, aes(x = year, y = itn_input_distr))+
+  geom_point()+
+  geom_line()
+
+
+
 df_nets2 <- df_nets %>%
   filter(year >= 2012)
+
+ggplot(df_nets2, aes(x = as.factor(year), y = itn_input_distr))+
+  geom_point()+
+  geom_line()
+
 
 itn_distr <- nrow(df_nets2)
 
@@ -95,7 +132,7 @@ med_gamman <- unique(df_nets2$gamman_med)
 #some sort of bug here in set_bednets
 bednet_params <- set_bednets(simparams, 
                              timesteps = (df_nets2$year - 2012)*365 + distr_campaign, 
-                             retention = retention_net, 
+                             retention = retention_net[2], 
                              coverages = df_nets2$itn_input_distr,
                              dn0 = matrix(rep(med_dn0, itn_distr), nrow = itn_distr,ncol = 1), # Matrix of death probabilities for each mosquito species over time
                              rn = matrix(rep(med_rn0, itn_distr), nrow = itn_distr, ncol = 1), # Matrix of repelling probabilities for each mosquito species over time
@@ -111,7 +148,7 @@ correlations$inter_round_rho('bednets', 1)
 
 
 nov <- 30*11
-y_2019 <- 365*7 # 7 years into simulation
+y_2019 <- 365*8 # 8 years into simulation
 prev_survey_date <- nov+y_2019
 
 baseline_prev_2019 <- unique(df_setting$mean_prev) #from late October to early December 2019
@@ -124,104 +161,49 @@ summary_mean_pfpr_all_age <- function (x) {
   # Calculate the PfPR2-10:
   prev <- x$n_detect_pcr_0_31025[prev_survey_date]/x$n_age_0_31025[prev_survey_date] #specify here that this is around Nov 2019
   
-  # Return the calculated PfPR2-10:
+  # Return the calculated PfPR all age:
   return(prev)
 }
 
 # Establish a target PfPR2-10 value:
 target_pfpr <- baseline_prev_2019
 
-# Add a parameter to the parameter list specifying the number of timesteps to
-# simulate over. Note, increasing the number of steps gives the simulation longer
-# to stablise/equilibrate, but will increase the runtime for calibrate().  
-#simparams$timesteps <- 3 * 365
+bednet_params$timesteps <- sim_length
 
-# Establish a tolerance value:
-pfpr_tolerance <- 0.01
-
-# Set upper and lower EIR bounds for the calibrate function to check (remembering EIR is
-# the variable that is used to tune to the target PfPR):
-lower_EIR <- 5; upper_EIR <- 15
 
 # Run the calibrate() function:
-cali_EIR <- calibrate(target = target_pfpr,
+cali_EIR <- cali::calibrate(target = target_pfpr,
+                            eq_prevalence = 0.1, #just a starting point for search
                       summary_function = summary_mean_pfpr_all_age,
-                      parameters = simparams,
-                      tolerance = pfpr_tolerance, 
-                      low = lower_EIR, high = upper_EIR) #adjust this
-
-simparams_cali <- set_equilibrium(simparams, init_EIR = cali_EIR)
+                      human_population = c(1e+04, 1e+05, 1e+06),
+                      parameters = bednet_params, 
+                      eir_limits = c(4,7)) #5.05...
+#cali_EIR_in <- 6.38
+#check cali output#########################
+simparams_cali <- set_equilibrium(bednet_params, init_EIR = cali_EIR)
 
 # Run the simulation:
 cali_sim <- run_simulation(timesteps = (simparams_cali$timesteps),
-                           parameters = simparams_cali)
+                           parameters = simparams_cali, 
+                           correlations = correlations)
 
-
-
-cali_pfpr <- cali_sim$n_detect_pcr_0_31025 / cali_sim$n_age_0_31025 
-
-
-# Set the plotting window:
-par(mfrow = c(1, 2), mar = c(4, 4, 1, 1))
-
-# Plot the PfPR2-10 under the EIR recommended by the cali method:
-plot(x = df$timestep,
-     y = df$malsim_pfpr,
-     type = "b",
-     ylab = expression(paste(italic(Pf),"PR"[2-10])),
-     xlab = "Time (days)",
-     ylim = c(target_pfpr - 0.2, target_pfpr + 0.2),
-     #ylim = c(0, 1),
-     col = cols[3])
-
-# Add grid lines
-grid(lty = 2, col = "grey80", lwd = 0.5)
-
-# Add a textual identifier and lines indicating target PfPR2-10 with
-# tolerance bounds:
-text(x = 10, y = 0.47, pos = 4, cex = 0.9,
-     paste0("a) cali \n init_EIR = ", round(cali_EIR, digits = 3)))
-abline(h = target_pfpr, col = "dodgerblue", lwd = 2)
-abline(h = target_pfpr - pfpr_tolerance, lwd = 2)
-abline(h = target_pfpr + pfpr_tolerance, lwd = 2)
-
-# Plot the PfPR2-10 under the EIR recommended by the malariasimulation method:
-plot(x = df$timestep,
-     y = df$cali_pfpr,
-     type = "b",
-     xlab = "Time (days)",
-     ylab = "",
-     ylim = c(target_pfpr - 0.2, target_pfpr + 0.2),
-     #ylim = c(0, 1),
-     col = cols[1])
-
-# Add grid lines
-grid(lty = 2, col = "grey80", lwd = 0.5)
-
-# Add a textual identifier and lines indicating target PfPR2-10 with
-# tolerance bounds
-text(x = 10, y = 0.47, pos = 4, cex = 0.9,
-     paste0("b) malariasimulation \n init_EIR = ", round(malsim_EIR, digits = 3)))
-abline(h = target_pfpr, col = "dodgerblue", lwd = 2)
-abline(h = target_pfpr - pfpr_tolerance, lwd = 2)
-abline(h = target_pfpr + pfpr_tolerance, lwd = 2)
-
-
-
-
-
-
-#then set eqm
-simparams <- set_equilibrium(parameters = simparams, 
-                             init_EIR = starting_EIR)
-
-out <- run_simulation(simparams, timesteps = sim_length)
-
-ggplot(out, aes(x = timestep, y = n_detect_lm_0_31025/n_age_0_31025))+
+ggplot(cali_sim, aes(x = timestep/365, y = n_detect_pcr_0_31025/n_age_0_31025))+
   geom_line()+
-  ylim(0,1)
+  geom_vline(aes(xintercept = prev_survey_date/365), col = "red")
 
-#
+cali_sim$n_detect_pcr_0_31025[prev_survey_date]/cali_sim$n_age_0_31025[prev_survey_date]
+#this is 0.0886...
+cali_EIR # 5.10...
+
+#seems to not work so well now we have the tx cov in there.
+
+#############################################
+#then set eqm
+simparams <- set_equilibrium(parameters = bednet_params, 
+                             init_EIR = 4)
+
+
+
 #then put in the DP MDA
 # Make a copy of the base simulation parameters to which we can add the MDA campaign parameters:
 mdaparams <- simparams
@@ -231,20 +213,139 @@ mdaparams <- simparams
 mdaparams <- set_drugs(mdaparams, list(DHA_PQP_params))
 
 # Specify the days on which to administer: modify according to the trial information
-# for purpose here, could do first of Jul, Aug and Sept
-mda_events <- (c(1, 2) * 365)
+# for purpose here, could do first of Jul, Aug and Sept of 2021 and 2022
+
+july <- 30*7
+aug <- 30*8
+sept <- 30*9
+
+y_2021 <- 365*10 
+y_2022 <- 365*11 
+
+DP_mda_y_2021 <- c(y_2021+july, y_2021+aug, y_2021+sept)
+
+DP_mda_y_2022 <- c(y_2022+july, y_2022+aug, y_2022+sept)
+
+mda_events <- c(DP_mda_y_2021, DP_mda_y_2022)
+
+mda_distr <- length(mda_events)
+DP_cov <- unique(df_setting$mean_DP_cov)
 
 # Use set_mda() function to set the proportion of the population that the MDA reaches and the age 
 # ranges which can receive treatment.
 mdaparams <- set_mda(mdaparams,
                      drug = 1, #just DP
                      timesteps = mda_events,
-                     coverages = rep(.8, 2), #modify cov for each distr acc to data
-                     min_ages = rep(0, length(mda_events)), #check minimum age for DP
-                     max_ages = rep(200 * 365, length(mda_events)))
+                     coverages = rep(DP_cov, mda_distr), #modify cov for each distr acc to data
+                     min_ages = rep(6*30, length(mda_events)), #min age is 6 months
+                     max_ages = rep(85 * 365, length(mda_events))) #the max age of pop
 
+
+#check that this is correct for setting correlations??
+correlations <- get_correlation_parameters(mdaparams)
+correlations$inter_round_rho('bednets', 1) #same people get ITNs each year
+correlations$inter_intervention_rho('bednets', 'mda', -1) #not necessarily same people getting ITNs and DP
 
 #run simulation here for control arm
+run_control <- run_simulation(timesteps = sim_length,
+                              parameters = mdaparams,
+                              correlations = correlations) 
+
+#prevalence estimates from trial to overlay 
+prev<- readRDS("C:/Users/nc1115/Documents/github/matamal-cluster-modelling/2.stat-analysis-model-params/output/baseline_prev_malariasim_params.rds")
+
+
+
+DP_mda_y_2021 <- c(y_2021+july, y_2021+aug, y_2021+sept)
+
+DP_mda_y_2022 <- c(y_2022+july, y_2022+aug, y_2022+sept)
+
+#prev survey 2021 31st Oct - 22nd Nov 2021. Just say 1st Nov
+#prev survey 2022 4th Nov - 1st Dec 2022
+nov <- 30*11
+#y_2019 <- 365*8 # 8 years into simulation
+#prev_survey_date <- nov+y_2019
+
+y_2021 <- 365*10
+prev_survey_date_2021 <- nov + y_2021
+
+y_2022 <- 365*11
+prev_survey_date_2022 <- nov + y_2022
+
+prev_2019 <- prev %>%
+  filter(year == 2019) %>%
+  mutate(year_sim = 8,
+    day = prev_survey_date) #for 2019
+
+prev_2021 <- prev %>%
+  filter(year == 2021) %>%
+  mutate(day = prev_survey_date_2021, 
+         year_sim = 10)
+
+prev_2022 <- prev %>%
+  filter(year == 2022) %>%
+  mutate(day = prev_survey_date_2022, 
+         year_sim = 10)
+
+
+#in days
+ggplot(run_control, aes(x = timestep, y = n_detect_pcr_0_31025/n_age_0_31025))+
+  geom_line()+
+  #2019 survey
+  geom_point(data = prev_2019, aes(day, y = mean_prev), col = "red", shape = 4, 
+             inherit.aes = FALSE)+
+  geom_errorbar(data = prev_2019,
+                aes(x = day, ymin = lower_prev, ymax = upper_prev),
+                color = "red", width = 30,
+                inherit.aes = FALSE)+
+  #2021 survey
+  geom_point(data = prev_2021, aes(x = day, y = mean_prev), col = "red", shape = 4, 
+             inherit.aes = FALSE)+
+  geom_errorbar(data = prev_2021,
+                aes(x = day, ymin = lower_prev, ymax = upper_prev),
+                color = "red", width = 30, 
+                inherit.aes = FALSE)+
+  #2022 survey
+  geom_errorbar(data = prev_2022,
+                aes(x = day, ymin = lower_prev, ymax = upper_prev),
+                color = "red", width = 30, 
+                inherit.aes = FALSE)+
+  geom_point(data = prev_2022, aes(x = day, y = mean_prev), col = "red", shape = 4, 
+             inherit.aes = FALSE)+
+  theme_bw()
+
+#now put this on year scale
+
+#add the DP arrows
+
+control_plot <- ggplot(run_control, aes(x = (timestep/365)+2011, y = (n_detect_pcr_0_31025/n_age_0_31025)))+
+  geom_line()+
+  coord_cartesian(xlim = c(2012, 2023))+
+  #2019 survey
+  geom_point(data = prev_2019, aes(x = (day/365)+2011, y = mean_prev), col = "red", shape = 4, 
+             inherit.aes = FALSE)+
+  geom_errorbar(data = prev_2019,
+                aes(x = (day/365)+2011, ymin = lower_prev, ymax = upper_prev),
+                color = "red", width = 0.2,
+                inherit.aes = FALSE)+
+  #2021 survey
+  geom_point(data = prev_2021, aes(x = (day/365)+2011, y = mean_prev), col = "red", shape = 4, 
+             inherit.aes = FALSE)+
+  geom_errorbar(data = prev_2021,
+                aes(x = (day/365)+2011, ymin = lower_prev, ymax = upper_prev),
+                color = "red", width = 0.2, 
+                inherit.aes = FALSE)+
+  #2022 survey
+  geom_errorbar(data = prev_2022,
+                aes(x = (day/365)+2011, ymin = lower_prev, ymax = upper_prev),
+                color = "red", width = 0.2, 
+                inherit.aes = FALSE)+
+  geom_point(data = prev_2022, aes(x = (day/365)+2011, y = mean_prev), col = "red", shape = 4, 
+             inherit.aes = FALSE)+
+  theme_bw()+
+  labs(x = "Year", y = "PCR prevalence")+
+  ggtitle("Control arm")
+
 
 #for intervention arm, add endectocides in 
 
@@ -252,8 +353,8 @@ mdaparams <- set_mda(mdaparams,
 mda_int <- 30
 eff_len <- 23
 #early_IVM <- 180
-endec_y1_start <- 365 #start time of first MDA
-endec_y2_start <- 365*2
+endec_y1_start <- july + y_2021 #start time of first MDA
+endec_y2_start <- july+ y_2022
 #start time of each MDA (Jul, Aug, Sep 2021 and Jul, Aug, Sep 2022)
 early_IVM_start <- c(endec_y1_start, endec_y1_start+mda_int, endec_y1_start+mda_int+mda_int, 
                      endec_y2_start, endec_y2_start+mda_int, endec_y2_start+mda_int+mda_int)
@@ -275,19 +376,42 @@ early_endec_on <- c(as.numeric(early_IVM_start[1]):as.numeric(early_IVM_start[1]
                     )
 
 #early MDA with long net retention
-endec_params <- set_endectocide(simparams, timesteps = early_steps,
+endec_params <- set_endectocide(mdaparams, timesteps = early_steps,
                                 endec_on = early_endec_on, 
                                 endec_ts = early_endec_ts)
 
 #run model####
 run_endec <- run_simulation(endec_params, 
-                            timesteps = sim_length)
-                            #correlations = correlations_long)
+                            timesteps = sim_length, 
+                            correlations = correlations)
+                         
                             
 #run_simulation(endec_params,  timesteps = sim_length,correlations = correlations_long)
 
-ggplot(run_endec, aes(x = timestep, y = (n_detect_lm_0_31025/n_age_0_31025)))+
+int_plot <- ggplot(run_endec, aes(x = (timestep/365)+2011, y = (n_detect_pcr_0_31025/n_age_0_31025)))+
   geom_line()+
-  geom_vline(aes(xintercept = early_IVM_start[3]+30+30), lty = "dashed")+
-  geom_vline(aes(xintercept = early_IVM_start[6]+30+30), lty = "dashed")
-
+  coord_cartesian(xlim = c(2011, 2023))+
+  #2019 survey
+  geom_point(data = prev_2019, aes(x = (day/365)+2011, y = mean_prev), col = "red", shape = 4, 
+             inherit.aes = FALSE)+
+  geom_errorbar(data = prev_2019,
+                aes(x = (day/365)+2011, ymin = lower_prev, ymax = upper_prev),
+                color = "red", width = 0.2,
+                inherit.aes = FALSE)+
+  #2021 survey
+  geom_point(data = prev_2021, aes(x = (day/365)+2011, y = mean_prev), col = "red", shape = 4, 
+             inherit.aes = FALSE)+
+  geom_errorbar(data = prev_2021,
+                aes(x = (day/365)+2011, ymin = lower_prev, ymax = upper_prev),
+                color = "red", width = 0.2, 
+                inherit.aes = FALSE)+
+  #2022 survey
+  geom_errorbar(data = prev_2022,
+                aes(x = (day/365)+2011, ymin = lower_prev, ymax = upper_prev),
+                color = "red", width = 0.2, 
+                inherit.aes = FALSE)+
+  geom_point(data = prev_2022, aes(x = (day/365)+2011, y = mean_prev), col = "red", shape = 4, 
+             inherit.aes = FALSE)+
+  theme_bw()+
+  labs(x = "Year", y = "PCR prevalence")+
+  ggtitle("Intervention arm")

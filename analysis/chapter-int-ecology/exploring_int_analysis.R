@@ -45,7 +45,7 @@ ggplot(baseline_sim, aes(x = timestep, y = (n_detect_pcr_0_1825/n_age_0_1825)*10
 
 ##vector control####
 #ITNs: setup
-
+year <- 365
 bednet_years <- seq(3, 10, by = 3)
 bednet_timesteps <- bednet_years*year
 itn_distr <- length(bednet_years)
@@ -183,31 +183,33 @@ run_endec_early_long_bednet <- run_simulation(endec_params_early_endec_long_bedn
                                               timesteps = sim_length, 
                                               correlations = correlations_long)
 
-saveRDS(run_endec_early_long_bednet, file = "analysis/chapter-int-ecology/run_endec_early_long_bednet.rds")
+
+
+#saveRDS(run_endec_early_long_bednet, file = "analysis/chapter-int-ecology/run_endec_early_long_bednet.rds")
 
 run_endec_early_medium_bednet <- run_simulation(endec_params_early_endec_medium_bednet, 
                                                 timesteps = sim_length, 
                                                 correlations = correlations_medium) 
-saveRDS(run_endec_early_medium_bednet, file = "analysis/chapter-int-ecology/run_endec_early_medium_bednet.rds")
+#saveRDS(run_endec_early_medium_bednet, file = "analysis/chapter-int-ecology/run_endec_early_medium_bednet.rds")
 
 run_endec_early_short_bednet <- run_simulation(endec_params_early_endec_short_bednet, 
                                                timesteps = sim_length, 
                                                correlations = correlations_short)
 
-saveRDS(run_endec_early_short_bednet, file = "analysis/chapter-int-ecology/run_endec_early_short_bednet.rds")
+#saveRDS(run_endec_early_short_bednet, file = "analysis/chapter-int-ecology/run_endec_early_short_bednet.rds")
 
 run_endec_late_long_bednet <- run_simulation(endec_params_late_endec_long_bednet, 
                                              timesteps = sim_length, 
                                              correlations = correlations_long)
-saveRDS(run_endec_late_long_bednet, file = "analysis/chapter-int-ecology/run_endec_late_long_bednet.rds")
+#saveRDS(run_endec_late_long_bednet, file = "analysis/chapter-int-ecology/run_endec_late_long_bednet.rds")
 
 run_endec_late_medium_bednet <- run_simulation(endec_params_late_endec_medium_bednet, 
                                                timesteps = sim_length, 
                                                correlations = correlations_medium)
-saveRDS(run_endec_late_medium_bednet, file = "analysis/chapter-int-ecology/run_endec_late_medium_bednet.rds")
+#saveRDS(run_endec_late_medium_bednet, file = "analysis/chapter-int-ecology/run_endec_late_medium_bednet.rds")
 
 run_endec_late_short_bednet <- run_simulation(endec_params_late_endec_short_bednet, 
                                               timesteps = sim_length, 
                                               correlations = correlations_short)
 
-saveRDS(run_endec_late_short_bednet, file = "analysis/chapter-int-ecology/run_endec_late_short_bednet.rds")
+#saveRDS(run_endec_late_short_bednet, file = "analysis/chapter-int-ecology/run_endec_late_short_bednet.rds")

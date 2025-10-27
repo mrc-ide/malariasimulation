@@ -2,6 +2,8 @@ devtools::load_all()
 require(tidyverse)
 #malariasim with baseline scenario, ITN and endectocides
 
+#this is the script used for the chapter
+
 #baseline scenario####
 
 year <- 365

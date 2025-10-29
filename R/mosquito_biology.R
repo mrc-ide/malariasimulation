@@ -13,23 +13,23 @@ initial_mosquito_counts <- function(parameters, species, foim, m) {
   n_E <- 2 * omega * mum * parameters$dl * (
     1. + parameters$dpl * parameters$mup
   ) * m
-
+  
   n_L <- 2 * mum * parameters$dl * (
     1. + parameters$dpl * parameters$mup
   ) * m
-
+  
   n_P <- 2 * parameters$dpl * mum * m
-
+  
   n_Sm <- m * mum / (foim + mum)
-
+  
   incubation_survival <- exp(-mum * parameters$dem)
-
+  
   n_Pm <- m * foim / (foim + mum) * (
     1. - incubation_survival
   )
-
+  
   n_Im <- m * foim / (foim + mum) * incubation_survival
-
+  
   c(n_E, n_L, n_P, n_Sm, n_Pm, n_Im)
 }
 
@@ -47,15 +47,15 @@ calculate_omega <- function(parameters, species) {
   ) + (
     (parameters$gamma - 1) * parameters$ml * parameters$del
   )
-
+  
   mum <- parameters$mum[[species]]
-
+  
   beta <- eggs_laid(
     parameters$beta,
     mum,
     parameters$blood_meal_rates[[species]]
   )
-
+  
   -.5 * sub_omega + sqrt(
     .25 * sub_omega**2 +
       .5 * parameters$gamma * beta * parameters$ml * parameters$del /
@@ -74,7 +74,7 @@ calculate_omega <- function(parameters, species) {
 #' @param species index of the species to calculate for
 calculate_carrying_capacity <- function(parameters, m, species) {
   omega <- calculate_omega(parameters, species)
-
+  
   m * 2 * parameters$dl * parameters$mum[[species]] * (
     1. + parameters$dpl * parameters$mup
   ) * parameters$gamma * (omega + 1) / (
@@ -89,12 +89,12 @@ calculate_carrying_capacity <- function(parameters, m, species) {
 #' @noRd
 calculate_R_bar <- function(parameters) {
   mean(vnapply(1:365, function(t) rainfall(
-		t,
+    t,
     parameters$g0,
     parameters$g,
     parameters$h,
     parameters$rainfall_floor
-	)))
+  )))
 }
 
 #' @title Calculate equilibrium total_M from parameters
@@ -149,9 +149,7 @@ peak_season_offset <- function(parameters) {
 #' @noRd
 death_rate <- function(f, W, Z, species, parameters,timestep) {
   mum <- parameters$mum[[species]]
-  #if(parameters$endec) {
   mum <- endec_adjusted_mortality(parameters, species, timestep)
-  #}
   p1_0 <- exp(-mum * parameters$foraging_time[[species]])
   gonotrophic_cycle <- get_gonotrophic_cycle(species, parameters)
   p2 <- exp(-mum * gonotrophic_cycle) #change what goes into background mort
@@ -187,7 +185,7 @@ biting_effects_individual <- function(
     mu,
     parameters,
     timestep
-  ) {
+) {
   # deal with mosquito infections
   target <- sample_bitset(susceptible_species, foim)
   variables$mosquito_state$queue_update('Pm', target)
@@ -195,10 +193,10 @@ biting_effects_individual <- function(
     target,
     log_uniform(target$size(), parameters$dem)
   )
-
+  
   # deal with mosquito deaths
   died <- sample_bitset(adult_species, mu)
-
+  
   events$mosquito_death$schedule(died, 0)
 }
 #' @title Mosquito emergence process
@@ -212,12 +210,12 @@ biting_effects_individual <- function(
 #' @param dpl the delay for pupal growth (in timesteps)
 #' @noRd
 create_mosquito_emergence_process <- function(
-  solvers,
-  state,
-  species,
-  species_names,
-  dpl
-  ) {
+    solvers,
+    state,
+    species,
+    species_names,
+    dpl
+) {
   rate <- .5 * 1 / dpl
   function(timestep) {
     p_counts <- vnapply(

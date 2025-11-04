@@ -182,6 +182,11 @@ all_results_intervention <- all_results_intervention %>%
     scenario_label = ifelse(target_scenario, "Reference scenario", "Other scenarios")
   )
 
+
+saveRDS(all_results_intervention, file = "analysis/matamal/1.model_runs/sensitivity_output/processed_outputs/intervention.rds")
+saveRDS(all_results_control, file = "analysis/matamal/1.model_runs/sensitivity_output/processed_outputs/control.rds")
+
+
 all_results_intervention %>%
   filter(target_scenario == TRUE)
 

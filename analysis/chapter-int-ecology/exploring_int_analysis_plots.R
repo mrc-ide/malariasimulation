@@ -49,6 +49,24 @@ dynamics_df$scenario2 <- factor(dynamics_df$scenario,
 
 
 
+#time periods 
+mda_int <- 30
+eff_len <- 23
+early_IVM <- 180
+early_IVM_begin1 <- bednet_timesteps[2]+early_IVM # 6 months into bednet campaign. IVM distr is after the 2nd ITN campaign
+early_IVM_start <- c(early_IVM_begin1, early_IVM_begin1+mda_int, early_IVM_begin1+mda_int+mda_int)
+
+early_t_start <- early_IVM_start[1]
+early_t_end <- early_IVM_start[1]+180
+
+late_IVM <- 2*365 #2y after
+late_IVM_begin1 <- bednet_timesteps[2]+late_IVM #
+late_IVM_start <- c(late_IVM_begin1, late_IVM_begin1+mda_int, late_IVM_begin1+mda_int+mda_int)
+
+late_t_start <- late_IVM_start[1]
+late_t_end <- late_IVM_start[1]+180
+
+
 dynamics_plot <- ggplot(dynamics_df, aes(x = (timestep-bednet_start)/365, y = (n_detect_lm_0_1825/n_age_0_1825)*100, 
                         col = as.factor(scenario2)))+
   geom_line(size = 1)+

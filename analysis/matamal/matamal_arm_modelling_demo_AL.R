@@ -23,8 +23,8 @@ simparams1 <- get_parameters(overrides = list(
   human_population = human_population, 
   endec = TRUE, 
   bednets = TRUE,
-  prevalence_rendering_min_ages = 0, 
-  prevalence_rendering_max_ages = 80 * 365, #all age prevalence - in line with odin
+  prevalence_rendering_min_ages = c(0*365,0*365),
+  prevalence_rendering_max_ages = c(5*365,80*365), #all age prevalence - and under 5s
   individual_mosquitoes = FALSE, 
   age_group_rendering_min_ages = age_min, 
   age_group_rendering_max_ages = age_max ,
@@ -76,7 +76,15 @@ mosq_params$phi_bednets <- round(df_phi$mean,3) #phi-bed from Bijagos
 simparams <- set_species(demo_params, species = list(mosq_params), 
                          proportions = c(1))
 
-#set demography####
+#eqm1 <- set_equilibrium(simparams, init_EIR = 7)
+#eqm1$timesteps <- sim_length
+#out1_check_eqm <- run_simulation(parameters = eqm1, timesteps  = eqm1$timesteps)
+
+#ggplot(out1_check_eqm, aes(x = ((timestep-1)/365)+2012, y = n_detect_lm_0_29200/n_age_0_29200))+
+#  geom_line()+
+#  scale_x_continuous(breaks = c(2012:2025))
+#
+##set demography####
 
 
 #set drugs and treatment. Use site file for AL####
@@ -109,7 +117,7 @@ retention_net <- c(12, 21, 38)*30 #AG work https://www.medrxiv.org/content/10.11
 
 df_nets <- readRDS("C:/Users/nc1115/Documents/github/matamal-cluster-modelling/2.stat-analysis-model-params/output/df_net_matamal_info.rds")
 
-df_nets2 <- df_nets %>%
+df_nets2 <- df_nets  %>%
   filter(year >= 2012)
 
 itn_distr <- nrow(df_nets2)
@@ -138,54 +146,90 @@ correlations$inter_round_rho('bednets', 1)
 #how do you specify that this prev survey is from 2019
 
 
-nov <- 30*11
-y_2018 <- 365*7 # 8 years into simulation
-prev_survey_date <- nov+y_2018
+#nov <- 30*11
+#y_2018 <- 365*7 #7 into simulation
+#prev_survey_date <- nov+y_2018
+
+
+timestep_from_2012 <- function(year, month, day) {
+  # Days in each month (non-leap year)
+  month_lengths <- c(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+  
+  # Years since 2012 (each year = 365 days)
+  years_since <- year - 2012
+  days_from_years <- years_since * 365
+  
+  # Days from previous months in the same year
+  if (month > 1) {
+    days_from_months <- sum(month_lengths[1:(month - 1)])
+  } else {
+    days_from_months <- 0
+  }
+  
+  # Days within the current month (start at day 1 → offset 0)
+  days_from_days <- day - 1
+  
+  # Total timestep (timestep = 1 corresponds to 1 Jan 2012)
+  timestep <- 1 + days_from_years + days_from_months + days_from_days
+  return(timestep)
+}
+
+
+prev_survey_date <- timestep_from_2012(2018, 11, 1) 
+
+
 
 baseline_prev_2018 <- 0.148 # from DTNmapper
 ################################################################################
-#library(cali)
-#
-## Prepare a summary function that returns the mean PfPR2-10 from each simulation output: 
-#summary_mean_pfpr_all_age <- function (x) {
-#  
-#  # Calculate the PfPR2-10:
-#  prev <- x$n_detect_pcr_0_29200[prev_survey_date]/x$n_age_0_29200[prev_survey_date] #specify here that this is around Nov 2019
-#  
-#  # Return the calculated PfPR all age:
-#  return(prev)
-#}
-#
-## Establish a target PfPR2-10 value:
-#target_pfpr <- baseline_prev_2018
-#
-#bednet_params$timesteps <- sim_length
-#
-#
-## Run the calibrate() function:
-#cali_EIR <- cali::calibrate(target = target_pfpr,
-#                            eq_prevalence = 0.1, #just a starting point for search
-#                            summary_function = summary_mean_pfpr_all_age,
-#                            human_population = c(1e+04, 1e+05, 1e+06),
-#                            parameters = bednet_params, 
-#                            eir_limits = c(2,8)) 
-##cali_EIR_in <- 6.38
-##check cali output#########################
-#
-##try some trial runs with a slightly lower EIR
-#
+library(cali)
+
+# Prepare a summary function that returns the mean PfPR2-10 from each simulation output: 
+summary_mean_pfpr_all_age <- function (x) {
+  
+  # Calculate the PfPR2-10:
+  prev <- x$n_detect_pcr_0_29200[prev_survey_date]/x$n_age_0_29200[prev_survey_date] #specify here that this is around Nov 2018
+  
+  # Return the calculated PfPR all age:
+  return(prev)
+}
+
+# Establish a target PfPR2-10 value:
+target_pfpr <- baseline_prev_2018
+
+bednet_params$timesteps <- sim_length
+
+
+# Run the calibrate() function:
+cali_EIR <- cali::calibrate(target = target_pfpr,
+                            eq_prevalence = 0.1, #just a starting point for search
+                            summary_function = summary_55mean_pfpr_all_age,
+                            human_population = c(1e+04, 1e+05, 1e+06),
+                            parameters = bednet_params, 
+                            eir_limits = c(2,12)) 
+#cali_EIR_in <- 6.38
+#check cali output#########################
+
+#try some trial runs with a slightly lower EIR
+
 ##############################################################################################
 bednet_params$timesteps <- sim_length
-simparams_cali <- set_equilibrium(bednet_params, init_EIR = 4.3)
+#changing caliEIR, currently 9.11..
+simparams_cali <- set_equilibrium(bednet_params, init_EIR = 7)
 
 # Run the simulation:
 cali_sim <- run_simulation(timesteps = (simparams_cali$timesteps),
                            parameters = simparams_cali, 
                            correlations = correlations)
 
-ggplot(cali_sim, aes(x = timestep/365, y = n_detect_pcr_0_29200/n_age_0_29200))+
+ggplot(cali_sim, aes(x = (timestep/365), y = n_detect_pcr_0_29200/n_age_0_29200))+
   geom_line()+
-  geom_vline(aes(xintercept = prev_survey_date/365), col = "red")
+  geom_vline(aes(xintercept = (prev_survey_date/365)), col = "red")
+
+
+ggplot(cali_sim, aes(x = ((timestep+1)/365)+2012, y = n_detect_pcr_0_29200/n_age_0_29200))+
+  geom_line()+
+  geom_vline(aes(xintercept = (prev_survey_date/365)+2012), col = "red")+
+  scale_x_continuous(breaks = 2012:2025)
 
 cali_sim$n_detect_pcr_0_29200[prev_survey_date]/cali_sim$n_age_0_29200[prev_survey_date] #15.04%
 cali_sim$n_detect_lm_0_29200[prev_survey_date]/cali_sim$n_age_0_29200[prev_survey_date] #~0.07801603 all age prev
@@ -194,7 +238,7 @@ cali_sim$n_detect_lm_0_29200[prev_survey_date]/cali_sim$n_age_0_29200[prev_surve
 
 #eff_nets_only <- cali_sim$n_detect_pcr_0_29200[prev_survey_date_2022]/cali_sim$n_age_0_29200[prev_survey_date_2022] #15.04%
 
-input_EIR <- 4.3
+input_EIR <- 7
 
 #seems to not work so well now we have the tx cov in there.
 
@@ -216,16 +260,27 @@ mdaparams <- set_drugs(mdaparams, list(DHA_PQP_params))
 # Specify the days on which to administer: modify according to the trial information
 # for purpose here, could do first of Jul, Aug and Sept of 2021 and 2022
 
-july <- 30*7
-aug <- 30*8
-sept <- 30*9
+#july <- 30*7
+#aug <- 30*8
+#sept <- 30*9
+#
+#y_2021 <- 365*10
+#y_2022 <- 365*11 
 
-y_2021 <- 365*10 
-y_2022 <- 365*11 
+DP_july_21 <- timestep_from_2012(2021, 7, 1)
+DP_aug_21 <- timestep_from_2012(2021, 8, 1)
+DP_sept_21 <- timestep_from_2012(2021, 9, 1)
 
-DP_mda_y_2021 <- c(y_2021+july, y_2021+aug, y_2021+sept)
+DP_july_22 <- timestep_from_2012(2022, 7, 1)
+DP_aug_22 <- timestep_from_2012(2022, 8, 1)
+DP_sept_22 <- timestep_from_2012(2022, 9, 1)
 
-DP_mda_y_2022 <- c(y_2022+july, y_2022+aug, y_2022+sept)
+#DP_mda_y_2021 <- c(y_2021+july, y_2021+aug, y_2021+sept)
+DP_mda_y_2021 <- c(DP_july_21, DP_aug_21, DP_sept_21)
+DP_mda_y_2022 <- c(DP_july_22, DP_aug_22, DP_sept_22)
+
+
+#DP_mda_y_2022 <- c(y_2022+july, y_2022+aug, y_2022+sept)
 
 mda_events <- c(DP_mda_y_2021, DP_mda_y_2022)
 
@@ -252,6 +307,10 @@ run_control <- run_simulation(timesteps = sim_length,
                               parameters = mdaparams,
                               correlations = correlations) 
 
+run_control <- run_control %>%
+  mutate(year = ((timestep - 1) / 365) + 2012, 
+         year_sim = ((timestep - 1) / 365))
+
 #prevalence estimates from trial to overlay 
 prev<- readRDS("C:/Users/nc1115/Documents/github/matamal-cluster-modelling/2.stat-analysis-model-params/output/baseline_prev_malariasim_params.rds")
 prev <- prev %>%
@@ -259,31 +318,31 @@ prev <- prev %>%
 
 
 
-DP_mda_y_2021 <- c(y_2021+july, y_2021+aug, y_2021+sept)
-
-DP_mda_y_2022 <- c(y_2022+july, y_2022+aug, y_2022+sept)
+#DP_mda_y_2021 <- c(y_2021+july, y_2021+aug, y_2021+sept)
+#
+#DP_mda_y_2022 <- c(y_2022+july, y_2022+aug, y_2022+sept)
 
 #prev survey 2021 31st Oct - 22nd Nov 2021. Just say 1st Nov
 #prev survey 2022 4th Nov - 1st Dec 2022
 nov <- 30*11
 #y_2019 <- 365*8 # 8 years into simulation
-prev_survey_date <- nov+y_2018
+#prev_survey_date <- nov+y_2018
 
-y_2021 <- 365*10
-prev_survey_date_2021 <- nov + y_2021
+#y_2021 <- 365*10
+prev_survey_date_2021 <- timestep_from_2012(2021, 11, 1)
 
-y_2022 <- 365*11
-prev_survey_date_2022 <- nov + y_2022
+#y_2022 <- 365*11
+prev_survey_date_2022 <- timestep_from_2012(2022, 11, 1)
 
 prev_2018 <- prev %>%
   filter(year == 2018) %>%
-  mutate(year_sim = 7,
-         day = prev_survey_date) #for 2019
+  mutate(year_sim = 6,
+         day = prev_survey_date) #for 2018
 
 prev_2021 <- prev %>%
   filter(year == 2021) %>%
   mutate(day = prev_survey_date_2021, 
-         year_sim = 10)
+         year_sim = 9)
 
 prev_2022 <- prev %>%
   filter(year == 2022) %>%
@@ -313,18 +372,49 @@ df_prev_cluster_int <- df_prev_cluster %>%
 distr_campaign <- 6*30 #distribution in June
 distr_years <- c(2014, 2017, 2020)
 
-control_plot <- ggplot(run_control, aes(x = (timestep/365)+2012, y = (n_detect_pcr_0_29200/n_age_0_29200)))+
+
+
+ggplot(run_control, aes(x = (timestep/365), y = (n_detect_pcr_0_29200/n_age_0_29200)))+
+  geom_line()+
+  scale_x_continuous(breaks = 0:14)
+######################
+
+mda_campaign_arrows <- data.frame(
+  x = ((mda_events-1)/365)+2012,
+  xend = ((mda_events-1)/365)+2012,
+  y = rep(0.2, length(distr_years)),
+  yend = rep(0.17, length(distr_years))
+)
+
+saveRDS(run_control, "analysis/matamal/output/run_control_DP.rds")
+run_control <- readRDS("analysis/matamal/output/run_control_DP.rds")
+
+
+control_plot <- ggplot(run_control, aes(x = ((timestep-1)/365)+2012, y = (n_detect_pcr_0_29200/n_age_0_29200)))+
   geom_line()+
   #coord_cartesian(xlim = c(2017, 2023))+
-  #2019 survey
-  geom_point(data = prev_2018, aes(x = (day/365)+2012, y = mean_prev), col = "red", shape = 4, 
+  #ITN campaigns 
+  annotate("segment", x = distr_years[1]+(distr_campaign/365), 
+           xend = distr_years[1]+(distr_campaign/365), y = 0.2, yend = 0.17, 
+           arrow = arrow(length = unit(0.25, "cm")), size = 1.5)+
+  annotate("segment", x = distr_years[2]+(distr_campaign/365), 
+           xend = distr_years[2]+(distr_campaign/365), y = 0.2, yend = 0.17, 
+           arrow = arrow(length = unit(0.25, "cm")), size = 1.5)+
+  annotate("segment", x = distr_years[3]+(distr_campaign/365), 
+           xend = distr_years[3]+(distr_campaign/365), y = 0.2, yend = 0.17,
+           arrow = arrow(length = unit(0.25, "cm")), size = 1.5)+
+  #2018 survey
+  geom_point(data = prev_2018, aes(x = ((day-1)/365)+2012, y = mean_prev), col = "red", shape = 4, 
              inherit.aes = FALSE)+
   geom_errorbar(data = prev_2018,
-                aes(x = (day/365)+2012, ymin = lower_prev/100, ymax = upper_prev/100),
+                aes(x = ((day-1)/365)+2012, ymin = lower_prev/100, ymax = upper_prev/100),
                 color = "red", width = 0.2,
                 inherit.aes = FALSE)+
+  coord_cartesian(xlim = c(2012, 2023 -0.5)) +
+  scale_x_continuous(breaks = 2012:2022)+ #no ITN inputs in df for 2023
+  
   #2021 survey
-  geom_point(data = prev_2021, aes(x = (day/365)+2012, y = mean_prev), col = "red", shape = 4, 
+  geom_point(data = prev_2021, aes(x = ((day-1)/365)+2012, y = mean_prev), col = "red", shape = 4, 
              inherit.aes = FALSE)+
   geom_errorbar(data = prev_2021,
                 aes(x = (day/365)+2012, ymin = lower_prev, ymax = upper_prev),
@@ -341,10 +431,20 @@ control_plot <- ggplot(run_control, aes(x = (timestep/365)+2012, y = (n_detect_p
   #cluster level data 
   geom_point(data = df_prev_cluster_control, aes(x = (day/365)+2012, y = all_age_prev/100), col = "slateblue")+
   
-  scale_x_continuous(breaks = 2012:2025) +
   theme_bw()+
-  labs(x = "Year", y = "PCR prevalence")+
+  labs(x = "Year", y = "PCR prevalence in under 5s")+
   ggtitle("Control arm")+
+  geom_segment(
+    data = mda_campaign_arrows,
+    aes(x = x, xend = xend, y = y, yend = yend),
+    arrow = arrow(length = unit(0.25, "cm")),
+    size = 1.5, col = "orange"
+  )+
+  ylim(0, 0.5)
+
+control_plot_u5 <- ggplot(run_control, aes(x = ((timestep-1)/365)+2012, y = (n_detect_pcr_0_1825/n_age_0_1825)))+
+  geom_line()+
+  #coord_cartesian(xlim = c(2017, 2023))+
   #ITN campaigns 
   annotate("segment", x = distr_years[1]+(distr_campaign/365), 
            xend = distr_years[1]+(distr_campaign/365), y = 0.2, yend = 0.17, 
@@ -354,20 +454,68 @@ control_plot <- ggplot(run_control, aes(x = (timestep/365)+2012, y = (n_detect_p
            arrow = arrow(length = unit(0.25, "cm")), size = 1.5)+
   annotate("segment", x = distr_years[3]+(distr_campaign/365), 
            xend = distr_years[3]+(distr_campaign/365), y = 0.2, yend = 0.17,
-           arrow = arrow(length = unit(0.25, "cm")), size = 1.5)
+           arrow = arrow(length = unit(0.25, "cm")), size = 1.5)+
+  #2018 survey
+  geom_point(data = prev_2018, aes(x = ((day-1)/365)+2012, y = mean_prev), col = "red", shape = 4, 
+             inherit.aes = FALSE)+
+  geom_errorbar(data = prev_2018,
+                aes(x = ((day-1)/365)+2012, ymin = lower_prev/100, ymax = upper_prev/100),
+                color = "red", width = 0.2,
+                inherit.aes = FALSE)+
+  coord_cartesian(xlim = c(2012, 2023 -0.5)) +
+  scale_x_continuous(breaks = 2012:2022)+ #no ITN inputs in df for 2023
+  
+  #2021 survey
+  geom_point(data = prev_2021, aes(x = ((day-1)/365)+2012, y = mean_prev), col = "red", shape = 4, 
+             inherit.aes = FALSE)+
+  geom_errorbar(data = prev_2021,
+                aes(x = (day/365)+2012, ymin = lower_prev, ymax = upper_prev),
+                color = "red", width = 0.2, 
+                inherit.aes = FALSE)+
+  #2022 survey
+  geom_errorbar(data = prev_2022,
+                aes(x = (day/365)+2012, ymin = lower_prev, ymax = upper_prev),
+                color = "red", width = 0.2, 
+                inherit.aes = FALSE)+
+  geom_point(data = prev_2022, aes(x = (day/365)+2012, y = mean_prev), col = "red", shape = 4, 
+             inherit.aes = FALSE)+
+  
+  #cluster level data 
+  geom_point(data = df_prev_cluster_control, aes(x = (day/365)+2012, y = all_age_prev/100), col = "slateblue")+
+  
+  theme_bw()+
+  labs(x = "Year", y = "PCR prevalence")+
+  ggtitle("Control arm")+
+  geom_segment(
+    data = mda_campaign_arrows,
+    aes(x = x, xend = xend, y = y, yend = yend),
+    arrow = arrow(length = unit(0.25, "cm")),
+    size = 1.5, col = "orange"
+  )+
+  ylim(0, 0.5)
 
-ggplot(run_control, aes(x = (timestep/365)+2012, y = (n_use_net/human_population)))+
-  geom_line()+
-  ylim(0,1)+
-  annotate("segment", x = distr_years[1]+(distr_campaign/365), 
-           xend = distr_years[1]+(distr_campaign/365), y = 0.80, yend = 0.75, 
-           arrow = arrow(length = unit(0.25, "cm")), size = 1.5)+
-  annotate("segment", x = distr_years[2]+(distr_campaign/365), 
-           xend = distr_years[2]+(distr_campaign/365), y = 0.80, yend = 0.75, 
-           arrow = arrow(length = unit(0.25, "cm")), size = 1.5)+
-  annotate("segment", x = distr_years[3]+(distr_campaign/365), 
-           xend = distr_years[3]+(distr_campaign/365), y = 0.80, yend = 0.75,
-           arrow = arrow(length = unit(0.25, "cm")), size = 1.5)
+
+
+
+campaign_arrows <- data.frame(
+  x = distr_years + (distr_campaign / 365),
+  xend = distr_years + (distr_campaign / 365),
+  y = rep(0.80, length(distr_years)),
+  yend = rep(0.75, length(distr_years))
+)
+
+ggplot(run_control, aes(x = (timestep/365) + 2012, y = (n_use_net / human_population))) +
+  geom_line() +
+  coord_cartesian(ylim = c(0, 1)) +
+  geom_segment(
+    data = campaign_arrows,
+    aes(x = x, xend = xend, y = y, yend = yend),
+    arrow = arrow(length = unit(0.25, "cm")),
+    size = 1.5
+  ) +
+  labs(x = "Year", y = "Proportion using net") +
+  theme_bw()+
+  scale_x_continuous(breaks = 2012:2022)
 
 
 
@@ -377,8 +525,13 @@ ggplot(run_control, aes(x = (timestep/365)+2012, y = (n_use_net/human_population
 mda_int <- 30
 eff_len <- 23
 #early_IVM <- 180
-endec_y1_start <- july + y_2021 #start time of first MDA
-endec_y2_start <- july+ y_2022
+#endec_y1_start <- july + y_2021 #start time of first MDA
+#endec_y2_start <- july+ y_2022
+
+endec_y1_start <- timestep_from_2012(2021, 7, 1)
+endec_y2_start <- timestep_from_2012(2022, 7, 1)
+
+
 #start time of each MDA (Jul, Aug, Sep 2021 and Jul, Aug, Sep 2022)
 early_IVM_start <- c(endec_y1_start, endec_y1_start+mda_int, endec_y1_start+mda_int+mda_int, 
                      endec_y2_start, endec_y2_start+mda_int, endec_y2_start+mda_int+mda_int)
@@ -414,39 +567,40 @@ run_endec <- run_simulation(endec_params,
 
 #run_simulation(endec_params,  timesteps = sim_length,correlations = correlations_long)
 
+saveRDS(run_endec, file = "analysis/matamal/output/run_int_DP_endec.rds")
 
-
-int_plot <- ggplot(run_endec, aes(x = (timestep/365)+2012, y = (n_detect_pcr_0_29200/n_age_0_29200)))+
+int_plot <- ggplot(run_endec, aes(x = ((timestep-1)/365)+2012, y = (n_detect_pcr_0_29200/n_age_0_29200)))+
   geom_line()+
-  coord_cartesian(xlim = c(2017, 2023))+
+  
   #2019 survey
-  geom_point(data = prev_2018, aes(x = (day/365)+2012, y = mean_prev), col = "red", shape = 4, 
+  geom_point(data = prev_2018, aes(x = ((day-1)/365)+2012, y = mean_prev), col = "red", shape = 4, 
              inherit.aes = FALSE)+
   geom_errorbar(data = prev_2018,
-                aes(x = (day/365)+2012, ymin = lower_prev/100, ymax = upper_prev/100),
+                aes(x = ((day-1)/365)+2012, ymin = lower_prev/100, ymax = upper_prev/100),
                 color = "red", width = 0.2,
                 inherit.aes = FALSE)+
   #2021 survey
-  geom_point(data = prev_2021, aes(x = (day/365)+2012, y = mean_prev), col = "red", shape = 4, 
+  geom_point(data = prev_2021, aes(x = ((day-1)/365)+2012, y = mean_prev), col = "red", shape = 4, 
              inherit.aes = FALSE)+
   geom_errorbar(data = prev_2021,
-                aes(x = (day/365)+2012, ymin = lower_prev, ymax = upper_prev),
+                aes(x = ((day-1)/365)+2012, ymin = lower_prev, ymax = upper_prev),
                 color = "red", width = 0.2, 
                 inherit.aes = FALSE)+
   #2022 survey
   geom_errorbar(data = prev_2022,
-                aes(x = (day/365)+2012, ymin = lower_prev, ymax = upper_prev),
+                aes(x = ((day-1)/365)+2012, ymin = lower_prev, ymax = upper_prev),
                 color = "red", width = 0.2, 
                 inherit.aes = FALSE)+
-  geom_point(data = prev_2022, aes(x = (day/365)+2012, y = mean_prev), col = "red", shape = 4, 
+  geom_point(data = prev_2022, aes(x = ((day-1)/365)+2012, y = mean_prev), col = "red", shape = 4, 
              inherit.aes = FALSE)+
   #cluster level data 
-  geom_point(data = df_prev_cluster_int, aes(x = (day/365)+2012, y = all_age_prev/100), col = "slateblue")+
-  
+  geom_point(data = df_prev_cluster_int, aes(x = ((day-1)/365)+2012, y = all_age_prev/100), col = "slateblue")+
+  coord_cartesian(xlim = c(2012, 2023 -0.5)) +
+  scale_x_continuous(breaks = 2012:2022)   + #no ITN inputs in df for 2023
   theme_bw()+
   labs(x = "Year", y = "PCR prevalence")+
   ggtitle("Intervention arm")+
-  scale_x_continuous(breaks = 2012:2023)+
+  #scale_x_continuous(breaks = 2012:2023)+
   #ITN campaigns 
   annotate("segment", x = distr_years[1]+(distr_campaign/365), 
            xend = distr_years[1]+(distr_campaign/365), y = 0.2, yend = 0.17, 
@@ -456,10 +610,15 @@ int_plot <- ggplot(run_endec, aes(x = (timestep/365)+2012, y = (n_detect_pcr_0_2
            arrow = arrow(length = unit(0.25, "cm")), size = 1.5)+
   annotate("segment", x = distr_years[3]+(distr_campaign/365), 
            xend = distr_years[3]+(distr_campaign/365), y = 0.2, yend = 0.17,
-           arrow = arrow(length = unit(0.25, "cm")), size = 1.5)
+           arrow = arrow(length = unit(0.25, "cm")), size = 1.5)+
+  geom_segment(
+    data = mda_campaign_arrows,
+    aes(x = x, xend = xend, y = y, yend = yend),
+    arrow = arrow(length = unit(0.25, "cm")),
+    size = 1.5, col = "orange"
+  )
 
 cowplot::plot_grid(control_plot, int_plot)
-
 
 ##########################################################################################################
 
@@ -481,18 +640,18 @@ run_endec2 <- run_simulation(endec_params2,
 #run_simulation(endec_params,  timesteps = sim_length,correlations = correlations_long)
 
 #without DP, hit the points well
-int_plot2 <- ggplot(run_endec2, aes(x = (timestep/365)+2012, y = (n_detect_pcr_0_29200/n_age_0_29200)))+
+int_plot2 <- ggplot(run_endec2, aes(x = ((timestep-1)/365)+2012, y = (n_detect_pcr_0_29200/n_age_0_29200)))+
   geom_line()+
   coord_cartesian(xlim = c(2017, 2023))+
   #2019 survey
-  geom_point(data = prev_2018, aes(x = (day/365)+2012, y = mean_prev), col = "red", shape = 4, 
+  geom_point(data = prev_2018, aes(x = ((day-1)/365)+2012, y = mean_prev), col = "red", shape = 4, 
              inherit.aes = FALSE)+
   geom_errorbar(data = prev_2018,
                 aes(x = (day/365)+2012, ymin = lower_prev/100, ymax = upper_prev/100),
                 color = "red", width = 0.2,
                 inherit.aes = FALSE)+
   #2021 survey
-  geom_point(data = prev_2021, aes(x = (day/365)+2012, y = mean_prev), col = "red", shape = 4, 
+  geom_point(data = prev_2021, aes(x = ((day-1)/365)+2012, y = mean_prev), col = "red", shape = 4, 
              inherit.aes = FALSE)+
   geom_errorbar(data = prev_2021,
                 aes(x = (day/365)+2012, ymin = lower_prev, ymax = upper_prev),
@@ -500,16 +659,23 @@ int_plot2 <- ggplot(run_endec2, aes(x = (timestep/365)+2012, y = (n_detect_pcr_0
                 inherit.aes = FALSE)+
   #2022 survey
   geom_errorbar(data = prev_2022,
-                aes(x = (day/365)+2012, ymin = lower_prev, ymax = upper_prev),
+                aes(x = ((day-1)/365)+2012, ymin = lower_prev, ymax = upper_prev),
                 color = "red", width = 0.2, 
                 inherit.aes = FALSE)+
-  geom_point(data = prev_2022, aes(x = (day/365)+2012, y = mean_prev), col = "red", shape = 4, 
+  geom_point(data = prev_2022, aes(x = ((day-1)/365)+2012, y = mean_prev), col = "red", shape = 4, 
              inherit.aes = FALSE)+
   theme_bw()+
   labs(x = "Year", y = "PCR prevalence")+
   ggtitle("Intervention arm, without DP")+
-  scale_x_continuous(breaks = 2012:2023)   # <- x-axis ticks every year
+  coord_cartesian(xlim = c(2012, 2023 -0.5)) +
+  scale_x_continuous(breaks = 2012:2022)   + #no ITN inputs in df for 2023
+  geom_segment(
+    data = mda_campaign_arrows,
+    aes(x = x, xend = xend, y = y, yend = yend),
+    arrow = arrow(length = unit(0.25, "cm")),
+    size = 1.5, col = "orange"
+  )
 
 
-#extract e
+#extract effect size here
 run_endec2$n_detect_pcr_0_29200[prev_survey_date_2022]/run_endec2$n_age_0_29200[prev_survey_date_2022] #15.04%

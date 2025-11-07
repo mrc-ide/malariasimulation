@@ -640,7 +640,22 @@ calculate_clinical_infections <- function(
 
 #' @title Calculate severe infections
 #' @description
-#' Sample severely infected humans from clinically infected
+#' Sample severely infected humans who have been hospitalised from all infections.
+#'
+#' Note that the severe disease model is fitted to all infections, not clinical 
+#' disease, such that individuals may have severe disease but not clinical disease 
+#' and vice versa. Severe disease is not modelled to impact onward transmission, 
+#' including severe immunity which only impacts the probability of future severe
+#' infections, but is itself impacted by other modelled immunities that impact 
+#' the probability of infection.
+#' 
+#' Also note that the severe case outputs are only those that have been hospitalised,
+#' with the implicitly assumption that 80% of severe cases are hospitalised. To 
+#' generate all severe cases divide by 0.8 or use the malariaverse postie package.
+#' 
+#' Finally, this model does not account for the proportion of severe cases that 
+#' may be averted by treatment. This can also be accounted for using the 
+#' malariaverse postie package.
 #' @param timestep current timestep
 #' @param infections indices of all infected humans
 #' @param variables a list of all of the model variables

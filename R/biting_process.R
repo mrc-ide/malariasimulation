@@ -105,6 +105,7 @@ simulate_bites <- function(
   }
   
   EIR <- 0
+  n_bites_per_person <- rep(0, length(psi))
   
   for (s_i in seq_along(parameters$species)) {
     species_name <- parameters$species[[s_i]]
@@ -158,7 +159,7 @@ simulate_bites <- function(
         renderer$render('n_bitten', bitten_humans$size(), timestep)
         if(parameters$parasite == "vivax"){
           # p.v must pass through the number of bites per person
-          n_bites_per_person <- tabulate(bitten, nbins = length(lambda))
+          n_bites_per_person <- n_bites_per_person + tabulate(bitten, nbins = length(lambda))
         }
       }
     }

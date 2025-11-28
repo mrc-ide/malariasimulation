@@ -149,14 +149,8 @@ simulate_bites <- function(
 
     renderer$render(paste0('EIR_', species_name), species_eir, timestep)
     EIR <- EIR + species_eir
-    if(parameters$parasite == "falciparum"){
-      # p.f model factors eir by psi
-      expected_bites <- species_eir * mean(psi)
-    } else if (parameters$parasite == "vivax"){
-      # p.v model standardises biting rate het to eir
-      expected_bites <- species_eir
-    }
-    
+
+    expected_bites <- species_eir * mean(psi)
     if (expected_bites > 0) {
       n_bites <- rpois(1, expected_bites)
       if (n_bites > 0) {

@@ -4,16 +4,23 @@
 \alias{set_equilibrium}
 \title{Set equilibrium}
 \usage{
-set_equilibrium(parameters, init_EIR, eq_params = NULL)
+set_equilibrium(
+  parameters,
+  init_EIR,
+  eq_params = NULL,
+  EIR_population_input = "adult"
+)
 }
 \arguments{
 \item{parameters}{model parameters to update}
 
-\item{init_EIR}{the desired initial EIR (infectious bites per person per day over the entire human
-population)}
+\item{init_EIR}{the desired initial EIR (infectious bites per adult person per year).}
 
-\item{eq_params}{parameters from the malariaEquilibrium package, if null.
-The default malariaEquilibrium parameters will be used}
+\item{eq_params}{parameters from the malariaEquilibrium package, if null
+The default malariaEquilibrium parameters will be used (not applicable for P. vivax).}
+
+\item{EIR_population_input}{the population corresponding with the initial EIR units,
+where options are "adult" (default) or "total".}
 }
 \description{
 This will update the IBM parameters to match the

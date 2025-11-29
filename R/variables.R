@@ -298,7 +298,7 @@ create_variables <- function(parameters) {
   pev_profile <- individual::IntegerVariable$new(rep(-1, size))
 
   tbv_vaccinated <- individual::DoubleVariable$new(rep(-1, size))
-
+  
   # Init vector controls
   net_time <- individual::IntegerVariable$new(rep(-1, size))
   spray_time <- individual::IntegerVariable$new(rep(-1, size))

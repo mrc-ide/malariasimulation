@@ -150,9 +150,10 @@ test_that('Infection considers pev efficacy', {
     rep(.2, 4)
   )
 
+  nmf <- individual::Bitset$new(4)
   infection_outcome <- CompetingOutcome$new(
     targeted_process = function(timestep, target){
-      falciparum_infection_outcome_process(timestep, target, variables, renderer, parameters)
+      falciparum_infection_outcome_process(timestep, target, nmf, variables, renderer, parameters)
     },
     size = 4
   )

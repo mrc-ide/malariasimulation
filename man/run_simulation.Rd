@@ -31,6 +31,8 @@ The resulting dataframe contains the following columns:
 the whole population)
 \item n_bitten: number of humans bitten by an infectious mosquito
 \item n_treated: number of humans treated for clinical or severe malaria this timestep
+\item n_nmf: number of non-malarial fevers in the population
+\item n_nmf_malaria_detected: number of individuals detected/treated due to non-malarial fever and patent malaria infection
 \item n_infections: number of humans who get an asymptomatic, clinical or severe malaria this timestep
 \item natural_deaths: number of humans who die from aging
 \item S_count: number of humans who are Susceptible

@@ -50,15 +50,19 @@ prob_bitten <- function(
     ks_gamma <- parameters$spraying_ks_gamma[matches, species]
     ms_theta <- parameters$spraying_ms_theta[matches, species]
     ms_gamma <- parameters$spraying_ms_gamma[matches, species]
+    
     since_spray <- timestep - spray_time
+    
     ls <- spraying_decay(since_spray, ls_theta, ls_gamma)
     ks <- parameters$k0 * spraying_decay(since_spray, ks_theta, ks_gamma)
     ms <- spraying_decay(since_spray, ms_theta, ms_gamma)
     js <- 1 - ls - ks
+    
     ms_comp <- (1 - ms)
     ls_prime <- ls * ms_comp
     ks_prime <- ks * ms_comp
     js_prime <- js * ms_comp + ms
+    
     protected_index <- protected$to_vector()
     rs <- rep(0, n)
     rs[protected_index] <- prob_spraying_repels(
@@ -75,7 +79,6 @@ prob_bitten <- function(
       parameters$k0
     )
   } else {
-    spray_on = 0
     rs <- 0
     rs_comp <- 1
     ss <- 1
@@ -89,46 +92,80 @@ prob_bitten <- function(
     spatial_emanator_time <- variables$spatial_emanator_time$get_values(protected)
     matches <- match(spatial_emanator_time, parameters$spatial_emanator_timesteps)
     
-    rse_in_theta <- parameters$spatial_emanator_in_theta[matches, species]
-    rse_in_gamma <- parameters$spatial_emanator_in_gamma[matches, species]
+    ## parameters for fed and alive
+    kse_in_a1 <- parameters$spatial_emanator_fed_in_theta[matches, species]
+    kse_in_a2 <- parameters$spatial_emanator_fed_in_gamma[matches, species]
     
-    dse_in_theta <- parameters$spatial_emanator_mort_in_theta[matches, species]
-    dse_in_gamma <- parameters$spatial_emanator_mort_in_gamma[matches, species]
+    ## parameters for unfed and dead
+    dfse_in_a1 <- parameters$spatial_emanator_mort_fed_in_theta[matches, species]
+    dfse_in_a2 <- parameters$spatial_emanator_mort_fed_in_gamma[matches, species]
+    
+    ## parameters for fed and dead
+    dufse_in_a1 <- parameters$spatial_emanator_mort_unfed_in_theta[matches, species]
+    dufse_in_a2 <- parameters$spatial_emanator_mort_unfed_in_gamma[matches, species]
+    
+    ## parameters for prevented (deterrence/repelled depending on definitions)
+    detse_in_a1 <- parameters$spatial_emanator_det_in_theta[matches, species]
+    detse_in_a2 <- parameters$spatial_emanator_det_in_gamma[matches, species]
     
     since_spatial_emanator <- timestep - spatial_emanator_time
     
-    rse <- spraying_decay(since_spatial_emanator, rse_in_theta, rse_in_gamma)
-    dse <- spraying_decay(since_spatial_emanator, dse_in_theta, dse_in_gamma)
+    ## Now translate input parameters into time dependent trends
+    kse <- parameters$k0 * spraying_decay(since_spatial_emanator, kse_in_a1, kse_in_a2)
+    lFse <- spraying_decay(since_spatial_emanator, dfse_in_a1, dfse_in_a2)
+    lUFse <- spraying_decay(since_spatial_emanator, dufse_in_a1, dufse_in_a2)
+    mse <- spraying_decay(since_spatial_emanator, detse_in_a1, detse_in_a2)
+    jse <- 1 - lUFse - lFse - kse
     
-    rse_in_temp = 1 - rse
+    mse_comp <- (1 - mse)
+    lUFse_prime <- lUFse * mse_comp
+    lFse_prime <- lFse * mse_comp
+    kse_prime <- kse * mse_comp
+    jse_prime <- jse * mse_comp + mse
+    lse_prime <- (lUFse + lFse) * mse_comp
     
+    ## characterise repeating probability
     protected_index <- protected$to_vector()
-    rse_in <- rep(0, n)
-    rse_in[protected_index] <- rse
-    dse_in <- rep(0, n)
-    dse_in[protected_index] <- rse_in_temp * dse
+    rse_in <- rep(0, n) ## repellence
+    rse_in[protected_index] <- prob_spraying_repels(
+      lse_prime,
+      kse_prime,
+      jse_prime,
+      parameters$k0
+    )
     
-    rse_comp <- rep(0, n)
-    rse_comp = 1 - rse_in
+    sse_in <- rep(1, n)## sucessful feed
+    sse_in[protected_index] <- prob_survives_spraying(
+      kse_prime,
+      parameters$k0
+    )
+
+    rse_in_comp <- 1 - rse_in ## not repelled
     
-    spatial_emanator_on = 1
-    sse_in = 1 - rse_in - dse_in
-    rse_in_comp <- 1 - rse_in
+    sse_out <- 1
+    rse_out <- 0
     
+    dfse_in <- rep(0, n) ## dead and fed
+    dfse_in[protected_index] <- lFse_prime
+
+    dse_in <- 1 - rse_in - sse_in - dfse_in ## any dead 
+    
+    spatial_emanator_on <- 1
     
     } else {
-      spatial_emanator_on = 0
-      dse_in <- 0
-      rse_in <- 0
-      sse_in <- 1 - rse_in - dse_in
-      rse_in_comp <- 1 - rse_in
+      spatial_emanator_on <- 0
+      dfse_in <- 0  ## dead and fed
+      dse_in <- 0   ## any dead
+      rse_in <- 0   ## repelled and alive
+      sse_in <- 1   ## fed and alive
+      rse_in_comp <- 1 ## any not repelled
       
   }
   
   if ((!parameters$spatial_emanator & !parameters$spraying)) {
     phi_indoors <- 0 ## we want phi_indoors to be applied if spatial emanators is on
   }
-  
+
   if (parameters$spatial_emanator_outdoor) {
     phi_bednets <- parameters$phi_bednets[[species]]
     phi_indoors <- parameters$phi_indoors[[species]]
@@ -148,7 +185,7 @@ prob_bitten <- function(
     rse_out_1 <- spraying_decay(since_spatial_emanator_outdoor, rse_out_theta, rse_out_gamma)
     dse_out_1 <- spraying_decay(since_spatial_emanator_outdoor, dse_out_theta, dse_out_gamma)
     
-    rse_out_temp = 1 - rse_out_1
+    rse_out_temp <- 1 - rse_out_1
     
     protected_index <- protected$to_vector()
     rse_out <- rep(0, n)
@@ -156,37 +193,90 @@ prob_bitten <- function(
     dse_out <- rep(0, n)
     dse_out[protected_index] <- rse_out_temp * dse_out_1
     
+    dfse_out <- dse_out * 0.04 ## fraction of mosquitoes having fed then died
     rse_out_comp <- rep(0, n)
     
-    sse_out = 1 - rse_out - dse_out
+    sse_out <- 1 - rse_out - dse_out
     rse_out_comp <- 1 - rse_out
     
   } else {
     rse_out <- 0
+    dfse_out <- 0
     dse_out <- 0
-    rse_out_comp <- 1 - rse_out
-    sse_out <- 1 - rse_out - dse_out
+    rse_out_comp <- 1
+    sse_out <- 1
   }
   
+  # list(
+  #   prob_bitten_survives = (
+  #     (1 - phi_indoors) * sse_out +
+  #     phi_bednets * rs_comp * sn * ss * sse_in +
+  #     (phi_indoors - phi_bednets) * rs_comp * ss * sse_in
+  #   ),
+  #   prob_bitten = (
+  #     (1 - phi_indoors) * (sse_out + dfse_out) +
+  #     phi_bednets * rs_comp * sn * (sse_in + dfse_in) +
+  #     (phi_indoors - phi_bednets) * rs_comp * (sse_in + dfse_in)
+  #   ),
+  #   prob_repelled = (
+  #     phi_bednets * rs_comp * rn * rse_in_comp +
+  #       phi_indoors * repel_inside +         ## will go to 0 if IRS off
+  #       (1 - phi_indoors) * rse_out                    ## 0 if outdoor emanators off
+  #   )
+  # )
   list(
     prob_bitten_survives = (
-      (1 - phi_indoors) * sse_out +
-      phi_bednets * rs_comp * sn * ss * sse_in +
-      (phi_indoors - phi_bednets) * rs_comp * ss * sse_in
+      (1 - phi_indoors) * sse_out + # yes
+        
+        # The indoor and bed biting should also be multiplied by rse_in_comp (they aren't repelled by se)
+        # rse_in_comp must take into account those that die before biting (- dse)
+        # And if rse + dse + dfse + sse = 1, we need the conditional probability that
+        # a mosquito survives, given that it hasn't been repelled or has already died:
+        # sse_in/(rse_in_comp - dse)
+        (phi_indoors - phi_bednets) * rs_comp * (rse_in_comp - dse_in) * ss * sse_in +
+        phi_bednets * rs_comp * (rse_in_comp - dse_in) * sn * ss * sse_in/(rse_in_comp - dse_in)
+      
     ),
+    
     prob_bitten = (
-      (1 - phi_indoors) * rse_out_comp +
-      phi_bednets * rs_comp * sn * rse_in_comp +
-      (phi_indoors - phi_bednets) * rs_comp * rse_in_comp
+      (1 - phi_indoors) * rse_out_comp + # yes, where rse_out + dse_out + sse_out = 1 and all that are not repelled will bite
+        
+        # IRS only has the later killing stage, but I think we need to account for the pre-bite deaths here
+        (phi_indoors - phi_bednets) * rs_comp * (rse_in_comp - dse_in) +
+        phi_bednets * rs_comp * (rse_in_comp - dse_in) * sn
+      
+      ## IRS parameters: 
+      ## rs + rs_comp = 1, ds + ss = 1, rs + ds + ss != 1
+      
+      ## Similarly, se parameters: 
+      ## rse + rse_comp = 1, rse + dse + x (survive first stage to bite) = 1, dfse + sse = 1, rse + ds + ss != 1
+      
+      ## If we have rse + dse + dfse + sse = 1, we need to group them carefully
+      ## rse + rse_comp = 1, where rse_comp = dse + dfse + sse
+      ## If a mosquito makes it through to biting, the probability is: 1 - rse - dse = dfse + sse = rse_comp - dse
+      ## Any of these should be fine to use in the conditional probability that you survive, given that you have bitten.
+      ## e.g. sse_in/(1 - rse - dse) = sse_in/(dfse + sse) = sse_in/(rse_comp - dse)
     ),
+    
     prob_repelled = (
-      phi_bednets * rs_comp * rn * rse_in_comp +
-      phi_indoors * rs * rse_in * spray_on +         ## will go to 0 if IRS off
-      phi_indoors * rse_in * spatial_emanator_on +   # will go to 0 if spatial_emanator off
-        (1 - phi_indoors) * rse_out
+      (1 - phi_indoors) * rse_out + # (I've moved this line to the top row to match the other probs)
+        
+        # We need to make sure that we take into account the additive marginal fractional impact
+        # There are three options for indoor repellancy: spray and se, spray-no se, no spray-se
+        ## To write it out in full, we could have:
+        phi_indoors * (rs + rse_in - rs * rse_in) +
+        # which I think will work because rs = 0 when spray is off and rse_in = 0 when se is off
+        
+        # Alternatively, I think this can be replaced with:
+        # phi_indoors * (1 - (rs_comp * rse_in_comp)) +
+        # Which gives the same thing: when spray is off rs_comp = 1, when se is off rse_in_comp = 1
+        
+        phi_bednets * rs_comp * rse_in_comp * rn # (I've swapped rse_in_comp with rn to reflect order)
     )
   )
+  
 }
+
 
 #' @title Spatial Emanators Outdoors
 #' @description models outdoor use of spatial emanators according to the strategy

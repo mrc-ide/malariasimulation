@@ -8,10 +8,14 @@ set_spatial_emanator(
   parameters,
   timesteps,
   coverages,
-  rse_in_theta,
-  rse_in_gamma,
-  dse_in_theta,
-  dse_in_gamma
+  kse_in_a1,
+  kse_in_a2,
+  dfse_in_a1,
+  dfse_in_a2,
+  dufse_in_a1,
+  dufse_in_a2,
+  detse_in_a1,
+  detse_in_a2
 )
 }
 \arguments{
@@ -21,16 +25,28 @@ set_spatial_emanator(
 
 \item{coverages}{the proportion of the population who get emanators}
 
-\item{rse_in_theta}{matrix of repellence indoor parameters per timestep
+\item{kse_in_a1}{matrix of successful feeding indoor parameters per timestep
 With nrows=length(timesteps), ncols=length(species)}
 
-\item{rse_in_gamma}{matrix of repellence indoor parameters per timestep
+\item{kse_in_a2}{matrix of successful feeding indoor parameters per timestep
 With nrows=length(timesteps), ncols=length(species)}
 
-\item{dse_in_theta}{matrix of mortality impact indoor parameters per timestep
+\item{dfse_in_a1}{matrix of fed mortality impact indoor parameters per timestep
 With nrows=length(timesteps), ncols=length(species)}
 
-\item{dse_in_gamma}{matrix of mortality impact indoor parameters per timestep
+\item{dfse_in_a2}{matrix of fed mortality impact indoor parameters per timestep
+With nrows=length(timesteps), ncols=length(species)}
+
+\item{dufse_in_a1}{matrix of unfed mortality impact indoor parameters per timestep
+With nrows=length(timesteps), ncols=length(species)}
+
+\item{dufse_in_a2}{matrix of unfed mortality impact indoor parameters per timestep
+With nrows=length(timesteps), ncols=length(species)}
+
+\item{detse_in_a1}{matrix of deterring impact indoor parameters per timestep
+With nrows=length(timesteps), ncols=length(species)}
+
+\item{detse_in_a2}{matrix of deterring impact indoor parameters per timestep
 With nrows=length(timesteps), ncols=length(species)}
 }
 \description{

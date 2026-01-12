@@ -153,33 +153,49 @@ set_spraying <- function(
 #' @param parameters a list of parameters to modify
 #' @param timesteps the timesteps at which to spray
 #' @param coverages the proportion of the population who get emanators
-#' @param rse_in_theta matrix of repellence indoor parameters per timestep 
+#' @param kse_in_a1 matrix of successful feeding indoor parameters per timestep 
 #' With nrows=length(timesteps), ncols=length(species)
-#' @param rse_in_gamma matrix of repellence indoor parameters per timestep 
+#' @param kse_in_a2 matrix of successful feeding indoor parameters per timestep 
 #' With nrows=length(timesteps), ncols=length(species)
-#' @param dse_in_theta matrix of mortality impact indoor parameters per timestep 
+#' @param dfse_in_a1 matrix of fed mortality impact indoor parameters per timestep 
 #' With nrows=length(timesteps), ncols=length(species)
-#' @param dse_in_gamma matrix of mortality impact indoor parameters per timestep 
+#' @param dfse_in_a2 matrix of fed mortality impact indoor parameters per timestep 
+#' With nrows=length(timesteps), ncols=length(species)
+#' @param dufse_in_a1 matrix of unfed mortality impact indoor parameters per timestep 
+#' With nrows=length(timesteps), ncols=length(species)
+#' @param dufse_in_a2 matrix of unfed mortality impact indoor parameters per timestep 
+#' With nrows=length(timesteps), ncols=length(species)
+#' @param detse_in_a1 matrix of deterring impact indoor parameters per timestep 
+#' With nrows=length(timesteps), ncols=length(species)
+#' @param detse_in_a2 matrix of deterring impact indoor parameters per timestep 
 #' With nrows=length(timesteps), ncols=length(species)
 #' @export
 set_spatial_emanator <- function(
     parameters,
     timesteps,
     coverages,
-    rse_in_theta,
-    rse_in_gamma,
-    dse_in_theta,
-    dse_in_gamma
+    kse_in_a1,
+    kse_in_a2,
+    dfse_in_a1,
+    dfse_in_a2,
+    dufse_in_a1,
+    dufse_in_a2,
+    detse_in_a1,
+    detse_in_a2
 ) {
   stopifnot(all(coverages >= 0) && all(coverages <= 1))
   if (length(coverages) != length(timesteps)) {
     stop('coverages and timesteps must must align')
   }
   decays <- list(
-    rse_in_theta,
-    rse_in_gamma,
-    dse_in_theta,
-    dse_in_gamma
+    kse_in_a1,
+    kse_in_a2,
+    dfse_in_a1,
+    dfse_in_a2,
+    dufse_in_a1,
+    dufse_in_a2,
+    detse_in_a1,
+    detse_in_a2
   )
   for (x in decays) {
     if (ncol(x) != length(parameters$species)) {
@@ -192,10 +208,15 @@ set_spatial_emanator <- function(
   parameters$spatial_emanator <- TRUE
   parameters$spatial_emanator_timesteps <- timesteps
   parameters$spatial_emanator_coverages <- coverages
-  parameters$spatial_emanator_in_theta <- rse_in_theta
-  parameters$spatial_emanator_in_gamma <- rse_in_gamma
-  parameters$spatial_emanator_mort_in_theta <- dse_in_theta
-  parameters$spatial_emanator_mort_in_gamma <- dse_in_gamma
+  parameters$spatial_emanator_fed_in_theta <- kse_in_a1
+  parameters$spatial_emanator_fed_in_gamma <- kse_in_a2
+  parameters$spatial_emanator_mort_fed_in_theta <- dfse_in_a1
+  parameters$spatial_emanator_mort_fed_in_gamma <- dfse_in_a2
+  parameters$spatial_emanator_mort_unfed_in_theta <- dufse_in_a1
+  parameters$spatial_emanator_mort_unfed_in_gamma <- dufse_in_a2
+  parameters$spatial_emanator_det_in_theta <- detse_in_a1
+  parameters$spatial_emanator_det_in_gamma <- detse_in_a2
+  
  
   parameters
 }

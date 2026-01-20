@@ -62,3 +62,8 @@ Rcpp::IntegerVector fast_weighted_sample(
     values = values + 1;
     return values;
 }
+
+//[[Rcpp::export]]
+std::string individual_headers_version() {
+    return INDIVIDUAL_VERSION;
+}

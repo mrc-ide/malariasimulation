@@ -14,7 +14,8 @@ void print_to_csv(
     const int timestep,
     const std::vector<int> personal_indicies,
     const std::string process,
-    const std::vector<std::string> categories
+    const std::vector<std::string> categories,
+    const int turnon_time
 );
 
 #endif /* SRC_INDIVIDUAL_LEVEL_OUTPUT_H_ */

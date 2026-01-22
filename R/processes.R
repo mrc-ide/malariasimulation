@@ -792,7 +792,7 @@ render_states_process <- function(variables, parameters){
     if(parameters$states_verbose && timestep %% parameters$state_recording_freq == 0){
       states <- variables$state$get_values()
       personal_inds <- variables$personal_tracker_index$get_values()
-      print_to_csv(parameters$file_name, timestep, personal_inds, "state", states)
+      print_to_csv(parameters$file_name, timestep, personal_inds, "state", states, parameters$start_time)
     }
   }
 }

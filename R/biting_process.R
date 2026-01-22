@@ -439,7 +439,7 @@ simulate_bites_verbose <- function(
   if(parameters$biting_verbose){
     states <- variables$state$get_values(bitten_humans$to_vector())
     personal_inds <- variables$personal_tracker_index$get_values(bitten_humans)
-    print_to_csv(parameters$file_name, timestep, personal_inds, "bitten", states)
+    print_to_csv(parameters$file_name, timestep, personal_inds, "bitten", states, parameters$start_time)
     # for(i in seq_along(personal_inds)){
     #   cat(timestep, ",")
     #   cat(personal_inds[i], ",")

@@ -198,7 +198,7 @@ indoor_spraying_verbose <- function(spray_time, renderer, parameters, correlatio
       if(parameters$spraying_verbose){
         states <- variables$state$get_values(target)
         personal_inds <- variables$personal_tracker_index$get_values(target)
-        print_to_csv(parameters$file_name, timestep, personal_inds, "sprayed", states)
+        print_to_csv(parameters$file_name, timestep, personal_inds, "sprayed", states, parameters$start_time)
       }
     }
   }
@@ -233,7 +233,7 @@ distribute_nets_verbose <- function(variables, throw_away_net, parameters, corre
       if(parameters$nets_verbose){
         states <- variables$state$get_values(target)
         personal_inds <- variables$personal_tracker_index$get_values(target)
-        print_to_csv(parameters$file_name, timestep, personal_inds, "recieved_net", states)
+        print_to_csv(parameters$file_name, timestep, personal_inds, "recieved_net", states, parameters$start_time)
       }
     }
   }

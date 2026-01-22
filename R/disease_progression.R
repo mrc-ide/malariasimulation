@@ -160,7 +160,7 @@ progression_outcome_process_verbose <- function(
       going_asymptomatic <- variables$state$get_index_of("D")$and(target)
       states <- variables$state$get_values(going_asymptomatic$to_vector())
       personal_inds <- variables$personal_tracker_index$get_values(going_asymptomatic)
-      print_to_csv(parameters$file_name, timestep, personal_inds, "turning_asymptomatic", states)
+      print_to_csv(parameters$file_name, timestep, personal_inds, "turning_asymptomatic", states, parameters$start_time)
       # for(i in seq_along(personal_inds)){
       #   cat(timestep, ",")
       #   cat(personal_inds[i], ",")
@@ -194,7 +194,7 @@ progression_outcome_process_verbose <- function(
     going_subpatent <- variables$state$get_index_of("U")$and(target)
     states <- variables$state$get_values(going_subpatent$to_vector())
     personal_inds <- variables$personal_tracker_index$get_values(going_subpatent)
-    print_to_csv(parameters$file_name, timestep, personal_inds, "turning_subpatent", states)
+    print_to_csv(parameters$file_name, timestep, personal_inds, "turning_subpatent", states, parameters$start_time)
     # for(i in seq_along(personal_inds)){
     #   cat(timestep, ",")
     #   cat(personal_inds[i], ",")
@@ -216,7 +216,7 @@ progression_outcome_process_verbose <- function(
     going_susceptible <- variables$state$get_index_of(c("U", "Tr"))$and(target)
     states <- variables$state$get_values(going_susceptible$to_vector())
     personal_inds <- variables$personal_tracker_index$get_values(going_susceptible)
-    print_to_csv(parameters$file_name, timestep, personal_inds, "turning_susceptible", states)
+    print_to_csv(parameters$file_name, timestep, personal_inds, "turning_susceptible", states, parameters$start_time)
     # for(i in seq_along(personal_inds)){
     #   cat(timestep, ",")
     #   cat(personal_inds[i], ",")

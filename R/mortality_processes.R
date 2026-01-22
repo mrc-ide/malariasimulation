@@ -127,20 +127,6 @@ reset_target <- function(variables, events, target, state, parameters, timestep)
       event$clear_schedule(target)
     }
     
-    if(parameters$mortality_verbose){
-      states <- variables$state$get_values(target$to_vector())
-      personal_inds <- variables$personal_tracker_index$get_values(target$to_vector())
-      print_to_csv(parameters$file_name, timestep, personal_inds, "died", states)
-      # for(i in seq_along(personal_inds)){
-      #   cat(timestep, ",")
-      #   cat(personal_inds[i], ",")
-      #   cat("died,")
-      #   cat(states[i], "\n")
-      # }
-    }
-    quantity_to_update <- target$size()
-    curr_max_ind <- max(variables$personal_tracker_index$get_values())
-    variables$personal_tracker_index$queue_update(seq(curr_max_ind + 1, curr_max_ind + quantity_to_update), target)
     # new birthday
     variables$birth$queue_update(timestep, target)
 
@@ -192,6 +178,16 @@ reset_target_verbose <- function(variables, events, target, state, parameters, t
     for (event in unlist(events[to_clear])) {
       event$clear_schedule(target)
     }
+    
+    if(parameters$mortality_verbose){
+      states <- variables$state$get_values(target$to_vector())
+      personal_inds <- variables$personal_tracker_index$get_values(target$to_vector())
+      print_to_csv(parameters$file_name, timestep, personal_inds, "died", states, parameters$start_time)
+    }
+
+    quantity_to_update <- target$size()
+    curr_max_ind <- max(variables$personal_tracker_index$get_values())
+    variables$personal_tracker_index$queue_update(seq(curr_max_ind + 1, curr_max_ind + quantity_to_update), target)
 
     # new birthday
     variables$birth$queue_update(timestep, target)
@@ -229,6 +225,10 @@ reset_target_verbose <- function(variables, events, target, state, parameters, t
     variables$infectivity$queue_update(0, target)
     variables$progression_rates$queue_update(0, target)
     
+    if(parameters$mortality_verbose){
+      states <- variables$state$get_values(target$to_vector())
+      print_to_csv(parameters$file_name, timestep + 1, seq(curr_max_ind + 1, curr_max_ind + quantity_to_update), "born", states, parameters$start_time)
+    }
     # zeta and zeta group and vector controls survive rebirth
   }
 }

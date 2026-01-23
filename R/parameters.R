@@ -517,6 +517,8 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       state_recording_freq <- FALSE,
       file_name <- "",
       start_time <- 0,
+      lower_age_bound <- 0,
+      upper_age_bound <- 1000,
       # misc
       mosquito_limit   = 100 * 1000,
       individual_mosquitoes = FALSE,

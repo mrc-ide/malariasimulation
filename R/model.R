@@ -108,6 +108,7 @@ run_verbose_simulation <- function(
   file_name <- parameters$file_name
   sink(parameters$file_name)
   cat("timestep,individual_index,process,state\n")
+  sink()
   random_seed(ceiling(runif(1) * .Machine$integer.max))
   if (is.null(parameters)) {
     parameters <- get_parameters()

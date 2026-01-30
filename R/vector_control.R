@@ -137,24 +137,39 @@ distribute_nets <- function(variables, throw_away_net, parameters, correlations)
   function(timestep) {
     matches <- timestep == parameters$bednet_timesteps
     if (any(matches)) {
-    for(i in 1:ncol(parameters$bednet_coverages)){
-      in_age <- variables$birth$get_index_of(
-        a = timestep - parameters$bednet_max_ages[i],
-        b = timestep - parameters$bednet_min_ages[i]
-      )$to_vector()
-      target <- in_age[sample_intervention(
-        in_age,
-        'bednets',
-        parameters$bednet_coverages[matches, i],
-        correlations
-      )]
-      variables$net_time$queue_update(timestep, target)
-      throw_away_net$clear_schedule(target)
-      throw_away_net$schedule(
-        target,
-        log_uniform(length(target), parameters$bednet_retention)
-      )
-    }
+        if(parameters$age_target_nets) {
+            for(i in 1:ncol(parameters$bednet_coverages)){
+                in_age <- variables$birth$get_index_of(
+                a = timestep - parameters$bednet_max_ages[i],
+                b = timestep - parameters$bednet_min_ages[i]
+                )$to_vector()
+                target <- in_age[sample_intervention(
+                in_age,
+                'bednets',
+                parameters$bednet_coverages[matches, i],
+                correlations
+                )]
+                variables$net_time$queue_update(timestep, target)
+                throw_away_net$clear_schedule(target)
+                throw_away_net$schedule(
+                  target,
+                  log_uniform(length(target), parameters$bednet_retention)
+                )
+            }
+        } else{
+            target <- which(sample_intervention(
+                    seq(parameters$human_population),
+                    'bednets',
+                    parameters$bednet_coverages[matches],
+                    correlations
+                    ))
+                    variables$net_time$queue_update(timestep, target)
+                    throw_away_net$clear_schedule(target)
+                    throw_away_net$schedule(
+                      target,
+                      log_uniform(length(target), parameters$bednet_retention)
+                    )
+      }
     }
   }
 }

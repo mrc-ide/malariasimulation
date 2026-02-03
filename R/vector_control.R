@@ -234,11 +234,11 @@ distribute_nets_verbose <- function(variables, throw_away_net, parameters, corre
         log_uniform(length(target), parameters$bednet_retention)
       )
       if(parameters$nets_verbose){
-        recording_people <- target(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
-        states <- variables$state$get_values(recording_people)
-        personal_inds <- variables$personal_tracker_index$get_values(recording_people)
-        # states <- variables$state$get_values(target)
-        # personal_inds <- variables$personal_tracker_index$get_values(target)
+        # recording_people <- target(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
+        # states <- variables$state$get_values(recording_people)
+        # personal_inds <- variables$personal_tracker_index$get_values(recording_people)
+        states <- variables$state$get_values(target)
+        personal_inds <- variables$personal_tracker_index$get_values(target)
         print_to_csv(parameters$file_name, timestep, personal_inds, "recieved_net", states, parameters$start_time)
       }
     }

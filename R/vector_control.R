@@ -196,11 +196,11 @@ indoor_spraying_verbose <- function(spray_time, renderer, parameters, correlatio
       spray_time$queue_update(timestep, target)
       renderer$render('n_spray', length(target), timestep)
       if(parameters$spraying_verbose){
-        recording_people <- target$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
-        states <- variables$state$get_values(recording_people$to_vector())
-        personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
-        # states <- variables$state$get_values(target)
-        # personal_inds <- variables$personal_tracker_index$get_values(target)
+        # recording_people <- target$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
+        # states <- variables$state$get_values(recording_people$to_vector())
+        # personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
+        states <- variables$state$get_values(target)
+        personal_inds <- variables$personal_tracker_index$get_values(target)
         print_to_csv(parameters$file_name, timestep, personal_inds, "sprayed", states, parameters$start_time)
       }
     }
@@ -249,11 +249,11 @@ throw_away_nets_verbose <- function(variables, parameters) {
   function(timestep, target) {
     variables$net_time$queue_update(-1, target)
     if(parameters$nets_verbose){
-      recording_people <- target$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
-      states <- variables$state$get_values(recording_people$to_vector())
-      personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
-      # states <- variables$state$get_values(target$to_vector())
-      # personal_inds <- variables$personal_tracker_index$get_values(target$to_vector())
+      # recording_people <- target$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
+      # states <- variables$state$get_values(recording_people$to_vector())
+      # personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
+      states <- variables$state$get_values(target$to_vector())
+      personal_inds <- variables$personal_tracker_index$get_values(target$to_vector())
       print_to_csv(parameters$file_name, timestep, personal_inds, "removed_net", states)
     }
   }

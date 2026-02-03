@@ -254,7 +254,7 @@ throw_away_nets_verbose <- function(variables, parameters) {
       # personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
       states <- variables$state$get_values(target$to_vector())
       personal_inds <- variables$personal_tracker_index$get_values(target$to_vector())
-      print_to_csv(parameters$file_name, timestep, personal_inds, "removed_net", states)
+      print_to_csv(parameters$file_name, timestep, personal_inds, "removed_net", states, parameters$start_time)
     }
   }
 }

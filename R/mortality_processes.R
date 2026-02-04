@@ -1,8 +1,9 @@
 #' @title Human mortality process
 #' @description
 #' This is the process for human mortality, it defines which humans die from
-#' natural causes and severe infection and replaces dead individuals with
-#' newborns.
+#' natural causes only (not from malaria) and replaces dead individuals with
+#' newborns. Malaria deaths can be modelled using 
+#' the malariaverse postie package).
 #' @param variables the model variables to reset
 #' @param events the model events to reset
 #' @param renderer the model renderer

@@ -105,6 +105,7 @@ simulate_bites <- function(
   }
   
   EIR <- 0
+  n_bites_per_person <- rep(0, length(psi))
   
   for (s_i in seq_along(parameters$species)) {
     species_name <- parameters$species[[s_i]]
@@ -148,14 +149,8 @@ simulate_bites <- function(
 
     renderer$render(paste0('EIR_', species_name), species_eir, timestep)
     EIR <- EIR + species_eir
-    if(parameters$parasite == "falciparum"){
-      # p.f model factors eir by psi
-      expected_bites <- species_eir * mean(psi)
-    } else if (parameters$parasite == "vivax"){
-      # p.v model standardises biting rate het to eir
-      expected_bites <- species_eir
-    }
-    
+
+    expected_bites <- species_eir * mean(psi)
     if (expected_bites > 0) {
       n_bites <- rpois(1, expected_bites)
       if (n_bites > 0) {
@@ -164,7 +159,7 @@ simulate_bites <- function(
         renderer$render('n_bitten', bitten_humans$size(), timestep)
         if(parameters$parasite == "vivax"){
           # p.v must pass through the number of bites per person
-          n_bites_per_person <- tabulate(bitten, nbins = length(lambda))
+          n_bites_per_person <- n_bites_per_person + tabulate(bitten, nbins = length(lambda))
         }
       }
     }

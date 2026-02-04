@@ -24,6 +24,8 @@
 #'  * Tr_count: number of detectable infections being treated in humans
 #'  * ica_mean: the mean acquired immunity to clinical infection over the population of humans
 #'  * icm_mean: the mean maternal immunity to clinical infection over the population of humans
+#'  * iva_mean: the mean acquired immunity to severe infection over the population of humans
+#'  * ivm_mean: the mean maternal immunity to severe infection over the population of humans
 #'  * ib_mean: the mean blood immunity to all infection over the population of humans
 #'  * id_mean: the mean immunity from detection through microscopy over the population of humans
 #'  * n: number of humans between an inclusive age range at this timestep. This

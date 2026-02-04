@@ -255,12 +255,20 @@ remove_unused_equilibrium <- function(params) {
 #' equilibrium parameters and set up the initial human and mosquito population
 #' to achieve init_EIR
 #' @param parameters model parameters to update
-#' @param init_EIR the desired initial EIR (infectious bites per person per day over the entire human
-#' population)
-#' @param eq_params parameters from the malariaEquilibrium package, if null.
-#' The default malariaEquilibrium parameters will be used
+#' @param init_EIR the desired initial EIR (infectious bites per adult person per year).
+#' @param eq_params parameters from the malariaEquilibrium package, if null
+#' The default malariaEquilibrium parameters will be used (not applicable for P. vivax).
+#' @param EIR_population_input the population corresponding with the initial EIR units,
+#' where options are "adult" (default) or "total".
 #' @export
-set_equilibrium <- function(parameters, init_EIR, eq_params = NULL) {
+set_equilibrium <- function(parameters, init_EIR, eq_params = NULL, EIR_population_input = "adult") {
+  
+  if(EIR_population_input == "total"){
+    # Replace population EIR with adult EIR value
+    init_EIR <- init_EIR * calculate_population_to_adult_EIR_scalar(parameters, init_EIR, EQUILIBRIUM_AGES)
+    
+  }
+  
   if(parameters$parasite == "falciparum"){
     if (is.null(eq_params)) {
       eq_params <- translate_parameters(parameters)
@@ -295,4 +303,36 @@ set_equilibrium <- function(parameters, init_EIR, eq_params = NULL) {
   parameters$init_foim <- eq$FOIM
   parameters$init_EIR <- init_EIR
   parameterise_mosquito_equilibrium(parameters, init_EIR)
+}
+
+
+#' @title Calculate adult population EIR from total population EIR scalar
+#' @description It may be necessary to use an adult level EIR input value, mostly
+#' for comparison with Michael White's work. This function calculates the scaling
+#' factor to convert the population level EIR to adult EIR for use in the model.
+#' @param parameters model parameters to update
+#' @param total_population_EIR the population-level EIR (infectious bites per person per year over the entire human
+#' population)
+#' @param age vector of age groups, in units of years (these should reflect those used in the simulation).
+calculate_population_to_adult_EIR_scalar <- function(parameters, total_population_EIR, age = EQUILIBRIUM_AGES){
+
+  rho_age   <- parameters$rho
+  age_0     <- parameters$a0
+  mean_age  <- parameters$average_age
+  
+  age_bounds  <- 365 * age
+  N_age       <- length(age_bounds) - 1
+  age_width   <- age_bounds[2:(N_age+1)] - age_bounds[1:N_age]
+  age_mids    <- 0.5*( age_bounds[2:(N_age+1)] + age_bounds[1:N_age] )
+  
+  
+  age_demog <- rep(NA, N_age)
+  age_demog[1:(N_age-1)]  <-  exp( - age_bounds[1:(N_age-1)]/mean_age ) - exp( - age_bounds[2:N_age]/mean_age ) 
+  age_demog[N_age]        <- 1 - sum( age_demog[1:(N_age-1)] )
+  
+  age_bite  <-  1 - rho_age*exp(-age_mids/age_0)
+  omega_age <-  1 / sum(age_demog*age_bite)
+  
+  return(omega_age)
+  
 }

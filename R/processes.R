@@ -791,9 +791,14 @@ render_states_process <- function(variables, parameters){
   function(timestep){
     if(parameters$states_verbose && timestep %% parameters$state_recording_freq == 0 && timestep >= parameters$start_time){
       in_age_group <- individual::Bitset$new(parameters$human_population)
-      recording_people <- in_age_group$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
+      min_birth <- timestep - parameters$upper_age_bound
+      max_birth <- timestep - parameters$lower_age_bound
+      recording_people <- in_age_group$copy()$or(variables$birth$get_index_of(a = min_birth, b = max_birth))
       states <- variables$state$get_values(recording_people$to_vector())
       personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
+      # ages <- variables$birth$get_values(recording_people$to_vector)
+      # print(ages)
+      # flop
       # states <- variables$state$get_values()
       # personal_inds <- variables$personal_tracker_index$get_values()
       print_to_csv(parameters$file_name, timestep, personal_inds, "state", states, parameters$start_time)

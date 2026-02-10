@@ -196,11 +196,15 @@ indoor_spraying_verbose <- function(spray_time, renderer, parameters, correlatio
       spray_time$queue_update(timestep, target)
       renderer$render('n_spray', length(target), timestep)
       if(parameters$spraying_verbose){
+        
+        min_birth <- timestep - parameters$upper_age_bound
+        max_birth <- timestep - parameters$lower_age_bound
+        recording_people <- target$copy()$or(variables$birth$get_index_of(a = min_birth, b = max_birth))
         # recording_people <- target$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
         # states <- variables$state$get_values(recording_people$to_vector())
         # personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
-        states <- variables$state$get_values(target)
-        personal_inds <- variables$personal_tracker_index$get_values(target)
+        # states <- variables$state$get_values(target)
+        # personal_inds <- variables$personal_tracker_index$get_values(target)
         print_to_csv(parameters$file_name, timestep, personal_inds, "sprayed", states, parameters$start_time)
       }
     }
@@ -235,6 +239,10 @@ distribute_nets_verbose <- function(variables, throw_away_net, parameters, corre
       )
       if(parameters$nets_verbose){
         # recording_people <- target(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
+        # subset <- variables$birth[target]
+        # min_birth <- timestep - parameters$upper_age_bound
+        # max_birth <- timestep - parameters$lower_age_bound
+        # recording_people <- target[variables$birth$get_index_of(a = min_birth, b = max_birth)]
         # states <- variables$state$get_values(recording_people)
         # personal_inds <- variables$personal_tracker_index$get_values(recording_people)
         states <- variables$state$get_values(target)
@@ -249,11 +257,14 @@ throw_away_nets_verbose <- function(variables, parameters) {
   function(timestep, target) {
     variables$net_time$queue_update(-1, target)
     if(parameters$nets_verbose){
+      min_birth <- timestep - parameters$upper_age_bound
+      max_birth <- timestep - parameters$lower_age_bound
+      recording_people <- target$copy()$or(variables$birth$get_index_of(a = min_birth, b = max_birth))
       # recording_people <- target$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
-      # states <- variables$state$get_values(recording_people$to_vector())
-      # personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
-      states <- variables$state$get_values(target$to_vector())
-      personal_inds <- variables$personal_tracker_index$get_values(target$to_vector())
+      states <- variables$state$get_values(recording_people$to_vector())
+      personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
+      # states <- variables$state$get_values(target$to_vector())
+      # personal_inds <- variables$personal_tracker_index$get_values(target$to_vector())
       print_to_csv(parameters$file_name, timestep, personal_inds, "removed_net", states, parameters$start_time)
     }
   }

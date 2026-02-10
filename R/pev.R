@@ -332,7 +332,10 @@ create_verbose_mass_pev_listener <- function(
     # Update the latest vaccination time
     variables$last_pev_timestep$queue_update(timestep, target)
     if(parameters$pev_verbose){
-      recording_people <- target$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
+      min_birth <- timestep - parameters$upper_age_bound
+      max_birth <- timestep - parameters$lower_age_bound
+      recording_people <- target$copy()$or(variables$birth$get_index_of(a = min_birth, b = max_birth))
+      # recording_people <- target$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
       states <- variables$state$get_values(recording_people)
       personal_inds <- variables$personal_tracker_index$get_values(recording_people)
       # states <- variables$state$get_values(target)

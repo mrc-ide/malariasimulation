@@ -171,7 +171,6 @@ run_verbose_simulation <- function(
     restore_random_state = restore_random_state
   )
 
-  sink()
   final_state <- list(
     timesteps = timesteps,
     individual = individual_state,

@@ -432,9 +432,12 @@ simulate_bites_verbose <- function(
     }
   }
 if(parameters$biting_verbose){
-    in_age_group <- individual::Bitset$new(parameters$human_population)
-    in_age_group <- in_age_group$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
-    recording_people <- in_age_group$and(bitten_humans)
+    # in_age_group <- individual::Bitset$new(parameters$human_population)
+    # in_age_group <- in_age_group$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
+    # recording_people <- in_age_group$and(bitten_humans)
+    min_birth <- timestep - parameters$upper_age_bound
+    max_birth <- timestep - parameters$lower_age_bound
+    recording_people <- target$copy()$or(variables$birth$get_index_of(a = min_birth, b = max_birth))
     states <- variables$state$get_values(recording_people$to_vector())
     personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
     # states <- variables$state$get_values(bitten_humans$to_vector())

@@ -181,11 +181,14 @@ reset_target_verbose <- function(variables, events, target, state, parameters, t
     }
     
     if(parameters$mortality_verbose){
+      min_birth <- timestep - parameters$upper_age_bound
+      max_birth <- timestep - parameters$lower_age_bound
+      recording_people <- target$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
       # recording_people <- target$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
-      # states <- variables$state$get_values(recording_people$to_vector())
-      # personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
-      states <- variables$state$get_values(target$to_vector())
-      personal_inds <- variables$personal_tracker_index$get_values(target$to_vector())
+      states <- variables$state$get_values(recording_people$to_vector())
+      personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
+      # states <- variables$state$get_values(target$to_vector())
+      # personal_inds <- variables$personal_tracker_index$get_values(target$to_vector())
       print_to_csv(parameters$file_name, timestep, personal_inds, "died", states, parameters$start_time)
     }
 

@@ -252,6 +252,7 @@ create_verbose_epi_pev_process <- function(
       target <- to_vaccinate$and(not_recently_vaccinated)$to_vector()
     }
 
+    # print(length(target))
     target <- target[
       sample_intervention(
         target,
@@ -260,13 +261,25 @@ create_verbose_epi_pev_process <- function(
         correlations
       )
     ]
+    # print(length(target))
 
     # Update the latest vaccination time
     variables$last_pev_timestep$queue_update(timestep, target)
     if(parameters$pev_verbose){
-      states <- variables$state$get_values(target)
-      personal_inds <- variables$personal_tracker_index$get_values(target)
-      print_to_csv(parameters$file_name, timestep, personal_inds, "vaccinated_epi", states, parameters$start_time)
+      # min_birth <- timestep - parameters$upper_age_bound
+      # max_birth <- timestep - parameters$lower_age_bound
+      # recording_people <- target$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
+      # print(target)
+      if (length(target) != 0){
+        states <- variables$state$get_values(index = target)
+        personal_inds <- variables$personal_tracker_index$get_values(index = target)
+        # flop
+        # states <- variables$state[target]
+        # personal_inds <- variables$personal_tracker_index[target]
+        # states <- variables$state$get_values(target)
+        # personal_inds <- variables$personal_tracker_index$get_values(target)
+        print_to_csv(parameters$file_name, timestep, personal_inds, "vaccinated_epi", states, parameters$start_time)
+      }
     }
     schedule_vaccination(
       target,

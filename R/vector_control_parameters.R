@@ -1,3 +1,39 @@
+#' @title Parameterise endectocide strategy
+#'
+#' @description The model will distribute endectocide at a pre-specified coverage 
+#' defined externally at `timesteps` to a random
+#' sample of the human population (age group specified. 
+#' The endectocide increases mortality that wanes for all mosquitoes over time since delivery
+#' Separately to here you need to also add in wane_endec and mu_endec
+#'
+#' @param parameters a list of parameters to modify
+#' @param timesteps the timesteps at which to distribute rounds of endectocide
+#' @param endec_on when the endectocide is turned on (days)
+#' @param endec_ts 
+#' @export
+set_endectocide <- function(
+    parameters,
+    timesteps,
+    #coverages, 
+    endec_on, 
+    endec_ts
+) {
+  #if (length(timesteps) != length(coverages)) {
+  #  stop('timesteps and coverages must align')
+  #}
+  endec_min_age <- 5
+  endec_max_age <- 90
+  parameters$endec <- TRUE
+  parameters$endec_timesteps <- timesteps
+  parameters$endec_on <- endec_on
+  parameters$endec_ts <- endec_ts
+  #parameters$endec_coverages <- coverages*(exp(-endec_min_age/21) - exp(-endec_max_age/21)) #may need to change this with Anna's work
+  #parameters$endec_coverages <- coverages #just operating it as a switch, background work happens in odin
+  parameters
+}
+
+
+
 #' @title Parameterise a bed net strategy
 #'
 #' @description The model will distribute bed nets at `timesteps` to a random
@@ -29,30 +65,6 @@
 #' With nrows=length(timesteps), ncols=length(species)
 #' @param gamman a vector of bednet half-lives for each distribution timestep
 #' @export
-set_endectocide <- function(
-    parameters,
-    timesteps,
-    #coverages, 
-    endec_on, 
-    endec_ts
-) {
-  #if (length(timesteps) != length(coverages)) {
-  #  stop('timesteps and coverages must align')
-  #}
-  endec_min_age <- 5
-  endec_max_age <- 90
-  parameters$endec <- TRUE
-  parameters$endec_timesteps <- timesteps
-  parameters$endec_on <- endec_on
-  parameters$endec_ts <- endec_ts
-  #parameters$endec_coverages <- coverages*(exp(-endec_min_age/21) - exp(-endec_max_age/21)) #may need to change this with Anna's work
-  #parameters$endec_coverages <- coverages #just operating it as a switch, background work happens in odin
-  parameters
-}
-
-
-
-
 set_bednets <- function(
     parameters,
     timesteps,

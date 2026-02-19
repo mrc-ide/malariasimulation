@@ -514,6 +514,7 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       nets_verbose <- FALSE,
       pev_verbose <- FALSE,
       states_verbose <- FALSE,
+      infection_verbose <- FALSE,      
       state_recording_freq <- FALSE,
       file_name <- "",
       start_time <- 0,

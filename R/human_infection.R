@@ -364,6 +364,110 @@ falciparum_infection_outcome_process <- function(
     )
   }
 }
+#' @title Assigns falciparum infections to appropriate human states and outputs
+#' individual level information
+#' @description
+#' Updates human states and variables to represent asymptomatic/clinical/severe
+#' and treated malaria; and resulting boosts in immunity
+#' @param timestep current timestep
+#' @param infected_humans bitset of infected humans
+#' @param variables a list of all of the model variables
+#' @param renderer model render object
+#' @param parameters model parameters
+#' @param prob vector of population probabilities of infection
+#' @noRd
+falciparum_infection_outcome_process_verbose <- function(
+    timestep,
+    infected_humans,
+    variables,
+    renderer,
+    parameters){
+  
+  if (infected_humans$size() > 0) {
+    
+    renderer$render('n_infections', infected_humans$size(), timestep)
+    incidence_renderer(
+      variables$birth,
+      renderer,
+      infected_humans,
+      'inc_',
+      parameters$incidence_rendering_min_ages,
+      parameters$incidence_rendering_max_ages,
+      timestep
+    )
+    
+    boost_immunity(
+      variables$ica,
+      infected_humans,
+      variables$last_boosted_ica,
+      timestep,
+      parameters$uc
+    )
+    
+    boost_immunity(
+      variables$id,
+      infected_humans,
+      variables$last_boosted_id,
+      timestep,
+      parameters$ud
+    )
+    
+    clinical <- calculate_clinical_infections(
+      variables,
+      infected_humans,
+      parameters,
+      renderer,
+      timestep
+    )
+    
+    treated <- calculate_treated(
+      variables,
+      clinical,
+      parameters,
+      timestep,
+      renderer
+    )
+    
+    update_severe_disease(
+      timestep,
+      infected_humans,
+      variables,
+      parameters,
+      renderer
+    )
+    
+    ## The treated and infected_humans bitsets are re-written so be cautious!
+    to_D <- treated$not(FALSE)$and(clinical)
+    to_A <- infected_humans$and(clinical$not(FALSE))
+    to_U <- NULL
+    
+    
+    if(parameters$infection_verbose){
+      min_birth <- timestep - parameters$upper_age_bound
+      max_birth <- timestep - parameters$lower_age_bound
+      recording_people <- to_U$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
+      states <- variables$state$get_values(recording_people$to_vector())
+      personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
+      print_to_csv(parameters$file_name, timestep, personal_inds, "Gone_to_U", states, parameters$start_time)
+      recording_people <- to_A$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
+      states <- variables$state$get_values(recording_people$to_vector())
+      personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
+      print_to_csv(parameters$file_name, timestep, personal_inds, "Gone_to_A", states, parameters$start_time)
+      recording_people <- to_D$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
+      states <- variables$state$get_values(recording_people$to_vector())
+      personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
+      print_to_csv(parameters$file_name, timestep, personal_inds, "Gone_to_D", states, parameters$start_time)
+    }
+    schedule_infections(
+      parameters,
+      variables,
+      timestep,
+      to_D,
+      to_A,
+      to_U
+    )
+  }
+}
 
 #' @title Assigns vivax infections to appropriate human states
 #' @description
@@ -454,7 +558,7 @@ vivax_infection_outcome_process <- function(
     to_U <- infected_humans$and(lm_detectable$not(F))$and(variables$state$get_index_of(c("S")))
     to_A <- lm_detectable$and(clinical$not(F))
     to_D <- clinical$and(treated$not(F))
-    
+
     schedule_infections(
       parameters,
       variables,

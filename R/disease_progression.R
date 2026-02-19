@@ -161,7 +161,7 @@ progression_outcome_process_verbose <- function(
       max_birth <- timestep - parameters$lower_age_bound
       recording_people <- target$copy()$or(variables$birth$get_index_of(a = min_birth, b = max_birth))
       # recording_people <- target$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
-      going_asymptomatic <- variables$state$get_index_of("D")$and(recording_people)
+      going_asymptomatic <- variables$copy()$state$get_index_of("D")$and(recording_people)
       # going_asymptomatic <- variables$state$get_index_of("D")$and(target)
       states <- variables$state$get_values(going_asymptomatic$to_vector())
       personal_inds <- variables$personal_tracker_index$get_values(going_asymptomatic)
@@ -200,10 +200,10 @@ progression_outcome_process_verbose <- function(
     max_birth <- timestep - parameters$lower_age_bound
     recording_people <- target$copy()$or(variables$birth$get_index_of(a = min_birth, b = max_birth))
     # recording_people <- target$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
-    going_subpatent <- variables$state$get_index_of("U")$and(recording_people)
+    going_subpatent <- variables$copy()$state$get_index_of("U")$and(recording_people)
     # going_subpatent <- variables$state$get_index_of("U")$and(target)
-    states <- variables$state$get_values(going_subpatent$to_vector())
-    personal_inds <- variables$personal_tracker_index$get_values(going_subpatent)
+    states <- variables$copy()$state$get_values(going_subpatent$to_vector())
+    personal_inds <- variables$copy()$personal_tracker_index$get_values(going_subpatent)
     print_to_csv(parameters$file_name, timestep, personal_inds, "turning_subpatent", states, parameters$start_time)
     # for(i in seq_along(personal_inds)){
     #   cat(timestep, ",")
@@ -227,10 +227,10 @@ progression_outcome_process_verbose <- function(
     max_birth <- timestep - parameters$lower_age_bound
     recording_people <- target$copy()$or(variables$birth$get_index_of(a = min_birth, b = max_birth))
     # recording_people <- target$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
-    going_susceptible <- variables$state$get_index_of(c("U", "Tr"))$and(recording_people)
+    going_susceptible <- variables$copy()$state$get_index_of(c("U", "Tr"))$and(recording_people)
     # going_susceptible <- variables$state$get_index_of(c("U", "Tr"))$and(target)
-    states <- variables$state$get_values(going_susceptible$to_vector())
-    personal_inds <- variables$personal_tracker_index$get_values(going_susceptible)
+    states <- variables$copy()$state$get_values(going_susceptible$to_vector())
+    personal_inds <- variables$copy()$personal_tracker_index$get_values(going_susceptible)
     print_to_csv(parameters$file_name, timestep, personal_inds, "turning_susceptible", states, parameters$start_time)
     # for(i in seq_along(personal_inds)){
     #   cat(timestep, ",")

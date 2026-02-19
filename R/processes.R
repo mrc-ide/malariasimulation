@@ -451,7 +451,7 @@ create_verbose_processes <- function(
   if(parameters$parasite == "falciparum"){
     infection_outcome <- CompetingOutcome$new(
       targeted_process = function(timestep, target){
-        falciparum_infection_outcome_process(timestep, target, 
+        falciparum_infection_outcome_process_verbose(timestep, target, 
                                   variables, renderer, parameters
         )
       },

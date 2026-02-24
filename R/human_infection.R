@@ -445,10 +445,6 @@ falciparum_infection_outcome_process_verbose <- function(
     if(parameters$infection_verbose){
       min_birth <- timestep - parameters$upper_age_bound
       max_birth <- timestep - parameters$lower_age_bound
-      # recording_people <- to_U$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
-      # states <- variables$state$get_values(recording_people$to_vector())
-      # personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
-      # print_to_csv(parameters$file_name, timestep, personal_inds, "Gone_to_U", states, parameters$start_time)
       recording_people <- to_A$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
       states <- variables$state$get_values(recording_people$to_vector())
       personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())

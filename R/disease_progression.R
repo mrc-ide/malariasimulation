@@ -156,23 +156,6 @@ progression_outcome_process_verbose <- function(
       timestep,
       variables$state$get_index_of("D")$and(target)
     )
-    if(parameters$progression_verbose){
-      min_birth <- timestep - parameters$upper_age_bound
-      max_birth <- timestep - parameters$lower_age_bound
-      recording_people <- target$copy()$or(variables$birth$get_index_of(a = min_birth, b = max_birth))
-      # recording_people <- target$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
-      going_asymptomatic <- variables$copy()$state$get_index_of("D")$and(recording_people)
-      # going_asymptomatic <- variables$state$get_index_of("D")$and(target)
-      states <- variables$state$get_values(going_asymptomatic$to_vector())
-      personal_inds <- variables$personal_tracker_index$get_values(going_asymptomatic)
-      print_to_csv(parameters$file_name, timestep, personal_inds, "turning_asymptomatic", states, parameters$start_time)
-      # for(i in seq_along(personal_inds)){
-      #   cat(timestep, ",")
-      #   cat(personal_inds[i], ",")
-      #   cat("turning_asymptomatic,")
-      #   cat(states[i], "\n")
-      # }
-    }
   } else if (parameters$parasite == "vivax"){
     # p.v has constant asymptomatic infectivity
     update_infection(
@@ -195,23 +178,6 @@ progression_outcome_process_verbose <- function(
     1/parameters$du,
     variables$state$get_index_of("A")$and(target)
   )
-  if(parameters$progression_verbose){
-    min_birth <- timestep - parameters$upper_age_bound
-    max_birth <- timestep - parameters$lower_age_bound
-    recording_people <- target$copy()$or(variables$birth$get_index_of(a = min_birth, b = max_birth))
-    # recording_people <- target$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
-    going_subpatent <- variables$copy()$state$get_index_of("U")$and(recording_people)
-    # going_subpatent <- variables$state$get_index_of("U")$and(target)
-    states <- variables$copy()$state$get_values(going_subpatent$to_vector())
-    personal_inds <- variables$copy()$personal_tracker_index$get_values(going_subpatent)
-    print_to_csv(parameters$file_name, timestep, personal_inds, "turning_subpatent", states, parameters$start_time)
-    # for(i in seq_along(personal_inds)){
-    #   cat(timestep, ",")
-    #   cat(personal_inds[i], ",")
-    #   cat("turning_subpatent,")
-    #   cat(states[i], "\n")
-    # }
-  }
   
   update_infection(
     variables$state,
@@ -225,19 +191,23 @@ progression_outcome_process_verbose <- function(
   if(parameters$progression_verbose){
     min_birth <- timestep - parameters$upper_age_bound
     max_birth <- timestep - parameters$lower_age_bound
+    # print("recording_people")
     recording_people <- target$copy()$or(variables$birth$get_index_of(a = min_birth, b = max_birth))
-    # recording_people <- target$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
-    going_susceptible <- variables$state$copy()$get_index_of(c("U", "Tr"))$and(recording_people)
-    # going_susceptible <- variables$state$get_index_of(c("U", "Tr"))$and(target)
-    states <- variables$state$copy()$get_values(going_susceptible$to_vector())
-    personal_inds <- variables$personal_tracker_index$copy()$get_values(going_susceptible)
+
+    going_asymptomatic <- variables$state$get_index_of("D")$and(recording_people)
+    states <- variables$state$get_values(going_asymptomatic$to_vector())
+    personal_inds <- variables$personal_tracker_index$get_values(going_asymptomatic$to_vector())
+    print_to_csv(parameters$file_name, timestep, personal_inds, "turning_asymptomatic", states, parameters$start_time)
+
+    going_subpatent <- variables$state$get_index_of("A")$and(recording_people)
+    states <- variables$state$get_values(going_subpatent$to_vector())
+    personal_inds <- variables$personal_tracker_index$get_values(going_subpatent$to_vector())
+    print_to_csv(parameters$file_name, timestep, personal_inds, "turning_subpatent", states, parameters$start_time)
+
+    going_susceptible <- variables$state$get_index_of(c("U", "Tr"))$and(recording_people)
+    states <- variables$state$get_values(going_susceptible$to_vector())
+    personal_inds <- variables$personal_tracker_index$get_values(going_susceptible$to_vector())
     print_to_csv(parameters$file_name, timestep, personal_inds, "turning_susceptible", states, parameters$start_time)
-    # for(i in seq_along(personal_inds)){
-    #   cat(timestep, ",")
-    #   cat(personal_inds[i], ",")
-    #   cat("turning_susceptible,")
-    #   cat(states[i], "\n")
-    # }
   }
   
 }

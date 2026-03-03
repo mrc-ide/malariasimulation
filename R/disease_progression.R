@@ -192,7 +192,7 @@ progression_outcome_process_verbose <- function(
     min_birth <- timestep - parameters$upper_age_bound
     max_birth <- timestep - parameters$lower_age_bound
     # print("recording_people")
-    recording_people <- target$copy()$or(variables$birth$get_index_of(a = min_birth, b = max_birth))
+    recording_people <- target$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
 
     going_asymptomatic <- variables$state$get_index_of("D")$and(recording_people)
     states <- variables$state$get_values(going_asymptomatic$to_vector())

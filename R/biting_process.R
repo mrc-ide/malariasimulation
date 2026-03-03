@@ -437,7 +437,7 @@ if(parameters$biting_verbose){
     # recording_people <- in_age_group$and(bitten_humans)
     min_birth <- timestep - parameters$upper_age_bound
     max_birth <- timestep - parameters$lower_age_bound
-    recording_people <- bitten_humans$copy()$or(variables$birth$get_index_of(a = min_birth, b = max_birth))
+    recording_people <- bitten_humans$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
     states <- variables$state$get_values(recording_people$to_vector())
     personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
     # states <- variables$state$get_values(bitten_humans$to_vector())

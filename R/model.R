@@ -24,6 +24,8 @@
 #'  * Tr_count: number of detectable infections being treated in humans
 #'  * ica_mean: the mean acquired immunity to clinical infection over the population of humans
 #'  * icm_mean: the mean maternal immunity to clinical infection over the population of humans
+#'  * iva_mean: the mean acquired immunity to severe infection over the population of humans
+#'  * ivm_mean: the mean maternal immunity to severe infection over the population of humans
 #'  * ib_mean: the mean blood immunity to all infection over the population of humans
 #'  * id_mean: the mean immunity from detection through microscopy over the population of humans
 #'  * n: number of humans between an inclusive age range at this timestep. This
@@ -353,15 +355,20 @@ run_metapop_simulation <- function(
 #'
 #' @param timesteps the number of timesteps to run the simulation for
 #' @param repetitions n times to run the simulation
-#' @param overrides a named list of parameters to use instead of defaults
+#' @param parameters a named list of parameters to use
+#' @param correlations correlation parameters
 #' @param parallel execute runs in parallel
 #' @export
 run_simulation_with_repetitions <- function(
     timesteps,
     repetitions,
-    overrides = list(),
+    parameters = NULL,
+    correlations = NULL,
     parallel = FALSE
 ) {
+  if (is.null(parameters)) {
+    parameters <- get_parameters()
+  }
   if (parallel) {
     fapply <- parallel::mclapply
   } else {
@@ -370,7 +377,11 @@ run_simulation_with_repetitions <- function(
   dfs <- fapply(
     seq(repetitions),
     function(repetition) {
-      df <- run_simulation(timesteps, overrides)
+      df <- run_simulation(
+        timesteps = timesteps,
+        parameters = parameters,
+        correlations = correlations
+      )
       df$repetition <- repetition
       df
     }

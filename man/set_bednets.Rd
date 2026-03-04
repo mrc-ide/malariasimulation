@@ -4,7 +4,18 @@
 \alias{set_bednets}
 \title{Parameterise a bed net strategy}
 \usage{
-set_bednets(parameters, timesteps, coverages, retention, dn0, rn, rnm, gamman)
+set_bednets(
+  parameters,
+  timesteps,
+  coverages,
+  dn0,
+  rn,
+  rnm,
+  gamman,
+  retention = NULL,
+  logistic_half_life = NULL,
+  logistic_k = NULL
+)
 }
 \arguments{
 \item{parameters}{a list of parameters to modify}
@@ -12,8 +23,6 @@ set_bednets(parameters, timesteps, coverages, retention, dn0, rn, rnm, gamman)
 \item{timesteps}{the timesteps at which to distribute bed nets}
 
 \item{coverages}{the proportion of the human population who receive bed nets}
-
-\item{retention}{the average number of timesteps a net is kept for}
 
 \item{dn0}{a matrix of death probabilities for each species over time.
 With nrows=length(timesteps), ncols=length(species)}
@@ -24,7 +33,13 @@ With nrows=length(timesteps), ncols=length(species)}
 \item{rnm}{a matrix of minimum repelling probabilities for each species over time
 With nrows=length(timesteps), ncols=length(species)}
 
-\item{gamman}{a vector of bednet half-lives for each distribution timestep}
+\item{gamman}{a vector of bednet insecticide half-lives for each distribution timestep}
+
+\item{retention}{(optional) the average number of timesteps a net is kept for (modelled using a log uniform)}
+
+\item{logistic_half_life}{(optional) bednet retention half-life (modelled using logistic decay)}
+
+\item{logistic_k}{(optional) k parameter for retention modelled using logistic decay}
 }
 \description{
 The model will distribute bed nets at \code{timesteps} to a random
@@ -38,7 +53,15 @@ distributed. Incomplete usage is not part of this model.
 If a human in the sample already has a bed net, their bed net will be replaced
 by a new one.
 
-Bed nets will be randomly removed each timestep with a rate of \code{1 - exp(-1/retention)}
+Using the gamman parameter:
+
+Bed nets will be randomly removed each timestep with a rate of \code{1 - exp(-1/gamman)}
+
+Alternatively, the logistic retention parameters can be used. Retention time
+is calculated using the logistic decay function:
+
+l (time at which all nets fail) = half_life / sqrt(1 - k / (k - log(0.5)))
+T (simulated time for individual failure) = l * sqrt( a / (1 + a ) ),  a = -log(U)/k
 
 The structure for the bed net model is documented in the
 S.I. of 10.1038/s41467-018-07357-w

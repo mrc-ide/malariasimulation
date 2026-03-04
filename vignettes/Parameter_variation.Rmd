@@ -51,7 +51,7 @@ plot(
 grid(lty = 2, col = "grey80", lwd = 0.5)
 ```
 
-If needed, we can produce stochastic model outputs incorporating variation in model parameters. This is done with the `set_parameter_draw` function, which pulls parameter draws from this joint posterior of Markov chain Monte Carlo (MCMC) fitting. This function overrides the default model parameters with a sample from one of 1000 draws from the joint posterior.
+If needed, we can produce stochastic model outputs incorporating variation in model parameters. This is done with the `set_parameter_draw` function, which pulls parameter draws from this joint posterior of Markov chain Monte Carlo (MCMC) fitting. This function overrides the default model parameters with a sample from one of 1000 draws from the joint posterior and appends the draw taken to the parameter list.
 
 Keep in mind that `set_parameter_draw` must be called prior to `set_equilibrium`, as the baseline transmission intensity must be calibrated to new model parameters.
 

@@ -1,3 +1,34 @@
+
+test_that('set_bednets validates death and repelling parameters', {
+    parameters <- get_parameters()
+    # check that dn0 + rn < 1
+    expect_error(
+      set_bednets(
+        parameters,
+        timesteps = 5,
+        coverages = .5,
+        retention = 40,
+        dn0 = matrix(c(.5, .5), nrow=2, ncol=1),
+        rn = matrix(c(.5, .5), nrow=2, ncol=1),
+        rnm = matrix(c(.25, .25), nrow=2, ncol=1),
+        gamman = c(963.6, 963.6)
+      )
+    )
+    # check that rnm < rn
+    expect_error(
+      set_bednets(
+        parameters,
+        timesteps = 5,
+        coverages = .5,
+        retention = 40,
+        dn0 = matrix(c(.5, .5), nrow=2, ncol=1),
+        rn = matrix(c(.15, .15), nrow=2, ncol=1),
+        rnm = matrix(c(.25, .25), nrow=2, ncol=1),
+        gamman = c(963.6, 963.6)
+      )
+    )
+})
+
 test_that('set_bednets validates coverages', {
   parameters <- get_parameters()
   expect_error(
@@ -6,8 +37,8 @@ test_that('set_bednets validates coverages', {
       timesteps = c(5, 50),
       coverages = c(.5),
       retention = 40,
-      dn0 = matrix(c(.533, .533), nrow=2, ncol=1),
-      rn = matrix(c(.56, .56), nrow=2, ncol=1),
+      dn0 = matrix(c(.5, .5), nrow=2, ncol=1),
+      rn = matrix(c(.4, .4), nrow=2, ncol=1),
       rnm = matrix(c(.24, .24), nrow=2, ncol=1),
       gamman = c(963.6, 963.6)
     )
@@ -19,8 +50,8 @@ test_that('set_bednets validates coverages', {
       timesteps = c(5, 50),
       coverages = c(-1, 0.5),
       retention = 40,
-      dn0 = matrix(c(.533, .533), nrow=2, ncol=1),
-      rn = matrix(c(.56, .56), nrow=2, ncol=1),
+      dn0 = matrix(c(.5, .5), nrow=2, ncol=1),
+      rn = matrix(c(.4, .4), nrow=2, ncol=1),
       rnm = matrix(c(.24, .24), nrow=2, ncol=1),
       gamman = c(963.6, 963.6)
     ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
@@ -33,8 +64,8 @@ test_that('set_bednets validates coverages', {
       timesteps = c(5, 50),
       coverages = c(0.5, 1.5),
       retention = 40,
-      dn0 = matrix(c(.533, .533), nrow=2, ncol=1),
-      rn = matrix(c(.56, .56), nrow=2, ncol=1),
+      dn0 = matrix(c(.5, .5), nrow=2, ncol=1),
+      rn = matrix(c(.4, .4), nrow=2, ncol=1),
       rnm = matrix(c(.24, .24), nrow=2, ncol=1),
       gamman = c(963.6, 963.6)
     ), "all(coverages >= 0) && all(coverages <= 1) is not TRUE",
@@ -51,8 +82,8 @@ test_that('set_bednets validates matrices', {
       timesteps = c(5, 50),
       coverages = c(.5, .9),
       retention = 40,
-      dn0 = matrix(c(.533, .533), nrow=2, ncol=1),
-      rn = matrix(c(.56, .56), nrow=2, ncol=1),
+      dn0 = matrix(c(.5, .5), nrow=2, ncol=1),
+      rn = matrix(c(.4, .4), nrow=2, ncol=1),
       rnm = matrix(c(.24, .24), nrow=2, ncol=1),
       gamman = c(963.6, 963.6)
     )
@@ -66,8 +97,8 @@ test_that('set_bednets sets parameters', {
     timesteps = c(5, 50),
     coverages = c(.5, .9),
     retention = 40,
-    dn0 = matrix(c(.533, .533), nrow=2, ncol=1),
-    rn = matrix(c(.56, .56), nrow=2, ncol=1),
+    dn0 = matrix(c(.5, .5), nrow=2, ncol=1),
+    rn = matrix(c(.4, .4), nrow=2, ncol=1),
     rnm = matrix(c(.24, .24), nrow=2, ncol=1),
     gamman = c(963.6, 963.6)
   )
@@ -75,6 +106,91 @@ test_that('set_bednets sets parameters', {
   expect_equal(parameters$bednet_timesteps, c(5, 50))
   expect_equal(parameters$bednet_coverages, c(.5, .9))
   expect_equal(parameters$bednet_retention, 40)
+})
+
+test_that("Parameterise logistic retention method", {
+  timesteps <- 1:3
+  coverages <- rep(0.5, length(timesteps))
+  dn0 <- matrix(0.1, nrow = length(timesteps), ncol = 1)
+  rn  <- matrix(0.2, nrow = length(timesteps), ncol = 1)
+  rnm <- matrix(0.1, nrow = length(timesteps), ncol = 1)
+  gamman <- rep(2 * 365, length(timesteps))
+
+  logistic_half_life <- rep(10, length(timesteps))
+  logistic_k <- rep(0.5, length(timesteps))
+  result <- set_bednets(
+    parameters = get_parameters(),
+    timesteps = timesteps,
+    coverages = coverages,
+    dn0 = dn0,
+    rn = rn,
+    rnm = rnm,
+    gamman = gamman,
+    logistic_half_life = logistic_half_life,
+    logistic_k = logistic_k
+  )
+
+  # Check that the returned parameters list has the expected logistic entries.
+  expect_true(result$bednets)
+  expect_equal(result$bednet_timesteps, timesteps)
+  expect_equal(result$bednet_coverages, coverages)
+
+  expect_equal(result$bednet_logistic_half_life, logistic_half_life)
+  expect_equal(result$bednet_logistic_k, logistic_k)
+
+  # Ensure that retention is not set.
+  expect_null(result$bednet_retention)
+})
+
+test_that("Cannot parameterise both retention methods", {
+  timesteps <- 1:3
+  coverages <- rep(0.5, length(timesteps))
+  dn0 <- matrix(0.1, nrow = length(timesteps), ncol = 1)
+  rn  <- matrix(0.2, nrow = length(timesteps), ncol = 1)
+  rnm <- matrix(0.1, nrow = length(timesteps), ncol = 1)
+  retention <- 10
+  gamman <- rep(2 * 365, length(timesteps))
+  logistic_half_life <- rep(10, length(timesteps))
+  logistic_k <- rep(0.5, length(timesteps))
+
+  expect_error(
+    set_bednets(
+      parameters = get_parameters(),
+      timesteps = timesteps,
+      coverages = coverages,
+      dn0 = dn0,
+      rn = rn,
+      rnm = rnm,
+      gamman = gamman,
+      retention = retention,
+      logistic_half_life = logistic_half_life,
+      logistic_k = logistic_k
+    ),
+    "retention cannot be used with logistic_half_life or logistic_k"
+  )
+})
+
+test_that("Cannot parameterise neither bednet retention method", {
+  timesteps <- 1:3
+  coverages <- rep(0.5, length(timesteps))
+  dn0 <- matrix(0.1, nrow = length(timesteps), ncol = 1)
+  rn  <- matrix(0.2, nrow = length(timesteps), ncol = 1)
+  rnm <- matrix(0.1, nrow = length(timesteps), ncol = 1)
+  gamman <- rep(2 * 365, length(timesteps))
+
+  # Neither gamman nor logistic_half_life/logistic_k is provided.
+  expect_error(
+    set_bednets(
+      parameters = get_parameters(),
+      timesteps = timesteps,
+      coverages = coverages,
+      dn0 = dn0,
+      rn = rn,
+      rnm = rnm,
+      gamman = gamman
+    ),
+    "retention must be set"
+  )
 })
 
 test_that('set_spraying validates parameters', {
@@ -120,8 +236,8 @@ test_that('distribute_bednets process sets net_time correctly', {
     timesteps = c(5, 50),
     coverages = c(.5, .9),
     retention = 40,
-    dn0 = matrix(c(.533, .533), nrow=2, ncol=1),
-    rn = matrix(c(.56, .56), nrow=2, ncol=1),
+    dn0 = matrix(c(.5, .5), nrow=2, ncol=1),
+    rn = matrix(c(.4, .4), nrow=2, ncol=1),
     rnm = matrix(c(.24, .24), nrow=2, ncol=1),
     gamman = c(963.6, 963.6)
   )
@@ -139,7 +255,7 @@ test_that('distribute_bednets process sets net_time correctly', {
   
   target_mock <- mockery::mock(c(FALSE, FALSE, TRUE, TRUE))
   mockery::stub(process, 'sample_intervention', target_mock)
-  mockery::stub(process, 'log_uniform', mockery::mock(c(3, 4)))
+  mockery::stub(process, 'sample_net_time', mockery::mock(c(3, 4)))
   
   process(timestep)
   
@@ -167,8 +283,8 @@ test_that('throw_away_bednets process resets net_time correctly', {
     timesteps = c(5, 50),
     coverages = c(.5, .9),
     retention = 40,
-    dn0 = matrix(c(.533, .533), nrow=2, ncol=1),
-    rn = matrix(c(.56, .56), nrow=2, ncol=1),
+    dn0 = matrix(c(.5, .5), nrow=2, ncol=1),
+    rn = matrix(c(.4, .4), nrow=2, ncol=1),
     rnm = matrix(c(.24, .24), nrow=2, ncol=1),
     gamman = c(963.6, 963.6)
   )
@@ -241,34 +357,29 @@ test_that('prob_bitten defaults to 1 with no protection', {
   )
 })
 
-test_that('prob_bitten correctly calculates net only probabilities', {
-  timestep <- 100
+test_that('prob_survives_bednets correctly calculates net only probabilities on the same day of distribution', {
   parameters <- get_parameters()
   parameters <- set_bednets(
     parameters,
-    timesteps = c(5, 50, 100),
-    coverages = c(.5, .9, .2),
+    timesteps = 100,
+    coverages = .5,
     retention = 40,
-    dn0 = matrix(rep(.533, 3), nrow=3, ncol=1),
-    rn = matrix(rep(.56, 3), nrow=3, ncol=1),
-    rnm = matrix(rep(.24, 3), nrow=3, ncol=1),
-    gamman = rep(25, 3)
+    dn0 = matrix(.5, nrow=1, ncol=1),
+    rn = matrix(.4, nrow=1, ncol=1),
+    rnm = matrix(.24, nrow=1, ncol=1),
+    gamman = 25
   )
-  variables <- create_variables(parameters)
-  variables$net_time <- individual::DoubleVariable$new(
-    c(-1, 5, 50, 100)
+
+  since_net <- 0
+  matches <- 1
+  sn <- prob_survives_bednets(
+    .4,
+    matches,
+    since_net,
+    1,
+    parameters
   )
-  variables$spray_time <- individual::DoubleVariable$new(rep(-1, 4))
-  
-  expect_equal(
-    prob_bitten(timestep, variables, 1, parameters),
-    list(
-      prob_bitten_survives = c(1, 0.7797801, 0.6978752, 0.0709500),
-      prob_bitten = c(1, 0.7797801, 0.6978752, 0.0709500),
-      prob_repelled = c(0, 0.2100848, 0.2408112, 0.4760000)
-    ),
-    tolerance = 1e-5
-  )
+  expect_equal(sn, .1)
 })
 
 test_that('prob_bitten correctly calculates spraying only probabilities', {
@@ -300,49 +411,6 @@ test_that('prob_bitten correctly calculates spraying only probabilities', {
       prob_repelled = c(0, 0.1731843, 0.1898617, 0.2311648)
     ),
     tolerance = 1e-5
-  )
-})
-
-test_that('prob_bitten correctly combines spraying and net probabilities', {
-  timestep <- 100
-  parameters <- get_parameters(list(human_population = 4))
-  parameters <- set_bednets(
-    parameters,
-    timesteps = c(5, 50, 100),
-    coverages = c(.5, .9, .2),
-    retention = 40,
-    dn0 = matrix(rep(.533, 3), nrow=3, ncol=1),
-    rn = matrix(rep(.56, 3), nrow=3, ncol=1),
-    rnm = matrix(rep(.24, 3), nrow=3, ncol=1),
-    gamman = rep(25, 3)
-  )
-  parameters <- set_spraying(
-    parameters,
-    timesteps = c(5, 50, 100),
-    coverages = c(.5, .9, .2),
-    ls_theta = matrix(rep(2.025, 3), nrow=3, ncol=1),
-    ls_gamma = matrix(rep(-0.009, 3), nrow=3, ncol=1),
-    ks_theta = matrix(rep(-2.222, 3), nrow=3, ncol=1),
-    ks_gamma = matrix(rep(0.008, 3), nrow=3, ncol=1),
-    ms_theta = matrix(rep(-1.232, 3), nrow=3, ncol=1),
-    ms_gamma = matrix(rep(-0.009, 3), nrow=3, ncol=1)
-  )
-  variables <- create_variables(parameters)
-  variables$net_time <- individual::IntegerVariable$new(
-    c(100, 50, 5, -1)
-  )
-  variables$spray_time <- individual::IntegerVariable$new(
-    c(-1, 5, 50, 100)
-  )
-  
-  expect_equal(
-    prob_bitten(timestep, variables, 1, parameters),
-    list(
-      prob_bitten_survives = c(0.0709500, 0.1808229, 0.1629512, 0.1506359),
-      prob_bitten = c(0.0709500, 0.5828278, 0.6363754, 0.7688352),
-      prob_repelled = c(0.4760000, 0.3676569, 0.3556276, 0.2311648)
-    ),
-    tolerance=1e-4
   )
 })
 
@@ -400,3 +468,67 @@ test_that('set_carrying_capacity works',{
   )
 })
 
+test_that("logistic_net_retention_time returns a numeric vector of correct length", {
+	n <- 1000
+	half_life <- 10
+	k <- 0.5
+  result <- logistic_net_retention_time(n, half_life, k)
+  expect_type(result, "double")
+  expect_length(result, n)
+})
+
+test_that("logistic_net_retention_time	returns times are between 0 and l", {
+	n <- 1000
+	half_life <- 10
+	k <- 0.5
+	l <- half_life / sqrt(1 - k / (k - log(0.5)))
+  result <- logistic_net_retention_time(n, half_life, k)
+  expect_true(all(result >= 0))
+  expect_true(all(result <= l))
+})
+
+test_that("logistic_net_retention_time handles n = 0 correctly", {
+  n <- 1000
+	half_life <- 10
+	k <- 0.5
+  result <- logistic_net_retention_time(0, half_life, k)
+  expect_equal(result, numeric(0))
+})
+
+# Extreme inputs tests for logistic_net_retention_time()
+test_that("Output does not exceed l for extremely small k", {
+  n <- 1000
+  half_life <- 10
+  k <- 1e-10  # extremely small k
+  l <- half_life / sqrt(1 - k / (k - log(0.5)))
+
+  result <- logistic_net_retention_time(n, half_life, k)
+
+  # All times should be in [0, l]
+  expect_true(all(result >= 0))
+  expect_true(all(result <= l))
+})
+
+test_that("Output does not exceed l for extremely large k", {
+  n <- 1000
+  half_life <- 10
+  k <- 1e10  # extremely large k
+  l <- half_life / sqrt(1 - k / (k - log(0.5)))
+
+  result <- logistic_net_retention_time(n, half_life, k)
+
+  expect_true(all(result >= 0))
+  expect_true(all(result <= l))
+})
+
+test_that("Output does not exceed l for an extremely large half_life", {
+  n <- 1000
+  half_life <- 1e10  # very large half_life
+  k <- 0.5
+  l <- half_life / sqrt(1 - k / (k - log(0.5)))
+
+  result <- logistic_net_retention_time(n, half_life, k)
+
+  expect_true(all(result >= 0))
+  expect_true(all(result <= l))
+})

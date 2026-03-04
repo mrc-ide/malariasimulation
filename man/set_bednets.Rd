@@ -55,7 +55,7 @@ by a new one.
 
 Using the gamman parameter:
 
-Bed nets will be randomly removed each timestep with a rate of \code{1 - exp(-1/gamman)}
+Bed nets will be randomly removed each timestep with a rate of \code{1 - exp(-1/retention)}
 
 Alternatively, the logistic retention parameters can be used. Retention time
 is calculated using the logistic decay function:

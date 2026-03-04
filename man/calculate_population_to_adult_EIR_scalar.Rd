@@ -23,3 +23,4 @@ It may be necessary to use an adult level EIR input value, mostly
 for comparison with Michael White's work. This function calculates the scaling
 factor to convert the population level EIR to adult EIR for use in the model.
 }
+\keyword{internal}

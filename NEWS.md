@@ -1,3 +1,41 @@
+# malariasimulation 3.0.0
+
+## Breaking changes
+
+* `set_bednets()` `retention` parameter is now optional and named, replaced by a choice between log-uniform retention (`retention`) or logistic decay retention (`logistic_half_life`, `logistic_k`) in https://github.com/mrc-ide/malariasimulation/pull/349
+* `run_simulation_with_repetitions()` `overrides` argument replaced with `parameters` and `correlations` in https://github.com/mrc-ide/malariasimulation/pull/367
+
+## New features
+
+* Logistic retention model for bed nets as an alternative to log-uniform retention in https://github.com/mrc-ide/malariasimulation/pull/349
+* `set_equilibrium()` gains `EIR_population_input` argument to accept total-population EIR (converted to adult EIR internally) in https://github.com/mrc-ide/malariasimulation/pull/377
+* `run_simulation_with_repetitions()` now supports correlation parameters in https://github.com/mrc-ide/malariasimulation/pull/367
+* `set_parameter_draw()` appends the draw index to the parameter list in https://github.com/mrc-ide/malariasimulation/pull/365
+
+## Bug fixes
+
+* Fix P. vivax `n_bites_per_person` being overwritten with multiple mosquito species, resulting in fewer bites than expected in https://github.com/mrc-ide/malariasimulation/pull/385
+* Fix P. vivax liver-stage drug tracking: `ls_drug` and `ls_drug_time` now added to variable list, and blood-stage vs liver-stage drugs correctly differentiated in https://github.com/mrc-ide/malariasimulation/pull/354
+* Fix `set_equilibrium()` to properly overwrite existing entries when called multiple times in https://github.com/mrc-ide/malariasimulation/pull/364
+* Fix `set_parameter_draw()` to work without `library(malariasimulation)` in https://github.com/mrc-ide/malariasimulation/pull/370
+* Fix `n_bitten` missing from initial output population function in https://github.com/mrc-ide/malariasimulation/pull/361
+* Fix incorrect parasite output attribution in epi-outputs function in https://github.com/mrc-ide/malariasimulation/pull/352
+* Add validation for bednet `s + r + d = 1` in https://github.com/mrc-ide/malariasimulation/pull/349
+
+## Documentation
+
+* Improved documentation for severe infection sampling function in https://github.com/mrc-ide/malariasimulation/pull/384
+* Added `iva_mean` and `ivm_mean` immunity outputs to `run_simulation` documentation in https://github.com/mrc-ide/malariasimulation/pull/382
+* Corrected `death_rate()` roxygen documentation in https://github.com/mrc-ide/malariasimulation/pull/357
+* Updated P. vivax vignette to reflect prophylaxis and EIR model differences in https://github.com/mrc-ide/malariasimulation/pull/383
+* Updated bednet vignette in https://github.com/mrc-ide/malariasimulation/pull/346
+* Updated Variation vignette in https://github.com/mrc-ide/malariasimulation/pull/365
+
+## Other
+
+* Unified P. vivax and P. falciparum EIR calculations to both use adult-level EIR in https://github.com/mrc-ide/malariasimulation/pull/377
+* Regenerated R-CMD-check and pkgdown GitHub Actions workflows in https://github.com/mrc-ide/malariasimulation/pull/355
+
 # malariasimulation 2.0.2
 
 * P. Vivax model by @rjsheppard

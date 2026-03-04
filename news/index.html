@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.0.0</span>
       </span>
     </div>
 
@@ -96,6 +96,71 @@
 
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="3.0.0" id="malariasimulation-300">malariasimulation 3.0.0<a class="anchor" aria-label="anchor" href="#malariasimulation-300"></a></h2>
+<div class="section level3">
+<h3 id="breaking-changes-3-0-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-3-0-0"></a></h3>
+<ul><li>
+<code><a href="../reference/set_bednets.html">set_bednets()</a></code> <code>retention</code> parameter is now optional and named, replaced by a choice between log-uniform retention (<code>retention</code>) or logistic decay retention (<code>logistic_half_life</code>, <code>logistic_k</code>) in <a href="https://github.com/mrc-ide/malariasimulation/pull/349" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/349</a>
+</li>
+<li>
+<code><a href="../reference/run_simulation_with_repetitions.html">run_simulation_with_repetitions()</a></code> <code>overrides</code> argument replaced with <code>parameters</code> and <code>correlations</code> in <a href="https://github.com/mrc-ide/malariasimulation/pull/367" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/367</a>
+</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-features-3-0-0">New features<a class="anchor" aria-label="anchor" href="#new-features-3-0-0"></a></h3>
+<ul><li>Logistic retention model for bed nets as an alternative to log-uniform retention in <a href="https://github.com/mrc-ide/malariasimulation/pull/349" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/349</a>
+</li>
+<li>
+<code><a href="../reference/set_equilibrium.html">set_equilibrium()</a></code> gains <code>EIR_population_input</code> argument to accept total-population EIR (converted to adult EIR internally) in <a href="https://github.com/mrc-ide/malariasimulation/pull/377" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/377</a>
+</li>
+<li>
+<code><a href="../reference/run_simulation_with_repetitions.html">run_simulation_with_repetitions()</a></code> now supports correlation parameters in <a href="https://github.com/mrc-ide/malariasimulation/pull/367" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/367</a>
+</li>
+<li>
+<code><a href="../reference/set_parameter_draw.html">set_parameter_draw()</a></code> appends the draw index to the parameter list in <a href="https://github.com/mrc-ide/malariasimulation/pull/365" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/365</a>
+</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-3-0-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-3-0-0"></a></h3>
+<ul><li>Fix P. vivax <code>n_bites_per_person</code> being overwritten with multiple mosquito species, resulting in fewer bites than expected in <a href="https://github.com/mrc-ide/malariasimulation/pull/385" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/385</a>
+</li>
+<li>Fix P. vivax liver-stage drug tracking: <code>ls_drug</code> and <code>ls_drug_time</code> now added to variable list, and blood-stage vs liver-stage drugs correctly differentiated in <a href="https://github.com/mrc-ide/malariasimulation/pull/354" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/354</a>
+</li>
+<li>Fix <code><a href="../reference/set_equilibrium.html">set_equilibrium()</a></code> to properly overwrite existing entries when called multiple times in <a href="https://github.com/mrc-ide/malariasimulation/pull/364" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/364</a>
+</li>
+<li>Fix <code><a href="../reference/set_parameter_draw.html">set_parameter_draw()</a></code> to work without <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library(malariasimulation)</a></code> in <a href="https://github.com/mrc-ide/malariasimulation/pull/370" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/370</a>
+</li>
+<li>Fix <code>n_bitten</code> missing from initial output population function in <a href="https://github.com/mrc-ide/malariasimulation/pull/361" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/361</a>
+</li>
+<li>Fix incorrect parasite output attribution in epi-outputs function in <a href="https://github.com/mrc-ide/malariasimulation/pull/352" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/352</a>
+</li>
+<li>Add validation for bednet <code>s + r + d = 1</code> in <a href="https://github.com/mrc-ide/malariasimulation/pull/349" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/349</a>
+</li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-3-0-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-3-0-0"></a></h3>
+<ul><li>Improved documentation for severe infection sampling function in <a href="https://github.com/mrc-ide/malariasimulation/pull/384" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/384</a>
+</li>
+<li>Added <code>iva_mean</code> and <code>ivm_mean</code> immunity outputs to <code>run_simulation</code> documentation in <a href="https://github.com/mrc-ide/malariasimulation/pull/382" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/382</a>
+</li>
+<li>Corrected <code>death_rate()</code> roxygen documentation in <a href="https://github.com/mrc-ide/malariasimulation/pull/357" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/357</a>
+</li>
+<li>Updated P. vivax vignette to reflect prophylaxis and EIR model differences in <a href="https://github.com/mrc-ide/malariasimulation/pull/383" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/383</a>
+</li>
+<li>Updated bednet vignette in <a href="https://github.com/mrc-ide/malariasimulation/pull/346" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/346</a>
+</li>
+<li>Updated Variation vignette in <a href="https://github.com/mrc-ide/malariasimulation/pull/365" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/365</a>
+</li>
+</ul></div>
+<div class="section level3">
+<h3 id="other-3-0-0">Other<a class="anchor" aria-label="anchor" href="#other-3-0-0"></a></h3>
+<ul><li>Unified P. vivax and P. falciparum EIR calculations to both use adult-level EIR in <a href="https://github.com/mrc-ide/malariasimulation/pull/377" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/377</a>
+</li>
+<li>Regenerated R-CMD-check and pkgdown GitHub Actions workflows in <a href="https://github.com/mrc-ide/malariasimulation/pull/355" class="external-link uri">https://github.com/mrc-ide/malariasimulation/pull/355</a>
+</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="2.0.2" id="malariasimulation-202">malariasimulation 2.0.2<a class="anchor" aria-label="anchor" href="#malariasimulation-202"></a></h2>
 <ul><li>P. Vivax model by @rjsheppard</li>
@@ -241,7 +306,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer></div>

@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.0.0</span>
       </span>
     </div>
 
@@ -157,13 +157,14 @@ random sets of parameter draws.</p>
 <span>  lwd <span class="op">=</span> <span class="fl">2</span>, main <span class="op">=</span> <span class="st">'Parasite prevalence over time with default model parameters'</span>,</span>
 <span>  cex.main <span class="op">=</span> <span class="fl">0.9</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span>lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"grey80"</span>, lwd <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Parameter_variation_files/figure-html/unnamed-chunk-1-1.png" width="100%" style="display: block; margin: auto;"></p>
+<p><img src="Parameter_variation_files/figure-html/unnamed-chunk-1-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 <p>If needed, we can produce stochastic model outputs incorporating
 variation in model parameters. This is done with the
 <code>set_parameter_draw</code> function, which pulls parameter draws
 from this joint posterior of Markov chain Monte Carlo (MCMC) fitting.
 This function overrides the default model parameters with a sample from
-one of 1000 draws from the joint posterior.</p>
+one of 1000 draws from the joint posterior and appends the draw taken to
+the parameter list.</p>
 <p>Keep in mind that <code>set_parameter_draw</code> must be called
 prior to <code>set_equilibrium</code>, as the baseline transmission
 intensity must be calibrated to new model parameters.</p>
@@ -192,7 +193,7 @@ intensity must be calibrated to new model parameters.</p>
 <span>  </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/graphics/lines.html" class="external-link">lines</a></span><span class="op">(</span><span class="va">sim</span><span class="op">$</span><span class="va">timestep</span>, <span class="va">sim</span><span class="op">$</span><span class="va">n_detect_lm_730_3650</span> <span class="op">/</span> <span class="va">sim</span><span class="op">$</span><span class="va">n_age_730_3650</span>, col <span class="op">=</span> <span class="va">cols</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p><img src="Parameter_variation_files/figure-html/unnamed-chunk-2-1.png" width="100%" style="display: block; margin: auto;"></p>
+<p><img src="Parameter_variation_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 <p>For more information on uncertainty in parameters, please refer to <a href="https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1002448" class="external-link">The
 US President’s Malaria Initiative, Plasmodium falciparum transmission
 and mortality: A modelling study</a>, Supplemental material, Section
@@ -215,7 +216,7 @@ and mortality: A modelling study</a>, Supplemental material, Section
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer>

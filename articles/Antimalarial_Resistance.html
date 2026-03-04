@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.0.0</span>
       </span>
     </div>
 
@@ -339,7 +339,7 @@ plotting the prevalence of malaria in children aged 2-10 years old
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">20</span>, y <span class="op">=</span> <span class="fl">0.99</span>, legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Baseline"</span>, <span class="st">"Treatment"</span>, <span class="st">"Resistance"</span><span class="op">)</span>,</span>
 <span>       col<span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">cols</span><span class="op">[</span><span class="fl">3</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>, <span class="va">cols</span><span class="op">[</span><span class="fl">7</span><span class="op">]</span><span class="op">)</span>, box.col <span class="op">=</span> <span class="st">"white"</span>,</span>
 <span>       lwd <span class="op">=</span> <span class="fl">1</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, cex <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Antimalarial_Resistance_files/figure-html/unnamed-chunk-4-1.png" width="700" style="display: block; margin: auto;"></p>
+<p><img src="Antimalarial_Resistance_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="700" style="display: block; margin: auto;"></p>
 <p>In the absence of clinical treatment or resistance, prevalence is
 comparable between all three scenarios for the first year. Following the
 initiation of clinical treatment at the beginning of the second year,
@@ -480,7 +480,7 @@ infections resistant to artemisinin is updated.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/text.html" class="external-link">text</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">365</span> <span class="op">+</span> <span class="fl">30</span>, y <span class="op">=</span> <span class="fl">0.6</span>, labels <span class="op">=</span> <span class="st">"Clin. treat. begins"</span>, adj <span class="op">=</span> <span class="fl">0</span>, cex <span class="op">=</span> <span class="fl">0.8</span>, srt <span class="op">=</span> <span class="fl">90</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/text.html" class="external-link">text</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">resistance_update_timesteps</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span> <span class="op">+</span> <span class="fl">30</span>, y <span class="op">=</span> <span class="fl">0.6</span>, labels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"Art. Res. = "</span>, <span class="va">resistance_updates</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span><span class="op">)</span>,</span>
 <span>     adj <span class="op">=</span> <span class="fl">0</span>, cex <span class="op">=</span> <span class="fl">0.8</span>, srt <span class="op">=</span> <span class="fl">90</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Antimalarial_Resistance_files/figure-html/unnamed-chunk-7-1.png" width="700" style="display: block; margin: auto;"></p>
+<p><img src="Antimalarial_Resistance_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="700" style="display: block; margin: auto;"></p>
 <p>Looking at the figure, we can see that the
 <em>Pf</em>PR<sub>2-10</sub> decreases over the two years following the
 onset of clinical treatment in the absence of artemisinin resistance.
@@ -654,7 +654,7 @@ with both early treatment failure and slow parasite clearance run.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/legend.html" class="external-link">legend</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">3000</span>, y <span class="op">=</span> <span class="fl">0.99</span>, legend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Baseline"</span>, <span class="st">"Treatment"</span>, <span class="st">"ETF-only"</span>, <span class="st">"SPC-only"</span>, <span class="st">"ETF and SPC"</span><span class="op">)</span>,</span>
 <span>       col<span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">cols</span><span class="op">[</span><span class="fl">3</span><span class="op">:</span><span class="fl">7</span><span class="op">]</span><span class="op">)</span>, box.col <span class="op">=</span> <span class="st">"white"</span>,</span>
 <span>       lwd <span class="op">=</span> <span class="fl">1</span>, lty <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, cex <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span></span></code></pre></div>
-<p><img src="Antimalarial_Resistance_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
+<p><img src="Antimalarial_Resistance_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 </div>
 <div class="section level2">
@@ -681,7 +681,7 @@ resistance in sub-Saharan Africa. Malaria journal, 15(1), pp.1-11.</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer>

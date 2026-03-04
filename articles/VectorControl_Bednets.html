@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.0.0</span>
       </span>
     </div>
 
@@ -226,10 +226,10 @@ al., 2022</a>.</p>
 <span>  timesteps <span class="op">=</span> <span class="va">bednetstimesteps</span>,</span>
 <span>  coverages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.5</span>, <span class="fl">.5</span><span class="op">)</span>,  <span class="co"># Each round is distributed to 50% of the population.</span></span>
 <span>  retention <span class="op">=</span> <span class="fl">5</span> <span class="op">*</span> <span class="va">year</span>, <span class="co"># Nets are kept on average 5 years</span></span>
-<span>  dn0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.533</span>, <span class="fl">.533</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">2</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, <span class="co"># Matrix of death probabilities for each mosquito species over time</span></span>
-<span>  rn <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.56</span>, <span class="fl">.56</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">2</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, <span class="co"># Matrix of repelling probabilities for each mosquito species over time</span></span>
+<span>  dn0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.352</span>, <span class="fl">.352</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">2</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, <span class="co"># Matrix of death probabilities for each mosquito species over time</span></span>
+<span>  rn <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.568</span>, <span class="fl">.568</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">2</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, <span class="co"># Matrix of repelling probabilities for each mosquito species over time</span></span>
 <span>  rnm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.24</span>, <span class="fl">.24</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">2</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, <span class="co"># Matrix of minimum repelling probabilities for each mosquito species over time</span></span>
-<span>  gamman <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">2.64</span> <span class="op">*</span> <span class="fl">365</span>, <span class="fl">2</span><span class="op">)</span> <span class="co"># Vector of bed net half-lives for each distribution timestep</span></span>
+<span>  gamman <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">2.226</span> <span class="op">*</span> <span class="fl">365</span>, <span class="fl">2</span><span class="op">)</span> <span class="co"># Vector of bed net half-lives for each distribution timestep</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_simulation.html">run_simulation</a></span><span class="op">(</span>timesteps <span class="op">=</span> <span class="va">sim_length</span>, parameters <span class="op">=</span> <span class="va">bednetparams</span><span class="op">)</span></span></code></pre></div>
@@ -240,7 +240,7 @@ al., 2022</a>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Plot prevalence</span></span>
 <span><span class="fu">plot_prev</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="VectorControl_Bednets_files/figure-html/unnamed-chunk-6-1.png" width="100%" style="display: block; margin: auto;"></p>
+<p><img src="VectorControl_Bednets_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level3">
 <h3 id="comparing-coverage-and-population-bed-net-usage">Comparing coverage and population bed net usage<a class="anchor" aria-label="anchor" href="#comparing-coverage-and-population-bed-net-usage"></a>
@@ -277,7 +277,7 @@ changes.</p>
 <span>     xaxs <span class="op">=</span> <span class="st">"i"</span>, yaxs <span class="op">=</span> <span class="st">"i"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/grid.html" class="external-link">grid</a></span><span class="op">(</span>lty <span class="op">=</span> <span class="fl">2</span>, col <span class="op">=</span> <span class="st">"grey80"</span>, lwd <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/axis.html" class="external-link">axis</a></span><span class="op">(</span>side <span class="op">=</span> <span class="fl">1</span>, lty <span class="op">=</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="st">"black"</span>, pos <span class="op">=</span> <span class="fl">0</span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/graphics/axis.html" class="external-link">axis</a></span><span class="op">(</span>side <span class="op">=</span> <span class="fl">2</span>, lty <span class="op">=</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="VectorControl_Bednets_files/figure-html/unnamed-chunk-7-1.png" width="100%" style="display: block; margin: auto;"></p>
+<p><img src="VectorControl_Bednets_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 </div>
 </div>
 <div class="section level2">
@@ -313,7 +313,7 @@ estimate population bed net usage from an input distribution.</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer>

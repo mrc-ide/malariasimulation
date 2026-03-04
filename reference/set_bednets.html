@@ -7,7 +7,12 @@ All of the sample "use" their bed nets on the timestep after they are
 distributed. Incomplete usage is not part of this model.
 If a human in the sample already has a bed net, their bed net will be replaced
 by a new one.
+Using the gamman parameter:
 Bed nets will be randomly removed each timestep with a rate of 1 - exp(-1/retention)
+Alternatively, the logistic retention parameters can be used. Retention time
+is calculated using the logistic decay function:
+l (time at which all nets fail) = half_life / sqrt(1 - k / (k - log(0.5)))
+T (simulated time for individual failure) = l * sqrt( a / (1 + a ) ),  a = -log(U)/k
 The structure for the bed net model is documented in the
 S.I. of 10.1038/s41467-018-07357-w'><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -27,7 +32,7 @@ S.I. of 10.1038/s41467-018-07357-w'><!-- mathjax --><script src="https://cdnjs.c
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.0.0</span>
       </span>
     </div>
 
@@ -116,13 +121,29 @@ The sample <em>can</em> contain humans who already have bed nets.</p>
 distributed. Incomplete usage is not part of this model.</p>
 <p>If a human in the sample already has a bed net, their bed net will be replaced
 by a new one.</p>
+<p>Using the gamman parameter:</p>
 <p>Bed nets will be randomly removed each timestep with a rate of <code>1 - exp(-1/retention)</code></p>
+<p>Alternatively, the logistic retention parameters can be used. Retention time
+is calculated using the logistic decay function:</p>
+<p>l (time at which all nets fail) = half_life / sqrt(1 - k / (k - log(0.5)))
+T (simulated time for individual failure) = l * sqrt( a / (1 + a ) ),  a = -log(U)/k</p>
 <p>The structure for the bed net model is documented in the
 S.I. of 10.1038/s41467-018-07357-w</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">set_bednets</span><span class="op">(</span><span class="va">parameters</span>, <span class="va">timesteps</span>, <span class="va">coverages</span>, <span class="va">retention</span>, <span class="va">dn0</span>, <span class="va">rn</span>, <span class="va">rnm</span>, <span class="va">gamman</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">set_bednets</span><span class="op">(</span></span>
+<span>  <span class="va">parameters</span>,</span>
+<span>  <span class="va">timesteps</span>,</span>
+<span>  <span class="va">coverages</span>,</span>
+<span>  <span class="va">dn0</span>,</span>
+<span>  <span class="va">rn</span>,</span>
+<span>  <span class="va">rnm</span>,</span>
+<span>  <span class="va">gamman</span>,</span>
+<span>  retention <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  logistic_half_life <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  logistic_k <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -141,10 +162,6 @@ S.I. of 10.1038/s41467-018-07357-w</p>
 <dd><p>the proportion of the human population who receive bed nets</p></dd>
 
 
-<dt id="arg-retention">retention<a class="anchor" aria-label="anchor" href="#arg-retention"></a></dt>
-<dd><p>the average number of timesteps a net is kept for</p></dd>
-
-
 <dt id="arg-dn-">dn0<a class="anchor" aria-label="anchor" href="#arg-dn-"></a></dt>
 <dd><p>a matrix of death probabilities for each species over time.
 With nrows=length(timesteps), ncols=length(species)</p></dd>
@@ -161,7 +178,19 @@ With nrows=length(timesteps), ncols=length(species)</p></dd>
 
 
 <dt id="arg-gamman">gamman<a class="anchor" aria-label="anchor" href="#arg-gamman"></a></dt>
-<dd><p>a vector of bednet half-lives for each distribution timestep</p></dd>
+<dd><p>a vector of bednet insecticide half-lives for each distribution timestep</p></dd>
+
+
+<dt id="arg-retention">retention<a class="anchor" aria-label="anchor" href="#arg-retention"></a></dt>
+<dd><p>(optional) the average number of timesteps a net is kept for (modelled using a log uniform)</p></dd>
+
+
+<dt id="arg-logistic-half-life">logistic_half_life<a class="anchor" aria-label="anchor" href="#arg-logistic-half-life"></a></dt>
+<dd><p>(optional) bednet retention half-life (modelled using logistic decay)</p></dd>
+
+
+<dt id="arg-logistic-k">logistic_k<a class="anchor" aria-label="anchor" href="#arg-logistic-k"></a></dt>
+<dd><p>(optional) k parameter for retention modelled using logistic decay</p></dd>
 
 </dl></div>
 
@@ -177,7 +206,7 @@ With nrows=length(timesteps), ncols=length(species)</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer></div>

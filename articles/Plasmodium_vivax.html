@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">2.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.0.0</span>
       </span>
     </div>
 
@@ -175,7 +175,13 @@ falciparum</em> model, and also has five human disease compartments.
 However, the human disease states modeled explicitly focus on parasite
 density and detectability, such that we have: susceptible (S), clinical
 disease (D), <strong>light-microscopy detectable infection (A)</strong>,
-<strong>PCR detectable infection (U)</strong>, and treated (Tr).</p>
+<strong>PCR detectable infection (U)</strong>, and treated (Tr). This
+version of the model was adapted from the White et al. (2018) model
+which included a prophylaxis state which individuals entered following
+treatment and prior to entering the susceptible state. The
+<em>malariasimulation</em> framework instead models individual-level
+prophylaxis protection as described in the Drug treatment section
+below.</p>
 </div>
 <div class="section level3">
 <h3 id="new-infections">New Infections<a class="anchor" aria-label="anchor" href="#new-infections"></a>
@@ -261,6 +267,18 @@ equilibrium is calculated by assigning an initial EIR value via the
 model. Based on the age and heterogeneity group of an individual, it
 assigns a human disease state, clinical and anti-parasite immunities and
 number of hypnozoite batches.</p>
+<p>The <em>P. falciparum</em> model defines EIR at the adult level,
+which gets moderated by age-specific biting rates while the original
+White et al. (2018) <em>P. vivax</em> model is defined at the whole
+population level, which then gets distributed according to age and
+heterogeneity patterns. The <em>malariasimulation</em> <em>P. vivax</em>
+model EIR definition has been adjusted and defined at the adult level,
+to reflect its use in the <em>malariasimulation</em> <em>P.
+falciparum</em> model. This produces equivalent results at the human
+population level, but requires a larger mosquito population to maintain
+transmission. Users may still choose to initialise EIR at the whole
+population level, which is converted to adult EIR for use in the
+model.</p>
 </div>
 <div class="section level3">
 <h3 id="key-model-references">Key Model References<a class="anchor" aria-label="anchor" href="#key-model-references"></a>
@@ -289,7 +307,7 @@ Communications, 9(1), 1–10. <a href="https://doi.org/10.1038/s41467-018-05860-
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer>

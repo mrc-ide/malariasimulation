@@ -8,6 +8,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
+#include <unordered_map>
 
 //[[Rcpp::export]]
 void print_to_csv(
@@ -21,9 +22,17 @@ void print_to_csv(
     if (timestep < turnon_time){
         return;
     }
+    std::unordered_map<std::string, int> umap = {
+        {"S", 0},
+        {"U", 1},
+        {"A", 2},
+        {"I", 3},
+        {"Tr", 4}
+    };
     std::ofstream outfile;
     outfile.open(filename, std::ios_base::app);
     for (auto i = 0u; i < personal_indicies.size(); ++i){
+        // outfile << timestep << "," << personal_indicies[i] << ","  << process << "," << umap[categories[i]] << "\n";
         outfile << timestep << "," << personal_indicies[i] << ","  << process << "," << categories[i] << "\n";
     }
     outfile.close();

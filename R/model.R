@@ -107,6 +107,20 @@ run_verbose_simulation <- function(
   initial_state = NULL,
   restore_random_state = FALSE
 ){
+  # process_vector <- c()
+  # process_ind <- 1
+  # if(parameters$biting_verbose){
+  #   process_vector[process_ind] <- "bitten"
+  #   process_ind <- process_ind + 1
+  # }
+  # mortality_verbose <- FALSE,
+  # progression_verbose <- FALSE,
+  # spraying_verbose <- FALSE,
+  # nets_verbose <- FALSE,
+  # pev_verbose <- FALSE,
+  # states_verbose <- FALSE,
+  # infection_verbose <- FALSE,      
+  # state_recording_freq <- FALSE,
   file_name <- parameters$file_name
   sink(parameters$file_name)
   cat("timestep,individual_index,process,state\n")

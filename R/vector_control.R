@@ -238,12 +238,14 @@ distribute_nets_verbose <- function(variables, throw_away_net, parameters, corre
         log_uniform(length(target), parameters$bednet_retention)
       )
       if(parameters$nets_verbose){
-        
         min_birth <- timestep - parameters$upper_age_bound
         max_birth <- timestep - parameters$lower_age_bound
-        recording_people <- target$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
-        states <- variables$state$get_values(recording_people$to_vector())
-        personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
+        ages <- variables$birth$get_values(target)
+        recording_people <- which(ages %in% ages[ages >= min_birth & ages <= max_birth])
+        # print(ages)
+        # recording_people <- target$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
+        states <- variables$state$get_values(recording_people)
+        personal_inds <- variables$personal_tracker_index$get_values(recording_people)
         # recording_people <- target(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
         # subset <- variables$birth[target]
         # min_birth <- timestep - parameters$upper_age_bound

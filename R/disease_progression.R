@@ -94,6 +94,126 @@ progression_outcome_process <- function(
   )
   
 }
+#' @title Calculate disease progression rates
+#' @description Calculates disease progression rates for each individual in the population
+#' for storage in competing hazards object and subsequent resolution
+#'
+#' @param variables the available human variables
+#' @param progression_outcome competing hazards object for disease progression rates
+#' @noRd
+create_verbose_progression_rates_process <- function(
+    parameters,
+    variables,
+    progression_outcome
+) {
+  function(timestep){
+    target <- variables$state$get_index_of("S")$not()
+    progression_rates <- variables$progression_rates$get_values(target)
+    if (parameters$parasite == "vivax"){
+      # p.v subpatent recovery is immunity-dependent
+      progression_rates <- variables$progression_rates$get_values(target)
+      u_index <- variables$state$get_index_of("U")
+      target_u <- bitset_index(target, u_index)
+      progression_rates[target_u] <-
+        1 / anti_parasite_immunity(
+          min = parameters$dpcr_min, 
+          max = parameters$dpcr_max, 
+          a50 = parameters$apcr50, 
+          k = parameters$kpcr,
+          iaa = variables$iaa$get_values(index = u_index),
+          iam = variables$iam$get_values(index = u_index)
+        )
+    }
+    progression_outcome$set_rates(
+      target,
+      progression_rates)
+  }
+}
+
+#' @title Disease progression outcomes
+#' @description Following resolution of competing hazards, update state and
+#' infectivity of sampled individuals
+#'
+#' @param timestep the current timestep
+#' @param target the sampled progressing individuals
+#' @param variables the available human variables
+#' @param parameters model parameters
+#' @param renderer competing hazards object for disease progression rates
+#' @noRd
+progression_outcome_process_verbose <- function(
+    timestep,
+    target,
+    variables,
+    parameters,
+    renderer
+){
+  
+  if(parameters$parasite == "falciparum"){
+    # p.f has immunity-determined asymptomatic infectivity
+    update_to_asymptomatic_infection(
+      variables,
+      parameters,
+      timestep,
+      variables$state$get_index_of("D")$and(target)
+    )
+  } else if (parameters$parasite == "vivax"){
+    # p.v has constant asymptomatic infectivity
+    update_infection(
+      variables$state,
+      "A",
+      variables$infectivity,
+      parameters$ca,
+      variables$progression_rates,
+      1/parameters$da,
+      variables$state$get_index_of("D")$and(target)
+    )
+  }
+  
+  update_infection(
+    variables$state,
+    "U",
+    variables$infectivity,
+    parameters$cu,
+    variables$progression_rates,
+    1/parameters$du,
+    variables$state$get_index_of("A")$and(target)
+  )
+  
+  update_infection(
+    variables$state,
+    "S",
+    variables$infectivity,
+    0,
+    variables$progression_rates,
+    0,
+    variables$state$get_index_of(c("U","Tr"))$and(target)
+  )
+  if(parameters$progression_verbose){
+    min_birth <- timestep - parameters$upper_age_bound
+    max_birth <- timestep - parameters$lower_age_bound
+    # print("recording_people")
+    recording_people <- target$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
+
+    going_asymptomatic <- variables$state$get_index_of("D")$and(recording_people)
+    states <- variables$state$get_values(going_asymptomatic$to_vector())
+    personal_inds <- variables$personal_tracker_index$get_values(going_asymptomatic$to_vector())
+    # print_to_csv(parameters$file_name, timestep, personal_inds, "turning_asymptomatic", states, parameters$start_time)
+    print_to_csv(parameters$file_name, timestep, personal_inds, parameters$progression_base_value, match(states, parameters$state_list), parameters$start_time)
+
+    going_subpatent <- variables$state$get_index_of("A")$and(recording_people)
+    states <- variables$state$get_values(going_subpatent$to_vector())
+    personal_inds <- variables$personal_tracker_index$get_values(going_subpatent$to_vector())
+    # print_to_csv(parameters$file_name, timestep, personal_inds, "turning_subpatent", states, parameters$start_time)
+    print_to_csv(parameters$file_name, timestep, personal_inds, parameters$progression_base_value + 1, match(states, parameters$state_list), parameters$start_time)
+
+    going_susceptible <- variables$state$get_index_of(c("U", "Tr"))$and(recording_people)
+    states <- variables$state$get_values(going_susceptible$to_vector())
+    personal_inds <- variables$personal_tracker_index$get_values(going_susceptible$to_vector())
+    # print_to_csv(parameters$file_name, timestep, personal_inds, "turning_susceptible", states, parameters$start_time)
+    print_to_csv(parameters$file_name, timestep, personal_inds, parameters$progression_base_value + 2, match(states, parameters$state_list), parameters$start_time)
+  }
+  
+}
 
 #' @title Update the state of an individual as infection events occur
 #' @description Randomly moves individuals towards the later stages of disease

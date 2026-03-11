@@ -33,6 +33,10 @@ create_aquatic_solver <- function(model, init, r_tol, a_tol, max_steps) {
     .Call(`_malariasimulation_create_aquatic_solver`, model, init, r_tol, a_tol, max_steps)
 }
 
+print_to_csv <- function(filename, timestep, personal_indicies, process, categories, turnon_time) {
+    invisible(.Call(`_malariasimulation_print_to_csv`, filename, timestep, personal_indicies, process, categories, turnon_time))
+}
+
 carrying_capacity <- function(timestep, model_seasonality, g0, g, h, K0, R_bar, rainfall_floor) {
     .Call(`_malariasimulation_carrying_capacity`, timestep, model_seasonality, g0, g, h, K0, R_bar, rainfall_floor)
 }

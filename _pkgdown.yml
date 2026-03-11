@@ -35,6 +35,8 @@ navbar:
         href: articles/Variation.html
       - text: "Parameter Variation"
         href: articles/Parameter_variation.html
+      - text: "Plasmodium Vivax"
+        href: articles/Plasmodium_vivax.html
     functions:
       text: "Functions"
       href: reference/index.html

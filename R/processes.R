@@ -317,6 +317,7 @@ create_processes <- function(
     processes <- c(
       processes,
       indoor_spraying_process = indoor_spraying(
+        variables,
         variables$spray_time,
         renderer,
         parameters,
@@ -671,6 +672,7 @@ create_verbose_processes <- function(
     processes <- c(
       processes,
       indoor_spraying_process = indoor_spraying_verbose(
+        variables,
         variables$spray_time,
         renderer,
         parameters,
@@ -801,7 +803,8 @@ render_states_process <- function(variables, parameters){
       # flop
       # states <- variables$state$get_values()
       # personal_inds <- variables$personal_tracker_index$get_values()
-      print_to_csv(parameters$file_name, timestep, personal_inds, "state", states, parameters$start_time)
+      # print_to_csv(parameters$file_name, timestep, personal_inds, "state", states, parameters$start_time)
+      print_to_csv(parameters$file_name, timestep, personal_inds, parameters$states_base_value, match(states, parameters$state_list), parameters$start_time)
     }
   }
 }

@@ -107,23 +107,64 @@ run_verbose_simulation <- function(
   initial_state = NULL,
   restore_random_state = FALSE
 ){
-  # process_vector <- c()
-  # process_ind <- 1
-  # if(parameters$biting_verbose){
-  #   process_vector[process_ind] <- "bitten"
-  #   process_ind <- process_ind + 1
-  # }
-  # mortality_verbose <- FALSE,
-  # progression_verbose <- FALSE,
-  # spraying_verbose <- FALSE,
-  # nets_verbose <- FALSE,
-  # pev_verbose <- FALSE,
-  # states_verbose <- FALSE,
-  # infection_verbose <- FALSE,      
-  # state_recording_freq <- FALSE,
+  process_vector <- c()
+  state_list <- c("S", "U", "A", "D", "Tr")
+  parameters$state_list <- state_list
+  process_ind <- 1
+  if(parameters$biting_verbose){
+    parameters$biting_base_value <- process_ind
+    process_vector[process_ind] <- "bitten"
+    process_ind <- process_ind + 1
+  }
+  if(parameters$mortality_verbose){
+    parameters$mortality_base_value <- process_ind
+    process_vector[process_ind] <- "died"
+    process_ind <- process_ind + 1
+  }
+  if(parameters$progression_verbose){
+    parameters$progression_base_value <- process_ind
+    process_vector[process_ind] <- "turning_asymptomatic"
+    process_ind <- process_ind + 1
+    process_vector[process_ind] <- "turning_subpatent"
+    process_ind <- process_ind + 1
+    process_vector[process_ind] <- "turning_susceptible"
+    process_ind <- process_ind + 1
+  }
+  if (parameters$spraying_verbose){
+    parameters$spraying_base_value <- process_ind
+    process_vector[process_ind] <- "sprayed"
+    process_ind <- process_ind + 1
+  }
+  if (parameters$nets_verbose){
+    parameters$nets_base_value <- process_ind
+    process_vector[process_ind] <- "recieved_net"
+    process_ind <- process_ind + 1
+    process_vector[process_ind] <- "removed_net"
+    process_ind <- process_ind + 1
+  }
+  if (parameters$pev_verbose){
+    parameters$pev_base_value <- process_ind
+    process_vector[process_ind] <- "vaccinated_epi"
+    process_ind <- process_ind + 1
+    process_vector[process_ind] <- "vaccinated_mass"
+    process_ind <- process_ind + 1
+  }
+  if (parameters$states_verbose){
+    parameters$states_base_value <- process_ind
+    process_vector[process_ind] <- "state"
+    process_ind <- process_ind + 1
+  }
+  if (parameters$infection_verbose){
+    parameters$infection_base_value <- process_ind
+    process_vector[process_ind] <- "Gone_to_A"
+    process_ind <- process_ind + 1
+    process_vector[process_ind] <- "Gone_to_D"
+    process_ind <- process_ind + 1
+  }
+
   file_name <- parameters$file_name
   sink(parameters$file_name)
-  cat("timestep,individual_index,process,state\n")
+  cat("timestep,individual_index,process_index,state_index\n")
   sink()
   random_seed(ceiling(runif(1) * .Machine$integer.max))
   if (is.null(parameters)) {
@@ -198,7 +239,7 @@ run_verbose_simulation <- function(
     data <- data[-(1:initial_state$timesteps),]
   }
 
-  list(data=data, state=final_state)
+  list(data=data, state=final_state, process_vector = process_vector, state_list = state_list)
 }
 
 #' @title Run the simulation in a resumable way

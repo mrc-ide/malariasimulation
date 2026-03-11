@@ -442,7 +442,8 @@ if(parameters$biting_verbose){
     personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
     # states <- variables$state$get_values(bitten_humans$to_vector())
     # personal_inds <- variables$personal_tracker_index$get_values(bitten_humans)
-    print_to_csv(parameters$file_name, timestep, personal_inds, "bitten", states, parameters$start_time)
+    # print_to_csv(parameters$file_name, timestep, personal_inds, "bitten", states, parameters$start_time)
+    print_to_csv(parameters$file_name, timestep, personal_inds, parameters$biting_base_value, match(states, parameters$state_list), parameters$start_time)
     # for(i in seq_along(personal_inds)){
     #   cat(timestep, ",")
     #   cat(personal_inds[i], ",")

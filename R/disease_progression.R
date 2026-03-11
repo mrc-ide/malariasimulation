@@ -197,17 +197,20 @@ progression_outcome_process_verbose <- function(
     going_asymptomatic <- variables$state$get_index_of("D")$and(recording_people)
     states <- variables$state$get_values(going_asymptomatic$to_vector())
     personal_inds <- variables$personal_tracker_index$get_values(going_asymptomatic$to_vector())
-    print_to_csv(parameters$file_name, timestep, personal_inds, "turning_asymptomatic", states, parameters$start_time)
+    # print_to_csv(parameters$file_name, timestep, personal_inds, "turning_asymptomatic", states, parameters$start_time)
+    print_to_csv(parameters$file_name, timestep, personal_inds, parameters$progression_base_value, match(states, parameters$state_list), parameters$start_time)
 
     going_subpatent <- variables$state$get_index_of("A")$and(recording_people)
     states <- variables$state$get_values(going_subpatent$to_vector())
     personal_inds <- variables$personal_tracker_index$get_values(going_subpatent$to_vector())
-    print_to_csv(parameters$file_name, timestep, personal_inds, "turning_subpatent", states, parameters$start_time)
+    # print_to_csv(parameters$file_name, timestep, personal_inds, "turning_subpatent", states, parameters$start_time)
+    print_to_csv(parameters$file_name, timestep, personal_inds, parameters$progression_base_value + 1, match(states, parameters$state_list), parameters$start_time)
 
     going_susceptible <- variables$state$get_index_of(c("U", "Tr"))$and(recording_people)
     states <- variables$state$get_values(going_susceptible$to_vector())
     personal_inds <- variables$personal_tracker_index$get_values(going_susceptible$to_vector())
-    print_to_csv(parameters$file_name, timestep, personal_inds, "turning_susceptible", states, parameters$start_time)
+    # print_to_csv(parameters$file_name, timestep, personal_inds, "turning_susceptible", states, parameters$start_time)
+    print_to_csv(parameters$file_name, timestep, personal_inds, parameters$progression_base_value + 2, match(states, parameters$state_list), parameters$start_time)
   }
   
 }

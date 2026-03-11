@@ -448,11 +448,13 @@ falciparum_infection_outcome_process_verbose <- function(
       recording_people <- to_A$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
       states <- variables$state$get_values(recording_people$to_vector())
       personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
-      print_to_csv(parameters$file_name, timestep, personal_inds, "Gone_to_A", states, parameters$start_time)
+      # print_to_csv(parameters$file_name, timestep, personal_inds, "Gone_to_A", states, parameters$start_time)
+      print_to_csv(parameters$file_name, timestep, personal_inds, parameters$infection_base_value, match(states, parameters$state_list), parameters$start_time)
       recording_people <- to_D$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
       states <- variables$state$get_values(recording_people$to_vector())
       personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
-      print_to_csv(parameters$file_name, timestep, personal_inds, "Gone_to_D", states, parameters$start_time)
+      # print_to_csv(parameters$file_name, timestep, personal_inds, "Gone_to_D", states, parameters$start_time)
+      print_to_csv(parameters$file_name, timestep, personal_inds, parameters$infection_base_value + 1, match(states, parameters$state_list), parameters$start_time)
     }
     schedule_infections(
       parameters,

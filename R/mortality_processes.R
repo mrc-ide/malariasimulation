@@ -189,7 +189,8 @@ reset_target_verbose <- function(variables, events, target, state, parameters, t
       personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
       # states <- variables$state$get_values(target$to_vector())
       # personal_inds <- variables$personal_tracker_index$get_values(target$to_vector())
-      print_to_csv(parameters$file_name, timestep, personal_inds, "died", states, parameters$start_time)
+      # print_to_csv(parameters$file_name, timestep, personal_inds, "died", states, parameters$start_time)
+      print_to_csv(parameters$file_name, timestep, personal_inds, parameters$mortality_base_value, match(states, parameters$state_list), parameters$start_time)
     }
 
     quantity_to_update <- target$size()

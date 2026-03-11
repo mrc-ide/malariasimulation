@@ -278,7 +278,8 @@ create_verbose_epi_pev_process <- function(
         # personal_inds <- variables$personal_tracker_index[target]
         # states <- variables$state$get_values(target)
         # personal_inds <- variables$personal_tracker_index$get_values(target)
-        print_to_csv(parameters$file_name, timestep, personal_inds, "vaccinated_epi", states, parameters$start_time)
+        # print_to_csv(parameters$file_name, timestep, personal_inds, "vaccinated_epi", states, parameters$start_time)
+        print_to_csv(parameters$file_name, timestep, personal_inds, parameters$pev_base_value, match(states, parameters$state_list), parameters$start_time)
       }
     }
     schedule_vaccination(
@@ -353,7 +354,8 @@ create_verbose_mass_pev_listener <- function(
       personal_inds <- variables$personal_tracker_index$get_values(recording_people)
       # states <- variables$state$get_values(target)
       # personal_inds <- variables$personal_tracker_index$get_values(target)
-      print_to_csv(parameters$file_name, timestep, personal_inds, "vaccinated_mass", states, parameters$start_time)
+      # print_to_csv(parameters$file_name, timestep, personal_inds, "vaccinated_mass", states, parameters$start_time)
+      print_to_csv(parameters$file_name, timestep, personal_inds, parameters$pev_base_value + 1, match(states, parameters$state_list), parameters$start_time)
     }
 
     # Schedule future doses

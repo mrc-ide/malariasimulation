@@ -134,15 +134,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // print_to_csv
-void print_to_csv(const std::string filename, const int timestep, const std::vector<int> personal_indicies, const std::string process, const std::vector<std::string> categories, const int turnon_time);
+void print_to_csv(const std::string filename, const int timestep, const std::vector<int> personal_indicies, const int process, const std::vector<int> categories, const int turnon_time);
 RcppExport SEXP _malariasimulation_print_to_csv(SEXP filenameSEXP, SEXP timestepSEXP, SEXP personal_indiciesSEXP, SEXP processSEXP, SEXP categoriesSEXP, SEXP turnon_timeSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::string >::type filename(filenameSEXP);
     Rcpp::traits::input_parameter< const int >::type timestep(timestepSEXP);
     Rcpp::traits::input_parameter< const std::vector<int> >::type personal_indicies(personal_indiciesSEXP);
-    Rcpp::traits::input_parameter< const std::string >::type process(processSEXP);
-    Rcpp::traits::input_parameter< const std::vector<std::string> >::type categories(categoriesSEXP);
+    Rcpp::traits::input_parameter< const int >::type process(processSEXP);
+    Rcpp::traits::input_parameter< const std::vector<int> >::type categories(categoriesSEXP);
     Rcpp::traits::input_parameter< const int >::type turnon_time(turnon_timeSEXP);
     print_to_csv(filename, timestep, personal_indicies, process, categories, turnon_time);
     return R_NilValue;

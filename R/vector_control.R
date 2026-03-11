@@ -182,7 +182,7 @@ throw_away_nets <- function(variables) {
 #' @param parameters the model parameters
 #' @param correlations correlation parameters
 #' @noRd
-indoor_spraying_verbose <- function(spray_time, renderer, parameters, correlations) {
+indoor_spraying_verbose <- function(variables, spray_time, renderer, parameters, correlations) {
   renderer$set_default('n_spray', 0)
   function(timestep) {
     matches <- timestep == parameters$spraying_timesteps
@@ -199,13 +199,19 @@ indoor_spraying_verbose <- function(spray_time, renderer, parameters, correlatio
         
         min_birth <- timestep - parameters$upper_age_bound
         max_birth <- timestep - parameters$lower_age_bound
-        recording_people <- target$copy()$or(variables$birth$get_index_of(a = min_birth, b = max_birth))
+        ages <- variables$birth$get_values(target)
+        recording_people <- which(ages %in% ages[ages >= min_birth & ages <= max_birth])
+        # print(ages)
+        # recording_people <- target$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
+        states <- variables$state$get_values(recording_people)
+        personal_inds <- variables$personal_tracker_index$get_values(recording_people)
         # recording_people <- target$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
         # states <- variables$state$get_values(recording_people$to_vector())
         # personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
         # states <- variables$state$get_values(target)
         # personal_inds <- variables$personal_tracker_index$get_values(target)
-        print_to_csv(parameters$file_name, timestep, personal_inds, "sprayed", states, parameters$start_time)
+        print_to_csv(parameters$file_name, timestep, personal_inds, parameters$spraying_base_value, match(states, parameters$state_list), parameters$start_time)
+        # print_to_csv(parameters$file_name, timestep, personal_inds, "sprayed", states, parameters$start_time)
       }
     }
   }
@@ -255,7 +261,8 @@ distribute_nets_verbose <- function(variables, throw_away_net, parameters, corre
         # personal_inds <- variables$personal_tracker_index$get_values(recording_people)
         # states <- variables$state$get_values(target)
         # personal_inds <- variables$personal_tracker_index$get_values(target)
-        print_to_csv(parameters$file_name, timestep, personal_inds, "recieved_net", states, parameters$start_time)
+        # print_to_csv(parameters$file_name, timestep, personal_inds, "recieved_net", states, parameters$start_time)
+        print_to_csv(parameters$file_name, timestep, personal_inds, parameters$nets_base_value, match(states, parameters$state_list), parameters$start_time)
       }
     }
   }
@@ -278,7 +285,8 @@ throw_away_nets_verbose <- function(variables, parameters) {
       # personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
       # states <- variables$state$get_values(target$to_vector())
       # personal_inds <- variables$personal_tracker_index$get_values(target$to_vector())
-      print_to_csv(parameters$file_name, timestep, personal_inds, "removed_net", states, parameters$start_time)
+      # print_to_csv(parameters$file_name, timestep, personal_inds, "removed_net", states, parameters$start_time)
+        print_to_csv(parameters$file_name, timestep, personal_inds, parameters$nets_base_value + 1, match(states, parameters$state_list), parameters$start_time)
     }
   }
 }

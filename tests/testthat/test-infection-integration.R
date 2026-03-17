@@ -22,9 +22,10 @@ test_that('simulate_infection integrates different types of infection and schedu
   infection_mock <- mockery::mock(infected)
   n_bites_per_person <- NULL
   
+  nmf <- individual::Bitset$new(population)
   infection_outcome <- CompetingOutcome$new(
     targeted_process = function(timestep, target, args){
-      falciparum_infection_outcome_process(timestep, target, variables, renderer, parameters)
+      falciparum_infection_outcome_process(timestep, target, nmf, variables, renderer, parameters)
     },
     size = parameters$human_population
   )
@@ -95,6 +96,7 @@ test_that('simulate_infection integrates different types of infection and schedu
   treated <- individual::Bitset$new(population)$insert(3)
   treated_mock <- mockery::mock(treated)
   schedule_mock <- mockery::mock()
+  nmf <- individual::Bitset$new(population)
 
   to_D <- treated$not(FALSE)$and(clinical)
   to_A <- infected$and(clinical$not(FALSE))
@@ -110,6 +112,7 @@ test_that('simulate_infection integrates different types of infection and schedu
   falciparum_infection_outcome_process(
     timestep,
     infected,
+    nmf,
     variables,
     renderer,
     parameters)
@@ -150,6 +153,7 @@ test_that('simulate_infection integrates different types of infection and schedu
     1,
     variables,
     clinical,
+    nmf,
     parameters,
     timestep,
     renderer
@@ -219,9 +223,10 @@ test_that('calculate_infections works various combinations of drug and vaccinati
   bitten_humans <- individual::Bitset$new(4)$insert(c(1, 2, 3, 4))
   n_bites_per_person <- numeric(0)
   
+  nmf <- individual::Bitset$new(4)
   infection_outcome <- CompetingOutcome$new(
     targeted_process = function(timestep, target){
-      falciparum_infection_outcome_process(timestep, target, variables, renderer, parameters)
+      falciparum_infection_outcome_process(timestep, target, nmf, variables, renderer, parameters)
     },
     size = 4
   )
@@ -333,7 +338,7 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   mockery::stub(
     calculate_treated,
     'sample_bitset',
-    mockery::mock(seek_treatment)
+    mockery::mock(seek_treatment, individual::Bitset$new(4))
   )
   sample_mock <- mockery::mock(c(2, 1, 1, 1))
   mockery::stub(calculate_treated, 'sample.int', sample_mock)
@@ -344,9 +349,11 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   
   clinical_infections <- individual::Bitset$new(4)
   clinical_infections$insert(c(1, 2, 3, 4))
+  
   calculate_treated(
     variables,
     clinical_infections,
+    individual::Bitset$new(4),
     parameters,
     timestep,
     mock_render(timestep)
@@ -420,8 +427,14 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   
   # Set up seek_treatment mock and instruct calculate_treated() to return it when sample_bitset() called:
   seek_treatment <- individual::Bitset$new(20)$insert(c(1:10))
-  seek_treatment_mock <- mockery::mock(seek_treatment)
-  mockery::stub(where = calculate_treated, what = 'sample_bitset', how = seek_treatment_mock)
+  seek_treatment_mock <-mockery::mock(seek_treatment, individual::Bitset$new(20))
+
+  mockery::stub(
+    calculate_treated,
+    'sample_bitset',
+    seek_treatment_mock
+  )
+  
   
   # Set up drugs mock and instruct it to return it when sample.int() called:
   mock_drugs <- mockery::mock(c(2, 1, 1, 1, 2, 2, 2, 1, 2, 1))
@@ -436,6 +449,7 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   calculate_treated(
     variables,
     clinical_infections,
+    individual::Bitset$new(20),
     parameters,
     timestep,
     renderer
@@ -533,7 +547,7 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   seek_treatment <- individual::Bitset$new(20)$insert(c(1:10))
   
   # Create a mock of seek_treatment:
-  seek_treatment_mock <- mockery::mock(seek_treatment)
+  seek_treatment_mock <- mockery::mock(seek_treatment, individual::Bitset$new(20))
   
   # Specify that, when calculate_treated() calls sample_bitset(), return the seek_treatment_mock:
   mockery::stub(where = calculate_treated, what = 'sample_bitset', how = seek_treatment_mock)
@@ -547,7 +561,8 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   # Create a bernoulli_mock of i) individuals susceptible, and ii) individuals successfully treated:
   bernoulli_mock <- mockery::mock(c(1, 2, 3, 4, 5, 6, 7, 8, 9),
                                   c(1, 2, 3, 4, 5, 6, 7),
-                                  c(1))
+                                  c(1),
+                                  integer(0))
   
   # Specify that when calculate_treated() calls bernoulli_multi_p() it returns the bernoulli_mock:
   local_mocked_bindings(bernoulli_multi_p = bernoulli_mock)
@@ -556,6 +571,7 @@ test_that('calculate_treated correctly samples treated and updates the drug stat
   calculate_treated(
     variables,
     clinical_infections,
+    individual::Bitset$new(20),
     parameters,
     timestep,
     mock_render(timestep)
@@ -700,9 +716,10 @@ test_that('prophylaxis is considered for medicated humans', {
   m <- mockery::mock(seq(3))
   mockery::stub(calculate_falciparum_infections, 'bernoulli_multi_p', m)
   
+  nmf <- individual::Bitset$new(4)
   infection_outcome <- CompetingOutcome$new(
     targeted_process = function(timestep, target){
-      falciparum_infection_outcome_process(timestep, target, variables, renderer, parameters)
+      falciparum_infection_outcome_process(timestep, target, nmf, variables, renderer, parameters)
     },
     size = 4
   )
@@ -905,6 +922,7 @@ test_that('calculate_treated returns empty Bitset when there is no clinical trea
   
   treated <- calculate_treated(variables = variables,
                                clinical_infections = clinical_infections,
+                               nmf = individual::Bitset$new(20),
                                parameters = parameters,
                                timestep = timestep,
                                renderer = renderer)
@@ -941,6 +959,7 @@ test_that('calculate_treated returns empty Bitset when the clinically_infected i
   
   treated <- calculate_treated(variables = variables,
                                clinical_infections = clinical_infections,
+                               nmf = individual::Bitset$new(20),
                                parameters = parameters,
                                timestep = timestep,
                                renderer = renderer)
@@ -965,6 +984,7 @@ test_that('calculate_treated() returns an empty Bitset when the parameter list c
   
   treated <- calculate_treated(variables = variables,
                                clinical_infections = clinical_infections,
+                               nmf = individual::Bitset$new(20),
                                parameters = parameters,
                                timestep = timestep,
                                renderer = renderer)
@@ -1019,6 +1039,7 @@ test_that('Number of treatment failures matches number of individuals treated wh
   
   treated <- calculate_treated(variables = variables,
                                clinical_infections = clinical_infections,
+                               nmf = individual::Bitset$new(100),
                                parameters = parameters,
                                timestep = timestep,
                                renderer = renderer)
@@ -1058,6 +1079,7 @@ test_that('calculate_treated() successfully adds additional resistance columns t
   
   treated <- calculate_treated(variables = variables,
                                clinical_infections = clinical_infections,
+                               nmf = individual::Bitset$new(20),
                                parameters = parameters,
                                timestep = timestep,
                                renderer = renderer)

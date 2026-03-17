@@ -15,6 +15,8 @@
 #'  the whole population)
 #'  * n_bitten: number of humans bitten by an infectious mosquito
 #'  * n_treated: number of humans treated for clinical or severe malaria this timestep
+#'  * n_nmf: number of non-malarial fevers in the population
+#'  * n_nmf_malaria_detected: number of individuals detected/treated due to non-malarial fever and patent malaria infection
 #'  * n_infections: number of humans who get an asymptomatic, clinical or severe malaria this timestep
 #'  * natural_deaths: number of humans who die from aging
 #'  * S_count: number of humans who are Susceptible

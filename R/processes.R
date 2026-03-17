@@ -35,7 +35,9 @@ create_processes <- function(
     mixing_fn = NULL,
     mixing_index = 1
 ) {
-  
+
+  nmf <- individual::Bitset$new(parameters$human_population)
+
   # ========
   # Immunity
   # ========
@@ -94,11 +96,16 @@ create_processes <- function(
   # Competing Hazard Outcomes (infections and disease progression)
   # =====================================================
   
-  if(parameters$parasite == "falciparum"){
+  if(parameters$parasite == "falciparum"){ 
     infection_outcome <- CompetingOutcome$new(
       targeted_process = function(timestep, target){
-        falciparum_infection_outcome_process(timestep, target, 
-                                  variables, renderer, parameters
+        falciparum_infection_outcome_process(
+          timestep,
+          target,
+          nmf,
+          variables,
+          renderer,
+          parameters
         )
       },
       size = parameters$human_population
@@ -107,9 +114,14 @@ create_processes <- function(
   } else if (parameters$parasite == "vivax"){
     infection_outcome <- CompetingOutcome$new(
       targeted_process = function(timestep, target, relative_rates){
-        vivax_infection_outcome_process(timestep, target, 
-                                  variables, renderer, parameters, 
-                                  relative_rates
+        vivax_infection_outcome_process(
+          timestep,
+          target,
+          nmf,
+          variables,
+          renderer,
+          parameters,
+          relative_rates
         )
       },
       size = parameters$human_population
@@ -334,6 +346,16 @@ create_processes <- function(
       progress_bar_process = create_progress_process(timesteps)
     )
   }
+
+  processes <- c(
+    processes,
+    nmf_process = create_nmf_process(
+      variables,
+      parameters,
+      renderer,
+      nmf
+    )
+  )
 
   # ======================
   # Mortality step

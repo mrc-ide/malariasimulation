@@ -1,0 +1,149 @@
+---
+title: "Non-malarial fevers"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Non-malarial fevers}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  dpi = 300,
+  fig.width = 7
+)
+```
+
+```{r setup}
+# Load the requisite package:
+library(malariasimulation)
+# Set colour palette:
+cols <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+```
+
+Non‑malarial fevers (NMFs) can influence the number of routine malaria cases and
+the diagnosis and treatment of malaria. They prompt individuals to seek treatment 
+and, if an asymptomatic malaria infection is present, this can be detected and 
+treated. NMFs therefore increase the number of infections that are diagnosed as 
+part of routine care and drive antimalarial treatment.
+
+In this vignette we demonstrate these effects in a highly seasonal setting. 
+We assume a constant NMF rate across the year and show how this interacts with 
+seasonal malaria transmission.
+
+## Simulation setup
+
+We will simulate three years in an area of high seasonal transmission. 
+Treatment with artemether‑lumefantrine (AL) is available to 60% of clinical cases.
+
+```{r}
+# Time
+year <- 365
+years <- 3
+sim_length <- years * year
+
+# Set parameters for a high transmission seasonal area
+p <- get_parameters(
+  list(
+    human_population = 10000,
+    model_seasonality = TRUE,
+    g0 = 0.284596,
+    g = c(-0.317878, -0.0017527, 0.116455),
+    h = c(-0.331361, 0.293128, -0.0617547)
+  )
+) |>
+  set_drugs(list(AL_params)) |>
+  set_clinical_treatment(
+    drug = 1,
+    timesteps = c(0),
+    coverages = c(0.6)
+  ) |>
+  set_epi_outputs(
+    clinical_incidence = c(0, 100 * year),
+    severe_incidence = c(0, 100 * year)
+  ) |>
+  set_equilibrium(init_EIR = 50)
+
+# Baseline run without NMFs
+s1 <- run_simulation(sim_length, p)
+
+# Run with NMFs (a single rate across all ages)
+p2 <- set_nmf(p, ages = c(100 * year), rates = c(0.005))
+s2 <- run_simulation(sim_length, p2)
+```
+
+## Aggregating incidence
+
+NMF cases that seek treatment, are diagnosed as malaria‑positive and treated are
+recorded in `n_nmf_malaria_detected`. We add these to the clinical incidence 
+counts and aggregate by week.
+
+```{r}
+aggregate_week <- function(sim){
+  sim$n_nmf_malaria_detected[is.na(sim$n_nmf_malaria_detected)] <- 0
+  sim$n_inc_clinical_0_36499[is.na(sim$n_inc_clinical_0_36499)] <- 0
+  sim$n_inc_clinical_0_36499 <- sim$n_inc_clinical_0_36499 + sim$n_nmf_malaria_detected
+  week <- floor((sim$timestep - 1) / 7)
+  agg <- aggregate(
+    cbind(n_inc_clinical_0_36499, n_age_0_36499) ~ week,
+    data = sim,
+    sum
+  )
+  agg$clinical <- agg$n_inc_clinical_0_36499 / agg$n_age_0_36499 * 365
+  agg$time <- agg$week * 7 / 365
+  agg
+}
+
+r1 <- aggregate_week(s1)
+r1$nmf <- "FALSE"
+
+r2 <- aggregate_week(s2)
+r2$nmf <- "TRUE"
+
+r <- rbind(r1, r2)
+```
+
+## Visualisation
+
+```{r, fig.align = 'center', out.width='100%', fig.height=5}
+plot(
+  r$time[r$nmf == "FALSE"], r$clinical[r$nmf == "FALSE"],
+  type = "l", col = cols[1],
+  xlab = "Time (years)", ylab = "Clinical incidence",
+  ylim = range(r$clinical),
+  xaxs = "i", yaxs = "i"
+)
+lines(
+  r$time[r$nmf == "TRUE"], r$clinical[r$nmf == "TRUE"],
+  col = cols[2]
+)
+legend(
+  "topleft", legend = c("Without NMF", "With NMF"),
+  col = cols[1:2], lty = 1, bty = "n"
+)
+grid(lty = 2, col = "grey80", lwd = 0.5)
+```
+
+The impact of NMFs varies through the year as a function of the NMF rate(s) and
+asymptomatic prevalence.
+
+## Age‑specific NMF rates
+
+Different age groups can experience different NMF rates. For example:
+
+```{r}
+p_age <- set_nmf(p, ages = c(5 * year, 15 * year), rates = c(0.01, 0.003))
+```
+
+This sets a higher rate for children under five and a lower rate for those aged 
+five to fifteen, with no NMFs occurring after fifteen years of age.
+
+## Limitations
+
+The current implementation does not capture:
+
+- seasonal variation in NMF rates,
+- any correlation between malaria exposure and NMF risk, or
+- age‑specific treatment seeking for NMFs.

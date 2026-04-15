@@ -432,6 +432,7 @@ simulate_bites_verbose <- function(
     }
   }
 if(parameters$biting_verbose){
+  # print("enters bites")
     # in_age_group <- individual::Bitset$new(parameters$human_population)
     # in_age_group <- in_age_group$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
     # recording_people <- in_age_group$and(bitten_humans)

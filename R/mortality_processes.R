@@ -184,13 +184,23 @@ reset_target_verbose <- function(variables, events, target, state, parameters, t
       min_birth <- timestep - parameters$upper_age_bound
       max_birth <- timestep - parameters$lower_age_bound
       recording_people <- target$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
+      # print(recording_people)
+      # print(timestep)
+      # print(recording_people$to_vector())
+      # flop
       # recording_people <- target$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
       states <- variables$state$get_values(recording_people$to_vector())
+      # print(states)
+      # flop
       personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
+      # print(personal_inds)
+      # flop
       # states <- variables$state$get_values(target$to_vector())
       # personal_inds <- variables$personal_tracker_index$get_values(target$to_vector())
       # print_to_csv(parameters$file_name, timestep, personal_inds, "died", states, parameters$start_time)
       print_to_csv(parameters$file_name, timestep, personal_inds, parameters$mortality_base_value, match(states, parameters$state_list), parameters$start_time)
+      # print("done ")
+      # Sys.sleep(1)
     }
 
     quantity_to_update <- target$size()
@@ -235,7 +245,7 @@ reset_target_verbose <- function(variables, events, target, state, parameters, t
     
     if(parameters$mortality_verbose){
       states <- variables$state$get_values(target$to_vector())
-      print_to_csv(parameters$file_name, timestep + 1, seq(curr_max_ind + 1, curr_max_ind + quantity_to_update), "born", states, parameters$start_time)
+      print_to_csv(parameters$file_name, timestep + 1, seq(curr_max_ind + 1, curr_max_ind + quantity_to_update), parameters$mortality_base_value + 1, match(states, parameters$state_list), parameters$start_time)
     }
     # zeta and zeta group and vector controls survive rebirth
   }

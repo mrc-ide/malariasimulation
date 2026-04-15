@@ -37,6 +37,10 @@ print_to_csv <- function(filename, timestep, personal_indicies, process, categor
     invisible(.Call(`_malariasimulation_print_to_csv`, filename, timestep, personal_indicies, process, categories, turnon_time))
 }
 
+print_for_snapshot <- function(filename, timestep, personal_indicies, ages, categories) {
+    invisible(.Call(`_malariasimulation_print_for_snapshot`, filename, timestep, personal_indicies, ages, categories))
+}
+
 carrying_capacity <- function(timestep, model_seasonality, g0, g, h, K0, R_bar, rainfall_floor) {
     .Call(`_malariasimulation_carrying_capacity`, timestep, model_seasonality, g0, g, h, K0, R_bar, rainfall_floor)
 }

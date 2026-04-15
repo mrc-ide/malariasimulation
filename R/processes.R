@@ -501,6 +501,13 @@ create_verbose_processes <- function(
     )
   )
   
+  processes <- c(
+    processes,
+    render_process = render_snapshot_process(
+      variables,
+      parameters
+    )
+  )
   # ===================
   # Disease Progression
   # ===================
@@ -805,6 +812,21 @@ render_states_process <- function(variables, parameters){
       # personal_inds <- variables$personal_tracker_index$get_values()
       # print_to_csv(parameters$file_name, timestep, personal_inds, "state", states, parameters$start_time)
       print_to_csv(parameters$file_name, timestep, personal_inds, parameters$states_base_value, match(states, parameters$state_list), parameters$start_time)
+    }
+  }
+}
+
+render_snapshot_process <- function(variables, parameters){
+  function(timestep){
+    if(parameters$snapshot_verbose && timestep == parameters$snapshot_time){
+      in_age_group <- individual::Bitset$new(parameters$human_population)
+      min_birth <- timestep - parameters$upper_age_bound
+      max_birth <- timestep - parameters$lower_age_bound
+      recording_people <- in_age_group$copy()$or(variables$birth$get_index_of(a = min_birth, b = max_birth))
+      states <- variables$state$get_values(recording_people$to_vector())
+      ages <- timestep - variables$birth$get_values(recording_people$to_vector())
+      personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
+      print_for_snapshot(parameters$snapshot_file_name, timestep, personal_inds, ages, match(states, parameters$state_list))
     }
   }
 }

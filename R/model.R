@@ -120,6 +120,8 @@ run_verbose_simulation <- function(
     parameters$mortality_base_value <- process_ind
     process_vector[process_ind] <- "died"
     process_ind <- process_ind + 1
+    process_vector[process_ind] <- "born"
+    process_ind <- process_ind + 1
   }
   if(parameters$progression_verbose){
     parameters$progression_base_value <- process_ind
@@ -162,10 +164,14 @@ run_verbose_simulation <- function(
     process_ind <- process_ind + 1
   }
 
-  file_name <- parameters$file_name
   sink(parameters$file_name)
   cat("timestep,individual_index,process_index,state_index\n")
   sink()
+
+  sink(parameters$snapshot_file_name)
+  cat("timestep,individual_index,age,state_index\n")
+  sink()
+  
   random_seed(ceiling(runif(1) * .Machine$integer.max))
   if (is.null(parameters)) {
     parameters <- get_parameters()

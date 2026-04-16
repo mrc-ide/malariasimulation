@@ -54,6 +54,28 @@ test_that('Mass vaccination strategy parameterisation works', {
   )
 })
 
+test_that('Mass vaccination strategy parameterisation accepts age-varying coverage matrices', {
+  parameters <- get_parameters()
+  coverages <- matrix(c(0.2, 0.7, 0.4, 0.9), nrow = 2, byrow = TRUE)
+
+  parameters <- set_mass_pev(
+    parameters,
+    profile = rtss_profile,
+    timesteps = c(10, 20),
+    coverages = coverages,
+    min_wait = 0,
+    min_ages = c(5, 10) * 30,
+    max_ages = c(9, 17) * 30,
+    booster_spacing = c(18, 36) * 30,
+    booster_coverage = matrix(c(.9, .8, .9, .8), nrow = 2, ncol = 2),
+    booster_profile = list(rtss_booster_profile, rtss_booster_profile)
+  )
+
+  expect_equal(parameters$mass_pev_coverages, coverages)
+  expect_equal(parameters$mass_pev_timesteps, c(10, 20))
+  expect_equal(parameters$mass_pev_booster_coverage, matrix(c(.9, .8, .9, .8), nrow = 2, ncol = 2))
+})
+
 test_that('set_mass_pev checks booster coverage matrix shape', {
   parameters <- get_parameters()
   expect_error(
@@ -94,6 +116,46 @@ test_that('set_mass_pev checks booster_spacing is increasing', {
   )
 })
 
+test_that('set_mass_pev checks age-varying coverage matrix rows align with timesteps', {
+  parameters <- get_parameters()
+  expect_error(
+    set_mass_pev(
+      parameters,
+      profile = rtss_profile,
+      coverages = matrix(c(0.1, 0.2, 0.3, 0.4), nrow = 2, ncol = 2),
+      timesteps = c(10),
+      min_wait = 0,
+      min_ages = c(5, 10) * 30,
+      max_ages = c(9, 17) * 30,
+      booster_spacing = c(18, 36) * 30,
+      booster_coverage = matrix(c(.9, .8), nrow = 1, ncol = 2),
+      booster_profile = list(rtss_booster_profile, rtss_booster_profile)
+    ),
+    'coverages matrix rows and timesteps do not align',
+    fixed = TRUE
+  )
+})
+
+test_that('set_mass_pev checks age-varying coverage matrix columns align with age groups', {
+  parameters <- get_parameters()
+  expect_error(
+    set_mass_pev(
+      parameters,
+      profile = rtss_profile,
+      coverages = matrix(c(0.1, 0.2, 0.3), nrow = 1, ncol = 3),
+      timesteps = c(10),
+      min_wait = 0,
+      min_ages = c(5, 10) * 30,
+      max_ages = c(9, 17) * 30,
+      booster_spacing = c(18, 36) * 30,
+      booster_coverage = matrix(c(.9, .8), nrow = 1, ncol = 2),
+      booster_profile = list(rtss_booster_profile, rtss_booster_profile)
+    ),
+    'coverages matrix columns and age groups do not align',
+    fixed = TRUE
+  )
+})
+
 test_that('Mass vaccination fails pre-emptively for unaligned booster parameters', {
   parameters <- get_parameters()
   expect_error(
@@ -109,6 +171,63 @@ test_that('Mass vaccination fails pre-emptively for unaligned booster parameters
       booster_coverage = matrix(.9, nrow=1, ncol=1),
       booster_profile = list(rtss_booster_profile, rtss_booster_profile)
     )
+  )
+})
+
+test_that('Mass vaccinations can use age-varying coverage by age band', {
+  timestep <- 100
+  parameters <- get_parameters(list(human_population = 5))
+  correlations <- get_correlation_parameters(parameters)
+  parameters <- set_mass_pev(
+    parameters,
+    profile = rtss_profile,
+    timesteps = c(100, 200),
+    coverages = matrix(c(0.9, 0.2, 0.6, 0.4), nrow = 2, byrow = TRUE),
+    min_wait = 0,
+    min_ages = c(1, 3) * 365,
+    max_ages = c(2, 4) * 365 - 1,
+    booster_spacing = c(18, 36) * 30,
+    booster_coverage = matrix(c(.9, .8, .9, .8), nrow = 2, ncol = 2),
+    booster_profile = list(rtss_booster_profile, rtss_booster_profile)
+  )
+  events <- create_events(parameters)
+  variables <- create_variables(parameters)
+  variables$birth <- individual::IntegerVariable$new(
+    -c(1.5, 1.7, 3.1, 3.6, 6) * 365 + timestep
+  )
+
+  events$mass_pev_doses <- lapply(events$mass_pev_doses, mock_event)
+
+  listener <- create_mass_pev_listener(
+    variables,
+    events,
+    parameters,
+    correlations
+  )
+
+  sample_mock <- mockery::mock(c(TRUE, FALSE, FALSE, TRUE))
+  mockery::stub(
+    listener,
+    'sample_intervention',
+    sample_mock
+  )
+
+  listener(timestep)
+
+  mockery::expect_args(
+    sample_mock,
+    1,
+    c(1, 2, 3, 4),
+    'pev',
+    c(0.9, 0.9, 0.2, 0.2),
+    correlations
+  )
+
+  mockery::expect_args(
+    events$mass_pev_doses[[1]]$schedule,
+    1,
+    c(1, 4),
+    parameters$pev_doses[[1]]
   )
 })
 

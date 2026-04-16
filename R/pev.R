@@ -85,11 +85,15 @@ create_mass_pev_listener <- function(
   correlations
   ) {
   function(timestep) {
-    in_age_group <- individual::Bitset$new(parameters$human_population)
-    for (i in seq_along(parameters$mass_pev_min_ages)) {
+    get_mass_age_group <- function(i) {
       min_birth <- timestep - parameters$mass_pev_max_ages[[i]]
       max_birth <- timestep - parameters$mass_pev_min_ages[[i]]
-      in_age_group$or(variables$birth$get_index_of(a = min_birth, b = max_birth))
+      variables$birth$get_index_of(a = min_birth, b = max_birth)
+    }
+
+    in_age_group <- individual::Bitset$new(parameters$human_population)
+    for (i in seq_along(parameters$mass_pev_min_ages)) {
+      in_age_group$or(get_mass_age_group(i))
     }
     if (parameters$mass_pev_min_wait == 0) {
       target <- in_age_group
@@ -105,20 +109,38 @@ create_mass_pev_listener <- function(
     if (!is.null(events$pev_epi_doses)) {
       target <- target$and(
         events$pev_epi_doses[[1]]$get_scheduled()$not()
-      )$to_vector()
+      )
+    }
+
+    time_index <- which(parameters$mass_pev_timesteps == timestep)
+    if (is.matrix(parameters$mass_pev_coverages)) {
+      target_vec <- target$to_vector()
+      coverage <- numeric(length(target_vec))
+
+      for (i in seq_along(parameters$mass_pev_min_ages)) {
+        age_target <- get_mass_age_group(i)
+        coverage[bitset_index(target, age_target)] <-
+          parameters$mass_pev_coverages[time_index, i]
+      }
+      target <- target_vec[
+        sample_intervention(
+          target_vec,
+          'pev',
+          coverage,
+          correlations
+        )
+      ]
     } else {
       target <- target$to_vector()
+      target <- target[
+        sample_intervention(
+          target,
+          'pev',
+          parameters$mass_pev_coverages[[time_index]],
+          correlations
+        )
+      ]
     }
-    
-    time_index = which(parameters$mass_pev_timesteps == timestep)
-    target <- target[
-      sample_intervention(
-        target,
-       'pev',
-        parameters$mass_pev_coverages[[time_index]],
-        correlations
-      )
-    ]
 
     # Update the latest vaccination time
     variables$last_pev_timestep$queue_update(timestep, target)

@@ -184,8 +184,9 @@ set_pev_epi <- function(
 #' @param profile a list of details for the vaccine profile, create with `create_pev_profile`
 #' @param timesteps a vector of timesteps for each round of vaccinations
 #' @param coverages the coverage for each round of vaccinations. May be a
-#' numeric vector aligned with `timesteps`, or a matrix with rows aligned with
-#' `timesteps` and columns aligned with the `min_ages` / `max_ages` pairs.
+#' numeric scalar or vector aligned with `timesteps`, or a matrix with rows
+#' aligned with `timesteps` and columns aligned with the `min_ages` /
+#' `max_ages` pairs to specify age-varying coverage within each round.
 #' @param min_wait the minimum acceptable time since the last vaccination (in timesteps);
 #' When using both set_mass_pev and set_pev_epi, this represents the minimum
 #' time between an individual being vaccinated under one scheme and vaccinated under another.

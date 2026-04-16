@@ -238,7 +238,8 @@ get_correlation_parameters <- function(parameters) {
 #' @title Sample a population to intervene in given the correlation parameters
 #' @param target a vector of individual indices to sample from
 #' @param intervention name of the intervention
-#' @param p the probability of being selected
+#' @param p the probability of being selected. May be a scalar applied to all
+#' targeted individuals or a vector aligned with `target`.
 #' @param correlations correlation parameters
 #' @importFrom stats qnorm
 #' @noRd

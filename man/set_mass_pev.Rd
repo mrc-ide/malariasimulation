@@ -24,7 +24,10 @@ set_mass_pev(
 
 \item{timesteps}{a vector of timesteps for each round of vaccinations}
 
-\item{coverages}{the coverage for each round of vaccinations}
+\item{coverages}{the coverage for each round of vaccinations. May be a
+numeric scalar or vector aligned with \code{timesteps}, or a matrix with rows
+aligned with \code{timesteps} and columns aligned with the \code{min_ages} /
+\code{max_ages} pairs to specify age-varying coverage within each round.}
 
 \item{min_ages}{for the target population, inclusive (in timesteps)}
 

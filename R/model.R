@@ -168,9 +168,11 @@ run_verbose_simulation <- function(
   cat("timestep,individual_index,process_index,state_index\n")
   sink()
 
-  sink(parameters$snapshot_file_name)
-  cat("timestep,individual_index,age,state_index\n")
-  sink()
+  if (parameters$snapshot_verbose){
+    sink(parameters$snapshot_file_name)
+    cat("timestep,individual_index,age,state_index\n")
+    sink()
+  }
   
   random_seed(ceiling(runif(1) * .Machine$integer.max))
   if (is.null(parameters)) {

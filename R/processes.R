@@ -818,7 +818,7 @@ render_states_process <- function(variables, parameters){
 
 render_snapshot_process <- function(variables, parameters){
   function(timestep){
-    if(parameters$snapshot_verbose && timestep == parameters$snapshot_time){
+    if(parameters$snapshot_verbose && timestep %in% (parameters$snapshot_times)){
       in_age_group <- individual::Bitset$new(parameters$human_population)
       min_birth <- timestep - parameters$upper_age_bound
       max_birth <- timestep - parameters$lower_age_bound

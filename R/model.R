@@ -91,6 +91,165 @@ run_simulation <- function(
   run_resumable_simulation(timesteps, parameters, correlations)$data
 }
 
+
+#' @title Run verbose simulation wwhich outputs inidividual level outputs
+#' to a csv file alongside standard simulation outputs
+#'
+#' @param timesteps the number of timesteps to run the simulation for
+#' @param parameters a named list of parameters to use
+#' @param correlations correlation parameters
+#' @param parallel execute runs in parallel
+#' @export
+run_verbose_simulation <- function(
+  timesteps,
+  parameters = NULL,
+  correlations = NULL,
+  initial_state = NULL,
+  restore_random_state = FALSE
+){
+  process_vector <- c()
+  state_list <- c("S", "U", "A", "D", "Tr")
+  parameters$state_list <- state_list
+  process_ind <- 1
+  if(parameters$biting_verbose){
+    parameters$biting_base_value <- process_ind
+    process_vector[process_ind] <- "bitten"
+    process_ind <- process_ind + 1
+  }
+  if(parameters$mortality_verbose){
+    parameters$mortality_base_value <- process_ind
+    process_vector[process_ind] <- "died"
+    process_ind <- process_ind + 1
+    process_vector[process_ind] <- "born"
+    process_ind <- process_ind + 1
+  }
+  if(parameters$progression_verbose){
+    parameters$progression_base_value <- process_ind
+    process_vector[process_ind] <- "turning_asymptomatic"
+    process_ind <- process_ind + 1
+    process_vector[process_ind] <- "turning_subpatent"
+    process_ind <- process_ind + 1
+    process_vector[process_ind] <- "turning_susceptible"
+    process_ind <- process_ind + 1
+  }
+  if (parameters$spraying_verbose){
+    parameters$spraying_base_value <- process_ind
+    process_vector[process_ind] <- "sprayed"
+    process_ind <- process_ind + 1
+  }
+  if (parameters$nets_verbose){
+    parameters$nets_base_value <- process_ind
+    process_vector[process_ind] <- "recieved_net"
+    process_ind <- process_ind + 1
+    process_vector[process_ind] <- "removed_net"
+    process_ind <- process_ind + 1
+  }
+  if (parameters$pev_verbose){
+    parameters$pev_base_value <- process_ind
+    process_vector[process_ind] <- "vaccinated_epi"
+    process_ind <- process_ind + 1
+    process_vector[process_ind] <- "vaccinated_mass"
+    process_ind <- process_ind + 1
+  }
+  if (parameters$states_verbose){
+    parameters$states_base_value <- process_ind
+    process_vector[process_ind] <- "state"
+    process_ind <- process_ind + 1
+  }
+  if (parameters$infection_verbose){
+    parameters$infection_base_value <- process_ind
+    process_vector[process_ind] <- "Gone_to_A"
+    process_ind <- process_ind + 1
+    process_vector[process_ind] <- "Gone_to_D"
+    process_ind <- process_ind + 1
+  }
+
+  sink(parameters$file_name)
+  cat("timestep,individual_index,process_index,state_index\n")
+  sink()
+
+  if (parameters$snapshot_verbose){
+    sink(parameters$snapshot_file_name)
+    cat("timestep,individual_index,age,state_index\n")
+    sink()
+  }
+  
+  random_seed(ceiling(runif(1) * .Machine$integer.max))
+  if (is.null(parameters)) {
+    parameters <- get_parameters()
+  }
+  if (is.null(correlations)) {
+    correlations <- get_correlation_parameters(parameters)
+  }
+  variables <- create_variables(parameters)
+  events <- create_events(parameters)
+  initialise_events(events, variables, parameters)
+  renderer <- individual::Render$new(timesteps)
+  populate_incidence_rendering_columns(renderer, parameters)
+  attach_verbose_event_listeners(
+    events,
+    variables,
+    parameters,
+    correlations,
+    renderer
+  )
+  vector_models <- parameterise_mosquito_models(parameters, timesteps)
+  solvers <- parameterise_solvers(vector_models, parameters)
+
+  lagged_eir <- create_lagged_eir(variables, solvers, parameters)
+  lagged_infectivity <- create_lagged_infectivity(variables, parameters)
+
+  stateful_objects <- list(
+    RandomState$new(restore_random_state),
+    correlations,
+    vector_models,
+    solvers,
+    lagged_eir,
+    lagged_infectivity)
+
+  if (!is.null(initial_state)) {
+    individual::restore_object_state(
+      initial_state$timesteps,
+      stateful_objects,
+      initial_state$malariasimulation)
+  }
+
+  individual_state <- individual::simulation_loop(
+    processes = create_verbose_processes(
+      renderer,
+      variables,
+      events,
+      parameters,
+      vector_models,
+      solvers,
+      correlations,
+      lagged_eir,
+      lagged_infectivity,
+      timesteps
+    ),
+    variables = variables,
+    events = events,
+    timesteps = timesteps,
+    state = initial_state$individual,
+    restore_random_state = restore_random_state
+  )
+
+  final_state <- list(
+    timesteps = timesteps,
+    individual = individual_state,
+    malariasimulation = individual::save_object_state(stateful_objects)
+  )
+
+  data <- renderer$to_dataframe()
+  if (!is.null(initial_state)) {
+    # Drop the timesteps we didn't simulate from the data.
+    # It would just be full of NA.
+    data <- data[-(1:initial_state$timesteps),]
+  }
+
+  list(data=data, state=final_state, process_vector = process_vector, state_list = state_list)
+}
+
 #' @title Run the simulation in a resumable way
 #'
 #' @description this function accepts an initial simulation state as an argument, and returns the

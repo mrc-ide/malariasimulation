@@ -215,18 +215,41 @@ create_total_M_renderer_compartmental <- function(renderer, solvers, parameters)
   }
 }
 
+create_state_count_age_renderer <- function(
+    state,
+    birth,
+    parameters,
+    renderer
+) {
+  function(timestep) {
+    for (i in seq_along(parameters$state_count_rendering_min_ages)) {
+      lower <- parameters$state_count_rendering_min_ages[[i]]
+      upper <- parameters$state_count_rendering_max_ages[[i]]
+      in_age <- in_age_range(birth, timestep, lower, upper)
+      for (s in c('S', 'A', 'D', 'U', 'Tr')) {
+        renderer$render(
+          paste0(s, '_count_', lower, '_', upper),
+          state$get_index_of(s)$copy()$and(in_age)$size(),
+          timestep
+        )
+      }
+    }
+  }
+}
+
 create_age_group_renderer <- function(
     birth,
     parameters,
     renderer
 ) {
-  
+
   age_ranges <- rbind(
     cbind(parameters$prevalence_rendering_min_ages, parameters$prevalence_rendering_max_ages),
     cbind(parameters$incidence_rendering_min_ages, parameters$incidence_rendering_max_ages),
     cbind(parameters$clinical_incidence_rendering_min_ages, parameters$clinical_incidence_rendering_max_ages),
     cbind(parameters$severe_incidence_rendering_min_ages, parameters$severe_incidence_rendering_max_ages),
-    cbind(parameters$age_group_rendering_min_ages, parameters$age_group_rendering_max_ages)
+    cbind(parameters$age_group_rendering_min_ages, parameters$age_group_rendering_max_ages),
+    cbind(parameters$state_count_rendering_min_ages, parameters$state_count_rendering_max_ages)
   )
   
   unique_age_combinations <- as.data.frame(unique(age_ranges))

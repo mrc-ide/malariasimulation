@@ -1,3 +1,71 @@
+test_that('Age-stratified state counts are present in output', {
+  parameters <- get_parameters()
+  parameters <- set_epi_outputs(parameters, state_count = c(0, 1825))
+  sim <- run_simulation(timesteps = 5, parameters)
+
+  states <- c('S', 'A', 'D', 'U', 'Tr')
+  expected_cols <- paste0(states, '_count_0_1824')
+  expect_in(expected_cols, names(sim))
+})
+
+test_that('Age-stratified state counts sum to n_age for that group', {
+  parameters <- get_parameters()
+  parameters <- set_epi_outputs(
+    parameters,
+    age_group = c(0, 1825),
+    state_count = c(0, 1825)
+  )
+  sim <- run_simulation(timesteps = 5, parameters)
+
+  state_total <- sim$S_count_0_1824 + sim$A_count_0_1824 + sim$D_count_0_1824 +
+    sim$U_count_0_1824 + sim$Tr_count_0_1824
+  expect_equal(state_total, sim$n_age_0_1824)
+})
+
+test_that('Age-stratified PCR-detectable count matches state counts', {
+  parameters <- get_parameters()
+  parameters <- set_epi_outputs(
+    parameters,
+    prevalence = c(0, 1825),
+    state_count = c(0, 1825)
+  )
+  sim <- run_simulation(timesteps = 5, parameters)
+
+  pcr_from_states <- sim$A_count_0_1824 + sim$D_count_0_1824 +
+    sim$U_count_0_1824 + sim$Tr_count_0_1824
+  expect_equal(pcr_from_states, sim$n_detect_pcr_0_1824)
+})
+
+test_that('Age-stratified state counts respect multiple age groups', {
+  parameters <- get_parameters()
+  parameters <- set_epi_outputs(
+    parameters,
+    age_group = c(0, 1825, 3650),
+    state_count = c(0, 1825, 3650)
+  )
+  sim <- run_simulation(timesteps = 5, parameters)
+
+  # Each age group sums to its n_age
+  for (bounds in list(c(0, 1824), c(1825, 3649))) {
+    lower <- bounds[1]
+    upper <- bounds[2]
+    state_total <- sim[[paste0('S_count_', lower, '_', upper)]] +
+      sim[[paste0('A_count_', lower, '_', upper)]] +
+      sim[[paste0('D_count_', lower, '_', upper)]] +
+      sim[[paste0('U_count_', lower, '_', upper)]] +
+      sim[[paste0('Tr_count_', lower, '_', upper)]]
+    expect_equal(state_total, sim[[paste0('n_age_', lower, '_', upper)]])
+  }
+
+  # Age groups sum to total population
+  total_from_groups <- (sim$S_count_0_1824 + sim$A_count_0_1824 + sim$D_count_0_1824 +
+    sim$U_count_0_1824 + sim$Tr_count_0_1824) +
+    (sim$S_count_1825_3649 + sim$A_count_1825_3649 + sim$D_count_1825_3649 +
+    sim$U_count_1825_3649 + sim$Tr_count_1825_3649)
+  expect_true(all(total_from_groups <= sim$S_count + sim$A_count + sim$D_count +
+    sim$U_count + sim$Tr_count))
+})
+
 test_that('Test age parameter function works', {
   parameters <- get_parameters()
   age_limits <- c(0,1,2,3)*365

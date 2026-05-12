@@ -292,6 +292,9 @@
 #' * prevalence_rendering_min_ages - the minimum ages for clinical prevalence
 #' outputs; default = 730
 #' * prevalence_rendering_max_ages - the corresponding max ages; default = 3650
+#' * state_count_rendering_min_ages - the minimum ages for age-stratified state
+#' count outputs (S, A, D, U, Tr); default = turned off
+#' * state_count_rendering_max_ages - the corresponding max ages; default = turned off
 #' * n_with_hypnozoites_rendering_min_ages - the minimum ages for number with hypnozoites outputs (p.v only); default = numeric(0)
 #' * n_with_hypnozoites_rendering_max_ages - the corresponding max ages; default = numeric(0)
 #'
@@ -486,6 +489,8 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       prevalence_rendering_max_ages = 10 * 365,
       n_with_hypnozoites_rendering_min_ages = numeric(0),
       n_with_hypnozoites_rendering_max_ages = numeric(0),
+      state_count_rendering_min_ages = numeric(0),
+      state_count_rendering_max_ages = numeric(0),
       # age structured average immunity (/hypnozoite) rendering
       ib_rendering_min_ages = numeric(0),
       ib_rendering_max_ages = numeric(0),

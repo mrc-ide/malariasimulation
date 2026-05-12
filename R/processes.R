@@ -255,6 +255,12 @@ create_processes <- function(
       parameters,
       renderer
     ),
+    state_count_age_renderer = create_state_count_age_renderer(
+      variables$state,
+      variables$birth,
+      parameters,
+      renderer
+    ),
     age_group_renderer = create_age_group_renderer(
       variables$birth,
       parameters,

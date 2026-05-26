@@ -1,0 +1,203 @@
+
+---
+title: "Resumable Simulations"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Resumable}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE, message=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  dpi=300,
+  fig.width = 7
+)
+```
+
+```{r setup, message=FALSE, class.source = 'fold-hide'}
+# Load the requisite packages:
+library(malariasimulation)
+library(dplyr)
+
+# Set colour palette:
+cols <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+plot_incidence<- function(output, label){
+      output$incidence <-1000 *output$n_inc_clinical_0_1825 / output$n_0_1825
+      output$time_year<- output$timestep / 365
+      
+  plot(x = output$time_year, y = output$incidence, type = "l",
+     xlab = "Years", ylab = "Clinical incidence per 1,000 under 5", col = cols[1],
+     ylim = c(min(output$incidence)-0.25, max(output$incidence)+0.25),
+     xaxs = "i", yaxs = "i")
+    curve_values <- loess(incidence ~ time_year, data = output,
+                        span = 0.3, method = "loess") 
+  lines(output$time_year, predict(curve_values),
+        col = cols[5], lwd = 3)
+  title(main = label)
+}
+```
+
+In this vignette, we will demonstrate how to run a resumable malariasimulation model. This functionality can be useful to set time-varying parameters that can not be specified otherwise via malariasimulation helper functions. This can help save computational time in scenario modelling, where model parameters are the same between runs until an intervention is introduced.
+
+
+#   Run a simple simulation
+To begin, we can run a regular simulation using `malariasimulation::run_simulation` for 10 years.
+
+
+```{r}
+year <- 365
+month <- 30
+eir<- 35
+
+# pull standard parameters
+params <- get_parameters(
+  list(
+    human_population = 10000,
+    individual_mosquitoes = FALSE,
+    clinical_incidence_rendering_min_ages = 0,
+    clinical_incidence_rendering_max_ages = 5 * year
+  )
+)
+
+
+params <- set_equilibrium(parameters = params, init_EIR = eir)
+
+output<- run_simulation(params, timesteps= 10 * year)
+
+
+plot_incidence(output, label= 'Incidence for control run')
+
+
+
+```
+
+#   Run a resumable simulation
+
+Instead of running a simulation for the entire time horizon, we can choose to run an initial simulation, save the simulation state, and then resume at a specified point using `run_resumable_simulation`.
+
+The arguments are as follows:
+
+* *timesteps* : timestep to stop the simulation
+* *parameters*: input parameters
+* *correlations*: correlation parameters
+* *intial_state*: the state from which to resume the simulation (not needed for the first phase)
+* *restore_random_state*: boolean, choice to restore the random number generator's state from the checkpoint
+
+Here, we will run a 10-year simulation for the first 5 years, stop, and then resume the simulation for the following 5 years.
+
+```{r resumable_simulation}
+year<- 365
+initial_timesteps<- 5 * year
+total_timesteps<- 10* year
+eir<- 35
+
+
+params <- get_parameters(
+  list(
+    human_population = 10000,
+    individual_mosquitoes = FALSE,
+    clinical_incidence_rendering_min_ages = 0,
+    clinical_incidence_rendering_max_ages = 5 * year
+  )
+)
+
+params <- set_equilibrium(parameters = params, init_EIR = eir)
+
+# Run first phase of simulation
+first_phase<- malariasimulation:::run_resumable_simulation(parameters = params, timesteps= initial_timesteps)
+
+# View model output from the first phase of the simulation
+head(first_phase$data)
+
+# plot the first 5 years
+plot_incidence(first_phase$data, label = 'Incidence for first phase')
+
+# Run second phase of simulation
+second_phase<- malariasimulation:::run_resumable_simulation(timesteps= total_timesteps,
+                                                            parameters = params,
+                                                            initial_state = first_phase$state,
+                                                            restore_random_state = TRUE)
+# plot the latter 5 years
+plot_incidence(second_phase$data, label = 'Incidence for second phase')
+
+
+# bind the model outputs from first and second phase together
+full_output<- rbind(first_phase$data, second_phase$data)
+
+# plot entire simulation period
+plot_incidence(full_output, label = 'Incidence for full run')
+
+
+```
+
+
+# Introduce interventions to a resumable simulation
+
+In this example, we will introduce a new intervention in the second phase of a resumable simulation. Note that, because of how event scheduling works, we must enable the new intervention in the inital phase of the simulation as well, with a coverage value of 0.
+
+
+```{r intervention_resumable}
+year<- 365
+initial_timesteps<- 5 * year
+total_timesteps<- 10* year
+eir<- 35
+
+params <- get_parameters(
+  list(
+    human_population = 10000,
+    individual_mosquitoes = FALSE,
+    clinical_incidence_rendering_min_ages = 0,
+    clinical_incidence_rendering_max_ages = 5 * year
+  )
+)
+
+params <- set_equilibrium(parameters = params, init_EIR = eir)
+
+# Introduce transmission-blocking vaccine in initial phase with coverage value of 0
+tbv_timesteps<- 7* year
+
+params<- params |>
+  set_tbv(timesteps=tbv_timesteps, 
+          coverage=0, ages=0:5)
+
+# update vaccine parameters so coverage is 100%
+tbv_params<- params |>
+  set_tbv(timesteps=tbv_timesteps, 
+          coverage=1, ages=0:5)
+
+# Run first phase of simulation
+set.seed(7)
+first_phase<- malariasimulation:::run_resumable_simulation(parameters = params, timesteps= initial_timesteps)
+
+# Run second phase of simulation
+second_phase<- malariasimulation:::run_resumable_simulation(timesteps= total_timesteps,
+                                                            parameters = tbv_params,
+                                                            initial_state = first_phase$state,
+                                                            restore_random_state = TRUE)
+# bind the model outputs from first and second phase together
+full_output<- bind_rows(first_phase$data, second_phase$data)
+
+# Run a control run for entire simulation period
+set.seed(7)
+control<- malariasimulation:::run_simulation(parameters = params, timesteps= total_timesteps)
+
+
+# plot the first 5 years
+plot_incidence(first_phase$data, label= 'Incidence for first phase')
+
+# plot the latter 5 years
+plot_incidence(second_phase$data, label= 'Incidence for phase where vaccine was introduced')
+
+# plot entire simulation period
+plot_incidence(full_output, label = 'Incidence for full run')
+
+plot_incidence(control, label= 'Incidence for control run')
+
+```
+
+
+

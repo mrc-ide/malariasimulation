@@ -8,9 +8,11 @@ set_tbv <- function(
   parameters,
   timesteps,
   coverages,
-  ages
+  ages,
+  adult_scaling #JDC
   ) {
   stopifnot(all(coverages >= 0) && all(coverages <= 1))
+  stopifnot(adult_scaling <= 1 && adult_scaling >0) #JDC
   if(length(coverages) != length(timesteps)){
     stop("coverages and timesteps do no align")
   }
@@ -19,5 +21,6 @@ set_tbv <- function(
   parameters$tbv_timesteps <- timesteps
   parameters$tbv_coverages <- coverages
   parameters$tbv_ages <- ages
+  parameters$tbv_adult_scaling <- adult_scaling #JDC
   parameters
 }

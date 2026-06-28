@@ -253,9 +253,13 @@ pev_efficacy <- function(
   vaccine_efficacy <- rep(0, length(source_vector))
   vaccine_times <- variables$last_eff_pev_timestep$get_values(source_vector)
   pev_profile <- variables$pev_profile$get_values(source_vector)
+  #JDC: This should be the current age of everybody in 'source'?
+  ages <- get_age(variables$birth$get_values(source_vector), vaccine_times)
   # get vector of individuals who have received their 3rd dose
   vaccinated <- vaccine_times > -1
   pev_profile <- pev_profile[vaccinated]
+  #JDC: ages of those vaccinated?
+  ages <- ages[vaccinated]
   if (length(vaccinated) > 0) {
     antibodies <- calculate_pev_antibodies(
       timestep - vaccine_times[vaccinated],
@@ -263,6 +267,7 @@ pev_efficacy <- function(
       invlogit(sample_pev_param(pev_profile, parameters$pev_profiles, 'rho')),
       exp(sample_pev_param(pev_profile, parameters$pev_profiles, 'ds')),
       exp(sample_pev_param(pev_profile, parameters$pev_profiles, 'dl')),
+      ages, #JDC
       parameters
     )
     vmax <- vnapply(parameters$pev_profiles, function(p) p$vmax)

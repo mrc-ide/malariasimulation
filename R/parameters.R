@@ -461,6 +461,9 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       tbv_timesteps = NULL,
       tbv_coverages = NULL,
       tbv_ages = NULL,
+      tbv_adult_scaling = 1,#JDC:  default means no down-scaling??? And not included here for pev???
+      #JDC: as I've hard-wired in the scaling into the antibody function, we will always need a value for adult scaling. This should be fixed
+      mass_pev_adult_scaling = 1,
       # antimalarial resistance
       antimalarial_resistance = FALSE,
       antimalarial_resistance_drug = NULL,

@@ -27,6 +27,8 @@ navbar:
         href: articles/SetSpecies.html
       - text: "Carrying Capacity"
         href: articles/Carrying-capacity.html
+      - text: "Forcing the EIR"
+        href: articles/Forced-EIR.html
       - text: "Matching PfPR2-10 to EIR"
         href: articles/EIRprevmatch.html
       - text: "Metapopulation Modelling"
@@ -57,6 +59,7 @@ reference:
     - get_correlation_parameters
     - set_parameter_draw
     - set_equilibrium
+    - set_forced_eir
     - set_epi_outputs
 - title: "Demography functions"
   contents:

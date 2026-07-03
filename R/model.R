@@ -78,6 +78,10 @@
 #'  * n_successfully_treated: number of clinically treated individuals who are treated successfully (includes individuals who experience slow parasite clearance)
 #'  * n_slow_parasite_clearance: number of clinically treated individuals who experienced slow parasite clearance
 #'
+#' When the EIR is forced (see \code{\link{set_forced_eir}}), the mosquito
+#' component is not simulated and the mosquito-state outputs (E/L/P/Sm/Pm/Im
+#' counts, total_M, FOIM and mu) are omitted; EIR is still reported.
+#'
 #' @param timesteps the number of timesteps to run the simulation for (in days)
 #' @param parameters a named list of parameters to use
 #' @param correlations correlation parameters
@@ -220,6 +224,10 @@ run_metapop_simulation <- function(
   p_success
   ) {
   random_seed(ceiling(runif(1) * .Machine$integer.max))
+
+  if (any(vlapply(parameters, function(p) isTRUE(p$force_EIR)))) {
+    stop('force_EIR is not supported in metapopulation simulations')
+  }
 
   for (mixing in list(export_mixing, import_mixing)) {
     if (!is.list(mixing)) {

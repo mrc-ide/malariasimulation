@@ -7,6 +7,7 @@
 
 ## New features
 
+* `set_forced_eir()` drives infectious bites directly from a user-supplied, time-varying EIR, bypassing the simulated mosquito population
 * Logistic retention model for bed nets as an alternative to log-uniform retention in https://github.com/mrc-ide/malariasimulation/pull/349
 * `set_equilibrium()` gains `EIR_population_input` argument to accept total-population EIR (converted to adult EIR internally) in https://github.com/mrc-ide/malariasimulation/pull/377
 * `run_simulation_with_repetitions()` now supports correlation parameters in https://github.com/mrc-ide/malariasimulation/pull/367

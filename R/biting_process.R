@@ -118,30 +118,34 @@ simulate_bites <- function(
     a <- .human_blood_meal_rate(f, s_i, W, parameters)
     lambda <- effective_biting_rates(a, .pi, p_bitten)
 
-    if (parameters$individual_mosquitoes) {
-      species_index <- variables$species$get_index_of(
-        parameters$species[[s_i]]
-      )$and(adult_index)
-      n_infectious <- calculate_infectious_individual(
-        s_i,
-        variables,
-        infectious_index,
-        adult_index,
-        species_index,
-        parameters
+    if (!parameters$force_EIR) {
+      if (parameters$individual_mosquitoes) {
+        species_index <- variables$species$get_index_of(
+          parameters$species[[s_i]]
+        )$and(adult_index)
+        n_infectious <- calculate_infectious_individual(
+          s_i,
+          variables,
+          infectious_index,
+          adult_index,
+          species_index,
+          parameters
+        )
+      } else {
+        n_infectious <- calculate_infectious_compartmental(solver_states)
+      }
+
+      # store the current population's EIR for later
+      lagged_eir[[s_i]]$save(
+        n_infectious * a,
+        timestep
       )
-    } else {
-      n_infectious <- calculate_infectious_compartmental(solver_states)
     }
-    
-    # store the current population's EIR for later
-    lagged_eir[[s_i]]$save(
-      n_infectious * a,
-      timestep
-    )
 
     # lagged EIR
-    if (is.null(mixing_fn)) {
+    if (parameters$force_EIR) {
+      species_eir <- forced_species_eir(parameters, s_i, psi, timestep)
+    } else if (is.null(mixing_fn)) {
       species_eir <- lagged_eir[[s_i]]$get(timestep - parameters$de)
     } else {
       species_eir <- mixing_fn(timestep=timestep)$eir[[mixing_index, s_i]]
@@ -164,50 +168,52 @@ simulate_bites <- function(
       }
     }
 
-    lagged_infectivity$save(sum(human_infectivity * .pi), timestep)
+    if (!parameters$force_EIR) {
+      lagged_infectivity$save(sum(human_infectivity * .pi), timestep)
 
-    if (is.null(mixing_fn)) {
-      infectivity <- lagged_infectivity$get(timestep - parameters$delay_gam)
-    } else {
-      infectivity <- mixing_fn(timestep=timestep)$inf[[mixing_index]]
-    }
+      if (is.null(mixing_fn)) {
+        infectivity <- lagged_infectivity$get(timestep - parameters$delay_gam)
+      } else {
+        infectivity <- mixing_fn(timestep=timestep)$inf[[mixing_index]]
+      }
 
-    foim <- calculate_foim(a, infectivity)
-    renderer$render(paste0('FOIM_', species_name), foim, timestep)
-    mu <- death_rate(f, W, Z, s_i, parameters)
-    renderer$render(paste0('mu_', species_name), mu, timestep)
-    
-    if (parameters$individual_mosquitoes) {
-      # update the ODE with stats for ovoposition calculations
-      aquatic_mosquito_model_update(
-        models[[s_i]]$.model,
-        species_index$size(),
-        f,
-        mu
-      )
-      
-      # update the individual mosquitoes
-      susceptible_species_index <- susceptible_index$copy()$and(species_index)
-      
-      biting_effects_individual(
-        variables,
-        foim,
-        events,
-        s_i,
-        susceptible_species_index,
-        species_index,
-        mu,
-        parameters,
-        timestep
-      )
-    } else {
-      adult_mosquito_model_update(
-        models[[s_i]]$.model,
-        mu,
-        foim,
-        solver_states[[ADULT_ODE_INDICES['Sm']]],
-        f
-      )
+      foim <- calculate_foim(a, infectivity)
+      renderer$render(paste0('FOIM_', species_name), foim, timestep)
+      mu <- death_rate(f, W, Z, s_i, parameters)
+      renderer$render(paste0('mu_', species_name), mu, timestep)
+
+      if (parameters$individual_mosquitoes) {
+        # update the ODE with stats for ovoposition calculations
+        aquatic_mosquito_model_update(
+          models[[s_i]]$.model,
+          species_index$size(),
+          f,
+          mu
+        )
+
+        # update the individual mosquitoes
+        susceptible_species_index <- susceptible_index$copy()$and(species_index)
+
+        biting_effects_individual(
+          variables,
+          foim,
+          events,
+          s_i,
+          susceptible_species_index,
+          species_index,
+          mu,
+          parameters,
+          timestep
+        )
+      } else {
+        adult_mosquito_model_update(
+          models[[s_i]]$.model,
+          mu,
+          foim,
+          solver_states[[ADULT_ODE_INDICES['Sm']]],
+          f
+        )
+      }
     }
   }
 

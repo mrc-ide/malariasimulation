@@ -206,7 +206,15 @@ instars; default = 13.25
 \item rainfall_floor - the minimum rainfall value (must be above 0); default 0.001
 \item carrying_capacity; default = FALSE
 \item carrying_capacity_timesteps; default = NULL
-\item carrying_capacity_values; default = NULL#'
+\item carrying_capacity_values; default = NULL
+}
+
+forced EIR (see \code{\link{set_forced_eir}}):
+\itemize{
+\item force_EIR - if TRUE, the mosquito component is not simulated and infectious
+bites are driven directly from a user-supplied EIR; default = FALSE
+\item force_EIR_timesteps; default = NULL
+\item force_EIR_values; default = NULL
 }
 
 parasite incubation periods:

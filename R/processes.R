@@ -77,7 +77,7 @@ create_processes <- function(
     )
   }
 
-  if (parameters$individual_mosquitoes) {
+  if (parameters$individual_mosquitoes && !parameters$force_EIR) {
     processes <- c(
       processes,
       mosquito_emergence_process = create_mosquito_emergence_process(
@@ -168,10 +168,14 @@ create_processes <- function(
   # ===============
   # ODE integration
   # ===============
-  processes <- c(
-    processes,
-    solver_process = create_solver_stepping_process(solvers, parameters)
-  )
+  # When the EIR is forced, the mosquito component is not simulated, so the
+  # vector ODEs are not stepped.
+  if (!parameters$force_EIR) {
+    processes <- c(
+      processes,
+      solver_process = create_solver_stepping_process(solvers, parameters)
+    )
+  }
 
   # =========
   # PEV EPI
@@ -266,34 +270,42 @@ create_processes <- function(
       variables$birth,
       parameters,
       renderer
-    ),
-    mosquito_state_renderer = create_compartmental_rendering_process(
-      renderer,
-      solvers,
-      parameters
     )
   )
 
-  if (parameters$individual_mosquitoes) {
+  # Mosquito-state outputs are only rendered when the mosquito component is
+  # simulated (i.e. not when the EIR is forced).
+  if (!parameters$force_EIR) {
     processes <- c(
       processes,
-      vector_count_renderer = create_vector_count_renderer_individual(
-        variables$mosquito_state,
-        variables$species,
-        variables$mosquito_state,
-        renderer,
-        parameters
-      )
-    )
-  } else {
-    processes <- c(
-      processes,
-      vector_count_renderer = create_total_M_renderer_compartmental(
+      mosquito_state_renderer = create_compartmental_rendering_process(
         renderer,
         solvers,
         parameters
       )
     )
+
+    if (parameters$individual_mosquitoes) {
+      processes <- c(
+        processes,
+        vector_count_renderer = create_vector_count_renderer_individual(
+          variables$mosquito_state,
+          variables$species,
+          variables$mosquito_state,
+          renderer,
+          parameters
+        )
+      )
+    } else {
+      processes <- c(
+        processes,
+        vector_count_renderer = create_total_M_renderer_compartmental(
+          renderer,
+          solvers,
+          parameters
+        )
+      )
+    }
   }
 
   # ======================

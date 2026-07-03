@@ -314,6 +314,7 @@ set_equilibrium <- function(parameters, init_EIR, eq_params = NULL, EIR_populati
 #' @param total_population_EIR the population-level EIR (infectious bites per person per year over the entire human
 #' population)
 #' @param age vector of age groups, in units of years (these should reflect those used in the simulation).
+#' @keywords internal
 calculate_population_to_adult_EIR_scalar <- function(parameters, total_population_EIR, age = EQUILIBRIUM_AGES){
 
   rho_age   <- parameters$rho

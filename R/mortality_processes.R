@@ -244,8 +244,9 @@ reset_target_verbose <- function(variables, events, target, state, parameters, t
     variables$progression_rates$queue_update(0, target)
     
     if(parameters$mortality_verbose){
-      states <- variables$state$get_values(target$to_vector())
-      print_to_csv(parameters$file_name, timestep + 1, seq(curr_max_ind + 1, curr_max_ind + quantity_to_update), parameters$mortality_base_value + 1, match(states, parameters$state_list), parameters$start_time)
+      # states <- variables$state$get_values(target$to_vector())
+      states <- rep("S", quantity_to_update)
+      print_to_csv(parameters$file_name, timestep, seq(curr_max_ind + 1, curr_max_ind + quantity_to_update), parameters$mortality_base_value + 1, match(states, parameters$state_list), parameters$start_time)
     }
     # zeta and zeta group and vector controls survive rebirth
   }

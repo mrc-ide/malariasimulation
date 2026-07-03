@@ -271,7 +271,9 @@ create_verbose_epi_pev_process <- function(
       # recording_people <- target$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
       # print(target)
       if (length(target) != 0){
+        # print("states")
         states <- variables$state$get_values(index = target)
+        # print("personal_ind")
         personal_inds <- variables$personal_tracker_index$get_values(index = target)
         # flop
         # states <- variables$state[target]
@@ -346,15 +348,25 @@ create_verbose_mass_pev_listener <- function(
     # Update the latest vaccination time
     variables$last_pev_timestep$queue_update(timestep, target)
     if(parameters$pev_verbose){
+      # print("pev")
       min_birth <- timestep - parameters$upper_age_bound
       max_birth <- timestep - parameters$lower_age_bound
-      recording_people <- target$copy()$or(variables$birth$get_index_of(a = min_birth, b = max_birth))
-      # recording_people <- target$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
-      states <- variables$state$get_values(recording_people)
-      personal_inds <- variables$personal_tracker_index$get_values(recording_people)
+      birth_days <- variables$birth$get_values(target)
+      target <- target[(birth_days >= min_birth) & (birth_days <= max_birth)]
+      states <- variables$state$get_values(index = target)
+      personal_inds <- variables$personal_tracker_index$get_values(index = target)
+      # print("recording_people")
+      # print(target)
+      # recording_people <- target$copy()$or(variables$birth$get_index_of(a = min_birth, b = max_birth))
+      # # recording_people <- target$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
+      # print("states")
+      # states <- variables$state$get_values(recording_people)
+      # print("personal_inds")
+      # personal_inds <- variables$personal_tracker_index$get_values(recording_people)
       # states <- variables$state$get_values(target)
       # personal_inds <- variables$personal_tracker_index$get_values(target)
       # print_to_csv(parameters$file_name, timestep, personal_inds, "vaccinated_mass", states, parameters$start_time)
+      # print("going_to_csv")
       print_to_csv(parameters$file_name, timestep, personal_inds, parameters$pev_base_value + 1, match(states, parameters$state_list), parameters$start_time)
     }
 

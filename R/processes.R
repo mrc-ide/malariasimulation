@@ -805,6 +805,23 @@ render_states_process <- function(variables, parameters){
       recording_people <- in_age_group$copy()$or(variables$birth$get_index_of(a = min_birth, b = max_birth))
       states <- variables$state$get_values(recording_people$to_vector())
       personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
+      n_new <- length(personal_inds)
+      store <- parameters$output_env
+      if (store$capacity < store$n + n_new){
+        store$capacity <- as.integer(2L*store$capacity)
+        length(store$timestep) <- store$capacity
+        length(store$individual_index) <- store$capacity
+        length(store$process_index) <- store$capacity
+        length(store$state_index) <- store$capacity
+      }
+      idx_start <- store$n + 1L
+      idx_end <- store$n + n_new
+      idx <- idx_start:idx_end
+      store$timestep[idx] <- as.integer(timestep)
+      store$individual_index[idx] <- as.integer(personal_inds)
+      store$process_index[idx] <- as.integer(parameters$states_base_value)
+      store$state_index[idx] <- as.integer(match(states, parameters$state_list))
+      store$n <- idx_end
       # ages <- variables$birth$get_values(recording_people$to_vector)
       # print(ages)
       # flop

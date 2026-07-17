@@ -252,7 +252,31 @@ distribute_nets_verbose <- function(variables, throw_away_net, parameters, corre
         # recording_people <- target$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
         states <- variables$state$get_values(recording_people)
         personal_inds <- variables$personal_tracker_index$get_values(recording_people)
-        # recording_people <- target(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
+        n_new <- length(personal_inds)
+        store <- parameters$output_env
+        if (store$capacity < store$n + n_new){
+          store$capacity <- as.integer(2L*store$capacity)
+          length(store$timestep) <- store$capacity
+          length(store$individual_index) <- store$capacity
+          length(store$process_index) <- store$capacity
+          length(store$state_index) <- store$capacity
+        }
+        idx_start <- store$n + 1L
+        idx_end <- store$n + n_new
+        idx <- idx_start:idx_end
+        store$timestep[idx] <- as.integer(timestep)
+        store$individual_index[idx] <- as.integer(personal_inds)
+        store$process_index[idx] <- as.integer(parameters$nets_base_value)
+        store$state_index[idx] <- as.integer(match(states, parameters$state_list))
+        store$n <- idx_end
+        # temp_df <- data.frame(
+        #   timestep = rep(timestep, length(personal_inds)),
+        #   individual_index = personal_inds,
+        #   process_index = rep(parameters$nets_base_value, length(personal_inds)),
+        #   state_index = match(states, parameters$state_list),
+        # )
+        # parameters$output_env$df <- rbind(parameters$output_env$df, temp_df)
+        # # recording_people <- target(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
         # subset <- variables$birth[target]
         # min_birth <- timestep - parameters$upper_age_bound
         # max_birth <- timestep - parameters$lower_age_bound
@@ -277,6 +301,30 @@ throw_away_nets_verbose <- function(variables, parameters) {
       recording_people <- target$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
       states <- variables$state$get_values(recording_people$to_vector())
       personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
+      n_new <- length(personal_inds)
+      store <- parameters$output_env
+      if (store$capacity < store$n + n_new){
+        store$capacity <- as.integer(2L*store$capacity)
+        length(store$timestep) <- store$capacity
+        length(store$individual_index) <- store$capacity
+        length(store$process_index) <- store$capacity
+        length(store$state_index) <- store$capacity
+      }
+      idx_start <- store$n + 1L
+      idx_end <- store$n + n_new
+      idx <- idx_start:idx_end
+      store$timestep[idx] <- as.integer(timestep)
+      store$individual_index[idx] <- as.integer(personal_inds)
+      store$process_index[idx] <- as.integer(parameters$nets_base_value + 1)
+      store$state_index[idx] <- as.integer(match(states, parameters$state_list))
+      store$n <- idx_end
+      # temp_df <- data.frame(
+      #   timestep = rep(timestep, length(personal_inds)),
+      #   individual_index = personal_inds,
+      #   process_index = rep(parameters$nets_base_value + 1, length(personal_inds)),
+      #   state_index = match(states, parameters$state_list)
+      # )
+      # parameters$output_env$df <- rbind(parameters$output_env$df, temp_df)
       # min_birth <- timestep - parameters$upper_age_bound
       # max_birth <- timestep - parameters$lower_age_bound
       # recording_people <- target$copy()$or(variables$birth$get_index_of(a = min_birth, b = max_birth))

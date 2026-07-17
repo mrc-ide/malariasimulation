@@ -193,11 +193,36 @@ reset_target_verbose <- function(variables, events, target, state, parameters, t
       # print(states)
       # flop
       personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
+      n_new <- length(personal_inds)
+      store <- parameters$output_env
+      if (store$capacity < store$n + n_new){
+        store$capacity <- as.integer(2L*store$capacity)
+        length(store$timestep) <- store$capacity
+        length(store$individual_index) <- store$capacity
+        length(store$process_index) <- store$capacity
+        length(store$state_index) <- store$capacity
+      }
+      idx_start <- store$n + 1L
+      idx_end <- store$n + n_new
+      idx <- idx_start:idx_end
+      store$timestep[idx] <- as.integer(timestep)
+      store$individual_index[idx] <- as.integer(personal_inds)
+      store$process_index[idx] <- as.integer(parameters$mortality_base_value)
+      store$state_index[idx] <- as.integer(match(states, parameters$state_list))
+      store$n <- idx_end
       # print(personal_inds)
       # flop
       # states <- variables$state$get_values(target$to_vector())
       # personal_inds <- variables$personal_tracker_index$get_values(target$to_vector())
       # print_to_csv(parameters$file_name, timestep, personal_inds, "died", states, parameters$start_time)
+      
+      temp_df <- data.frame(
+        timestep = rep(timestep, length(personal_inds)),
+        individual_index = personal_inds,
+        process_index = rep(parameters$mortality_base_value, length(personal_inds)),
+        state_index = match(states, parameters$state_list)
+      )
+      parameters$output_env$df <- rbind(parameters$output_env$df, temp_df)
       print_to_csv(parameters$file_name, timestep, personal_inds, parameters$mortality_base_value, match(states, parameters$state_list), parameters$start_time)
       # print("done ")
       # Sys.sleep(1)
@@ -246,6 +271,30 @@ reset_target_verbose <- function(variables, events, target, state, parameters, t
     if(parameters$mortality_verbose){
       # states <- variables$state$get_values(target$to_vector())
       states <- rep("S", quantity_to_update)
+      n_new <- quantity_to_update
+      store <- parameters$output_env
+      if (store$capacity < store$n + n_new){
+        store$capacity <- as.integer(2L*store$capacity)
+        length(store$timestep) <- store$capacity
+        length(store$individual_index) <- store$capacity
+        length(store$process_index) <- store$capacity
+        length(store$state_index) <- store$capacity
+      }
+      idx_start <- store$n + 1L
+      idx_end <- store$n + n_new
+      idx <- idx_start:idx_end
+      store$timestep[idx] <- as.integer(timestep)
+      store$individual_index[idx] <- as.integer(seq(curr_max_ind + 1, curr_max_ind + quantity_to_update))
+      store$process_index[idx] <- as.integer(parameters$mortality_base_value + 1)
+      store$state_index[idx] <- as.integer(match(states, parameters$state_list))
+      store$n <- idx_end
+      # temp_df <- data.frame(
+      #   timestep = rep(timestep, length(quantity_to_update)),
+      #   individual_index = seq(curr_max_ind + 1, curr_max_ind + quantity_to_update),
+      #   process_index = rep(parameters$mortality_base_value, length(quantity_to_update)),
+      #   state_index = match(states, parameters$state_list)
+      # )
+      # parameters$output_env$df <- rbind(parameters$output_env$df, temp_df)
       print_to_csv(parameters$file_name, timestep, seq(curr_max_ind + 1, curr_max_ind + quantity_to_update), parameters$mortality_base_value + 1, match(states, parameters$state_list), parameters$start_time)
     }
     # zeta and zeta group and vector controls survive rebirth

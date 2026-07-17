@@ -163,11 +163,25 @@ run_verbose_simulation <- function(
     process_vector[process_ind] <- "Gone_to_D"
     process_ind <- process_ind + 1
   }
-
+  parameters$output_env <- new.env(parent = emptyenv())
+  parameters$output_env$n <- 0L
+  parameters$output_env$capacity <- as.integer(100000L)
+  parameters$output_env$timestep <- integer(parameters$output_env$capacity)
+  parameters$output_env$individual_index <- integer(parameters$output_env$capacity)
+  parameters$output_env$process_index <- integer(parameters$output_env$capacity)
+  parameters$output_env$state_index <- integer(parameters$output_env$capacity)
   sink(parameters$file_name)
   cat("timestep,individual_index,process_index,state_index\n")
   sink()
-
+  # output_env <- new.env()
+  # parameters$output_env <- output_env
+  # parameters$output_env$df <- data.frame(
+  #   timestep = numeric(),
+  #   individual_index = numeric(),
+  #   process_index = numeric(),
+  #   state_index = numeric()
+  # )
+  # parameters$output_rows <- list()
   if (parameters$snapshot_verbose){
     sink(parameters$snapshot_file_name)
     cat("timestep,individual_index,age,state_index\n")
@@ -246,8 +260,18 @@ run_verbose_simulation <- function(
     # It would just be full of NA.
     data <- data[-(1:initial_state$timesteps),]
   }
+  
+  store <- parameters$output_env
+  n <- store$n
 
-  list(data=data, state=final_state, process_vector = process_vector, state_list = state_list)
+  output_df <- data.frame(
+    timestep = store$timestep[seq_len(n)],
+    individual_index = store$individual_index[seq_len(n)],
+    process_index = store$process_index[seq_len(n)],
+    state_index = store$state_index[seq_len(n)]
+  )
+
+  list(data=data, state=final_state, process_vector = process_vector, state_list = state_list, verbose_data = output_df)
 }
 
 #' @title Run the simulation in a resumable way

@@ -449,18 +449,85 @@ falciparum_infection_outcome_process_verbose <- function(
       min_birth <- timestep - parameters$upper_age_bound
       max_birth <- timestep - parameters$lower_age_bound
       if(to_A$size()){
-        recording_people <- to_A$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
-        states <- variables$state$get_values(recording_people$to_vector())
-        personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
-        # print_to_csv(parameters$file_name, timestep, personal_inds, "Gone_to_A", states, parameters$start_time)
-        print_to_csv(parameters$file_name, timestep, personal_inds, parameters$infection_base_value, match(states, parameters$state_list), parameters$start_time)
+        if(timestep >= parameters$start_time){
+          recording_people <- to_A$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
+          states <- variables$state$get_values(recording_people$to_vector())
+          personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
+          n_new <- length(personal_inds)
+          store <- parameters$output_env
+          if (store$capacity < store$n + n_new){
+            store$capacity <- as.integer(2L*store$capacity)
+            length(store$timestep) <- store$capacity
+            length(store$individual_index) <- store$capacity
+            length(store$process_index) <- store$capacity
+            length(store$state_index) <- store$capacity
+          }
+          idx_start <- store$n + 1L
+          idx_end <- store$n + n_new
+          idx <- idx_start:idx_end
+          store$timestep[idx] <- as.integer(timestep)
+          store$individual_index[idx] <- as.integer(personal_inds)
+          store$process_index[idx] <- as.integer(parameters$infection_base_value)
+          store$state_index[idx] <- as.integer(match(states, parameters$state_list))
+          store$n <- idx_end
+
+          # print_to_csv(parameters$file_name, timestep, personal_inds, "Gone_to_A", states, parameters$start_time)
+          # temp_df <- data.frame(
+          #   timestep = rep(timestep, length(personal_inds)),
+          #   individual_index = personal_inds,
+          #   process_index = rep(parameters$infection_base_value, length(personal_inds)),
+          #   state_index = match(states, parameters$state_list)
+          # )
+          # parameters$output_rows[[length(parameters$output_rows) + 1]] <- data.frame(
+          #   timestep = rep(timestep, length(personal_inds)),
+          #   individual_index = personal_inds,
+          #   process_index = rep(parameters$infection_base_value, length(personal_inds)),
+          #   state_index = match(states, parameters$state_list)
+          # )
+          # # print(temp_df)
+          # # print(rbind(store$df, temp_df))
+          # store$df <- rbind(store$df, temp_df)
+          # print(store$df)
+          # print(length(parameters$output_rows))
+          print_to_csv(parameters$file_name, timestep, personal_inds, parameters$infection_base_value, match(states, parameters$state_list), parameters$start_time)
+        }
       }
       if(to_D$size()){
         recording_people <- to_D$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
         states <- variables$state$get_values(recording_people$to_vector())
         personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
+        n_new <- length(personal_inds)
+        store <- parameters$output_env
+        if (store$capacity < store$n + n_new){
+          store$capacity <- as.integer(2L*store$capacity)
+          length(store$timestep) <- store$capacity
+          length(store$individual_index) <- store$capacity
+          length(store$process_index) <- store$capacity
+          length(store$state_index) <- store$capacity
+        }
+        idx_start <- store$n + 1L
+        idx_end <- store$n + n_new
+        idx <- idx_start:idx_end
+        store$timestep[idx] <- as.integer(timestep)
+        store$individual_index[idx] <- as.integer(personal_inds)
+        store$process_index[idx] <- as.integer(parameters$infection_base_value + 1)
+        store$state_index[idx] <- as.integer(match(states, parameters$state_list))
+        store$n <- idx_end
         # print_to_csv(parameters$file_name, timestep, personal_inds, "Gone_to_D", states, parameters$start_time)
         # print(match(states, parameters$state_list))
+        # temp_df <- data.frame(
+        #     timestep = rep(timestep, length(personal_inds)),
+        #     individual_index = personal_inds,
+        #     process_index = rep(parameters$infection_base_value + 1, length(personal_inds)),
+        #     state_index = match(states, parameters$state_list)
+        #   )
+        # parameters$output_rows[[length(parameters$output_rows) + 1]] <- data.frame(
+        #   timestep = rep(timestep, length(personal_inds)),
+        #   individual_index = personal_inds,
+        #   process_index = rep(parameters$infection_base_value + 1, length(personal_inds)),
+        #   state_index = match(states, parameters$state_list)
+        # )
+        # store$df <- rbind(store$df, temp_df)
         print_to_csv(parameters$file_name, timestep, personal_inds, parameters$infection_base_value + 1, match(states, parameters$state_list), parameters$start_time)
       }
     }

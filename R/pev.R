@@ -275,6 +275,30 @@ create_verbose_epi_pev_process <- function(
         states <- variables$state$get_values(index = target)
         # print("personal_ind")
         personal_inds <- variables$personal_tracker_index$get_values(index = target)
+        n_new <- length(personal_inds)
+        store <- parameters$output_env
+        if (store$capacity < store$n + n_new){
+          store$capacity <- as.integer(2L*store$capacity)
+          length(store$timestep) <- store$capacity
+          length(store$individual_index) <- store$capacity
+          length(store$process_index) <- store$capacity
+          length(store$state_index) <- store$capacity
+        }
+        idx_start <- store$n + 1L
+        idx_end <- store$n + n_new
+        idx <- idx_start:idx_end
+        store$timestep[idx] <- as.integer(timestep)
+        store$individual_index[idx] <- as.integer(personal_inds)
+        store$process_index[idx] <- as.integer(parameters$pev_base_value)
+        store$state_index[idx] <- as.integer(match(states, parameters$state_list))
+        store$n <- idx_end
+        # temp_df <- data.frame(
+        #   timestep = rep(timestep, length(personal_inds)),
+        #   individual_index = personal_inds,
+        #   process_index = rep(parameters$pev_base_value, length(personal_inds)),
+        #   state_index = match(states, parameters$state_list),
+        # )
+        # parameters$output_env$df <- rbind(parameters$output_env$df, temp_df)
         # flop
         # states <- variables$state[target]
         # personal_inds <- variables$personal_tracker_index[target]
@@ -355,6 +379,30 @@ create_verbose_mass_pev_listener <- function(
       target <- target[(birth_days >= min_birth) & (birth_days <= max_birth)]
       states <- variables$state$get_values(index = target)
       personal_inds <- variables$personal_tracker_index$get_values(index = target)
+      n_new <- length(personal_inds)
+      store <- parameters$output_env
+      if (store$capacity < store$n + n_new){
+        store$capacity <- as.integer(2L*store$capacity)
+        length(store$timestep) <- store$capacity
+        length(store$individual_index) <- store$capacity
+        length(store$process_index) <- store$capacity
+        length(store$state_index) <- store$capacity
+      }
+      idx_start <- store$n + 1L
+      idx_end <- store$n + n_new
+      idx <- idx_start:idx_end
+      store$timestep[idx] <- as.integer(timestep)
+      store$individual_index[idx] <- as.integer(personal_inds)
+      store$process_index[idx] <- as.integer(parameters$pev_base_value + 1)
+      store$state_index[idx] <- as.integer(match(states, parameters$state_list))
+      store$n <- idx_end
+      # temp_df <- data.frame(
+      #   timestep = rep(timestep, length(personal_inds)),
+      #   individual_index = personal_inds,
+      #   process_index = rep(parameters$pev_base_value + 1, length(personal_inds)),
+      #   state_index = match(states, parameters$state_list)
+      # )
+      # parameters$output_env$df <- rbind(parameters$output_env$df, temp_df)
       # print("recording_people")
       # print(target)
       # recording_people <- target$copy()$or(variables$birth$get_index_of(a = min_birth, b = max_birth))

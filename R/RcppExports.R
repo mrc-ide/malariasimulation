@@ -33,8 +33,8 @@ create_aquatic_solver <- function(model, init, r_tol, a_tol, max_steps) {
     .Call(`_malariasimulation_create_aquatic_solver`, model, init, r_tol, a_tol, max_steps)
 }
 
-print_to_csv <- function(filename, timestep, personal_indicies, process, categories, turnon_time) {
-    invisible(.Call(`_malariasimulation_print_to_csv`, filename, timestep, personal_indicies, process, categories, turnon_time))
+print_to_csv <- function(filename, timestep, personal_indicies, process, categories, next_category, turnon_time) {
+    invisible(.Call(`_malariasimulation_print_to_csv`, filename, timestep, personal_indicies, process, categories, next_category, turnon_time))
 }
 
 print_for_snapshot <- function(filename, timestep, personal_indicies, ages, categories) {

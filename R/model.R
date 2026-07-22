@@ -162,6 +162,8 @@ run_verbose_simulation <- function(
     process_ind <- process_ind + 1
     process_vector[process_ind] <- "Gone_to_D"
     process_ind <- process_ind + 1
+    parameters$treatment_base_value <- process_ind
+    process_vector[process_ind] <- "Treated"
   }
   parameters$output_env <- new.env(parent = emptyenv())
   parameters$output_env$n <- 0L
@@ -170,8 +172,10 @@ run_verbose_simulation <- function(
   parameters$output_env$individual_index <- integer(parameters$output_env$capacity)
   parameters$output_env$process_index <- integer(parameters$output_env$capacity)
   parameters$output_env$state_index <- integer(parameters$output_env$capacity)
+  parameters$output_env$next_state_index <- integer(parameters$output_env$capacity)
+
   sink(parameters$file_name)
-  cat("timestep,individual_index,process_index,state_index\n")
+  cat("timestep,individual_index,process_index,state_index,next_state_index\n")
   sink()
   # output_env <- new.env()
   # parameters$output_env <- output_env

@@ -230,6 +230,7 @@ progression_outcome_process_verbose <- function(
         length(store$individual_index) <- store$capacity
         length(store$process_index) <- store$capacity
         length(store$state_index) <- store$capacity
+        length(store$next_state_index) <- store$capacity
       }
       idx_start <- store$n + 1L
       idx_end <- store$n + n_new
@@ -238,6 +239,7 @@ progression_outcome_process_verbose <- function(
       store$individual_index[idx] <- as.integer(personal_inds)
       store$process_index[idx] <- as.integer(parameters$progression_base_value)
       store$state_index[idx] <- as.integer(match(states, parameters$state_list))
+      store$next_state_index[idx] <- as.integer(match("A", parameters$state_list))
       store$n <- idx_end
       
       # print(length(states))
@@ -254,7 +256,7 @@ progression_outcome_process_verbose <- function(
       # parameters$output_env$df <- rbind(parameters$output_env$df, temp_df)
       # print("printing")
       # print_to_csv(parameters$file_name, timestep, personal_inds, "turning_asymptomatic", states, parameters$start_time)
-      print_to_csv(parameters$file_name, timestep, personal_inds, parameters$progression_base_value, match(states, parameters$state_list), parameters$start_time)
+      print_to_csv(parameters$file_name, timestep, personal_inds, parameters$progression_base_value, match(states, parameters$state_list), match("A", parameters$state_list), parameters$start_time)
     }
     # print("going subpatent")
     going_subpatent <- variables$state$get_index_of("A")$and(target)
@@ -279,6 +281,7 @@ progression_outcome_process_verbose <- function(
         length(store$individual_index) <- store$capacity
         length(store$process_index) <- store$capacity
         length(store$state_index) <- store$capacity
+        length(store$next_state_index) <- store$capacity
       }
       idx_start <- store$n + 1L
       idx_end <- store$n + n_new
@@ -287,6 +290,7 @@ progression_outcome_process_verbose <- function(
       store$individual_index[idx] <- as.integer(personal_inds)
       store$process_index[idx] <- as.integer(parameters$progression_base_value + 1)
       store$state_index[idx] <- as.integer(match(states, parameters$state_list))
+      store$next_state_index[idx] <- as.integer(match("U", parameters$state_list))
       store$n <- idx_end
       # temp_df <- data.frame(
       #   timestep = rep(timestep, length(personal_inds)),
@@ -297,7 +301,7 @@ progression_outcome_process_verbose <- function(
       # parameters$output_env$df <- rbind(parameters$output_env$df, temp_df)
       # print("printing")
       # print_to_csv(parameters$file_name, timestep, personal_inds, "turning_subpatent", states, parameters$start_time)
-      print_to_csv(parameters$file_name, timestep, personal_inds, parameters$progression_base_value + 1, match(states, parameters$state_list), parameters$start_time)
+      print_to_csv(parameters$file_name, timestep, personal_inds, parameters$progression_base_value + 1, match(states, parameters$state_list), match("U", parameters$state_list), parameters$start_time)
     }
     # going_susceptible <- variables$state$get_index_of(c("U", "Tr"))$and(recording_people)
     # states <- variables$state$get_values(going_susceptible)
@@ -326,6 +330,7 @@ progression_outcome_process_verbose <- function(
         length(store$individual_index) <- store$capacity
         length(store$process_index) <- store$capacity
         length(store$state_index) <- store$capacity
+        length(store$next_state_index) <- store$capacity
       }
       idx_start <- store$n + 1L
       idx_end <- store$n + n_new
@@ -334,6 +339,7 @@ progression_outcome_process_verbose <- function(
       store$individual_index[idx] <- as.integer(personal_inds)
       store$process_index[idx] <- as.integer(parameters$progression_base_value + 2)
       store$state_index[idx] <- as.integer(match(states, parameters$state_list))
+      store$next_state_index[idx] <- as.integer(match("S", parameters$state_list))
       store$n <- idx_end
       # temp_df <- data.frame(
       #   timestep = rep(timestep, length(personal_inds)),
@@ -344,7 +350,7 @@ progression_outcome_process_verbose <- function(
       # parameters$output_env$df <- rbind(parameters$output_env$df, temp_df)
       # # print("printing")
       # print_to_csv(parameters$file_name, timestep, personal_inds, "turning_susceptible", states, parameters$start_time)
-      print_to_csv(parameters$file_name, timestep, personal_inds, parameters$progression_base_value + 2, match(states, parameters$state_list), parameters$start_time)
+      print_to_csv(parameters$file_name, timestep, personal_inds, parameters$progression_base_value + 2, match(states, parameters$state_list), match("S", parameters$state_list), parameters$start_time)
     # print("printing done")
     }
   }

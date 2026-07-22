@@ -283,6 +283,7 @@ create_verbose_epi_pev_process <- function(
           length(store$individual_index) <- store$capacity
           length(store$process_index) <- store$capacity
           length(store$state_index) <- store$capacity
+          length(store$next_state_index) <- store$capacity
         }
         idx_start <- store$n + 1L
         idx_end <- store$n + n_new
@@ -291,6 +292,7 @@ create_verbose_epi_pev_process <- function(
         store$individual_index[idx] <- as.integer(personal_inds)
         store$process_index[idx] <- as.integer(parameters$pev_base_value)
         store$state_index[idx] <- as.integer(match(states, parameters$state_list))
+        store$next_state_index[idx] <- as.integer(match(states, parameters$state_list))
         store$n <- idx_end
         # temp_df <- data.frame(
         #   timestep = rep(timestep, length(personal_inds)),
@@ -305,7 +307,7 @@ create_verbose_epi_pev_process <- function(
         # states <- variables$state$get_values(target)
         # personal_inds <- variables$personal_tracker_index$get_values(target)
         # print_to_csv(parameters$file_name, timestep, personal_inds, "vaccinated_epi", states, parameters$start_time)
-        print_to_csv(parameters$file_name, timestep, personal_inds, parameters$pev_base_value, match(states, parameters$state_list), parameters$start_time)
+        print_to_csv(parameters$file_name, timestep, personal_inds, parameters$pev_base_value, match(states, parameters$state_list), 1, parameters$start_time)
       }
     }
     schedule_vaccination(

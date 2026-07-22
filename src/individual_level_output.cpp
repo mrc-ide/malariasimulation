@@ -17,6 +17,7 @@ void print_to_csv(
     const std::vector<int> personal_indicies,
     const int process,
     const std::vector<int> categories,
+    const int next_category,
     const int turnon_time
 ){  
     if (timestep < turnon_time){
@@ -33,7 +34,7 @@ void print_to_csv(
     outfile.open(filename, std::ios_base::app);
     for (auto i = 0u; i < personal_indicies.size(); ++i){
         // outfile << timestep << "," << personal_indicies[i] << ","  << process << "," << umap[categories[i]] << "\n";
-        outfile << timestep << "," << personal_indicies[i] << ","  << process << "," << categories[i] << "\n";
+        outfile << timestep << "," << personal_indicies[i] << ","  << process << "," << categories[i] << "," << next_category << "\n";
     }
     outfile.close();
     return;

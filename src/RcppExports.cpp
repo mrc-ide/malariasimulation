@@ -134,8 +134,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // print_to_csv
-void print_to_csv(const std::string filename, const int timestep, const std::vector<int> personal_indicies, const int process, const std::vector<int> categories, const int turnon_time);
-RcppExport SEXP _malariasimulation_print_to_csv(SEXP filenameSEXP, SEXP timestepSEXP, SEXP personal_indiciesSEXP, SEXP processSEXP, SEXP categoriesSEXP, SEXP turnon_timeSEXP) {
+void print_to_csv(const std::string filename, const int timestep, const std::vector<int> personal_indicies, const int process, const std::vector<int> categories, const int next_category, const int turnon_time);
+RcppExport SEXP _malariasimulation_print_to_csv(SEXP filenameSEXP, SEXP timestepSEXP, SEXP personal_indiciesSEXP, SEXP processSEXP, SEXP categoriesSEXP, SEXP next_categorySEXP, SEXP turnon_timeSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::string >::type filename(filenameSEXP);
@@ -143,8 +143,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::vector<int> >::type personal_indicies(personal_indiciesSEXP);
     Rcpp::traits::input_parameter< const int >::type process(processSEXP);
     Rcpp::traits::input_parameter< const std::vector<int> >::type categories(categoriesSEXP);
+    Rcpp::traits::input_parameter< const int >::type next_category(next_categorySEXP);
     Rcpp::traits::input_parameter< const int >::type turnon_time(turnon_timeSEXP);
-    print_to_csv(filename, timestep, personal_indicies, process, categories, turnon_time);
+    print_to_csv(filename, timestep, personal_indicies, process, categories, next_category, turnon_time);
     return R_NilValue;
 END_RCPP
 }
@@ -388,7 +389,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_malariasimulation_create_aquatic_mosquito_model", (DL_FUNC) &_malariasimulation_create_aquatic_mosquito_model, 18},
     {"_malariasimulation_aquatic_mosquito_model_update", (DL_FUNC) &_malariasimulation_aquatic_mosquito_model_update, 4},
     {"_malariasimulation_create_aquatic_solver", (DL_FUNC) &_malariasimulation_create_aquatic_solver, 5},
-    {"_malariasimulation_print_to_csv", (DL_FUNC) &_malariasimulation_print_to_csv, 6},
+    {"_malariasimulation_print_to_csv", (DL_FUNC) &_malariasimulation_print_to_csv, 7},
     {"_malariasimulation_print_for_snapshot", (DL_FUNC) &_malariasimulation_print_for_snapshot, 5},
     {"_malariasimulation_carrying_capacity", (DL_FUNC) &_malariasimulation_carrying_capacity, 8},
     {"_malariasimulation_eggs_laid", (DL_FUNC) &_malariasimulation_eggs_laid, 3},

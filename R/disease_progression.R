@@ -203,15 +203,21 @@ progression_outcome_process_verbose <- function(
     # print("going asymptomatic")
     going_asymptomatic <- variables$state$get_index_of("D")$and(target)
     ages <- variables$birth$get_values(going_asymptomatic$to_vector())
+    # print(length(ages))
+    # print(going_asymptomatic$to_vector())
+    # flop
     # print("ages")
     # print(ages)
     # print("recording_people")
-    recording_people <- which(ages %in% ages[ages >= min_birth & ages <= max_birth])
+    recording_people <- going_asymptomatic$to_vector()[which(ages %in% ages[ages >= min_birth & ages <= max_birth])]
+    # print(recording_people)
+    # flop
     # print(recording_people)
     # states <- variables$state$get_values(going_asymptomatic)
     # personal_inds <- variables$personal_tracker_index$get_values(going_asymptomatic)
     # print("states")
     states <- variables$state$get_values(recording_people)
+
     if(length(states) != parameters$human_population){
       # print("lengths")
       # print(length(going_asymptomatic))
@@ -261,7 +267,7 @@ progression_outcome_process_verbose <- function(
     # print("going subpatent")
     going_subpatent <- variables$state$get_index_of("A")$and(target)
     ages <- variables$birth$get_values(going_subpatent$to_vector())
-    recording_people <- which(ages %in% ages[ages >= min_birth & ages <= max_birth])
+    recording_people <- going_subpatent$to_vector()[which(ages %in% ages[ages >= min_birth & ages <= max_birth])]
     # states <- variables$state$get_values(going_asymptomatic)
     # personal_inds <- variables$personal_tracker_index$get_values(going_asymptomatic)
     # print("states")
@@ -311,7 +317,7 @@ progression_outcome_process_verbose <- function(
     going_susceptible <- variables$state$get_index_of(c("U", "Tr"))$and(target)
     ages <- variables$birth$get_values(going_susceptible$to_vector())
     # print("recording_people")
-    recording_people <- which(ages %in% ages[ages >= min_birth & ages <= max_birth])
+    recording_people <- going_susceptible$to_vector()[which(ages %in% ages[ages >= min_birth & ages <= max_birth])]
     # print("states")
     # states <- variables$state$get_values(going_asymptomatic)
     # personal_inds <- variables$personal_tracker_index$get_values(going_asymptomatic)

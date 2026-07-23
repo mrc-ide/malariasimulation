@@ -428,6 +428,7 @@ falciparum_infection_outcome_process_verbose <- function(
       renderer
     )
     # print(treated)
+    # print(treated$to_vector())
     if(parameters$infection_verbose){
       min_birth <- timestep - parameters$upper_age_bound
       max_birth <- timestep - parameters$lower_age_bound
@@ -530,6 +531,8 @@ falciparum_infection_outcome_process_verbose <- function(
       }
       if(to_D$size()){
         recording_people <- to_D$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
+        # print(recording_people$to_vector())
+        # flop
         states <- variables$state$get_values(recording_people$to_vector())
         personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
         n_new <- length(personal_inds)

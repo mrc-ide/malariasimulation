@@ -272,7 +272,8 @@ run_verbose_simulation <- function(
     timestep = store$timestep[seq_len(n)],
     individual_index = store$individual_index[seq_len(n)],
     process_index = store$process_index[seq_len(n)],
-    state_index = store$state_index[seq_len(n)]
+    state_index = store$state_index[seq_len(n)],
+    next_state_index = store$next_state_index[seq_len(n)]
   )
 
   list(data=data, state=final_state, process_vector = process_vector, state_list = state_list, verbose_data = output_df)

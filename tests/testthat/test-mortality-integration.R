@@ -52,6 +52,46 @@ test_that('mortality_process resets humans correctly', {
   mockery::expect_called(variables$spray_time$queue_update_mock(), 0)
 })
 
+test_that('mortality_process resets hrp2_infection_time for humans who die', {
+  timestep <- 2
+  parameters <- get_parameters(list(human_population = 4))
+  events <- create_events(parameters)
+  variables <- create_variables(parameters)
+
+  variables$state <- mock_category(
+    c('S', 'A', 'D', 'U', 'Tr'),
+    c('D', 'Tr', 'S', 'S')
+  )
+  variables$zeta_group = individual::CategoricalVariable$new(
+    c('1', '2', '3', '4', '5'),
+    c('1', '1', '2', '2')
+  )
+  variables$birth <- mock_double(-c(20, 24, 5, 39) * 365)
+  variables$icm <- mock_double(c(1, 2, 3, 4))
+  variables$ivm <- mock_double(c(1, 2, 3, 4))
+  variables$ica <- mock_double(c(1, 2, 3, 4))
+  variables$iva <- mock_double(c(1, 2, 3, 4))
+  variables$hrp2_infection_time <- mock_integer(c(-1, 1, -1, -1))
+  renderer <- individual::Render$new(timestep)
+
+  mortality_process <- create_mortality_process(
+    variables,
+    events,
+    renderer,
+    parameters
+  )
+
+  mockery::stub( # natural deaths
+    mortality_process,
+    'bernoulli',
+    c(2, 4)
+  )
+
+  mortality_process(timestep)
+
+  expect_bitset_update(variables$hrp2_infection_time$queue_update_mock(), -1, c(2, 4))
+})
+
 test_that('mortality_process samples deaths from a custom demography', {
   timestep <- 2
   parameters <- get_parameters()

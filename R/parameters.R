@@ -297,6 +297,19 @@
 #' * state_count_rendering_max_ages - the corresponding max ages; default = turned off
 #' * n_with_hypnozoites_rendering_min_ages - the minimum ages for number with hypnozoites outputs (p.v only); default = numeric(0)
 #' * n_with_hypnozoites_rendering_max_ages - the corresponding max ages; default = numeric(0)
+#' * hrp2_rendering_min_ages - the minimum ages for age-stratified treated/untreated
+#' infection and HRP2-positive count outputs; default = turned off
+#' * hrp2_rendering_max_ages - the corresponding max ages; default = turned off
+#'
+#' HRP2 antigen persistence:
+#' please set HRP2 parameters with the convenience function
+#' \code{\link{set_hrp2_parameters}}
+#'
+#' * hrp2_shape - weibull shape parameter for the hazard of losing HRP2
+#' positivity as a function of time since the triggering clinical infection;
+#' default = 2 (placeholder, not yet calibrated)
+#' * hrp2_scale - weibull scale parameter (in timesteps) for the same hazard;
+#' default = 20 (placeholder, not yet calibrated)
 #'
 #' Age structured mean immunity (/hyponozoite) rendering:
 #' 
@@ -491,6 +504,12 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       n_with_hypnozoites_rendering_max_ages = numeric(0),
       state_count_rendering_min_ages = numeric(0),
       state_count_rendering_max_ages = numeric(0),
+      hrp2_rendering_min_ages = numeric(0),
+      hrp2_rendering_max_ages = numeric(0),
+      # HRP2 antigen persistence
+      # NOTE: placeholder values, not yet calibrated
+      hrp2_shape = 2,
+      hrp2_scale = 20,
       # age structured average immunity (/hypnozoite) rendering
       ib_rendering_min_ages = numeric(0),
       ib_rendering_max_ages = numeric(0),

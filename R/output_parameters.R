@@ -10,6 +10,8 @@
 #' @param severe_incidence age breaks for severe incidence outputs (pf only); default = NULL
 #' @param prevalence age breaks for clinical prevalence outputs (pcr and lm detectable infections); default = c(730, 3650)
 #' @param state_count age breaks for age-stratified state count outputs (S, A, D, U, Tr); default = NULL
+#' @param hrp2 age breaks for age-stratified treated/untreated new clinical infection
+#' counts and HRP2-positive counts; default = NULL
 #' @param n_with_hypnozoites age breaks for individuals with hypnozoites outputs (pv only); default = NULL
 #' @param ica age breaks for average acquired clinical immunity; default = NULL
 #' @param icm age breaks for average maternal clinical immunity; default = NULL
@@ -29,6 +31,7 @@ set_epi_outputs <- function(parameters,
                             severe_incidence = NULL,
                             prevalence = NULL,
                             state_count = NULL,
+                            hrp2 = NULL,
                             n_with_hypnozoites = NULL,
                             ica = NULL,
                             icm = NULL,
@@ -48,6 +51,7 @@ set_epi_outputs <- function(parameters,
     severe_incidence = severe_incidence,
     prevalence = prevalence,
     state_count = state_count,
+    hrp2 = hrp2,
     n_with_hypnozoites = n_with_hypnozoites,
     ica = ica,
     icm = icm,

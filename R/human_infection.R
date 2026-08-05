@@ -353,7 +353,16 @@ falciparum_infection_outcome_process <- function(
     to_D <- treated$not(FALSE)$and(clinical)
     to_A <- infected_humans$and(clinical$not(FALSE))
     to_U <- NULL
-    
+
+    update_hrp2_and_render_infections(
+      variables,
+      renderer,
+      parameters,
+      timestep,
+      to_D,
+      treated
+    )
+
     schedule_infections(
       parameters,
       variables,
@@ -454,7 +463,16 @@ vivax_infection_outcome_process <- function(
     to_U <- infected_humans$and(lm_detectable$not(F))$and(variables$state$get_index_of(c("S")))
     to_A <- lm_detectable$and(clinical$not(F))
     to_D <- clinical$and(treated$not(F))
-    
+
+    update_hrp2_and_render_infections(
+      variables,
+      renderer,
+      parameters,
+      timestep,
+      to_D,
+      treated
+    )
+
     schedule_infections(
       parameters,
       variables,

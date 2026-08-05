@@ -16,6 +16,14 @@
 #'  * n_bitten: number of humans bitten by an infectious mosquito
 #'  * n_treated: number of humans treated for clinical or severe malaria this timestep
 #'  * n_infections: number of humans who get an asymptomatic, clinical or severe malaria this timestep
+#'  * n_treated_infections: number of humans with a new clinical infection this timestep who are successfully treated (-> Tr)
+#'  * n_untreated_infections: number of humans with a new clinical infection this timestep who are not successfully treated (-> D)
+#'  * n_treated_infections_{lower}_{upper} (or n_untreated_infections_{lower}_{upper}): as above, for humans in that age range.
+#' Age ranges are set with hrp2_rendering_min_ages and hrp2_rendering_max_ages
+#'  * n_hrp2_positive: number of humans currently HRP2 antigen positive, i.e. within the
+#' modelled persistence window since their most recent clinical infection (see set_hrp2_parameters)
+#'  * n_hrp2_positive_{lower}_{upper}: as above, for humans in that age range.
+#' Age ranges are set with hrp2_rendering_min_ages and hrp2_rendering_max_ages
 #'  * natural_deaths: number of humans who die from aging
 #'  * S_count: number of humans who are Susceptible
 #'  * A_count: number of humans who are Asymptomatic

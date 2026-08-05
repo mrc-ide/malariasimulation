@@ -32,12 +32,26 @@ the whole population)
 \item n_bitten: number of humans bitten by an infectious mosquito
 \item n_treated: number of humans treated for clinical or severe malaria this timestep
 \item n_infections: number of humans who get an asymptomatic, clinical or severe malaria this timestep
+\item n_treated_infections: number of humans with a new clinical infection this timestep who are successfully treated (-> Tr)
+\item n_untreated_infections: number of humans with a new clinical infection this timestep who are not successfully treated (-> D)
+\item n_treated_infections_{lower}\emph{{upper} (or n_untreated_infections}{lower}_{upper}): as above, for humans in that age range.
+Age ranges are set with hrp2_rendering_min_ages and hrp2_rendering_max_ages
+\item n_hrp2_positive: number of humans currently HRP2 antigen positive, i.e. within the
+modelled persistence window since their most recent clinical infection (see set_hrp2_parameters)
+\item n_hrp2_positive_{lower}_{upper}: as above, for humans in that age range.
+Age ranges are set with hrp2_rendering_min_ages and hrp2_rendering_max_ages
 \item natural_deaths: number of humans who die from aging
 \item S_count: number of humans who are Susceptible
 \item A_count: number of humans who are Asymptomatic
 \item D_count: number of humans who have the clinical malaria
 \item U_count: number of subpatent infections in humans
 \item Tr_count: number of detectable infections being treated in humans
+\item S_count_{lower}_{upper}: number of Susceptible humans in age range \link{lower, upper} days.
+Age ranges are set with state_count_rendering_min_ages and state_count_rendering_max_ages.
+\item A_count_{lower}_{upper}: number of Asymptomatic humans in that age range
+\item D_count_{lower}_{upper}: number of humans with clinical malaria in that age range
+\item U_count_{lower}_{upper}: number of humans with subpatent infection in that age range
+\item Tr_count_{lower}_{upper}: number of humans with detectable treated infections in that age range
 \item ica_mean: the mean acquired immunity to clinical infection over the population of humans
 \item icm_mean: the mean maternal immunity to clinical infection over the population of humans
 \item iva_mean: the mean acquired immunity to severe infection over the population of humans

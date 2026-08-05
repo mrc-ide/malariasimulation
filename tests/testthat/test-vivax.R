@@ -277,7 +277,9 @@ test_that('relapses are recognised with division between bite infections and rel
     last_boosted_ica = individual::DoubleVariable$new(rep(-1, 4)),
     last_eff_pev_timestep = individual::DoubleVariable$new(rep(-1, 4)),
     pev_profile = individual::IntegerVariable$new(rep(-1, 4)),
-    hypnozoites = individual::IntegerVariable$new(c(0, 1, 2, 3))
+    hypnozoites = individual::IntegerVariable$new(c(0, 1, 2, 3)),
+    birth = individual::IntegerVariable$new(rep(0, 4)),
+    hrp2_infection_time = individual::IntegerVariable$new(rep(-1, 4))
   )
   
   bernoulli_mock <- mockery::mock(c(1, 3), 1, 2, cycle = TRUE)

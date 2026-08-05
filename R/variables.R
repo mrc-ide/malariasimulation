@@ -288,6 +288,10 @@ create_variables <- function(parameters) {
   drug <- individual::IntegerVariable$new(rep(0, size))
   drug_time <- individual::IntegerVariable$new(rep(-1, size))
 
+  # HRP2 antigen persistence: timestep of the most recent clinical infection
+  # that triggered HRP2 positivity, or -1 if not currently HRP2 positive
+  hrp2_infection_time <- individual::IntegerVariable$new(rep(-1, size))
+
   if(parameters$parasite == "vivax"){
     ls_drug <- individual::IntegerVariable$new(rep(0, size))
     ls_drug_time <- individual::IntegerVariable$new(rep(-1, size))
@@ -315,6 +319,7 @@ create_variables <- function(parameters) {
     progression_rates = progression_rates,
     drug = drug,
     drug_time = drug_time,
+    hrp2_infection_time = hrp2_infection_time,
     last_pev_timestep = last_pev_timestep,
     last_eff_pev_timestep = last_eff_pev_timestep,
     pev_profile = pev_profile,

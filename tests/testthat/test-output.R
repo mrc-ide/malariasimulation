@@ -66,6 +66,43 @@ test_that('Age-stratified state counts respect multiple age groups', {
     sim$U_count + sim$Tr_count))
 })
 
+test_that('Treated/untreated infection counts are a subset of new infections and hrp2 positivity is bounded', {
+  parameters <- get_parameters(list(human_population = 200))
+  parameters <- set_drugs(parameters, list(AL_params))
+  parameters <- set_clinical_treatment(parameters, 1, 1, .5)
+  sim <- run_simulation(timesteps = 20, parameters)
+
+  # new clinical infections (treated + untreated) can never exceed all new infections
+  expect_true(all(sim$n_treated_infections + sim$n_untreated_infections <= sim$n_infections))
+  # n_hrp2_positive can never exceed the population size
+  expect_true(all(sim$n_hrp2_positive <= parameters$human_population))
+  expect_true(all(sim$n_hrp2_positive >= 0))
+})
+
+test_that('Age-stratified treated/untreated infection and hrp2 positive counts are present in output', {
+  parameters <- get_parameters(list(human_population = 200))
+  parameters <- set_drugs(parameters, list(AL_params))
+  parameters <- set_clinical_treatment(parameters, 1, 1, .5)
+  parameters <- set_epi_outputs(parameters, hrp2 = c(0, 1825))
+  sim <- run_simulation(timesteps = 10, parameters)
+
+  expected_cols <- c(
+    'n_treated_infections_0_1824',
+    'n_untreated_infections_0_1824',
+    'n_hrp2_positive_0_1824'
+  )
+  expect_in(expected_cols, names(sim))
+  expect_true(all(sim$n_hrp2_positive_0_1824 <= sim$n_hrp2_positive))
+})
+
+test_that('hrp2 outputs default to zero when there are no clinical infections yet', {
+  parameters <- get_parameters(list(human_population = 10))
+  sim <- run_simulation(timesteps = 1, parameters)
+
+  expect_true(all(c('n_untreated_infections', 'n_hrp2_positive') %in% names(sim)))
+  expect_equal(sim$n_hrp2_positive[[1]], 0)
+})
+
 test_that('Test age parameter function works', {
   parameters <- get_parameters()
   age_limits <- c(0,1,2,3)*365

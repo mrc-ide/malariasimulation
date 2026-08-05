@@ -318,8 +318,25 @@ outputs; default = turned off
 \item prevalence_rendering_min_ages - the minimum ages for clinical prevalence
 outputs; default = 730
 \item prevalence_rendering_max_ages - the corresponding max ages; default = 3650
+\item state_count_rendering_min_ages - the minimum ages for age-stratified state
+count outputs (S, A, D, U, Tr); default = turned off
+\item state_count_rendering_max_ages - the corresponding max ages; default = turned off
 \item n_with_hypnozoites_rendering_min_ages - the minimum ages for number with hypnozoites outputs (p.v only); default = numeric(0)
 \item n_with_hypnozoites_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item hrp2_rendering_min_ages - the minimum ages for age-stratified treated/untreated
+infection and HRP2-positive count outputs; default = turned off
+\item hrp2_rendering_max_ages - the corresponding max ages; default = turned off
+}
+
+HRP2 antigen persistence:
+please set HRP2 parameters with the convenience function
+\code{\link{set_hrp2_parameters}}
+\itemize{
+\item hrp2_shape - weibull shape parameter for the hazard of losing HRP2
+positivity as a function of time since the triggering clinical infection;
+default = 2 (placeholder, not yet calibrated)
+\item hrp2_scale - weibull scale parameter (in timesteps) for the same hazard;
+default = 20 (placeholder, not yet calibrated)
 }
 
 Age structured mean immunity (/hyponozoite) rendering:

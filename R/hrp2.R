@@ -25,14 +25,19 @@ set_hrp2_parameters <- function(
 #' @title Render new clinical infection counts and update HRP2 status
 #' @description
 #' Renders the number of new clinical infections this timestep, split into
-#' treated and untreated, and (re)starts the HRP2 positivity clock for all of
-#' them. Subpatent/asymptomatic infections are not clinical and are excluded.
+#' treated and untreated, and (re)starts the HRP2 positivity clock for all
+#' new clinical AND new asymptomatic (patent, non-clinical) infections - any
+#' new blood-stage infection that isn't purely subpatent produces HRP2
+#' antigen. Subpatent infections are not detectable and are excluded.
+#' Only to_D/treated are counted towards n_treated_infections/
+#' n_untreated_infections: to_A is used solely to (re)start the HRP2 clock.
 #' @param variables a list of all of the model variables
 #' @param renderer model render object
 #' @param parameters model parameters
 #' @param timestep current timestep
 #' @param to_D bitset of humans newly moving to state D (untreated clinical)
 #' @param treated bitset of humans newly moving to state Tr (treated clinical)
+#' @param to_A bitset of humans newly moving to state A (asymptomatic, patent)
 #' @noRd
 update_hrp2_and_render_infections <- function(
     variables,
@@ -40,7 +45,8 @@ update_hrp2_and_render_infections <- function(
     parameters,
     timestep,
     to_D,
-    treated
+    treated,
+    to_A
 ) {
   renderer$render('n_untreated_infections', to_D$size(), timestep)
   renderer$render('n_treated_infections', treated$size(), timestep)
@@ -64,7 +70,7 @@ update_hrp2_and_render_infections <- function(
     timestep
   )
 
-  new_hrp2_positive <- to_D$copy()$or(treated)
+  new_hrp2_positive <- to_D$copy()$or(treated)$or(to_A)
   if (new_hrp2_positive$size() > 0) {
     variables$hrp2_infection_time$queue_update(timestep, new_hrp2_positive)
   }

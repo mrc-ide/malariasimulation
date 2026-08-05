@@ -360,7 +360,8 @@ falciparum_infection_outcome_process <- function(
       parameters,
       timestep,
       to_D,
-      treated
+      treated,
+      to_A
     )
 
     schedule_infections(
@@ -470,7 +471,8 @@ vivax_infection_outcome_process <- function(
       parameters,
       timestep,
       to_D,
-      treated
+      treated,
+      to_A
     )
 
     schedule_infections(

@@ -22,6 +22,7 @@ test_that('update_hrp2_and_render_infections renders counts and (re)starts the h
 
   to_D <- individual::Bitset$new(population)$insert(c(1, 2))
   treated <- individual::Bitset$new(population)$insert(c(3))
+  to_A <- individual::Bitset$new(population)$insert(c(4))
 
   update_hrp2_and_render_infections(
     variables,
@@ -29,9 +30,12 @@ test_that('update_hrp2_and_render_infections renders counts and (re)starts the h
     parameters,
     timestep,
     to_D,
-    treated
+    treated,
+    to_A
   )
 
+  # asymptomatic infections restart the hrp2 clock but are not counted
+  # towards the treated/untreated infection totals
   mockery::expect_args(
     renderer$render_mock(),
     1,
@@ -50,7 +54,7 @@ test_that('update_hrp2_and_render_infections renders counts and (re)starts the h
   expect_bitset_update(
     variables$hrp2_infection_time$queue_update_mock(),
     timestep,
-    c(1, 2, 3)
+    c(1, 2, 3, 4)
   )
 })
 
@@ -67,6 +71,7 @@ test_that('update_hrp2_and_render_infections does not update hrp2 status when no
 
   to_D <- individual::Bitset$new(population)
   treated <- individual::Bitset$new(population)
+  to_A <- individual::Bitset$new(population)
 
   update_hrp2_and_render_infections(
     variables,
@@ -74,10 +79,46 @@ test_that('update_hrp2_and_render_infections does not update hrp2 status when no
     parameters,
     timestep,
     to_D,
-    treated
+    treated,
+    to_A
   )
 
   mockery::expect_called(variables$hrp2_infection_time$queue_update_mock(), 0)
+})
+
+test_that('update_hrp2_and_render_infections restarts the hrp2 clock for new asymptomatic infections without counting them as treated/untreated', {
+  timestep <- 10
+  population <- 4
+  parameters <- get_parameters(list(human_population = population))
+
+  variables <- list(
+    birth = individual::IntegerVariable$new(rep(0, population)),
+    hrp2_infection_time = mock_integer(rep(-1, population))
+  )
+  renderer <- mock_render(timestep)
+
+  to_D <- individual::Bitset$new(population)
+  treated <- individual::Bitset$new(population)
+  to_A <- individual::Bitset$new(population)$insert(c(2, 4))
+
+  update_hrp2_and_render_infections(
+    variables,
+    renderer,
+    parameters,
+    timestep,
+    to_D,
+    treated,
+    to_A
+  )
+
+  mockery::expect_args(renderer$render_mock(), 1, 'n_untreated_infections', 0, timestep)
+  mockery::expect_args(renderer$render_mock(), 2, 'n_treated_infections', 0, timestep)
+
+  expect_bitset_update(
+    variables$hrp2_infection_time$queue_update_mock(),
+    timestep,
+    c(2, 4)
+  )
 })
 
 test_that('update_hrp2_and_render_infections renders age-stratified counts when configured', {
@@ -94,6 +135,7 @@ test_that('update_hrp2_and_render_infections renders age-stratified counts when 
 
   to_D <- individual::Bitset$new(population)$insert(1)
   treated <- individual::Bitset$new(population)$insert(3)
+  to_A <- individual::Bitset$new(population)
 
   update_hrp2_and_render_infections(
     variables,
@@ -101,7 +143,8 @@ test_that('update_hrp2_and_render_infections renders age-stratified counts when 
     parameters,
     timestep,
     to_D,
-    treated
+    treated,
+    to_A
   )
 
   render_names <- vapply(

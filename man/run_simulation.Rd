@@ -37,7 +37,8 @@ the whole population)
 \item n_treated_infections_{lower}\emph{{upper} (or n_untreated_infections}{lower}_{upper}): as above, for humans in that age range.
 Age ranges are set with hrp2_rendering_min_ages and hrp2_rendering_max_ages
 \item n_hrp2_positive: number of humans currently HRP2 antigen positive, i.e. within the
-modelled persistence window since their most recent clinical infection (see set_hrp2_parameters)
+modelled persistence window since their most recent new clinical or asymptomatic (patent)
+blood-stage infection (subpatent infections do not produce detectable HRP2; see set_hrp2_parameters)
 \item n_hrp2_positive_{lower}_{upper}: as above, for humans in that age range.
 Age ranges are set with hrp2_rendering_min_ages and hrp2_rendering_max_ages
 \item natural_deaths: number of humans who die from aging

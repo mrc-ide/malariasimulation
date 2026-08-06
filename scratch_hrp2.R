@@ -7,7 +7,7 @@ library(ggplot2)
 # 1. Basic setup: a population with treatment enabled, so we get both
 #    treated and untreated clinical infections to compare.
 # ---------------------------------------------------------------------------
-timesteps <- 365 * 2
+timesteps <- 365 * 20
 
 params <- get_parameters(list(human_population = 5000))
 params <- set_equilibrium(params, init_EIR = 10)
@@ -16,34 +16,35 @@ params <- set_clinical_treatment(params, drug = 1, timesteps = 1, coverages = 0.
 
 # HRP2 clearance hazard - tweak these and re-run to see the effect on
 # n_hrp2_positive (these are placeholder defaults, not calibrated).
-# Treated infections are given their own (faster) clearance rate here via
-# hrp2_treated_same_clearance = FALSE; set it back to TRUE (or drop
-# hrp2_shape_treated/hrp2_scale_treated) to have everyone clear at the same
-# rate instead.
+# HRP2 clears via a constant per-timestep hazard of 1/hrp2_scale (the same
+# exponential/memoryless convention used for clearing infections elsewhere
+# in the model, e.g. dd/da/du/dt) - hrp2_scale is the mean duration of HRP2
+# positivity, in timesteps. Treated infections are given their own (faster)
+# mean duration here via hrp2_treated_same_clearance = FALSE; set it back to
+# TRUE (or drop hrp2_scale_treated) to have everyone clear at the same rate
+# instead.
+halflife_to_scale <- function(halflife_days) {
+  halflife_days / log(2)
+}
+
 params <- set_hrp2_parameters(
   params,
   hrp2_asymptomatic_prob = 0.7,
-  hrp2_shape = 1, hrp2_scale = 500,
+  hrp2_scale = halflife_to_scale(halflife_days = 195),
   hrp2_treated_same_clearance = FALSE,
-  hrp2_shape_treated = 2, hrp2_scale_treated = 10
+  hrp2_scale_treated = halflife_to_scale(halflife_days = 28*2)
 )
 
 # Theoretical survival curves implied by the above: the probability that an
 # infection from x timesteps ago is still HRP2 positive, independent of
 # running a full simulation. Shown separately for each group.
 hrp2_survival_curve <- data.frame(
-  x = rep(0:(6 * max(params$hrp2_scale, params$hrp2_scale_treated)), 2)
+  x = rep(0:timesteps,2)
 )
 hrp2_survival_curve$group <- rep(c("untreated/asymptomatic", "treated"), each = nrow(hrp2_survival_curve) / 2)
 hrp2_survival_curve$survival <- c(
-  weibull_survival(
-    hrp2_survival_curve$x[hrp2_survival_curve$group == "untreated/asymptomatic"],
-    params$hrp2_shape, params$hrp2_scale
-  ),
-  weibull_survival(
-    hrp2_survival_curve$x[hrp2_survival_curve$group == "treated"],
-    params$hrp2_shape_treated, params$hrp2_scale_treated
-  )
+  exp(-hrp2_survival_curve$x[hrp2_survival_curve$group == "untreated/asymptomatic"] / params$hrp2_scale),
+  exp(-hrp2_survival_curve$x[hrp2_survival_curve$group == "treated"] / params$hrp2_scale_treated)
 )
 
 p0 <- ggplot(hrp2_survival_curve, aes(x = x, y = survival, colour = group)) +
@@ -154,68 +155,108 @@ print(p3b)
 cat("\nMean prevalence by age group and method:\n")
 print(aggregate(prevalence ~ age_group + method, prevalence_comparison, mean))
 
-# ---------------------------------------------------------------------------
-# 5. Quick look at how hrp2_scale changes the steady-state HRP2-positive
-#    fraction - useful for building intuition when calibrating.
-# ---------------------------------------------------------------------------
-scales_to_try <- c(5, 20, 60)
-scale_results <- lapply(scales_to_try, function(sc) {
-  p <- set_hrp2_parameters(params, hrp2_shape = 2, hrp2_scale = sc)
-  s <- run_simulation(timesteps = timesteps, parameters = p)
-  data.frame(timestep = s$timestep, n_hrp2_positive = s$n_hrp2_positive, hrp2_scale = sc)
-})
-scale_df <- do.call(rbind, scale_results)
-scale_df$hrp2_scale <- factor(scale_df$hrp2_scale)
 
-p4 <- ggplot(scale_df, aes(x = timestep, y = n_hrp2_positive, colour = hrp2_scale)) +
-  geom_line() +
-  labs(title = "Effect of hrp2_scale on HRP2 positive count", y = "n_hrp2_positive") +
-  theme_minimal()
-print(p4)
+##Only run the following if the simulation is low lift
+if(!(timesteps > (365 * 2) | params$human_population > 5000)){
+  # ---------------------------------------------------------------------------
+  # 5. Quick look at how hrp2_scale changes the steady-state HRP2-positive
+  #    fraction - useful for building intuition when calibrating.
+  # ---------------------------------------------------------------------------
+  scales_to_try <- c(5, 20, 60)
+  scale_results <- lapply(scales_to_try, function(sc) {
+    p <- set_hrp2_parameters(params, hrp2_scale = sc)
+    s <- run_simulation(timesteps = timesteps, parameters = p)
+    data.frame(timestep = s$timestep, n_hrp2_positive = s$n_hrp2_positive, hrp2_scale = sc)
+  })
+  scale_df <- do.call(rbind, scale_results)
+  scale_df$hrp2_scale <- factor(scale_df$hrp2_scale)
 
-# ---------------------------------------------------------------------------
-# 6. Quick look at how hrp2_shape changes the steady-state HRP2-positive
-#    fraction - useful for building intuition when calibrating.
-# ---------------------------------------------------------------------------
-shapes_to_try <- c(1, 2, 4, 8)
-shape_results <- lapply(shapes_to_try, function(sh) {
-  p <- set_hrp2_parameters(params, hrp2_shape = sh, hrp2_scale = params$hrp2_scale)
-  s <- run_simulation(timesteps = timesteps, parameters = p)
-  data.frame(timestep = s$timestep, n_hrp2_positive = s$n_hrp2_positive, hrp2_shape = sh)
-})
-shape_df <- do.call(rbind, shape_results)
-shape_df$hrp2_shape <- factor(shape_df$hrp2_shape)
+  p4 <- ggplot(scale_df, aes(x = timestep, y = n_hrp2_positive, colour = hrp2_scale)) +
+    geom_line() +
+    labs(title = "Effect of hrp2_scale on HRP2 positive count", y = "n_hrp2_positive") +
+    theme_minimal()
+  print(p4)
 
-p5 <- ggplot(shape_df, aes(x = timestep, y = n_hrp2_positive, colour = hrp2_shape)) +
-  geom_line() +
-  labs(title = "Effect of hrp2_shape on HRP2 positive count", y = "n_hrp2_positive") +
-  theme_minimal()
-print(p5)
-
-# ---------------------------------------------------------------------------
-# 7. Disaggregated clearance: treated vs untreated/asymptomatic.
-#    `params` (set up at the top of the script) already uses disaggregated
-#    clearance (hrp2_treated_same_clearance = FALSE). Compare against a
-#    "shared clearance rate" baseline, where treated infections clear at the
-#    same rate as everyone else, to see the aggregate effect.
-# ---------------------------------------------------------------------------
-params_shared <- set_hrp2_parameters(params, hrp2_treated_same_clearance = TRUE)
-
-set.seed(1)
-sim_shared <- run_simulation(timesteps = timesteps, parameters = params_shared)
-# `sim` (from section 2) already used the disaggregated `params`
-
-clearance_comparison <- data.frame(
-  timestep = rep(sim$timestep, 2),
-  n_hrp2_positive = c(sim$n_hrp2_positive, sim_shared$n_hrp2_positive),
-  scenario = rep(c("disaggregated (faster treated clearance)", "shared clearance rate"), each = nrow(sim))
-)
-
-p7 <- ggplot(clearance_comparison, aes(x = timestep, y = n_hrp2_positive, colour = scenario)) +
-  geom_line() +
-  labs(
-    title = "Effect of disaggregating treated HRP2 clearance",
-    y = "n_hrp2_positive"
-  ) +
-  theme_minimal()
-print(p7)
+  # ---------------------------------------------------------------------------
+  # 6. Disaggregated clearance: treated vs untreated/asymptomatic.
+  #    `params` (set up at the top of the script) already uses disaggregated
+  #    clearance (hrp2_treated_same_clearance = FALSE). Compare against a
+  #    "shared clearance rate" baseline, where treated infections clear at the
+  #    same rate as everyone else, to see the aggregate effect.
+  # ---------------------------------------------------------------------------
+  params_shared <- set_hrp2_parameters(params, hrp2_treated_same_clearance = TRUE)
+  
+  set.seed(1)
+  sim_shared <- run_simulation(timesteps = timesteps, parameters = params_shared)
+  # `sim` (from section 2) already used the disaggregated `params`
+  
+  clearance_comparison <- data.frame(
+    timestep = rep(sim$timestep, 2),
+    n_hrp2_positive = c(sim$n_hrp2_positive, sim_shared$n_hrp2_positive),
+    scenario = rep(c("disaggregated (faster treated clearance)", "shared clearance rate"), each = nrow(sim))
+  )
+  
+  p7 <- ggplot(clearance_comparison, aes(x = timestep, y = n_hrp2_positive, colour = scenario)) +
+    geom_line() +
+    labs(
+      title = "Effect of disaggregating treated HRP2 clearance",
+      y = "n_hrp2_positive"
+    ) +
+    theme_minimal()
+  print(p7)
+  
+  # ---------------------------------------------------------------------------
+  # 7. Among people who are HRP2 positive, what's the average time since their
+  #    triggering infection at the end of the simulation?
+  #    run_simulation()/run_resumable_simulation() only return the rendered
+  #    per-timestep dataframe, not per-individual variables - to inspect
+  #    hrp2_infection_time directly we replicate the same setup they use
+  #    internally (see run_resumable_simulation(), R/model.R) but keep a live
+  #    reference to `variables`, which the individual package mutates in place
+  #    as the simulation runs.
+  # ---------------------------------------------------------------------------
+  run_simulation_with_variables <- function(timesteps, parameters) {
+    correlations <- get_correlation_parameters(parameters)
+    variables <- create_variables(parameters)
+    events <- create_events(parameters)
+    initialise_events(events, variables, parameters)
+    renderer <- individual::Render$new(timesteps)
+    populate_incidence_rendering_columns(renderer, parameters)
+    attach_event_listeners(events, variables, parameters, correlations, renderer)
+    vector_models <- parameterise_mosquito_models(parameters, timesteps)
+    solvers <- parameterise_solvers(vector_models, parameters)
+    lagged_eir <- create_lagged_eir(variables, solvers, parameters)
+    lagged_infectivity <- create_lagged_infectivity(variables, parameters)
+    
+    individual::simulation_loop(
+      processes = create_processes(
+        renderer, variables, events, parameters, vector_models, solvers,
+        correlations, lagged_eir, lagged_infectivity, timesteps
+      ),
+      variables = variables,
+      events = events,
+      timesteps = timesteps
+    )
+    
+    list(data = renderer$to_dataframe(), variables = variables)
+  }
+  
+  set.seed(1)
+  result <- run_simulation_with_variables(timesteps, params)
+  
+  hrp2_infection_time <- result$variables$hrp2_infection_time$get_values()
+  is_positive <- hrp2_infection_time != -1
+  time_since_infection <- timesteps - hrp2_infection_time[is_positive]
+  
+  cat(
+    "\nAmong", sum(is_positive), "HRP2-positive individuals at the end of the simulation,",
+    "mean time since their triggering infection:", round(mean(time_since_infection), 1), "timesteps\n"
+  )
+  cat("(median:", median(time_since_infection), ", range:", paste(range(time_since_infection), collapse = "-"), ")\n")
+  
+  # ... and split by which group triggered their current positivity.
+  hrp2_group <- result$variables$hrp2_treated$get_values()[is_positive]
+  cat("\nBy group:\n")
+  print(aggregate(time_since_infection ~ hrp2_group, FUN = mean))
+  
+}

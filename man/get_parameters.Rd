@@ -332,26 +332,21 @@ HRP2 antigen persistence:
 please set HRP2 parameters with the convenience function
 \code{\link{set_hrp2_parameters}}
 \itemize{
-\item hrp2_shape - weibull shape parameter for the hazard of losing HRP2
-positivity as a function of time since the triggering infection;
-default = 2 (placeholder, not yet calibrated)
-\item hrp2_scale - weibull scale parameter (in timesteps) for the same hazard;
+\item hrp2_scale - mean duration of HRP2 positivity for untreated/asymptomatic
+infections, in timesteps. HRP2 clears via a constant per-timestep hazard
+of 1/hrp2_scale, the same exponential/memoryless convention used for
+clearing infections elsewhere in the model (e.g. dd/da/du/dt);
 default = 20 (placeholder, not yet calibrated)
 \item hrp2_asymptomatic_prob - probability that a new asymptomatic infection
 which is detectable by light microscopy is also HRP2 positive (new
 clinical infections are always assumed HRP2 positive); default = 1
 (placeholder, not yet calibrated)
 \item hrp2_treated_same_clearance - if TRUE, treated infections clear HRP2 at
-the same rate as untreated/asymptomatic infections (hrp2_shape/hrp2_scale);
-if FALSE, treated infections use hrp2_shape_treated/hrp2_scale_treated
-instead; default = TRUE
-\item hrp2_shape_treated - weibull shape parameter for the hazard of losing
-HRP2 positivity for treated infections, only used when
-hrp2_treated_same_clearance is FALSE; default = 2 (placeholder, not yet
-calibrated)
-\item hrp2_scale_treated - weibull scale parameter (in timesteps) for the same
-hazard, only used when hrp2_treated_same_clearance is FALSE; default = 20
-(placeholder, not yet calibrated)
+the same rate as untreated/asymptomatic infections (hrp2_scale); if FALSE,
+treated infections use hrp2_scale_treated instead; default = TRUE
+\item hrp2_scale_treated - mean duration of HRP2 positivity for treated
+infections, in timesteps, only used when hrp2_treated_same_clearance is
+FALSE; default = 20 (placeholder, not yet calibrated)
 }
 
 Age structured mean immunity (/hyponozoite) rendering:

@@ -57,7 +57,7 @@ Why the shapes converge over time
 ----------------------------------
 As the simulation runs, new infections occur every timestep (via bites), which
 gradually populate hrp2_infection_time for a growing share of the population.
-Combined with the hrp2_shape/hrp2_scale clearance hazard, the inflow of newly
+Combined with the hrp2_scale clearance hazard, the inflow of newly
 (re)started HRP2-positive individuals eventually balances the outflow from
 clearance, and n_hrp2_positive settles into its own steady state - at which
 point its shape does track LM prevalence reasonably well (as seen in
@@ -80,8 +80,8 @@ What can be done about it
    it requires deciding what distribution of "time since infection" to draw
    from for people who are already infected at t=0 (e.g. sampling consistent
    with the stationary age-since-infection distribution implied by the
-   incidence rate and the hrp2_shape/hrp2_scale survival curve), rather than
-   just picking an arbitrary constant offset.
+   incidence rate and the hrp2_scale survival curve), rather than just
+   picking an arbitrary constant offset.
 
 I haven't made a code change for this - let me know if you'd like option 2
 implemented.
@@ -170,15 +170,16 @@ the two age groups.
 Comparing the infection recovery rate to the HRP2 clearance rate
 =====================================================================================
 
-Using the scratch script's current parameters (hrp2_shape = 1, hrp2_scale = 50)
-against the default disease-state durations:
+Using the scratch script's parameters at the time (hrp2_scale = 50, matching
+what was then hrp2_shape = 1, i.e. exponential) against the default
+disease-state durations:
 
   State/process                Mean duration     Rate (per day)
   D  (clinical, untreated)     5 days            0.200
   Tr (treated)                 5 days            0.200
   U  (subpatent)                110 days          0.0091
   A  (asymptomatic)            195 days          0.0051
-  HRP2 persistence             50 days           0.0198 (constant, shape = 1 = exponential)
+  HRP2 persistence             50 days           0.0198 (constant/exponential)
 
 A few things stand out:
 
@@ -197,7 +198,14 @@ A few things stand out:
   clock regardless of ongoing infection status" (unless reinfected, which
   restarts the clock via update_hrp2_and_render_infections(), R/hrp2.R).
 
-- With shape = 1 the hazard is constant (memoryless/exponential) rather than
-  the more typical "low-then-rising" hazard shape you'd get with shape > 1 -
-  right now the model says a newly-infected person is exactly as likely to
-  clear HRP2 tomorrow as someone infected 40 days ago.
+- The hazard is constant (memoryless/exponential): a newly-infected person
+  is exactly as likely to clear HRP2 tomorrow as someone infected 40 days
+  ago. This was originally implemented as a weibull survival function
+  (shape/scale), which allows a "low-then-rising" hazard shape when
+  shape > 1 - but that's inconsistent with how every other infection state
+  in the model (D/A/U/Tr) is cleared, which is always a constant hazard of
+  1/duration. HRP2 clearance has since been switched to that same
+  exponential/constant-hazard convention (see clear_hrp2_group(), R/hrp2.R),
+  and hrp2_shape/hrp2_shape_treated no longer exist as parameters -
+  hrp2_scale/hrp2_scale_treated are now directly the mean duration of HRP2
+  positivity, matching dd/da/du/dt.

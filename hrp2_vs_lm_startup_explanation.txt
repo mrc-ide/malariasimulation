@@ -1,0 +1,203 @@
+Why does n_hrp2_positive start at 0 while light microscopy (LM) prevalence doesn't?
+=====================================================================================
+
+Short answer
+------------
+n_hrp2_positive starts at 0 because HRP2 status is tracked by a variable
+(hrp2_infection_time) that only ever gets set when someone passes through the
+"new infection" code path during the simulation. LM prevalence, by contrast,
+is computed directly from each individual's disease state (S/A/D/U/Tr) at the
+current timestep. set_equilibrium() seeds that state distribution to already
+match steady-state prevalence for the configured EIR *before the simulation
+starts* - but it does NOT seed hrp2_infection_time to match. So at t=0 there
+is a population of already-infected people (per equilibrium) that LM correctly
+counts as prevalent, but that the model has no record of ever "newly infecting",
+so none of them are marked HRP2 positive.
+
+The mechanism, step by step
+----------------------------
+1. create_variables() (R/variables.R) initialises two independent things:
+
+   - `state` (R/variables.R:128): a CategoricalVariable set from
+     initial_state()/initial_state_vivax(), which draws from the
+     malariaEquilibrium(Vivax) solution for the configured init_EIR. This is
+     why, even at timestep 0, a realistic fraction of the population already
+     sits in A, D, U or Tr - confirmed empirically: with human_population =
+     2000 and init_EIR = 10, t=0 already has S=782, A=909, D=12, U=297, Tr=0.
+
+   - `hrp2_infection_time` (R/variables.R:293): an IntegerVariable, always
+     initialised to -1 (the "not currently HRP2 positive" sentinel) for
+     *every* individual, completely independently of what `state` was just
+     initialised to. Confirmed empirically: right after create_variables(),
+     100% of individuals have hrp2_infection_time == -1, including the ~909
+     people equilibrium just placed in state A and the 12 placed in D.
+
+2. HRP2 positivity is only switched on inside update_hrp2_and_render_infections()
+   (R/hrp2.R), which is called from falciparum_infection_outcome_process() /
+   vivax_infection_outcome_process() (R/human_infection.R) at the moment a
+   bite produces a *new* clinical (to_D/treated) or new asymptomatic (to_A)
+   infection. It sets hrp2_infection_time = timestep for exactly those
+   individuals.
+
+3. The people equilibrium initialised directly into A/D/Tr at t=0 never pass
+   through that code path - they didn't get there via a bite resolved during
+   the simulation, they simply started there as an initial condition. So none
+   of them ever get an hrp2_infection_time seeded, and n_hrp2_positive
+   (R/hrp2.R: create_hrp2_renderer_process, counts hrp2_infection_time != -1)
+   is 0 at t=0 even though the population is already at realistic malaria
+   prevalence per LM.
+
+4. LM prevalence has no equivalent gap. create_prevalence_renderer()
+   (R/render.R) computes n_detect_lm_* directly from `state$get_index_of(...)`
+   at the current timestep - it has no memory or historical dependency, so it
+   is immediately consistent with whatever `state` was initialised to,
+   equilibrium included.
+
+Why the shapes converge over time
+----------------------------------
+As the simulation runs, new infections occur every timestep (via bites), which
+gradually populate hrp2_infection_time for a growing share of the population.
+Combined with the hrp2_shape/hrp2_scale clearance hazard, the inflow of newly
+(re)started HRP2-positive individuals eventually balances the outflow from
+clearance, and n_hrp2_positive settles into its own steady state - at which
+point its shape does track LM prevalence reasonably well (as seen in
+scratch_hrp2.R's later timesteps). The mismatch is really a burn-in/initial-
+condition artifact concentrated in roughly the first few multiples of
+hrp2_scale timesteps, not a difference in ongoing dynamics.
+
+What can be done about it
+---------------------------
+1. Treat it as a burn-in period: discard the first ~3-6 * hrp2_scale
+   timesteps before comparing n_hrp2_positive to LM prevalence (this is
+   already effectively what scratch_hrp2.R's later-timestep summaries do).
+   No code change required.
+
+2. Fix the root cause properly: seed hrp2_infection_time at initialisation
+   for anyone equilibrium places directly into D, A or Tr (not S or U),
+   assigning each a plausible negative "time since infection" instead of -1,
+   so t=0 already reflects a realistic HRP2-positive population consistent
+   with the equilibrium disease-state distribution. This is more involved -
+   it requires deciding what distribution of "time since infection" to draw
+   from for people who are already infected at t=0 (e.g. sampling consistent
+   with the stationary age-since-infection distribution implied by the
+   incidence rate and the hrp2_shape/hrp2_scale survival curve), rather than
+   just picking an arbitrary constant offset.
+
+I haven't made a code change for this - let me know if you'd like option 2
+implemented.
+
+
+=====================================================================================
+Why is the LM/HRP2 delta so much larger for 5+ than for under-5s?
+=====================================================================================
+
+Short answer
+------------
+It comes down to two age-dependent immunity effects compounding each other in
+the asymptomatic (A) compartment specifically: over-5s carry a much bigger
+asymptomatic reservoir, and LM is far worse at detecting it in that age group.
+HRP2 counts every A/D/Tr infection unconditionally, but LM only counts A
+infections with a probability that collapses as acquired immunity builds up
+with age/exposure - so the "invisible to LM but HRP2 positive" pool is much
+larger in the 5+ group.
+
+The two effects, quantified
+-----------------------------
+I inspected the equilibrium-initialised population directly (human_population
+= 5000, init_EIR = 10 - the same setup as scratch_hrp2.R) to isolate this from
+any timestep-to-timestep noise:
+
+  Fraction of each age group in state A (asymptomatic):
+    under-5: 30.9%        5+: 48.0%
+  Fraction of each age group in state D/Tr (clinical):
+    under-5: 1.26%        5+: 0.75%
+
+  Mean id (acquired immunity to LM detectability):
+    under-5: 3.0          5+: 20.3   (~6.7x higher in 5+)
+  Mean ica (acquired clinical immunity):
+    under-5: 3.5          5+: 39.4   (~11x higher in 5+)
+
+  Mean LM detection probability among asymptomatic (A) individuals
+  (probability_of_detection(), R/human_infection.R:1056):
+    under-5: 99.0%         5+: 60.4%
+
+Why this happens (the code)
+------------------------------
+1. clinical_immunity() (R/human_infection.R:1024) computes phi, the
+   probability a new infection becomes clinical (D/Tr) rather than
+   asymptomatic (A), as a decreasing function of acquired clinical immunity
+   (ica). Older/more-exposed individuals have accumulated far more ica (via
+   boost_immunity() on every infection, decaying slowly at rate rc), so phi
+   is lower for them - more of their new infections resolve as A rather than
+   D/Tr. This is the well-known "clinical immunity is acquired faster than
+   anti-parasite immunity" pattern from the underlying Winskill 2017 model,
+   and it's why the A fraction is ~1.5x larger in the 5+ group above.
+
+2. probability_of_detection() (R/human_infection.R:1056) computes q, the
+   probability an asymptomatic (A) infection is picked up by LM, as a
+   decreasing function of both age and acquired detection immunity (id):
+   `d1 + (1 - d1) / (1 + fd * (id / id0)^kd)`, where `fd` itself increases
+   towards 1 with age. So detection probability is pushed down by TWO
+   age-correlated forces at once - the age term directly, and the higher id
+   that older/more-exposed individuals have accumulated (also via
+   boost_immunity(), decaying at rate rid). This is why mean LM detection
+   probability among A individuals falls from 99% (under-5) to 60% (5+).
+
+3. D and Tr are always 100% LM-detectable (create_prevalence_renderer(),
+   R/render.R: `clinically_detected <- state$get_index_of(c('Tr','D'))`,
+   unconditional) and always trigger HRP2 unconditionally
+   (update_hrp2_and_render_infections(), R/hrp2.R). So the D/Tr compartment
+   never contributes to the HRP2/LM gap in either age group - the entire gap
+   is generated in the A compartment, where LM applies a probability
+   discount and HRP2 does not.
+
+Putting it together
+---------------------
+Roughly, the "LM-invisible but HRP2-positive" share of each age group is
+(fraction in A) * (1 - mean detection probability among A):
+  under-5: 30.9% * (1 - 0.99)  ~= 0.3 percentage points
+  5+:      48.0% * (1 - 0.604) ~= 19   percentage points
+
+That lines up with the direction and rough scale of what scratch_hrp2.R
+actually shows (5+ delta ~13pp, under-5 delta ~1pp in the simulated run) -
+the two age-dependent immunity effects (bigger A reservoir + much lower LM
+detectability within it) both push the same way for 5+, and both are close
+to negligible for under-5s, which is why the delta is so lopsided between
+the two age groups.
+
+
+=====================================================================================
+Comparing the infection recovery rate to the HRP2 clearance rate
+=====================================================================================
+
+Using the scratch script's current parameters (hrp2_shape = 1, hrp2_scale = 50)
+against the default disease-state durations:
+
+  State/process                Mean duration     Rate (per day)
+  D  (clinical, untreated)     5 days            0.200
+  Tr (treated)                 5 days            0.200
+  U  (subpatent)                110 days          0.0091
+  A  (asymptomatic)            195 days          0.0051
+  HRP2 persistence             50 days           0.0198 (constant, shape = 1 = exponential)
+
+A few things stand out:
+
+- HRP2 clears ~10x slower than the clinical episode itself (50 days vs 5
+  days for D/Tr) - consistent with the real-world biology of HRP2 outlasting
+  the acute illness.
+
+- HRP2 clears ~4x faster than the asymptomatic (A) state itself (50 days vs
+  195 days). Since most HRP2-positive individuals now come from A infections
+  (per the asymptomatic-proportion analysis above), this means a person can
+  lose HRP2 positivity while still asymptomatically infected - HRP2
+  clearance in this model is a fixed hazard from the moment of infection,
+  completely decoupled from whether the person has actually cleared
+  parasites. That's a modelling simplification worth being aware of: it's
+  not "HRP2 clears once parasites clear," it's "HRP2 clears on a fixed
+  clock regardless of ongoing infection status" (unless reinfected, which
+  restarts the clock via update_hrp2_and_render_infections(), R/hrp2.R).
+
+- With shape = 1 the hazard is constant (memoryless/exponential) rather than
+  the more typical "low-then-rising" hazard shape you'd get with shape > 1 -
+  right now the model says a newly-infected person is exactly as likely to
+  clear HRP2 tomorrow as someone infected 40 days ago.

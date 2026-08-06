@@ -16,27 +16,40 @@ params <- set_clinical_treatment(params, drug = 1, timesteps = 1, coverages = 0.
 
 # HRP2 clearance hazard - tweak these and re-run to see the effect on
 # n_hrp2_positive (these are placeholder defaults, not calibrated).
-params <- set_hrp2_parameters(params, hrp2_shape = 2, hrp2_scale = 60)
+# Treated infections are given their own (faster) clearance rate here via
+# hrp2_treated_same_clearance = FALSE; set it back to TRUE (or drop
+# hrp2_shape_treated/hrp2_scale_treated) to have everyone clear at the same
+# rate instead.
+params <- set_hrp2_parameters(
+  params,
+  hrp2_asymptomatic_prob = 0.7,
+  hrp2_shape = 1, hrp2_scale = 500,
+  hrp2_treated_same_clearance = FALSE,
+  hrp2_shape_treated = 2, hrp2_scale_treated = 10
+)
 
-# Theoretical survival curve implied by hrp2_shape/hrp2_scale: the
-# probability that an infection from x timesteps ago is still HRP2
-# positive, independent of running a full simulation.
+# Theoretical survival curves implied by the above: the probability that an
+# infection from x timesteps ago is still HRP2 positive, independent of
+# running a full simulation. Shown separately for each group.
 hrp2_survival_curve <- data.frame(
-  x = 0:(6 * params$hrp2_scale)
+  x = rep(0:(6 * max(params$hrp2_scale, params$hrp2_scale_treated)), 2)
 )
-hrp2_survival_curve$survival <- weibull_survival(
-  hrp2_survival_curve$x,
-  params$hrp2_shape,
-  params$hrp2_scale
+hrp2_survival_curve$group <- rep(c("untreated/asymptomatic", "treated"), each = nrow(hrp2_survival_curve) / 2)
+hrp2_survival_curve$survival <- c(
+  weibull_survival(
+    hrp2_survival_curve$x[hrp2_survival_curve$group == "untreated/asymptomatic"],
+    params$hrp2_shape, params$hrp2_scale
+  ),
+  weibull_survival(
+    hrp2_survival_curve$x[hrp2_survival_curve$group == "treated"],
+    params$hrp2_shape_treated, params$hrp2_scale_treated
+  )
 )
 
-p0 <- ggplot(hrp2_survival_curve, aes(x = x, y = survival)) +
+p0 <- ggplot(hrp2_survival_curve, aes(x = x, y = survival, colour = group)) +
   geom_line() +
   labs(
-    title = sprintf(
-      "HRP2 persistence survival curve (shape = %s, scale = %s)",
-      params$hrp2_shape, params$hrp2_scale
-    ),
+    title = "HRP2 persistence survival curve by group",
     x = "timesteps since infection",
     y = "P(still HRP2 positive)"
   ) +
@@ -178,3 +191,31 @@ p5 <- ggplot(shape_df, aes(x = timestep, y = n_hrp2_positive, colour = hrp2_shap
   labs(title = "Effect of hrp2_shape on HRP2 positive count", y = "n_hrp2_positive") +
   theme_minimal()
 print(p5)
+
+# ---------------------------------------------------------------------------
+# 7. Disaggregated clearance: treated vs untreated/asymptomatic.
+#    `params` (set up at the top of the script) already uses disaggregated
+#    clearance (hrp2_treated_same_clearance = FALSE). Compare against a
+#    "shared clearance rate" baseline, where treated infections clear at the
+#    same rate as everyone else, to see the aggregate effect.
+# ---------------------------------------------------------------------------
+params_shared <- set_hrp2_parameters(params, hrp2_treated_same_clearance = TRUE)
+
+set.seed(1)
+sim_shared <- run_simulation(timesteps = timesteps, parameters = params_shared)
+# `sim` (from section 2) already used the disaggregated `params`
+
+clearance_comparison <- data.frame(
+  timestep = rep(sim$timestep, 2),
+  n_hrp2_positive = c(sim$n_hrp2_positive, sim_shared$n_hrp2_positive),
+  scenario = rep(c("disaggregated (faster treated clearance)", "shared clearance rate"), each = nrow(sim))
+)
+
+p7 <- ggplot(clearance_comparison, aes(x = timestep, y = n_hrp2_positive, colour = scenario)) +
+  geom_line() +
+  labs(
+    title = "Effect of disaggregating treated HRP2 clearance",
+    y = "n_hrp2_positive"
+  ) +
+  theme_minimal()
+print(p7)

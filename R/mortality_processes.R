@@ -122,6 +122,7 @@ reset_target <- function(variables, events, target, state, parameters, timestep)
 
     # hrp2
     variables$hrp2_infection_time$queue_update(-1, target)
+    variables$hrp2_treated$queue_update('untreated', target)
 
     # vaccination
     variables$last_pev_timestep$queue_update(-1, target)

@@ -1,12 +1,28 @@
 test_that('set_hrp2_parameters overrides only the supplied values', {
   parameters <- get_parameters()
-  updated <- set_hrp2_parameters(parameters, hrp2_shape = 3, hrp2_scale = 40)
+  updated <- set_hrp2_parameters(
+    parameters,
+    hrp2_shape = 3,
+    hrp2_scale = 40,
+    hrp2_asymptomatic_prob = 0.6,
+    hrp2_treated_same_clearance = FALSE,
+    hrp2_shape_treated = 5,
+    hrp2_scale_treated = 60
+  )
   expect_equal(updated$hrp2_shape, 3)
   expect_equal(updated$hrp2_scale, 40)
+  expect_equal(updated$hrp2_asymptomatic_prob, 0.6)
+  expect_equal(updated$hrp2_treated_same_clearance, FALSE)
+  expect_equal(updated$hrp2_shape_treated, 5)
+  expect_equal(updated$hrp2_scale_treated, 60)
 
   unchanged <- set_hrp2_parameters(parameters)
   expect_equal(unchanged$hrp2_shape, parameters$hrp2_shape)
   expect_equal(unchanged$hrp2_scale, parameters$hrp2_scale)
+  expect_equal(unchanged$hrp2_asymptomatic_prob, parameters$hrp2_asymptomatic_prob)
+  expect_equal(unchanged$hrp2_treated_same_clearance, parameters$hrp2_treated_same_clearance)
+  expect_equal(unchanged$hrp2_shape_treated, parameters$hrp2_shape_treated)
+  expect_equal(unchanged$hrp2_scale_treated, parameters$hrp2_scale_treated)
 })
 
 test_that('update_hrp2_and_render_infections renders counts and (re)starts the hrp2 clock', {
@@ -16,13 +32,18 @@ test_that('update_hrp2_and_render_infections renders counts and (re)starts the h
 
   variables <- list(
     birth = individual::IntegerVariable$new(rep(0, population)),
-    hrp2_infection_time = mock_integer(rep(-1, population))
+    id = individual::DoubleVariable$new(rep(1, population)),
+    hrp2_infection_time = mock_integer(rep(-1, population)),
+    hrp2_treated = mock_category(c('treated', 'untreated'), rep('untreated', population))
   )
   renderer <- mock_render(timestep)
 
   to_D <- individual::Bitset$new(population)$insert(c(1, 2))
   treated <- individual::Bitset$new(population)$insert(c(3))
   to_A <- individual::Bitset$new(population)$insert(c(4))
+
+  # force the asymptomatic infection to be selected as hrp2 positive
+  mockery::stub(update_hrp2_and_render_infections, 'bernoulli_multi_p', mockery::mock(1))
 
   update_hrp2_and_render_infections(
     variables,
@@ -51,10 +72,30 @@ test_that('update_hrp2_and_render_infections renders counts and (re)starts the h
     timestep
   )
 
+  # untreated (to_D) and asymptomatic (to_A) are grouped together, treated
+  # (Tr) is recorded separately, so the hrp2 clock/group get updated in two
+  # separate calls
   expect_bitset_update(
     variables$hrp2_infection_time$queue_update_mock(),
     timestep,
-    c(1, 2, 3, 4)
+    c(1, 2, 4)
+  )
+  expect_bitset_update(
+    variables$hrp2_infection_time$queue_update_mock(),
+    timestep,
+    c(3),
+    call = 2
+  )
+  expect_bitset_update(
+    variables$hrp2_treated$queue_update_mock(),
+    'untreated',
+    c(1, 2, 4)
+  )
+  expect_bitset_update(
+    variables$hrp2_treated$queue_update_mock(),
+    'treated',
+    c(3),
+    call = 2
   )
 })
 
@@ -93,13 +134,18 @@ test_that('update_hrp2_and_render_infections restarts the hrp2 clock for new asy
 
   variables <- list(
     birth = individual::IntegerVariable$new(rep(0, population)),
-    hrp2_infection_time = mock_integer(rep(-1, population))
+    id = individual::DoubleVariable$new(rep(1, population)),
+    hrp2_infection_time = mock_integer(rep(-1, population)),
+    hrp2_treated = mock_category(c('treated', 'untreated'), rep('untreated', population))
   )
   renderer <- mock_render(timestep)
 
   to_D <- individual::Bitset$new(population)
   treated <- individual::Bitset$new(population)
   to_A <- individual::Bitset$new(population)$insert(c(2, 4))
+
+  # force both asymptomatic infections to be selected as hrp2 positive
+  mockery::stub(update_hrp2_and_render_infections, 'bernoulli_multi_p', mockery::mock(c(1, 2)))
 
   update_hrp2_and_render_infections(
     variables,
@@ -121,6 +167,80 @@ test_that('update_hrp2_and_render_infections restarts the hrp2 clock for new asy
   )
 })
 
+test_that('update_hrp2_and_render_infections scales the asymptomatic hrp2 probability by lm detectability (falciparum)', {
+  timestep <- 10
+  population <- 3
+  parameters <- get_parameters(list(human_population = population))
+  parameters <- set_hrp2_parameters(parameters, hrp2_asymptomatic_prob = 0.5)
+
+  variables <- list(
+    birth = individual::IntegerVariable$new(rep(0, population)),
+    id = individual::DoubleVariable$new(c(1, 2, 3)),
+    hrp2_infection_time = mock_integer(rep(-1, population))
+  )
+  renderer <- mock_render(timestep)
+
+  to_D <- individual::Bitset$new(population)
+  treated <- individual::Bitset$new(population)
+  to_A <- individual::Bitset$new(population)$insert(c(1, 2, 3))
+
+  detection_mock <- mockery::mock(c(.8, .6, .4))
+  mockery::stub(update_hrp2_and_render_infections, 'probability_of_detection', detection_mock)
+  bernoulli_mock <- mockery::mock(integer(0))
+  mockery::stub(update_hrp2_and_render_infections, 'bernoulli_multi_p', bernoulli_mock)
+
+  update_hrp2_and_render_infections(
+    variables,
+    renderer,
+    parameters,
+    timestep,
+    to_D,
+    treated,
+    to_A
+  )
+
+  mockery::expect_args(
+    detection_mock,
+    1,
+    get_age(variables$birth$get_values(to_A), timestep),
+    variables$id$get_values(to_A),
+    parameters
+  )
+  mockery::expect_args(bernoulli_mock, 1, c(.8, .6, .4) * 0.5)
+})
+
+test_that('update_hrp2_and_render_infections assumes vivax asymptomatic infections are always lm-detectable', {
+  timestep <- 10
+  population <- 2
+  parameters <- get_parameters(parasite = "vivax", overrides = list(human_population = population))
+  parameters <- set_hrp2_parameters(parameters, hrp2_asymptomatic_prob = 0.5)
+
+  variables <- list(
+    birth = individual::IntegerVariable$new(rep(0, population)),
+    hrp2_infection_time = mock_integer(rep(-1, population))
+  )
+  renderer <- mock_render(timestep)
+
+  to_D <- individual::Bitset$new(population)
+  treated <- individual::Bitset$new(population)
+  to_A <- individual::Bitset$new(population)$insert(c(1, 2))
+
+  bernoulli_mock <- mockery::mock(integer(0))
+  mockery::stub(update_hrp2_and_render_infections, 'bernoulli_multi_p', bernoulli_mock)
+
+  update_hrp2_and_render_infections(
+    variables,
+    renderer,
+    parameters,
+    timestep,
+    to_D,
+    treated,
+    to_A
+  )
+
+  mockery::expect_args(bernoulli_mock, 1, c(0.5, 0.5))
+})
+
 test_that('update_hrp2_and_render_infections renders age-stratified counts when configured', {
   timestep <- 10
   population <- 4
@@ -129,7 +249,8 @@ test_that('update_hrp2_and_render_infections renders age-stratified counts when 
 
   variables <- list(
     birth = individual::IntegerVariable$new(-c(1, 20, 40, 60) * 365),
-    hrp2_infection_time = mock_integer(rep(-1, population))
+    hrp2_infection_time = mock_integer(rep(-1, population)),
+    hrp2_treated = mock_category(c('treated', 'untreated'), rep('untreated', population))
   )
   renderer <- mock_render(timestep)
 
@@ -174,13 +295,23 @@ test_that('create_hrp2_clearance_process clears individuals according to the wei
   # individual 3: infected at timestep 5 (x = 25)
   # individual 4: infected at timestep 29 (x = 1)
   variables <- list(
-    hrp2_infection_time = mock_integer(c(-1, 20, 5, 29))
+    hrp2_infection_time = mock_integer(c(-1, 20, 5, 29)),
+    hrp2_treated = individual::CategoricalVariable$new(
+      c('treated', 'untreated'),
+      rep('untreated', population)
+    )
   )
 
   process <- create_hrp2_clearance_process(variables, parameters)
 
+  # bernoulli_multi_p is now called from within clear_hrp2_group(), reached
+  # indirectly via process() - mockery::stub() only intercepts calls made
+  # directly within the stubbed function's own body, so a plain stub on
+  # process() or clear_hrp2_group() alone won't be seen here. Use
+  # testthat::local_mocked_bindings() instead, which patches the shared
+  # package-namespace binding and is seen regardless of call depth.
   cleared_mock <- mockery::mock(c(2))
-  mockery::stub(process, 'bernoulli_multi_p', cleared_mock)
+  testthat::local_mocked_bindings(bernoulli_multi_p = cleared_mock, .package = "malariasimulation")
 
   process(timestep)
 
@@ -197,6 +328,85 @@ test_that('create_hrp2_clearance_process clears individuals according to the wei
     -1,
     c(3)
   )
+})
+
+test_that('create_hrp2_clearance_process applies a single shared hazard when hrp2_treated_same_clearance is TRUE', {
+  timestep <- 30
+  population <- 2
+  parameters <- get_parameters(list(human_population = population))
+  parameters <- set_hrp2_parameters(
+    parameters,
+    hrp2_shape = 2,
+    hrp2_scale = 20,
+    hrp2_treated_same_clearance = TRUE,
+    hrp2_shape_treated = 99,
+    hrp2_scale_treated = 999
+  )
+
+  # individual 1: untreated, infected at timestep 20 (x = 10)
+  # individual 2: treated, infected at timestep 20 (x = 10)
+  variables <- list(
+    hrp2_infection_time = individual::IntegerVariable$new(c(20, 20)),
+    hrp2_treated = individual::CategoricalVariable$new(
+      c('treated', 'untreated'),
+      c('untreated', 'treated')
+    )
+  )
+  process <- create_hrp2_clearance_process(variables, parameters)
+
+  cleared_mock <- mockery::mock(integer(0))
+  testthat::local_mocked_bindings(bernoulli_multi_p = cleared_mock, .package = "malariasimulation")
+
+  process(timestep)
+
+  # both individuals go through the same call, using hrp2_shape/hrp2_scale -
+  # hrp2_shape_treated/hrp2_scale_treated are never consulted
+  x <- timestep - c(20, 20)
+  expected_p <- 1 - weibull_survival(x + 1, 2, 20) / weibull_survival(x, 2, 20)
+  mockery::expect_args(cleared_mock, 1, expected_p)
+  mockery::expect_called(cleared_mock, 1)
+})
+
+test_that('create_hrp2_clearance_process applies separate hazards per group when hrp2_treated_same_clearance is FALSE', {
+  timestep <- 30
+  population <- 4
+  parameters <- get_parameters(list(human_population = population))
+  parameters <- set_hrp2_parameters(
+    parameters,
+    hrp2_shape = 2,
+    hrp2_scale = 20,
+    hrp2_treated_same_clearance = FALSE,
+    hrp2_shape_treated = 5,
+    hrp2_scale_treated = 100
+  )
+
+  # individual 1: untreated, infected at timestep 20 (x = 10)
+  # individual 2: treated,   infected at timestep 5  (x = 25)
+  # individual 3: never infected (-1, ignored)
+  # individual 4: treated,   infected at timestep 29 (x = 1)
+  variables <- list(
+    hrp2_infection_time = individual::IntegerVariable$new(c(20, 5, -1, 29)),
+    hrp2_treated = individual::CategoricalVariable$new(
+      c('treated', 'untreated'),
+      c('untreated', 'treated', 'untreated', 'treated')
+    )
+  )
+  process <- create_hrp2_clearance_process(variables, parameters)
+
+  cleared_mock <- mockery::mock(integer(0), integer(0))
+  testthat::local_mocked_bindings(bernoulli_multi_p = cleared_mock, .package = "malariasimulation")
+
+  process(timestep)
+
+  # untreated group (individual 1) is processed with hrp2_shape/hrp2_scale
+  x_untreated <- timestep - 20
+  expected_p_untreated <- 1 - weibull_survival(x_untreated + 1, 2, 20) / weibull_survival(x_untreated, 2, 20)
+  mockery::expect_args(cleared_mock, 1, expected_p_untreated)
+
+  # treated group (individuals 2, 4) is processed with hrp2_shape_treated/hrp2_scale_treated
+  x_treated <- timestep - c(5, 29)
+  expected_p_treated <- 1 - weibull_survival(x_treated + 1, 5, 100) / weibull_survival(x_treated, 5, 100)
+  mockery::expect_args(cleared_mock, 2, expected_p_treated)
 })
 
 test_that('create_hrp2_clearance_process does nothing when no one is hrp2 positive', {
@@ -220,12 +430,13 @@ test_that('create_hrp2_clearance_process guards against numerical survival under
   parameters <- set_hrp2_parameters(parameters, hrp2_shape = 2, hrp2_scale = 20)
 
   variables <- list(
-    hrp2_infection_time = mock_integer(0)
+    hrp2_infection_time = mock_integer(0),
+    hrp2_treated = individual::CategoricalVariable$new(c('treated', 'untreated'), 'untreated')
   )
   process <- create_hrp2_clearance_process(variables, parameters)
 
   cleared_mock <- mockery::mock(1)
-  mockery::stub(process, 'bernoulli_multi_p', cleared_mock)
+  testthat::local_mocked_bindings(bernoulli_multi_p = cleared_mock, .package = "malariasimulation")
 
   process(timestep)
 

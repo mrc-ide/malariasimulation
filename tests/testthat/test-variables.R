@@ -59,3 +59,9 @@ test_that('create_variables initialises hrp2_infection_time to -1 for everyone',
   variables <- create_variables(params)
   expect_equal(variables$hrp2_infection_time$get_values(), rep(-1, 10))
 })
+
+test_that('create_variables initialises hrp2_treated to untreated for everyone', {
+  params <- get_parameters(list(human_population = 10))
+  variables <- create_variables(params)
+  expect_equal(variables$hrp2_treated$get_index_of('untreated')$size(), 10)
+})

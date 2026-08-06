@@ -4,18 +4,44 @@
 \alias{set_hrp2_parameters}
 \title{Parameterise HRP2 antigen persistence}
 \usage{
-set_hrp2_parameters(parameters, hrp2_shape = NULL, hrp2_scale = NULL)
+set_hrp2_parameters(
+  parameters,
+  hrp2_shape = NULL,
+  hrp2_scale = NULL,
+  hrp2_asymptomatic_prob = NULL,
+  hrp2_treated_same_clearance = NULL,
+  hrp2_shape_treated = NULL,
+  hrp2_scale_treated = NULL
+)
 }
 \arguments{
 \item{parameters}{model parameters}
 
-\item{hrp2_shape}{weibull shape parameter; default = NULL (leave unchanged)}
+\item{hrp2_shape}{weibull shape parameter for untreated/asymptomatic infections;
+default = NULL (leave unchanged)}
 
-\item{hrp2_scale}{weibull scale parameter, in timesteps; default = NULL (leave unchanged)}
+\item{hrp2_scale}{weibull scale parameter (in timesteps) for untreated/asymptomatic
+infections; default = NULL (leave unchanged)}
+
+\item{hrp2_asymptomatic_prob}{probability that a new asymptomatic infection which is
+detectable by light microscopy is also HRP2 positive; default = NULL (leave unchanged)}
+
+\item{hrp2_treated_same_clearance}{if TRUE (the default), treated infections clear HRP2
+at the same rate as untreated/asymptomatic infections (hrp2_shape/hrp2_scale); if FALSE,
+treated infections instead use hrp2_shape_treated/hrp2_scale_treated;
+default = NULL (leave unchanged)}
+
+\item{hrp2_shape_treated}{weibull shape parameter for treated infections, only used
+when hrp2_treated_same_clearance is FALSE; default = NULL (leave unchanged)}
+
+\item{hrp2_scale_treated}{weibull scale parameter (in timesteps) for treated infections,
+only used when hrp2_treated_same_clearance is FALSE; default = NULL (leave unchanged)}
 }
 \description{
 Sets the weibull shape/scale parameters governing the hazard of losing
-HRP2 positivity as a function of time since the triggering clinical
-infection. See \code{\link{get_parameters}} for details and current
-(placeholder) defaults.
+HRP2 positivity as a function of time since the triggering infection, the
+probability that a new asymptomatic infection is HRP2 positive, and
+whether treated infections clear HRP2 at a different rate to untreated/
+asymptomatic infections. See \code{\link{get_parameters}} for details and
+current (placeholder) defaults.
 }

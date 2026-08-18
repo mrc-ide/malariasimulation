@@ -52,7 +52,7 @@ test_that('mortality_process resets humans correctly', {
   mockery::expect_called(variables$spray_time$queue_update_mock(), 0)
 })
 
-test_that('mortality_process resets hrp2_infection_time for humans who die', {
+test_that('mortality_process resets hrp2 for humans who die', {
   timestep <- 2
   parameters <- get_parameters(list(human_population = 4))
   events <- create_events(parameters)
@@ -71,11 +71,7 @@ test_that('mortality_process resets hrp2_infection_time for humans who die', {
   variables$ivm <- mock_double(c(1, 2, 3, 4))
   variables$ica <- mock_double(c(1, 2, 3, 4))
   variables$iva <- mock_double(c(1, 2, 3, 4))
-  variables$hrp2_infection_time <- mock_integer(c(-1, 1, -1, -1))
-  variables$hrp2_treated <- mock_category(
-    c('treated', 'untreated'),
-    c('untreated', 'treated', 'untreated', 'untreated')
-  )
+  variables$hrp2 <- mock_integer(c(0, 1, 0, 0))
   renderer <- individual::Render$new(timestep)
 
   mortality_process <- create_mortality_process(
@@ -93,8 +89,7 @@ test_that('mortality_process resets hrp2_infection_time for humans who die', {
 
   mortality_process(timestep)
 
-  expect_bitset_update(variables$hrp2_infection_time$queue_update_mock(), -1, c(2, 4))
-  expect_bitset_update(variables$hrp2_treated$queue_update_mock(), 'untreated', c(2, 4))
+  expect_bitset_update(variables$hrp2$queue_update_mock(), 0, c(2, 4))
 })
 
 test_that('mortality_process samples deaths from a custom demography', {

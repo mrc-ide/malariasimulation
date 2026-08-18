@@ -1,4 +1,4 @@
-# Scratch script for exploring the new HRP2 antigen persistence feature.
+# Scratch script for exploring the HRP2 antigen persistence feature.
 # Not part of the package - safe to edit/delete freely.
 devtools::load_all()
 library(ggplot2)
@@ -14,44 +14,46 @@ params <- set_equilibrium(params, init_EIR = 10)
 params <- set_drugs(params, list(AL_params))
 params <- set_clinical_treatment(params, drug = 1, timesteps = 1, coverages = 0.5)
 
-# HRP2 clearance hazard - tweak these and re-run to see the effect on
-# n_hrp2_positive (these are placeholder defaults, not calibrated).
-# HRP2 clears via a constant per-timestep hazard of 1/hrp2_scale (the same
-# exponential/memoryless convention used for clearing infections elsewhere
-# in the model, e.g. dd/da/du/dt) - hrp2_scale is the mean duration of HRP2
-# positivity, in timesteps. Treated infections are given their own (faster)
-# mean duration here via hrp2_treated_same_clearance = FALSE; set it back to
-# TRUE (or drop hrp2_scale_treated) to have everyone clear at the same rate
-# instead.
+# HRP2 clearance hazard - tweak this and re-run to see the effect on
+# n_hrp2_positive (this is a placeholder default, not calibrated).
+#
+# HRP2 is tracked with a single binary variable (variables$hrp2: 1 =
+# currently detectable, 0 = not) rather than a timestamp. It is set to 1 the
+# moment a new clinical/asymptomatic infection starts, and stays 1 with NO
+# decay for as long as the individual is still infected (state D/A/U/Tr) -
+# HRP2 clearance only starts counting down once the underlying infection has
+# actually resolved (state == 'S'), at which point a constant per-timestep
+# hazard of 1/hrp2_scale applies (the same exponential/memoryless convention
+# used for clearing infections elsewhere in the model, e.g. dd/da/du/dt).
+# hrp2_scale is the mean number of timesteps between infection clearance and
+# HRP2 clearance, and the SAME value is used for everyone - treated
+# individuals end up HRP2 positive for less total time only because their
+# underlying infection resolves faster (Tr -> S) than an untreated one
+# (D -> A -> U -> S), not because of a different HRP2 hazard.
 halflife_to_scale <- function(halflife_days) {
   halflife_days / log(2)
 }
 
 params <- set_hrp2_parameters(
   params,
-  hrp2_asymptomatic_prob = 0.7,
-  hrp2_scale = halflife_to_scale(halflife_days = 195),
-  hrp2_treated_same_clearance = FALSE,
-  hrp2_scale_treated = halflife_to_scale(halflife_days = 28*2)
+  hrp2_asymptomatic_prob = 1,
+  hrp2_scale = halflife_to_scale(halflife_days = 60)
 )
 
-# Theoretical survival curves implied by the above: the probability that an
-# infection from x timesteps ago is still HRP2 positive, independent of
-# running a full simulation. Shown separately for each group.
-hrp2_survival_curve <- data.frame(
-  x = rep(0:timesteps,2)
-)
-hrp2_survival_curve$group <- rep(c("untreated/asymptomatic", "treated"), each = nrow(hrp2_survival_curve) / 2)
-hrp2_survival_curve$survival <- c(
-  exp(-hrp2_survival_curve$x[hrp2_survival_curve$group == "untreated/asymptomatic"] / params$hrp2_scale),
-  exp(-hrp2_survival_curve$x[hrp2_survival_curve$group == "treated"] / params$hrp2_scale_treated)
-)
+# Theoretical survival curve implied by the above: the probability that
+# someone is still HRP2 positive x timesteps after their infection actually
+# cleared (state == 'S'), independent of running a full simulation. This is
+# the same for everyone, regardless of whether the resolved infection was
+# treated - the treated/untreated difference lives entirely in how long it
+# took to reach S in the first place, not in this curve.
+hrp2_survival_curve <- data.frame(x = 0:timesteps)
+hrp2_survival_curve$survival <- exp(-hrp2_survival_curve$x / params$hrp2_scale)
 
-p0 <- ggplot(hrp2_survival_curve, aes(x = x, y = survival, colour = group)) +
+p0 <- ggplot(hrp2_survival_curve, aes(x = x, y = survival)) +
   geom_line() +
   labs(
-    title = "HRP2 persistence survival curve by group",
-    x = "timesteps since infection",
+    title = "HRP2 persistence survival curve after infection clearance",
+    x = "timesteps since infection cleared (state S)",
     y = "P(still HRP2 positive)"
   ) +
   ylim(0, 1) +
@@ -178,42 +180,14 @@ if(!(timesteps > (365 * 2) | params$human_population > 5000)){
   print(p4)
 
   # ---------------------------------------------------------------------------
-  # 6. Disaggregated clearance: treated vs untreated/asymptomatic.
-  #    `params` (set up at the top of the script) already uses disaggregated
-  #    clearance (hrp2_treated_same_clearance = FALSE). Compare against a
-  #    "shared clearance rate" baseline, where treated infections clear at the
-  #    same rate as everyone else, to see the aggregate effect.
-  # ---------------------------------------------------------------------------
-  params_shared <- set_hrp2_parameters(params, hrp2_treated_same_clearance = TRUE)
-  
-  set.seed(1)
-  sim_shared <- run_simulation(timesteps = timesteps, parameters = params_shared)
-  # `sim` (from section 2) already used the disaggregated `params`
-  
-  clearance_comparison <- data.frame(
-    timestep = rep(sim$timestep, 2),
-    n_hrp2_positive = c(sim$n_hrp2_positive, sim_shared$n_hrp2_positive),
-    scenario = rep(c("disaggregated (faster treated clearance)", "shared clearance rate"), each = nrow(sim))
-  )
-  
-  p7 <- ggplot(clearance_comparison, aes(x = timestep, y = n_hrp2_positive, colour = scenario)) +
-    geom_line() +
-    labs(
-      title = "Effect of disaggregating treated HRP2 clearance",
-      y = "n_hrp2_positive"
-    ) +
-    theme_minimal()
-  print(p7)
-  
-  # ---------------------------------------------------------------------------
-  # 7. Among people who are HRP2 positive, what's the average time since their
-  #    triggering infection at the end of the simulation?
-  #    run_simulation()/run_resumable_simulation() only return the rendered
-  #    per-timestep dataframe, not per-individual variables - to inspect
-  #    hrp2_infection_time directly we replicate the same setup they use
-  #    internally (see run_resumable_simulation(), R/model.R) but keep a live
-  #    reference to `variables`, which the individual package mutates in place
-  #    as the simulation runs.
+  # 6. Among people who are HRP2 positive, how many are still actively
+  #    infected (D/A/U/Tr, no decay yet) vs already cleared and mid-decay
+  #    (state S)? run_simulation()/run_resumable_simulation() only return the
+  #    rendered per-timestep dataframe, not per-individual variables - to
+  #    inspect variables$hrp2/variables$state directly we replicate the same
+  #    setup they use internally (see run_resumable_simulation(), R/model.R)
+  #    but keep a live reference to `variables`, which the individual package
+  #    mutates in place as the simulation runs.
   # ---------------------------------------------------------------------------
   run_simulation_with_variables <- function(timesteps, parameters) {
     correlations <- get_correlation_parameters(parameters)
@@ -227,7 +201,7 @@ if(!(timesteps > (365 * 2) | params$human_population > 5000)){
     solvers <- parameterise_solvers(vector_models, parameters)
     lagged_eir <- create_lagged_eir(variables, solvers, parameters)
     lagged_infectivity <- create_lagged_infectivity(variables, parameters)
-    
+
     individual::simulation_loop(
       processes = create_processes(
         renderer, variables, events, parameters, vector_models, solvers,
@@ -237,26 +211,23 @@ if(!(timesteps > (365 * 2) | params$human_population > 5000)){
       events = events,
       timesteps = timesteps
     )
-    
+
     list(data = renderer$to_dataframe(), variables = variables)
   }
-  
+
   set.seed(1)
   result <- run_simulation_with_variables(timesteps, params)
-  
-  hrp2_infection_time <- result$variables$hrp2_infection_time$get_values()
-  is_positive <- hrp2_infection_time != -1
-  time_since_infection <- timesteps - hrp2_infection_time[is_positive]
-  
+
+  is_positive <- result$variables$hrp2$get_values() == 1
+  state_of_positives <- result$variables$state$get_values()[is_positive]
+
   cat(
     "\nAmong", sum(is_positive), "HRP2-positive individuals at the end of the simulation,",
-    "mean time since their triggering infection:", round(mean(time_since_infection), 1), "timesteps\n"
+    "breakdown by current disease state:\n"
   )
-  cat("(median:", median(time_since_infection), ", range:", paste(range(time_since_infection), collapse = "-"), ")\n")
-  
-  # ... and split by which group triggered their current positivity.
-  hrp2_group <- result$variables$hrp2_treated$get_values()[is_positive]
-  cat("\nBy group:\n")
-  print(aggregate(time_since_infection ~ hrp2_group, FUN = mean))
-  
+  print(table(state_of_positives))
+  cat(
+    "\n(D/A/U/Tr = still infected, no HRP2 decay yet;",
+    "S = infection cleared, currently decaying towards HRP2-negative)\n"
+  )
 }

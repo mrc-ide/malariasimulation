@@ -305,21 +305,20 @@
 #' please set HRP2 parameters with the convenience function
 #' \code{\link{set_hrp2_parameters}}
 #'
-#' * hrp2_scale - mean duration of HRP2 positivity for untreated/asymptomatic
-#' infections, in timesteps. HRP2 clears via a constant per-timestep hazard
-#' of 1/hrp2_scale, the same exponential/memoryless convention used for
-#' clearing infections elsewhere in the model (e.g. dd/da/du/dt);
-#' default = 20 (placeholder, not yet calibrated)
+#' * hrp2_scale - mean duration between an infection actually clearing
+#' (state == 'S') and HRP2 becoming undetectable, in timesteps. Individuals
+#' remain HRP2 positive with no decay while still infected (D/A/U/Tr); once
+#' they reach S, HRP2 clears via a constant per-timestep hazard of
+#' 1/hrp2_scale, the same exponential/memoryless convention used for
+#' clearing infections elsewhere in the model (e.g. dd/da/du/dt). The same
+#' hazard is used for everyone - treated individuals clear HRP2 sooner only
+#' because their underlying infection resolves faster (Tr -> S) than an
+#' untreated one (D -> A -> U -> S); default = 20 (placeholder, not yet
+#' calibrated)
 #' * hrp2_asymptomatic_prob - probability that a new asymptomatic infection
 #' which is detectable by light microscopy is also HRP2 positive (new
 #' clinical infections are always assumed HRP2 positive); default = 1
 #' (placeholder, not yet calibrated)
-#' * hrp2_treated_same_clearance - if TRUE, treated infections clear HRP2 at
-#' the same rate as untreated/asymptomatic infections (hrp2_scale); if FALSE,
-#' treated infections use hrp2_scale_treated instead; default = TRUE
-#' * hrp2_scale_treated - mean duration of HRP2 positivity for treated
-#' infections, in timesteps, only used when hrp2_treated_same_clearance is
-#' FALSE; default = 20 (placeholder, not yet calibrated)
 #'
 #' Age structured mean immunity (/hyponozoite) rendering:
 #' 
@@ -520,8 +519,6 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       # NOTE: placeholder values, not yet calibrated
       hrp2_scale = 20,
       hrp2_asymptomatic_prob = 1,
-      hrp2_treated_same_clearance = TRUE,
-      hrp2_scale_treated = 20,
       # age structured average immunity (/hypnozoite) rendering
       ib_rendering_min_ages = numeric(0),
       ib_rendering_max_ages = numeric(0),

@@ -279,7 +279,7 @@ test_that('relapses are recognised with division between bite infections and rel
     pev_profile = individual::IntegerVariable$new(rep(-1, 4)),
     hypnozoites = individual::IntegerVariable$new(c(0, 1, 2, 3)),
     birth = individual::IntegerVariable$new(rep(0, 4)),
-    hrp2_infection_time = individual::IntegerVariable$new(rep(-1, 4))
+    hrp2 = individual::IntegerVariable$new(rep(0, 4))
   )
   
   # update_hrp2_and_render_infections is not the focus of this test. Using

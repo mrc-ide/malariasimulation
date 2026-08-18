@@ -288,16 +288,12 @@ create_variables <- function(parameters) {
   drug <- individual::IntegerVariable$new(rep(0, size))
   drug_time <- individual::IntegerVariable$new(rep(-1, size))
 
-  # HRP2 antigen persistence: timestep of the most recent infection that
-  # triggered HRP2 positivity, or -1 if not currently HRP2 positive
-  hrp2_infection_time <- individual::IntegerVariable$new(rep(-1, size))
-  # whether that triggering infection was treated (Tr) or untreated/
-  # asymptomatic (D/A); used to apply a distinct clearance hazard to the
-  # treated group when parameters$hrp2_treated_same_clearance is FALSE
-  hrp2_treated <- individual::CategoricalVariable$new(
-    c('treated', 'untreated'),
-    rep('untreated', size)
-  )
+  # HRP2 antigen persistence: binary flag for whether an individual
+  # currently carries detectable HRP2 antigen (1) or not (0). Set on new
+  # clinical/asymptomatic infections; cleared via a constant hazard
+  # (parameters$hrp2_scale) once the underlying infection has actually
+  # cleared (state == 'S') - see R/hrp2.R
+  hrp2 <- individual::IntegerVariable$new(rep(0, size))
 
   if(parameters$parasite == "vivax"){
     ls_drug <- individual::IntegerVariable$new(rep(0, size))
@@ -326,8 +322,7 @@ create_variables <- function(parameters) {
     progression_rates = progression_rates,
     drug = drug,
     drug_time = drug_time,
-    hrp2_infection_time = hrp2_infection_time,
-    hrp2_treated = hrp2_treated,
+    hrp2 = hrp2,
     last_pev_timestep = last_pev_timestep,
     last_eff_pev_timestep = last_eff_pev_timestep,
     pev_profile = pev_profile,

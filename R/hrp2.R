@@ -1,31 +1,23 @@
 #' @title Parameterise HRP2 antigen persistence
 #' @description
-#' Sets the mean duration of HRP2 positivity (an exponential/constant-hazard
-#' clearance process, matching how infections are cleared elsewhere in the
-#' model - e.g. dd/da/du/dt, see \code{\link{get_parameters}}), the
-#' probability that a new asymptomatic infection is HRP2 positive, and
-#' whether treated infections clear HRP2 at a different rate to untreated/
-#' asymptomatic infections. See \code{\link{get_parameters}} for details and
-#' current (placeholder) defaults.
+#' Sets the mean duration between an infection actually clearing and HRP2
+#' becoming undetectable (a exponential/constant-hazard clearance process,
+#' matching how infections are cleared elsewhere in the model - e.g.
+#' dd/da/du/dt, see \code{\link{get_parameters}}), and the probability that
+#' a new asymptomatic infection is HRP2 positive. See
+#' \code{\link{get_parameters}} for details and current (placeholder)
+#' defaults.
 #' @param parameters model parameters
-#' @param hrp2_scale mean duration of HRP2 positivity for untreated/asymptomatic
-#' infections, in timesteps; default = NULL (leave unchanged)
+#' @param hrp2_scale mean duration between infection clearance and HRP2
+#' clearance, in timesteps (the same rate is used for everyone - treated and
+#' untreated individuals alike); default = NULL (leave unchanged)
 #' @param hrp2_asymptomatic_prob probability that a new asymptomatic infection which is
 #' detectable by light microscopy is also HRP2 positive; default = NULL (leave unchanged)
-#' @param hrp2_treated_same_clearance if TRUE (the default), treated infections clear HRP2
-#' at the same rate as untreated/asymptomatic infections (hrp2_scale); if FALSE,
-#' treated infections instead use hrp2_scale_treated;
-#' default = NULL (leave unchanged)
-#' @param hrp2_scale_treated mean duration of HRP2 positivity for treated infections, in
-#' timesteps, only used when hrp2_treated_same_clearance is FALSE;
-#' default = NULL (leave unchanged)
 #' @export
 set_hrp2_parameters <- function(
     parameters,
     hrp2_scale = NULL,
-    hrp2_asymptomatic_prob = NULL,
-    hrp2_treated_same_clearance = NULL,
-    hrp2_scale_treated = NULL
+    hrp2_asymptomatic_prob = NULL
 ) {
   if (!is.null(hrp2_scale)) {
     parameters$hrp2_scale <- hrp2_scale
@@ -33,34 +25,27 @@ set_hrp2_parameters <- function(
   if (!is.null(hrp2_asymptomatic_prob)) {
     parameters$hrp2_asymptomatic_prob <- hrp2_asymptomatic_prob
   }
-  if (!is.null(hrp2_treated_same_clearance)) {
-    parameters$hrp2_treated_same_clearance <- hrp2_treated_same_clearance
-  }
-  if (!is.null(hrp2_scale_treated)) {
-    parameters$hrp2_scale_treated <- hrp2_scale_treated
-  }
   parameters
 }
 
 #' @title Render new clinical infection counts and update HRP2 status
 #' @description
 #' Renders the number of new clinical infections this timestep, split into
-#' treated and untreated, and (re)starts the HRP2 positivity clock for all
-#' new clinical infections. New asymptomatic (patent, non-clinical)
-#' infections (to_A) also (re)start the clock, but only with probability
+#' treated and untreated, and marks new clinical infections as HRP2
+#' positive. New asymptomatic (patent, non-clinical) infections (to_A) are
+#' also marked HRP2 positive, but only with probability
 #' `hrp2_asymptomatic_prob` * P(this asymptomatic infection is detectable by
 #' light microscopy) - i.e. HRP2 is assumed to catch a subset of the
 #' asymptomatic infections that light microscopy catches, not all of them.
 #' Subpatent infections do not produce detectable HRP2 and are excluded.
 #' Only to_D/treated are counted towards n_treated_infections/
 #' n_untreated_infections: to_A never contributes to those counts, only to
-#' the HRP2 clock.
+#' HRP2 positivity.
 #'
-#' Whichever of the treated/untreated groups triggers a given individual's
-#' HRP2 positivity is recorded (hrp2_treated), so create_hrp2_clearance_process
-#' can later apply a distinct clearance hazard per group if
-#' parameters$hrp2_treated_same_clearance is FALSE. Asymptomatic infections
-#' (to_A) are grouped with untreated (to_D) for this purpose.
+#' Marking someone HRP2 positive here does not, by itself, start any
+#' clearance clock - see create_hrp2_clearance_process(), which only clears
+#' HRP2 once the underlying infection has actually resolved (state == 'S'),
+#' so reinfection while still HRP2 positive is a no-op.
 #' @param variables a list of all of the model variables
 #' @param renderer model render object
 #' @param parameters model parameters
@@ -110,62 +95,46 @@ update_hrp2_and_render_infections <- function(
     hrp2_positive_A <- bitset_at(to_A, bernoulli_multi_p(hrp2_prob))
   }
 
-  untreated_hrp2_positive <- to_D$copy()$or(hrp2_positive_A)
-  if (untreated_hrp2_positive$size() > 0) {
-    variables$hrp2_infection_time$queue_update(timestep, untreated_hrp2_positive)
-    variables$hrp2_treated$queue_update('untreated', untreated_hrp2_positive)
-  }
-  if (treated$size() > 0) {
-    variables$hrp2_infection_time$queue_update(timestep, treated)
-    variables$hrp2_treated$queue_update('treated', treated)
-  }
-}
-
-#' @title Clear HRP2 positivity from a group of individuals
-#' @description
-#' Clears HRP2 positivity from the given (already hrp2-positive) subset of
-#' individuals via a constant per-timestep hazard of 1/scale - the same
-#' exponential/memoryless convention used for clearing infections elsewhere
-#' in the model (e.g. progression_rates = 1/dd, 1/da, 1/du, 1/dt), rather
-#' than a hazard that varies with time since infection.
-#' @param variables a list of all of the model variables
-#' @param positive bitset of hrp2-positive individuals in this group
-#' @param scale mean duration of HRP2 positivity for this group, in timesteps
-#' @noRd
-clear_hrp2_group <- function(variables, positive, scale) {
-  if (positive$size() == 0) {
-    return()
-  }
-  p_clear <- rate_to_prob(1 / scale)
-  cleared <- bitset_at(positive, bernoulli_multi_p(rep(p_clear, positive$size())))
-  if (cleared$size() > 0) {
-    variables$hrp2_infection_time$queue_update(-1, cleared)
+  new_hrp2_positive <- to_D$copy()$or(treated)$or(hrp2_positive_A)
+  if (new_hrp2_positive$size() > 0) {
+    variables$hrp2$queue_update(1, new_hrp2_positive)
   }
 }
 
 #' @title HRP2 clearance process
 #' @description
-#' Each timestep, clears HRP2 positivity from individuals. If
-#' parameters$hrp2_treated_same_clearance is TRUE, everyone clears at the
-#' same rate (hrp2_scale). If FALSE, the treated group (see
-#' update_hrp2_and_render_infections) clears at a separate rate
-#' (hrp2_scale_treated).
+#' Each timestep, clears HRP2 positivity from individuals whose underlying
+#' infection has actually resolved. HRP2-positive individuals still in an
+#' infected state (D/A/U/Tr) are left untouched - they are still
+#' parasitaemic, so HRP2 stays positive with no decay. Once an individual
+#' reaches state 'S' (infection cleared), a constant per-timestep hazard of
+#' 1/hrp2_scale is applied - the same exponential/memoryless convention used
+#' for clearing infections elsewhere in the model (e.g.
+#' progression_rates = 1/dd, 1/da, 1/du, 1/dt), rather than a hazard that
+#' varies with time since clearance. The same hazard is used regardless of
+#' whether the resolved infection was treated or not - treated individuals
+#' clear HRP2 sooner only because their underlying infection (Tr -> S)
+#' resolves faster than an untreated one (D -> A -> U -> S).
 #' @param variables a list of all of the model variables
 #' @param parameters model parameters
 #' @noRd
 create_hrp2_clearance_process <- function(variables, parameters) {
   function(timestep) {
-    positive <- variables$hrp2_infection_time$get_index_of(-1)$not(TRUE)
+    positive <- variables$hrp2$get_index_of(1)
     if (positive$size() == 0) {
       return()
     }
-    if (parameters$hrp2_treated_same_clearance) {
-      clear_hrp2_group(variables, positive, parameters$hrp2_scale)
-    } else {
-      treated_positive <- variables$hrp2_treated$get_index_of('treated')$and(positive)
-      untreated_positive <- variables$hrp2_treated$get_index_of('untreated')$and(positive)
-      clear_hrp2_group(variables, untreated_positive, parameters$hrp2_scale)
-      clear_hrp2_group(variables, treated_positive, parameters$hrp2_scale_treated)
+    cleared_infection <- variables$state$get_index_of('S')$and(positive)
+    if (cleared_infection$size() == 0) {
+      return()
+    }
+    p_clear <- rate_to_prob(1 / parameters$hrp2_scale)
+    cleared <- bitset_at(
+      cleared_infection,
+      bernoulli_multi_p(rep(p_clear, cleared_infection$size()))
+    )
+    if (cleared$size() > 0) {
+      variables$hrp2$queue_update(0, cleared)
     }
   }
 }
@@ -178,7 +147,7 @@ create_hrp2_renderer_process <- function(renderer, variables) {
   function(timestep) {
     renderer$render(
       'n_hrp2_positive',
-      variables$hrp2_infection_time$get_index_of(-1)$not(TRUE)$size(),
+      variables$hrp2$get_index_of(1)$size(),
       timestep
     )
   }
@@ -191,7 +160,7 @@ create_hrp2_renderer_process <- function(renderer, variables) {
 #' @noRd
 create_hrp2_age_renderer_process <- function(variables, parameters, renderer) {
   function(timestep) {
-    positive <- variables$hrp2_infection_time$get_index_of(-1)$not(TRUE)
+    positive <- variables$hrp2$get_index_of(1)
     for (i in seq_along(parameters$hrp2_rendering_min_ages)) {
       lower <- parameters$hrp2_rendering_min_ages[[i]]
       upper <- parameters$hrp2_rendering_max_ages[[i]]

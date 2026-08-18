@@ -7,35 +7,25 @@
 set_hrp2_parameters(
   parameters,
   hrp2_scale = NULL,
-  hrp2_asymptomatic_prob = NULL,
-  hrp2_treated_same_clearance = NULL,
-  hrp2_scale_treated = NULL
+  hrp2_asymptomatic_prob = NULL
 )
 }
 \arguments{
 \item{parameters}{model parameters}
 
-\item{hrp2_scale}{mean duration of HRP2 positivity for untreated/asymptomatic
-infections, in timesteps; default = NULL (leave unchanged)}
+\item{hrp2_scale}{mean duration between infection clearance and HRP2
+clearance, in timesteps (the same rate is used for everyone - treated and
+untreated individuals alike); default = NULL (leave unchanged)}
 
 \item{hrp2_asymptomatic_prob}{probability that a new asymptomatic infection which is
 detectable by light microscopy is also HRP2 positive; default = NULL (leave unchanged)}
-
-\item{hrp2_treated_same_clearance}{if TRUE (the default), treated infections clear HRP2
-at the same rate as untreated/asymptomatic infections (hrp2_scale); if FALSE,
-treated infections instead use hrp2_scale_treated;
-default = NULL (leave unchanged)}
-
-\item{hrp2_scale_treated}{mean duration of HRP2 positivity for treated infections, in
-timesteps, only used when hrp2_treated_same_clearance is FALSE;
-default = NULL (leave unchanged)}
 }
 \description{
-Sets the mean duration of HRP2 positivity (an exponential/constant-hazard
-clearance process, matching how infections are cleared elsewhere in the
-model - e.g. dd/da/du/dt, see \code{\link{get_parameters}}), the
-probability that a new asymptomatic infection is HRP2 positive, and
-whether treated infections clear HRP2 at a different rate to untreated/
-asymptomatic infections. See \code{\link{get_parameters}} for details and
-current (placeholder) defaults.
+Sets the mean duration between an infection actually clearing and HRP2
+becoming undetectable (a exponential/constant-hazard clearance process,
+matching how infections are cleared elsewhere in the model - e.g.
+dd/da/du/dt, see \code{\link{get_parameters}}), and the probability that
+a new asymptomatic infection is HRP2 positive. See
+\code{\link{get_parameters}} for details and current (placeholder)
+defaults.
 }

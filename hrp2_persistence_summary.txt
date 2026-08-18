@@ -1,0 +1,152 @@
+How HRP2 antigen persistence is implemented in malariasimulation
+==================================================================
+
+Based on: R/hrp2.R, R/variables.R, R/parameters.R, R/human_infection.R,
+R/mda_processes.R, R/mortality_processes.R, R/processes.R
+(branch: age_spec_states, as of 2026-08-18).
+
+NOTE: this describes the current design, which tracks time between
+infection clearance and HRP2 clearance. The original design (tracking time
+since infection, with separate treated/untreated clearance rates) is
+described further down for reference - see "Previous design (superseded)".
+
+Core idea
+---------
+HRP2 positivity is a single binary flag, decoupled from *when* someone was
+infected and instead driven by their *current* disease state each timestep
+(R/variables.R):
+
+- hrp2 (IntegerVariable, 0/1) - 1 if the individual currently carries
+  detectable HRP2 antigen, 0 otherwise. There is no timestamp and no
+  treated/untreated bookkeeping anymore - just this one flag.
+
+Turning it on: update_hrp2_and_render_infections() (R/hrp2.R)
+---------------------------------------------------------------
+Called from both falciparum_infection_outcome_process() and
+vivax_infection_outcome_process() in R/human_infection.R whenever new
+infections resolve this timestep:
+
+- Every new clinical infection (to_D untreated, or treated) is marked HRP2
+  positive (hrp2 <- 1) unconditionally.
+- New asymptomatic infections (to_A) are marked positive only with
+  probability hrp2_asymptomatic_prob * P(detectable by light microscopy) -
+  via hrp2_asymptomatic_probability(), which reuses
+  probability_of_detection() (age + detection immunity id) for falciparum,
+  or assumes 100% LM-detectability for vivax.
+- Subpatent (to_U) infections never trigger HRP2.
+- to_D, treated and the qualifying subset of to_A are all just set to
+  hrp2 = 1 in a single update - there's no longer a distinction between
+  which group triggered it. Reinfection while already positive is a no-op
+  (still 1).
+
+Turning it off: create_hrp2_clearance_process() (R/hrp2.R)
+---------------------------------------------------------------------
+Runs every timestep as hrp2_clearance_process (registered in
+R/processes.R):
+
+- Finds everyone currently HRP2 positive (hrp2 == 1).
+- Of those, only the ones whose underlying infection has actually cleared
+  (current disease state == 'S') are eligible to lose HRP2 positivity.
+  Anyone still infected (state D/A/U/Tr) is left untouched - no decay
+  happens while parasites are still present, no matter how long they've
+  been infected.
+- Eligible individuals clear via a constant per-timestep hazard of
+  1/hrp2_scale (exponential/memoryless, rate_to_prob(1/hrp2_scale) then a
+  Bernoulli draw) - the same convention used for dd/da/du/dt elsewhere in
+  the model, but now applied to "time since the infection cleared" rather
+  than "time since the infection started".
+- The SAME hrp2_scale is used for everyone. Treated and untreated
+  individuals are no longer distinguished at all in the HRP2 clearance
+  process - a treated person simply ends up HRP2-negative sooner in wall
+  time because their underlying infection clears faster (Tr -> S is quick)
+  than an untreated one (D -> A -> U -> S can take a long time), not
+  because of a different HRP2 hazard.
+- This process is completely decoupled from *how* someone reached S - it
+  just checks variables$state fresh each timestep. Natural recovery
+  (disease_progression.R), drug-cured clinical treatment, and MDA/SMC
+  (R/mda_processes.R, see below) are all handled identically for free.
+
+Parameters (set_hrp2_parameters(), R/hrp2.R; defaults in R/parameters.R)
+---------------------------------------------------------------------
+- hrp2_scale (default 20, placeholder/uncalibrated) - mean number of
+  timesteps between infection clearance (state S) and HRP2 becoming
+  undetectable. Applies to everyone, treated or not.
+- hrp2_asymptomatic_prob (default 1) - scales asymptomatic-infection HRP2
+  uptake.
+- hrp2_treated_same_clearance and hrp2_scale_treated have been removed -
+  there is only one clearance rate now.
+
+Rendering
+---------
+- create_hrp2_renderer_process() - total n_hrp2_positive each timestep
+  (variables$hrp2$get_index_of(1)$size()).
+- create_hrp2_age_renderer_process() - n_hrp2_positive_<lower>_<upper> per
+  age band in hrp2_rendering_min_ages/max_ages.
+- update_hrp2_and_render_infections() also renders n_treated_infections /
+  n_untreated_infections and age-stratified incidence
+  (treated_infections_*, untreated_infections_*) alongside the HRP2
+  update - this incidence split is just for reporting and is unrelated to
+  the (now-removed) treated/untreated HRP2 clearance distinction.
+
+Mortality (R/mortality_processes.R)
+---------------------------------------------------------------------
+reset_target() resets hrp2 to 0 for anyone who dies and is reborn (in the
+same block as birth/immunity/drug resets), since a newborn is placed
+straight into state 'S' and must not be picked up as "an infection that
+just cleared" by the clearance process above.
+
+Side effect: the old D-becomes-treated inconsistency is now resolved
+---------------------------------------------------------------------
+Previously (see "Previous design" below), someone already sitting in state
+D who got treated later via MDA/SMC (update_mass_drug_admin(),
+R/mda_processes.R) kept clearing HRP2 at the untreated rate, because that
+code path moves D -> Tr without updating the (now-removed) hrp2_treated
+variable. Under the current design this is no longer an issue: HRP2
+clearance only cares about the current value of variables$state, which
+update_mass_drug_admin() does update correctly (D/detectable-A -> Tr, and
+susceptible/subpatent/non-detected-A -> S directly). So MDA/SMC-treated
+individuals are handled correctly automatically, with no special-casing
+required in R/mda_processes.R.
+
+Known modelling caveat (see hrp2_vs_lm_startup_explanation.txt)
+---------------------------------------------------------------------
+hrp2 is initialised to 0 for everyone regardless of the equilibrium-seeded
+disease state, so anyone set_equilibrium() places directly into A/D/Tr/U
+at t=0 starts as HRP2-negative even though LM prevalence counts them as
+infected. This is the same underlying gap as before the redesign (just
+expressed via a 0/1 flag instead of a -1 sentinel) - it creates a burn-in
+artifact before n_hrp2_positive converges to track LM prevalence. Not yet
+fixed; still a candidate for seeding hrp2 consistently with the
+equilibrium state at t=0.
+
+===================================================================
+Previous design (superseded)
+===================================================================
+This section is kept for historical reference; it no longer reflects the
+code as of 2026-08-18.
+
+The original implementation tracked "time since infection" rather than
+"time since infection clearance", using two per-person variables:
+
+- hrp2_infection_time (IntegerVariable) - timestep of the most recent
+  infection that triggered HRP2 positivity, or -1 if not currently
+  positive.
+- hrp2_treated (CategoricalVariable, 'treated'/'untreated') - recorded
+  whether the triggering infection was treated (Tr) or
+  untreated/asymptomatic (D/A), so the two groups could clear at different
+  rates.
+
+HRP2 positivity turned on at the moment of new infection (restarting the
+clock on reinfection) and cleared via a constant hazard applied to anyone
+currently positive, regardless of whether they were still infected.
+hrp2_treated_same_clearance (default TRUE) controlled whether treated
+individuals used a separate hrp2_scale_treated rate.
+
+This meant clearance was decoupled from actual parasite clearance - a
+person could lose HRP2 positivity while still asymptomatically infected,
+since the hazard ran from the moment of infection rather than from
+resolution. It also meant D-state individuals treated later via MDA/SMC
+kept clearing at the untreated rate (see above) since that code path never
+updated hrp2_treated. The current design (time since infection clearance,
+single shared rate, binary flag keyed off live disease state) was adopted
+specifically to fix both of these issues.

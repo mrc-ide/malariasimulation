@@ -5,11 +5,11 @@
 #' @param parameters model parameters
 #' @noRd
 prob_bitten <- function(
-  timestep,
-  variables,
-  species,
-  parameters
-  ) {
+    timestep,
+    variables,
+    species,
+    parameters
+) {
   n <- parameters$human_population
   if (!(parameters$bednets || parameters$spraying)) {
     return(
@@ -20,7 +20,7 @@ prob_bitten <- function(
       )
     )
   }
-
+  
   if (parameters$bednets) {
     phi_bednets <- parameters$phi_bednets[[species]]
     net_time <- variables$net_time$get_values()
@@ -36,7 +36,7 @@ prob_bitten <- function(
     sn <- 1
     rn <- 0
   }
-
+  
   if (parameters$spraying) {
     phi_indoors <- parameters$phi_indoors[[species]]
     protected <- variables$spray_time$get_index_of(set=-1)$not(TRUE)
@@ -77,21 +77,21 @@ prob_bitten <- function(
     rs_comp <- 1
     ss <- 1
   }
-
+  
   list(
     prob_bitten_survives = (
       1 - phi_indoors +
-      phi_bednets * rs_comp * sn * ss +
-      (phi_indoors - phi_bednets) * rs_comp * ss
+        phi_bednets * rs_comp * sn * ss +
+        (phi_indoors - phi_bednets) * rs_comp * ss
     ),
     prob_bitten = (
       1 - phi_indoors +
-      phi_bednets * rs_comp * sn +
-      (phi_indoors - phi_bednets) * rs_comp
+        phi_bednets * rs_comp * sn +
+        (phi_indoors - phi_bednets) * rs_comp
     ),
     prob_repelled = (
       phi_bednets * rs_comp * rn +
-      phi_indoors * rs
+        phi_indoors * rs
     )
   )
 }
@@ -150,38 +150,37 @@ distribute_nets <- function(variables, throw_away_net, parameters, correlations)
   function(timestep) {
     matches <- timestep == parameters$bednet_timesteps
     if (any(matches)) {
-        if(parameters$age_target_nets) {
-            for(i in 1:ncol(parameters$bednet_coverages)){
-                in_age <- variables$birth$get_index_of(
-                a = timestep - parameters$bednet_max_ages[i],
-                b = timestep - parameters$bednet_min_ages[i]
-                )$to_vector()
-                target <- in_age[sample_intervention(
-                in_age,
-                'bednets',
-                parameters$bednet_coverages[matches, i],
-                correlations
-                )]
-                variables$net_time$queue_update(timestep, target)
-                throw_away_net$clear_schedule(target)
-                throw_away_net$schedule(
-                  target,
-                  sample_net_time(length(target))
-                )
-            }
-        } else{
-            target <- which(sample_intervention(
-                    seq(parameters$human_population),
-                    'bednets',
-                    parameters$bednet_coverages[matches],
-                    correlations
-                    ))
-                    variables$net_time$queue_update(timestep, target)
-                    throw_away_net$clear_schedule(target)
-                    throw_away_net$schedule(
-                      target,
-                      sample_net_time(length(target))
-                    )
+      if(parameters$age_target_nets) {
+        for(i in 1:ncol(parameters$bednet_coverages)){
+          in_age <- variables$birth$get_index_of(
+            a = timestep - parameters$bednet_max_ages[i],
+            b = timestep - parameters$bednet_min_ages[i]
+          )$to_vector()
+          target <- in_age[sample_intervention(
+            in_age,
+            'bednets',
+            parameters$bednet_coverages[matches, i],
+            correlations
+          )]
+          variables$net_time$queue_update(timestep, target)
+          throw_away_net$clear_schedule(target)
+          throw_away_net$schedule(
+            target,
+            sample_net_time(length(target)))
+        }
+      } else{
+        target <- which(sample_intervention(
+          seq(parameters$human_population),
+          'bednets',
+          parameters$bednet_coverages[matches],
+          correlations
+        ))
+        variables$net_time$queue_update(timestep, target)
+        throw_away_net$clear_schedule(target)
+        throw_away_net$schedule(
+          target,
+          sample_net_time(length(target))
+        )
       }
     }
   }
@@ -237,13 +236,13 @@ net_usage_renderer <- function(net_time, renderer) {
 logistic_net_retention_time <- function(n, half_life, k) {
   # Time at which all nets fail:
   l <- half_life / sqrt(1 - k / (k - log(0.5)))
-
+  
   # Apply inverse of S(t):
   #  T = l * sqrt( [ -log(U)/k ] / [ 1 - ( -log(U)/k ) ] )
   #  Or more neatly: T = l * sqrt( a / (1 + a ) ),  a = -log(U)/k
   a <- -log(runif(n)) / k
   T <- l * sqrt(a / (1 + a))
-
+  
   # Numerically, T will be in [0, l]. If we want to be certain we never
   # exceed l by floating rounding, you can do:
   pmin(T, l)

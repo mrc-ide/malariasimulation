@@ -309,7 +309,13 @@ create_processes <- function(
         parameters,
         correlations
       ),
-      net_usage_renderer = net_usage_renderer(variables$net_time, renderer)
+      net_usage_renderer = net_usage_renderer(variables$net_time, renderer),
+      age_group_net_usage_renderer = create_age_group_net_usage_renderer(
+        variables$net_time,
+        variables$birth,
+        parameters,
+        renderer
+      )
     )
   }
 

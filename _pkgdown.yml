@@ -37,6 +37,8 @@ navbar:
         href: articles/Parameter_variation.html
       - text: "Plasmodium Vivax"
         href: articles/Plasmodium_vivax.html
+      - text: "HRP2 Antigen Persistence"
+        href: articles/HRP2.html
     functions:
       text: "Functions"
       href: reference/index.html
@@ -104,6 +106,9 @@ reference:
   contents:
     - set_bednets
     - set_spraying
+- title: "Diagnostics"
+  contents:
+    - set_hrp2_parameters
 - title: "Non-user functions"
   contents:
     - CorrelationParameters

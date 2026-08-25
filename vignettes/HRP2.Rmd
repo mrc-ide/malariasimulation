@@ -1,0 +1,167 @@
+---
+title: "HRP2 Antigen Persistence"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{HRP2 Antigen Persistence}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  dpi=300,
+  fig.width=7
+)
+```
+
+```{r setup}
+# Load the requisite packages:
+library(malariasimulation)
+# Set colour palette:
+cols  <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+```
+
+This vignette describes how `malariasimulation` models the persistence of the histidine-rich protein 2 (HRP2) antigen, and how to configure and interpret it.
+
+HRP2-based rapid diagnostic tests (RDTs) are widely used to detect malaria, but HRP2 antigen can remain detectable in the blood for some time after a *P. falciparum* infection has actually cleared. This means HRP2-based prevalence estimates can overestimate the burden of current infection relative to methods that detect parasites directly, such as light microscopy (LM) or PCR. `malariasimulation` includes a simple model of this persistence so that simulated HRP2 prevalence can be compared directly with LM/PCR-based outputs, and with field data collected via RDTs.
+
+*Note: HRP2 persistence is currently a placeholder feature - the default parameter values below are not yet calibrated against field data.*
+
+## How HRP2 persistence is modelled
+
+HRP2 positivity is tracked with a single binary state per person: are they currently HRP2 positive, or not? It responds to whether a person is *currently* infected:
+
+* **Becoming positive.** Every new clinical infection (whether or not it goes on to be treated) is marked HRP2 positive immediately. New asymptomatic infections are marked positive with probability `hrp2_asymptomatic_prob * P(detectable by light microscopy)` - i.e. HRP2 is assumed to catch a subset of the asymptomatic infections that LM catches, not all of them (for *P. vivax*, asymptomatic infections are always assumed LM-detectable). Subpatent infections never produce detectable HRP2.
+* **Staying positive.** While a person remains in any infected state (D, A, U or Tr) they stay HRP2 positive with no decay - they are still parasitaemic, so there is no reason for HRP2 to clear yet. Reinfection while already HRP2 positive has no additional effect.
+* **Clearing.** Once a person's infection actually resolves (i.e. they reach state S), a constant per-timestep hazard of `1/hrp2_scale` is applied - the same exponential/memoryless convention used to clear infections elsewhere in the model (e.g. the `dd`/`da`/`du`/`dt` duration parameters). `hrp2_scale` is therefore the mean number of timesteps between an infection clearing and HRP2 becoming undetectable, and the same value is used for everyone, whether or not the resolved infection was treated.
+
+Because clearance is keyed off the current disease state, this works identically regardless of whether recovery happened naturally, via clinical drug treatment, or via mass drug administration/chemoprevention (see [Mass Drug Administration and Chemoprevention](https://mrc-ide.github.io/malariasimulation/articles/MDA.html)).
+
+The implied survival curve - the probability that someone is still HRP2 positive $x$ timesteps after their infection cleared - is simply:
+
+$$P(\text{still positive}) = e^{-x/\texttt{hrp2\_scale}}$$
+
+```{r, fig.align = 'center', out.width='100%'}
+hrp2_scale <- 60 / log(2) # a 60-timestep half-life
+
+x <- 0:300
+survival <- exp(-x / hrp2_scale)
+
+plot(x, survival, type = "l", col = cols[1], lwd = 2,
+     xlab = "Timesteps since infection cleared (state S)",
+     ylab = "P(still HRP2 positive)",
+     ylim = c(0, 1), xaxs = "i", yaxs = "i")
+grid(lty = 2, col = "grey80", lwd = 0.5)
+```
+
+## Parameters
+
+HRP2 parameters are set using the `set_hrp2_parameters()` convenience function:
+
+* `hrp2_scale`: the mean number of timesteps between an infection clearing (state S) and HRP2 becoming undetectable; default = 20 (placeholder, not yet calibrated).
+* `hrp2_asymptomatic_prob`: the probability that a new asymptomatic infection which is detectable by light microscopy is also HRP2 positive (new clinical infections are always assumed HRP2 positive); default = 1 (placeholder, not yet calibrated).
+
+```{r}
+simparams <- get_parameters(list(human_population = 2000))
+simparams <- set_hrp2_parameters(
+  simparams,
+  hrp2_scale = hrp2_scale,
+  hrp2_asymptomatic_prob = 1
+)
+```
+
+## Rendering HRP2 outputs
+
+Two sets of outputs are rendered automatically whenever a simulation is run:
+
+* `n_hrp2_positive`: the total number of individuals currently HRP2 positive, each timestep.
+* `n_untreated_infections`/`n_treated_infections`: the number of new untreated and treated clinical infections that timestep (rendered as part of the same process as HRP2 updates, but this split is purely for reporting - it plays no role in HRP2 clearance itself).
+
+Age-stratified versions of these outputs (`n_hrp2_positive_<lower>_<upper>`, `untreated_infections_<lower>_<upper>`, `treated_infections_<lower>_<upper>`) can be requested via `set_epi_outputs()`, in the same way as other age-stratified outputs such as LM/PCR prevalence (see `?set_epi_outputs`).
+
+## Example: comparing HRP2 positivity to light microscopy prevalence
+
+To illustrate the feature, we simulate a population with clinical treatment available, and compare HRP2 positivity to LM-detectable prevalence over time and by age group. We use `set_epi_outputs()` with matching age bands for both outputs so they share a denominator (`n_age_<lower>_<upper>`) and are directly comparable.
+
+```{r}
+year <- 365
+sim_length <- 10 * year
+human_population <- 2000
+starting_EIR <- 10
+
+simparams <- get_parameters(list(human_population = human_population))
+simparams <- set_equilibrium(simparams, init_EIR = starting_EIR)
+simparams <- set_drugs(simparams, list(AL_params))
+simparams <- set_clinical_treatment(simparams, drug = 1, timesteps = 1, coverages = 0.5)
+simparams <- set_hrp2_parameters(
+  simparams,
+  hrp2_scale = hrp2_scale,
+  hrp2_asymptomatic_prob = 1
+)
+simparams <- set_epi_outputs(
+  simparams,
+  hrp2 = c(0, 5 * year, 100 * year),
+  prevalence = c(0, 5 * year, 100 * year)
+)
+
+set.seed(1)
+output <- run_simulation(timesteps = sim_length, parameters = simparams)
+```
+
+### Total HRP2 positivity over time
+
+```{r, fig.align = 'center', out.width='100%'}
+plot(output$timestep, output$n_hrp2_positive, type = "l", col = cols[1], lwd = 2,
+     xlab = "Days", ylab = "Number HRP2 positive",
+     xaxs = "i", yaxs = "i")
+grid(lty = 2, col = "grey80", lwd = 0.5)
+```
+
+### HRP2 positivity by age group
+
+```{r, fig.align = 'center', out.width='100%'}
+plot(output$timestep, output$n_hrp2_positive_0_1824, type = "l", col = cols[1], lwd = 2,
+     xlab = "Days", ylab = "Number HRP2 positive",
+     ylim = range(c(output$n_hrp2_positive_0_1824, output$n_hrp2_positive_1825_36499)),
+     xaxs = "i", yaxs = "i")
+lines(output$timestep, output$n_hrp2_positive_1825_36499, col = cols[2], lwd = 2)
+grid(lty = 2, col = "grey80", lwd = 0.5)
+legend("topleft", legend = c("Under 5", "5+"), col = cols[1:2], lty = 1, lwd = 2, cex = 0.8)
+```
+
+### HRP2 vs. light microscopy prevalence
+
+`n_hrp2_positive_<lower>_<upper>` and `n_detect_lm_<lower>_<upper>` share the same age-group denominator (`n_age_<lower>_<upper>`), so we can compare the two prevalence measures directly. Because D and Tr infections are always 100% LM-detectable and always HRP2 positive, the gap between the two measures is generated entirely by the asymptomatic (A) compartment, where LM applies an age- and immunity-dependent detection probability that HRP2 does not.
+
+```{r, fig.align = 'center', out.width='100%'}
+prev_hrp2_under5 <- output$n_hrp2_positive_0_1824 / output$n_age_0_1824
+prev_lm_under5 <- output$n_detect_lm_0_1824 / output$n_age_0_1824
+prev_hrp2_5plus <- output$n_hrp2_positive_1825_36499 / output$n_age_1825_36499
+prev_lm_5plus <- output$n_detect_lm_1825_36499 / output$n_age_1825_36499
+
+par(mfrow = c(1, 2))
+
+plot(output$timestep, prev_hrp2_under5, type = "l", col = cols[1], lwd = 2,
+     main = "Under 5", xlab = "Days", ylab = "Prevalence",
+     ylim = range(c(prev_hrp2_under5, prev_lm_under5)), xaxs = "i", yaxs = "i")
+lines(output$timestep, prev_lm_under5, col = cols[2], lwd = 2)
+grid(lty = 2, col = "grey80", lwd = 0.5)
+legend("topleft", legend = c("HRP2", "LM"), col = cols[1:2], lty = 1, lwd = 2, cex = 0.8)
+
+plot(output$timestep, prev_hrp2_5plus, type = "l", col = cols[1], lwd = 2,
+     main = "5+", xlab = "Days", ylab = "Prevalence",
+     ylim = range(c(prev_hrp2_5plus, prev_lm_5plus)), xaxs = "i", yaxs = "i")
+lines(output$timestep, prev_lm_5plus, col = cols[2], lwd = 2)
+grid(lty = 2, col = "grey80", lwd = 0.5)
+legend("topleft", legend = c("HRP2", "LM"), col = cols[1:2], lty = 1, lwd = 2, cex = 0.8)
+
+par(mfrow = c(1, 1))
+```
+
+As expected, HRP2 positivity sits above LM-detectable prevalence in both age groups, and the gap is larger in the 5+ group: older/more-exposed individuals carry a larger asymptomatic reservoir, and acquired detection immunity makes LM increasingly likely to miss those asymptomatic infections - a discount that HRP2 positivity does not apply.
+
+## Known limitation: initial conditions
+
+`set_equilibrium()` seeds the initial disease-state distribution (S/A/D/U/Tr) to match steady-state prevalence for the configured EIR, but it does not seed HRP2 status to match - everyone starts HRP2 negative at `timestep = 0`, regardless of how many people `set_equilibrium()` has already placed into infected states. As a result, `n_hrp2_positive` starts at zero and only catches up to a realistic level over a short burn-in period (on the order of a few multiples of `hrp2_scale`), even though LM/PCR prevalence is already realistic from the first timestep. When comparing `n_hrp2_positive` to other prevalence measures, it is advisable to discard this initial burn-in period.

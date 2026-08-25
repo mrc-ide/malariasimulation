@@ -11,6 +11,8 @@ set_epi_outputs(
   clinical_incidence = NULL,
   severe_incidence = NULL,
   prevalence = NULL,
+  state_count = NULL,
+  hrp2 = NULL,
   n_with_hypnozoites = NULL,
   ica = NULL,
   icm = NULL,
@@ -35,6 +37,11 @@ set_epi_outputs(
 \item{severe_incidence}{age breaks for severe incidence outputs (pf only); default = NULL}
 
 \item{prevalence}{age breaks for clinical prevalence outputs (pcr and lm detectable infections); default = c(730, 3650)}
+
+\item{state_count}{age breaks for age-stratified state count outputs (S, A, D, U, Tr); default = NULL}
+
+\item{hrp2}{age breaks for age-stratified treated/untreated new clinical infection
+counts and HRP2-positive counts; default = NULL}
 
 \item{n_with_hypnozoites}{age breaks for individuals with hypnozoites outputs (pv only); default = NULL}
 

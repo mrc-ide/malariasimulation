@@ -292,8 +292,33 @@
 #' * prevalence_rendering_min_ages - the minimum ages for clinical prevalence
 #' outputs; default = 730
 #' * prevalence_rendering_max_ages - the corresponding max ages; default = 3650
+#' * state_count_rendering_min_ages - the minimum ages for age-stratified state
+#' count outputs (S, A, D, U, Tr); default = turned off
+#' * state_count_rendering_max_ages - the corresponding max ages; default = turned off
 #' * n_with_hypnozoites_rendering_min_ages - the minimum ages for number with hypnozoites outputs (p.v only); default = numeric(0)
 #' * n_with_hypnozoites_rendering_max_ages - the corresponding max ages; default = numeric(0)
+#' * hrp2_rendering_min_ages - the minimum ages for age-stratified treated/untreated
+#' infection and HRP2-positive count outputs; default = turned off
+#' * hrp2_rendering_max_ages - the corresponding max ages; default = turned off
+#'
+#' HRP2 antigen persistence:
+#' please set HRP2 parameters with the convenience function
+#' \code{\link{set_hrp2_parameters}}
+#'
+#' * hrp2_scale - mean duration between an infection actually clearing
+#' (state == 'S') and HRP2 becoming undetectable, in timesteps. Individuals
+#' remain HRP2 positive with no decay while still infected (D/A/U/Tr); once
+#' they reach S, HRP2 clears via a constant per-timestep hazard of
+#' 1/hrp2_scale, the same exponential/memoryless convention used for
+#' clearing infections elsewhere in the model (e.g. dd/da/du/dt). The same
+#' hazard is used for everyone - treated individuals clear HRP2 sooner only
+#' because their underlying infection resolves faster (Tr -> S) than an
+#' untreated one (D -> A -> U -> S); default = 20 (placeholder, not yet
+#' calibrated)
+#' * hrp2_asymptomatic_prob - probability that a new asymptomatic infection
+#' which is detectable by light microscopy is also HRP2 positive (new
+#' clinical infections are always assumed HRP2 positive); default = 1
+#' (placeholder, not yet calibrated)
 #'
 #' Age structured mean immunity (/hyponozoite) rendering:
 #' 
@@ -486,6 +511,14 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       prevalence_rendering_max_ages = 10 * 365,
       n_with_hypnozoites_rendering_min_ages = numeric(0),
       n_with_hypnozoites_rendering_max_ages = numeric(0),
+      state_count_rendering_min_ages = numeric(0),
+      state_count_rendering_max_ages = numeric(0),
+      hrp2_rendering_min_ages = numeric(0),
+      hrp2_rendering_max_ages = numeric(0),
+      # HRP2 antigen persistence
+      # NOTE: placeholder values, not yet calibrated
+      hrp2_scale = 20,
+      hrp2_asymptomatic_prob = 1,
       # age structured average immunity (/hypnozoite) rendering
       ib_rendering_min_ages = numeric(0),
       ib_rendering_max_ages = numeric(0),

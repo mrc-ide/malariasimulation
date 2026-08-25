@@ -277,13 +277,30 @@ test_that('relapses are recognised with division between bite infections and rel
     last_boosted_ica = individual::DoubleVariable$new(rep(-1, 4)),
     last_eff_pev_timestep = individual::DoubleVariable$new(rep(-1, 4)),
     pev_profile = individual::IntegerVariable$new(rep(-1, 4)),
-    hypnozoites = individual::IntegerVariable$new(c(0, 1, 2, 3))
+    hypnozoites = individual::IntegerVariable$new(c(0, 1, 2, 3)),
+    birth = individual::IntegerVariable$new(rep(0, 4)),
+    hrp2 = individual::IntegerVariable$new(rep(0, 4))
   )
   
+  # update_hrp2_and_render_infections is not the focus of this test. Using
+  # mockery::stub(..., depth = 2) for bernoulli_multi_p here (as below) walks
+  # the call graph of vivax_infection_outcome_process: if
+  # update_hrp2_and_render_infections is left real, its own nested
+  # bernoulli_multi_p call sits at exactly that call depth and gets swept up
+  # by the same stub, consuming values meant for calc_mock/bernoulli_mock
+  # below. Mixing mockery::stub(..., depth = 2) with other mocks in the same
+  # test also does not reliably revert afterwards. Using
+  # testthat::local_mocked_bindings() exclusively for every mock in this test
+  # avoids both problems.
+  testthat::local_mocked_bindings(
+    update_hrp2_and_render_infections = mockery::mock(),
+    .package = "malariasimulation"
+  )
+
   bernoulli_mock <- mockery::mock(c(1, 3), 1, 2, cycle = TRUE)
   calc_mock <- mockery::mock(individual::Bitset$new(4)$insert(2))
-  mockery::stub(vivax_infection_outcome_process, 'bernoulli_multi_p', bernoulli_mock, depth = 2)
-  mockery::stub(vivax_infection_outcome_process, 'calculate_clinical_infections', calc_mock)
+  testthat::local_mocked_bindings(bernoulli_multi_p = bernoulli_mock, .package = "malariasimulation")
+  testthat::local_mocked_bindings(calculate_clinical_infections = calc_mock, .package = "malariasimulation")
 
   renderer <- mock_render(1)
   infected_humans <- individual::Bitset$new(4)$insert(c(1, 2, 3, 4))

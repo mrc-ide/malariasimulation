@@ -294,7 +294,10 @@ test_that('MDA ignores non-detectable asymptomatics', {
   mock_correlation <- mockery::mock(c(TRUE, TRUE, TRUE, TRUE))
   mockery::stub(listener, 'sample_intervention', mock_correlation)
   local_mocked_bindings(calculate_asymptomatic_detectable = mockery::mock(individual::Bitset$new(4)))
-  
+  # drug efficacy (SP_AQ_params[[1]] = 0.9) must succeed for everyone here, so
+  # this test isn't dependent on an un-seeded real bernoulli draw
+  local_mocked_bindings(bernoulli_multi_p = mockery::mock(1:4))
+
   listener(timestep)
   
   expect_bitset_update(

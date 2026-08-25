@@ -16,12 +16,31 @@
 #'  * n_bitten: number of humans bitten by an infectious mosquito
 #'  * n_treated: number of humans treated for clinical or severe malaria this timestep
 #'  * n_infections: number of humans who get an asymptomatic, clinical or severe malaria this timestep
+#'  * n_treated_infections: number of humans with a new clinical infection this timestep who are successfully treated (-> Tr)
+#'  * n_untreated_infections: number of humans with a new clinical infection this timestep who are not successfully treated (-> D)
+#'  * n_treated_infections_{lower}_{upper} (or n_untreated_infections_{lower}_{upper}): as above, for humans in that age range.
+#' Age ranges are set with hrp2_rendering_min_ages and hrp2_rendering_max_ages
+#'  * n_hrp2_positive: number of humans currently HRP2 antigen positive, i.e. within the
+#' modelled persistence window since their most recent new clinical infection (always HRP2
+#' positive) or new asymptomatic (patent) infection (HRP2 positive with probability
+#' hrp2_asymptomatic_prob times the probability that infection is light-microscopy detectable).
+#' Subpatent infections do not produce detectable HRP2. Treated infections clear HRP2 at the
+#' same rate as untreated/asymptomatic infections by default, but can be given a separate
+#' clearance rate. See set_hrp2_parameters
+#'  * n_hrp2_positive_{lower}_{upper}: as above, for humans in that age range.
+#' Age ranges are set with hrp2_rendering_min_ages and hrp2_rendering_max_ages
 #'  * natural_deaths: number of humans who die from aging
 #'  * S_count: number of humans who are Susceptible
 #'  * A_count: number of humans who are Asymptomatic
 #'  * D_count: number of humans who have the clinical malaria
 #'  * U_count: number of subpatent infections in humans
 #'  * Tr_count: number of detectable infections being treated in humans
+#'  * S_count_{lower}_{upper}: number of Susceptible humans in age range [lower, upper] days.
+#' Age ranges are set with state_count_rendering_min_ages and state_count_rendering_max_ages.
+#'  * A_count_{lower}_{upper}: number of Asymptomatic humans in that age range
+#'  * D_count_{lower}_{upper}: number of humans with clinical malaria in that age range
+#'  * U_count_{lower}_{upper}: number of humans with subpatent infection in that age range
+#'  * Tr_count_{lower}_{upper}: number of humans with detectable treated infections in that age range
 #'  * ica_mean: the mean acquired immunity to clinical infection over the population of humans
 #'  * icm_mean: the mean maternal immunity to clinical infection over the population of humans
 #'  * iva_mean: the mean acquired immunity to severe infection over the population of humans

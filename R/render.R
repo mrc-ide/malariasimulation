@@ -215,18 +215,42 @@ create_total_M_renderer_compartmental <- function(renderer, solvers, parameters)
   }
 }
 
+create_state_count_age_renderer <- function(
+    state,
+    birth,
+    parameters,
+    renderer
+) {
+  function(timestep) {
+    for (i in seq_along(parameters$state_count_rendering_min_ages)) {
+      lower <- parameters$state_count_rendering_min_ages[[i]]
+      upper <- parameters$state_count_rendering_max_ages[[i]]
+      in_age <- in_age_range(birth, timestep, lower, upper)
+      for (s in c('S', 'A', 'D', 'U', 'Tr')) {
+        renderer$render(
+          paste0(s, '_count_', lower, '_', upper),
+          state$get_index_of(s)$copy()$and(in_age)$size(),
+          timestep
+        )
+      }
+    }
+  }
+}
+
 create_age_group_renderer <- function(
     birth,
     parameters,
     renderer
 ) {
-  
+
   age_ranges <- rbind(
     cbind(parameters$prevalence_rendering_min_ages, parameters$prevalence_rendering_max_ages),
     cbind(parameters$incidence_rendering_min_ages, parameters$incidence_rendering_max_ages),
     cbind(parameters$clinical_incidence_rendering_min_ages, parameters$clinical_incidence_rendering_max_ages),
     cbind(parameters$severe_incidence_rendering_min_ages, parameters$severe_incidence_rendering_max_ages),
-    cbind(parameters$age_group_rendering_min_ages, parameters$age_group_rendering_max_ages)
+    cbind(parameters$age_group_rendering_min_ages, parameters$age_group_rendering_max_ages),
+    cbind(parameters$state_count_rendering_min_ages, parameters$state_count_rendering_max_ages),
+    cbind(parameters$hrp2_rendering_min_ages, parameters$hrp2_rendering_max_ages)
   )
   
   unique_age_combinations <- as.data.frame(unique(age_ranges))
@@ -250,16 +274,31 @@ create_age_group_renderer <- function(
 
 populate_incidence_rendering_columns <- function(renderer, parameters){
   
-  # infections must render in all simulations 
+  # infections must render in all simulations
   renderer$set_default('n_bitten', 0)
   renderer$set_default('n_infections', 0)
-  
+  renderer$set_default('n_untreated_infections', 0)
+  renderer$set_default('n_hrp2_positive', 0)
+
   # treatment associated only renders when drugs are used
   if(sum(unlist(parameters$clinical_treatment_coverages))>0){
     renderer$set_default('ft', 0)
     renderer$set_default('n_treated', 0)
+    renderer$set_default('n_treated_infections', 0)
     renderer$set_default('n_drug_efficacy_failures', 0)
     renderer$set_default('n_successfully_treated', 0)
+  }
+
+  if(length(parameters$hrp2_rendering_min_ages)>0){
+    for (i in seq_along(parameters$hrp2_rendering_min_ages)){
+      lower <- parameters$hrp2_rendering_min_ages[i]
+      upper <- parameters$hrp2_rendering_max_ages[i]
+      renderer$set_default(paste0('n_untreated_infections_', lower, '_', upper), 0)
+      renderer$set_default(paste0('n_hrp2_positive_', lower, '_', upper), 0)
+      if(sum(unlist(parameters$clinical_treatment_coverages))>0){
+        renderer$set_default(paste0('n_treated_infections_', lower, '_', upper), 0)
+      }
+    }
   }
   
   # ETC, SPC only render when antimalarial resistance is on

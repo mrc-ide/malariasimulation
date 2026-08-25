@@ -82,7 +82,9 @@ test_that('simulate_infection integrates different types of infection and schedu
     ib = individual::DoubleVariable$new(immunity),
     id = individual::DoubleVariable$new(immunity),
     # state = list(get_index_of = mockery::mock(asymptomatics, cycle = T))
-    state = individual::CategoricalVariable$new(categories = c("S","A","U","D","Tr"), initial_values = rep("S", population))#list(get_index_of = mockery::mock(asymptomatics, cycle = T))
+    state = individual::CategoricalVariable$new(categories = c("S","A","U","D","Tr"), initial_values = rep("S", population)),#list(get_index_of = mockery::mock(asymptomatics, cycle = T))
+    birth = individual::IntegerVariable$new(rep(0, population)),
+    hrp2 = individual::IntegerVariable$new(rep(0, population))
   )
   
   source_humans <- individual::Bitset$new(population)$insert(c(1, 2, 3, 5))

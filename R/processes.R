@@ -89,7 +89,15 @@ create_processes <- function(
       )
     )
   }
-  
+
+  # ====
+  # HRP2
+  # ====
+  processes <- c(
+    processes,
+    hrp2_clearance_process = create_hrp2_clearance_process(variables, parameters)
+  )
+
   # =====================================================
   # Competing Hazard Outcomes (infections and disease progression)
   # =====================================================
@@ -252,6 +260,21 @@ create_processes <- function(
       variables$state,
       variables$birth,
       variables$id,
+      parameters,
+      renderer
+    ),
+    state_count_age_renderer = create_state_count_age_renderer(
+      variables$state,
+      variables$birth,
+      parameters,
+      renderer
+    ),
+    hrp2_renderer = create_hrp2_renderer_process(
+      renderer,
+      variables
+    ),
+    hrp2_age_renderer = create_hrp2_age_renderer_process(
+      variables,
       parameters,
       renderer
     ),

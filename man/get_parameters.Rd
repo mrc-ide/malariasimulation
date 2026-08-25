@@ -318,8 +318,34 @@ outputs; default = turned off
 \item prevalence_rendering_min_ages - the minimum ages for clinical prevalence
 outputs; default = 730
 \item prevalence_rendering_max_ages - the corresponding max ages; default = 3650
+\item state_count_rendering_min_ages - the minimum ages for age-stratified state
+count outputs (S, A, D, U, Tr); default = turned off
+\item state_count_rendering_max_ages - the corresponding max ages; default = turned off
 \item n_with_hypnozoites_rendering_min_ages - the minimum ages for number with hypnozoites outputs (p.v only); default = numeric(0)
 \item n_with_hypnozoites_rendering_max_ages - the corresponding max ages; default = numeric(0)
+\item hrp2_rendering_min_ages - the minimum ages for age-stratified treated/untreated
+infection and HRP2-positive count outputs; default = turned off
+\item hrp2_rendering_max_ages - the corresponding max ages; default = turned off
+}
+
+HRP2 antigen persistence:
+please set HRP2 parameters with the convenience function
+\code{\link{set_hrp2_parameters}}
+\itemize{
+\item hrp2_scale - mean duration between an infection actually clearing
+(state == 'S') and HRP2 becoming undetectable, in timesteps. Individuals
+remain HRP2 positive with no decay while still infected (D/A/U/Tr); once
+they reach S, HRP2 clears via a constant per-timestep hazard of
+1/hrp2_scale, the same exponential/memoryless convention used for
+clearing infections elsewhere in the model (e.g. dd/da/du/dt). The same
+hazard is used for everyone - treated individuals clear HRP2 sooner only
+because their underlying infection resolves faster (Tr -> S) than an
+untreated one (D -> A -> U -> S); default = 20 (placeholder, not yet
+calibrated)
+\item hrp2_asymptomatic_prob - probability that a new asymptomatic infection
+which is detectable by light microscopy is also HRP2 positive (new
+clinical infections are always assumed HRP2 positive); default = 1
+(placeholder, not yet calibrated)
 }
 
 Age structured mean immunity (/hyponozoite) rendering:

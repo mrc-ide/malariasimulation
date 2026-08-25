@@ -53,3 +53,9 @@ test_that('create_variables allows multiple species w different total_M', {
     params$total_M * .1
   )
 })
+
+test_that('create_variables initialises hrp2 to 0 (negative) for everyone', {
+  params <- get_parameters(list(human_population = 10))
+  variables <- create_variables(params)
+  expect_equal(variables$hrp2$get_values(), rep(0, 10))
+})

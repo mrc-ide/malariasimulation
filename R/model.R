@@ -174,6 +174,15 @@ run_verbose_simulation <- function(
   parameters$output_env$state_index <- integer(parameters$output_env$capacity)
   parameters$output_env$next_state_index <- integer(parameters$output_env$capacity)
 
+  
+  parameters$output_env$snapshot_n <-0L
+  parameters$output_env$snapshot_capacity <- as.integer(10000L)
+  parameters$output_env$snapshot_timesteps <- integer(parameters$output_env$snapshot_capacity)
+  parameters$output_env$snapshot_individual_index <- integer(parameters$output_env$snapshot_capacity)
+  parameters$output_env$snapshot_ages <- integer(parameters$output_env$snapshot_capacity)
+  parameters$output_env$snapshot_states <- integer(parameters$output_env$snapshot_capacity)
+  
+
   # sink(parameters$file_name)
   # cat("timestep,individual_index,process_index,state_index,next_state_index\n")
   # sink()
@@ -276,7 +285,13 @@ run_verbose_simulation <- function(
     next_state_index = store$next_state_index[seq_len(n)]
   )
 
-  list(data=data, state=final_state, process_vector = process_vector, state_list = state_list, verbose_data = output_df)
+  snapshot_df <- data.frame(
+    timestep = store$snapshot_timesteps[seq_len(store$snapshot_n)],
+    individual_index = store$snapshot_individual_index[seq_len(store$snapshot_n)],
+    ages = store$snapshot_ages[seq_len(store$snapshot_n)],
+    state_index = store$snapshot_states[seq_len(store$snapshot_n)]
+  )
+  list(data=data, state=final_state, process_vector = process_vector, state_list = state_list, verbose_data = output_df, snapshot_data = snapshot_df)
 }
 
 #' @title Run the simulation in a resumable way

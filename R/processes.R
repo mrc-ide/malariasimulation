@@ -845,6 +845,26 @@ render_snapshot_process <- function(variables, parameters){
       states <- variables$state$get_values(recording_people$to_vector())
       ages <- timestep - variables$birth$get_values(recording_people$to_vector())
       personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
+
+      
+      n_new <- length(personal_inds)
+      store <- parameters$output_env
+      if (store$snapshot_capacity < store$snapshot_n + n_new){
+        store$snapshot_capacity <- as.integer(2L*store$snapshot_capacity)
+        length(store$snapshot_timesteps) <- store$snapshot_capacity
+        length(store$snapshot_individual_index) <- store$snapshot_capacity
+        length(store$snapshot_ages) <- store$snapshot_capacity
+        length(store$snapshot_states) <- store$snapshot_capacity
+      }
+      idx_start <- store$snapshot_n + 1L
+      idx_end <- store$snapshot_n + n_new
+      idx <- idx_start:idx_end
+      store$snapshot_times[idx] <- as.integer(timestep)
+      store$snapshot_individual_index[idx] <- as.integer(personal_inds)
+      store$snapshot_ages[idx] <- as.integer(ages)
+      store$snapshot_states[idx] <- as.integer(match(states, parameters$state_list))
+
+      store$snapshot_n <- idx_end
       # print_for_snapshot(parameters$snapshot_file_name, timestep, personal_inds, ages, match(states, parameters$state_list))
     }
   }

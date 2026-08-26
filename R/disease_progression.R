@@ -262,7 +262,7 @@ progression_outcome_process_verbose <- function(
       # parameters$output_env$df <- rbind(parameters$output_env$df, temp_df)
       # print("printing")
       # print_to_csv(parameters$file_name, timestep, personal_inds, "turning_asymptomatic", states, parameters$start_time)
-      print_to_csv(parameters$file_name, timestep, personal_inds, parameters$progression_base_value, match(states, parameters$state_list), match("A", parameters$state_list), parameters$start_time)
+      # print_to_csv(parameters$file_name, timestep, personal_inds, parameters$progression_base_value, match(states, parameters$state_list), match("A", parameters$state_list), parameters$start_time)
     }
     # print("going subpatent")
     going_subpatent <- variables$state$get_index_of("A")$and(target)
@@ -307,7 +307,7 @@ progression_outcome_process_verbose <- function(
       # parameters$output_env$df <- rbind(parameters$output_env$df, temp_df)
       # print("printing")
       # print_to_csv(parameters$file_name, timestep, personal_inds, "turning_subpatent", states, parameters$start_time)
-      print_to_csv(parameters$file_name, timestep, personal_inds, parameters$progression_base_value + 1, match(states, parameters$state_list), match("U", parameters$state_list), parameters$start_time)
+      # print_to_csv(parameters$file_name, timestep, personal_inds, parameters$progression_base_value + 1, match(states, parameters$state_list), match("U", parameters$state_list), parameters$start_time)
     }
     # going_susceptible <- variables$state$get_index_of(c("U", "Tr"))$and(recording_people)
     # states <- variables$state$get_values(going_susceptible)
@@ -356,7 +356,7 @@ progression_outcome_process_verbose <- function(
       # parameters$output_env$df <- rbind(parameters$output_env$df, temp_df)
       # # print("printing")
       # print_to_csv(parameters$file_name, timestep, personal_inds, "turning_susceptible", states, parameters$start_time)
-      print_to_csv(parameters$file_name, timestep, personal_inds, parameters$progression_base_value + 2, match(states, parameters$state_list), match("S", parameters$state_list), parameters$start_time)
+      # print_to_csv(parameters$file_name, timestep, personal_inds, parameters$progression_base_value + 2, match(states, parameters$state_list), match("S", parameters$state_list), parameters$start_time)
     # print("printing done")
     }
   }

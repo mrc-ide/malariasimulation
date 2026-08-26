@@ -174,9 +174,9 @@ run_verbose_simulation <- function(
   parameters$output_env$state_index <- integer(parameters$output_env$capacity)
   parameters$output_env$next_state_index <- integer(parameters$output_env$capacity)
 
-  sink(parameters$file_name)
-  cat("timestep,individual_index,process_index,state_index,next_state_index\n")
-  sink()
+  # sink(parameters$file_name)
+  # cat("timestep,individual_index,process_index,state_index,next_state_index\n")
+  # sink()
   # output_env <- new.env()
   # parameters$output_env <- output_env
   # parameters$output_env$df <- data.frame(
@@ -186,11 +186,11 @@ run_verbose_simulation <- function(
   #   state_index = numeric()
   # )
   # parameters$output_rows <- list()
-  if (parameters$snapshot_verbose){
-    sink(parameters$snapshot_file_name)
-    cat("timestep,individual_index,age,state_index\n")
-    sink()
-  }
+  # if (parameters$snapshot_verbose){
+  #   sink(parameters$snapshot_file_name)
+  #   cat("timestep,individual_index,age,state_index\n")
+  #   sink()
+  # }
   
   random_seed(ceiling(runif(1) * .Machine$integer.max))
   if (is.null(parameters)) {

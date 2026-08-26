@@ -210,7 +210,7 @@ indoor_spraying_verbose <- function(variables, spray_time, renderer, parameters,
         # personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
         # states <- variables$state$get_values(target)
         # personal_inds <- variables$personal_tracker_index$get_values(target)
-        print_to_csv(parameters$file_name, timestep, personal_inds, parameters$spraying_base_value, match(states, parameters$state_list), parameters$start_time)
+        # print_to_csv(parameters$file_name, timestep, personal_inds, parameters$spraying_base_value, match(states, parameters$state_list), parameters$start_time)
         # print_to_csv(parameters$file_name, timestep, personal_inds, "sprayed", states, parameters$start_time)
       }
     }
@@ -288,7 +288,7 @@ distribute_nets_verbose <- function(variables, throw_away_net, parameters, corre
         # states <- variables$state$get_values(target)
         # personal_inds <- variables$personal_tracker_index$get_values(target)
         # print_to_csv(parameters$file_name, timestep, personal_inds, "recieved_net", states, parameters$start_time)
-        print_to_csv(parameters$file_name, timestep, personal_inds, parameters$nets_base_value, match(states, parameters$state_list), 1, parameters$start_time)
+        # print_to_csv(parameters$file_name, timestep, personal_inds, parameters$nets_base_value, match(states, parameters$state_list), 1, parameters$start_time)
       }
     }
   }
@@ -338,7 +338,7 @@ throw_away_nets_verbose <- function(variables, parameters) {
       # states <- variables$state$get_values(target$to_vector())
       # personal_inds <- variables$personal_tracker_index$get_values(target$to_vector())
       # print_to_csv(parameters$file_name, timestep, personal_inds, "removed_net", states, parameters$start_time)
-        print_to_csv(parameters$file_name, timestep, personal_inds, parameters$nets_base_value + 1, match(states, parameters$state_list), 1, parameters$start_time)
+        # print_to_csv(parameters$file_name, timestep, personal_inds, parameters$nets_base_value + 1, match(states, parameters$state_list), 1, parameters$start_time)
     }
   }
 }

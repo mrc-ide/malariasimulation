@@ -457,7 +457,7 @@ falciparum_infection_outcome_process_verbose <- function(
           store$next_state_index[idx] <- as.integer(match("Tr", parameters$state_list))
 
           store$n <- idx_end
-          print_to_csv(parameters$file_name, timestep, personal_inds, parameters$treatment_base_value, match(states, parameters$state_list), match("Tr", parameters$state_list), parameters$start_time)
+          # print_to_csv(parameters$file_name, timestep, personal_inds, parameters$treatment_base_value, match(states, parameters$state_list), match("Tr", parameters$state_list), parameters$start_time)
         }
       }
     }
@@ -526,7 +526,7 @@ falciparum_infection_outcome_process_verbose <- function(
           # store$df <- rbind(store$df, temp_df)
           # print(store$df)
           # print(length(parameters$output_rows))
-          print_to_csv(parameters$file_name, timestep, personal_inds, parameters$infection_base_value, match(states, parameters$state_list), match("A", parameters$state_list), parameters$start_time)
+          # print_to_csv(parameters$file_name, timestep, personal_inds, parameters$infection_base_value, match(states, parameters$state_list), match("A", parameters$state_list), parameters$start_time)
         }
       }
       if(to_D$size()){
@@ -569,7 +569,7 @@ falciparum_infection_outcome_process_verbose <- function(
         #   state_index = match(states, parameters$state_list)
         # )
         # store$df <- rbind(store$df, temp_df)
-        print_to_csv(parameters$file_name, timestep, personal_inds, parameters$infection_base_value + 1, match(states, parameters$state_list), match("D", parameters$state_list), parameters$start_time)
+        # print_to_csv(parameters$file_name, timestep, personal_inds, parameters$infection_base_value + 1, match(states, parameters$state_list), match("D", parameters$state_list), parameters$start_time)
       }
     }
     schedule_infections(

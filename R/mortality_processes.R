@@ -225,7 +225,7 @@ reset_target_verbose <- function(variables, events, target, state, parameters, t
       #   state_index = match(states, parameters$state_list)
       # )
       # parameters$output_env$df <- rbind(parameters$output_env$df, temp_df)
-      print_to_csv(parameters$file_name, timestep, personal_inds, parameters$mortality_base_value, match(states, parameters$state_list), match("S", parameters$state_list), parameters$start_time)
+      # print_to_csv(parameters$file_name, timestep, personal_inds, parameters$mortality_base_value, match(states, parameters$state_list), match("S", parameters$state_list), parameters$start_time)
       # print("done ")
       # Sys.sleep(1)
     }
@@ -298,7 +298,7 @@ reset_target_verbose <- function(variables, events, target, state, parameters, t
       #   state_index = match(states, parameters$state_list)
       # )
       # parameters$output_env$df <- rbind(parameters$output_env$df, temp_df)
-      print_to_csv(parameters$file_name, timestep, seq(curr_max_ind + 1, curr_max_ind + quantity_to_update), parameters$mortality_base_value + 1, match(states, parameters$state_list), match("S", parameters$state_list), parameters$start_time)
+      # print_to_csv(parameters$file_name, timestep, seq(curr_max_ind + 1, curr_max_ind + quantity_to_update), parameters$mortality_base_value + 1, match(states, parameters$state_list), match("S", parameters$state_list), parameters$start_time)
     }
     # zeta and zeta group and vector controls survive rebirth
   }

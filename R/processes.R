@@ -830,7 +830,7 @@ render_states_process <- function(variables, parameters){
       # states <- variables$state$get_values()
       # personal_inds <- variables$personal_tracker_index$get_values()
       # print_to_csv(parameters$file_name, timestep, personal_inds, "state", states, parameters$start_time)
-      print_to_csv(parameters$file_name, timestep, personal_inds, parameters$states_base_value, match(states, parameters$state_list), 1, parameters$start_time)
+      # print_to_csv(parameters$file_name, timestep, personal_inds, parameters$states_base_value, match(states, parameters$state_list), 1, parameters$start_time)
     }
   }
 }
@@ -845,7 +845,7 @@ render_snapshot_process <- function(variables, parameters){
       states <- variables$state$get_values(recording_people$to_vector())
       ages <- timestep - variables$birth$get_values(recording_people$to_vector())
       personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
-      print_for_snapshot(parameters$snapshot_file_name, timestep, personal_inds, ages, match(states, parameters$state_list))
+      # print_for_snapshot(parameters$snapshot_file_name, timestep, personal_inds, ages, match(states, parameters$state_list))
     }
   }
 }

@@ -288,7 +288,7 @@ run_verbose_simulation <- function(
   snapshot_df <- data.frame(
     timestep = store$snapshot_timesteps[seq_len(store$snapshot_n)],
     individual_index = store$snapshot_individual_index[seq_len(store$snapshot_n)],
-    ages = store$snapshot_ages[seq_len(store$snapshot_n)],
+    age = store$snapshot_ages[seq_len(store$snapshot_n)],
     state_index = store$snapshot_states[seq_len(store$snapshot_n)]
   )
   list(data=data, state=final_state, process_vector = process_vector, state_list = state_list, verbose_data = output_df, snapshot_data = snapshot_df)

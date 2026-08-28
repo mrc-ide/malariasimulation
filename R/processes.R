@@ -859,7 +859,7 @@ render_snapshot_process <- function(variables, parameters){
       idx_start <- store$snapshot_n + 1L
       idx_end <- store$snapshot_n + n_new
       idx <- idx_start:idx_end
-      store$snapshot_times[idx] <- as.integer(timestep)
+      store$snapshot_timesteps[idx] <- as.integer(timestep)
       store$snapshot_individual_index[idx] <- as.integer(personal_inds)
       store$snapshot_ages[idx] <- as.integer(ages)
       store$snapshot_states[idx] <- as.integer(match(states, parameters$state_list))

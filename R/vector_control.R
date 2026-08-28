@@ -172,6 +172,177 @@ throw_away_nets <- function(variables) {
   }
 }
 
+#' @title Indoor spraying
+#' @description models indoor residual spraying according to the strategy
+#' from `set_spraying` and correlation parameters from
+#' `get_correlation_parameters`
+#'
+#' @param spray_time the variable for the time of spraying
+#' @param renderer model rendering object
+#' @param parameters the model parameters
+#' @param correlations correlation parameters
+#' @noRd
+indoor_spraying_verbose <- function(variables, spray_time, renderer, parameters, correlations) {
+  renderer$set_default('n_spray', 0)
+  function(timestep) {
+    matches <- timestep == parameters$spraying_timesteps
+    if (any(matches)) {
+      target <- which(sample_intervention(
+        seq(parameters$human_population),
+        'spraying',
+        parameters$spraying_coverages[matches],
+        correlations
+      ))
+      spray_time$queue_update(timestep, target)
+      renderer$render('n_spray', length(target), timestep)
+      if(parameters$spraying_verbose){
+        
+        min_birth <- timestep - parameters$upper_age_bound
+        max_birth <- timestep - parameters$lower_age_bound
+        ages <- variables$birth$get_values(target)
+        recording_people <- which(ages %in% ages[ages >= min_birth & ages <= max_birth])
+        # print(ages)
+        # recording_people <- target$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
+        states <- variables$state$get_values(recording_people)
+        personal_inds <- variables$personal_tracker_index$get_values(recording_people)
+        # recording_people <- target$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
+        # states <- variables$state$get_values(recording_people$to_vector())
+        # personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
+        # states <- variables$state$get_values(target)
+        # personal_inds <- variables$personal_tracker_index$get_values(target)
+        # print_to_csv(parameters$file_name, timestep, personal_inds, parameters$spraying_base_value, match(states, parameters$state_list), parameters$start_time)
+        # print_to_csv(parameters$file_name, timestep, personal_inds, "sprayed", states, parameters$start_time)
+      }
+    }
+  }
+}
+
+#' @title Distribute nets
+#' @description distributes nets to individuals according to the strategy
+#' from `set_bednets` and correlation parameters from
+#' `get_correlation_parameters`
+#'
+#' @param variables list of variables in the model
+#' @param throw_away_net an event to trigger when the net will be removed
+#' @param parameters the model parameters
+#' @param correlations correlation parameters
+#' @noRd
+distribute_nets_verbose <- function(variables, throw_away_net, parameters, correlations) {
+  function(timestep) {
+    matches <- timestep == parameters$bednet_timesteps
+    if (any(matches)) {
+      target <- which(sample_intervention(
+        seq(parameters$human_population),
+        'bednets',
+        parameters$bednet_coverages[matches],
+        correlations
+      ))
+      variables$net_time$queue_update(timestep, target)
+      throw_away_net$clear_schedule(target)
+      throw_away_net$schedule(
+        target,
+        log_uniform(length(target), parameters$bednet_retention)
+      )
+      if(parameters$nets_verbose){
+        min_birth <- timestep - parameters$upper_age_bound
+        max_birth <- timestep - parameters$lower_age_bound
+        ages <- variables$birth$get_values(target)
+        recording_people <- which(ages %in% ages[ages >= min_birth & ages <= max_birth])
+        # print(ages)
+        # recording_people <- target$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
+        states <- variables$state$get_values(recording_people)
+        personal_inds <- variables$personal_tracker_index$get_values(recording_people)
+        n_new <- length(personal_inds)
+        store <- parameters$output_env
+        if (store$capacity < store$n + n_new){
+          store$capacity <- as.integer(2L*store$capacity)
+          length(store$timestep) <- store$capacity
+          length(store$individual_index) <- store$capacity
+          length(store$process_index) <- store$capacity
+          length(store$state_index) <- store$capacity
+          length(store$next_state_index) <- store$capacity
+        }
+        idx_start <- store$n + 1L
+        idx_end <- store$n + n_new
+        idx <- idx_start:idx_end
+        store$timestep[idx] <- as.integer(timestep)
+        store$individual_index[idx] <- as.integer(personal_inds)
+        store$process_index[idx] <- as.integer(parameters$nets_base_value)
+        store$state_index[idx] <- as.integer(match(states, parameters$state_list))
+        store$next_state_index[idx] <- as.integer(match(states, parameters$state_list))
+        store$n <- idx_end
+        # temp_df <- data.frame(
+        #   timestep = rep(timestep, length(personal_inds)),
+        #   individual_index = personal_inds,
+        #   process_index = rep(parameters$nets_base_value, length(personal_inds)),
+        #   state_index = match(states, parameters$state_list),
+        # )
+        # parameters$output_env$df <- rbind(parameters$output_env$df, temp_df)
+        # # recording_people <- target(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
+        # subset <- variables$birth[target]
+        # min_birth <- timestep - parameters$upper_age_bound
+        # max_birth <- timestep - parameters$lower_age_bound
+        # recording_people <- target[variables$birth$get_index_of(a = min_birth, b = max_birth)]
+        # states <- variables$state$get_values(recording_people)
+        # personal_inds <- variables$personal_tracker_index$get_values(recording_people)
+        # states <- variables$state$get_values(target)
+        # personal_inds <- variables$personal_tracker_index$get_values(target)
+        # print_to_csv(parameters$file_name, timestep, personal_inds, "recieved_net", states, parameters$start_time)
+        # print_to_csv(parameters$file_name, timestep, personal_inds, parameters$nets_base_value, match(states, parameters$state_list), 1, parameters$start_time)
+      }
+    }
+  }
+}
+
+throw_away_nets_verbose <- function(variables, parameters) {
+  function(timestep, target) {
+    variables$net_time$queue_update(-1, target)
+    if(parameters$nets_verbose){
+      min_birth <- timestep - parameters$upper_age_bound
+      max_birth <- timestep - parameters$lower_age_bound
+      recording_people <- target$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
+      states <- variables$state$get_values(recording_people$to_vector())
+      personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
+      n_new <- length(personal_inds)
+      store <- parameters$output_env
+      if (store$capacity < store$n + n_new){
+        store$capacity <- as.integer(2L*store$capacity)
+        length(store$timestep) <- store$capacity
+        length(store$individual_index) <- store$capacity
+        length(store$process_index) <- store$capacity
+        length(store$state_index) <- store$capacity
+        length(store$next_state_index) <- store$capacity
+      }
+      idx_start <- store$n + 1L
+      idx_end <- store$n + n_new
+      idx <- idx_start:idx_end
+      store$timestep[idx] <- as.integer(timestep)
+      store$individual_index[idx] <- as.integer(personal_inds)
+      store$process_index[idx] <- as.integer(parameters$nets_base_value + 1)
+      store$state_index[idx] <- as.integer(match(states, parameters$state_list))
+      store$next_state_index[idx] <- as.integer(match(states, parameters$state_list))
+      store$n <- idx_end
+      # temp_df <- data.frame(
+      #   timestep = rep(timestep, length(personal_inds)),
+      #   individual_index = personal_inds,
+      #   process_index = rep(parameters$nets_base_value + 1, length(personal_inds)),
+      #   state_index = match(states, parameters$state_list)
+      # )
+      # parameters$output_env$df <- rbind(parameters$output_env$df, temp_df)
+      # min_birth <- timestep - parameters$upper_age_bound
+      # max_birth <- timestep - parameters$lower_age_bound
+      # recording_people <- target$copy()$or(variables$birth$get_index_of(a = min_birth, b = max_birth))
+      # recording_people <- target$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
+      # states <- variables$state$get_values(recording_people$to_vector())
+      # personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
+      # states <- variables$state$get_values(target$to_vector())
+      # personal_inds <- variables$personal_tracker_index$get_values(target$to_vector())
+      # print_to_csv(parameters$file_name, timestep, personal_inds, "removed_net", states, parameters$start_time)
+        # print_to_csv(parameters$file_name, timestep, personal_inds, parameters$nets_base_value + 1, match(states, parameters$state_list), 1, parameters$start_time)
+    }
+  }
+}
+
 # =================
 # Utility functions
 # =================

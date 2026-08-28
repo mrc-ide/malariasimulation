@@ -94,6 +94,274 @@ progression_outcome_process <- function(
   )
   
 }
+#' @title Calculate disease progression rates
+#' @description Calculates disease progression rates for each individual in the population
+#' for storage in competing hazards object and subsequent resolution
+#'
+#' @param variables the available human variables
+#' @param progression_outcome competing hazards object for disease progression rates
+#' @noRd
+create_verbose_progression_rates_process <- function(
+    parameters,
+    variables,
+    progression_outcome
+) {
+  function(timestep){
+    target <- variables$state$get_index_of("S")$not()
+    progression_rates <- variables$progression_rates$get_values(target)
+    if (parameters$parasite == "vivax"){
+      # p.v subpatent recovery is immunity-dependent
+      progression_rates <- variables$progression_rates$get_values(target)
+      u_index <- variables$state$get_index_of("U")
+      target_u <- bitset_index(target, u_index)
+      progression_rates[target_u] <-
+        1 / anti_parasite_immunity(
+          min = parameters$dpcr_min, 
+          max = parameters$dpcr_max, 
+          a50 = parameters$apcr50, 
+          k = parameters$kpcr,
+          iaa = variables$iaa$get_values(index = u_index),
+          iam = variables$iam$get_values(index = u_index)
+        )
+    }
+    progression_outcome$set_rates(
+      target,
+      progression_rates)
+  }
+}
+
+#' @title Disease progression outcomes
+#' @description Following resolution of competing hazards, update state and
+#' infectivity of sampled individuals
+#'
+#' @param timestep the current timestep
+#' @param target the sampled progressing individuals
+#' @param variables the available human variables
+#' @param parameters model parameters
+#' @param renderer competing hazards object for disease progression rates
+#' @noRd
+progression_outcome_process_verbose <- function(
+    timestep,
+    target,
+    variables,
+    parameters,
+    renderer
+){
+  
+  if(parameters$parasite == "falciparum"){
+    # p.f has immunity-determined asymptomatic infectivity
+    update_to_asymptomatic_infection(
+      variables,
+      parameters,
+      timestep,
+      variables$state$get_index_of("D")$and(target)
+    )
+  } else if (parameters$parasite == "vivax"){
+    # p.v has constant asymptomatic infectivity
+    update_infection(
+      variables$state,
+      "A",
+      variables$infectivity,
+      parameters$ca,
+      variables$progression_rates,
+      1/parameters$da,
+      variables$state$get_index_of("D")$and(target)
+    )
+  }
+  
+  update_infection(
+    variables$state,
+    "U",
+    variables$infectivity,
+    parameters$cu,
+    variables$progression_rates,
+    1/parameters$du,
+    variables$state$get_index_of("A")$and(target)
+  )
+  
+  update_infection(
+    variables$state,
+    "S",
+    variables$infectivity,
+    0,
+    variables$progression_rates,
+    0,
+    variables$state$get_index_of(c("U","Tr"))$and(target)
+  )
+  if(parameters$progression_verbose){
+    # print(timestep)
+    min_birth <- timestep - parameters$upper_age_bound
+    max_birth <- timestep - parameters$lower_age_bound
+    # print("recording_people")
+    # ages <- variables$birth$get_values(target)
+    # # print(ages)
+    # recording_people <- which(ages %in% ages[ages >= min_birth & ages <= max_birth])
+    # print(target)
+    # print(recording_people)
+    # recording_people <- target$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
+
+    # print("going asymptomatic")
+    going_asymptomatic <- variables$state$get_index_of("D")$and(target)
+    ages <- variables$birth$get_values(going_asymptomatic$to_vector())
+    # print(length(ages))
+    # print(going_asymptomatic$to_vector())
+    # flop
+    # print("ages")
+    # print(ages)
+    # print("recording_people")
+    recording_people <- going_asymptomatic$to_vector()[which(ages %in% ages[ages >= min_birth & ages <= max_birth])]
+    # print(recording_people)
+    # flop
+    # print(recording_people)
+    # states <- variables$state$get_values(going_asymptomatic)
+    # personal_inds <- variables$personal_tracker_index$get_values(going_asymptomatic)
+    # print("states")
+    states <- variables$state$get_values(recording_people)
+
+    if(length(states) != parameters$human_population){
+      # print("lengths")
+      # print(length(going_asymptomatic))
+      # print(parameters$human_population)
+      # print(length(going_asymptomatic) != parameters$human_population)
+      # print(going_asymptomatic)
+      # print("going asympto")
+      # print(going_asymptomatic$to_vector())
+      # print("personal_inds")
+      personal_inds <- variables$personal_tracker_index$get_values(recording_people)
+      n_new <- length(personal_inds)
+      store <- parameters$output_env
+      if (store$capacity < store$n + n_new){
+        store$capacity <- as.integer(2L*store$capacity)
+        length(store$timestep) <- store$capacity
+        length(store$individual_index) <- store$capacity
+        length(store$process_index) <- store$capacity
+        length(store$state_index) <- store$capacity
+        length(store$next_state_index) <- store$capacity
+      }
+      idx_start <- store$n + 1L
+      idx_end <- store$n + n_new
+      idx <- idx_start:idx_end
+      store$timestep[idx] <- as.integer(timestep)
+      store$individual_index[idx] <- as.integer(personal_inds)
+      store$process_index[idx] <- as.integer(parameters$progression_base_value)
+      store$state_index[idx] <- as.integer(match(states, parameters$state_list))
+      store$next_state_index[idx] <- as.integer(match("A", parameters$state_list))
+      store$n <- idx_end
+      
+      # print(length(states))
+      # print(length(personal_inds))
+      # print(length(rep(timestep, length(personal_inds))))
+      # print(length(rep(parameters$progression_base_value, length(personal_inds))))
+      # print(length(match(states, parameters$state_list)))
+      # temp_df <- data.frame(
+      #   timestep = rep(timestep, length(personal_inds)),
+      #   individual_index = personal_inds,
+      #   process_index = rep(parameters$progression_base_value, length(personal_inds)),
+      #   state_index = match(states, parameters$state_list)
+      # )
+      # parameters$output_env$df <- rbind(parameters$output_env$df, temp_df)
+      # print("printing")
+      # print_to_csv(parameters$file_name, timestep, personal_inds, "turning_asymptomatic", states, parameters$start_time)
+      # print_to_csv(parameters$file_name, timestep, personal_inds, parameters$progression_base_value, match(states, parameters$state_list), match("A", parameters$state_list), parameters$start_time)
+    }
+    # print("going subpatent")
+    going_subpatent <- variables$state$get_index_of("A")$and(target)
+    ages <- variables$birth$get_values(going_subpatent$to_vector())
+    recording_people <- going_subpatent$to_vector()[which(ages %in% ages[ages >= min_birth & ages <= max_birth])]
+    # states <- variables$state$get_values(going_asymptomatic)
+    # personal_inds <- variables$personal_tracker_index$get_values(going_asymptomatic)
+    # print("states")
+    states <- variables$state$get_values(recording_people)
+    if(length(states) != parameters$human_population){
+      # print("going asympto")
+      # print(going_asymptomatic$to_vector())
+      # print("ages")
+      # print("recording people")
+      # print("personal_inds")
+      personal_inds <- variables$personal_tracker_index$get_values(recording_people)
+      n_new <- length(personal_inds)
+      store <- parameters$output_env
+      if (store$capacity < store$n + n_new){
+        store$capacity <- as.integer(2L*store$capacity)
+        length(store$timestep) <- store$capacity
+        length(store$individual_index) <- store$capacity
+        length(store$process_index) <- store$capacity
+        length(store$state_index) <- store$capacity
+        length(store$next_state_index) <- store$capacity
+      }
+      idx_start <- store$n + 1L
+      idx_end <- store$n + n_new
+      idx <- idx_start:idx_end
+      store$timestep[idx] <- as.integer(timestep)
+      store$individual_index[idx] <- as.integer(personal_inds)
+      store$process_index[idx] <- as.integer(parameters$progression_base_value + 1)
+      store$state_index[idx] <- as.integer(match(states, parameters$state_list))
+      store$next_state_index[idx] <- as.integer(match("U", parameters$state_list))
+      store$n <- idx_end
+      # temp_df <- data.frame(
+      #   timestep = rep(timestep, length(personal_inds)),
+      #   individual_index = personal_inds,
+      #   process_index = rep(parameters$progression_base_value + 1, length(personal_inds)),
+      #   state_index = match(states, parameters$state_list)
+      # )
+      # parameters$output_env$df <- rbind(parameters$output_env$df, temp_df)
+      # print("printing")
+      # print_to_csv(parameters$file_name, timestep, personal_inds, "turning_subpatent", states, parameters$start_time)
+      # print_to_csv(parameters$file_name, timestep, personal_inds, parameters$progression_base_value + 1, match(states, parameters$state_list), match("U", parameters$state_list), parameters$start_time)
+    }
+    # going_susceptible <- variables$state$get_index_of(c("U", "Tr"))$and(recording_people)
+    # states <- variables$state$get_values(going_susceptible)
+    # personal_inds <- variables$personal_tracker_index$get_values(going_susceptible)
+    
+    # print("going_susceptible")
+    going_susceptible <- variables$state$get_index_of(c("U", "Tr"))$and(target)
+    ages <- variables$birth$get_values(going_susceptible$to_vector())
+    # print("recording_people")
+    recording_people <- going_susceptible$to_vector()[which(ages %in% ages[ages >= min_birth & ages <= max_birth])]
+    # print("states")
+    # states <- variables$state$get_values(going_asymptomatic)
+    # personal_inds <- variables$personal_tracker_index$get_values(going_asymptomatic)
+    states <- variables$state$get_values(recording_people)
+    if(length(states) != parameters$human_population){
+      # print("going asympto")
+      # print(going_asymptomatic$to_vector())
+      # print("ages")
+      # print("personal_inds")
+      personal_inds <- variables$personal_tracker_index$get_values(recording_people)
+      n_new <- length(personal_inds)
+      store <- parameters$output_env
+      if (store$capacity < store$n + n_new){
+        store$capacity <- as.integer(2L*store$capacity)
+        length(store$timestep) <- store$capacity
+        length(store$individual_index) <- store$capacity
+        length(store$process_index) <- store$capacity
+        length(store$state_index) <- store$capacity
+        length(store$next_state_index) <- store$capacity
+      }
+      idx_start <- store$n + 1L
+      idx_end <- store$n + n_new
+      idx <- idx_start:idx_end
+      store$timestep[idx] <- as.integer(timestep)
+      store$individual_index[idx] <- as.integer(personal_inds)
+      store$process_index[idx] <- as.integer(parameters$progression_base_value + 2)
+      store$state_index[idx] <- as.integer(match(states, parameters$state_list))
+      store$next_state_index[idx] <- as.integer(match("S", parameters$state_list))
+      store$n <- idx_end
+      # temp_df <- data.frame(
+      #   timestep = rep(timestep, length(personal_inds)),
+      #   individual_index = personal_inds,
+      #   process_index = rep(parameters$progression_base_value + 2, length(personal_inds)),
+      #   state_index = match(states, parameters$state_list)
+      # )
+      # parameters$output_env$df <- rbind(parameters$output_env$df, temp_df)
+      # # print("printing")
+      # print_to_csv(parameters$file_name, timestep, personal_inds, "turning_susceptible", states, parameters$start_time)
+      # print_to_csv(parameters$file_name, timestep, personal_inds, parameters$progression_base_value + 2, match(states, parameters$state_list), match("S", parameters$state_list), parameters$start_time)
+    # print("printing done")
+    }
+  }
+  
+}
 
 #' @title Update the state of an individual as infection events occur
 #' @description Randomly moves individuals towards the later stages of disease

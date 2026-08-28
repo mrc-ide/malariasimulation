@@ -303,6 +303,7 @@ create_variables <- function(parameters) {
   net_time <- individual::IntegerVariable$new(rep(-1, size))
   spray_time <- individual::IntegerVariable$new(rep(-1, size))
 
+  personal_inds <- individual::IntegerVariable$new(seq(1,size))
   variables <- list(
     state = state,
     birth = birth,
@@ -320,7 +321,8 @@ create_variables <- function(parameters) {
     pev_profile = pev_profile,
     tbv_vaccinated = tbv_vaccinated,
     net_time = net_time,
-    spray_time = spray_time
+    spray_time = spray_time,
+    personal_tracker_index = personal_inds
   )
   
   if(parameters$parasite == "falciparum"){

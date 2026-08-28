@@ -203,6 +203,234 @@ create_pev_booster_listener <- function(
     }
   }
 }
+#' @title EPI PEV vaccination process
+#'
+#' @description schedules individuals to be vaccinated according to the epi
+#' strategy
+#'
+#' @param variables list of variables in the model
+#' @param events a list of events in the model
+#' @param parameters the model parameters
+#' @param correlations correlation parameters
+#' @noRd
+create_verbose_epi_pev_process <- function(
+  variables,
+  events,
+  parameters,
+  correlations,
+  coverages,
+  timesteps
+  ) {
+  function(timestep) {
+    timestep_index <- match_timestep(ts = timesteps, t = timestep)
+    if(timestep_index == 0){
+      return()
+    }
+    coverage <- coverages[timestep_index]
+    if(coverage == 0){
+      return()
+    }
+    
+    to_vaccinate <- variables$birth$get_index_of(
+      set = timestep - parameters$pev_epi_age
+    )
+
+    #ignore those who are scheduled for mass vaccination
+    if (!is.null(events$mass_pev_doses)) {
+      to_vaccinate <- to_vaccinate$and(
+        events$mass_pev_doses[[1]]$get_scheduled()$not()
+      )
+    }
+
+    if (parameters$pev_epi_min_wait == 0) {
+      target <- to_vaccinate$to_vector()
+    } else {
+      not_recently_vaccinated <- variables$last_pev_timestep$get_index_of(
+        a = max(timestep - parameters$pev_epi_min_wait, 0),
+        b = timestep
+      )$not(TRUE)
+      target <- to_vaccinate$and(not_recently_vaccinated)$to_vector()
+    }
+
+    # print(length(target))
+    target <- target[
+      sample_intervention(
+        target,
+       'pev',
+        coverage,
+        correlations
+      )
+    ]
+    # print(length(target))
+
+    # Update the latest vaccination time
+    variables$last_pev_timestep$queue_update(timestep, target)
+    if(parameters$pev_verbose){
+      # min_birth <- timestep - parameters$upper_age_bound
+      # max_birth <- timestep - parameters$lower_age_bound
+      # recording_people <- target$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
+      # print(target)
+      if (length(target) != 0){
+        # print("states")
+        states <- variables$state$get_values(index = target)
+        # print("personal_ind")
+        personal_inds <- variables$personal_tracker_index$get_values(index = target)
+        n_new <- length(personal_inds)
+        store <- parameters$output_env
+        if (store$capacity < store$n + n_new){
+          store$capacity <- as.integer(2L*store$capacity)
+          length(store$timestep) <- store$capacity
+          length(store$individual_index) <- store$capacity
+          length(store$process_index) <- store$capacity
+          length(store$state_index) <- store$capacity
+          length(store$next_state_index) <- store$capacity
+        }
+        idx_start <- store$n + 1L
+        idx_end <- store$n + n_new
+        idx <- idx_start:idx_end
+        store$timestep[idx] <- as.integer(timestep)
+        store$individual_index[idx] <- as.integer(personal_inds)
+        store$process_index[idx] <- as.integer(parameters$pev_base_value)
+        store$state_index[idx] <- as.integer(match(states, parameters$state_list))
+        store$next_state_index[idx] <- as.integer(match(states, parameters$state_list))
+        store$n <- idx_end
+        # temp_df <- data.frame(
+        #   timestep = rep(timestep, length(personal_inds)),
+        #   individual_index = personal_inds,
+        #   process_index = rep(parameters$pev_base_value, length(personal_inds)),
+        #   state_index = match(states, parameters$state_list),
+        # )
+        # parameters$output_env$df <- rbind(parameters$output_env$df, temp_df)
+        # flop
+        # states <- variables$state[target]
+        # personal_inds <- variables$personal_tracker_index[target]
+        # states <- variables$state$get_values(target)
+        # personal_inds <- variables$personal_tracker_index$get_values(target)
+        # print_to_csv(parameters$file_name, timestep, personal_inds, "vaccinated_epi", states, parameters$start_time)
+        # print_to_csv(parameters$file_name, timestep, personal_inds, parameters$pev_base_value, match(states, parameters$state_list), 1, parameters$start_time)
+      }
+    }
+    schedule_vaccination(
+      target,
+      events,
+      parameters,
+      events$pev_epi_doses
+    )
+  }
+}
+
+#' @title mass PEV listener
+#'
+#' @description schedules individuals to be vaccinated according to the mass
+#' strategy
+#'
+#' @param variables list of variables in the model
+#' @param events a list of events in the model
+#' @param parameters the model parameters
+#' @param correlations correlation parameters
+#' @noRd
+create_verbose_mass_pev_listener <- function(
+  variables,
+  events,
+  parameters,
+  correlations
+  ) {
+  function(timestep) {
+    in_age_group <- individual::Bitset$new(parameters$human_population)
+    for (i in seq_along(parameters$mass_pev_min_ages)) {
+      min_birth <- timestep - parameters$mass_pev_max_ages[[i]]
+      max_birth <- timestep - parameters$mass_pev_min_ages[[i]]
+      in_age_group$or(variables$birth$get_index_of(a = min_birth, b = max_birth))
+    }
+    if (parameters$mass_pev_min_wait == 0) {
+      target <- in_age_group
+    } else {
+      not_recently_vaccinated <- variables$last_pev_timestep$get_index_of(
+        a = max(timestep - parameters$mass_pev_min_wait, 0),
+        b = timestep
+      )$not(TRUE)
+      target <- in_age_group$and(not_recently_vaccinated)
+    }
+
+    #ignore those who are scheduled for EPI vaccination
+    if (!is.null(events$pev_epi_doses)) {
+      target <- target$and(
+        events$pev_epi_doses[[1]]$get_scheduled()$not()
+      )$to_vector()
+    } else {
+      target <- target$to_vector()
+    }
+    
+    time_index = which(parameters$mass_pev_timesteps == timestep)
+    target <- target[
+      sample_intervention(
+        target,
+       'pev',
+        parameters$mass_pev_coverages[[time_index]],
+        correlations
+      )
+    ]
+
+    # Update the latest vaccination time
+    variables$last_pev_timestep$queue_update(timestep, target)
+    if(parameters$pev_verbose){
+      # print("pev")
+      min_birth <- timestep - parameters$upper_age_bound
+      max_birth <- timestep - parameters$lower_age_bound
+      birth_days <- variables$birth$get_values(target)
+      target <- target[(birth_days >= min_birth) & (birth_days <= max_birth)]
+      states <- variables$state$get_values(index = target)
+      personal_inds <- variables$personal_tracker_index$get_values(index = target)
+      n_new <- length(personal_inds)
+      store <- parameters$output_env
+      if (store$capacity < store$n + n_new){
+        store$capacity <- as.integer(2L*store$capacity)
+        length(store$timestep) <- store$capacity
+        length(store$individual_index) <- store$capacity
+        length(store$process_index) <- store$capacity
+        length(store$state_index) <- store$capacity
+        length(store$next_state_index) <- store$capacity
+      }
+      idx_start <- store$n + 1L
+      idx_end <- store$n + n_new
+      idx <- idx_start:idx_end
+      store$timestep[idx] <- as.integer(timestep)
+      store$individual_index[idx] <- as.integer(personal_inds)
+      store$process_index[idx] <- as.integer(parameters$pev_base_value + 1)
+      store$state_index[idx] <- as.integer(match(states, parameters$state_list))
+      store$next_state_index[idx] <- as.integer(match(states, parameters$state_list))
+      store$n <- idx_end
+      # temp_df <- data.frame(
+      #   timestep = rep(timestep, length(personal_inds)),
+      #   individual_index = personal_inds,
+      #   process_index = rep(parameters$pev_base_value + 1, length(personal_inds)),
+      #   state_index = match(states, parameters$state_list)
+      # )
+      # parameters$output_env$df <- rbind(parameters$output_env$df, temp_df)
+      # print("recording_people")
+      # print(target)
+      # recording_people <- target$copy()$or(variables$birth$get_index_of(a = min_birth, b = max_birth))
+      # # recording_people <- target$or(variables$birth$get_index_of(a = parameters$lower_age_bound, b = parameters$upper_age_bound))
+      # print("states")
+      # states <- variables$state$get_values(recording_people)
+      # print("personal_inds")
+      # personal_inds <- variables$personal_tracker_index$get_values(recording_people)
+      # states <- variables$state$get_values(target)
+      # personal_inds <- variables$personal_tracker_index$get_values(target)
+      # print_to_csv(parameters$file_name, timestep, personal_inds, "vaccinated_mass", states, parameters$start_time)
+      # print("going_to_csv")
+      # print_to_csv(parameters$file_name, timestep, personal_inds, parameters$pev_base_value + 1, match(states, parameters$state_list), parameters$start_time)
+    }
+
+    # Schedule future doses
+    schedule_vaccination(
+      target,
+      events,
+      parameters,
+      events$mass_pev_doses
+    )
+  }
+}
 
 calculate_pev_antibodies <- function(
   t,

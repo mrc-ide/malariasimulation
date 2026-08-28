@@ -364,6 +364,224 @@ falciparum_infection_outcome_process <- function(
     )
   }
 }
+#' @title Assigns falciparum infections to appropriate human states and outputs
+#' individual level information
+#' @description
+#' Updates human states and variables to represent asymptomatic/clinical/severe
+#' and treated malaria; and resulting boosts in immunity
+#' @param timestep current timestep
+#' @param infected_humans bitset of infected humans
+#' @param variables a list of all of the model variables
+#' @param renderer model render object
+#' @param parameters model parameters
+#' @param prob vector of population probabilities of infection
+#' @noRd
+falciparum_infection_outcome_process_verbose <- function(
+    timestep,
+    infected_humans,
+    variables,
+    renderer,
+    parameters){
+  
+  if (infected_humans$size() > 0) {
+    
+    renderer$render('n_infections', infected_humans$size(), timestep)
+    incidence_renderer(
+      variables$birth,
+      renderer,
+      infected_humans,
+      'inc_',
+      parameters$incidence_rendering_min_ages,
+      parameters$incidence_rendering_max_ages,
+      timestep
+    )
+    
+    boost_immunity(
+      variables$ica,
+      infected_humans,
+      variables$last_boosted_ica,
+      timestep,
+      parameters$uc
+    )
+    
+    boost_immunity(
+      variables$id,
+      infected_humans,
+      variables$last_boosted_id,
+      timestep,
+      parameters$ud
+    )
+    
+    clinical <- calculate_clinical_infections(
+      variables,
+      infected_humans,
+      parameters,
+      renderer,
+      timestep
+    )
+    
+    treated <- calculate_treated(
+      variables,
+      clinical,
+      parameters,
+      timestep,
+      renderer
+    )
+    # print(treated)
+    # print(treated$to_vector())
+    if(parameters$infection_verbose){
+      min_birth <- timestep - parameters$upper_age_bound
+      max_birth <- timestep - parameters$lower_age_bound
+      if(treated$size()){
+        if(timestep >= parameters$start_time){
+          recording_people <- treated$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
+          states <- variables$state$get_values(recording_people$to_vector())
+          personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
+          n_new <- length(personal_inds)
+          store <- parameters$output_env
+          if (store$capacity < store$n + n_new){
+            store$capacity <- as.integer(2L*store$capacity)
+            length(store$timestep) <- store$capacity
+            length(store$individual_index) <- store$capacity
+            length(store$process_index) <- store$capacity
+            length(store$state_index) <- store$capacity
+            length(store$next_state_index) <- store$capacity
+          }
+          idx_start <- store$n + 1L
+          idx_end <- store$n + n_new
+          idx <- idx_start:idx_end
+          store$timestep[idx] <- as.integer(timestep)
+          store$individual_index[idx] <- as.integer(personal_inds)
+          store$process_index[idx] <- as.integer(parameters$treatment_base_value)
+          store$state_index[idx] <- as.integer(match(states, parameters$state_list))
+          store$next_state_index[idx] <- as.integer(match("Tr", parameters$state_list))
+
+          store$n <- idx_end
+          # print_to_csv(parameters$file_name, timestep, personal_inds, parameters$treatment_base_value, match(states, parameters$state_list), match("Tr", parameters$state_list), parameters$start_time)
+        }
+      }
+    }
+    # print("verbose_treating_done")
+    # flop
+    update_severe_disease(
+      timestep,
+      infected_humans,
+      variables,
+      parameters,
+      renderer
+    )
+    
+    ## The treated and infected_humans bitsets are re-written so be cautious!
+    to_D <- treated$not(FALSE)$and(clinical)
+    to_A <- infected_humans$and(clinical$not(FALSE))
+    to_U <- NULL
+    
+    
+    if(parameters$infection_verbose){
+      # print(timestep)
+      # print(to_D$size())
+      # print(to_A$size())
+      min_birth <- timestep - parameters$upper_age_bound
+      max_birth <- timestep - parameters$lower_age_bound
+      if(to_A$size()){
+        if(timestep >= parameters$start_time){
+          recording_people <- to_A$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
+          states <- variables$state$get_values(recording_people$to_vector())
+          personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
+          n_new <- length(personal_inds)
+          store <- parameters$output_env
+          if (store$capacity < store$n + n_new){
+            store$capacity <- as.integer(2L*store$capacity)
+            length(store$timestep) <- store$capacity
+            length(store$individual_index) <- store$capacity
+            length(store$process_index) <- store$capacity
+            length(store$state_index) <- store$capacity
+            length(store$next_state_index) <- store$capacity
+          }
+          idx_start <- store$n + 1L
+          idx_end <- store$n + n_new
+          idx <- idx_start:idx_end
+          store$timestep[idx] <- as.integer(timestep)
+          store$individual_index[idx] <- as.integer(personal_inds)
+          store$process_index[idx] <- as.integer(parameters$infection_base_value)
+          store$state_index[idx] <- as.integer(match(states, parameters$state_list))
+          store$next_state_index[idx] <- as.integer(match("A", parameters$state_list))
+          store$n <- idx_end
+
+          # print_to_csv(parameters$file_name, timestep, personal_inds, "Gone_to_A", states, parameters$start_time)
+          # temp_df <- data.frame(
+          #   timestep = rep(timestep, length(personal_inds)),
+          #   individual_index = personal_inds,
+          #   process_index = rep(parameters$infection_base_value, length(personal_inds)),
+          #   state_index = match(states, parameters$state_list)
+          # )
+          # parameters$output_rows[[length(parameters$output_rows) + 1]] <- data.frame(
+          #   timestep = rep(timestep, length(personal_inds)),
+          #   individual_index = personal_inds,
+          #   process_index = rep(parameters$infection_base_value, length(personal_inds)),
+          #   state_index = match(states, parameters$state_list)
+          # )
+          # # print(temp_df)
+          # # print(rbind(store$df, temp_df))
+          # store$df <- rbind(store$df, temp_df)
+          # print(store$df)
+          # print(length(parameters$output_rows))
+          # print_to_csv(parameters$file_name, timestep, personal_inds, parameters$infection_base_value, match(states, parameters$state_list), match("A", parameters$state_list), parameters$start_time)
+        }
+      }
+      if(to_D$size()){
+        recording_people <- to_D$copy()$and(variables$birth$get_index_of(a = min_birth, b = max_birth))
+        # print(recording_people$to_vector())
+        # flop
+        states <- variables$state$get_values(recording_people$to_vector())
+        personal_inds <- variables$personal_tracker_index$get_values(recording_people$to_vector())
+        n_new <- length(personal_inds)
+        store <- parameters$output_env
+        if (store$capacity < store$n + n_new){
+          store$capacity <- as.integer(2L*store$capacity)
+          length(store$timestep) <- store$capacity
+          length(store$individual_index) <- store$capacity
+          length(store$process_index) <- store$capacity
+          length(store$state_index) <- store$capacity
+          length(store$next_state_index) <- store$capacity
+        }
+        idx_start <- store$n + 1L
+        idx_end <- store$n + n_new
+        idx <- idx_start:idx_end
+        store$timestep[idx] <- as.integer(timestep)
+        store$individual_index[idx] <- as.integer(personal_inds)
+        store$process_index[idx] <- as.integer(parameters$infection_base_value + 1)
+        store$state_index[idx] <- as.integer(match(states, parameters$state_list))
+        store$next_state_index[idx] <- as.integer(match("D", parameters$state_list))
+        store$n <- idx_end
+        # print_to_csv(parameters$file_name, timestep, personal_inds, "Gone_to_D", states, parameters$start_time)
+        # print(match(states, parameters$state_list))
+        # temp_df <- data.frame(
+        #     timestep = rep(timestep, length(personal_inds)),
+        #     individual_index = personal_inds,
+        #     process_index = rep(parameters$infection_base_value + 1, length(personal_inds)),
+        #     state_index = match(states, parameters$state_list)
+        #   )
+        # parameters$output_rows[[length(parameters$output_rows) + 1]] <- data.frame(
+        #   timestep = rep(timestep, length(personal_inds)),
+        #   individual_index = personal_inds,
+        #   process_index = rep(parameters$infection_base_value + 1, length(personal_inds)),
+        #   state_index = match(states, parameters$state_list)
+        # )
+        # store$df <- rbind(store$df, temp_df)
+        # print_to_csv(parameters$file_name, timestep, personal_inds, parameters$infection_base_value + 1, match(states, parameters$state_list), match("D", parameters$state_list), parameters$start_time)
+      }
+    }
+    schedule_infections(
+      parameters,
+      variables,
+      timestep,
+      to_D,
+      to_A,
+      to_U
+    )
+  }
+}
 
 #' @title Assigns vivax infections to appropriate human states
 #' @description
@@ -454,7 +672,7 @@ vivax_infection_outcome_process <- function(
     to_U <- infected_humans$and(lm_detectable$not(F))$and(variables$state$get_index_of(c("S")))
     to_A <- lm_detectable$and(clinical$not(F))
     to_D <- clinical$and(treated$not(F))
-    
+
     schedule_infections(
       parameters,
       variables,
@@ -758,7 +976,10 @@ calculate_treated <- function(
     renderer,
     ""
   )
-  
+  # print(typeof(successfully_treated))
+  # print(typeof(successfully_treated$successfully_treated))
+  # print(successfully_treated$successfully_treated$to_vector())
+  # flop
   if (successfully_treated$successfully_treated$size() > 0) {
     
     if(parameters$antimalarial_resistance) {

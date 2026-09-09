@@ -1,6 +1,6 @@
 Package: malariasimulation
 Title: An individual based model for malaria
-Version: 3.0.0
+Version: 3.0.1
 Authors@R: c(
   person(
     given = "Giovanni",
@@ -55,6 +55,12 @@ Authors@R: c(
     family = "Haile",
     role = c('aut'),
     email = 'l.haile@imperial.ac.uk'
+  ),
+  person(
+    given = "Nilani",
+    family = "Chandradeva",
+    role = c('aut'),
+    email = 'nilani.chandradeva@glasgow.ac.uk'
   ),
   person(
     given = "Imperial College of Science, Technology and Medicine",

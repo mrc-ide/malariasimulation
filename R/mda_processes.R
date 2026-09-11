@@ -24,50 +24,98 @@ create_mda_listeners <- function(
     renderer
 ) {
   
-  renderer$set_default(paste0('n_', int_name, '_treated'), 0)
-  renderer$set_default(paste0('n_', int_name, '_drug_efficacy_failures'), 0)
-  renderer$set_default(paste0('n_', int_name, '_successfully_treated'), 0)
-  
-  if(parameters$antimalarial_resistance){
-    renderer$set_default(paste0('n_', int_name, '_early_treatment_failure'), 0)
-    renderer$set_default(paste0('n_', int_name, '_slow_parasite_clearance'), 0)
-  }
+  if((int_name == "smc" && parameters$smc_detailed_age_targeting) |
+     (int_name == "mda" && parameters$mda_detailed_age_targeting)) {
+    for(i in 1:ncol(coverages)){
+      renderer$set_default(paste0('n_', int_name, "_", min_ages[i], "_", max_ages[i], '_treated'), 0)
+      renderer$set_default(paste0('n_', int_name, "_", min_ages[i], "_", max_ages[i],  '_drug_efficacy_failures'), 0)
+      renderer$set_default(paste0('n_', int_name, "_", min_ages[i], "_", max_ages[i], '_successfully_treated'), 0)
+    }
+    if(parameters$antimalarial_resistance){
+      for(i in 1:ncol(coverages)){
+        renderer$set_default(paste0('n_', int_name, "_", min_ages[i], "_", max_ages[i], '_early_treatment_failure'), 0)
+        renderer$set_default(paste0('n_', int_name, "_", min_ages[i], "_", max_ages[i], '_slow_parasite_clearance'), 0)
+      }}} else{
+        renderer$set_default(paste0('n_', int_name, '_treated'), 0)
+        renderer$set_default(paste0('n_', int_name, '_drug_efficacy_failures'), 0)
+        renderer$set_default(paste0('n_', int_name, '_successfully_treated'), 0)
+        if(parameters$antimalarial_resistance){
+          renderer$set_default(paste0('n_', int_name, '_early_treatment_failure'), 0)
+          renderer$set_default(paste0('n_', int_name, '_slow_parasite_clearance'), 0)
+        }
+      }
   
   function(timestep) {
     time_index = which(timesteps == timestep)
     if(time_index == 0){
       return()
     }
-    coverage <- coverages[[time_index]]
-    if(coverage == 0){
-      return()
-    }
-    in_age <- variables$birth$get_index_of(
-      a = timestep - max_ages[[time_index]],
-      b = timestep - min_ages[[time_index]]
-    )$to_vector()
-    target <- in_age[sample_intervention(in_age, int_name, coverage, correlations)]
     
-    renderer$render(paste0('n_', int_name, '_treated'), length(target), timestep)
-    treated <- individual::Bitset$new(parameters$human_population)$insert(target)
-    
-    to_move <- calculate_successful_treatments(
-      parameters,
-      treated,
-      rep(drug, treated$size()),
-      timestep,
-      renderer,
-      paste0(int_name,"_")
+    if((int_name == "smc" && parameters$smc_detailed_age_targeting) |
+       (int_name == "mda" && parameters$mda_detailed_age_targeting)) {
+      for(i in 1:ncol(coverages)){
+        coverage <- coverages[time_index, i]
+        in_age <- variables$birth$get_index_of(
+          a = timestep - max_ages[i],
+          b = timestep - min_ages[i]
+        )$to_vector()
+        target <- in_age[sample_intervention(
+          in_age,
+          int_name,
+          coverage,
+          correlations
+        )]
+        renderer$render(paste0('n_', int_name, '_', min_ages[i], '_', max_ages[i], '_treated'), length(target), timestep)
+        treated <- individual::Bitset$new(parameters$human_population)$insert(target)
+        to_move <- calculate_successful_treatments(
+          parameters,
+          treated,
+          rep(drug, treated$size()),
+          timestep,
+          renderer,
+          paste0(int_name, "_", min_ages[i], "_", max_ages[i], "_")
+        )
+        
+        update_mass_drug_admin(
+          to_move,
+          variables,
+          parameters,
+          timestep,
+          drug
+        ) 
+      }
+    } else{
+      coverage <- coverages[[time_index]]
+      if(coverage == 0){
+        return()
+      }
+      in_age <- variables$birth$get_index_of(
+        a = timestep - max_ages[[time_index]],
+        b = timestep - min_ages[[time_index]]
+      )$to_vector()
+      target <- in_age[sample_intervention(in_age, int_name, coverage, correlations)]
+      
+      renderer$render(paste0('n_', int_name, '_treated'), length(target), timestep)
+      treated <- individual::Bitset$new(parameters$human_population)$insert(target)
+      
+      to_move <- calculate_successful_treatments(
+        parameters,
+        treated,
+        rep(drug, treated$size()),
+        timestep,
+        renderer,
+        paste0(int_name,"_")
       )
-    
-    update_mass_drug_admin(
-      to_move,
-      variables,
-      parameters,
-      timestep,
-      drug
-    )
-    
+      
+      update_mass_drug_admin(
+        to_move,
+        variables,
+        parameters,
+        timestep,
+        drug
+      )
+      
+    }
   }
 }
 

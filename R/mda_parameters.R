@@ -8,22 +8,35 @@
 #' @param max_ages a vector of maximum ages of the target population for each round exclusive (in timesteps)
 #' @export
 set_mda <- function(
-  parameters,
-  drug,
-  timesteps,
-  coverages,
-  min_ages,
-  max_ages
-  ) {
+    parameters,
+    drug,
+    timesteps,
+    coverages,
+    min_ages,
+    max_ages,
+    detailed_age_targeting = FALSE
+) {
   stopifnot(all(coverages >= 0) && all(coverages <= 1))
-  if(length(coverages) != length(timesteps)){
-    stop("coverages and timesteps do no align")
-  }
-  if(length(min_ages) != length(timesteps)){
-    stop("minimum ages and timesteps do no align")
-  }
-  if(length(max_ages) != length(timesteps)){
-    stop("maximum ages and timesteps do no align")
+  if(detailed_age_targeting){
+    if(length(min_ages) != length(max_ages)){
+      stop('min and max ages do not align')
+    }
+    if(ncol(coverages) != length(min_ages)){
+      stop('coverages and age groups do not align')
+    }
+    if(nrow(coverages) != length(timesteps)){
+      stop('coverages and timesteps do no align')
+    }
+  } else{
+    if(length(coverages) != length(timesteps)){
+      stop("coverages and timesteps do no align")
+    }
+    if(length(min_ages) != length(timesteps)){
+      stop("minimum ages and timesteps do no align")
+    }
+    if(length(max_ages) != length(timesteps)){
+      stop("maximum ages and timesteps do no align")
+    }
   }
   
   parameters$mda <- TRUE
@@ -32,6 +45,7 @@ set_mda <- function(
   parameters$mda_coverages <- coverages
   parameters$mda_min_ages <- min_ages
   parameters$mda_max_ages <- max_ages
+  parameters$mda_detailed_age_targeting <- detailed_age_targeting
   parameters
 }
 
@@ -46,22 +60,35 @@ set_mda <- function(
 #' drug
 #' @export
 set_smc <- function(
-  parameters,
-  drug,
-  timesteps,
-  coverages,
-  min_ages,
-  max_ages
-  ) {
+    parameters,
+    drug,
+    timesteps,
+    coverages,
+    min_ages,
+    max_ages,
+    detailed_age_targeting = FALSE
+) {
   stopifnot(all(coverages >= 0) && all(coverages <= 1))
-  if(length(coverages) != length(timesteps)){
-    stop("coverages and timesteps do no align")
-  }
-  if(length(min_ages) != length(timesteps)){
-    stop("minimum ages and timesteps do no align")
-  }
-  if(length(max_ages) != length(timesteps)){
-    stop("maximum ages and timesteps do no align")
+  if(detailed_age_targeting){
+    if(length(min_ages) != length(max_ages)){
+      stop('min and max ages do not align')
+    }
+    if(ncol(coverages) != length(min_ages)){
+      stop('coverages and age groups do not align')
+    }
+    if(nrow(coverages) != length(timesteps)){
+      stop('coverages and timesteps do no align')
+    }
+  } else{
+    if(length(coverages) != length(timesteps)){
+      stop("coverages and timesteps do no align")
+    }
+    if(length(min_ages) != length(timesteps)){
+      stop("minimum ages and timesteps do no align")
+    }
+    if(length(max_ages) != length(timesteps)){
+      stop("maximum ages and timesteps do no align")
+    }
   }
   
   parameters$smc <- TRUE
@@ -70,6 +97,7 @@ set_smc <- function(
   parameters$smc_coverages <- coverages
   parameters$smc_min_ages <- min_ages
   parameters$smc_max_ages <- max_ages
+  parameters$smc_detailed_age_targeting <- detailed_age_targeting
   parameters
 }
 

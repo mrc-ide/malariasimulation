@@ -187,7 +187,14 @@
 #' * rainfall_floor - the minimum rainfall value (must be above 0); default 0.001
 #' * carrying_capacity; default = FALSE
 #' * carrying_capacity_timesteps; default = NULL
-#' * carrying_capacity_values; default = NULL#'
+#' * carrying_capacity_values; default = NULL
+#'
+#' forced EIR (see \code{\link{set_forced_eir}}):
+#'
+#' * force_EIR - if TRUE, the mosquito component is not simulated and infectious
+#' bites are driven directly from a user-supplied EIR; default = FALSE
+#' * force_EIR_timesteps; default = NULL
+#' * force_EIR_values; default = NULL
 #'
 #' parasite incubation periods:
 #'
@@ -404,6 +411,10 @@ get_parameters <- function(overrides = list(), parasite = "falciparum") {
       carrying_capacity = FALSE,
       carrying_capacity_timesteps = NULL,
       carrying_capacity_values = NULL,
+      # forced EIR
+      force_EIR = FALSE,
+      force_EIR_timesteps = NULL,
+      force_EIR_values = NULL,
       # treatment parameters
       drug_efficacy          = numeric(0),
       drug_rel_c             = numeric(0),

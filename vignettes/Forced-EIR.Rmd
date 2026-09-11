@@ -1,0 +1,141 @@
+---
+title: "Forcing the EIR"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Forcing the EIR}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options:
+  markdown:
+    wrap: 72
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning = FALSE,
+  dpi=300,
+  fig.width=7
+)
+```
+
+```{r setup}
+library(malariasimulation)
+```
+
+By default, transmission in malariasimulation is an emergent property of a
+fully-simulated mosquito population: the Entomological Inoculation Rate (EIR)
+experienced by humans arises from the dynamics of the vector model. In some
+situations it is instead useful to prescribe the EIR directly - for example when
+fitting to an observed EIR series, or when exploring counterfactual transmission
+scenarios that are specified rather than modelled.
+
+The `set_forced_eir()` helper switches the model into this mode. When a forced
+EIR is set, the mosquito component is not simulated. Instead, the number of
+infectious bites delivered at each timestep is driven directly from the
+user-supplied EIR, while the overdispersed distribution of bites among
+individuals (heterogeneity by age and individual biting rate) is preserved.
+
+The EIR is supplied as a step function, in units of infectious bites per **adult**
+person per year - the same per-adult convention as the default `init_EIR`
+argument of `set_equilibrium()`. Each value applies from its timestep until the
+next change point (the EIR is 0 before the first change point, so set the first
+timestep to `1` to force the EIR from the start). The total EIR is split across
+mosquito species by their biting proportions.
+
+Note the following:
+
+* `set_equilibrium()` should still be used to initialise the human population at
+  a sensible starting point. Because `set_forced_eir()` shares the per-adult EIR
+  convention, forcing `EIR = X` reproduces a `set_equilibrium(init_EIR = X)` run.
+* The prescribed EIR does not respond to anything that would ordinarily feed back
+  through the vector population, so `set_forced_eir()` emits a warning. When
+  combining a forced EIR with interventions: those acting **directly on humans**
+  (drugs, MDA, vaccines) work as usual; the **personal-protection** effects of
+  bednets and spraying still *redistribute* the fixed bites away from protected
+  people (so do not double-count an intervention already baked into your
+  prescribed EIR - supply the pre-intervention EIR); and interventions acting
+  **only through the mosquito population**, such as `set_carrying_capacity()`,
+  have no effect.
+* There is no entomological lag, so responses to step changes appear a little
+  earlier than in a mosquito-simulated run, and seasonality must be supplied
+  directly as a fine-grained EIR series rather than via a rainfall model.
+
+## A constant forced EIR
+
+First we set up a basic parameter list, initialise the human population at
+equilibrium, and then force the EIR to the same value.
+
+```{r}
+timesteps <- 365 * 3
+init_EIR <- 20
+
+p_forced <- get_parameters(overrides = list(human_population = 5000)) |>
+  set_equilibrium(init_EIR = init_EIR) |>
+  set_forced_eir(timesteps = 1, eir = init_EIR)
+```
+
+For comparison, we also run a standard simulation (with a simulated mosquito
+population) at the same equilibrium EIR.
+
+```{r}
+p_standard <- get_parameters(overrides = list(human_population = 5000)) |>
+  set_equilibrium(init_EIR = init_EIR)
+```
+
+Running both, the forced simulation tracks the standard simulation closely: by
+initialising at equilibrium and forcing the EIR at the equilibrium value, the
+prevalence remains near its equilibrium level.
+
+```{r, fig.width = 7, fig.height = 4, out.width='100%'}
+set.seed(123)
+s_forced <- run_simulation(timesteps = timesteps, parameters = p_forced)
+s_forced$pfpr <- s_forced$n_detect_lm_730_3650 / s_forced$n_age_730_3650
+set.seed(123)
+s_standard <- run_simulation(timesteps = timesteps, parameters = p_standard)
+s_standard$pfpr <- s_standard$n_detect_lm_730_3650 / s_standard$n_age_730_3650
+
+par(mfrow = c(1, 2))
+plot(s_standard$pfpr ~ s_standard$timestep, t = "l", ylim = c(0, 1),
+     xlab = "Time", ylab = "PfPr", main = "Prevalence")
+lines(s_forced$pfpr ~ s_forced$timestep, col = "darkorchid3")
+legend("topright", legend = c("standard", "forced"),
+       col = c("black", "darkorchid3"), lty = 1, bty = "n")
+```
+
+Because the mosquito component is not simulated under a forced EIR, the
+mosquito-state output columns (the `E`/`L`/`P`/`Sm`/`Pm`/`Im` counts, `total_M`,
+`FOIM` and `mu`) are absent from the results. The EIR is still reported.
+
+```{r}
+# mosquito-state columns are present in the standard run ...
+any(grepl("total_M", names(s_standard)))
+# ... but absent in the forced run
+any(grepl("total_M", names(s_forced)))
+```
+
+## A time-varying forced EIR
+
+The main purpose of `set_forced_eir()` is to prescribe an EIR that changes over
+time. Here we start at a low EIR and step it up sharply after the first year.
+
+```{r, fig.width = 7, fig.height = 4, out.width='100%'}
+p_tv <- get_parameters(overrides = list(human_population = 5000)) |>
+  set_equilibrium(init_EIR = 1) |>
+  set_forced_eir(timesteps = c(1, 365), eir = c(1, 100))
+
+set.seed(123)
+s_tv <- run_simulation(timesteps = 365 * 3, parameters = p_tv)
+s_tv$pfpr <- s_tv$n_detect_lm_730_3650 / s_tv$n_age_730_3650
+
+par(mfrow = c(1, 2))
+plot(s_tv$EIR_gamb ~ s_tv$timestep, t = "l",
+     xlab = "Time", ylab = "EIR", main = "Forced EIR")
+plot(s_tv$pfpr ~ s_tv$timestep, t = "l", ylim = c(0, 1),
+     xlab = "Time", ylab = "PfPr", main = "Prevalence")
+```
+
+Prevalence rises following the step increase in the forced EIR, illustrating how
+an arbitrary, prescribed transmission history can be imposed on the human
+population.

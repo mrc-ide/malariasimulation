@@ -94,4 +94,8 @@ susceptible
 \item n_successfully_treated: number of clinically treated individuals who are treated successfully (includes individuals who experience slow parasite clearance)
 \item n_slow_parasite_clearance: number of clinically treated individuals who experienced slow parasite clearance
 }
+
+When the EIR is forced (see \code{\link{set_forced_eir}}), the mosquito
+component is not simulated and the mosquito-state outputs (E/L/P/Sm/Pm/Im
+counts, total_M, FOIM and mu) are omitted; EIR is still reported.
 }

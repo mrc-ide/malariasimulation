@@ -153,51 +153,44 @@ set_spraying <- function(
 #' @param parameters a list of parameters to modify
 #' @param timesteps the timesteps at which to spray
 #' @param coverages the proportion of the population who get emanators
-#' @param kse_in_a1 matrix of successful feeding indoor parameters per timestep 
-#' With nrows=length(timesteps), ncols=length(species)
-#' @param kse_in_a2 matrix of successful feeding indoor parameters per timestep 
-#' With nrows=length(timesteps), ncols=length(species)
-#' @param dfse_in_a1 matrix of fed mortality impact indoor parameters per timestep 
-#' With nrows=length(timesteps), ncols=length(species)
-#' @param dfse_in_a2 matrix of fed mortality impact indoor parameters per timestep 
-#' With nrows=length(timesteps), ncols=length(species)
-#' @param dufse_in_a1 matrix of unfed mortality impact indoor parameters per timestep 
-#' With nrows=length(timesteps), ncols=length(species)
-#' @param dufse_in_a2 matrix of unfed mortality impact indoor parameters per timestep 
-#' With nrows=length(timesteps), ncols=length(species)
-#' @param detse_in_a1 matrix of deterring impact indoor parameters per timestep 
-#' With nrows=length(timesteps), ncols=length(species)
-#' @param detse_in_a2 matrix of deterring impact indoor parameters per timestep 
-#' With nrows=length(timesteps), ncols=length(species)
+#' @param R0 maximum indoor mosquito repellence at t = 0: matrix with nrows=length(timesteps), ncols=length(species)
+#' @param K0 maximum indoor mosquito killing before feeding at t = 0: matrix with nrows=length(timesteps), ncols=length(species)
+#' @param M0 maximum indoor mosquito killing after feeding at t = 0: matrix with nrows=length(timesteps), ncols=length(species)
+#' @param delta0 maximum outdoor repellence at t = 0: matrix with nrows=length(timesteps), ncols=length(species)
+#' @param nR Hill function shape parameter for indoor mosquito repellence: matrix with nrows=length(timesteps), ncols=length(species)
+#' @param nK Hill function shape parameter for indoor mosquito killing before feeding: matrix with nrows=length(timesteps), ncols=length(species)
+#' @param nM Hill function shape parameter for indoor mosquito killing after feeding: matrix with nrows=length(timesteps), ncols=length(species)
+#' @param nD Hill function shape parameter for outdoor mosquito repellence, ncols=length(species)
+#' @param eps_R Hill function probability of indoor mosquito repellence at T_ref (equivalent to T_50, when T_ref = 50): matrix with nrows=length(timesteps), ncols=length(species)
+#' @param eps_K Hill function probability of indoor mosquito killing before feeding at T_ref (equivalent to T_50, when T_ref = 50): matrix with nrows=length(timesteps), ncols=length(species)
+#' @param eps_M Hill function probability of indoor mosquito killing after feeding at T_ref (equivalent to T_50, when T_ref = 50): matrix with nrows=length(timesteps), ncols=length(species)
+#' @param eps_d Hill function probability of outdoor mosquito repellence at T_ref (equivalent to T_50, when T_ref = 50): matrix with nrows=length(timesteps), ncols=length(species)
+#' @param T_ref day at which eps parameters (R, K, M, det) were estimated: matrix with nrows=length(timesteps), ncols=length(species)
 #' @export
 set_spatial_emanator <- function(
     parameters,
     timesteps,
     coverages,
-    kse_in_a1,
-    kse_in_a2,
-    dfse_in_a1,
-    dfse_in_a2,
-    dufse_in_a1,
-    dufse_in_a2,
-    detse_in_a1,
-    detse_in_a2
+    R0, nR, eps_R,
+    K0, nK, eps_K,
+    M0, nM, eps_M,
+    delta0, nd, eps_d,
+    T_ref
 ) {
   stopifnot(all(coverages >= 0) && all(coverages <= 1))
   if (length(coverages) != length(timesteps)) {
     stop('coverages and timesteps must must align')
   }
-  decays <- list(
-    kse_in_a1,
-    kse_in_a2,
-    dfse_in_a1,
-    dfse_in_a2,
-    dufse_in_a1,
-    dufse_in_a2,
-    detse_in_a1,
-    detse_in_a2
+  
+  decay_parameters <- list(
+    R0, nR, eps_R,
+    K0, nK, eps_K,
+    M0, nM, eps_M,
+    delta0, nd, eps_d,
+    T_ref
   )
-  for (x in decays) {
+
+  for (x in decay_parameters) {
     if (ncol(x) != length(parameters$species)) {
       stop('theta and gamma rows need to align with species')
     }
@@ -205,19 +198,28 @@ set_spatial_emanator <- function(
       stop('theta and gamma cols need to align with timesteps')
     }
   }
+  
+  if (length(coverages) != length(timesteps)) {
+    stop('coverages and timesteps must must align')
+  }
+  
   parameters$spatial_emanator <- TRUE
   parameters$spatial_emanator_timesteps <- timesteps
   parameters$spatial_emanator_coverages <- coverages
-  parameters$spatial_emanator_fed_in_theta <- kse_in_a1
-  parameters$spatial_emanator_fed_in_gamma <- kse_in_a2
-  parameters$spatial_emanator_mort_fed_in_theta <- dfse_in_a1
-  parameters$spatial_emanator_mort_fed_in_gamma <- dfse_in_a2
-  parameters$spatial_emanator_mort_unfed_in_theta <- dufse_in_a1
-  parameters$spatial_emanator_mort_unfed_in_gamma <- dufse_in_a2
-  parameters$spatial_emanator_det_in_theta <- detse_in_a1
-  parameters$spatial_emanator_det_in_gamma <- detse_in_a2
+  parameters$spatial_emanator_R0 <- R0
+  parameters$spatial_emanator_K0 <- K0
+  parameters$spatial_emanator_M0 <- M0
+  parameters$spatial_emanator_delta0 <- delta0
+  parameters$spatial_emanator_nR <- nR
+  parameters$spatial_emanator_nK <- nK
+  parameters$spatial_emanator_nM <- nM
+  parameters$spatial_emanator_nd <- nd
+  parameters$spatial_emanator_eps_R <- eps_R
+  parameters$spatial_emanator_eps_K <- eps_K
+  parameters$spatial_emanator_eps_M <- eps_M
+  parameters$spatial_emanator_eps_d <- eps_d
+  parameters$spatial_emanator_T_ref <- T_ref
   
- 
   parameters
 }
 

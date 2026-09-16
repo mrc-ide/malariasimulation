@@ -105,10 +105,13 @@ simulate_bites <- function(
   renderer$render('infectivity_16plus', sum(human_infectivity[target3]), timestep)
 
   target4 <- which(get_age(variables$birth$get_values(), timestep) >= 5*365 & get_age(variables$birth$get_values(), timestep) < 9*365)
-  renderer$render('infectivity_5to8', sum(human_infectivity[target3]), timestep)
+  renderer$render('infectivity_5to8', sum(human_infectivity[target4]), timestep)
 
   target5 <- which(get_age(variables$birth$get_values(), timestep) >= 9*365 & get_age(variables$birth$get_values(), timestep) < 18*365)
-  renderer$render('infectivity_9to17', sum(human_infectivity[target3]), timestep)
+  renderer$render('infectivity_9to17', sum(human_infectivity[target5]), timestep)
+
+  target6 <- which(get_age(variables$birth$get_values(), timestep) >= 18*365)
+  renderer$render('infectivity_18plus', sum(human_infectivity[target6]), timestep)
 
   # Calculate pi (the relative biting rate for each human)
   psi <- unique_biting_rate(age, parameters)

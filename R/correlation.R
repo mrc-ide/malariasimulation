@@ -6,8 +6,8 @@ INTS <- c(
   'tbv',
   'bednets',
   'spraying',
-  'spatial_emanator',
-  'spatial_emanator_outdoor'
+  'spatial_emanator'
+  # 'spatial_emanator_outdoor'
 )
 
 #' Class: Correlation parameters
@@ -233,7 +233,7 @@ CorrelationParameters <- R6::R6Class(
 get_correlation_parameters <- function(parameters) {
   # Find a list of enabled interventions
   enabled <- vlapply(INTS, function(name) parameters[[name]])
-
+  
   CorrelationParameters$new(parameters$human_population, INTS[enabled])
 }
 

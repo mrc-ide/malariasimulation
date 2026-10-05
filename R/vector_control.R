@@ -313,22 +313,22 @@ spatial_emanator_outdoor <- function(spatial_emanator_outdoor_time, renderer, pa
 #' @param parameters the model parameters
 #' @param correlations correlation parameters
 #' @noRd
-spatial_emanator <- function(spatial_emanator_time, renderer, parameters, correlations) {
-  renderer$set_default('n_spatial_emanator', 0)
-  function(timestep) {
-    matches <- timestep == parameters$spatial_emanator_timesteps
-    if (any(matches)) {
-      target <- which(sample_intervention(
-        seq(parameters$human_population),
-        'spatial_emanator',
-        parameters$spatial_emanator_coverages[matches],
-        correlations
-      ))
-      spatial_emanator_time$queue_update(timestep, target)
-      renderer$render('n_spatial_emanator', length(target), timestep)
-    }
-  }
-}
+# spatial_emanator <- function(spatial_emanator_time, renderer, parameters, correlations) {
+#   renderer$set_default('n_spatial_emanator', 0)
+#   function(timestep) {
+#     matches <- timestep == parameters$spatial_emanator_timesteps
+#     if (any(matches)) {
+#       target <- which(sample_intervention(
+#         seq(parameters$human_population),
+#         'spatial_emanator',
+#         parameters$spatial_emanator_coverages[matches],
+#         correlations
+#       ))
+#       spatial_emanator_time$queue_update(timestep, target)
+#       renderer$render('n_spatial_emanator', length(target), timestep)
+#     }
+#   }
+# }
 
 #' @title Indoor spraying
 #' @description models indoor residual spraying according to the strategy
@@ -374,7 +374,7 @@ distribute_nets <- function(variables, throw_away_net, parameters, correlations)
     }
   } else {
     sample_net_time <- function(n) {
-      logistic_net_retention_time(
+      logistic_retention_time(
         n,
         parameters$bednet_logistic_half_life,
         parameters$bednet_logistic_k
@@ -403,6 +403,50 @@ distribute_nets <- function(variables, throw_away_net, parameters, correlations)
 throw_away_nets <- function(variables) {
   function(timestep, target) {
     variables$net_time$queue_update(-1, target)
+  }
+}
+
+#' @param variables list of variables in the model
+#' @param throw_away_spatial_emanator an event to trigger when the spatial emanator will be removed
+#' @param parameters the model parameters
+#' @param correlations correlation parameters
+#' @noRd
+distribute_spatial_emanators <- function(variables, throw_away_spatial_emanator, parameters, correlations) {
+  if (!is.null(parameters$spatial_emanator_retention)) {
+    sample_spatial_emanator_time <- function(n) {
+      log_uniform(n, parameters$spatial_emanator_retention)
+    }
+  } else {
+    sample_spatial_emanator_time <- function(n) {
+      logistic_retention_time(
+        n,
+        parameters$spatial_emanator_logistic_half_life,
+        parameters$spatial_emanator_logistic_k
+      )
+    }
+  }
+  function(timestep) {
+    matches <- timestep == parameters$spatial_emanator_timesteps
+    if (any(matches)) {
+      target <- which(sample_intervention(
+        seq(parameters$human_population),
+        'spatial_emanator',
+        parameters$spatial_emanator_coverages[matches],
+        correlations
+      ))
+      variables$spatial_emanator_time$queue_update(timestep, target)
+      throw_away_spatial_emanator$clear_schedule(target)
+      throw_away_spatial_emanator$schedule(
+        target,
+        sample_spatial_emanator_time(length(target))
+      )
+    }
+  }
+}
+
+throw_away_spatial_emanators <- function(variables) {
+  function(timestep, target) {
+    variables$spatial_emanator_time$queue_update(-1, target)
   }
 }
 
@@ -459,7 +503,17 @@ net_usage_renderer <- function(net_time, renderer) {
   }
 }
 
-logistic_net_retention_time <- function(n, half_life, k) {
+spatial_emanator_usage_renderer <- function(spatial_emanator_time, renderer) {
+  function(t) {
+    renderer$render(
+      'n_use_se',
+      spatial_emanator_time$get_index_of(-1)$not(TRUE)$size(),
+      t
+    )
+  }
+}
+
+logistic_retention_time <- function(n, half_life, k) {
   # Time at which all nets fail:
   l <- half_life / sqrt(1 - k / (k - log(0.5)))
 

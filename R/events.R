@@ -8,7 +8,10 @@ create_events <- function(parameters) {
     tbv_vaccination = individual::Event$new(restore=FALSE),
 
     # Bednet events
-    throw_away_net = individual::TargetedEvent$new(parameters$human_population)
+    throw_away_net = individual::TargetedEvent$new(parameters$human_population),
+    
+    # Spatial emanator events
+    throw_away_spatial_emanator = individual::TargetedEvent$new(parameters$human_population)
   )
 
   # Mass vaccination events
@@ -115,6 +118,12 @@ attach_event_listeners <- function(
     )
   }
 
+  if (parameters$spatial_emanator == 1) {
+    events$throw_away_spatial_emanator$add_listener(
+      throw_away_spatial_emanators(variables)
+    )
+  }
+  
   # Vaccination event listeners
   if (!is.null(events$mass_pev)) {
     # set up distribution

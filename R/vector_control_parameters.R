@@ -205,6 +205,9 @@ set_spraying <- function(
 #' @param eps_M Hill function probability of indoor mosquito killing after feeding at T_ref (equivalent to T_50, when T_ref = 50): matrix with nrows=length(timesteps), ncols=length(species)
 #' @param eps_d Hill function probability of outdoor mosquito repellence at T_ref (equivalent to T_50, when T_ref = 50): matrix with nrows=length(timesteps), ncols=length(species)
 #' @param T_ref day at which eps parameters (R, K, M, det) were estimated: matrix with nrows=length(timesteps), ncols=length(species)
+#' @param retention (optional) the average number of timesteps spatial emanators are kept for (modelled using a log uniform)
+#' @param logistic_half_life (optional) spatial emanator retention half-life (modelled using logistic decay)
+#' @param logistic_k (optional) k parameter for retention modelled using logistic decay
 #' @export
 set_spatial_emanator <- function(
     parameters,
@@ -214,7 +217,10 @@ set_spatial_emanator <- function(
     K0, nK, eps_K,
     M0, nM, eps_M,
     delta0, nd, eps_d,
-    T_ref
+    T_ref,
+    retention = NULL,
+    logistic_half_life = NULL,
+    logistic_k = NULL
 ) {
   stopifnot(all(coverages >= 0) && all(coverages <= 1))
   if (length(coverages) != length(timesteps)) {
@@ -258,6 +264,26 @@ set_spatial_emanator <- function(
   parameters$spatial_emanator_eps_M <- eps_M
   parameters$spatial_emanator_eps_d <- eps_d
   parameters$spatial_emanator_T_ref <- T_ref
+  
+  retention_set <- FALSE
+  if (!is.null(retention)) {
+    if (!is.null(logistic_half_life) || !is.null(logistic_k)) {
+      stop('retention cannot be used with logistic_half_life or logistic_k')
+    }
+    parameters$spatial_emanator_retention <- retention
+    retention_set <- TRUE
+  }
+  if (!is.null(logistic_half_life) && !is.null(logistic_k)) {
+    if (!is.null(retention)) {
+      stop('logistic_half_life cannot be used with retention')
+    }
+    parameters$spatial_emanator_logistic_half_life <- logistic_half_life
+    parameters$spatial_emanator_logistic_k <- logistic_k
+    retention_set <- TRUE
+  }
+  if (!retention_set) {
+    stop('retention must be set')
+  }
   
   parameters
 }

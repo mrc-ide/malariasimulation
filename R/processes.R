@@ -328,26 +328,27 @@ create_processes <- function(
   if (parameters$spatial_emanator) {
     processes <- c(
       processes,
-      spatial_emanator_process = spatial_emanator(
-        variables$spatial_emanator_time,
-        renderer,
+      distribute_spatial_emanator_process = distribute_spatial_emanators(
+        variables,
+        events$throw_away_spatial_emanator,
         parameters,
         correlations
-      )
+      ),
+      spatial_emanator_usage_renderer = spatial_emanator_usage_renderer(variables$spatial_emanator_time, renderer)
     )
   }
   
-  if (parameters$spatial_emanator_outdoor) {
-    processes <- c(
-      processes,
-      spatial_emanator_outdoor_process = spatial_emanator_outdoor(
-        variables$spatial_emanator_outdoor_time,
-        renderer,
-        parameters,
-        correlations
-      )
-    )
-  }
+  # if (parameters$spatial_emanator_outdoor) {
+  #   processes <- c(
+  #     processes,
+  #     spatial_emanator_outdoor_process = spatial_emanator_outdoor(
+  #       variables$spatial_emanator_outdoor_time,
+  #       renderer,
+  #       parameters,
+  #       correlations
+  #     )
+  #   )
+  # }
 
   # ======================
   # Progress bar process

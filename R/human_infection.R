@@ -24,8 +24,8 @@ simulate_infection <- function(
     infection_outcome
 ) {
   
-  if (bitten_humans$size() > 0) {
-    if(parameters$parasite == "falciparum"){
+  if(parameters$parasite == "falciparum"){
+    if (bitten_humans$size() > 0) {
       
       boost_immunity(
         variables$ib,
@@ -44,22 +44,21 @@ simulate_infection <- function(
         timestep,
         infection_outcome
       )
-      
-    } else if(parameters$parasite == "vivax"){
-      
-      # Calculate Infected
-      calculate_vivax_infections(
-        variables,
-        bitten_humans,
-        n_bites_per_person,
-        parameters,
-        renderer,
-        timestep,
-        infection_outcome
-      )
     }
+    
+  } else if(parameters$parasite == "vivax"){
+    
+    # Calculate Infected
+    calculate_vivax_infections(
+      variables,
+      bitten_humans,
+      n_bites_per_person,
+      parameters,
+      renderer,
+      timestep,
+      infection_outcome
+    )
   }
-  
 }
 
 #' @title Calculate overall falciparum infections for bitten humans
@@ -556,10 +555,10 @@ ls_treatment_prophylaxis_efficacy <- function(
   ## drug prophylaxis may limit formation of new hypnozoite batches
   ls_prophylaxis <- rep(0, bite_infections$size())
   if(any(parameters$drug_hypnozoite_efficacy > 0)){
-
+    
     ls_drug <- variables$ls_drug$get_values(bite_infections)
     ls_medicated <- ls_drug > 0
-
+    
     if (any(ls_medicated)) {
       ls_drug <- ls_drug[ls_medicated]
       ls_drug_time <- variables$ls_drug_time$get_values(bite_infections)[ls_medicated]
@@ -1025,7 +1024,7 @@ severe_immunity <- function(age, acquired_immunity, maternal_immunity, parameter
   parameters$theta0 * (parameters$theta1 + (1 - parameters$theta1) / (
     1 + fv * (
       (acquired_immunity + maternal_immunity) / parameters$iv0) ** parameters$kv
-    )
+  )
   )
 }
 

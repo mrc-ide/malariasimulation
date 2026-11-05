@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.0.1</span>
       </span>
     </div>
 
@@ -217,7 +217,15 @@ nets are distributed, the matrices for <code>dn0</code>,
 <p>The parameter values for pyrethroid-only and pyrethroid-PBO nets at
 various resistance levels can be found in Table S1.3 in the
 Supplementary Appendix 2 of <a href="https://doi.org/10.1016/S2542-5196(21)00296-5" class="external-link">Sherrard-Smith, et
-al., 2022</a>.</p>
+al., 2022</a>. Note that in malariasimulation the parameter gamman,
+which governs the rate of decay of the killing activity of the active
+ingredient (or ingredients) in the nets, is sometimes termed a
+half-life. Here, however, it is the mean duration of the killing
+activity of the active ingredient(s). To convert from a half-life it is
+necessary to divide the number by log(2) (approximately equal to
+0.69315), to obtain the rate parameter. Note that this conversion factor
+should be used when entering values from Table S1.3 of Sherrard-Smith,
+et al., (2022).</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bednetstimesteps</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">4</span><span class="op">)</span> <span class="op">*</span> <span class="va">year</span> <span class="co"># The bed nets will be distributed at the end of the first and the 4th year. </span></span>
 <span></span>
@@ -229,7 +237,7 @@ al., 2022</a>.</p>
 <span>  dn0 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.352</span>, <span class="fl">.352</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">2</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, <span class="co"># Matrix of death probabilities for each mosquito species over time</span></span>
 <span>  rn <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.568</span>, <span class="fl">.568</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">2</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, <span class="co"># Matrix of repelling probabilities for each mosquito species over time</span></span>
 <span>  rnm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.24</span>, <span class="fl">.24</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="fl">2</span>, ncol <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>, <span class="co"># Matrix of minimum repelling probabilities for each mosquito species over time</span></span>
-<span>  gamman <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">2.226</span> <span class="op">*</span> <span class="fl">365</span>, <span class="fl">2</span><span class="op">)</span> <span class="co"># Vector of bed net half-lives for each distribution timestep</span></span>
+<span>  gamman <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">2.226</span> <span class="op">*</span> <span class="fl">365</span>, <span class="fl">2</span><span class="op">)</span> <span class="co"># Vector of the mean duration of the killing activity of the active ingredient(s) in the bed nets, for each distribution timestep</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_simulation.html">run_simulation</a></span><span class="op">(</span>timesteps <span class="op">=</span> <span class="va">sim_length</span>, parameters <span class="op">=</span> <span class="va">bednetparams</span><span class="op">)</span></span></code></pre></div>
@@ -308,12 +316,12 @@ estimate population bed net usage from an input distribution.</p>
 
       <footer><div class="copyright">
   <p></p>
-<p>Developed by Giovanni Charles, Peter Winskill, Hillary Topazian, Joseph Challenger, Richard Fitzjohn, Richard Sheppard, Tom Brewer, Kelly McCain, Lydia Haile.</p>
+<p>Developed by Giovanni Charles, Peter Winskill, Hillary Topazian, Joseph Challenger, Richard Fitzjohn, Richard Sheppard, Tom Brewer, Kelly McCain, Lydia Haile, Nilani Chandradeva.</p>
 </div>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
       </footer>

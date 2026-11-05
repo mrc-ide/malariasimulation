@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">malariasimulation</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">3.0.1</span>
       </span>
     </div>
 
@@ -166,7 +166,7 @@ processes are described in the following files:</p>
 <p>Parameters shown on the infographic include:</p>
 <ul>
 <li>
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Λ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\Lambda_i</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="normal">Λ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\Lambda_i</annotation></semantics></math>:
 the age-specific (<em>i</em>) force of infection</li>
 <li>
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ϕ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\phi_i</annotation></semantics></math>:
@@ -194,7 +194,7 @@ from treated clinical disease to complete recovery</li>
 sub-patent infections at the same rates as standard infection (dashed
 arrows).</p>
 <p>The force of infection
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Λ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\Lambda_i</annotation></semantics></math>)
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="normal">Λ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\Lambda_i</annotation></semantics></math>)
 is impacted by pre-erythrocytic immunity, mosquito biting rate and
 population size and level of infectivity (specific details can be found
 in the references below). All default parameters can be found in the
@@ -204,7 +204,7 @@ parameter list uses delay durations, e.g. the rate
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mi>D</mi></msub><annotation encoding="application/x-tex">r_D</annotation></semantics></math>
 is the inverse of the delay from state <em>D</em> to <em>A</em>
 (<code>dr</code> in the model):</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mi>D</mi></msub><mo>=</mo><mi>d</mi><msup><mi>r</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">r_D=dr^{-1}</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mi>D</mi></msub><mo>=</mo><mi>d</mi><msup><mi>r</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">r_D=dr^{-1}</annotation></semantics></math></p>
 <p>To maintain a constant population size during simulations, the birth
 rate of new susceptible individuals is set to be equal to the overall
 death rate.</p>
@@ -248,7 +248,7 @@ from pupal stage to adult stage</p></li>
 </ul>
 <p>Mosquito infection and incubation rates:</p>
 <ul>
-<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Λ</mi><mi>M</mi></msub><annotation encoding="application/x-tex">\Lambda_M</annotation></semantics></math>:
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="normal">Λ</mi><mi>M</mi></msub><annotation encoding="application/x-tex">\Lambda_M</annotation></semantics></math>:
 the force of infection on mosquitos (FOIM, i.e. from human to
 mosquito)</p></li>
 <li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mrow><mi>E</mi><mi>M</mi></mrow></msub><annotation encoding="application/x-tex">r_{EM}</annotation></semantics></math>:
@@ -256,9 +256,9 @@ extrinsic incubation period</p></li>
 </ul>
 <p>And mortality rates:</p>
 <ul>
-<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mi>E</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mu_E(t)</annotation></semantics></math>:
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mi>E</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mu_E(t)</annotation></semantics></math>:
 the early larval stage death rate</p></li>
-<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mi>L</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mu_L(t)</annotation></semantics></math>:
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mi>L</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mu_L(t)</annotation></semantics></math>:
 the late larval stage death rate</p></li>
 <li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mi>P</mi></msub><annotation encoding="application/x-tex">\mu_P</annotation></semantics></math>:
 the pupal death rate</p></li>
@@ -267,7 +267,7 @@ the adult mosquito death rate</p></li>
 </ul>
 <p>Larval mosquitoes experience density dependent mortality due to a
 carrying capacity,
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">K(t)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">K(t)</annotation></semantics></math>,
 which may change seasonally with rainfall and where
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>γ</mi><annotation encoding="application/x-tex">\gamma</annotation></semantics></math>
 is the effect of density-dependence on late stage larvae compared with
@@ -710,12 +710,12 @@ variation</li>
 
       <footer><div class="copyright">
   <p></p>
-<p>Developed by Giovanni Charles, Peter Winskill, Hillary Topazian, Joseph Challenger, Richard Fitzjohn, Richard Sheppard, Tom Brewer, Kelly McCain, Lydia Haile.</p>
+<p>Developed by Giovanni Charles, Peter Winskill, Hillary Topazian, Joseph Challenger, Richard Fitzjohn, Richard Sheppard, Tom Brewer, Kelly McCain, Lydia Haile, Nilani Chandradeva.</p>
 </div>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
       </footer>

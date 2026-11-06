@@ -129,8 +129,8 @@ prob_bitten <- function(
     rse <- kse <- bse <- mse <- sse <- rep(0, n)
     
     ## At the first decision point a mosquito may be repelled (r), may be killed (k) or may bite (b)
-    rse[protected_index] <- mu_d + (1-mu_d) * mu_R
-    kse[protected_index] <- (1-mu_d) * mu_K
+    rse[protected_index] <- mu_d + (1 - mu_d) * (1 - mu_K) * mu_R * (1 - mu_M)
+    kse[protected_index] <- (1-mu_d) * (mu_K + (1 - mu_K) * mu_R * mu_M)
     bse <- 1 - rse - kse
     
     ## Given that a mosquito has bitten, the mosquito may still be killed or survive
